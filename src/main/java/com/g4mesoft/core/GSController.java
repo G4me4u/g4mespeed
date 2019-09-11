@@ -1,6 +1,6 @@
-package com.g4mesoft;
+package com.g4mesoft.core;
 
-import com.g4mesoft.tickspeed.GSITpsDependant;
+import com.g4mesoft.tps.GSITpsDependant;
 
 import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;

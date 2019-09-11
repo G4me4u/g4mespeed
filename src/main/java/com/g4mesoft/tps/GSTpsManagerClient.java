@@ -1,7 +1,7 @@
-package com.g4mesoft.tickspeed;
+package com.g4mesoft.tps;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.GSControllerClient;
+import com.g4mesoft.core.GSControllerClient;
 import com.g4mesoft.settings.GSIKeyBinding;
 import com.g4mesoft.settings.GSSettings;
 
@@ -64,6 +64,10 @@ public class GSTpsManagerClient extends GSTpsManager {
 	}
 
 	public void keyRepeated(int key, int scancode, int mods) {
+	}
+	
+	public void resetTps() {
+		setTps(DEFAULT_TPS);
 	}
 	
 	@Override

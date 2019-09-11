@@ -1,9 +1,10 @@
-package com.g4mesoft;
+package com.g4mesoft.core;
 
+import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
-import com.g4mesoft.tickspeed.GSTpsChangePacket;
-import com.g4mesoft.tickspeed.GSTpsManagerServer;
+import com.g4mesoft.tps.GSTpsChangePacket;
+import com.g4mesoft.tps.GSTpsManagerServer;
 
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.network.Packet;
@@ -30,21 +31,15 @@ public class GSControllerServer extends GSController {
 	}
 
 	public void onPlayerJoin(ServerPlayerEntity player) {
-		// TODO: make this work....
+		sendPacket(new GSVersionPacket(getVersion()), player, true);
+	}
+	
+	public void onG4mespeedClientJoined(ServerPlayerEntity player, int version) {
+		((GSIPlayer)player).setG4mespeedInstalled(true);
+		((GSIPlayer)player).setG4mespeedVersion(version);
 	}
 
 	public void onPlayerLeave(ServerPlayerEntity player) {
-	}
-	
-	public void sendPacketToAll(GSIPacket packet) {
-		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
-		Packet<?> customPayload = packetManger.encodePacket(packet, this);
-		if (customPayload != null) {
-			for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-				// TODO: add check if g4mespeed is supported!
-				player.networkHandler.sendPacket(customPayload);
-			}
-		}
 	}
 
 	public GSTpsManagerServer getTpsManager() {
@@ -75,6 +70,30 @@ public class GSControllerServer extends GSController {
 		return G4mespeedMod.GS_VERSION;
 	}
 
+	public void sendPacket(GSIPacket packet, ServerPlayerEntity player) {
+		sendPacket(packet, player, false);
+	}
+	
+	public void sendPacket(GSIPacket packet, ServerPlayerEntity player, boolean forcePacket) {
+		if (forcePacket || ((GSIPlayer)player).isG4mespeedInstalled()) {
+			GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
+			Packet<?> customPayload = packetManger.encodePacket(packet, this);
+			if (customPayload != null)
+				player.networkHandler.sendPacket(customPayload);
+		}
+	}
+
+	public void sendPacketToAll(GSIPacket packet) {
+		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
+		Packet<?> customPayload = packetManger.encodePacket(packet, this);
+		if (customPayload != null) {
+			for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+				if (((GSIPlayer)player).isG4mespeedInstalled())
+					player.networkHandler.sendPacket(customPayload);
+			}
+		}
+	}
+	
 	public static GSControllerServer getInstance() {
 		return instance;
 	}

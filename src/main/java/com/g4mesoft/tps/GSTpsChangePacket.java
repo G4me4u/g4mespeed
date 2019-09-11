@@ -1,9 +1,9 @@
-package com.g4mesoft.tickspeed;
+package com.g4mesoft.tps;
 
 import java.io.IOException;
 
-import com.g4mesoft.GSControllerClient;
-import com.g4mesoft.GSControllerServer;
+import com.g4mesoft.core.GSControllerClient;
+import com.g4mesoft.core.GSControllerServer;
 import com.g4mesoft.packet.GSIPacket;
 
 import net.fabricmc.api.EnvType;

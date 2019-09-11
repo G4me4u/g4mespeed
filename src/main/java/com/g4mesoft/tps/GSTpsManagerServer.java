@@ -1,6 +1,6 @@
-package com.g4mesoft.tickspeed;
+package com.g4mesoft.tps;
 
-import com.g4mesoft.GSControllerServer;
+import com.g4mesoft.core.GSControllerServer;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;

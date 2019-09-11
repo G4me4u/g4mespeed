@@ -1,9 +1,7 @@
-package com.g4mesoft.tickspeed;
+package com.g4mesoft.core;
 
 import java.io.IOException;
 
-import com.g4mesoft.GSControllerClient;
-import com.g4mesoft.GSControllerServer;
 import com.g4mesoft.packet.GSIPacket;
 
 import net.fabricmc.api.EnvType;
@@ -11,27 +9,35 @@ import net.fabricmc.api.Environment;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
-public class GSTpsResetPacket implements GSIPacket {
+public class GSVersionPacket implements GSIPacket {
 
-	public GSTpsResetPacket() {
+	private int version;
+
+	public GSVersionPacket() {
+	}
+	
+	public GSVersionPacket(int version) {
+		this.version = version;
 	}
 	
 	@Override
 	public void read(PacketByteBuf buf) throws IOException {
+		version = buf.readInt();
 	}
 
 	@Override
 	public void write(PacketByteBuf buf) throws IOException {
+		buf.writeInt(version);
 	}
 
 	@Override
 	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
-		controller.getTpsManager().resetTps(player);
+		controller.onG4mespeedClientJoined(player, version);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
 	public void handleOnClient(GSControllerClient controller) {
-		controller.getTpsManager().resetTps();
+		controller.onJoinG4mespeedServer(version);
 	}
 }

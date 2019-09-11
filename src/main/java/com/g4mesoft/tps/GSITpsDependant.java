@@ -1,4 +1,4 @@
-package com.g4mesoft.tickspeed;
+package com.g4mesoft.tps;
 
 public interface GSITpsDependant {
 

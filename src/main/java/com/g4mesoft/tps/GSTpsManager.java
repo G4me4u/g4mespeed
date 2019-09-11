@@ -1,6 +1,6 @@
-package com.g4mesoft.tickspeed;
+package com.g4mesoft.tps;
 
-import com.g4mesoft.GSController;
+import com.g4mesoft.core.GSController;
 
 import net.minecraft.util.math.MathHelper;
 
@@ -25,10 +25,6 @@ public class GSTpsManager {
 		tps = DEFAULT_TPS;
 	}
 	
-	protected void resetTps() {
-		setTps(DEFAULT_TPS);
-	}
-
 	protected boolean setTps(float tps) {
 		float newTps = MathHelper.clamp(tps, MIN_TPS, MAX_TPS);
 		if (!MathHelper.equalsApproximate(this.tps, newTps)) {

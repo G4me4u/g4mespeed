@@ -13,6 +13,7 @@ import net.minecraft.server.command.ServerCommandSource;
 public class G4mespeedMod implements ModInitializer {
 
 	public static final int GS_VERSION = 100;
+	public static final int INVALID_GS_VERSION = -1;
 
 	public static final Logger GS_LOGGER = LogManager.getLogger("G4mespeed");
 	

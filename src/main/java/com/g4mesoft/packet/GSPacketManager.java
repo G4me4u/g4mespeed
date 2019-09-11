@@ -2,9 +2,10 @@ package com.g4mesoft.packet;
 
 import java.io.IOException;
 
-import com.g4mesoft.GSController;
-import com.g4mesoft.tickspeed.GSTpsChangePacket;
-import com.g4mesoft.tickspeed.GSTpsResetPacket;
+import com.g4mesoft.core.GSController;
+import com.g4mesoft.core.GSVersionPacket;
+import com.g4mesoft.tps.GSTpsChangePacket;
+import com.g4mesoft.tps.GSTpsResetPacket;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.Packet;
@@ -20,6 +21,7 @@ public class GSPacketManager {
 	@SuppressWarnings("unchecked")
 	public GSPacketManager() {
 		registry = new GSPacketRegistry(new Class[] {
+			GSVersionPacket.class,
 			GSTpsResetPacket.class,
 			GSTpsChangePacket.class
 		});

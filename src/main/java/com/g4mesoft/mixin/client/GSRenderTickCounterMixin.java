@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.GSControllerClient;
-import com.g4mesoft.tickspeed.GSTpsManager;
+import com.g4mesoft.core.GSControllerClient;
+import com.g4mesoft.tps.GSTpsManager;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

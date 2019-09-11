@@ -3,14 +3,20 @@
   "package": "com.g4mesoft.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
+    "server.GSMinecraftServerMixin",
+
     "server.GSCommandManagerMixin",
     
     "server.GSServerPlayNetworkHandlerMixin",
     "server.GSCustomPayloadS2CPacketMixin",
     
-    "server.GSMinecraftServerMixin"
+    "server.GSPlayerManagerMixin",
+    "server.GSServerPlayerEntityMixin",
+    "server.GSClientConnectionMixin"
   ],
   "client": [
+	"client.GSMinecraftClientMixin",
+
   	"client.GSSoundSystemMixin",
   	"client.GSSoundManagerMixin",
   	

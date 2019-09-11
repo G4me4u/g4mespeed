@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.GSControllerClient;
+import com.g4mesoft.core.GSControllerClient;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
