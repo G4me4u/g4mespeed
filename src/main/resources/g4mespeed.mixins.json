@@ -1,0 +1,28 @@
+{
+  "required": true,
+  "package": "com.g4mesoft.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "server.GSCommandManagerMixin",
+    
+    "server.GSServerPlayNetworkHandlerMixin",
+    "server.GSCustomPayloadS2CPacketMixin",
+    
+    "server.GSMinecraftServerMixin"
+  ],
+  "client": [
+  	"client.GSSoundSystemMixin",
+  	"client.GSSoundManagerMixin",
+  	
+    "client.GSKeyboardMixin",
+    "client.GSKeyBindingMixin",
+    
+    "client.GSRenderTickCounterMixin",
+    
+    "client.GSClientPlayNetworkHandlerMixin",
+    "client.GSCustomPayloadC2SPacketMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

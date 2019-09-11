@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "modid",
+  "version": "${version}",
+
+  "name": "G4mespeed",
+  "description": "This is an example description! Tell everyone what your mod is about!",
+  "authors": [
+    "G4me4u"
+  ],
+  "contact": {
+    "homepage": "https://youtube.com/G4me4u",
+    "sources": "https://github.com/G4me4u/mc-g4mespeed"
+  },
+
+  "license": "CC0-1.0",
+  "icon": "assets/modid/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.g4mesoft.G4mespeedMod"
+    ]
+  },
+  "mixins": [
+    "g4mespeed.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.4.0",
+    "fabric": "*"
+  },
+  "suggests": {
+    "flamingo": "*"
+  }
+}
