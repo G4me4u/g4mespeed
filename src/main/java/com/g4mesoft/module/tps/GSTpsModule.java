@@ -1,0 +1,203 @@
+package com.g4mesoft.module.tps;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.g4mesoft.core.GSIModule;
+import com.g4mesoft.core.GSIModuleManager;
+import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.settings.GSClientSettings;
+import com.g4mesoft.settings.GSIKeyBinding;
+import com.g4mesoft.utils.MathUtils;
+import com.mojang.brigadier.CommandDispatcher;
+
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.network.MessageType;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+
+public class GSTpsModule implements GSIModule {
+
+	public static final float DEFAULT_TPS = 20.0f;
+	public static final float MIN_TPS = 0.01f;
+	public static final float MAX_TPS = Float.MAX_VALUE;
+	public static final float MS_PER_SEC = 1000.0f;
+	
+	public static final float TPS_INCREMENT_INTERVAL = 1.0f;
+	public static final float SLOW_INTERVAL = 0.5f;
+	
+	public static final int TPS_INTRODUCTION_VERSION = 100;
+	
+	private float tps;
+	private boolean sneaking;
+	private final List<GSITpsDependant> listeners;
+
+	private GSIModuleManager manager;
+	
+	public GSTpsModule() {
+		tps = DEFAULT_TPS;
+		listeners = new ArrayList<GSITpsDependant>();
+
+		manager = null;
+	}
+	
+	public void addTpsListener(GSITpsDependant listener) {
+		synchronized(listeners) {
+			listeners.add(listener);
+		}
+	}
+
+	public void removeTpsListener(GSITpsDependant listener) {
+		synchronized(listeners) {
+			listeners.remove(listener);
+		}
+	}
+	
+	public void resetTps() {
+		setTps(DEFAULT_TPS);
+	}
+	
+	public void setTps(float tps) {
+		tps = MathUtils.clamp(tps, MIN_TPS, MAX_TPS);
+		
+		if (!MathUtils.equalsApproximate(tps, this.tps)) {
+			float oldTps = this.tps;
+			this.tps = tps;
+			
+			synchronized(listeners) {
+				for (GSITpsDependant listener : listeners)
+					listener.tpsChanged(tps, oldTps);
+			}
+			
+			manager.runOnServer(managerServer -> managerServer.sendPacketToAll(new GSTpsChangePacket(this.tps)));
+		}
+	}
+
+	public void performHotkeyAction(GSETpsHotkeyType type, boolean sneaking) {
+		if (type == GSETpsHotkeyType.RESET_TPS) {
+			resetTps();
+			return;
+		}
+		
+		float newTps;
+		
+		switch (type) {
+		case INCREMENT_TPS:
+			newTps = tps + TPS_INCREMENT_INTERVAL;
+			break;
+		case DECREMENT_TPS:
+			newTps = tps - TPS_INCREMENT_INTERVAL;
+			break;
+			
+		case DOUBLE_TPS:
+			newTps = tps * 2.0f;
+			break;
+		case HALF_TPS:
+			newTps = tps / 2.0f;
+			break;
+
+		default:
+			return;
+		}
+		
+		if (sneaking)
+			newTps += (tps - newTps) * 0.5f;
+	
+		setTps(newTps);
+	}
+	
+	@Override
+	public void init(GSIModuleManager manager) {
+		this.manager = manager;
+	}
+	
+	@Override
+	public void keyReleased(int key, int scancode, int mods) {
+		if (((GSIKeyBinding)MinecraftClient.getInstance().options.keySneak).getKeyCode() == key)
+			sneaking = false;
+	}
+
+	@Override
+	public void keyPressed(int key, int scancode, int mods) {
+		if (((GSIKeyBinding)MinecraftClient.getInstance().options.keySneak).getKeyCode() == key) {
+			sneaking = true;
+			return;
+		}
+		
+		GSClientSettings settings = GSControllerClient.getInstance().getClientSettings();
+
+		GSETpsHotkeyType hotkeyType;
+		if (((GSIKeyBinding)settings.gsResetTpsKey).getKeyCode() == key) {
+			hotkeyType = GSETpsHotkeyType.RESET_TPS;
+		} else if (((GSIKeyBinding)settings.gsIncreaseTpsKey).getKeyCode() == key) {
+			hotkeyType = GSETpsHotkeyType.INCREMENT_TPS;
+		} else if (((GSIKeyBinding)settings.gsDecreaseTpsKey).getKeyCode() == key) {
+			hotkeyType = GSETpsHotkeyType.DECREMENT_TPS;
+		} else if (((GSIKeyBinding)settings.gsDoubleTpsKey).getKeyCode() == key) {
+			hotkeyType = GSETpsHotkeyType.DOUBLE_TPS;
+		} else if (((GSIKeyBinding)settings.gsHalfTpsKey).getKeyCode() == key) {
+			hotkeyType = GSETpsHotkeyType.HALF_TPS;
+		} else {
+			return;
+		}
+		
+		manager.runOnClient(managerClient -> {
+			if (managerClient.getServerVersion() >= TPS_INTRODUCTION_VERSION) {
+				managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
+			} else {
+				performHotkeyAction(hotkeyType, sneaking);
+				
+				if (MinecraftClient.getInstance().inGameHud != null) {
+					Text msg = new TranslatableText("Changed tps on client: %s", tps);
+					MinecraftClient.getInstance().inGameHud.addChatMessage(MessageType.GAME_INFO, msg);
+				}
+			}
+		});
+	}
+
+	@Override
+	public void keyRepeat(int key, int scancode, int mods) {
+	}
+
+	@Override
+	public void onJoinG4mespeedServer(int serverVersion) {
+	}
+
+	@Override
+	public void onDisconnectServer() {
+		resetTps();
+	}
+
+	@Override
+	public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
+		GSTpsCommand.registerCommand(dispatcher);
+	}
+
+	@Override
+	public void onPlayerJoin(ServerPlayerEntity player) {
+	}
+
+	@Override
+	public void onG4mespeedClientJoin(ServerPlayerEntity player, int version) {
+		manager.runOnServer(managerServer -> managerServer.sendPacket(new GSTpsChangePacket(tps), player));
+	}
+
+	@Override
+	public void onPlayerLeave(ServerPlayerEntity player) {
+	}
+	
+	public boolean isPlayerAllowedTpsChange(ServerPlayerEntity player) {
+		return player.allowsPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);
+	}
+	
+	public float getMsPerTick() {
+		return MS_PER_SEC / tps;
+	}
+
+	public float getTps() {
+		return tps;
+	}
+}

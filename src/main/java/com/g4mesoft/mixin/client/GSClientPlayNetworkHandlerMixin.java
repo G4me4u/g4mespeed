@@ -6,18 +6,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.core.GSControllerClient;
+import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.packet.GSICustomPayloadHolder;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 
 @Mixin(ClientPlayNetworkHandler.class)
-@Environment(EnvType.CLIENT)
 public class GSClientPlayNetworkHandlerMixin {
 
 	@Inject(method = "<init>", at = @At("RETURN"))

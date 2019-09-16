@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "g4mespeed",
   "version": "${version}",
 
   "name": "G4mespeed",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "A mod for easing the development of redstone builds in minecraft.",
   "authors": [
     "G4me4u"
   ],
   "contact": {
-    "homepage": "https://youtube.com/G4me4u",
+    "homepage": "https://youtube.com/user/G4me4u",
     "sources": "https://github.com/G4me4u/mc-g4mespeed"
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/g4mespeed/icon.png",
 
   "environment": "*",
   "entrypoints": {
@@ -27,10 +27,5 @@
   ],
 
   "depends": {
-    "fabricloader": ">=0.4.0",
-    "fabric": "*"
-  },
-  "suggests": {
-    "flamingo": "*"
   }
 }

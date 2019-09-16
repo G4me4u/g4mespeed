@@ -5,19 +5,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.core.GSControllerClient;
+import com.g4mesoft.core.client.GSControllerClient;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 
 @Mixin(MinecraftClient.class)
-@Environment(EnvType.CLIENT)
 public class GSMinecraftClientMixin {
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	public void onInit(CallbackInfo ci) {
-		GSControllerClient.getInstance().setMinecraftClient((MinecraftClient)(Object)this);
+		GSControllerClient.getInstance().init((MinecraftClient)(Object)this);
 	}
 	
 	@Inject(method = "disconnect", at = @At("HEAD"))

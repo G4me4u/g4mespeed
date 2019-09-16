@@ -1,4 +1,4 @@
-package com.g4mesoft.core;
+package com.g4mesoft.module.tps;
 
 import java.io.IOException;
 
@@ -11,35 +11,39 @@ import net.fabricmc.api.Environment;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
-public class GSVersionPacket implements GSIPacket {
+public class GSTpsHotkeyPacket implements GSIPacket {
 
-	private int version;
-
-	public GSVersionPacket() {
+	private GSETpsHotkeyType type;
+	private boolean sneaking;
+	
+	public GSTpsHotkeyPacket() {
 	}
 	
-	public GSVersionPacket(int version) {
-		this.version = version;
+	public GSTpsHotkeyPacket(GSETpsHotkeyType type, boolean sneaking) {
+		this.type = type;
+		this.sneaking = sneaking;
 	}
 	
 	@Override
 	public void read(PacketByteBuf buf) throws IOException {
-		version = buf.readInt();
+		type = GSETpsHotkeyType.fromIndex((int)buf.readByte());
 	}
 
 	@Override
 	public void write(PacketByteBuf buf) throws IOException {
-		buf.writeInt(version);
+		buf.writeByte((byte)type.getIndex());
 	}
 
 	@Override
 	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
-		controller.onG4mespeedClientJoined(player, version);
+		GSTpsModule tpsModule = controller.getTpsModule();
+		if (tpsModule.isPlayerAllowedTpsChange(player))
+			tpsModule.performHotkeyAction(type, sneaking);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
 	public void handleOnClient(GSControllerClient controller) {
-		controller.onJoinG4mespeedServer(version);
+		controller.getTpsModule().performHotkeyAction(type, sneaking);
 	}
 }

@@ -8,15 +8,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.core.GSControllerClient;
+import com.g4mesoft.core.client.GSControllerClient;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
 
 @Mixin(Keyboard.class)
-@Environment(EnvType.CLIENT)
 public class GSKeyboardMixin {
 
 	private static final int KEY_RELEASE = 0;
@@ -25,7 +22,7 @@ public class GSKeyboardMixin {
 	
 	@Shadow @Final private MinecraftClient client;
 	
-	@Inject(method="onKey(L;IIII)V", at = @At("RETURN"))
+	@Inject(method="onKey(JIIII)V", at = @At("RETURN"))
 	public void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		G4mespeedMod gsInstance = G4mespeedMod.getInstance();
 		if (gsInstance == null)

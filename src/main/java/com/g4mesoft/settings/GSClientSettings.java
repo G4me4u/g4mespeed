@@ -2,12 +2,15 @@ package com.g4mesoft.settings;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.g4mesoft.G4mespeedMod;
+
 import net.minecraft.client.options.KeyBinding;
 
-public class GSSettings {
+public class GSClientSettings {
 
-	private boolean gsEnabled;
 	private boolean gsShiftPitch;
+	private boolean gsCullMovingBlocks;
+	private boolean gsSmoothPistons;
 	
 	public final KeyBinding gsIncreaseTpsKey;
 	public final KeyBinding gsDecreaseTpsKey;
@@ -16,9 +19,10 @@ public class GSSettings {
 
 	public final KeyBinding gsResetTpsKey;
 	
-	public GSSettings() {
-		gsEnabled = true;
+	public GSClientSettings() {
 		gsShiftPitch = true;
+		gsCullMovingBlocks = true;
+		gsSmoothPistons = true;
 		
 		gsIncreaseTpsKey = new KeyBinding("key.increaseTps", GLFW.GLFW_KEY_PERIOD, "key.categories.g4mespeed");
 		gsDecreaseTpsKey = new KeyBinding("key.decreaseTps", GLFW.GLFW_KEY_COMMA, "key.categories.g4mespeed");
@@ -28,19 +32,31 @@ public class GSSettings {
 		gsResetTpsKey = new KeyBinding("key.resetTps", GLFW.GLFW_KEY_M, "key.categories.g4mespeed");
 	}
 	
-	public boolean isEnabled() {
-		return gsEnabled;
+	private boolean isEnabled() {
+		return G4mespeedMod.getInstance().getSettings().isEnabled();
 	}
 	
-	public void setEnabled(boolean enabled) {
-		gsEnabled = enabled;
-	}
-
 	public boolean isShiftPitchEnabled() {
-		return gsShiftPitch && gsEnabled;
+		return gsShiftPitch && isEnabled();
 	}
 	
 	public void setShiftPitch(boolean enabled) {
 		gsShiftPitch = enabled;
+	}
+
+	public boolean isCullMovingBlocksEnabled() {
+		return gsCullMovingBlocks && isEnabled();
+	}
+	
+	public void setCullMovingBlocks(boolean enabled) {
+		gsCullMovingBlocks = enabled;
+	}
+
+	public boolean isSmoothPistonsEnabled() {
+		return gsSmoothPistons && isEnabled();
+	}
+	
+	public void setSmoothPistons(boolean enabled) {
+		gsSmoothPistons = enabled;
 	}
 }

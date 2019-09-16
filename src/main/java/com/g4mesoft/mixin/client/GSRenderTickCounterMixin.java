@@ -7,28 +7,20 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.core.GSControllerClient;
-import com.g4mesoft.tps.GSTpsManager;
+import com.g4mesoft.core.client.GSControllerClient;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.client.render.RenderTickCounter;
 
 @Mixin(RenderTickCounter.class)
-@Environment(EnvType.CLIENT)
 public class GSRenderTickCounterMixin {
-
-	private static final float MS_PER_SEC = 1000.0f;
 
 	@Shadow @Final private float timeScale;
 
 	@Redirect(method = "beginRenderTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/RenderTickCounter;timeScale:F"))
 	private float getMsPerTick(RenderTickCounter counter) {
 		G4mespeedMod gsInstance = G4mespeedMod.getInstance();
-		if (gsInstance.getSettings().isEnabled()) {
-			GSTpsManager tpsManager = GSControllerClient.getInstance().getTpsManager();
-			return MS_PER_SEC / tpsManager.getTps();
-		}
+		if (gsInstance.getSettings().isEnabled())
+			return GSControllerClient.getInstance().getTpsModule().getMsPerTick();
 		return timeScale;
 	}
 }

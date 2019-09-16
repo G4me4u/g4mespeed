@@ -1,9 +1,9 @@
-package com.g4mesoft.tps;
+package com.g4mesoft.module.tps;
 
 import java.io.IOException;
 
-import com.g4mesoft.core.GSControllerClient;
-import com.g4mesoft.core.GSControllerServer;
+import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.packet.GSIPacket;
 
 import net.fabricmc.api.EnvType;
@@ -34,12 +34,14 @@ public class GSTpsChangePacket implements GSIPacket {
 
 	@Override
 	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
-		controller.getTpsManager().setTps(requestedTps, player);
+		GSTpsModule tpsModule = controller.getTpsModule();
+		if (tpsModule.isPlayerAllowedTpsChange(player))
+			controller.getTpsModule().setTps(requestedTps);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
 	public void handleOnClient(GSControllerClient controller) {
-		controller.getTpsManager().setTps(requestedTps);
+		controller.getTpsModule().setTps(requestedTps);
 	}
 }

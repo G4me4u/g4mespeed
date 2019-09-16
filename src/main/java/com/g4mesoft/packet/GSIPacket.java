@@ -2,8 +2,8 @@ package com.g4mesoft.packet;
 
 import java.io.IOException;
 
-import com.g4mesoft.core.GSControllerClient;
-import com.g4mesoft.core.GSControllerServer;
+import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.server.GSControllerServer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

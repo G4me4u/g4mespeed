@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.core.server.GSControllerServer;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.server.command.CommandManager;
@@ -18,8 +18,8 @@ public class GSCommandManagerMixin {
 	
 	@Shadow @Final private CommandDispatcher<ServerCommandSource> dispatcher;
 	
-	@Inject(method="<init>(B)V", at = @At("RETURN"))
+	@Inject(method="<init>", at = @At("RETURN"))
 	private void registerCommands(boolean isServer, CallbackInfo ci) {
-		G4mespeedMod.getInstance().registerCommands(dispatcher);
+		GSControllerServer.getInstance().registerCommands(dispatcher);
 	}
 }

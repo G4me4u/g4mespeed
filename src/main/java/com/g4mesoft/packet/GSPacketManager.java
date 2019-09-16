@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSVersionPacket;
-import com.g4mesoft.tps.GSTpsChangePacket;
-import com.g4mesoft.tps.GSTpsResetPacket;
+import com.g4mesoft.module.tps.GSTpsChangePacket;
+import com.g4mesoft.module.tps.GSTpsHotkeyPacket;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.Packet;
@@ -22,7 +22,7 @@ public class GSPacketManager {
 	public GSPacketManager() {
 		registry = new GSPacketRegistry(new Class[] {
 			GSVersionPacket.class,
-			GSTpsResetPacket.class,
+			GSTpsHotkeyPacket.class,
 			GSTpsChangePacket.class
 		});
 	}

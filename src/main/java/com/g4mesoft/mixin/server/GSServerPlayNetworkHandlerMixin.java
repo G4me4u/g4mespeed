@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.core.GSControllerServer;
+import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.packet.GSICustomPayloadHolder;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;

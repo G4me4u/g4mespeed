@@ -9,6 +9,7 @@
     
     "server.GSServerPlayNetworkHandlerMixin",
     "server.GSCustomPayloadS2CPacketMixin",
+    "server.GSCustomPayloadC2SPacketMixin",
     
     "server.GSPlayerManagerMixin",
     "server.GSServerPlayerEntityMixin",
@@ -26,7 +27,9 @@
     "client.GSRenderTickCounterMixin",
     
     "client.GSClientPlayNetworkHandlerMixin",
-    "client.GSCustomPayloadC2SPacketMixin"
+    
+    "client.GSPistonBlockEntityRendererMixin",
+    "client.GSPistonBlockEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

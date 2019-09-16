@@ -4,11 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.g4mesoft.packet.GSPacketManager;
-import com.g4mesoft.settings.GSSettings;
-import com.mojang.brigadier.CommandDispatcher;
+import com.g4mesoft.settings.GSGlobalSettings;
 
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.server.command.ServerCommandSource;
 
 public class G4mespeedMod implements ModInitializer {
 
@@ -19,23 +17,24 @@ public class G4mespeedMod implements ModInitializer {
 	
 	private static G4mespeedMod instance;
 	
-	private GSSettings settings;
+	private String displayName;
+	
+	private GSGlobalSettings settings;
 	private GSPacketManager packetManager;
 	
 	@Override
 	public void onInitialize() {
 		instance = this;
+
+		displayName = "G4mespeed " + getVersionAsString(GS_VERSION);
 		
-		settings = new GSSettings();
+		settings = new GSGlobalSettings();
 		packetManager = new GSPacketManager();
 		
-		GS_LOGGER.info("G4mespeed " + getVersionAsString(GS_VERSION) + " initialized!");
+		GS_LOGGER.info(getDisplayName() + " initialized!");
 	}
 	
-	public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
-	}
-	
-	public GSSettings getSettings() {
+	public GSGlobalSettings getSettings() {
 		return settings;
 	}
 	
@@ -43,6 +42,10 @@ public class G4mespeedMod implements ModInitializer {
 		return packetManager;
 	}
 
+	public String getDisplayName() {
+		return displayName;
+	}
+	
 	public static String getVersionAsString(int version) {
 		return String.format("%d.%d", version / 100, version % 100);
 	}

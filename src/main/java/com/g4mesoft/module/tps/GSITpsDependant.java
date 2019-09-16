@@ -1,4 +1,4 @@
-package com.g4mesoft.tps;
+package com.g4mesoft.module.tps;
 
 public interface GSITpsDependant {
 
