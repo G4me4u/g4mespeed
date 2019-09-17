@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.g4mesoft.access.GSISoundSystemMixinAccess;
+import com.g4mesoft.access.GSISoundSystemAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
@@ -21,7 +21,7 @@ import net.minecraft.client.sound.SoundSystem;
 import net.minecraft.util.math.MathHelper;
 
 @Mixin(SoundSystem.class)
-@Implements(@Interface(iface = GSISoundSystemMixinAccess.class, prefix = "tickAccess$"))
+@Implements(@Interface(iface = GSISoundSystemAccess.class, prefix = "tickAccess$"))
 public abstract class GSSoundSystemMixin implements GSITpsDependant {
 
 	private final Object sourcesLock = new Object();

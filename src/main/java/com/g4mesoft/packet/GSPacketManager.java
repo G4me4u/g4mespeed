@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSVersionPacket;
+import com.g4mesoft.module.tps.GSServerSyncPacket;
 import com.g4mesoft.module.tps.GSTpsChangePacket;
 import com.g4mesoft.module.tps.GSTpsHotkeyPacket;
 
@@ -23,7 +24,8 @@ public class GSPacketManager {
 		registry = new GSPacketRegistry(new Class[] {
 			GSVersionPacket.class,
 			GSTpsHotkeyPacket.class,
-			GSTpsChangePacket.class
+			GSTpsChangePacket.class,
+			GSServerSyncPacket.class
 		});
 	}
 

@@ -45,7 +45,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	@Shadow private boolean field_19249;
 	@Shadow private long field_19248;
 
-	@Shadow protected abstract void tick(BooleanSupplier booleanSupplier_1);
+	@Shadow protected abstract void tick(BooleanSupplier booleanSupplier);
 
 	@Shadow protected abstract boolean shouldKeepTicking();
 
@@ -118,5 +118,15 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			this.profiler.endTick();
 			this.loading = true;
 		}
+	}
+	
+	@Inject(method = "tick", at = @At("HEAD"))
+	private void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
+		GSControllerServer.getInstance().tick();
+	}
+	
+	@Inject(method = "shutdown", at = @At("RETURN"))
+	public void onShutdown(CallbackInfo ci) {
+		GSControllerServer.getInstance().onServerShutdown();
 	}
 }

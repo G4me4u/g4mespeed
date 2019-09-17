@@ -2,7 +2,7 @@ package com.g4mesoft.access;
 
 import net.minecraft.client.sound.SoundInstance;
 
-public interface GSISoundSystemMixinAccess {
+public interface GSISoundSystemAccess {
 
 	public void tick(boolean skipSoundTick);
 

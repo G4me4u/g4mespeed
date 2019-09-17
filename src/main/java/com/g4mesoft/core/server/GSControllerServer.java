@@ -38,7 +38,7 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	public void init(MinecraftServer server) {
 		this.server = server;
 	}
-	
+
 	public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
 		for (GSIModule module : modules)
 			module.registerCommands(dispatcher);
@@ -64,9 +64,15 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 			module.onPlayerLeave(player);
 	}
 
+	public void onServerShutdown() {
+		for (GSIModule module : modules)
+			module.onServerShutdown();
+	}
+	
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {
-		((GSITpsDependant)server).tpsChanged(newTps, oldTps);
+		if (server != null)
+			((GSITpsDependant)server).tpsChanged(newTps, oldTps);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package com.g4mesoft.utils;
 
-public final class MathUtils {
+public final class GSMathUtils {
 
 	public static float clamp(float v, float mn, float mx) {
 		return v < mn ? mn : (v > mx ? mx : v);

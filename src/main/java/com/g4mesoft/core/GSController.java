@@ -28,6 +28,11 @@ public abstract class GSController implements GSIModuleManager {
 			module.init(this);
 	}
 	
+	public void tick() {
+		for (GSIModule module : modules)
+			module.tick();
+	}
+	
 	public GSTpsModule getTpsModule() {
 		return tpsModule;
 	}

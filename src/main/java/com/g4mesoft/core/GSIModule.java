@@ -11,6 +11,8 @@ public interface GSIModule {
 
 	public void init(GSIModuleManager manager);
 	
+	public void tick();
+	
 	@Environment(EnvType.CLIENT)
 	public void keyReleased(int key, int scancode, int mods);
 
@@ -33,5 +35,7 @@ public interface GSIModule {
 	public void onG4mespeedClientJoin(ServerPlayerEntity player, int version);
 
 	public void onPlayerLeave(ServerPlayerEntity player);
+
+	public void onServerShutdown();
 	
 }

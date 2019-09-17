@@ -9,7 +9,7 @@ import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.settings.GSClientSettings;
 import com.g4mesoft.settings.GSIKeyBinding;
-import com.g4mesoft.utils.MathUtils;
+import com.g4mesoft.utils.GSMathUtils;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.client.MinecraftClient;
@@ -29,11 +29,15 @@ public class GSTpsModule implements GSIModule {
 	public static final float TPS_INCREMENT_INTERVAL = 1.0f;
 	public static final float SLOW_INTERVAL = 0.5f;
 	
+	public static final int SERVER_SYNC_INTERVAL = 10;
+	
 	public static final int TPS_INTRODUCTION_VERSION = 100;
 	
 	private float tps;
-	private boolean sneaking;
 	private final List<GSITpsDependant> listeners;
+
+	private boolean sneaking;
+	private int serverSyncTimer;
 
 	private GSIModuleManager manager;
 	
@@ -41,12 +45,16 @@ public class GSTpsModule implements GSIModule {
 		tps = DEFAULT_TPS;
 		listeners = new ArrayList<GSITpsDependant>();
 
+		sneaking = false;
+		serverSyncTimer = 0;
+		
 		manager = null;
 	}
 	
 	public void addTpsListener(GSITpsDependant listener) {
 		synchronized(listeners) {
 			listeners.add(listener);
+			listener.tpsChanged(tps, 0.0f);
 		}
 	}
 
@@ -61,9 +69,9 @@ public class GSTpsModule implements GSIModule {
 	}
 	
 	public void setTps(float tps) {
-		tps = MathUtils.clamp(tps, MIN_TPS, MAX_TPS);
+		tps = GSMathUtils.clamp(tps, MIN_TPS, MAX_TPS);
 		
-		if (!MathUtils.equalsApproximate(tps, this.tps)) {
+		if (!GSMathUtils.equalsApproximate(tps, this.tps)) {
 			float oldTps = this.tps;
 			this.tps = tps;
 			
@@ -112,6 +120,18 @@ public class GSTpsModule implements GSIModule {
 	@Override
 	public void init(GSIModuleManager manager) {
 		this.manager = manager;
+	}
+	
+	@Override
+	public void tick() {
+		manager.runOnServer(managerServer -> {
+			serverSyncTimer++;
+			
+			if (serverSyncTimer >= SERVER_SYNC_INTERVAL) {
+				managerServer.sendPacketToAll(new GSServerSyncPacket());
+				serverSyncTimer = 0;
+			}
+		});
 	}
 	
 	@Override
@@ -187,6 +207,11 @@ public class GSTpsModule implements GSIModule {
 
 	@Override
 	public void onPlayerLeave(ServerPlayerEntity player) {
+	}
+	
+	@Override
+	public void onServerShutdown() {
+		resetTps();
 	}
 	
 	public boolean isPlayerAllowedTpsChange(ServerPlayerEntity player) {

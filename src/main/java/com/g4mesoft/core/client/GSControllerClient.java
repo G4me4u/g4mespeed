@@ -7,7 +7,6 @@ import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSVersionPacket;
 import com.g4mesoft.core.server.GSIModuleManagerServer;
-import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 import com.g4mesoft.settings.GSClientSettings;
@@ -22,7 +21,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
 @Environment(EnvType.CLIENT)
-public class GSControllerClient extends GSController implements GSIModuleManagerClient, GSITpsDependant {
+public class GSControllerClient extends GSController implements GSIModuleManagerClient {
 
 	private static final GSControllerClient instance = new GSControllerClient();
 	
@@ -35,8 +34,6 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	public GSControllerClient() {
 		serverVersion = G4mespeedMod.INVALID_GS_VERSION;
 		clientSettings = new GSClientSettings();
-		
-		tpsModule.addTpsListener(this);
 	}
 
 	public void init(MinecraftClient minecraft) {
@@ -84,11 +81,6 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 			module.onDisconnectServer();
 	}
 
-	@Override
-	public void tpsChanged(float newTps, float oldTps) {
-		((GSITpsDependant)minecraft.getSoundManager()).tpsChanged(newTps, oldTps);
-	}
-	
 	@Override
 	public Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer) {
 		return new CustomPayloadC2SPacket(identifier, buffer);
