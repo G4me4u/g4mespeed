@@ -31,6 +31,8 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	@Shadow private long prevTimeMillis;
 	@Shadow @Final private float timeScale;
 	
+	private float msPerTick = DEFAULT_MS_PER_TICK;
+	
 	private float approximatedServerTickDelta;
 	private boolean serverSyncReceived;
 	private int serverTicksSinceLastSync;
@@ -39,7 +41,7 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	@Redirect(method = "beginRenderTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/RenderTickCounter;timeScale:F"))
 	private float getMsPerTick(RenderTickCounter counter) {
 		if (G4mespeedMod.getInstance().getSettings().isEnabled())
-			return GSControllerClient.getInstance().getTpsModule().getMsPerTick();
+			return msPerTick;
 		return timeScale;
 	}
 
@@ -109,23 +111,15 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 		}
 	}
 	
-	private void resetServerApproximation() {
-		approximatedServerTickDelta = 0.0f;
-		serverTicksSinceLastSync = 0;
-	}
-	
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {
-		// Resetting tickDelta will sync the server and 
-		// client when tps changes (server does the same).
-		if (GSControllerClient.getInstance().isG4mespeedServer())
-			resetServerApproximation();
+		msPerTick = GSTpsModule.MS_PER_SEC / newTps;
 	}
 
 	@Override
 	public void onServerTickSync(int syncInterval) {
-		resetServerApproximation();
-		
+		approximatedServerTickDelta = 0.0f;
+		serverTicksSinceLastSync = 0;
 		serverSyncInterval = syncInterval;
 		serverSyncReceived = true;
 	}

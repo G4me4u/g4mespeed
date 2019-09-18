@@ -9,9 +9,12 @@ import com.g4mesoft.module.tps.GSTpsChangePacket;
 import com.g4mesoft.module.tps.GSTpsHotkeyPacket;
 
 import io.netty.buffer.Unpooled;
+import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.Packet;
+import net.minecraft.network.listener.PacketListener;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
+import net.minecraft.util.ThreadExecutor;
 
 public class GSPacketManager {
 
@@ -46,7 +49,7 @@ public class GSPacketManager {
 		return controller.encodeCustomPayload(GS_IDENTIFIER, buffer);
 	}
 
-	public GSIPacket decodePacket(GSICustomPayloadHolder customPayload) {
+	public <T extends PacketListener>GSIPacket decodePacket(GSICustomPayloadHolder<T> customPayload, T packetListener, ThreadExecutor<?> executor) {
 		if (!GS_IDENTIFIER.equals(customPayload.getChannelGS()))
 			return null;
 		
@@ -62,8 +65,16 @@ public class GSPacketManager {
 			GSIPacket packet;
 			try {
 				packet = packetClazz.newInstance();
+			} catch(InstantiationException | IllegalAccessException e) {
+				return null;
+			}
+			
+			if (packet.shouldForceMainThread())
+			      NetworkThreadUtils.forceMainThread(customPayload, packetListener, executor);
+				
+			try {
 				packet.read(buffer);
-			} catch(InstantiationException | IllegalAccessException | IOException e) {
+			} catch (IOException e) {
 				return null;
 			}
 			

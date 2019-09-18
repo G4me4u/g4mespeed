@@ -38,4 +38,9 @@ public class GSServerSyncPacket implements GSIPacket {
 		RenderTickCounter counter = ((GSIMinecraftClientAccess)MinecraftClient.getInstance()).getRenderTickCounter();
 		((GSIRenderTickAccess)counter).onServerTickSync(GSTpsModule.SERVER_SYNC_INTERVAL);
 	}
+	
+	@Override
+	public boolean shouldForceMainThread() {
+		return false;
+	}
 }

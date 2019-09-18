@@ -80,7 +80,14 @@ public class GSTpsModule implements GSIModule {
 					listener.tpsChanged(tps, oldTps);
 			}
 			
-			manager.runOnServer(managerServer -> managerServer.sendPacketToAll(new GSTpsChangePacket(this.tps)));
+			manager.runOnServer(managerServer -> { 
+				managerServer.sendPacketToAll(new GSTpsChangePacket(this.tps));
+				
+				// Setup sync timer to it will send sync in the 
+				// next tick (this ensures that the client had
+				// time to react to the previous packet).
+				serverSyncTimer = SERVER_SYNC_INTERVAL;
+			});
 		}
 	}
 
@@ -133,7 +140,7 @@ public class GSTpsModule implements GSIModule {
 			}
 		});
 	}
-	
+
 	@Override
 	public void keyReleased(int key, int scancode, int mods) {
 		if (((GSIKeyBinding)MinecraftClient.getInstance().options.keySneak).getKeyCode() == key)

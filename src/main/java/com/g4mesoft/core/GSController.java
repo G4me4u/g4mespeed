@@ -18,14 +18,12 @@ public abstract class GSController implements GSIModuleManager {
 		modules = new ArrayList<GSIModule>();
 		tpsModule = new GSTpsModule();
 		
-		modules.add(tpsModule);
-		
-		initModules();
+		addModule(tpsModule);
 	}
 	
-	private void initModules() {
-		for (GSIModule module : modules)
-			module.init(this);
+	public void addModule(GSIModule module) {
+		modules.add(module);
+		module.init(this);
 	}
 	
 	public void tick() {

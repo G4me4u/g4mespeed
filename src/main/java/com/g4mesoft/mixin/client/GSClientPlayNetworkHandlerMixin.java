@@ -1,6 +1,7 @@
 package com.g4mesoft.mixin.client;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -18,11 +19,14 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.client.network.packet.WorldTimeUpdateS2CPacket;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.network.listener.ClientPlayPacketListener;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public class GSClientPlayNetworkHandlerMixin {
 
 	private static final int WORLD_TIME_UPDATE_INTERVAL = 20;
+	
+	@Shadow private MinecraftClient client;
 	
 	@Inject(method = "<init>", at = @At("RETURN"))
 	public void onInit(CallbackInfo ci) {
@@ -32,7 +36,11 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
 	private void onCustomPayload(CustomPayloadS2CPacket packet, CallbackInfo ci) {
 		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
-		GSIPacket gsPacket = packetManger.decodePacket((GSICustomPayloadHolder) packet);
+		
+		@SuppressWarnings("unchecked")
+		GSICustomPayloadHolder<ClientPlayPacketListener> payload = (GSICustomPayloadHolder<ClientPlayPacketListener>)packet;
+		
+		GSIPacket gsPacket = packetManger.decodePacket(payload, (ClientPlayNetworkHandler)(Object)this, this.client);
 		if (gsPacket != null) {
 			gsPacket.handleOnClient(GSControllerClient.getInstance());
 			ci.cancel();
@@ -45,9 +53,8 @@ public class GSClientPlayNetworkHandlerMixin {
 		if (GSControllerClient.getInstance().isG4mespeedServer())
 			return;
 		
-		MinecraftClient client = MinecraftClient.getInstance();
-		if (!client.isOnThread()) {
-			RenderTickCounter counter = ((GSIMinecraftClientAccess)client).getRenderTickCounter();
+		if (!this.client.isOnThread()) {
+			RenderTickCounter counter = ((GSIMinecraftClientAccess)this.client).getRenderTickCounter();
 			((GSIRenderTickAccess)counter).onServerTickSync(WORLD_TIME_UPDATE_INTERVAL);
 		}
 	}

@@ -10,6 +10,8 @@ import net.fabricmc.api.ModInitializer;
 
 public class G4mespeedMod implements ModInitializer {
 
+	public static final boolean GS_DEBUG = true;
+	
 	public static final int GS_VERSION = 100;
 	public static final int INVALID_GS_VERSION = -1;
 

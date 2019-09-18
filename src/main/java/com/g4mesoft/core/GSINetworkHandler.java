@@ -1,6 +1,6 @@
 package com.g4mesoft.core;
 
-public interface GSIPlayer {
+public interface GSINetworkHandler {
 
 	public void setG4mespeedInstalled(boolean gsInstalled);
 

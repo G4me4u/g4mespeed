@@ -20,5 +20,8 @@ public interface GSIPacket {
 
 	@Environment(EnvType.CLIENT)
 	public void handleOnClient(GSControllerClient controller);
-	
+
+	default public boolean shouldForceMainThread() {
+		return true;
+	}
 }

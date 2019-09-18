@@ -12,7 +12,6 @@
     "server.GSCustomPayloadC2SPacketMixin",
     
     "server.GSPlayerManagerMixin",
-    "server.GSServerPlayerEntityMixin",
     "server.GSClientConnectionMixin"
   ],
   "client": [

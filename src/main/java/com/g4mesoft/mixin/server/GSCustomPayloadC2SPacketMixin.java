@@ -5,12 +5,13 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import com.g4mesoft.packet.GSICustomPayloadHolder;
 
+import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.server.network.packet.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
 @Mixin(CustomPayloadC2SPacket.class)
-public class GSCustomPayloadC2SPacketMixin implements GSICustomPayloadHolder {
+public abstract class GSCustomPayloadC2SPacketMixin implements GSICustomPayloadHolder<ServerPlayPacketListener> {
 
 	@Shadow private Identifier channel;
 	@Shadow private PacketByteBuf data;
