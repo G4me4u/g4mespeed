@@ -13,17 +13,20 @@ import com.g4mesoft.access.GSIRenderTickAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
-import com.g4mesoft.utils.GSMathUtils;
+import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.util.SystemUtil;
 
 @Mixin(RenderTickCounter.class)
 public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDependant {
 
 	private static final float DEFAULT_MS_PER_TICK = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
 	
-	private static final float SYNC_EASING_MULTIPLIER = 0.05f;
-	private static final float SERVER_SYNC_DELAY = 5.0f;
+	private static final float EXTRA_SERVER_SYNC_DELAY = 5.0f;
+	private static final float MIN_SERVER_SYNC_DELAY = 10.0f;
+	private static final float SYNC_DELAY_EASING_FACTOR = 0.05f;
+	private static final float SYNC_CLOCK_EASING_FACTOR = 0.05f;
 	
 	@Shadow public int ticksThisFrame;
 	@Shadow public float tickDelta;
@@ -33,10 +36,20 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	
 	private float msPerTick = DEFAULT_MS_PER_TICK;
 	
+	private final Object serverSyncLock = new Object();
 	private float approximatedServerTickDelta;
 	private boolean serverSyncReceived;
+	private long serverLast;
 	private int serverTicksSinceLastSync;
 	private int serverSyncInterval;
+
+	private long clientLast;
+	private float serverSyncDelay;
+	
+	@Inject(method = "<init>", at = @At("RETURN"))
+	public void onInit(float tps, long currentMs, CallbackInfo ci) {
+		serverLast = clientLast = currentMs;
+	}
 	
 	@Redirect(method = "beginRenderTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/RenderTickCounter;timeScale:F"))
 	private float getMsPerTick(RenderTickCounter counter) {
@@ -48,25 +61,44 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	@Inject(method = "beginRenderTick", at = @At("RETURN"))
 	private void onBeginRenderTick(long currentTimeMillis, CallbackInfo ci) {
 		if (G4mespeedMod.getInstance().getSettings().isEnabled()) {
-			GSControllerClient controllerClient = GSControllerClient.getInstance();
-			if (controllerClient.isG4mespeedServer()) {
-				// Assume the server has the same tps
-				approximatedServerTickDelta += lastFrameDuration;
-			} else {
-				// Assume the server has DEFAULT_TPS (20) tps
-				approximatedServerTickDelta += (float)(currentTimeMillis - this.prevTimeMillis) / DEFAULT_MS_PER_TICK;
+			synchronized (serverSyncLock) {
+				updateServerClock(currentTimeMillis);
+				updateSyncDelay(currentTimeMillis);
+				
+				if (shouldAdjustTickDelta())
+					adjustTickDelta();
+				
+				if (serverTicksSinceLastSync >= serverSyncInterval * 2)
+					serverSyncReceived = false;
 			}
-			
-			int serverTicksThisFrame = (int)approximatedServerTickDelta;
-			approximatedServerTickDelta -= serverTicksThisFrame;
-			serverTicksSinceLastSync += serverTicksThisFrame;
-			
-			if (shouldAdjustTickDelta())
-				adjustTickDelta();
-			
-			if (serverTicksSinceLastSync >= serverSyncInterval * 2)
-				serverSyncReceived = false;
 		}
+	}
+	
+	private void updateServerClock(long currentTimeMillis) {
+		GSControllerClient controllerClient = GSControllerClient.getInstance();
+		
+		long deltaMsServer = currentTimeMillis - serverLast;
+		serverLast = currentTimeMillis;
+		
+		if (controllerClient.isG4mespeedServer()) {
+			// Assume the server has the same tps
+			approximatedServerTickDelta += deltaMsServer / msPerTick;
+		} else {
+			// Assume the server has DEFAULT_TPS (20) tps
+			approximatedServerTickDelta += (float)deltaMsServer / DEFAULT_MS_PER_TICK;
+		}
+		
+		int serverTicksThisFrame = (int)approximatedServerTickDelta;
+		approximatedServerTickDelta -= serverTicksThisFrame;
+		serverTicksSinceLastSync += serverTicksThisFrame;
+	}
+	
+	private void updateSyncDelay(long currentTimeMillis) {
+		long deltaMs = currentTimeMillis - clientLast;
+		clientLast = currentTimeMillis;
+
+		float targetDelay = Math.max(MIN_SERVER_SYNC_DELAY, deltaMs + EXTRA_SERVER_SYNC_DELAY);
+		serverSyncDelay += (targetDelay - serverSyncDelay) * SYNC_DELAY_EASING_FACTOR;
 	}
 
 	private boolean shouldAdjustTickDelta() {
@@ -81,22 +113,20 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	}
 	
 	private void adjustTickDelta() {
-		float delay = SERVER_SYNC_DELAY / GSControllerClient.getInstance().getTpsModule().getMsPerTick();
-		
-		float targetTickDelta = approximatedServerTickDelta + delay;
+		float targetTickDelta = approximatedServerTickDelta + serverSyncDelay / msPerTick;
 		if (targetTickDelta > 1.0f)
 			targetTickDelta--;
 		
 		// Check if we have to cross tick border
 		// and adjust target value accordingly.
-		float tickDeltaDif = this.tickDelta - targetTickDelta;
-		if (tickDeltaDif > 0.5f) {
-			targetTickDelta++;
-		} else if (tickDeltaDif < -0.5f){
-			targetTickDelta--;
+		float targetOffset = targetTickDelta - this.tickDelta;
+		if (targetOffset < -0.5f) {
+			targetOffset++;
+		} else if (targetOffset > 0.5f){
+			targetOffset--;
 		}
 		
-		this.tickDelta += (targetTickDelta - this.tickDelta) * SYNC_EASING_MULTIPLIER;
+		this.tickDelta += targetOffset * SYNC_CLOCK_EASING_FACTOR;
 		
 		if (this.tickDelta < 0.0f) {
 			if (this.ticksThisFrame > 0) {
@@ -118,9 +148,12 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 
 	@Override
 	public void onServerTickSync(int syncInterval) {
-		approximatedServerTickDelta = 0.0f;
-		serverTicksSinceLastSync = 0;
-		serverSyncInterval = syncInterval;
-		serverSyncReceived = true;
+		synchronized (serverSyncLock) {
+			approximatedServerTickDelta = 0.0f;
+			serverTicksSinceLastSync = 0;
+			serverLast = SystemUtil.getMeasuringTimeMs();
+			serverSyncInterval = syncInterval;
+			serverSyncReceived = true;
+		}
 	}
 }
