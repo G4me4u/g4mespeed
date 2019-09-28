@@ -1,4 +1,4 @@
-package com.g4mesoft.settings;
+package com.g4mesoft.setting;
 
 public interface GSIKeyBinding {
 

@@ -33,7 +33,7 @@ public class GSPistonBlockEntityRendererMixin {
 	
 	@Redirect(method = "method_3576", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;disableCull()V"))
 	private void onEnableCull() {
-		if (GSControllerClient.getInstance().getClientSettings().isCullMovingBlocksEnabled()) {
+		if (GSControllerClient.getInstance().getTpsModule().cullMovingBlocks.getValue()) {
 			GlStateManager.enableCull();
 		} else {
 			GlStateManager.disableCull();

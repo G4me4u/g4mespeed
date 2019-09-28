@@ -4,19 +4,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.g4mesoft.packet.GSPacketManager;
-import com.g4mesoft.settings.GSGlobalSettings;
+import com.g4mesoft.setting.GSGlobalSettings;
 
 import net.fabricmc.api.ModInitializer;
 
 public class G4mespeedMod implements ModInitializer {
 
-	public static final boolean GS_DEBUG = true;
+	public static final int GS_VERSION_100 = 100;
 	
-	public static final int GS_VERSION = 100;
+	public static final int GS_VERSION = GS_VERSION_100;
 	public static final int INVALID_GS_VERSION = -1;
 
 	public static final Logger GS_LOGGER = LogManager.getLogger("G4mespeed");
-	
+
 	private static G4mespeedMod instance;
 	
 	private String displayName;

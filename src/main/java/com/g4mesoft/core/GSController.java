@@ -3,7 +3,9 @@ package com.g4mesoft.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.g4mesoft.module.probe.GSProbeModule;
 import com.g4mesoft.module.tps.GSTpsModule;
+import com.g4mesoft.setting.GSSettingManager;
 
 import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;
@@ -11,14 +13,23 @@ import net.minecraft.util.PacketByteBuf;
 
 public abstract class GSController implements GSIModuleManager {
 
+	protected final GSSettingManager settings;
+	
 	protected final List<GSIModule> modules;
 	protected final GSTpsModule tpsModule;
+	protected final GSProbeModule probeModule;
 	
 	public GSController() {
+		settings = new GSSettingManager();
+		
 		modules = new ArrayList<GSIModule>();
 		tpsModule = new GSTpsModule();
-		
+		probeModule = new GSProbeModule();
+	}
+	
+	protected void initModules() {
 		addModule(tpsModule);
+		addModule(probeModule);
 	}
 	
 	public void addModule(GSIModule module) {
@@ -38,6 +49,11 @@ public abstract class GSController implements GSIModuleManager {
 	@Override
 	public List<GSIModule> getModules() {
 		return modules;
+	}
+	
+	@Override
+	public GSSettingManager getSettingManager() {
+		return settings;
 	}
 	
 	public abstract Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer);

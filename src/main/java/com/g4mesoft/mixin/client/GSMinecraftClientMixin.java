@@ -9,9 +9,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSIMinecraftClientAccess;
 import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSITpsDependant;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.sound.SoundManager;
 
@@ -20,7 +23,7 @@ public class GSMinecraftClientMixin implements GSIMinecraftClientAccess, GSITpsD
 
 	@Shadow @Final private RenderTickCounter renderTickCounter;
 	@Shadow private SoundManager soundManager;
-
+	@Shadow public ClientPlayerEntity player;
 	
 	@Inject(method = "<init>", at = @At("RETURN"))
 	public void onInit(CallbackInfo ci) {
@@ -28,10 +31,12 @@ public class GSMinecraftClientMixin implements GSIMinecraftClientAccess, GSITpsD
 		GSControllerClient.getInstance().getTpsModule().addTpsListener(this);
 	}
 	
-	@Inject(method = "disconnect", at = @At("HEAD"))
-	public void onDisconnect(CallbackInfo ci) {
-		System.out.println("Disconnecting!");
-		GSControllerClient.getInstance().onDisconnectServer();
+	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
+	public void onDisconnect(Screen screen, CallbackInfo ci) {
+		// Check if player is null. This ensures that we only
+		// call disconnect when we're leaving a play-session.
+		if (this.player != null)
+			GSControllerClient.getInstance().onDisconnectServer();
 	}
 
 	@Override
@@ -44,6 +49,7 @@ public class GSMinecraftClientMixin implements GSIMinecraftClientAccess, GSITpsD
 	
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void onTick(CallbackInfo ci) {
+		GSDebug.onClientTick();
 		GSControllerClient.getInstance().tick();
 	}
 

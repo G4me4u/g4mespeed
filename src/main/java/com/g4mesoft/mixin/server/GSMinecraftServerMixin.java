@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.mojang.authlib.GameProfileRepository;
@@ -62,8 +63,8 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {
-		msAccum = msPerTick;
 		msPerTick = GSTpsModule.MS_PER_SEC / newTps;
+		msAccum = msPerTick;
 		
 		tpsChanged = true;
 		resetTimeReference();
@@ -122,6 +123,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
+		GSDebug.onServerTick();
 		GSControllerServer.getInstance().tick();
 	}
 	

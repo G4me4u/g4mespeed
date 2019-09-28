@@ -31,6 +31,13 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 
 	public GSControllerServer() {
 		server = null;
+
+		initModules();
+	}
+	
+	@Override
+	protected void initModules() {
+		super.initModules();
 		
 		tpsModule.addTpsListener(this);
 	}

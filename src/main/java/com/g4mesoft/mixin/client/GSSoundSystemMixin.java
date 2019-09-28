@@ -26,7 +26,7 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant {
 		GSControllerClient controller = GSControllerClient.getInstance();
 
 		float pitch = MathHelper.clamp(soundInstance.getPitch(), 0.5F, 2.0F);
-		if (controller.getClientSettings().isShiftPitchEnabled())
+		if (controller.getTpsModule().shiftPitch.getValue())
 			return pitch * controller.getTpsModule().getTps() / GSTpsModule.DEFAULT_TPS;
 
 		return pitch;

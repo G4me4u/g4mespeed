@@ -10,12 +10,15 @@ public enum GSETpsHotkeyType {
 	DOUBLE_TPS(3),
 	HALF_TPS(4);
 
-	private static final GSETpsHotkeyType[] TYPES;
+	private static final GSETpsHotkeyType[] HOTKEY_TYPES;
 	
 	static {
-		TYPES = new GSETpsHotkeyType[values().length];
-		for (GSETpsHotkeyType type : values())
-			TYPES[type.index] = type;
+		HOTKEY_TYPES = new GSETpsHotkeyType[values().length];
+		for (GSETpsHotkeyType type : values()) {
+			if (HOTKEY_TYPES[type.index] != null)
+				throw new ExceptionInInitializerError("Duplicate hotkey index");
+			HOTKEY_TYPES[type.index] = type;
+		}
 	}
 	
 	private final int index;
@@ -25,9 +28,9 @@ public enum GSETpsHotkeyType {
 	}
 	
 	public static GSETpsHotkeyType fromIndex(int index) {
-		if (index < 0 || index >= TYPES.length)
+		if (index < 0 || index >= HOTKEY_TYPES.length)
 			return null;
-		return TYPES[index];
+		return HOTKEY_TYPES[index];
 	}
 
 	public int getIndex() {

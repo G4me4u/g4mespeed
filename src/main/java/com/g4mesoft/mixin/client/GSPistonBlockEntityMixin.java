@@ -38,7 +38,7 @@ public abstract class GSPistonBlockEntityMixin implements GSISmoothPistonBlockEn
 		
 		if (G4mespeedMod.getInstance().getSettings().isEnabled()) {
 			float val;
-			if (GSControllerClient.getInstance().getClientSettings().isSmoothPistonsEnabled()) {
+			if (GSControllerClient.getInstance().getTpsModule().smoothPistons.getValue()) {
 				val = (this.nextProgress * (PISTON_STEPS - 1.0f) + partialTicks) / PISTON_STEPS;
 			} else {
 				val = actualProgress + (this.nextProgress - actualProgress) * partialTicks;

@@ -7,9 +7,12 @@ import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
-import com.g4mesoft.settings.GSClientSettings;
-import com.g4mesoft.settings.GSIKeyBinding;
-import com.g4mesoft.utils.GSMathUtils;
+import com.g4mesoft.setting.GSClientSettings;
+import com.g4mesoft.setting.GSIKeyBinding;
+import com.g4mesoft.setting.GSSettingCategory;
+import com.g4mesoft.setting.GSSettingManager;
+import com.g4mesoft.setting.types.GSBooleanSetting;
+import com.g4mesoft.util.GSMathUtils;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.client.MinecraftClient;
@@ -33,6 +36,8 @@ public class GSTpsModule implements GSIModule {
 	
 	public static final int TPS_INTRODUCTION_VERSION = 100;
 	
+	public static final GSSettingCategory SETTING_CATEGORY = new GSSettingCategory("tps");
+	
 	private float tps;
 	private final List<GSITpsDependant> listeners;
 
@@ -40,6 +45,10 @@ public class GSTpsModule implements GSIModule {
 	private int serverSyncTimer;
 
 	private GSIModuleManager manager;
+
+	public final GSBooleanSetting shiftPitch;
+	public final GSBooleanSetting cullMovingBlocks;
+	public final GSBooleanSetting smoothPistons;
 	
 	public GSTpsModule() {
 		tps = DEFAULT_TPS;
@@ -49,6 +58,10 @@ public class GSTpsModule implements GSIModule {
 		serverSyncTimer = 0;
 		
 		manager = null;
+	
+		shiftPitch = new GSBooleanSetting("shiftPitch", 0, true);
+		cullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", 1, true);
+		smoothPistons = new GSBooleanSetting("smoothPistons", 2, true);
 	}
 	
 	public void addTpsListener(GSITpsDependant listener) {
@@ -127,6 +140,13 @@ public class GSTpsModule implements GSIModule {
 	@Override
 	public void init(GSIModuleManager manager) {
 		this.manager = manager;
+		
+		manager.runOnClient((managerClient) -> {
+			GSSettingManager settings = manager.getSettingManager();
+			settings.addSetting(SETTING_CATEGORY, shiftPitch);
+			settings.addSetting(SETTING_CATEGORY, cullMovingBlocks);
+			settings.addSetting(SETTING_CATEGORY, smoothPistons);
+		});
 	}
 	
 	@Override
@@ -186,14 +206,6 @@ public class GSTpsModule implements GSIModule {
 	}
 
 	@Override
-	public void keyRepeat(int key, int scancode, int mods) {
-	}
-
-	@Override
-	public void onJoinG4mespeedServer(int serverVersion) {
-	}
-
-	@Override
 	public void onDisconnectServer() {
 		resetTps();
 	}
@@ -204,18 +216,10 @@ public class GSTpsModule implements GSIModule {
 	}
 
 	@Override
-	public void onPlayerJoin(ServerPlayerEntity player) {
-	}
-
-	@Override
 	public void onG4mespeedClientJoin(ServerPlayerEntity player, int version) {
 		manager.runOnServer(managerServer -> managerServer.sendPacket(new GSTpsChangePacket(tps), player));
 	}
 
-	@Override
-	public void onPlayerLeave(ServerPlayerEntity player) {
-	}
-	
 	@Override
 	public void onServerShutdown() {
 		resetTps();

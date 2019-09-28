@@ -2,14 +2,18 @@ package com.g4mesoft.core.client;
 
 import java.util.function.Consumer;
 
+import org.lwjgl.glfw.GLFW;
+
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSVersionPacket;
 import com.g4mesoft.core.server.GSIModuleManagerServer;
+import com.g4mesoft.gui.GSTabbedGUI;
+import com.g4mesoft.gui.setting.GSSettingsGUI;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
-import com.g4mesoft.settings.GSClientSettings;
+import com.g4mesoft.setting.GSClientSettings;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -23,6 +27,9 @@ import net.minecraft.util.PacketByteBuf;
 @Environment(EnvType.CLIENT)
 public class GSControllerClient extends GSController implements GSIModuleManagerClient {
 
+	private static final String SERVER_SETTINGS_GUI_TITLE = "Server settings";
+	private static final String CLIENT_SETTINGS_GUI_TITLE = "Client settings";
+	
 	private static final GSControllerClient instance = new GSControllerClient();
 	
 	private MinecraftClient minecraft;
@@ -31,11 +38,26 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	private int serverVersion;
 	private final GSClientSettings clientSettings;
 
+	private final GSTabbedGUI tabbedGUI;
+	
 	public GSControllerClient() {
 		serverVersion = G4mespeedMod.INVALID_GS_VERSION;
 		clientSettings = new GSClientSettings();
+
+		tabbedGUI = new GSTabbedGUI();
+		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSSettingsGUI(getSettingManager()));
+		tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSSettingsGUI(getSettingManager()));
+		
+		initModules();
 	}
 
+	@Override
+	public void addModule(GSIModule module) {
+		super.addModule(module);
+	
+		module.initGUI(tabbedGUI);
+	}
+	
 	public void init(MinecraftClient minecraft) {
 		this.minecraft = minecraft;
 	}
@@ -53,8 +75,12 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 
 	public void keyPressed(int key, int scancode, int mods) {
 		if (isInGame()) {
-			for (GSIModule module : modules)
-				module.keyPressed(key, scancode, mods);
+			if (key == GLFW.GLFW_KEY_G) {
+				minecraft.openScreen(tabbedGUI);
+			} else {
+				for (GSIModule module : modules)
+					module.keyPressed(key, scancode, mods);
+			}
 		}
 	}
 

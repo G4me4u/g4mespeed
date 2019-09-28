@@ -1,5 +1,6 @@
 package com.g4mesoft.core;
 
+import com.g4mesoft.gui.GSTabbedGUI;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.fabricmc.api.EnvType;
@@ -11,31 +12,34 @@ public interface GSIModule {
 
 	public void init(GSIModuleManager manager);
 	
-	public void tick();
+	default public void tick() { }
 	
 	@Environment(EnvType.CLIENT)
-	public void keyReleased(int key, int scancode, int mods);
+	default public void keyReleased(int key, int scancode, int mods) { }
 
 	@Environment(EnvType.CLIENT)
-	public void keyPressed(int key, int scancode, int mods);
+	default public void keyPressed(int key, int scancode, int mods) { }
 
 	@Environment(EnvType.CLIENT)
-	public void keyRepeat(int key, int scancode, int mods);
+	default public void keyRepeat(int key, int scancode, int mods) { }
 
 	@Environment(EnvType.CLIENT)
-	public void onJoinG4mespeedServer(int serverVersion);
+	default public void onJoinG4mespeedServer(int serverVersion) { }
 
 	@Environment(EnvType.CLIENT)
-	public void onDisconnectServer();
+	default public void onDisconnectServer() { }
+
+	@Environment(EnvType.CLIENT)
+	default public void initGUI(GSTabbedGUI tabbedGUI) { }
 	
-	public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher);
+	default public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) { }
 
-	public void onPlayerJoin(ServerPlayerEntity player);
+	default public void onPlayerJoin(ServerPlayerEntity player) { }
 
-	public void onG4mespeedClientJoin(ServerPlayerEntity player, int version);
+	default public void onG4mespeedClientJoin(ServerPlayerEntity player, int version) { }
 
-	public void onPlayerLeave(ServerPlayerEntity player);
+	default public void onPlayerLeave(ServerPlayerEntity player) { }
 
-	public void onServerShutdown();
-	
+	default public void onServerShutdown() { }
+
 }
