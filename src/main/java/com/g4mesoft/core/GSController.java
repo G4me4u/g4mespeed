@@ -3,8 +3,8 @@ package com.g4mesoft.core;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.g4mesoft.module.probe.GSProbeModule;
 import com.g4mesoft.module.tps.GSTpsModule;
+import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSSettingManager;
 
 import net.minecraft.network.Packet;
@@ -16,20 +16,25 @@ public abstract class GSController implements GSIModuleManager {
 	protected final GSSettingManager settings;
 	
 	protected final List<GSIModule> modules;
+	
 	protected final GSTpsModule tpsModule;
-	protected final GSProbeModule probeModule;
+//	protected final GSProbeModule probeModule;
+	protected final GSTranslationModule translationModule;
 	
 	public GSController() {
 		settings = new GSSettingManager();
 		
 		modules = new ArrayList<GSIModule>();
+		
 		tpsModule = new GSTpsModule();
-		probeModule = new GSProbeModule();
+//		probeModule = new GSProbeModule();
+		translationModule = new GSTranslationModule();
 	}
 	
 	protected void initModules() {
 		addModule(tpsModule);
-		addModule(probeModule);
+//		addModule(probeModule);
+		addModule(translationModule);
 	}
 	
 	public void addModule(GSIModule module) {
@@ -44,6 +49,10 @@ public abstract class GSController implements GSIModuleManager {
 	
 	public GSTpsModule getTpsModule() {
 		return tpsModule;
+	}
+	
+	public GSTranslationModule getTranslationModule() {
+		return translationModule;
 	}
 	
 	@Override

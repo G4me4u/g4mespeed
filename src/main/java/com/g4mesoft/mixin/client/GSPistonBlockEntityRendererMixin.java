@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.GSISmoothPistonBlockEntityAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -26,14 +25,12 @@ public class GSPistonBlockEntityRendererMixin {
 	
 	@ModifyConstant(method = "method_3576", constant = @Constant(floatValue = 4f))
 	private float fixShortArm(float shortArmCutoff) {
-		if (G4mespeedMod.getInstance().getSettings().isEnabled())
-			return 0.5f;
-		return shortArmCutoff;
+		return 0.5f;
 	}
 	
 	@Redirect(method = "method_3576", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;disableCull()V"))
 	private void onEnableCull() {
-		if (GSControllerClient.getInstance().getTpsModule().cullMovingBlocks.getValue()) {
+		if (GSControllerClient.getInstance().getTpsModule().cCullMovingBlocks.getValue()) {
 			GlStateManager.enableCull();
 		} else {
 			GlStateManager.disableCull();

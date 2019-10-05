@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import com.g4mesoft.gui.GSScreen;
+import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSISettingChangeListener;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.GSSettingMap;
 import com.g4mesoft.setting.types.GSBooleanSetting;
+import com.g4mesoft.setting.types.GSFloatSetting;
 import com.g4mesoft.util.GSMathUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
@@ -139,8 +141,10 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 			if (hoveredElement != null) {
 				int descTextWidth = width - settingsWidth - DESC_LINE_MARGIN * 2;
 				
-				String desc = "Some very very long description that will in most cases probably need to be split to multiple lines. But I guess in some cases it has to be longer...";
-				descLines = splitToLines(desc, descTextWidth);
+				GSTranslationModule translationModule = getTranslationModule();
+				String desc = translationModule.getTranslation(hoveredElement.getSettingTranslationName() + ".desc");
+				String def = translationModule.getFormattedTranslation("setting.default", hoveredElement.getFormattedDefault());
+				descLines = splitToLines(desc + " " + def, descTextWidth);
 				
 				int numLines = descLines.size();
 				int minimumDescHeight = numLines * font.fontHeight + (numLines - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
@@ -199,6 +203,7 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 	private class GSSettingCategoryElement {
 		
 		private final GSSettingCategory category;
+		private final String title;
 		
 		private final List<GSSettingElementGUI<?>> settings;
 		
@@ -209,6 +214,8 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 		
 		public GSSettingCategoryElement(GSSettingCategory category) {
 			this.category = category;
+			
+			title = "setting." + category.getName();
 			
 			settings = new ArrayList<GSSettingElementGUI<?>>();
 		}
@@ -226,13 +233,15 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 
 		public void addSetting(GSSetting<?> setting) {
 			if (setting instanceof GSBooleanSetting) {
-				settings.add(new GSBooleanSettingElementGUI(GSSettingsGUI.this, (GSBooleanSetting)setting));
+				settings.add(new GSBooleanSettingElementGUI(GSSettingsGUI.this, (GSBooleanSetting)setting, category));
+			} else if (setting instanceof GSFloatSetting) {
+				settings.add(new GSFloatSettingElementGUI(GSSettingsGUI.this, (GSFloatSetting)setting, category));
 			}
 		}
 		
 		public void onSettingChanged(GSSetting<?> setting) {
 			for (GSSettingElementGUI<?> element : settings) {
-				if (element.setting.getIdentifier() == setting.getIdentifier()) {
+				if (element.setting.getName().equals(setting.getName())) {
 					element.onSettingChanged();
 					break;
 				}
@@ -283,7 +292,8 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 		}
 
 		public void render(int mouseX, int mouseY, float partialTicks) {
-			drawCenteredString(GSSettingsGUI.this.font, category.getName(), x + width / 2, y, CATEGORY_TITLE_COLOR);
+			String title = getTranslationModule().getTranslation(this.title);
+			drawCenteredString(GSSettingsGUI.this.font, title, x + width / 2, y, CATEGORY_TITLE_COLOR);
 			
 			for (GSSettingElementGUI<?> element : settings)
 				element.render(mouseX, mouseY, partialTicks);

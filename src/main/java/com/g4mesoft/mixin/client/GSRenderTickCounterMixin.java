@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.GSIRenderTickAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.tps.GSITpsDependant;
@@ -26,7 +25,6 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	private static final float EXTRA_SERVER_SYNC_DELAY = 5.0f;
 	private static final float MIN_SERVER_SYNC_DELAY = 10.0f;
 	private static final float SYNC_DELAY_EASING_FACTOR = 0.05f;
-	private static final float SYNC_CLOCK_EASING_FACTOR = 0.05f;
 	
 	@Shadow public int ticksThisFrame;
 	@Shadow public float tickDelta;
@@ -53,14 +51,12 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	
 	@Redirect(method = "beginRenderTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/RenderTickCounter;timeScale:F"))
 	private float getMsPerTick(RenderTickCounter counter) {
-		if (G4mespeedMod.getInstance().getSettings().isEnabled())
-			return msPerTick;
-		return timeScale;
+		return msPerTick;
 	}
 
 	@Inject(method = "beginRenderTick", at = @At("RETURN"))
 	private void onBeginRenderTick(long currentTimeMillis, CallbackInfo ci) {
-		if (G4mespeedMod.getInstance().getSettings().isEnabled()) {
+		if (getTpsModule().cSyncTick.getValue()) {
 			synchronized (serverSyncLock) {
 				updateServerClock(currentTimeMillis);
 				updateSyncDelay(currentTimeMillis);
@@ -108,8 +104,7 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 		if (!serverSyncReceived)
 			return false;
 		
-		float tps = GSControllerClient.getInstance().getTpsModule().getTps();
-		return GSMathUtils.equalsApproximate(tps, GSTpsModule.DEFAULT_TPS);
+		return GSMathUtils.equalsApproximate(getTpsModule().getTps(), GSTpsModule.DEFAULT_TPS);
 	}
 	
 	private void adjustTickDelta() {
@@ -126,7 +121,7 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 			targetOffset--;
 		}
 		
-		this.tickDelta += targetOffset * SYNC_CLOCK_EASING_FACTOR;
+		this.tickDelta += targetOffset * getTpsModule().cSyncTickAggression.getValue();
 		
 		if (this.tickDelta < 0.0f) {
 			if (this.ticksThisFrame > 0) {
@@ -155,5 +150,9 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 			serverSyncInterval = syncInterval;
 			serverSyncReceived = true;
 		}
+	}
+	
+	private GSTpsModule getTpsModule() {
+		return GSControllerClient.getInstance().getTpsModule();
 	}
 }

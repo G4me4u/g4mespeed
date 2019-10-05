@@ -1,5 +1,6 @@
 package com.g4mesoft.core;
 
+import java.io.File;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -16,5 +17,7 @@ public interface GSIModuleManager {
 	public void runOnServer(Consumer<GSIModuleManagerServer> consumer);
 	
 	public GSSettingManager getSettingManager();
+
+	public File getCacheFile();
 	
 }

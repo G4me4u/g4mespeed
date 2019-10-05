@@ -17,11 +17,11 @@ public class GSSettingManager {
 		listeners = new ArrayList<GSISettingChangeListener>();
 	}
 
-	public GSSetting<?> getSetting(GSSettingCategory category, int settingKey) {
+	public GSSetting<?> getSetting(GSSettingCategory category, String name) {
 		GSSettingMap categorySettings = settings.get(category);
 		if (categorySettings == null)
 			return null;
-		return categorySettings.getSetting(settingKey);
+		return categorySettings.getSetting(name);
 	}
 	
 	public void addSetting(GSSettingCategory category, GSSetting<?> setting) {

@@ -40,7 +40,6 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandler {
 		}
 	}
 	
-	
 	@Override
 	public void setG4mespeedInstalled(boolean gsInstalled) {
 		this.gsInstalled = gsInstalled;

@@ -31,6 +31,9 @@ public interface GSIModule {
 
 	@Environment(EnvType.CLIENT)
 	default public void initGUI(GSTabbedGUI tabbedGUI) { }
+
+	@Environment(EnvType.CLIENT)
+	default public void onClientClose() { }
 	
 	default public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) { }
 
@@ -41,5 +44,6 @@ public interface GSIModule {
 	default public void onPlayerLeave(ServerPlayerEntity player) { }
 
 	default public void onServerShutdown() { }
+
 
 }

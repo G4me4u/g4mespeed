@@ -4,7 +4,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.g4mesoft.packet.GSPacketManager;
-import com.g4mesoft.setting.GSGlobalSettings;
 
 import net.fabricmc.api.ModInitializer;
 
@@ -21,7 +20,6 @@ public class G4mespeedMod implements ModInitializer {
 	
 	private String displayName;
 	
-	private GSGlobalSettings settings;
 	private GSPacketManager packetManager;
 	
 	@Override
@@ -30,14 +28,9 @@ public class G4mespeedMod implements ModInitializer {
 
 		displayName = "G4mespeed " + getVersionAsString(GS_VERSION);
 		
-		settings = new GSGlobalSettings();
 		packetManager = new GSPacketManager();
 		
 		GS_LOGGER.info(getDisplayName() + " initialized!");
-	}
-	
-	public GSGlobalSettings getSettings() {
-		return settings;
 	}
 	
 	public GSPacketManager getPacketManager() {

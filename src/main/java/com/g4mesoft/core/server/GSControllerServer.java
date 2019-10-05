@@ -1,5 +1,6 @@
 package com.g4mesoft.core.server;
 
+import java.io.File;
 import java.util.function.Consumer;
 
 import com.g4mesoft.G4mespeedMod;
@@ -31,8 +32,6 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 
 	public GSControllerServer() {
 		server = null;
-
-		initModules();
 	}
 	
 	@Override
@@ -44,6 +43,8 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	
 	public void init(MinecraftServer server) {
 		this.server = server;
+
+		initModules();
 	}
 
 	public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
@@ -137,6 +138,11 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 					player.networkHandler.sendPacket(customPayload);
 			}
 		}
+	}
+
+	@Override
+	public File getCacheFile() {
+		return server.getRunDirectory();
 	}
 	
 	public MinecraftServer getServer() {

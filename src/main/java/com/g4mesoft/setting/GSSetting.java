@@ -3,14 +3,12 @@ package com.g4mesoft.setting;
 public abstract class GSSetting<T> {
 
 	private final String displayName;
-	private final int identifier;
 	private final T defaultValue;
 	
 	private GSSettingMap settingOwner;
 	
-	public GSSetting(String displayName, int identifier, T defaultValue) {
+	public GSSetting(String displayName, T defaultValue) {
 		this.displayName = displayName;
-		this.identifier = identifier;
 		this.defaultValue = defaultValue;
 		
 		settingOwner = null;
@@ -18,10 +16,6 @@ public abstract class GSSetting<T> {
 	
 	public String getName() {
 		return displayName;
-	}
-	
-	public int getIdentifier() {
-		return identifier;
 	}
 	
 	void setSettingOwner(GSSettingMap changeListener) {
@@ -49,5 +43,9 @@ public abstract class GSSetting<T> {
 	public void setValueIfSameType(GSSetting<?> other) {
 		if (isSameType(other))
 			setValue((T)other.getValue());
+	}
+	
+	public T getDefaultValue() {
+		return defaultValue;
 	}
 }

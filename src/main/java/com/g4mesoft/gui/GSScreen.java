@@ -3,6 +3,8 @@ package com.g4mesoft.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.module.translation.GSTranslationModule;
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.MinecraftClient;
@@ -223,5 +225,9 @@ public abstract class GSScreen extends Screen {
 
 	public int getY() {
 		return y;
+	}
+	
+	public GSTranslationModule getTranslationModule() {
+		return GSControllerClient.getInstance().getTranslationModule();
 	}
 }

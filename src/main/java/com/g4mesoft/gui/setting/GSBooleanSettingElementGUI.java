@@ -1,24 +1,27 @@
 package com.g4mesoft.gui.setting;
 
 import com.g4mesoft.gui.widget.GSToggleSwitchWidget;
+import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSBooleanSetting;
+
+import net.minecraft.util.Formatting;
 
 public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSetting> {
 
 	private static final int SETTING_HEIGHT = Math.max(16, GSToggleSwitchWidget.TOGGLE_SWITCH_HEIGHT);
 
-	private static final int TEXT_MAX_WIDTH = 96;
+	private static final int TEXT_MAX_WIDTH = 140;
 	private static final int TEXT_COLOR = 0xFFFFFFFF;
 	
 	private static final int TOGGLE_WIDTH = GSToggleSwitchWidget.TOGGLE_SWITCH_WIDTH;
 	
-	private GSToggleSwitchWidget switchWidget;
+	private final GSToggleSwitchWidget switchWidget;
 	
-	public GSBooleanSettingElementGUI(GSSettingsGUI settingsGUI, GSBooleanSetting setting) {
-		super(settingsGUI, setting);
+	public GSBooleanSettingElementGUI(GSSettingsGUI settingsGUI, GSBooleanSetting setting, GSSettingCategory category) {
+		super(settingsGUI, setting, category);
 		
 		switchWidget = new GSToggleSwitchWidget(0, 0, setting.getValue(), (state) -> {
-			setting.setValue(state);
+			this.setting.setValue(state);
 		});
 	}
 
@@ -26,7 +29,8 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
 		super.renderTranslated(mouseX, mouseY, partialTicks);
 		
-		drawString(font, setting.getName(), CONTENT_PADDING, (height - font.fontHeight) / 2, TEXT_COLOR);
+		String name = getTranslationModule().getTranslation(settingTranslationName);
+		drawString(font, name, CONTENT_PADDING, (getSettingHeight() - font.fontHeight) / 2, TEXT_COLOR);
 	}
 	
 	@Override
@@ -55,7 +59,7 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 	}
 
 	@Override
-	protected void resetSetting() {
-		setting.reset();
+	public String getFormattedDefault() {
+		return (setting.getDefaultValue() ? (Formatting.GREEN + "enabled") : (Formatting.RED + "disabled")) + Formatting.RESET;
 	}
 }

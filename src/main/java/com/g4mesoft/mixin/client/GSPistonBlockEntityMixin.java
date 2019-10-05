@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.GSISmoothPistonBlockEntityAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 
@@ -36,18 +35,14 @@ public abstract class GSPistonBlockEntityMixin implements GSISmoothPistonBlockEn
 		if (partialTicks > 1.0f)
 			partialTicks = 1.0f;
 		
-		if (G4mespeedMod.getInstance().getSettings().isEnabled()) {
-			float val;
-			if (GSControllerClient.getInstance().getTpsModule().smoothPistons.getValue()) {
-				val = (this.nextProgress * (PISTON_STEPS - 1.0f) + partialTicks) / PISTON_STEPS;
-			} else {
-				val = actualProgress + (this.nextProgress - actualProgress) * partialTicks;
-			}
-			
-			return Math.min(1.0f, val);
+		float val;
+		if (GSControllerClient.getInstance().getTpsModule().cSmoothPistons.getValue()) {
+			val = (this.nextProgress * (PISTON_STEPS - 1.0f) + partialTicks) / PISTON_STEPS;
+		} else {
+			val = actualProgress + (this.nextProgress - actualProgress) * partialTicks;
 		}
 		
-		return this.getProgress(partialTicks);
+		return Math.min(1.0f, val);
 	}
 
 	@Shadow protected abstract float method_11504(float partialTicks);

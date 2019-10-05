@@ -1,5 +1,6 @@
 package com.g4mesoft.core.client;
 
+import java.io.File;
 import java.util.function.Consumer;
 
 import org.lwjgl.glfw.GLFW;
@@ -27,6 +28,8 @@ import net.minecraft.util.PacketByteBuf;
 @Environment(EnvType.CLIENT)
 public class GSControllerClient extends GSController implements GSIModuleManagerClient {
 
+	private static final String CACHE_DIR_NAME = "g4mespeed/cache";
+	
 	private static final String SERVER_SETTINGS_GUI_TITLE = "Server settings";
 	private static final String CLIENT_SETTINGS_GUI_TITLE = "Client settings";
 	
@@ -47,8 +50,6 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		tabbedGUI = new GSTabbedGUI();
 		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSSettingsGUI(getSettingManager()));
 		tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSSettingsGUI(getSettingManager()));
-		
-		initModules();
 	}
 
 	@Override
@@ -60,6 +61,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	
 	public void init(MinecraftClient minecraft) {
 		this.minecraft = minecraft;
+		
+		initModules();
 	}
 
 	public void setNetworkHandler(ClientPlayNetworkHandler networkHandler) {
@@ -105,6 +108,11 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 
 		for (GSIModule module : modules)
 			module.onDisconnectServer();
+	}
+
+	public void onClientClose() {
+		for (GSIModule module : modules)
+			module.onClientClose();
 	}
 
 	@Override
@@ -160,6 +168,11 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		Packet<?> customPayload = packetManger.encodePacket(packet, this);
 		if (customPayload != null && networkHandler != null)
 			networkHandler.sendPacket(customPayload);
+	}
+	
+	@Override
+	public File getCacheFile() {
+		return new File(minecraft.runDirectory, CACHE_DIR_NAME);
 	}
 	
 	public GSClientSettings getClientSettings() {

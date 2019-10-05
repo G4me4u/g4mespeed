@@ -6,8 +6,8 @@ public class GSStringSetting extends GSSetting<String> {
 
 	private String value;
 	
-	public GSStringSetting(String name, int identifier, String defaultValue) {
-		super(name, identifier, defaultValue);
+	public GSStringSetting(String name, String defaultValue) {
+		super(name, defaultValue);
 		
 		this.value = defaultValue;
 	}

@@ -1,0 +1,16 @@
+# Translation version 0
+:0
+
+setting.default=Default is %s.
+
+setting.tps=Tickspeed
+setting.tps.shiftPitch=Shift sound pitch
+setting.tps.shiftPitch.desc=Modifies the pitch of sounds to match the speed at which the game is running.
+setting.tps.cullMovingBlocks=Cull moving blocks
+setting.tps.cullMovingBlocks.desc=Culls the backface of blocks that are pushed by pistons. This is only visible when moving transparent blocks.
+setting.tps.smoothPistons=Smooth piston animation
+setting.tps.smoothPistons.desc=Removes the pause at the beginning of a piston animation on extension and retraction.
+setting.tps.syncTick=Synchronized ticking
+setting.tps.syncTick.desc=Synchronizes the server and client tick clock to improve piston animations. This is done by approximating the server tick-cycle.
+setting.tps.syncTickAggression=Synchronization aggression
+setting.tps.syncTickAggression.desc=The aggression of synchronization. A value of 1.0 will follow the approximated clock exactly. A value of 0.0 will disable synchronization.

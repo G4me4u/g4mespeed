@@ -38,6 +38,11 @@ public class GSMinecraftClientMixin implements GSIMinecraftClientAccess, GSITpsD
 		if (this.player != null)
 			GSControllerClient.getInstance().onDisconnectServer();
 	}
+	
+	@Inject(method = "stop", at = @At(value = "CONSTANT", args = "Stopping!"))
+	public void onClientClose() {
+		GSControllerClient.getInstance().onClientClose();
+	}
 
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {

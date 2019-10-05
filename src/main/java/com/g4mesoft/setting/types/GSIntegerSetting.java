@@ -1,15 +1,32 @@
 package com.g4mesoft.setting.types;
 
 import com.g4mesoft.setting.GSSetting;
+import com.g4mesoft.util.GSMathUtils;
 
 public class GSIntegerSetting extends GSSetting<Integer> {
 
 	private int value;
 	
-	public GSIntegerSetting(String name, int identifier, int defaultValue) {
-		super(name, identifier, defaultValue);
+	private final int minValue;
+	private final int maxValue;
+	private final int interval;
+
+	public GSIntegerSetting(String name, int defaultValue) {
+		this(name, defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE);
+	}
+
+	public GSIntegerSetting(String name, int defaultValue, int minValue, int maxValue) {
+		this(name, defaultValue, minValue, maxValue, 0);
+	}
+	
+	public GSIntegerSetting(String name, int defaultValue, int minValue, int maxValue, int interval) {
+		super(name, defaultValue);
+
+		this.minValue = minValue;
+		this.maxValue = maxValue;
+		this.interval = interval;
 		
-		this.value = defaultValue;
+		this.value = adjustValue(defaultValue);
 	}
 	
 	@Override
@@ -19,15 +36,39 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 
 	@Override
 	public void setValue(Integer value) {
-		int newValue = value.intValue();
+		int newValue = adjustValue(value.intValue());
 		if (newValue != this.value) {
 			this.value = newValue;
 			notifyOwnerChange();
 		}
 	}
+	
+	private int adjustValue(int value) {
+		if (interval / 2 != 0) {
+			int deviation = value % interval;
+
+			value -= deviation;
+			if (Math.abs(deviation) > interval / 2)
+				value = (deviation < 0) ? (value - interval) : (value + interval);
+		}
+		
+		return GSMathUtils.clamp(value, minValue, maxValue);
+	}
 
 	@Override
 	public boolean isSameType(GSSetting<?> other) {
 		return other instanceof GSIntegerSetting;
+	}
+	
+	public int getMinValue() {
+		return minValue;
+	}
+
+	public int getMaxValue() {
+		return maxValue;
+	}
+
+	public int getInterval() {
+		return interval;
 	}
 }

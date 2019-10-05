@@ -6,8 +6,8 @@ public class GSBooleanSetting extends GSSetting<Boolean> {
 
 	private boolean value;
 	
-	public GSBooleanSetting(String name, int identifier, boolean defaultValue) {
-		super(name, identifier, defaultValue);
+	public GSBooleanSetting(String name, boolean defaultValue) {
+		super(name, defaultValue);
 		
 		this.value = defaultValue;
 	}

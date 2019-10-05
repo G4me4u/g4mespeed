@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.g4mesoft.gui.GSScreen;
 import com.g4mesoft.setting.GSSetting;
+import com.g4mesoft.setting.GSSettingCategory;
 
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
@@ -24,14 +25,20 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSScre
 	
 	protected final GSSettingsGUI settingsGUI;
 	protected final T setting;
+	protected final GSSettingCategory category;
+	
+	protected final String settingTranslationName;
 	
 	protected final List<Drawable> drawableChildren;
 	
-	public GSSettingElementGUI(GSSettingsGUI settingsGUI, T setting) {
+	public GSSettingElementGUI(GSSettingsGUI settingsGUI, T setting, GSSettingCategory category) {
 		super(NarratorManager.EMPTY);
 		
 		this.settingsGUI = settingsGUI;
 		this.setting = setting;
+		this.category = category;
+		
+		settingTranslationName = "setting." + category.getName() + "." + setting.getName();
 		
 		drawableChildren = new ArrayList<Drawable>();
 	}
@@ -63,13 +70,21 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSScre
 		addWidget(createResetButton());
 	}
 
-	protected abstract void resetSetting();
+	protected void resetSetting() {
+		setting.reset();
+	}
 	
 	public abstract void onSettingChanged();
+
+	public abstract String getFormattedDefault();
+
+	protected int getSettingHeight() {
+		return height;
+	}
 	
 	public ButtonWidget createResetButton() {
 		int x = width - CONTENT_PADDING - RESET_BUTTON_WIDTH;
-		int y = (height - RESET_BUTTON_HEIGHT) / 2;
+		int y = (getSettingHeight() - RESET_BUTTON_HEIGHT) / 2;
 		
 		return new ButtonWidget(x, y, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT, RESET_TEXT, (button) -> {
 			resetSetting();
@@ -82,5 +97,9 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSScre
 
 	public int getPreferredHeight() {
 		return RESET_BUTTON_HEIGHT + CONTENT_PADDING * 2;
+	}
+	
+	public String getSettingTranslationName() {
+		return settingTranslationName;
 	}
 }
