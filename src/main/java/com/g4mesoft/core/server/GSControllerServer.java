@@ -4,9 +4,9 @@ import java.io.File;
 import java.util.function.Consumer;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSIModule;
-import com.g4mesoft.core.GSINetworkHandler;
 import com.g4mesoft.core.GSVersionPacket;
 import com.g4mesoft.core.client.GSIModuleManagerClient;
 import com.g4mesoft.module.tps.GSITpsDependant;
@@ -60,8 +60,8 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 	
 	public void onG4mespeedClientJoined(ServerPlayerEntity player, int version) {
-		((GSINetworkHandler)player.networkHandler).setG4mespeedInstalled(true);
-		((GSINetworkHandler)player.networkHandler).setG4mespeedVersion(version);
+		((GSINetworkHandlerAccess)player.networkHandler).setG4mespeedInstalled(true);
+		((GSINetworkHandlerAccess)player.networkHandler).setG4mespeedVersion(version);
 
 		for (GSIModule module : modules)
 			module.onG4mespeedClientJoin(player, version);
@@ -114,7 +114,7 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	
 	@Override
 	public void sendPacket(GSIPacket packet, ServerPlayerEntity player, boolean checkCompatibility) {
-		if (checkCompatibility && !((GSINetworkHandler)player.networkHandler).isG4mespeedInstalled())
+		if (checkCompatibility && !((GSINetworkHandlerAccess)player.networkHandler).isG4mespeedInstalled())
 			return;
 		
 		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
@@ -134,7 +134,7 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		Packet<?> customPayload = packetManger.encodePacket(packet, this);
 		if (customPayload != null) {
 			for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-				if (!checkCompatibility || ((GSINetworkHandler)player.networkHandler).isG4mespeedInstalled())
+				if (!checkCompatibility || ((GSINetworkHandlerAccess)player.networkHandler).isG4mespeedInstalled())
 					player.networkHandler.sendPacket(customPayload);
 			}
 		}

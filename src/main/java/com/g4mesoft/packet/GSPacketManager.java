@@ -7,6 +7,8 @@ import com.g4mesoft.core.GSVersionPacket;
 import com.g4mesoft.module.tps.GSServerSyncPacket;
 import com.g4mesoft.module.tps.GSTpsChangePacket;
 import com.g4mesoft.module.tps.GSTpsHotkeyPacket;
+import com.g4mesoft.module.translation.GSTranslationCachePacket;
+import com.g4mesoft.module.translation.GSTranslationVersionPacket;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.NetworkThreadUtils;
@@ -26,9 +28,13 @@ public class GSPacketManager {
 	public GSPacketManager() {
 		registry = new GSPacketRegistry(new Class[] {
 			GSVersionPacket.class,
+			
 			GSTpsHotkeyPacket.class,
 			GSTpsChangePacket.class,
-			GSServerSyncPacket.class
+			GSServerSyncPacket.class,
+			
+			GSTranslationVersionPacket.class,
+			GSTranslationCachePacket.class
 		});
 	}
 

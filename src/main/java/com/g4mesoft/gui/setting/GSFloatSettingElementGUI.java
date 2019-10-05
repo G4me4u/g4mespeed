@@ -3,7 +3,6 @@ package com.g4mesoft.gui.setting;
 import java.text.DecimalFormat;
 
 import com.g4mesoft.gui.widget.GSSliderWidget;
-import com.g4mesoft.gui.widget.GSToggleSwitchWidget;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSFloatSetting;
 
@@ -11,21 +10,22 @@ import net.minecraft.util.Formatting;
 
 public class GSFloatSettingElementGUI extends GSSettingElementGUI<GSFloatSetting> {
 
-	private static final int SETTING_HEIGHT = Math.max(16, GSToggleSwitchWidget.TOGGLE_SWITCH_HEIGHT);
+	private static final int SETTING_HEIGHT = 16;
 
 	private static final int TEXT_MAX_WIDTH = 96;
 	private static final int TEXT_COLOR = 0xFFFFFFFF;
 	
 	private static final DecimalFormat FORMATTER = new DecimalFormat("#0.00");
 	
-	private GSSliderWidget slider;
+	private final GSSliderWidget slider;
 	
 	public GSFloatSettingElementGUI(GSSettingsGUI settingsGUI, GSFloatSetting setting, GSSettingCategory category) {
 		super(settingsGUI, setting, category);
 	
 		slider = new GSSliderWidget(0, 0, 0, setting.getValue(), (value) -> {
-			float delta = this.setting.getMaxValue() - this.setting.getMinValue();
-			this.setting.setValue((float)(this.setting.getMinValue() + delta * value));
+			double delta = setting.getMaxValue() - setting.getMinValue();
+			setting.setValue((float)(setting.getMinValue() + delta * value));
+			return (setting.getValue() - setting.getMinValue()) / delta;
 		}, (value) -> {
 			return FORMATTER.format(value);
 		});

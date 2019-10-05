@@ -7,8 +7,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.core.GSINetworkHandler;
+import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.packet.GSICustomPayloadHolder;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
@@ -19,11 +20,13 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.network.packet.CustomPayloadC2SPacket;
 
 @Mixin(ServerPlayNetworkHandler.class)
-public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandler {
+public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess {
 
 	private boolean gsInstalled = false;
 	private int gsVersion = G4mespeedMod.INVALID_GS_VERSION;
 
+	private int translationVersion = GSTranslationModule.INVALID_TRANSLATION_VERSION;
+	
 	@Shadow public ServerPlayerEntity player;
 	
 	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
@@ -58,5 +61,15 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandler {
 	@Override
 	public int getG4mespeedVersion() {
 		return gsVersion;
+	}
+
+	@Override
+	public void setTranslationVersion(int translationVersion) {
+		this.translationVersion = translationVersion;
+	}
+
+	@Override
+	public int getTranslationVersion() {
+		return translationVersion;
 	}
 }

@@ -1,6 +1,6 @@
-package com.g4mesoft.core;
+package com.g4mesoft.access;
 
-public interface GSINetworkHandler {
+public interface GSINetworkHandlerAccess {
 
 	public void setG4mespeedInstalled(boolean gsInstalled);
 
@@ -10,4 +10,8 @@ public interface GSINetworkHandler {
 
 	public int getG4mespeedVersion();
 
+	public void setTranslationVersion(int translationVersion);
+
+	public int getTranslationVersion();
+	
 }

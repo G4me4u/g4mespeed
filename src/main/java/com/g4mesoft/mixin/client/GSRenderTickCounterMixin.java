@@ -56,17 +56,15 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 
 	@Inject(method = "beginRenderTick", at = @At("RETURN"))
 	private void onBeginRenderTick(long currentTimeMillis, CallbackInfo ci) {
-		if (getTpsModule().cSyncTick.getValue()) {
-			synchronized (serverSyncLock) {
-				updateServerClock(currentTimeMillis);
-				updateSyncDelay(currentTimeMillis);
-				
-				if (shouldAdjustTickDelta())
-					adjustTickDelta();
-				
-				if (serverTicksSinceLastSync >= serverSyncInterval * 2)
-					serverSyncReceived = false;
-			}
+		synchronized (serverSyncLock) {
+			updateServerClock(currentTimeMillis);
+			updateSyncDelay(currentTimeMillis);
+			
+			if (getTpsModule().cSyncTick.getValue() && shouldAdjustTickDelta())
+				adjustTickDelta();
+			
+			if (serverTicksSinceLastSync >= serverSyncInterval * 2)
+				serverSyncReceived = false;
 		}
 	}
 	

@@ -39,8 +39,8 @@ public class GSMinecraftClientMixin implements GSIMinecraftClientAccess, GSITpsD
 			GSControllerClient.getInstance().onDisconnectServer();
 	}
 	
-	@Inject(method = "stop", at = @At(value = "CONSTANT", args = "Stopping!"))
-	public void onClientClose() {
+	@Inject(method = "stop", at = @At(value = "CONSTANT", args = "stringValue=Stopping!"))
+	public void onClientClose(CallbackInfo ci) {
 		GSControllerClient.getInstance().onClientClose();
 	}
 

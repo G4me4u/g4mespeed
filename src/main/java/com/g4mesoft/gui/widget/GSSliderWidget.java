@@ -16,6 +16,8 @@ public class GSSliderWidget extends SliderWidget {
 
 		this.listener = listener;
 		this.formatter = formatter;
+		
+		updateMessage();
 	}
 
 	@Override
@@ -26,7 +28,7 @@ public class GSSliderWidget extends SliderWidget {
 	@Override
 	protected void applyValue() {
 		if (listener != null)
-			listener.onValueChanged(value);
+			value = listener.onValueChanged(value);
 	}
 
 	public void setValueSilent(double value) {
@@ -37,7 +39,7 @@ public class GSSliderWidget extends SliderWidget {
 
 	public static interface GSSliderListener {
 
-		public void onValueChanged(double value);
+		public double onValueChanged(double value);
 
 	}
 

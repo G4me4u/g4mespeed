@@ -16,13 +16,20 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 
+import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
+
+import net.minecraft.server.network.ServerPlayerEntity;
 
 public class GSTranslationModule implements GSIModule {
 
 	private static final String TRANSLATION_FILENAME = "en.lang";
+
+	public static final int INVALID_TRANSLATION_VERSION = -1;
 	
 	private final Map<String, String> translations;
 	private final Map<Integer, GSTranslationCache> caches;
@@ -34,6 +41,8 @@ public class GSTranslationModule implements GSIModule {
 	public GSTranslationModule() {
 		translations = new HashMap<String, String>();
 		caches = new HashMap<Integer, GSTranslationCache>();
+	
+		cachedTranslationVersion = INVALID_TRANSLATION_VERSION;
 	}
 
 	@Override
@@ -79,11 +88,36 @@ public class GSTranslationModule implements GSIModule {
 		});
 	}
 
+	@Override
+	public void onJoinG4mespeedServer(int serverVersion) {
+		manager.runOnClient(m -> m.sendPacket(new GSTranslationVersionPacket(cachedTranslationVersion)));
+	}
+	
+	public void onTranslationVersionReceived(ServerPlayerEntity player, int translationVersion) {
+		((GSINetworkHandlerAccess)player.networkHandler).setTranslationVersion(translationVersion);
+		
+		if (translationVersion < cachedTranslationVersion) {
+			manager.runOnServer((managerServer) -> {
+				Queue<GSTranslationCache> cachesToSend = new PriorityQueue<GSTranslationCache>((e1, e2) -> {
+					return Integer.compare(e1.getCacheVersion(), e2.getCacheVersion());
+				});
+				
+				for (GSTranslationCache cache : caches.values()) {
+					if (cache.getCacheVersion() > translationVersion)
+						cachesToSend.add(cache);
+				}
+				
+				for (GSTranslationCache cache : cachesToSend)
+					managerServer.sendPacket(new GSTranslationCachePacket(cache), player);
+			});
+		}
+	}
+	
 	private void loadTranslations(InputStream is) throws IOException {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
 			Map<String, String> translations = new HashMap<String, String>();
 			
-			int currentVersion = -1;
+			int currentVersion = INVALID_TRANSLATION_VERSION;
 			
 			String line;
 			while ((line = reader.readLine()) != null) {
@@ -92,7 +126,7 @@ public class GSTranslationModule implements GSIModule {
 					case '#':
 						break;
 					case ':':
-						if (!translations.isEmpty() && currentVersion != -1) {
+						if (!translations.isEmpty()) {
 							addTranslationCache(new GSTranslationCache(currentVersion, translations));
 							translations.clear();
 						}
@@ -104,7 +138,7 @@ public class GSTranslationModule implements GSIModule {
 						}
 						break;
 					default:
-						if (currentVersion != -1) {
+						if (currentVersion != INVALID_TRANSLATION_VERSION) {
 							String[] entry = line.split("=");
 							if (entry.length == 2)
 								translations.put(entry[0], entry[1]);
@@ -114,7 +148,7 @@ public class GSTranslationModule implements GSIModule {
 				}
 			}
 			
-			if (!translations.isEmpty() && currentVersion != -1)
+			if (!translations.isEmpty())
 				addTranslationCache(new GSTranslationCache(currentVersion, translations));
 		}
 	}
