@@ -70,28 +70,22 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 	
 	public void keyReleased(int key, int scancode, int mods) {
-		if (isInGame()) {
-			for (GSIModule module : modules)
-				module.keyReleased(key, scancode, mods);
-		}
+		for (GSIModule module : modules)
+			module.keyReleased(key, scancode, mods);
 	}
 
 	public void keyPressed(int key, int scancode, int mods) {
-		if (isInGame()) {
-			if (key == GLFW.GLFW_KEY_G) {
-				minecraft.openScreen(tabbedGUI);
-			} else {
-				for (GSIModule module : modules)
-					module.keyPressed(key, scancode, mods);
-			}
+		if (key == GLFW.GLFW_KEY_G) {
+			minecraft.openScreen(tabbedGUI);
+		} else {
+			for (GSIModule module : modules)
+				module.keyPressed(key, scancode, mods);
 		}
 	}
 
 	public void keyRepeat(int key, int scancode, int mods) {
-		if (isInGame()) {
-			for (GSIModule module : modules)
-				module.keyRepeat(key, scancode, mods);
-		}
+		for (GSIModule module : modules)
+			module.keyRepeat(key, scancode, mods);
 	}
 
 	public void onJoinG4mespeedServer(int serverVersion) {

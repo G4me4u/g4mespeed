@@ -21,7 +21,8 @@ public class GSKeyboardMixin {
 	
 	@Shadow @Final private MinecraftClient client;
 	
-	@Inject(method="onKey(JIIII)V", at = @At("RETURN"))
+	@Inject(method="onKey(JIIII)V", at = @At(value = "INVOKE", shift = At.Shift.AFTER, 
+			target = "Lnet/minecraft/client/options/KeyBinding;onKeyPressed(Lnet/minecraft/client/util/InputUtil$KeyCode;)V"))
 	public void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		if (client.window.getHandle() == windowHandle) {
 			switch (action) {
