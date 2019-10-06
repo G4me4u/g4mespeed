@@ -13,6 +13,9 @@ import net.minecraft.util.PacketByteBuf;
 
 public abstract class GSController implements GSIModuleManager {
 
+	protected static final String CACHE_DIR_NAME = "g4mespeed/cache";
+	protected static final String INTEGRATED_CACHE_DIR_NAME = "g4mespeed/integrated/cache";
+	
 	protected final GSSettingManager settings;
 	
 	protected final List<GSIModule> modules;
@@ -22,7 +25,7 @@ public abstract class GSController implements GSIModuleManager {
 	protected final GSTranslationModule translationModule;
 	
 	public GSController() {
-		settings = new GSSettingManager();
+		settings = new GSSettingManager(this);
 		
 		modules = new ArrayList<GSIModule>();
 		
@@ -30,12 +33,23 @@ public abstract class GSController implements GSIModuleManager {
 //		probeModule = new GSProbeModule();
 		translationModule = new GSTranslationModule();
 	}
+
+	protected void onStart() {
+		settings.loadSettings();
+
+		initModules();
+	}
+	
+	protected void onStop() {
+		settings.saveSettings();
+	}
 	
 	protected void initModules() {
 		addModule(tpsModule);
 //		addModule(probeModule);
 		addModule(translationModule);
 	}
+	
 	
 	public void addModule(GSIModule module) {
 		modules.add(module);

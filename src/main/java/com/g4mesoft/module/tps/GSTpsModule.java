@@ -150,11 +150,11 @@ public class GSTpsModule implements GSIModule {
 		
 		manager.runOnClient((managerClient) -> {
 			GSSettingManager settings = manager.getSettingManager();
-			settings.addSetting(SETTING_CATEGORY, cShiftPitch);
-			settings.addSetting(SETTING_CATEGORY, cCullMovingBlocks);
-			settings.addSetting(SETTING_CATEGORY, cSmoothPistons);
-			settings.addSetting(SETTING_CATEGORY, cSyncTick);
-			settings.addSetting(SETTING_CATEGORY, cSyncTickAggression);
+			settings.registerSetting(SETTING_CATEGORY, cShiftPitch);
+			settings.registerSetting(SETTING_CATEGORY, cCullMovingBlocks);
+			settings.registerSetting(SETTING_CATEGORY, cSmoothPistons);
+			settings.registerSetting(SETTING_CATEGORY, cSyncTick);
+			settings.registerSetting(SETTING_CATEGORY, cSyncTickAggression);
 		});
 	}
 	

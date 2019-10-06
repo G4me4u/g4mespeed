@@ -28,8 +28,6 @@ import net.minecraft.util.PacketByteBuf;
 @Environment(EnvType.CLIENT)
 public class GSControllerClient extends GSController implements GSIModuleManagerClient {
 
-	private static final String CACHE_DIR_NAME = "g4mespeed/cache";
-	
 	private static final String SERVER_SETTINGS_GUI_TITLE = "Server settings";
 	private static final String CLIENT_SETTINGS_GUI_TITLE = "Client settings";
 	
@@ -62,7 +60,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	public void init(MinecraftClient minecraft) {
 		this.minecraft = minecraft;
 		
-		initModules();
+		onStart();
 	}
 
 	public void setNetworkHandler(ClientPlayNetworkHandler networkHandler) {
@@ -107,6 +105,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	public void onClientClose() {
 		for (GSIModule module : modules)
 			module.onClientClose();
+		
+		onStop();
 	}
 
 	@Override

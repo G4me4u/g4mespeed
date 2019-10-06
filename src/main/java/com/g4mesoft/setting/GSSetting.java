@@ -19,7 +19,7 @@ public abstract class GSSetting<T> {
 	}
 	
 	void setSettingOwner(GSSettingMap changeListener) {
-		if (this.settingOwner != null)
+		if (changeListener != null && this.settingOwner != null)
 			throw new IllegalStateException("Change listener already set!");
 		this.settingOwner = changeListener;
 	}

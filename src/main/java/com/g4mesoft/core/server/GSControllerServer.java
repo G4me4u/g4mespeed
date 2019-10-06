@@ -44,7 +44,7 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	public void init(MinecraftServer server) {
 		this.server = server;
 
-		initModules();
+		onStart();
 	}
 
 	public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
@@ -75,6 +75,8 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	public void onServerShutdown() {
 		for (GSIModule module : modules)
 			module.onServerShutdown();
+		
+		onStop();
 	}
 	
 	@Override
@@ -142,7 +144,11 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 
 	@Override
 	public File getCacheFile() {
-		return server.getRunDirectory();
+		if (server.isDedicated())
+			return new File(server.getRunDirectory(), CACHE_DIR_NAME);
+		
+		// Assume we're running on integrated server
+		return new File(server.getRunDirectory(), INTEGRATED_CACHE_DIR_NAME);
 	}
 	
 	public MinecraftServer getServer() {

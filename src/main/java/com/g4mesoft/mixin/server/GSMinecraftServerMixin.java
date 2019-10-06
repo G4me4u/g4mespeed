@@ -1,7 +1,5 @@
 package com.g4mesoft.mixin.server;
 
-import java.io.File;
-import java.net.Proxy;
 import java.util.function.BooleanSupplier;
 
 import org.apache.logging.log4j.Logger;
@@ -17,16 +15,9 @@ import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
-import com.mojang.authlib.GameProfileRepository;
-import com.mojang.authlib.minecraft.MinecraftSessionService;
-import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
-import com.mojang.datafixers.DataFixer;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.WorldGenerationProgressListenerFactory;
-import net.minecraft.server.command.CommandManager;
 import net.minecraft.util.SystemUtil;
-import net.minecraft.util.UserCache;
 import net.minecraft.util.profiler.DisableableProfiler;
 
 @Mixin(MinecraftServer.class)
@@ -51,15 +42,6 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	@Shadow protected abstract boolean shouldKeepTicking();
 
 	@Shadow protected abstract void method_16208();
-
-	@Inject(method = "<init>", at = @At(value = "RETURN"))
-	private void onMinecraftServerCTOR(File file, Proxy proxy, DataFixer dataFixer, CommandManager commandManager,
-			YggdrasilAuthenticationService authService, MinecraftSessionService sessionService,
-			GameProfileRepository gameProfileRepo, UserCache userCache,
-			WorldGenerationProgressListenerFactory worldGenProgressListenerFactory, String string, CallbackInfo ci) {
-
-		GSControllerServer.getInstance().init((MinecraftServer) ((Object) this));
-	}
 
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {

@@ -4,6 +4,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "server.GSMinecraftServerMixin",
+    "server.GSMinecraftDedicatedServerMixin",
 
     "server.GSCommandManagerMixin",
     
@@ -16,6 +17,7 @@
   ],
   "client": [
 	"client.GSMinecraftClientMixin",
+    "client.GSIntegratedServerMixin",
 
   	"client.GSSoundSystemMixin",
   	"client.GSSoundManagerMixin",
