@@ -2,6 +2,7 @@ package com.g4mesoft.gui.setting;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.GSSettingMap;
 import com.g4mesoft.setting.types.GSBooleanSetting;
 import com.g4mesoft.setting.types.GSFloatSetting;
+import com.g4mesoft.setting.types.GSIntegerSetting;
 import com.g4mesoft.util.GSMathUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
@@ -22,6 +24,7 @@ import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.NarratorManager;
+import net.minecraft.util.SystemUtil;
 
 @Environment(EnvType.CLIENT)
 public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener {
@@ -31,10 +34,11 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 	private static final int CATEGORY_TITLE_COLOR = 0xFFFFFFFF;
 	
 	private static final int DESC_BACKGROUND_COLOR = GSSettingElementGUI.HOVERED_BACKGROUND;
-	private static final float DESC_HEIGHT_EASING = 0.5f;
 	private static final int DESC_LINE_SPACING = 5;
 	private static final int DESC_LINE_MARGIN = 10;
 	private static final int DESC_TEXT_COLOR = 0xFFFFFFFF;
+	
+	private static final float DESC_ANIMATION_TIME = 500.0f;
 	
 	private final Map<GSSettingCategory, GSSettingCategoryElement> settingCategories;
 	private int settingsWidth;
@@ -42,9 +46,10 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 	
 	private GSSettingElementGUI<?> hoveredElement;
 	private List<String> descLines;
-	private int descHeight;
-	private int prevDescHeight;
+	private int startDescHeight;
 	private int targetDescHeight;
+
+	private long descAnimStart;
 	
 	public GSSettingsGUI(GSSettingManager settingManager) {
 		super(NarratorManager.EMPTY);
@@ -68,6 +73,8 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 		}
 		
 		categoryElement.addSetting(setting);
+		
+		layoutChanged = true;
 	}
 	
 	@Override
@@ -80,6 +87,15 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 	@Override
 	public void onSettingAdded(GSSettingCategory category, GSSetting<?> setting) {
 		addSettingElement(category, setting);
+	}
+
+	@Override
+	public void onSettingRemoved(GSSettingCategory category, GSSetting<?> setting) {
+		GSSettingCategoryElement categoryElement = settingCategories.get(category);
+		if (categoryElement != null)
+			categoryElement.removeSetting(setting);
+
+		layoutChanged = true;
 	}
 
 	private void layoutSettingElements() {
@@ -106,16 +122,6 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 		
 		for (GSSettingCategoryElement element : settingCategories.values())
 			element.tick();
-		
-		if (hoveredElement != null) {
-			prevDescHeight = descHeight;
-			int newDescHeight = descHeight + (int)((targetDescHeight - descHeight) * DESC_HEIGHT_EASING);
-			if (newDescHeight == descHeight) {
-				descHeight = targetDescHeight;
-			} else {
-				descHeight = newDescHeight;
-			}
-		}
 	}
 	
 	@Override
@@ -150,7 +156,9 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 				int minimumDescHeight = numLines * font.fontHeight + (numLines - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
 				
 				targetDescHeight = Math.max(minimumDescHeight, hoveredElement.height);
-				descHeight = prevDescHeight = hoveredElement.height;
+				startDescHeight = hoveredElement.height;
+				
+				descAnimStart = SystemUtil.getMeasuringTimeMs();
 			} else {
 				descLines.clear();
 				descLines = null;
@@ -162,7 +170,13 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 	}
 	
 	private void renderHoveredDesc(GSSettingElementGUI<?> hoveredElement, float partialTicks) {
-		int descHeight = prevDescHeight + (int)((this.descHeight - prevDescHeight) * partialTicks);
+		long delta = SystemUtil.getMeasuringTimeMs() - descAnimStart;
+
+		float progress = Math.min(1.0f, delta / DESC_ANIMATION_TIME);
+		
+		progress = 1.0f - (float)Math.pow(1.0 - progress, 3.0);
+		
+		int descHeight = startDescHeight + Math.round((targetDescHeight - startDescHeight) * progress);
 		int descWidth = width - settingsWidth;
 		
 		int descX = settingsWidth;
@@ -171,7 +185,7 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 		if (descWidth > 0 && descHeight > 0 && targetDescHeight != 0) {
 			fill(descX, descY, descX + descWidth, descY + descHeight, DESC_BACKGROUND_COLOR);
 			
-			int alpha = GSMathUtils.clamp((int)((float)descHeight / targetDescHeight * 255.0f), 0, 255) << 24;
+			int alpha = GSMathUtils.clamp((int)(progress * 128.0f + 127.0f), 0, 255) << 24;
 			
 			int y = descY + DESC_LINE_MARGIN;
 			for (String line : descLines) {
@@ -236,6 +250,16 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 				settings.add(new GSBooleanSettingElementGUI(GSSettingsGUI.this, (GSBooleanSetting)setting, category));
 			} else if (setting instanceof GSFloatSetting) {
 				settings.add(new GSFloatSettingElementGUI(GSSettingsGUI.this, (GSFloatSetting)setting, category));
+			} else if (setting instanceof GSIntegerSetting) {
+				settings.add(new GSIntegerSettingElementGUI(GSSettingsGUI.this, (GSIntegerSetting)setting, category));
+			}
+		}
+
+		public void removeSetting(GSSetting<?> setting) {
+			Iterator<GSSettingElementGUI<?>> settingItr = settings.iterator();
+			while (settingItr.hasNext()) {
+				if (settingItr.next().setting == setting)
+					settingItr.remove();
 			}
 		}
 		

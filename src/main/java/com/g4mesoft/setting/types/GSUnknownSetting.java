@@ -4,8 +4,14 @@ import com.g4mesoft.setting.GSSetting;
 
 public class GSUnknownSetting extends GSSetting<Object> {
 
-	public GSUnknownSetting(String name) {
+	private final String type;
+	private final byte[] data;
+	
+	public GSUnknownSetting(String name, String type, byte[] data) {
 		super(name, null);
+		
+		this.type = type;
+		this.data = data;
 	}
 	
 	@Override
@@ -20,5 +26,13 @@ public class GSUnknownSetting extends GSSetting<Object> {
 	@Override
 	public boolean isSameType(GSSetting<?> other) {
 		return false;
+	}
+
+	public String getType() {
+		return type;
+	}
+	
+	public byte[] getData() {
+		return data;
 	}
 }

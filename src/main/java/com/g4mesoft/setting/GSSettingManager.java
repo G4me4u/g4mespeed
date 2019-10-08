@@ -183,9 +183,6 @@ public class GSSettingManager {
 		}
 		
 		categorySettings.registerSetting(setting);
-		
-		for (GSISettingChangeListener listener : listeners)
-			listener.onSettingAdded(category, setting);
 	}
 	
 	public Collection<GSSettingMap> getSettings() {
@@ -195,6 +192,16 @@ public class GSSettingManager {
 	void settingChanged(GSSettingCategory category, GSSetting<?> setting) {
 		for (GSISettingChangeListener listener : listeners)
 			listener.onSettingChanged(category, setting);
+	}
+	
+	void settingAdded(GSSettingCategory category, GSSetting<?> setting) {
+		for (GSISettingChangeListener listener : listeners)
+			listener.onSettingAdded(category, setting);
+	}
+
+	void settingRemoved(GSSettingCategory category, GSSetting<?> setting) {
+		for (GSISettingChangeListener listener : listeners)
+			listener.onSettingRemoved(category, setting);
 	}
 
 	public void addChangeListener(GSISettingChangeListener changeListener) {

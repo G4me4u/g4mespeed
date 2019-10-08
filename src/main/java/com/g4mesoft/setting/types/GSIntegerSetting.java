@@ -16,7 +16,7 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 	}
 
 	public GSIntegerSetting(String name, int defaultValue, int minValue, int maxValue) {
-		this(name, defaultValue, minValue, maxValue, 0);
+		this(name, defaultValue, minValue, maxValue, 1);
 	}
 	
 	public GSIntegerSetting(String name, int defaultValue, int minValue, int maxValue, int interval) {

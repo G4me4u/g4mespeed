@@ -94,6 +94,11 @@ public class GSTranslationModule implements GSIModule {
 	}
 	
 	public void onTranslationVersionReceived(ServerPlayerEntity player, int translationVersion) {
+		// Make sure the player hasn't already requested
+		// a translation mapping in the current session.
+		if (((GSINetworkHandlerAccess)player.networkHandler).getTranslationVersion() != INVALID_TRANSLATION_VERSION)
+			return;
+		
 		((GSINetworkHandlerAccess)player.networkHandler).setTranslationVersion(translationVersion);
 		
 		if (translationVersion < cachedTranslationVersion) {
@@ -203,5 +208,9 @@ public class GSTranslationModule implements GSIModule {
 	public String getFormattedTranslation(String key, Object... args) {
 		String value = translations.get(key);
 		return (value == null) ? key : String.format(value, args);
+	}
+
+	public boolean hasTranslation(String key) {
+		return translations.containsKey(key);
 	}
 }

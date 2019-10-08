@@ -8,6 +8,8 @@ public class GSSliderWidget extends SliderWidget {
 
 	public static final int SLIDER_HEIGHT = 20;
 
+	public static final int MAX_WIDTH = 196;
+
 	private final GSSliderListener listener;
 	private final GSSliderFormatter formatter;
 
@@ -28,18 +30,18 @@ public class GSSliderWidget extends SliderWidget {
 	@Override
 	protected void applyValue() {
 		if (listener != null)
-			value = listener.onValueChanged(value);
+			listener.onValueChanged(value);
 	}
 
 	public void setValueSilent(double value) {
-		this.value = GSMathUtils.clamp(value, 0.0D, 1.0D);
+		this.value = GSMathUtils.clamp(value, 0.0, 1.0);
 		
 		updateMessage();
 	}
 
 	public static interface GSSliderListener {
 
-		public double onValueChanged(double value);
+		public void onValueChanged(double value);
 
 	}
 

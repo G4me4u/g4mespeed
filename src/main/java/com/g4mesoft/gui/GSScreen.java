@@ -190,31 +190,49 @@ public abstract class GSScreen extends Screen {
 		
 		int lastSpaceIndex = -1;
 		
+		String formattingNextLine = "";
+		String formattingThisLine = formattingNextLine;
+		
 		for (int i = 0; i < len; i++) {
 			char c = text.charAt(i);
-			lineWidth += font.getCharWidth(c);
-			
-			if (c == ' ')
-				lastSpaceIndex = i;
-			
-			if (lineWidth > availableWidth) {
-				if (lastSpaceIndex != -1) {
-					result.add(text.substring(lineBegin, lastSpaceIndex));
-					i = lastSpaceIndex;
-					lineBegin = lastSpaceIndex + 1;
-					
-					lastSpaceIndex = -1;
-				} else {
-					result.add(text.substring(lineBegin, i));
-					lineBegin = i;
-				}
+			if (c == '§') {
+				i++;
 				
-				lineWidth = 0;
+				if (i < len) {
+					c = text.charAt(i);
+					if (c == 'r') {
+						formattingNextLine = "";
+					} else {
+						formattingNextLine += "§" + c;
+					}
+				}
+			} else {
+				lineWidth += font.getCharWidth(c);
+				
+				if (c == ' ')
+					lastSpaceIndex = i;
+				
+				if (lineWidth > availableWidth) {
+					if (lastSpaceIndex != -1) {
+						result.add(formattingThisLine + text.substring(lineBegin, lastSpaceIndex));
+						formattingThisLine = formattingNextLine;
+						
+						i = lastSpaceIndex;
+						lineBegin = lastSpaceIndex + 1;
+						
+						lastSpaceIndex = -1;
+					} else {
+						result.add(text.substring(lineBegin, i));
+						lineBegin = i;
+					}
+					
+					lineWidth = 0;
+				}
 			}
 		}
 
 		if (lineBegin != len)
-			result.add(text.substring(lineBegin, len));
+			result.add(formattingThisLine + text.substring(lineBegin));
 		
 		return result;
 	}

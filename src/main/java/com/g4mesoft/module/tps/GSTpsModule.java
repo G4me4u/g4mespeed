@@ -13,6 +13,7 @@ import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.types.GSBooleanSetting;
 import com.g4mesoft.setting.types.GSFloatSetting;
+import com.g4mesoft.setting.types.GSIntegerSetting;
 import com.g4mesoft.util.GSMathUtils;
 import com.mojang.brigadier.CommandDispatcher;
 
@@ -39,6 +40,10 @@ public class GSTpsModule implements GSIModule {
 	
 	public static final GSSettingCategory SETTING_CATEGORY = new GSSettingCategory("tps");
 	
+	public static final int PISTON_ANIM_PAUSE_BEGINNING = 0;
+	public static final int PISTON_ANIM_NO_PAUSE = 1;
+	public static final int PISTON_ANIM_PAUSE_END = 2;
+	
 	private float tps;
 	private final List<GSITpsDependant> listeners;
 
@@ -49,7 +54,7 @@ public class GSTpsModule implements GSIModule {
 
 	public final GSBooleanSetting cShiftPitch;
 	public final GSBooleanSetting cCullMovingBlocks;
-	public final GSBooleanSetting cSmoothPistons;
+	public final GSIntegerSetting cPistonAnimationType;
 	
 	public final GSBooleanSetting cSyncTick;
 	public final GSFloatSetting cSyncTickAggression;
@@ -65,7 +70,7 @@ public class GSTpsModule implements GSIModule {
 	
 		cShiftPitch = new GSBooleanSetting("shiftPitch", true);
 		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
-		cSmoothPistons = new GSBooleanSetting("smoothPistons", true);
+		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", 0, 0, 2);
 	
 		cSyncTick = new GSBooleanSetting("syncTick", true);
 		cSyncTickAggression = new GSFloatSetting("syncTickAggression", 0.05f, 0.0f, 1.0f, 0.05f);
@@ -152,7 +157,7 @@ public class GSTpsModule implements GSIModule {
 			GSSettingManager settings = manager.getSettingManager();
 			settings.registerSetting(SETTING_CATEGORY, cShiftPitch);
 			settings.registerSetting(SETTING_CATEGORY, cCullMovingBlocks);
-			settings.registerSetting(SETTING_CATEGORY, cSmoothPistons);
+			settings.registerSetting(SETTING_CATEGORY, cPistonAnimationType);
 			settings.registerSetting(SETTING_CATEGORY, cSyncTick);
 			settings.registerSetting(SETTING_CATEGORY, cSyncTickAggression);
 		});

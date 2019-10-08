@@ -23,9 +23,16 @@ public class GSPistonBlockEntityRendererMixin {
 		return ((GSISmoothPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
 	}
 	
-	@ModifyConstant(method = "method_3576", constant = @Constant(floatValue = 4f))
+	@ModifyConstant(method = "method_3576", constant = @Constant(floatValue = 4.0f))
 	private float fixShortArm(float shortArmCutoff) {
 		return 0.5f;
+	}
+
+	@ModifyConstant(method = "method_3576", constant = @Constant(floatValue = 1.0f), allow = 1)
+	private float fixPistonBlink(float maximumProgress) {
+		// The progress is fixed in getProgress
+		// of the piston block entity.
+		return Float.MAX_VALUE;
 	}
 	
 	@Redirect(method = "method_3576", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/platform/GlStateManager;disableCull()V"))

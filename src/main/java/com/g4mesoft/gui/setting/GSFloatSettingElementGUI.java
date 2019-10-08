@@ -1,83 +1,55 @@
 package com.g4mesoft.gui.setting;
 
 import java.text.DecimalFormat;
+import java.util.Locale;
 
-import com.g4mesoft.gui.widget.GSSliderWidget;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSFloatSetting;
 
 import net.minecraft.util.Formatting;
 
-public class GSFloatSettingElementGUI extends GSSettingElementGUI<GSFloatSetting> {
+public class GSFloatSettingElementGUI extends GSNumberSettingElementGUI<GSFloatSetting> {
 
-	private static final int SETTING_HEIGHT = 16;
+	private static final float MAX_DEF_INTERVAL_FOR_SLIDER = 100.0f;
 
-	private static final int TEXT_MAX_WIDTH = 96;
-	private static final int TEXT_COLOR = 0xFFFFFFFF;
-	
 	private static final DecimalFormat FORMATTER = new DecimalFormat("#0.00");
-	
-	private final GSSliderWidget slider;
 	
 	public GSFloatSettingElementGUI(GSSettingsGUI settingsGUI, GSFloatSetting setting, GSSettingCategory category) {
 		super(settingsGUI, setting, category);
-	
-		slider = new GSSliderWidget(0, 0, 0, setting.getValue(), (value) -> {
-			double delta = setting.getMaxValue() - setting.getMinValue();
-			setting.setValue((float)(setting.getMinValue() + delta * value));
-			return (setting.getValue() - setting.getMinValue()) / delta;
-		}, (value) -> {
-			return FORMATTER.format(value);
-		});
 	}
 
 	@Override
-	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		super.renderTranslated(mouseX, mouseY, partialTicks);
-
-		String name = getTranslationModule().getTranslation(settingTranslationName);
-		drawString(font, name, CONTENT_PADDING, (getSettingHeight() - font.fontHeight) / 2, TEXT_COLOR);
+	protected String getSliderText() {
+		return FORMATTER.format(setting.getValue().doubleValue());
 	}
 	
 	@Override
-	public int getPreferredWidth() {
-		return super.getPreferredWidth() + TEXT_MAX_WIDTH + CONTENT_MARGIN * 2;
-	}
-
-	@Override
-	public int getPreferredHeight() {
-		int prefHeight = Math.max(super.getPreferredHeight(), SETTING_HEIGHT + CONTENT_PADDING * 2);
-		if (slider != null)
-			prefHeight += GSSliderWidget.SLIDER_HEIGHT + CONTENT_MARGIN;
-		return prefHeight;
+	protected void setValueFromSlider(double value) {
+		setting.setValue((float)(value * (setting.getMaxValue() - setting.getMinValue()) + setting.getMinValue()));
 	}
 	
 	@Override
-	public void init() {
-		super.init();
-		
-		if (slider != null) {
-			slider.x = CONTENT_PADDING;
-			slider.y = height - CONTENT_PADDING - GSSliderWidget.SLIDER_HEIGHT;
-			slider.setWidth(width - CONTENT_PADDING * 2);
-			
-			addWidget(slider);
+	protected boolean setValueFromTextField(String str) {
+		try {
+			setting.setValue(Float.parseFloat(str));
+		} catch (NumberFormatException e) {
+			return false;
 		}
+		
+		return true;
 	}
-	
+
 	@Override
-	protected int getSettingHeight() {
-		int settingHeight = super.getSettingHeight();
-		if (slider != null)
-			settingHeight -= GSSliderWidget.SLIDER_HEIGHT + CONTENT_MARGIN;
-		return settingHeight;
+	protected boolean shouldUseSlider() {
+		return setting.getMaxValue() - setting.getMinValue() < MAX_DEF_INTERVAL_FOR_SLIDER;
 	}
-	
+
 	@Override
-	public void onSettingChanged() {
-		if (slider != null) {
-			float delta = this.setting.getMaxValue() - this.setting.getMinValue();
-			slider.setValueSilent((this.setting.getValue() - this.setting.getMinValue()) / delta);
+	protected void updateFieldValue() {
+		if (shouldUseSlider()) {
+			setSliderValue((setting.getValue() - setting.getMinValue()) / (setting.getMaxValue() - setting.getMinValue()));
+		} else {
+			setTextFieldValue(String.format(Locale.ENGLISH, "%.3f", setting.getValue()));
 		}
 	}
 	

@@ -10,7 +10,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSISmoothPistonBlockEntityAccess;
 import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.module.tps.GSTpsModule;
 
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.Direction;
@@ -32,14 +34,22 @@ public abstract class GSPistonBlockEntityMixin implements GSISmoothPistonBlockEn
 
 	@Override
 	public float getSmoothProgress(float partialTicks) {
-		if (partialTicks > 1.0f)
-			partialTicks = 1.0f;
+		if (((BlockEntity)(Object)this).isInvalid())
+			return 1.0f;
 		
 		float val;
-		if (GSControllerClient.getInstance().getTpsModule().cSmoothPistons.getValue()) {
+		
+		switch (GSControllerClient.getInstance().getTpsModule().cPistonAnimationType.getValue()) {
+		case GSTpsModule.PISTON_ANIM_NO_PAUSE:
 			val = (this.nextProgress * (PISTON_STEPS - 1.0f) + partialTicks) / PISTON_STEPS;
-		} else {
+			break;
+		case GSTpsModule.PISTON_ANIM_PAUSE_END:
+			val = (this.nextProgress * (PISTON_STEPS - 1.0f) + partialTicks) / (PISTON_STEPS - 1.0f);
+			break;
+		default:
+		case GSTpsModule.PISTON_ANIM_PAUSE_BEGINNING:
 			val = actualProgress + (this.nextProgress - actualProgress) * partialTicks;
+			break;
 		}
 		
 		return Math.min(1.0f, val);

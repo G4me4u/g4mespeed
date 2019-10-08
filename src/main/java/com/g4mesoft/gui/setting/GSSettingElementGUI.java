@@ -21,7 +21,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSScre
 	
 	protected static final int RESET_BUTTON_WIDTH = 60;
 	protected static final int RESET_BUTTON_HEIGHT = 20;
-	protected static final String RESET_TEXT = "Reset";
+	protected static final String RESET_TEXT = "setting.button.reset";
 	
 	protected final GSSettingsGUI settingsGUI;
 	protected final T setting;
@@ -86,7 +86,8 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSScre
 		int x = width - CONTENT_PADDING - RESET_BUTTON_WIDTH;
 		int y = (getSettingHeight() - RESET_BUTTON_HEIGHT) / 2;
 		
-		return new ButtonWidget(x, y, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT, RESET_TEXT, (button) -> {
+		String resetText = getTranslationModule().getTranslation(RESET_TEXT);
+		return new ButtonWidget(x, y, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT, resetText, (button) -> {
 			resetSetting();
 		});
 	}

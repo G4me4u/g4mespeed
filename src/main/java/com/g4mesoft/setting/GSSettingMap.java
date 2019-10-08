@@ -35,10 +35,14 @@ public class GSSettingMap {
 		if (currentSetting != null) {
 			setting.setValueIfSameType(currentSetting);
 			currentSetting.setSettingOwner(null);
+
+			owner.settingRemoved(category, currentSetting);
 		}
 		
 		settings.put(setting.getName(), setting);
 		setting.setSettingOwner(this);
+		
+		owner.settingAdded(category, setting);
 	}
 	
 	public Collection<GSSetting<?>> getSettings() {
@@ -59,15 +63,19 @@ public class GSSettingMap {
 			String name = buffer.readString();
 			String type = buffer.readString();
 			int sizeInBytes = buffer.readInt();
-			
+
+			if (buffer.readableBytes() < sizeInBytes)
+				throw new DecoderException("Not enough bytes in buffer!");
+				
 			int settingEnd = buffer.readerIndex() + sizeInBytes;
 			
 			GSSetting<?> setting;
 			
 			GSISettingDecoder<?> decoder = owner.getSettingDecoder(type);
 			if (decoder == null) {
-				buffer.skipBytes(sizeInBytes);
-				setting = new GSUnknownSetting(name);
+				byte[] data = new byte[sizeInBytes];
+				buffer.readBytes(data);
+				setting = new GSUnknownSetting(name, type, data);
 			} else {
 				setting = decoder.decodeSetting(name, buffer);
 
@@ -85,6 +93,8 @@ public class GSSettingMap {
 			} else {
 				setting.setSettingOwner(this);
 				settings.put(setting.getName(), setting);
+
+				owner.settingAdded(category, setting);
 			}
 		}
 	}
@@ -100,8 +110,15 @@ public class GSSettingMap {
 			@SuppressWarnings("rawtypes")
 			GSISettingDecoder decoder = owner.getSettingDecoder(setting.getClass());
 			if (decoder == null) {
-				buffer.writeString(GSSettingManager.UNKNOWN_SETTING_TYPE);
-				buffer.writeInt(0);
+				if (setting instanceof GSUnknownSetting) {
+					GSUnknownSetting unknSetting = ((GSUnknownSetting)setting);
+					buffer.writeString(unknSetting.getType());
+					buffer.writeInt(unknSetting.getData().length);
+					buffer.writeBytes(unknSetting.getData());
+				} else {
+					buffer.writeString(GSSettingManager.UNKNOWN_SETTING_TYPE);
+					buffer.writeInt(0);
+				}
 			} else {
 				decoder.encodeSetting(settingBuffer, setting);
 
