@@ -15,6 +15,13 @@ import com.g4mesoft.gui.setting.GSSettingsGUI;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 import com.g4mesoft.setting.GSClientSettings;
+import com.g4mesoft.setting.GSISettingChangeListener;
+import com.g4mesoft.setting.GSSetting;
+import com.g4mesoft.setting.GSSettingCategory;
+import com.g4mesoft.setting.GSSettingChangePacket;
+import com.g4mesoft.setting.GSSettingManager;
+import com.g4mesoft.setting.GSSettingMap;
+import com.g4mesoft.setting.GSSettingChangePacket.GSESettingChangeType;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -37,17 +44,31 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	private ClientPlayNetworkHandler networkHandler;
 
 	private int serverVersion;
-	private final GSClientSettings clientSettings;
+	
+	private boolean serverChangingSettings;
+	private final GSSettingManager serverSettings;
 
 	private final GSTabbedGUI tabbedGUI;
+
+	private final GSClientSettings clientSettings;
 	
 	public GSControllerClient() {
 		serverVersion = G4mespeedMod.INVALID_GS_VERSION;
-		clientSettings = new GSClientSettings();
-
+		serverSettings = new GSSettingManager();
+		
 		tabbedGUI = new GSTabbedGUI();
-		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSSettingsGUI(getSettingManager()));
-		tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSSettingsGUI(getSettingManager()));
+		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSSettingsGUI(serverSettings));
+		tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSSettingsGUI(settings));
+
+		clientSettings = new GSClientSettings();
+		
+		serverSettings.addChangeListener(new GSISettingChangeListener() {
+			@Override
+			public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
+				if (!serverChangingSettings)
+					sendPacket(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_CHANGED));
+			}
+		});
 	}
 
 	@Override
@@ -100,6 +121,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 
 		for (GSIModule module : modules)
 			module.onDisconnectServer();
+	
+		serverSettings.clearSettings();
 	}
 
 	public void onClientClose() {
@@ -109,6 +132,32 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		onStop();
 	}
 
+	public void onServerSettingsReceived(GSSettingMap settingMap) {
+		if (!serverSettings.hasCategory(settingMap.getCategory()))
+			serverSettings.registerSettingMap(settingMap);
+	}
+	
+	public void onServerSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
+		GSSetting<?> currentSetting = serverSettings.getSetting(category, setting.getName());
+		if (currentSetting != null) {
+			serverChangingSettings = true;
+			currentSetting.setValueIfSameType(setting);
+			serverChangingSettings = false;
+		}
+	}
+
+	public void onServerSettingAdded(GSSettingCategory category, GSSetting<?> setting) {
+		serverChangingSettings = true;
+		serverSettings.registerSetting(category, setting);
+		serverChangingSettings = false;
+	}
+	
+	public void onServerSettingRemoved(GSSettingCategory category, GSSetting<?> setting) {
+		serverChangingSettings = true;
+		serverSettings.removeSetting(category, setting.getName());
+		serverChangingSettings = false;
+	}
+	
 	@Override
 	public Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer) {
 		return new CustomPayloadC2SPacket(identifier, buffer);
@@ -171,6 +220,10 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	
 	public GSClientSettings getClientSettings() {
 		return clientSettings;
+	}
+	
+	public GSSettingManager getServerSettings() {
+		return serverSettings;
 	}
 	
 	public static GSControllerClient getInstance() {

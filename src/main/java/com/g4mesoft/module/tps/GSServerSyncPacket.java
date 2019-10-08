@@ -17,15 +17,23 @@ import net.minecraft.util.PacketByteBuf;
 
 public class GSServerSyncPacket implements GSIPacket {
 
+	private int packetInterval;
+	
 	public GSServerSyncPacket() {
+	}
+
+	public GSServerSyncPacket(int packetInterval) {
+		this.packetInterval = packetInterval;
 	}
 	
 	@Override
 	public void read(PacketByteBuf buf) throws IOException {
+		packetInterval = buf.readVarInt();
 	}
 
 	@Override
 	public void write(PacketByteBuf buf) throws IOException {
+		buf.writeVarInt(packetInterval);
 	}
 
 	@Override
@@ -36,7 +44,7 @@ public class GSServerSyncPacket implements GSIPacket {
 	@Environment(EnvType.CLIENT)
 	public void handleOnClient(GSControllerClient controller) {
 		RenderTickCounter counter = ((GSIMinecraftClientAccess)MinecraftClient.getInstance()).getRenderTickCounter();
-		((GSIRenderTickAccess)counter).onServerTickSync(GSTpsModule.SERVER_SYNC_INTERVAL);
+		((GSIRenderTickAccess)counter).onServerTickSync(packetInterval);
 	}
 	
 	@Override

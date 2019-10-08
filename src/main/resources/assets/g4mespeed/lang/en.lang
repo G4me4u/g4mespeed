@@ -6,6 +6,8 @@ setting.button.reset=Reset
 setting.button.set=Set
 
 setting.tps=Tickspeed
+
+# Client settings
 setting.tps.shiftPitch=Shift sound pitch
 setting.tps.shiftPitch.desc=Modifies the pitch of sounds to match the speed at which the game is running.
 setting.tps.cullMovingBlocks=Cull moving blocks
@@ -19,3 +21,8 @@ setting.tps.syncTick=Synchronized ticking
 setting.tps.syncTick.desc=Synchronizes the server and client tick clock to improve piston animations. This is done by approximating the server tick-cycle.
 setting.tps.syncTickAggression=Synchronization aggression
 setting.tps.syncTickAggression.desc=The aggression of synchronization. A value of 1.0 will follow the approximated clock exactly. A value of 0.0 will disable synchronization.
+
+
+#Server settings
+setting.tps.syncPacketInterval=Synchronization interval
+setting.tps.syncPacketInterval.desc=The interval, in ticks, at which the server attempts to synchronize the client tick cycle. A value of 1 allows the client to synchronize best but also demands higher bandwidth.

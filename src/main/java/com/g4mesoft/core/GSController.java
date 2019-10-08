@@ -1,5 +1,6 @@
 package com.g4mesoft.core;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,8 @@ import net.minecraft.util.PacketByteBuf;
 
 public abstract class GSController implements GSIModuleManager {
 
+	private static final String SETTINGS_PATH = "settings.cfg";
+	
 	protected static final String CACHE_DIR_NAME = "g4mespeed/cache";
 	protected static final String INTEGRATED_CACHE_DIR_NAME = "g4mespeed/integrated/cache";
 	
@@ -25,7 +28,7 @@ public abstract class GSController implements GSIModuleManager {
 	protected final GSTranslationModule translationModule;
 	
 	public GSController() {
-		settings = new GSSettingManager(this);
+		settings = new GSSettingManager();
 		
 		modules = new ArrayList<GSIModule>();
 		
@@ -35,13 +38,13 @@ public abstract class GSController implements GSIModuleManager {
 	}
 
 	protected void onStart() {
-		settings.loadSettings();
+		settings.loadSettings(getSettingsFile());
 
 		initModules();
 	}
 	
 	protected void onStop() {
-		settings.saveSettings();
+		settings.saveSettings(getSettingsFile());
 	}
 	
 	protected void initModules() {
@@ -77,6 +80,10 @@ public abstract class GSController implements GSIModuleManager {
 	@Override
 	public GSSettingManager getSettingManager() {
 		return settings;
+	}
+
+	private File getSettingsFile() {
+		return new File(getCacheFile(), SETTINGS_PATH);
 	}
 	
 	public abstract Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer);

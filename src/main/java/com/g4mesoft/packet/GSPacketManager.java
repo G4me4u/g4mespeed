@@ -9,6 +9,8 @@ import com.g4mesoft.module.tps.GSTpsChangePacket;
 import com.g4mesoft.module.tps.GSTpsHotkeyPacket;
 import com.g4mesoft.module.translation.GSTranslationCachePacket;
 import com.g4mesoft.module.translation.GSTranslationVersionPacket;
+import com.g4mesoft.setting.GSServerSettingMapPacket;
+import com.g4mesoft.setting.GSSettingChangePacket;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.NetworkThreadUtils;
@@ -34,7 +36,10 @@ public class GSPacketManager {
 			GSServerSyncPacket.class,
 			
 			GSTranslationVersionPacket.class,
-			GSTranslationCachePacket.class
+			GSTranslationCachePacket.class,
+			
+			GSServerSettingMapPacket.class,
+			GSSettingChangePacket.class
 		});
 	}
 

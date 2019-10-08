@@ -34,8 +34,6 @@ public class GSTpsModule implements GSIModule {
 	public static final float TPS_INCREMENT_INTERVAL = 1.0f;
 	public static final float SLOW_INTERVAL = 0.5f;
 	
-	public static final int SERVER_SYNC_INTERVAL = 10;
-	
 	public static final int TPS_INTRODUCTION_VERSION = 100;
 	
 	public static final GSSettingCategory SETTING_CATEGORY = new GSSettingCategory("tps");
@@ -59,6 +57,8 @@ public class GSTpsModule implements GSIModule {
 	public final GSBooleanSetting cSyncTick;
 	public final GSFloatSetting cSyncTickAggression;
 	
+	public final GSIntegerSetting sSyncPacketInterval;
+	
 	public GSTpsModule() {
 		tps = DEFAULT_TPS;
 		listeners = new ArrayList<GSITpsDependant>();
@@ -74,6 +74,8 @@ public class GSTpsModule implements GSIModule {
 	
 		cSyncTick = new GSBooleanSetting("syncTick", true);
 		cSyncTickAggression = new GSFloatSetting("syncTickAggression", 0.05f, 0.0f, 1.0f, 0.05f);
+	
+		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
 	}
 	
 	public void addTpsListener(GSITpsDependant listener) {
@@ -111,7 +113,7 @@ public class GSTpsModule implements GSIModule {
 				// Setup sync timer to it will send sync in the 
 				// next tick (this ensures that the client had
 				// time to react to the previous packet).
-				serverSyncTimer = SERVER_SYNC_INTERVAL;
+				serverSyncTimer = sSyncPacketInterval.getValue();
 			});
 		}
 	}
@@ -161,6 +163,11 @@ public class GSTpsModule implements GSIModule {
 			settings.registerSetting(SETTING_CATEGORY, cSyncTick);
 			settings.registerSetting(SETTING_CATEGORY, cSyncTickAggression);
 		});
+		
+		manager.runOnServer((managerServer) -> {
+			GSSettingManager settings = manager.getSettingManager();
+			settings.registerSetting(SETTING_CATEGORY, sSyncPacketInterval);
+		});
 	}
 	
 	@Override
@@ -168,8 +175,9 @@ public class GSTpsModule implements GSIModule {
 		manager.runOnServer(managerServer -> {
 			serverSyncTimer++;
 			
-			if (serverSyncTimer >= SERVER_SYNC_INTERVAL) {
-				managerServer.sendPacketToAll(new GSServerSyncPacket());
+			int syncInterval = sSyncPacketInterval.getValue();
+			if (serverSyncTimer >= syncInterval) {
+				managerServer.sendPacketToAll(new GSServerSyncPacket(syncInterval));
 				serverSyncTimer = 0;
 			}
 		});

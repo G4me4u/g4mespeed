@@ -15,13 +15,12 @@ import net.minecraft.util.PacketByteBuf;
 public class GSSettingMap {
 
 	private final GSSettingCategory category;
-	private final GSSettingManager owner;
-	
 	private final Map<String, GSSetting<?>> settings;
 	
-	public GSSettingMap(GSSettingCategory category, GSSettingManager owner) {
+	private GSSettingManager owner;
+	
+	public GSSettingMap(GSSettingCategory category) {
 		this.category = category;
-		this.owner = owner;
 		
 		settings = new HashMap<String, GSSetting<?>>();
 	}
@@ -36,13 +35,24 @@ public class GSSettingMap {
 			setting.setValueIfSameType(currentSetting);
 			currentSetting.setSettingOwner(null);
 
-			owner.settingRemoved(category, currentSetting);
+			if (owner != null)
+				owner.settingRemoved(category, currentSetting);
 		}
 		
 		settings.put(setting.getName(), setting);
 		setting.setSettingOwner(this);
 		
-		owner.settingAdded(category, setting);
+		if (owner != null)
+			owner.settingAdded(category, setting);
+	}
+	
+	public void removeSetting(String name) {
+		GSSetting<?> currentSetting = settings.get(name);
+		
+		if (currentSetting != null) {
+			settings.remove(name);
+			owner.settingRemoved(category, currentSetting);
+		}
 	}
 	
 	public Collection<GSSetting<?>> getSettings() {
@@ -50,7 +60,8 @@ public class GSSettingMap {
 	}
 
 	void settingChanged(GSSetting<?> setting) {
-		owner.settingChanged(category, setting);
+		if (owner != null)
+			owner.settingChanged(category, setting);
 	}
 
 	public GSSettingCategory getCategory() {
@@ -71,7 +82,7 @@ public class GSSettingMap {
 			
 			GSSetting<?> setting;
 			
-			GSISettingDecoder<?> decoder = owner.getSettingDecoder(type);
+			GSISettingDecoder<?> decoder = GSSettingManager.getSettingDecoder(type);
 			if (decoder == null) {
 				byte[] data = new byte[sizeInBytes];
 				buffer.readBytes(data);
@@ -94,7 +105,8 @@ public class GSSettingMap {
 				setting.setSettingOwner(this);
 				settings.put(setting.getName(), setting);
 
-				owner.settingAdded(category, setting);
+				if (owner != null)
+					owner.settingAdded(category, setting);
 			}
 		}
 	}
@@ -108,7 +120,7 @@ public class GSSettingMap {
 			buffer.writeString(setting.getName());
 			
 			@SuppressWarnings("rawtypes")
-			GSISettingDecoder decoder = owner.getSettingDecoder(setting.getClass());
+			GSISettingDecoder decoder = GSSettingManager.getSettingDecoder(setting.getClass());
 			if (decoder == null) {
 				if (setting instanceof GSUnknownSetting) {
 					GSUnknownSetting unknSetting = ((GSUnknownSetting)setting);
@@ -130,5 +142,13 @@ public class GSSettingMap {
 		}
 		
 		settingBuffer.release(settingBuffer.refCnt());
+	}
+	
+	public void setSettingOwner(GSSettingManager owner) {
+		this.owner = owner;
+	}
+
+	public GSSettingManager getSettingOwner() {
+		return owner;
 	}
 }
