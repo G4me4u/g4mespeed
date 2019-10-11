@@ -36,11 +36,14 @@ public class GSTpsModule implements GSIModule {
 	
 	public static final int TPS_INTRODUCTION_VERSION = 100;
 	
-	public static final GSSettingCategory SETTING_CATEGORY = new GSSettingCategory("tps");
+	public static final GSSettingCategory TPS_CATEGORY = new GSSettingCategory("tps");
+	public static final GSSettingCategory BETTER_PISTONS_CATEGORY = new GSSettingCategory("betterPistons");
 	
 	public static final int PISTON_ANIM_PAUSE_BEGINNING = 0;
 	public static final int PISTON_ANIM_NO_PAUSE = 1;
 	public static final int PISTON_ANIM_PAUSE_END = 2;
+	
+	public static final int AUTOMATIC_PISTON_RENDER_DISTANCE = 0;
 	
 	private float tps;
 	private final List<GSITpsDependant> listeners;
@@ -51,13 +54,14 @@ public class GSTpsModule implements GSIModule {
 	private GSIModuleManager manager;
 
 	public final GSBooleanSetting cShiftPitch;
-	public final GSBooleanSetting cCullMovingBlocks;
-	public final GSIntegerSetting cPistonAnimationType;
-	
 	public final GSBooleanSetting cSyncTick;
 	public final GSFloatSetting cSyncTickAggression;
-	
 	public final GSIntegerSetting sSyncPacketInterval;
+
+	public final GSBooleanSetting cCullMovingBlocks;
+	public final GSIntegerSetting cPistonAnimationType;
+	public final GSIntegerSetting cPistonRenderDistance;
+	public final GSIntegerSetting sBlockEventDistance;
 	
 	public GSTpsModule() {
 		tps = DEFAULT_TPS;
@@ -69,13 +73,14 @@ public class GSTpsModule implements GSIModule {
 		manager = null;
 	
 		cShiftPitch = new GSBooleanSetting("shiftPitch", true);
-		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
-		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", 0, 0, 2);
-	
 		cSyncTick = new GSBooleanSetting("syncTick", true);
 		cSyncTickAggression = new GSFloatSetting("syncTickAggression", 0.05f, 0.0f, 1.0f, 0.05f);
-	
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
+
+		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
+		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", 0, 0, 2);
+		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, 0, 16);
+		sBlockEventDistance = new GSIntegerSetting("blockEventDistance", 4, 0, 16);
 	}
 	
 	public void addTpsListener(GSITpsDependant listener) {
@@ -154,20 +159,23 @@ public class GSTpsModule implements GSIModule {
 	@Override
 	public void init(GSIModuleManager manager) {
 		this.manager = manager;
+	}
+
+	@Override
+	public void registerClientSettings(GSSettingManager settings) {
+		settings.registerSetting(TPS_CATEGORY, cShiftPitch);
+		settings.registerSetting(TPS_CATEGORY, cSyncTick);
+		settings.registerSetting(TPS_CATEGORY, cSyncTickAggression);
 		
-		manager.runOnClient((managerClient) -> {
-			GSSettingManager settings = manager.getSettingManager();
-			settings.registerSetting(SETTING_CATEGORY, cShiftPitch);
-			settings.registerSetting(SETTING_CATEGORY, cCullMovingBlocks);
-			settings.registerSetting(SETTING_CATEGORY, cPistonAnimationType);
-			settings.registerSetting(SETTING_CATEGORY, cSyncTick);
-			settings.registerSetting(SETTING_CATEGORY, cSyncTickAggression);
-		});
-		
-		manager.runOnServer((managerServer) -> {
-			GSSettingManager settings = manager.getSettingManager();
-			settings.registerSetting(SETTING_CATEGORY, sSyncPacketInterval);
-		});
+		settings.registerSetting(BETTER_PISTONS_CATEGORY, cCullMovingBlocks);
+		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonAnimationType);
+		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonRenderDistance);
+	}
+
+	@Override
+	public void registerServerSettings(GSSettingManager settings) {
+		settings.registerSetting(TPS_CATEGORY, sSyncPacketInterval);
+		settings.registerSetting(BETTER_PISTONS_CATEGORY, sBlockEventDistance);
 	}
 	
 	@Override

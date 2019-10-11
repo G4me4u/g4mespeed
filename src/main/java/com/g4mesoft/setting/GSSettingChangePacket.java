@@ -29,8 +29,8 @@ public class GSSettingChangePacket implements GSIPacket {
 	public void read(PacketByteBuf buf) throws IOException {
 		category = GSSettingCategory.read(buf);
 		type = GSESettingChangeType.fromIndex(buf.readVarInt());
-		String decoderType = buf.readString();
-		String settingName = buf.readString();
+		String decoderType = buf.readString(16);
+		String settingName = buf.readString(32767);
 		
 		GSISettingDecoder<?> decoder = GSSettingManager.getSettingDecoder(decoderType);
 		if (decoder == null)
@@ -68,15 +68,17 @@ public class GSSettingChangePacket implements GSIPacket {
 
 	@Override
 	public void handleOnClient(GSControllerClient controller) {
+		GSRemoteSettingManager remoteSettings = controller.getServerSettings();
+		
 		switch (type) {
 		case SETTING_CHANGED:
-			controller.onServerSettingChanged(category, setting);
+			remoteSettings.onRemoteSettingChanged(category, setting);
 			break;
 		case SETTING_ADDED:
-			controller.onServerSettingAdded(category, setting);
+			remoteSettings.onRemoteSettingAdded(category, setting);
 			break;
 		case SETTING_REMOVED:
-			controller.onServerSettingRemoved(category, setting);
+			remoteSettings.onRemoteSettingRemoved(category, setting);
 			break;
 		}
 	}

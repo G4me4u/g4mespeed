@@ -15,13 +15,7 @@ import com.g4mesoft.gui.setting.GSSettingsGUI;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 import com.g4mesoft.setting.GSClientSettings;
-import com.g4mesoft.setting.GSISettingChangeListener;
-import com.g4mesoft.setting.GSSetting;
-import com.g4mesoft.setting.GSSettingCategory;
-import com.g4mesoft.setting.GSSettingChangePacket;
-import com.g4mesoft.setting.GSSettingManager;
-import com.g4mesoft.setting.GSSettingMap;
-import com.g4mesoft.setting.GSSettingChangePacket.GSESettingChangeType;
+import com.g4mesoft.setting.GSRemoteSettingManager;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -45,8 +39,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 
 	private int serverVersion;
 	
-	private boolean serverChangingSettings;
-	private final GSSettingManager serverSettings;
+	private final GSRemoteSettingManager serverSettings;
 
 	private final GSTabbedGUI tabbedGUI;
 
@@ -54,21 +47,13 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	
 	public GSControllerClient() {
 		serverVersion = G4mespeedMod.INVALID_GS_VERSION;
-		serverSettings = new GSSettingManager();
+		serverSettings = new GSRemoteSettingManager(this);
 		
 		tabbedGUI = new GSTabbedGUI();
 		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSSettingsGUI(serverSettings));
 		tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSSettingsGUI(settings));
 
 		clientSettings = new GSClientSettings();
-		
-		serverSettings.addChangeListener(new GSISettingChangeListener() {
-			@Override
-			public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
-				if (!serverChangingSettings)
-					sendPacket(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_CHANGED));
-			}
-		});
 	}
 
 	@Override
@@ -76,6 +61,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		super.addModule(module);
 	
 		module.initGUI(tabbedGUI);
+		module.registerClientSettings(settings);
 	}
 	
 	public void init(MinecraftClient minecraft) {
@@ -111,8 +97,10 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		this.serverVersion = serverVersion;
 		sendPacket(new GSVersionPacket(getVersion()));
 
-		for (GSIModule module : modules)
+		for (GSIModule module : modules) {
 			module.onJoinG4mespeedServer(serverVersion);
+			module.registerServerSettings(serverSettings);
+		}
 	}
 
 	public void onDisconnectServer() {
@@ -132,32 +120,6 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		onStop();
 	}
 
-	public void onServerSettingsReceived(GSSettingMap settingMap) {
-		if (!serverSettings.hasCategory(settingMap.getCategory()))
-			serverSettings.registerSettingMap(settingMap);
-	}
-	
-	public void onServerSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
-		GSSetting<?> currentSetting = serverSettings.getSetting(category, setting.getName());
-		if (currentSetting != null) {
-			serverChangingSettings = true;
-			currentSetting.setValueIfSameType(setting);
-			serverChangingSettings = false;
-		}
-	}
-
-	public void onServerSettingAdded(GSSettingCategory category, GSSetting<?> setting) {
-		serverChangingSettings = true;
-		serverSettings.registerSetting(category, setting);
-		serverChangingSettings = false;
-	}
-	
-	public void onServerSettingRemoved(GSSettingCategory category, GSSetting<?> setting) {
-		serverChangingSettings = true;
-		serverSettings.removeSetting(category, setting.getName());
-		serverChangingSettings = false;
-	}
-	
 	@Override
 	public Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer) {
 		return new CustomPayloadC2SPacket(identifier, buffer);
@@ -222,7 +184,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		return clientSettings;
 	}
 	
-	public GSSettingManager getServerSettings() {
+	public GSRemoteSettingManager getServerSettings() {
 		return serverSettings;
 	}
 	

@@ -66,15 +66,17 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 	}
 
 	private void addSettingElement(GSSettingCategory category, GSSetting<?> setting) {
-		GSSettingCategoryElement categoryElement = settingCategories.get(category);
-		if (categoryElement == null) {
-			categoryElement = new GSSettingCategoryElement(category);
-			settingCategories.put(category, categoryElement);
+		if (setting.isActive()) {
+			GSSettingCategoryElement categoryElement = settingCategories.get(category);
+			if (categoryElement == null) {
+				categoryElement = new GSSettingCategoryElement(category);
+				settingCategories.put(category, categoryElement);
+			}
+			
+			categoryElement.addSetting(setting);
+			
+			layoutChanged = true;
 		}
-		
-		categoryElement.addSetting(setting);
-		
-		layoutChanged = true;
 	}
 	
 	@Override

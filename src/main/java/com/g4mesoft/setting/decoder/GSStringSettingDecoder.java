@@ -10,8 +10,8 @@ public class GSStringSettingDecoder implements GSISettingDecoder<GSStringSetting
 	
 	@Override
 	public GSStringSetting decodeSetting(String name, PacketByteBuf buffer) {
-		String value = buffer.readString();
-		String defaultValue = buffer.readString();
+		String value = buffer.readString(32767);
+		String defaultValue = buffer.readString(32767);
 		
 		GSStringSetting setting = new GSStringSetting(name, defaultValue);
 		setting.setValue(value);

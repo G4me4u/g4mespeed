@@ -6,12 +6,14 @@ public abstract class GSSetting<T> {
 	private final T defaultValue;
 	
 	private GSSettingMap settingOwner;
+	private boolean active;
 	
 	public GSSetting(String displayName, T defaultValue) {
 		this.displayName = displayName;
 		this.defaultValue = defaultValue;
 		
 		settingOwner = null;
+		active = true;
 	}
 	
 	public String getName() {
@@ -47,5 +49,13 @@ public abstract class GSSetting<T> {
 	
 	public T getDefaultValue() {
 		return defaultValue;
+	}
+
+	void setActive(boolean active) {
+		this.active = active;
+	}
+	
+	public boolean isActive() {
+		return active;
 	}
 }

@@ -1,6 +1,7 @@
 package com.g4mesoft.core;
 
 import com.g4mesoft.gui.GSTabbedGUI;
+import com.g4mesoft.setting.GSSettingManager;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.fabricmc.api.EnvType;
@@ -11,6 +12,11 @@ import net.minecraft.server.network.ServerPlayerEntity;
 public interface GSIModule {
 
 	public void init(GSIModuleManager manager);
+
+	@Environment(EnvType.CLIENT)
+	default public void registerClientSettings(GSSettingManager settings) { }
+
+	default public void registerServerSettings(GSSettingManager settings) { }
 	
 	default public void tick() { }
 	
@@ -44,6 +50,5 @@ public interface GSIModule {
 	default public void onPlayerLeave(ServerPlayerEntity player) { }
 
 	default public void onServerShutdown() { }
-
 
 }

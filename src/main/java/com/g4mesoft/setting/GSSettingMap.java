@@ -1,8 +1,10 @@
 package com.g4mesoft.setting;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.g4mesoft.setting.decoder.GSISettingDecoder;
@@ -12,7 +14,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.DecoderException;
 import net.minecraft.util.PacketByteBuf;
 
-public class GSSettingMap {
+public final class GSSettingMap {
 
 	private final GSSettingCategory category;
 	private final Map<String, GSSetting<?>> settings;
@@ -29,30 +31,62 @@ public class GSSettingMap {
 		return settings.get(name);
 	}
 	
-	public void registerSetting(GSSetting<?> setting) {
+	private void addSetting(GSSetting<?> setting, boolean replaceIfExists, boolean loaded) {
 		GSSetting<?> currentSetting = getSetting(setting.getName());
-		if (currentSetting != null) {
-			setting.setValueIfSameType(currentSetting);
-			currentSetting.setSettingOwner(null);
-
+		
+		if (replaceIfExists) {
+			if (currentSetting != null) {
+				setting.setValueIfSameType(currentSetting);
+				currentSetting.setSettingOwner(null);
+				
+				if (owner != null)
+					owner.settingRemoved(category, currentSetting);
+			}
+			
+			settings.put(setting.getName(), setting);
+			setting.setSettingOwner(this);
+			
 			if (owner != null)
-				owner.settingRemoved(category, currentSetting);
+				owner.settingAdded(category, setting, loaded);
+		} else {
+			if (currentSetting != null) {
+				currentSetting.setValueIfSameType(setting);
+			} else {
+				setting.setSettingOwner(this);
+				settings.put(setting.getName(), setting);
+
+				if (owner != null)
+					owner.settingAdded(category, setting, loaded);
+			}
 		}
-		
-		settings.put(setting.getName(), setting);
-		setting.setSettingOwner(this);
-		
-		if (owner != null)
-			owner.settingAdded(category, setting);
 	}
 	
-	public void removeSetting(String name) {
-		GSSetting<?> currentSetting = settings.get(name);
-		
-		if (currentSetting != null) {
-			settings.remove(name);
-			owner.settingRemoved(category, currentSetting);
+	public void registerSetting(GSSetting<?> setting) {
+		addSetting(setting, true, false);
+	}
+	
+	public void clearSettings() {
+		for (GSSetting<?> setting : settings.values()) {
+			setting.setSettingOwner(null);
+			
+			if (owner != null)
+				owner.settingRemoved(category, setting);
 		}
+	}
+	
+	public GSSetting<?> removeSetting(String name) {
+		GSSetting<?> currentSetting = settings.remove(name);
+		if (currentSetting != null)
+			owner.settingRemoved(category, currentSetting);
+		return currentSetting;
+	}
+	
+	public void transferSettings(GSSettingMap other) {
+		List<GSSetting<?>> settings = new ArrayList<GSSetting<?>>(other.settings.values());
+		other.clearSettings();
+		
+		for (GSSetting<?> setting : settings)
+			addSetting(setting, false, true);
 	}
 	
 	public Collection<GSSetting<?>> getSettings() {
@@ -71,8 +105,8 @@ public class GSSettingMap {
 	public void readSettings(PacketByteBuf buffer) throws DecoderException {
 		int remaining = buffer.readInt();
 		while (remaining-- > 0) {
-			String name = buffer.readString();
-			String type = buffer.readString();
+			String name = buffer.readString(32767);
+			String type = buffer.readString(16);
 			int sizeInBytes = buffer.readInt();
 
 			if (buffer.readableBytes() < sizeInBytes)
@@ -98,16 +132,7 @@ public class GSSettingMap {
 				}
 			}
 			
-			GSSetting<?> currentSetting = getSetting(name);
-			if (currentSetting != null) {
-				currentSetting.setValueIfSameType(setting);
-			} else {
-				setting.setSettingOwner(this);
-				settings.put(setting.getName(), setting);
-
-				if (owner != null)
-					owner.settingAdded(category, setting);
-			}
+			addSetting(setting, false, false);
 		}
 	}
 	

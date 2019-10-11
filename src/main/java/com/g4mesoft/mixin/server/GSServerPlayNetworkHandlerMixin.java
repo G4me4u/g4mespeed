@@ -36,9 +36,10 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 		@SuppressWarnings("unchecked")
 		GSICustomPayloadHolder<ServerPlayPacketListener> payload = (GSICustomPayloadHolder<ServerPlayPacketListener>)packet;
 		
-		GSIPacket gsPacket = packetManger.decodePacket(payload, (ServerPlayNetworkHandler)(Object)this, player.getServer());
+		GSControllerServer controllerServer = GSControllerServer.getInstance();
+		GSIPacket gsPacket = packetManger.decodePacket(payload, (ServerPlayNetworkHandler)(Object)this, controllerServer.getServer());
 		if (gsPacket != null) {
-			gsPacket.handleOnServer(GSControllerServer.getInstance(), player);
+			gsPacket.handleOnServer(controllerServer, player);
 			ci.cancel();
 		}
 	}

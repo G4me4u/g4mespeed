@@ -12,6 +12,8 @@ import com.g4mesoft.access.GSISmoothPistonBlockEntityAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.tps.GSTpsModule;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.nbt.CompoundTag;
@@ -33,6 +35,7 @@ public abstract class GSPistonBlockEntityMixin implements GSISmoothPistonBlockEn
 	@Shadow protected abstract float getProgress(float partialTicks);
 
 	@Override
+	@Environment(EnvType.CLIENT)
 	public float getSmoothProgress(float partialTicks) {
 		if (((BlockEntity)(Object)this).isInvalid())
 			return 1.0f;
@@ -58,16 +61,19 @@ public abstract class GSPistonBlockEntityMixin implements GSISmoothPistonBlockEn
 	@Shadow protected abstract float method_11504(float partialTicks);
 	
 	@Overwrite
+	@Environment(EnvType.CLIENT)
 	public float getRenderOffsetX(float partialTicks) {
 		return (float)this.facing.getOffsetX() * this.method_11504(getSmoothProgress(partialTicks));
 	}
 
 	@Overwrite
+	@Environment(EnvType.CLIENT)
 	public float getRenderOffsetY(float partialTicks) {
 		return (float)this.facing.getOffsetY() * this.method_11504(getSmoothProgress(partialTicks));
 	}
 
 	@Overwrite
+	@Environment(EnvType.CLIENT)
 	public float getRenderOffsetZ(float partialTicks) {
 		return (float)this.facing.getOffsetZ() * this.method_11504(getSmoothProgress(partialTicks));
 	}
@@ -85,5 +91,15 @@ public abstract class GSPistonBlockEntityMixin implements GSISmoothPistonBlockEn
 	@Inject(method = "finish", at = @At(value = "FIELD", target="Lnet/minecraft/block/entity/PistonBlockEntity;progress:F", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
 	private void onFinishProgressChanged(CallbackInfo ci) {
 		actualProgress = this.progress;
+	}
+	
+	@Environment(EnvType.CLIENT)
+	public double getSquaredRenderDistance() {
+		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+		int dist = tpsModule.cPistonRenderDistance.getValue();
+		if (dist == GSTpsModule.AUTOMATIC_PISTON_RENDER_DISTANCE)
+			dist = tpsModule.sBlockEventDistance.getValue();
+		
+		return dist * dist * 256.0; // dist * dist * (16.0 * 16.0)
 	}
 }

@@ -38,6 +38,6 @@ public class GSServerSettingMapPacket implements GSIPacket {
 
 	@Override
 	public void handleOnClient(GSControllerClient controller) {
-		controller.onServerSettingsReceived(settingMap);
+		controller.getServerSettings().onRemoteSettingMapReceived(settingMap);
 	}
 }

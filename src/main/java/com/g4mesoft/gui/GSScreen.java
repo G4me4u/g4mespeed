@@ -14,6 +14,7 @@ import net.minecraft.text.Text;
 public abstract class GSScreen extends Screen {
 
 	private static final String TRIMMED_TEXT_ELLIPSIS = "...";
+	private static final char FORMATTING_CHAR = '\u00A7';
 	
 	private boolean selected;
 	
@@ -195,7 +196,7 @@ public abstract class GSScreen extends Screen {
 		
 		for (int i = 0; i < len; i++) {
 			char c = text.charAt(i);
-			if (c == '§') {
+			if (c == FORMATTING_CHAR) {
 				i++;
 				
 				if (i < len) {
@@ -203,7 +204,7 @@ public abstract class GSScreen extends Screen {
 					if (c == 'r') {
 						formattingNextLine = "";
 					} else {
-						formattingNextLine += "§" + c;
+						formattingNextLine += Character.toString(FORMATTING_CHAR) + c;
 					}
 				}
 			} else {

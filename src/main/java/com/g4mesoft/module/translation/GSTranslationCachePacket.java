@@ -32,8 +32,8 @@ public class GSTranslationCachePacket implements GSIPacket {
 		
 		Map<String, String> translations = new HashMap<String, String>(n);
 		while (n-- > 0) {
-			String key = buf.readString();
-			String value = buf.readString();
+			String key = buf.readString(32767);
+			String value = buf.readString(32767);
 			translations.put(key, value);
 		}
 		

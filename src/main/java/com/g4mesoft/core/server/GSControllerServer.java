@@ -39,6 +39,8 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 
 	public GSControllerServer() {
 		server = null;
+		
+		settings.addChangeListener(this);
 	}
 	
 	@Override
@@ -46,6 +48,13 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		super.initModules();
 		
 		tpsModule.addTpsListener(this);
+	}
+	
+	@Override
+	public void addModule(GSIModule module) {
+		super.addModule(module);
+		
+		module.registerServerSettings(settings);
 	}
 	
 	public void init(MinecraftServer server) {
@@ -87,6 +96,8 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 			module.onServerShutdown();
 		
 		onStop();
+		
+		server = null;
 	}
 	
 	@Override
@@ -142,6 +153,9 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 
 	@Override
 	public void sendPacketToAll(GSIPacket packet, boolean checkCompatibility) {
+		if (server == null || server.getPlayerManager() == null)
+			return;
+		
 		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
 		Packet<?> customPayload = packetManger.encodePacket(packet, this);
 		if (customPayload != null) {

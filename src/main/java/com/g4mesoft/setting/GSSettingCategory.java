@@ -27,7 +27,7 @@ public class GSSettingCategory {
 	}
 
 	public static GSSettingCategory read(PacketByteBuf buf) {
-		return new GSSettingCategory(buf.readString());
+		return new GSSettingCategory(buf.readString(32767));
 	}
 
 	public void write(PacketByteBuf buf) {

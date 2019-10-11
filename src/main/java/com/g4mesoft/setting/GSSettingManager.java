@@ -29,7 +29,7 @@ public class GSSettingManager {
 	
 	private static final byte CATEGORY_ENTRY_CODE = 0x55;
 	
-	private final Map<GSSettingCategory, GSSettingMap> settings;
+	protected final Map<GSSettingCategory, GSSettingMap> settings;
 	private final List<GSISettingChangeListener> listeners;
 	
 	private static final Map<String, GSISettingDecoder<?>> typeToDecoder;
@@ -141,7 +141,7 @@ public class GSSettingManager {
 	public void readSettings(PacketByteBuf buffer) throws IOException {
 		while (buffer.isReadable()) {
 			if (buffer.readByte() == CATEGORY_ENTRY_CODE) {
-				GSSettingCategory category = new GSSettingCategory(buffer.readString());
+				GSSettingCategory category = new GSSettingCategory(buffer.readString(32767));
 				GSSettingMap map = settings.get(category);
 				
 				if (map == null) {
@@ -204,30 +204,9 @@ public class GSSettingManager {
 	}
 	
 	public void clearSettings() {
-		for (GSSettingMap settingMap : settings.values()) {
-			for (GSSetting<?> setting : settingMap.getSettings())
-				settingRemoved(settingMap.getCategory(), setting);
-		}
-		
+		for (GSSettingMap settingMap : settings.values())
+			settingMap.clearSettings();
 		settings.clear();
-	}
-	
-	public void registerSettingMap(GSSettingMap settingMap) {
-		if (settingMap.getSettingOwner() == null) {
-			GSSettingCategory category = settingMap.getCategory();
-
-			GSSettingMap currentSettingMap = settings.get(category);
-			if (currentSettingMap != null) {
-				for (GSSetting<?> setting : currentSettingMap.getSettings())
-					settingRemoved(category, setting);
-			}
-
-			settings.put(category, settingMap);
-			settingMap.setSettingOwner(this);
-		
-			for (GSSetting<?> setting : settingMap.getSettings())
-				settingAdded(category, setting);
-		}
 	}
 	
 	void settingChanged(GSSettingCategory category, GSSetting<?> setting) {
@@ -235,7 +214,10 @@ public class GSSettingManager {
 			listener.onSettingChanged(category, setting);
 	}
 	
-	void settingAdded(GSSettingCategory category, GSSetting<?> setting) {
+	void settingAdded(GSSettingCategory category, GSSetting<?> setting, boolean loaded) {
+		if (loaded)
+			setting.setActive(false);
+
 		for (GSISettingChangeListener listener : listeners)
 			listener.onSettingAdded(category, setting);
 	}
