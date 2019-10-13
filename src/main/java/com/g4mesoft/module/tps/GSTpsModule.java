@@ -31,8 +31,8 @@ public class GSTpsModule implements GSIModule {
 	public static final float MAX_TPS = Float.MAX_VALUE;
 	public static final float MS_PER_SEC = 1000.0f;
 	
-	public static final float TPS_INCREMENT_INTERVAL = 1.0f;
-	public static final float SLOW_INTERVAL = 0.5f;
+	private static final float TPS_INCREMENT_INTERVAL = 1.0f;
+	private static final float TONE_MULTIPLIER = (float)Math.pow(2.0, 1.0 / 12.0);
 	
 	public static final int TPS_INTRODUCTION_VERSION = 100;
 	
@@ -79,8 +79,8 @@ public class GSTpsModule implements GSIModule {
 
 		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", 0, 0, 2);
-		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, 0, 16);
-		sBlockEventDistance = new GSIntegerSetting("blockEventDistance", 4, 0, 16);
+		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, 0, 32);
+		sBlockEventDistance = new GSIntegerSetting("blockEventDistance", 4, 0, 32);
 	}
 	
 	public void addTpsListener(GSITpsDependant listener) {
@@ -115,7 +115,7 @@ public class GSTpsModule implements GSIModule {
 			manager.runOnServer(managerServer -> { 
 				managerServer.sendPacketToAll(new GSTpsChangePacket(this.tps));
 				
-				// Setup sync timer to it will send sync in the 
+				// Setup sync timer so it will send sync in the 
 				// next tick (this ensures that the client had
 				// time to react to the previous packet).
 				serverSyncTimer = sSyncPacketInterval.getValue();
@@ -129,31 +129,65 @@ public class GSTpsModule implements GSIModule {
 			return;
 		}
 		
-		float newTps;
+		// Easter egg for changing tps. Instead of changing tps 
+		// normally we are going to change it one note at a time.
+		// For this we'll need some music theory in relation to
+		// the physics of sound:
+
+		// We all know sound is simply waves that have a specific 
+		// frequency. In other words we can express every tone in
+		// music as a given frequency for that tone. There are 12
+		// fundamental tones in each octave - and infinitely many
+		// octaves. The important thing here is that to transform
+		// a signal a single octave up we can simply multiply the
+		// frequency by two. In other words it's simple to switch
+		// between octaves. Tones on the other hand is slightly
+		// different. Here we need some more theory. To step from
+		// one note a constant amount of notes up, we can use the
+		// following formula:
+		//     f_n' = f_n * c, where f_n and f_n' are frequencies
+		//                     and c is constant for that amount.
+
+		// This also means that if c is the constant that steps one
+		// note up then we can step from one octave to the next by
+		// doing f_n' = f_n * c^12. In other words we now know what
+		// the constant c should be for stepping up a single note,
+		// 'cause we could also step up one octave by multiplying by
+		// two! This means that c^12 = 2 <=> c = 2^(1/12).
+		
+		// Now let's apply this theory!
 		
 		switch (type) {
 		case INCREMENT_TPS:
-			newTps = tps + TPS_INCREMENT_INTERVAL;
+			if (sneaking) {
+				// Since we're applying the pitch of sound in relation
+				// to targetPitch = pitch * tps / DEFAULT_TPS, we can
+				// simply multiply the tps by this amount to achieve
+				// incrementing the tone by one!
+				setTps(tps * TONE_MULTIPLIER);
+			} else {
+				setTps(tps + TPS_INCREMENT_INTERVAL);
+			}
 			break;
 		case DECREMENT_TPS:
-			newTps = tps - TPS_INCREMENT_INTERVAL;
-			break;
-			
-		case DOUBLE_TPS:
-			newTps = tps * 2.0f;
-			break;
-		case HALF_TPS:
-			newTps = tps / 2.0f;
+			if (sneaking) {
+				// Decrementing one tone is just division by the constant.
+				setTps(tps / TONE_MULTIPLIER);
+			} else {
+				setTps(tps - TPS_INCREMENT_INTERVAL);
+			}
 			break;
 
+		case DOUBLE_TPS:
+			setTps(tps * 2.0f);
+			break;
+		case HALF_TPS:
+			setTps(tps / 2.0f);
+			break;
+			
 		default:
 			return;
 		}
-		
-		if (sneaking)
-			newTps += (tps - newTps) * 0.5f;
-	
-		setTps(newTps);
 	}
 	
 	@Override

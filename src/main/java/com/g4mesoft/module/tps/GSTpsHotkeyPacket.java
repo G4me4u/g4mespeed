@@ -27,11 +27,13 @@ public class GSTpsHotkeyPacket implements GSIPacket {
 	@Override
 	public void read(PacketByteBuf buf) throws IOException {
 		type = GSETpsHotkeyType.fromIndex((int)buf.readByte());
+		sneaking = buf.readBoolean();
 	}
 
 	@Override
 	public void write(PacketByteBuf buf) throws IOException {
 		buf.writeByte((byte)type.getIndex());
+		buf.writeBoolean(sneaking);
 	}
 
 	@Override

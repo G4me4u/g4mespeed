@@ -29,8 +29,8 @@ import net.minecraft.util.SystemUtil;
 @Environment(EnvType.CLIENT)
 public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener {
 
-	private static final int SETTING_CATEGORY_MARGIN = 10;
-	private static final int CATEGORY_TITLE_MARGIN_BOTTOM = 5;
+	private static final int SETTING_CATEGORY_MARGIN = 5;
+	private static final int CATEGORY_TITLE_MARGIN_BOTTOM = 2;
 	private static final int CATEGORY_TITLE_COLOR = 0xFFFFFFFF;
 	
 	private static final int DESC_BACKGROUND_COLOR = GSSettingElementGUI.HOVERED_BACKGROUND;

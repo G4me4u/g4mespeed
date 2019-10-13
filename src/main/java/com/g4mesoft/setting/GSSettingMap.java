@@ -86,7 +86,7 @@ public final class GSSettingMap {
 		other.clearSettings();
 		
 		for (GSSetting<?> setting : settings)
-			addSetting(setting, false, true);
+			addSetting(setting, false, false);
 	}
 	
 	public Collection<GSSetting<?>> getSettings() {
@@ -132,7 +132,7 @@ public final class GSSettingMap {
 				}
 			}
 			
-			addSetting(setting, false, false);
+			addSetting(setting, false, true);
 		}
 	}
 	

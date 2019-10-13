@@ -16,10 +16,10 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSScre
 
 	public static final int HOVERED_BACKGROUND = 0x80000000;//0x66EDEDFF;
 	
-	protected static final int CONTENT_PADDING = 5;
-	protected static final int CONTENT_MARGIN = 5;
+	protected static final int CONTENT_PADDING = 2;
+	protected static final int CONTENT_MARGIN = 2;
 	
-	protected static final int RESET_BUTTON_WIDTH = 60;
+	protected static final int RESET_BUTTON_WIDTH = 48;
 	protected static final int RESET_BUTTON_HEIGHT = 20;
 	protected static final String RESET_TEXT = "setting.button.reset";
 	

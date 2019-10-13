@@ -20,6 +20,6 @@ public class GSCommandManagerMixin {
 	
 	@Inject(method="<init>", at = @At("RETURN"))
 	private void registerCommands(boolean isServer, CallbackInfo ci) {
-		GSControllerServer.getInstance().registerCommands(dispatcher);
+		GSControllerServer.getInstance().setCommandDispatcher(dispatcher);
 	}
 }

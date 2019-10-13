@@ -35,6 +35,8 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 
 	private static final GSControllerServer instance = new GSControllerServer();
 	
+	private CommandDispatcher<ServerCommandSource> dispatcher;
+	
 	private MinecraftServer server;
 
 	public GSControllerServer() {
@@ -55,6 +57,9 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		super.addModule(module);
 		
 		module.registerServerSettings(settings);
+		
+		if (dispatcher != null)
+			module.registerCommands(dispatcher);
 	}
 	
 	public void init(MinecraftServer server) {
@@ -63,9 +68,11 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		onStart();
 	}
 
-	public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
+	public void setCommandDispatcher(CommandDispatcher<ServerCommandSource> dispatcher) {
 		for (GSIModule module : modules)
 			module.registerCommands(dispatcher);
+		
+		this.dispatcher = dispatcher;
 	}
 
 	public void onPlayerJoin(ServerPlayerEntity player) {

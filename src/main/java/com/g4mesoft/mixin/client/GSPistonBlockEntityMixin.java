@@ -32,8 +32,6 @@ public abstract class GSPistonBlockEntityMixin implements GSISmoothPistonBlockEn
 	@Shadow private float nextProgress;
 	@Shadow private float progress;
 
-	@Shadow protected abstract float getProgress(float partialTicks);
-
 	@Override
 	@Environment(EnvType.CLIENT)
 	public float getSmoothProgress(float partialTicks) {

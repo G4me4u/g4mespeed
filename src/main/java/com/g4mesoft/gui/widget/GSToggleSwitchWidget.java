@@ -50,7 +50,7 @@ public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
 		GlStateManager.blendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO);
 		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
 		
-		float tx = isMouseOver(mouseX, mouseY) ? 30.0f : 0.0f;
+		float tx = (isMouseOver(mouseX, mouseY) || isFocused()) ? 30.0f : 0.0f;
 		float ty = enabled ? 16.0f : 0.0f;
 		blit(x, y, tx, ty, 30, 16, 60, 32);
 	}

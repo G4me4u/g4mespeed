@@ -1,5 +1,6 @@
 package com.g4mesoft.mixin.client;
 
+import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,20 +23,22 @@ public class GSKeyboardMixin {
 	@Shadow @Final private MinecraftClient client;
 	
 	@Inject(method="onKey(JIIII)V", at = @At(value = "INVOKE", shift = At.Shift.AFTER, 
-			target = "Lnet/minecraft/client/options/KeyBinding;onKeyPressed(Lnet/minecraft/client/util/InputUtil$KeyCode;)V"))
+			target = "Lnet/minecraft/client/util/InputUtil;getKeyCode(II)Lnet/minecraft/client/util/InputUtil$KeyCode;"))
 	public void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
-		if (client.window.getHandle() == windowHandle) {
-			switch (action) {
-			case KEY_RELEASE:
-				GSControllerClient.getInstance().keyReleased(key, scancode, mods);
-				break;
-			case KEY_PRESS:
-				GSControllerClient.getInstance().keyPressed(key, scancode, mods);
-				break;
-			case KEY_REPEAT:
-				GSControllerClient.getInstance().keyRepeat(key, scancode, mods);
-				break;
-			}
+		if (action == KEY_RELEASE && key != GLFW.GLFW_KEY_F3)
+			GSControllerClient.getInstance().keyReleased(key, scancode, mods);
+	}
+
+	@Inject(method="onKey(JIIII)V", at = @At(value = "INVOKE", shift = At.Shift.AFTER, 
+			target = "Lnet/minecraft/client/options/KeyBinding;onKeyPressed(Lnet/minecraft/client/util/InputUtil$KeyCode;)V"))
+	public void onKeyPressRepeat(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
+		switch (action) {
+		case KEY_PRESS:
+			GSControllerClient.getInstance().keyPressed(key, scancode, mods);
+			break;
+		case KEY_REPEAT:
+			GSControllerClient.getInstance().keyRepeat(key, scancode, mods);
+			break;
 		}
 	}
 }
