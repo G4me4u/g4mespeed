@@ -21,6 +21,10 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant {
 
 	@Shadow @Final private Map<SoundInstance, Channel.SourceManager> sources;
 
+	/**
+	 * @author Christian
+	 * @reason The whole method is changed to return shifted pitch
+	 */
 	@Overwrite
 	private float getAdjustedPitch(SoundInstance soundInstance) {
 		GSControllerClient controller = GSControllerClient.getInstance();
