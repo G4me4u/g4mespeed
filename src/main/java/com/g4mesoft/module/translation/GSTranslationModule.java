@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.GSIModule;
@@ -39,7 +40,7 @@ public class GSTranslationModule implements GSIModule {
 	private int cachedTranslationVersion;
 	
 	public GSTranslationModule() {
-		translations = new HashMap<String, String>();
+		translations = new ConcurrentHashMap<String, String>();
 		caches = new HashMap<Integer, GSTranslationCache>();
 	
 		cachedTranslationVersion = INVALID_TRANSLATION_VERSION;
@@ -212,5 +213,9 @@ public class GSTranslationModule implements GSIModule {
 
 	public boolean hasTranslation(String key) {
 		return translations.containsKey(key);
+	}
+
+	public long getCachedTranslationVersion() {
+		return cachedTranslationVersion;
 	}
 }

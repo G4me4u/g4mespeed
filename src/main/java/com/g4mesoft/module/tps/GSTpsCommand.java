@@ -30,13 +30,13 @@ public class GSTpsCommand {
 	
 	private static int informCurrentTps(ServerCommandSource source) {
 		float tps = GSControllerServer.getInstance().getTpsModule().getTps();
-		source.sendFeedback(new TranslatableText("Current tps is %s", tps), false);
+		source.sendFeedback(new TranslatableText("command.tps.get", tps), false);
 		return 1;
 	}
 	
 	private static int setCurrentTps(ServerCommandSource source, float newTps) throws CommandSyntaxException {
 		GSControllerServer.getInstance().getTpsModule().setTps(newTps);
-		source.sendFeedback(new TranslatableText("Tps has been set to %s", newTps), true);
+		source.sendFeedback(new TranslatableText("command.tps.set", newTps), true);
 		return 1;
 	}
 }

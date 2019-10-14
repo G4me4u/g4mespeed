@@ -1,6 +1,14 @@
 # Translation version 0
 :0
 
+########### Commands  ############
+
+command.tps.get=Tps is %s
+command.tps.set=Tps has been set to %s
+command.tps.clientOnly=Client tps changed to %s
+
+############ Settings ############
+
 setting.default=Default is %s.
 setting.button.reset=Reset
 setting.button.set=Set

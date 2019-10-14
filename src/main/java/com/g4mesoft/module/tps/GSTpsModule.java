@@ -262,7 +262,7 @@ public class GSTpsModule implements GSIModule {
 				performHotkeyAction(hotkeyType, sneaking);
 				
 				if (MinecraftClient.getInstance().inGameHud != null) {
-					Text msg = new TranslatableText("Changed tps on client: %s", tps);
+					Text msg = new TranslatableText("command.tps.clientOnly", tps);
 					MinecraftClient.getInstance().inGameHud.addChatMessage(MessageType.GAME_INFO, msg);
 				}
 			}

@@ -15,7 +15,9 @@
     "server.GSCustomPayloadC2SPacketMixin",
     
     "server.GSPlayerManagerMixin",
-    "server.GSClientConnectionMixin"
+    "server.GSClientConnectionMixin",
+    
+    "server.GSTranslatableTextMixin"
   ],
   "client": [
     "client.GSMinecraftClientMixin",
