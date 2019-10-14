@@ -6,9 +6,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import com.g4mesoft.setting.decoder.GSISettingDecoder;
 import com.g4mesoft.setting.types.GSUnknownSetting;
+import com.google.common.base.Predicates;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.DecoderException;
@@ -31,7 +33,7 @@ public final class GSSettingMap {
 		return settings.get(name);
 	}
 	
-	private void addSetting(GSSetting<?> setting, boolean replaceIfExists, boolean loaded) {
+	private void addSetting(GSSetting<?> setting, boolean replaceIfExists) {
 		GSSetting<?> currentSetting = getSetting(setting.getName());
 		
 		if (replaceIfExists) {
@@ -47,7 +49,7 @@ public final class GSSettingMap {
 			setting.setSettingOwner(this);
 			
 			if (owner != null)
-				owner.settingAdded(category, setting, loaded);
+				owner.settingAdded(category, setting);
 		} else {
 			if (currentSetting != null) {
 				currentSetting.setValueIfSameType(setting);
@@ -56,13 +58,13 @@ public final class GSSettingMap {
 				settings.put(setting.getName(), setting);
 
 				if (owner != null)
-					owner.settingAdded(category, setting, loaded);
+					owner.settingAdded(category, setting);
 			}
 		}
 	}
 	
 	public void registerSetting(GSSetting<?> setting) {
-		addSetting(setting, true, false);
+		addSetting(setting, true);
 	}
 	
 	public void clearSettings() {
@@ -86,7 +88,7 @@ public final class GSSettingMap {
 		other.clearSettings();
 		
 		for (GSSetting<?> setting : settings)
-			addSetting(setting, false, false);
+			addSetting(setting, false);
 	}
 	
 	public Collection<GSSetting<?>> getSettings() {
@@ -132,16 +134,27 @@ public final class GSSettingMap {
 				}
 			}
 			
-			addSetting(setting, false, true);
+			setting.setActive(false);
+			addSetting(setting, false);
 		}
+	}
+
+	public void writeSettings(PacketByteBuf buffer) throws DecoderException {
+		writeSettings(buffer, Predicates.alwaysTrue());
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void writeSettings(PacketByteBuf buffer) throws DecoderException {
+	public void writeSettings(PacketByteBuf buffer, Predicate<GSSetting<?>> settingFilter) throws DecoderException {
 		PacketByteBuf settingBuffer = new PacketByteBuf(Unpooled.buffer());
 		
-		buffer.writeInt(settings.size());
+		List<GSSetting<?>> settingsToWrite = new ArrayList<GSSetting<?>>(settings.size());
 		for (GSSetting<?> setting : settings.values()) {
+			if (settingFilter.test(setting))
+				settingsToWrite.add(setting);
+		}
+		
+		buffer.writeInt(settingsToWrite.size());
+		for (GSSetting<?> setting : settingsToWrite) {
 			buffer.writeString(setting.getName());
 			
 			@SuppressWarnings("rawtypes")
@@ -166,6 +179,7 @@ public final class GSSettingMap {
 			}
 		}
 		
+		settingsToWrite.clear();
 		settingBuffer.release(settingBuffer.refCnt());
 	}
 	

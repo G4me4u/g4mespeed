@@ -214,10 +214,7 @@ public class GSSettingManager {
 			listener.onSettingChanged(category, setting);
 	}
 	
-	void settingAdded(GSSettingCategory category, GSSetting<?> setting, boolean loaded) {
-		if (loaded)
-			setting.setActive(false);
-
+	void settingAdded(GSSettingCategory category, GSSetting<?> setting) {
 		for (GSISettingChangeListener listener : listeners)
 			listener.onSettingAdded(category, setting);
 	}

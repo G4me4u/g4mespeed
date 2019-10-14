@@ -29,7 +29,7 @@ public class GSServerSettingMapPacket implements GSIPacket {
 	@Override
 	public void write(PacketByteBuf buf) throws IOException {
 		settingMap.getCategory().write(buf);
-		settingMap.writeSettings(buf);
+		settingMap.writeSettings(buf, GSSetting::isActive);
 	}
 
 	@Override

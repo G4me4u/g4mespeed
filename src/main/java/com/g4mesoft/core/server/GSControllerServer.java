@@ -170,17 +170,20 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 
 	@Override
 	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
-		sendPacketToAll(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_CHANGED));
+		if (setting.isActive())
+			sendPacketToAll(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_CHANGED));
 	}
 
 	@Override
 	public void onSettingAdded(GSSettingCategory category, GSSetting<?> setting) {
-		sendPacketToAll(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_ADDED));
+		if (setting.isActive())
+			sendPacketToAll(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_ADDED));
 	}
 
 	@Override
 	public void onSettingRemoved(GSSettingCategory category, GSSetting<?> setting) {
-		sendPacketToAll(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_REMOVED));
+		if (setting.isActive())
+			sendPacketToAll(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_REMOVED));
 	}
 	
 	public MinecraftServer getServer() {
