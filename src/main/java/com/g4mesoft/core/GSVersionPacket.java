@@ -13,23 +13,23 @@ import net.minecraft.util.PacketByteBuf;
 
 public class GSVersionPacket implements GSIPacket {
 
-	private int version;
+	private GSVersion version;
 
 	public GSVersionPacket() {
 	}
 	
-	public GSVersionPacket(int version) {
+	public GSVersionPacket(GSVersion version) {
 		this.version = version;
 	}
 	
 	@Override
 	public void read(PacketByteBuf buf) throws IOException {
-		version = buf.readInt();
+		version = GSVersion.read(buf);
 	}
 
 	@Override
 	public void write(PacketByteBuf buf) throws IOException {
-		buf.writeInt(version);
+		version.write(buf);
 	}
 
 	@Override

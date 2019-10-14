@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
+import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.setting.GSClientSettings;
@@ -34,7 +35,7 @@ public class GSTpsModule implements GSIModule {
 	private static final float TPS_INCREMENT_INTERVAL = 1.0f;
 	private static final float TONE_MULTIPLIER = (float)Math.pow(2.0, 1.0 / 12.0);
 	
-	public static final int TPS_INTRODUCTION_VERSION = 100;
+	public static final GSVersion TPS_INTRODUCTION_VERSION = new GSVersion(1, 0, 0);
 	
 	public static final GSSettingCategory TPS_CATEGORY = new GSSettingCategory("tps");
 	public static final GSSettingCategory BETTER_PISTONS_CATEGORY = new GSSettingCategory("betterPistons");
@@ -219,7 +220,7 @@ public class GSTpsModule implements GSIModule {
 			
 			int syncInterval = sSyncPacketInterval.getValue();
 			if (serverSyncTimer >= syncInterval) {
-				managerServer.sendPacketToAll(new GSServerSyncPacket(syncInterval));
+				managerServer.sendPacketToAll(new GSServerSyncPacket(syncInterval), TPS_INTRODUCTION_VERSION);
 				serverSyncTimer = 0;
 			}
 		});
@@ -256,7 +257,7 @@ public class GSTpsModule implements GSIModule {
 		}
 		
 		manager.runOnClient(managerClient -> {
-			if (managerClient.getServerVersion() >= TPS_INTRODUCTION_VERSION) {
+			if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_INTRODUCTION_VERSION)) {
 				managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
 			} else {
 				performHotkeyAction(hotkeyType, sneaking);
@@ -280,8 +281,9 @@ public class GSTpsModule implements GSIModule {
 	}
 
 	@Override
-	public void onG4mespeedClientJoin(ServerPlayerEntity player, int version) {
-		manager.runOnServer(managerServer -> managerServer.sendPacket(new GSTpsChangePacket(tps), player));
+	public void onG4mespeedClientJoin(ServerPlayerEntity player, GSVersion version) {
+		if (version.isGreaterThanOrEqualTo(TPS_INTRODUCTION_VERSION))
+			manager.runOnServer(managerServer -> managerServer.sendPacket(new GSTpsChangePacket(tps), player));
 	}
 
 	@Override

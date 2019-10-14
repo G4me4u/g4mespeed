@@ -80,7 +80,7 @@ public class GSTabbedGUI extends GSScreen {
 		tabHeight = font.fontHeight + TAB_VERTICAL_PADDING * 2;
 
 		for (GSTabEntry tab : tabs)
-			tab.setWidth(font.getStringWidth(tab.getTitle()) + TAB_HORIZONTAL_PADDING * 2);
+			tab.setWidth(font.getStringWidth(tab.getTranslatedTitle()) + TAB_HORIZONTAL_PADDING * 2);
 
 		int contentWidth = Math.max(width - HORIZONTAL_MARGIN * 2, tabs.size());
 		int contentHeight = Math.max(height - tabHeight - VERTICAL_MARGIN * 2, 1);
@@ -103,7 +103,7 @@ public class GSTabbedGUI extends GSScreen {
 			if (tabWidth * remainingTabs > remainingWidth)
 				break;
 			tab.setWidth(tabWidth);
-			tab.setDisplayTitle(tab.getTitle());
+			tab.setDisplayTitle(tab.getTranslatedTitle());
 			remainingWidth -= tabWidth;
 			remainingTabs--;
 		}
@@ -111,7 +111,7 @@ public class GSTabbedGUI extends GSScreen {
 		for (; remainingTabs > 0; remainingTabs--) {
 			GSTabEntry tab = sortedTabs[remainingTabs - 1];
 			tab.setWidth(remainingWidth / remainingTabs);
-			tab.setDisplayTitle(trimText(tab.getTitle(), tab.getWidth()));
+			tab.setDisplayTitle(trimText(tab.getTranslatedTitle(), tab.getWidth()));
 			remainingWidth -= tab.getWidth();
 		}
 
@@ -193,6 +193,7 @@ public class GSTabbedGUI extends GSScreen {
 
 		int xc = tab.getX() + tab.getWidth() / 2;
 		int yc = VERTICAL_MARGIN + (tabHeight - font.fontHeight) / 2;
+		
 		drawCenteredString(font, tab.getDisplayTitle(), xc, yc, selected ? SELECTED_TEXT_COLOR : TAB_TEXT_COLOR);
 
 		if (tabIndex != 0)
@@ -259,10 +260,6 @@ public class GSTabbedGUI extends GSScreen {
 			this.tabContent = tabContent;
 		}
 
-		public String getTitle() {
-			return title;
-		}
-
 		public GSScreen getTabContent() {
 			return tabContent;
 		}
@@ -273,6 +270,10 @@ public class GSTabbedGUI extends GSScreen {
 
 		public String getDisplayTitle() {
 			return displayTitle;
+		}
+		
+		public String getTranslatedTitle() {
+			return getTranslationModule().getTranslation(title);
 		}
 
 		public void setX(int x) {

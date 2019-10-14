@@ -8,8 +8,10 @@ import org.lwjgl.glfw.GLFW;
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSIModule;
+import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.GSVersionPacket;
 import com.g4mesoft.core.server.GSIModuleManagerServer;
+import com.g4mesoft.gui.GSInfoGUI;
 import com.g4mesoft.gui.GSTabbedGUI;
 import com.g4mesoft.gui.setting.GSSettingsGUI;
 import com.g4mesoft.packet.GSIPacket;
@@ -29,16 +31,16 @@ import net.minecraft.util.PacketByteBuf;
 @Environment(EnvType.CLIENT)
 public class GSControllerClient extends GSController implements GSIModuleManagerClient {
 
-	private static final String SERVER_SETTINGS_GUI_TITLE = "Server settings";
-	private static final String CLIENT_SETTINGS_GUI_TITLE = "Client settings";
+	private static final String CLIENT_SETTINGS_GUI_TITLE = "gui.tab.clientSettings";
+	private static final String SERVER_SETTINGS_GUI_TITLE = "gui.tab.serverSettings";
+	private static final String G4MESPEED_INFO_GUI_TITLE  = "gui.tab.info";
 	
 	private static final GSControllerClient instance = new GSControllerClient();
 	
 	private MinecraftClient minecraft;
 	private ClientPlayNetworkHandler networkHandler;
 
-	private int serverVersion;
-	
+	private GSVersion serverVersion;
 	private final GSRemoteSettingManager serverSettings;
 
 	private final GSTabbedGUI tabbedGUI;
@@ -46,13 +48,14 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	private final GSClientSettings clientSettings;
 	
 	public GSControllerClient() {
-		serverVersion = G4mespeedMod.INVALID_GS_VERSION;
+		serverVersion = GSVersion.INVALID;
 		serverSettings = new GSRemoteSettingManager(this);
 		
 		tabbedGUI = new GSTabbedGUI();
-		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSSettingsGUI(serverSettings));
 		tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSSettingsGUI(settings));
-
+		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSSettingsGUI(serverSettings));
+		tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
+		
 		clientSettings = new GSClientSettings();
 	}
 
@@ -93,7 +96,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 			module.keyRepeat(key, scancode, mods);
 	}
 
-	public void onJoinG4mespeedServer(int serverVersion) {
+	public void onJoinG4mespeedServer(GSVersion serverVersion) {
 		this.serverVersion = serverVersion;
 		sendPacket(new GSVersionPacket(getVersion()));
 
@@ -104,7 +107,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 
 	public void onDisconnectServer() {
-		this.serverVersion = G4mespeedMod.INVALID_GS_VERSION;
+		this.serverVersion = GSVersion.INVALID;
 		setNetworkHandler(null);
 
 		for (GSIModule module : modules)
@@ -121,6 +124,11 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 
 	@Override
+	public boolean isOwnedThread() {
+		return minecraft != null && minecraft.isOnThread();
+	}
+	
+	@Override
 	public Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer) {
 		return new CustomPayloadC2SPacket(identifier, buffer);
 	}
@@ -131,7 +139,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 
 	@Override
-	public int getVersion() {
+	public GSVersion getVersion() {
 		return G4mespeedMod.GS_VERSION;
 	}
 
@@ -145,13 +153,13 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 	
 	@Override
-	public int getServerVersion() {
+	public GSVersion getServerVersion() {
 		return serverVersion;
 	}
 
 	@Override
 	public boolean isG4mespeedServer() {
-		return serverVersion != G4mespeedMod.INVALID_GS_VERSION;
+		return !serverVersion.isInvalid();
 	}
 	
 	@Override
@@ -161,12 +169,12 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	
 	@Override
 	public void sendPacket(GSIPacket packet) {
-		sendPacket(packet, true);
+		sendPacket(packet, GSVersion.MINIMUM_VERSION);
 	}
 
 	@Override
-	public void sendPacket(GSIPacket packet, boolean checkCompatibility) {
-		if (checkCompatibility && !isG4mespeedServer())
+	public void sendPacket(GSIPacket packet, GSVersion minimumServerVersion) {
+		if (serverVersion.isLessThan(minimumServerVersion))
 			return;
 		
 		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();

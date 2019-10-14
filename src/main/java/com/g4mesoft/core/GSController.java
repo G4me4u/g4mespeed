@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSSettingManager;
@@ -86,10 +88,22 @@ public abstract class GSController implements GSIModuleManager {
 		return new File(getCacheFile(), SETTINGS_PATH);
 	}
 	
+	public static GSController getInstanceOnThread() {
+		if (GSControllerClient.getInstance().isOwnedThread())
+			return GSControllerClient.getInstance();
+		
+		if (GSControllerServer.getInstance().isOwnedThread())
+			return GSControllerServer.getInstance();
+		
+		return null;
+	}
+	
+	public abstract boolean isOwnedThread();
+		
 	public abstract Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer);
 
 	public abstract boolean isClient();
 
-	public abstract int getVersion();
+	public abstract GSVersion getVersion();
 	
 }

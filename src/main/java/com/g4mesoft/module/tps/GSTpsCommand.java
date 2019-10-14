@@ -10,18 +10,16 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.TranslatableText;
 
-public class GSTpsCommand {
+public final class GSTpsCommand {
 
 	public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
-		LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager.literal("tps").requires((context) -> {
+		LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager.literal("tps").requires(context -> {
 			return context.hasPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);
 		});
 		
-		builder.executes((context) -> {
-			return informCurrentTps(context.getSource());
-		});
+		builder.executes(context -> informCurrentTps(context.getSource()));
 		
-		builder.then(CommandManager.argument("newTps", FloatArgumentType.floatArg(GSTpsModule.MIN_TPS, GSTpsModule.MAX_TPS)).executes((context) -> {
+		builder.then(CommandManager.argument("newTps", FloatArgumentType.floatArg(GSTpsModule.MIN_TPS, GSTpsModule.MAX_TPS)).executes(context -> {
 			return setCurrentTps(context.getSource(), FloatArgumentType.getFloat(context, "newTps"));
 		}));
 		

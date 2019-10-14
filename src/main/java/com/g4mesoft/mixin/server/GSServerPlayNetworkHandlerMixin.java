@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.GSINetworkHandlerAccess;
+import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.packet.GSICustomPayloadHolder;
@@ -22,8 +23,7 @@ import net.minecraft.server.network.packet.CustomPayloadC2SPacket;
 @Mixin(ServerPlayNetworkHandler.class)
 public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess {
 
-	private boolean gsInstalled = false;
-	private int gsVersion = G4mespeedMod.INVALID_GS_VERSION;
+	private GSVersion version = GSVersion.INVALID;
 
 	private int translationVersion = GSTranslationModule.INVALID_TRANSLATION_VERSION;
 	
@@ -45,23 +45,13 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 	}
 	
 	@Override
-	public void setG4mespeedInstalled(boolean gsInstalled) {
-		this.gsInstalled = gsInstalled;
+	public void setG4mespeedVersion(GSVersion version) {
+		this.version = version;
 	}
 
 	@Override
-	public boolean isG4mespeedInstalled() {
-		return gsInstalled;
-	}
-
-	@Override
-	public void setG4mespeedVersion(int gsVersion) {
-		this.gsVersion = gsVersion;
-	}
-
-	@Override
-	public int getG4mespeedVersion() {
-		return gsVersion;
+	public GSVersion getG4mespeedVersion() {
+		return version;
 	}
 
 	@Override

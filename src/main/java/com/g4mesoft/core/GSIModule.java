@@ -30,7 +30,7 @@ public interface GSIModule {
 	default public void keyRepeat(int key, int scancode, int mods) { }
 
 	@Environment(EnvType.CLIENT)
-	default public void onJoinG4mespeedServer(int serverVersion) { }
+	default public void onJoinG4mespeedServer(GSVersion serverVersion) { }
 
 	@Environment(EnvType.CLIENT)
 	default public void onDisconnectServer() { }
@@ -45,7 +45,7 @@ public interface GSIModule {
 
 	default public void onPlayerJoin(ServerPlayerEntity player) { }
 
-	default public void onG4mespeedClientJoin(ServerPlayerEntity player, int version) { }
+	default public void onG4mespeedClientJoin(ServerPlayerEntity player, GSVersion version) { }
 
 	default public void onPlayerLeave(ServerPlayerEntity player) { }
 

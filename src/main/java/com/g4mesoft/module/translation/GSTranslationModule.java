@@ -23,13 +23,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
+import com.g4mesoft.core.GSVersion;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class GSTranslationModule implements GSIModule {
 
+	public static final GSVersion TRANSLATION_INTRODUCTION_VERSION = new GSVersion(1, 0, 0);
+	
 	private static final String TRANSLATION_FILENAME = "en.lang";
-
 	public static final int INVALID_TRANSLATION_VERSION = -1;
 	
 	private final Map<String, String> translations;
@@ -90,8 +92,8 @@ public class GSTranslationModule implements GSIModule {
 	}
 
 	@Override
-	public void onJoinG4mespeedServer(int serverVersion) {
-		manager.runOnClient(m -> m.sendPacket(new GSTranslationVersionPacket(cachedTranslationVersion)));
+	public void onJoinG4mespeedServer(GSVersion serverVersion) {
+		manager.runOnClient(m -> m.sendPacket(new GSTranslationVersionPacket(cachedTranslationVersion), TRANSLATION_INTRODUCTION_VERSION));
 	}
 	
 	public void onTranslationVersionReceived(ServerPlayerEntity player, int translationVersion) {

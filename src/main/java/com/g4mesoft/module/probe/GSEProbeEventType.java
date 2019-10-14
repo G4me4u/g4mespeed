@@ -1,10 +1,11 @@
 package com.g4mesoft.module.probe;
 
 import static com.g4mesoft.module.probe.GSEProbeEventCategory.BLOCK_EVENT;
-import static com.g4mesoft.module.probe.GSEProbeEventCategory.SCHEDULED_TICK;
 import static com.g4mesoft.module.probe.GSEProbeEventCategory.REDSTONE_POWER;
-
+import static com.g4mesoft.module.probe.GSEProbeEventCategory.SCHEDULED_TICK;
 import static com.g4mesoft.module.probe.GSProbeModule.PROBE_INTRODUCTION_VERSION;
+
+import com.g4mesoft.core.GSVersion;
 
 public enum GSEProbeEventType {
 
@@ -50,9 +51,9 @@ public enum GSEProbeEventType {
 	private final int index;
 	private final String name;
 	private final GSEProbeEventCategory category;
-	private final int versionAdded;
+	private final GSVersion versionAdded;
 
-	private GSEProbeEventType(int index, String name, GSEProbeEventCategory category, int versionAdded) {
+	private GSEProbeEventType(int index, String name, GSEProbeEventCategory category, GSVersion versionAdded) {
 		this.index = index;
 		this.name = name;
 		this.category = category;
@@ -77,7 +78,7 @@ public enum GSEProbeEventType {
 		return category;
 	}
 	
-	public int getVersionAdded() {
+	public GSVersion getVersionAdded() {
 		return versionAdded;
 	}
 }

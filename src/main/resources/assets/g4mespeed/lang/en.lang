@@ -1,13 +1,23 @@
 # Translation version 0
 :0
 
-########### Commands  ############
+###########   Commands    ############
+
+command.gs.info=G4mespeed version is %s
 
 command.tps.get=Tps is %s
 command.tps.set=Tps has been set to %s
 command.tps.clientOnly=Client tps changed to %s
 
-############ Settings ############
+############ GUI elements ############
+
+gui.tab.clientSettings=Client settings
+gui.tab.serverSettings=Server settings
+gui.tab.info=Info
+
+gui.info.serverVersionTitle=Server version:
+gui.info.invalidServer=G4mespeed is not installed on this server!
+gui.info.clientVersionTitle=Client version:
 
 setting.default=Default is %s.
 setting.button.reset=Reset

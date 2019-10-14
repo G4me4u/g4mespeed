@@ -7,6 +7,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSIModule;
+import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.GSVersionPacket;
 import com.g4mesoft.core.client.GSIModuleManagerClient;
 import com.g4mesoft.packet.GSIPacket;
@@ -61,6 +62,8 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 
 	public void setCommandDispatcher(CommandDispatcher<ServerCommandSource> dispatcher) {
+		GSInfoCommand.registerCommand(dispatcher);
+		
 		for (GSIModule module : modules)
 			module.registerCommands(dispatcher);
 		
@@ -68,14 +71,13 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 
 	public void onPlayerJoin(ServerPlayerEntity player) {
-		sendPacket(new GSVersionPacket(getVersion()), player, false);
+		sendPacket(new GSVersionPacket(getVersion()), player, GSVersion.INVALID);
 
 		for (GSIModule module : modules)
 			module.onPlayerJoin(player);
 	}
 	
-	public void onG4mespeedClientJoined(ServerPlayerEntity player, int version) {
-		((GSINetworkHandlerAccess)player.networkHandler).setG4mespeedInstalled(true);
+	public void onG4mespeedClientJoined(ServerPlayerEntity player, GSVersion version) {
 		((GSINetworkHandlerAccess)player.networkHandler).setG4mespeedVersion(version);
 
 		for (GSIModule module : modules)
@@ -98,6 +100,11 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		
 		server = null;
 	}
+	
+	@Override
+	public boolean isOwnedThread() {
+		return server != null && server.isOnThread();
+	}
 
 	@Override
 	public Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer) {
@@ -110,7 +117,7 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 
 	@Override
-	public int getVersion() {
+	public GSVersion getVersion() {
 		return G4mespeedMod.GS_VERSION;
 	}
 
@@ -125,27 +132,28 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	
 	@Override
 	public void sendPacket(GSIPacket packet, ServerPlayerEntity player) {
-		sendPacket(packet, player, true);
+		sendPacket(packet, player, GSVersion.MINIMUM_VERSION);
 	}
-	
+
 	@Override
-	public void sendPacket(GSIPacket packet, ServerPlayerEntity player, boolean checkCompatibility) {
-		if (checkCompatibility && !((GSINetworkHandlerAccess)player.networkHandler).isG4mespeedInstalled())
+	public void sendPacket(GSIPacket packet, ServerPlayerEntity player, GSVersion miminumVersion) {
+		if (((GSINetworkHandlerAccess)player.networkHandler).getG4mespeedVersion().isLessThan(miminumVersion))
 			return;
 		
 		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
 		Packet<?> customPayload = packetManger.encodePacket(packet, this);
 		if (customPayload != null)
 			player.networkHandler.sendPacket(customPayload);
+		
 	}
 
 	@Override
 	public void sendPacketToAll(GSIPacket packet) {
-		sendPacketToAll(packet, true);
+		sendPacketToAll(packet, GSVersion.MINIMUM_VERSION);
 	}
 
 	@Override
-	public void sendPacketToAll(GSIPacket packet, boolean checkCompatibility) {
+	public void sendPacketToAll(GSIPacket packet, GSVersion miminumVersion) {
 		if (server == null)
 			return;
 		
@@ -153,7 +161,9 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		Packet<?> customPayload = packetManger.encodePacket(packet, this);
 		if (customPayload != null) {
 			for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-				if (!checkCompatibility || ((GSINetworkHandlerAccess)player.networkHandler).isG4mespeedInstalled())
+				GSVersion playerVersion = ((GSINetworkHandlerAccess)player.networkHandler).getG4mespeedVersion();
+				
+				if (playerVersion.isGreaterThanOrEqualTo(miminumVersion))
 					player.networkHandler.sendPacket(customPayload);
 			}
 		}
