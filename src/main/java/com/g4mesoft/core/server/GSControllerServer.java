@@ -9,7 +9,6 @@ import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSVersionPacket;
 import com.g4mesoft.core.client.GSIModuleManagerClient;
-import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 import com.g4mesoft.setting.GSISettingChangeListener;
@@ -17,8 +16,8 @@ import com.g4mesoft.setting.GSServerSettingMapPacket;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingChangePacket;
-import com.g4mesoft.setting.GSSettingMap;
 import com.g4mesoft.setting.GSSettingChangePacket.GSESettingChangeType;
+import com.g4mesoft.setting.GSSettingMap;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
@@ -29,7 +28,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
-public class GSControllerServer extends GSController implements GSIModuleManagerServer, GSITpsDependant, GSISettingChangeListener {
+public class GSControllerServer extends GSController implements GSIModuleManagerServer, GSISettingChangeListener {
 
 	public static final int OP_PERMISSION_LEVEL = 2;
 
@@ -43,13 +42,6 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		server = null;
 		
 		settings.addChangeListener(this);
-	}
-	
-	@Override
-	protected void initModules() {
-		super.initModules();
-		
-		tpsModule.addTpsListener(this);
 	}
 	
 	@Override
@@ -106,12 +98,6 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		
 		server = null;
 	}
-	
-	@Override
-	public void tpsChanged(float newTps, float oldTps) {
-		if (server != null)
-			((GSITpsDependant)server).tpsChanged(newTps, oldTps);
-	}
 
 	@Override
 	public Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer) {
@@ -160,7 +146,7 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 
 	@Override
 	public void sendPacketToAll(GSIPacket packet, boolean checkCompatibility) {
-		if (server == null || server.getPlayerManager() == null)
+		if (server == null)
 			return;
 		
 		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();

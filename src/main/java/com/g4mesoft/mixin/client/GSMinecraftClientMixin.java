@@ -11,6 +11,7 @@ import com.g4mesoft.access.GSIMinecraftClientAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSITpsDependant;
+import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -19,16 +20,20 @@ import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.sound.SoundManager;
 
 @Mixin(MinecraftClient.class)
-public class GSMinecraftClientMixin implements GSIMinecraftClientAccess, GSITpsDependant {
+public class GSMinecraftClientMixin implements GSIMinecraftClientAccess {
 
 	@Shadow @Final private RenderTickCounter renderTickCounter;
 	@Shadow private SoundManager soundManager;
 	@Shadow public ClientPlayerEntity player;
 	
-	@Inject(method = "<init>", at = @At("RETURN"))
+	@Inject(method = "init()V", at = @At("RETURN"))
 	public void onInit(CallbackInfo ci) {
-		GSControllerClient.getInstance().init((MinecraftClient)(Object)this);
-		GSControllerClient.getInstance().getTpsModule().addTpsListener(this);
+		GSControllerClient controllerClient = GSControllerClient.getInstance();
+		controllerClient.init((MinecraftClient)(Object)this);
+
+		GSTpsModule tpsModule = controllerClient.getTpsModule();
+		tpsModule.addTpsListener((GSITpsDependant)renderTickCounter);
+		tpsModule.addTpsListener((GSITpsDependant)soundManager);
 	}
 	
 	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
@@ -44,14 +49,6 @@ public class GSMinecraftClientMixin implements GSIMinecraftClientAccess, GSITpsD
 		GSControllerClient.getInstance().onClientClose();
 	}
 
-	@Override
-	public void tpsChanged(float newTps, float oldTps) {
-		((GSITpsDependant)renderTickCounter).tpsChanged(newTps, oldTps);
-
-		if (soundManager != null)
-			((GSITpsDependant)soundManager).tpsChanged(newTps, oldTps);
-	}
-	
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void onTick(CallbackInfo ci) {
 		GSDebug.onClientTick();
