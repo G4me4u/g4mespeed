@@ -3,7 +3,7 @@ package com.g4mesoft.setting;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -21,50 +21,34 @@ public final class GSSettingMap {
 	private final GSSettingCategory category;
 	private final Map<String, GSSetting<?>> settings;
 	
-	private GSSettingManager owner;
+	private final GSSettingManager owner;
 	
-	public GSSettingMap(GSSettingCategory category) {
+	public GSSettingMap(GSSettingCategory category, GSSettingManager owner) {
 		this.category = category;
+		this.owner = owner;
 		
-		settings = new HashMap<String, GSSetting<?>>();
+		settings = new LinkedHashMap<String, GSSetting<?>>();
 	}
 	
 	public GSSetting<?> getSetting(String name) {
 		return settings.get(name);
 	}
 	
-	private void addSetting(GSSetting<?> setting, boolean replaceIfExists) {
+	public void registerSetting(GSSetting<?> setting) {
 		GSSetting<?> currentSetting = getSetting(setting.getName());
-		
-		if (replaceIfExists) {
-			if (currentSetting != null) {
-				setting.setValueIfSameType(currentSetting);
-				currentSetting.setSettingOwner(null);
-				
-				if (owner != null)
-					owner.settingRemoved(category, currentSetting);
-			}
-			
-			settings.put(setting.getName(), setting);
-			setting.setSettingOwner(this);
+		if (currentSetting != null) {
+			setting.setValueIfSameType(currentSetting);
+			currentSetting.setSettingOwner(null);
 			
 			if (owner != null)
-				owner.settingAdded(category, setting);
-		} else {
-			if (currentSetting != null) {
-				currentSetting.setValueIfSameType(setting);
-			} else {
-				setting.setSettingOwner(this);
-				settings.put(setting.getName(), setting);
-
-				if (owner != null)
-					owner.settingAdded(category, setting);
-			}
+				owner.settingRemoved(category, currentSetting);
 		}
-	}
-	
-	public void registerSetting(GSSetting<?> setting) {
-		addSetting(setting, true);
+		
+		settings.put(setting.getName(), setting);
+		setting.setSettingOwner(this);
+		
+		if (owner != null)
+			owner.settingAdded(category, setting);
 	}
 	
 	public void clearSettings() {
@@ -81,14 +65,6 @@ public final class GSSettingMap {
 		if (currentSetting != null)
 			owner.settingRemoved(category, currentSetting);
 		return currentSetting;
-	}
-	
-	public void transferSettings(GSSettingMap other) {
-		List<GSSetting<?>> settings = new ArrayList<GSSetting<?>>(other.settings.values());
-		other.clearSettings();
-		
-		for (GSSetting<?> setting : settings)
-			addSetting(setting, false);
 	}
 	
 	public Collection<GSSetting<?>> getSettings() {
@@ -134,8 +110,20 @@ public final class GSSettingMap {
 				}
 			}
 			
-			setting.setActive(false);
-			addSetting(setting, false);
+			GSSetting<?> currentSetting = getSetting(setting.getName());
+			if (currentSetting != null) {
+				currentSetting.setValueIfSameType(setting);
+			} else {
+				// Setting was not added through the registerSetting
+				// method and is therefore not necessarily active.
+				setting.setActive(false);
+
+				setting.setSettingOwner(this);
+				settings.put(setting.getName(), setting);
+
+				if (owner != null)
+					owner.settingAdded(category, setting);
+			}
 		}
 	}
 
@@ -181,13 +169,5 @@ public final class GSSettingMap {
 		
 		settingsToWrite.clear();
 		settingBuffer.release(settingBuffer.refCnt());
-	}
-	
-	public void setSettingOwner(GSSettingManager owner) {
-		this.owner = owner;
-	}
-
-	public GSSettingManager getSettingOwner() {
-		return owner;
 	}
 }

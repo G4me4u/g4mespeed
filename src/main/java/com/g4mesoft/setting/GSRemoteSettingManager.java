@@ -1,5 +1,8 @@
 package com.g4mesoft.setting;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.setting.GSSettingChangePacket.GSESettingChangeType;
 
@@ -7,43 +10,75 @@ public class GSRemoteSettingManager extends GSSettingManager {
 
 	private final GSControllerClient controllerClient;
 	
+	private final Map<GSSettingCategory, GSSettingMap> shadowSettings;
 	private boolean remoteSettingChanging;
 
 	public GSRemoteSettingManager(GSControllerClient controllerClient) {
 		this.controllerClient = controllerClient;
 	
+		shadowSettings = new HashMap<GSSettingCategory, GSSettingMap>();
 		remoteSettingChanging = false;
 	}
 
 	@Override
 	public void registerSetting(GSSettingCategory category, GSSetting<?> setting) {
-		GSSettingMap settingMap = settings.get(category);
-		if (settingMap != null) {
-			GSSetting<?> currentSetting = settingMap.getSetting(setting.getName());
-			if (currentSetting == null || !currentSetting.isActive())
-				setting.setActive(false);
+		registerShadowSetting(category, setting);
+	}
+
+	public void registerShadowSetting(GSSettingCategory category, GSSetting<?> setting) {
+		GSSettingMap shadowSettingMap = shadowSettings.get(category);
+		if (shadowSettingMap == null) {
+			// We don't want to receive events from the
+			// shadow settings. Hence we set owner to null
+			shadowSettingMap = new GSSettingMap(category, null);
+			shadowSettings.put(category, shadowSettingMap);
 		}
 		
-		super.registerSetting(category, setting);
+		shadowSettingMap.registerSetting(setting);
+	}
+	
+	public GSSetting<?> getShadowSetting(GSSettingCategory category, String name) {
+		GSSettingMap categorySettings = shadowSettings.get(category);
+		return (categorySettings != null) ? categorySettings.getSetting(name) : null;
+	}
+	
+	private void updateShadowValue(GSSettingCategory category, GSSetting<?> setting) {
+		GSSetting<?> shadowSetting = getShadowSetting(category, setting.getName());
+		if (shadowSetting != null)
+			shadowSetting.setValueIfSameType(setting);
+	}
+	
+	@Override
+	void settingChanged(GSSettingCategory category, GSSetting<?> setting) {
+		super.settingChanged(category, setting);
+		
+		updateShadowValue(category, setting);
+		
+		if (!remoteSettingChanging)
+			controllerClient.sendPacket(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_CHANGED));
+	}
 
-		setting.reset();
+	@Override
+	void settingAdded(GSSettingCategory category, GSSetting<?> setting) {
+		super.settingAdded(category, setting);
+		
+		updateShadowValue(category, setting);
+	}
+	
+	@Override
+	void settingRemoved(GSSettingCategory category, GSSetting<?> setting) {
+		super.settingRemoved(category, setting);
+		
+		GSSetting<?> shadowSetting = getShadowSetting(category, setting.getName());
+		if (shadowSetting != null)
+			shadowSetting.reset();
 	}
 	
 	public void onRemoteSettingMapReceived(GSSettingMap settingMap) {
-		if (settingMap.getSettingOwner() == null) {
-			GSSettingCategory category = settingMap.getCategory();
+		GSSettingCategory category = settingMap.getCategory();
 
-			GSSettingMap ownedSettingMap = settings.get(category);
-			if (ownedSettingMap == null) {
-				ownedSettingMap = new GSSettingMap(category);
-				settings.put(category, ownedSettingMap);
-			}
-
-			for (GSSetting<?> setting : settingMap.getSettings())
-				setting.setActive(true);
-			
-			ownedSettingMap.transferSettings(settingMap);
-		}
+		for (GSSetting<?> setting : settingMap.getSettings())
+			super.registerSetting(category, setting.copySetting());
 	}
 	
 	public void onRemoteSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
@@ -62,13 +97,5 @@ public class GSRemoteSettingManager extends GSSettingManager {
 	
 	public void onRemoteSettingRemoved(GSSettingCategory category, GSSetting<?> setting) {
 		removeSetting(category, setting.getName());
-	}
-
-	@Override
-	void settingChanged(GSSettingCategory category, GSSetting<?> setting) {
-		super.settingChanged(category, setting);
-		
-		if (!remoteSettingChanging && setting.isActive())
-			controllerClient.sendPacket(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_CHANGED));
 	}
 }

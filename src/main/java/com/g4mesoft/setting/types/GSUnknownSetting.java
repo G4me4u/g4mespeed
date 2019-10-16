@@ -8,7 +8,7 @@ public class GSUnknownSetting extends GSSetting<Object> {
 	private final byte[] data;
 	
 	public GSUnknownSetting(String name, String type, byte[] data) {
-		super(name, null);
+		super(name, null, false);
 		
 		this.type = type;
 		this.data = data;
@@ -20,7 +20,8 @@ public class GSUnknownSetting extends GSSetting<Object> {
 	}
 
 	@Override
-	public void setValue(Object value) {
+	public GSUnknownSetting setValue(Object value) {
+		return this;
 	}
 
 	@Override
@@ -34,5 +35,10 @@ public class GSUnknownSetting extends GSSetting<Object> {
 	
 	public byte[] getData() {
 		return data;
+	}
+
+	@Override
+	public GSSetting<Object> copySetting() {
+		return new GSUnknownSetting(name, type, data);
 	}
 }

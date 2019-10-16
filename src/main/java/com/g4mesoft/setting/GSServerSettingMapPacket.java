@@ -22,7 +22,7 @@ public class GSServerSettingMapPacket implements GSIPacket {
 	
 	@Override
 	public void read(PacketByteBuf buf) throws IOException {
-		settingMap = new GSSettingMap(GSSettingCategory.read(buf));
+		settingMap = new GSSettingMap(GSSettingCategory.read(buf), null);
 		settingMap.readSettings(buf);
 	}
 

@@ -12,15 +12,27 @@ public class GSFloatSetting extends GSSetting<Float> {
 	private final float maxValue;
 
 	public GSFloatSetting(String name, float defaultValue) {
-		this(name, defaultValue, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY);
+		this(name, defaultValue, true);
+	}
+
+	public GSFloatSetting(String name, float defaultValue, boolean availableInGui) {
+		this(name, defaultValue, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, availableInGui);
 	}
 
 	public GSFloatSetting(String name, float defaultValue, float minValue, float maxValue) {
-		this(name, defaultValue, minValue, maxValue, 0.0f);
+		this(name, defaultValue, minValue, maxValue, true);
+	}
+
+	public GSFloatSetting(String name, float defaultValue, float minValue, float maxValue, boolean availableInGui) {
+		this(name, defaultValue, minValue, maxValue, 0.0f, availableInGui);
+	}
+
+	public GSFloatSetting(String name, float defaultValue, float minValue, float maxValue, float interval) {
+		this(name, defaultValue, minValue, maxValue, interval, true);
 	}
 	
-	public GSFloatSetting(String name, float defaultValue, float minValue, float maxValue, float interval) {
-		super(name, defaultValue);
+	public GSFloatSetting(String name, float defaultValue, float minValue, float maxValue, float interval, boolean availableInGui) {
+		super(name, defaultValue, availableInGui);
 
 		this.minValue = minValue;
 		this.interval = interval;
@@ -35,12 +47,14 @@ public class GSFloatSetting extends GSSetting<Float> {
 	}
 
 	@Override
-	public void setValue(Float value) {
+	public GSFloatSetting setValue(Float value) {
 		float newValue = adjustValue(value.floatValue());
 		if (newValue != this.value) {
 			this.value = newValue;
 			notifyOwnerChange();
 		}
+		
+		return this;
 	}
 	
 	private float adjustValue(float value) {
@@ -70,5 +84,10 @@ public class GSFloatSetting extends GSSetting<Float> {
 
 	public float getMaxValue() {
 		return maxValue;
+	}
+
+	@Override
+	public GSSetting<Float> copySetting() {
+		return new GSFloatSetting(name, defaultValue, minValue, maxValue, interval, availableInGui).setValue(value);
 	}
 }

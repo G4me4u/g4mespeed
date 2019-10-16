@@ -15,8 +15,9 @@ public class GSIntegerSettingDecoder implements GSISettingDecoder<GSIntegerSetti
 		int minValue = buffer.readInt();
 		int maxValue = buffer.readInt();
 		int interval = buffer.readInt();
+		boolean availableInGui = buffer.readBoolean();		
 		
-		GSIntegerSetting setting = new GSIntegerSetting(name, defaultValue, minValue, maxValue, interval);
+		GSIntegerSetting setting = new GSIntegerSetting(name, defaultValue, minValue, maxValue, interval, availableInGui);
 		setting.setValue(value);
 		return setting;
 	}
@@ -28,6 +29,7 @@ public class GSIntegerSettingDecoder implements GSISettingDecoder<GSIntegerSetti
 		buffer.writeInt(setting.getMinValue());
 		buffer.writeInt(setting.getMaxValue());
 		buffer.writeInt(setting.getInterval());
+		buffer.writeBoolean(setting.isAvailableInGUI());
 	}
 
 	@Override

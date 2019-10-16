@@ -66,7 +66,7 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 	}
 
 	private void addSettingElement(GSSettingCategory category, GSSetting<?> setting) {
-		if (setting.isActive()) {
+		if (setting.isActive() && setting.isAvailableInGUI()) {
 			GSSettingCategoryElement categoryElement = settingCategories.get(category);
 			if (categoryElement == null) {
 				categoryElement = new GSSettingCategoryElement(category);
@@ -94,8 +94,12 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 	@Override
 	public void onSettingRemoved(GSSettingCategory category, GSSetting<?> setting) {
 		GSSettingCategoryElement categoryElement = settingCategories.get(category);
-		if (categoryElement != null)
+		if (categoryElement != null) {
 			categoryElement.removeSetting(setting);
+			
+			if (categoryElement.isEmpty())
+				settingCategories.remove(category);
+		}
 
 		layoutChanged = true;
 	}
@@ -236,7 +240,6 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 			settings = new ArrayList<GSSettingElementGUI<?>>();
 		}
 		
-
 		public int getMinimumWidth() {
 			int minimumWidth = 0;
 			for (GSSettingElementGUI<?> element : settings) {
@@ -245,7 +248,6 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 			}
 			return minimumWidth;
 		}
-
 
 		public void addSetting(GSSetting<?> setting) {
 			if (setting instanceof GSBooleanSetting) {
@@ -323,6 +325,10 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 			
 			for (GSSettingElementGUI<?> element : settings)
 				element.render(mouseX, mouseY, partialTicks);
+		}
+		
+		public boolean isEmpty() {
+			return settings.isEmpty();
 		}
 	}
 }

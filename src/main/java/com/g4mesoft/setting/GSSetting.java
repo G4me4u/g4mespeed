@@ -2,22 +2,24 @@ package com.g4mesoft.setting;
 
 public abstract class GSSetting<T> {
 
-	private final String displayName;
-	private final T defaultValue;
+	protected final String name;
+	protected final T defaultValue;
+	protected final boolean availableInGui;
 	
 	private GSSettingMap settingOwner;
 	private boolean active;
 	
-	public GSSetting(String displayName, T defaultValue) {
-		this.displayName = displayName;
+	public GSSetting(String name, T defaultValue, boolean availableInGui) {
+		this.name = name;
 		this.defaultValue = defaultValue;
+		this.availableInGui = availableInGui;
 		
 		settingOwner = null;
 		active = true;
 	}
 	
 	public String getName() {
-		return displayName;
+		return name;
 	}
 	
 	void setSettingOwner(GSSettingMap changeListener) {
@@ -33,9 +35,11 @@ public abstract class GSSetting<T> {
 	
 	public abstract T getValue();
 	
-	public abstract void setValue(T value);
+	public abstract GSSetting<T> setValue(T value);
 
 	public abstract boolean isSameType(GSSetting<?> other);
+
+	public abstract GSSetting<T> copySetting();
 
 	public void reset() {
 		setValue(defaultValue);
@@ -57,5 +61,9 @@ public abstract class GSSetting<T> {
 	
 	public boolean isActive() {
 		return active;
+	}
+	
+	public boolean isAvailableInGUI() {
+		return availableInGui;
 	}
 }

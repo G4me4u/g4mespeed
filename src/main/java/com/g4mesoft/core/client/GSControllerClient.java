@@ -65,6 +65,9 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	
 		module.initGUI(tabbedGUI);
 		module.registerClientSettings(settings);
+		
+		// Register shadow server settings
+		module.registerServerSettings(serverSettings);
 	}
 
 	public void init(MinecraftClient minecraft) {
@@ -100,10 +103,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		this.serverVersion = serverVersion;
 		sendPacket(new GSVersionPacket(getVersion()));
 
-		for (GSIModule module : modules) {
+		for (GSIModule module : modules)
 			module.onJoinG4mespeedServer(serverVersion);
-			module.registerServerSettings(serverSettings);
-		}
 	}
 
 	public void onDisconnectServer() {

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +49,7 @@ public class GSSettingManager {
 	}
 	
 	public GSSettingManager() {
-		settings = new HashMap<GSSettingCategory, GSSettingMap>();
+		settings = new LinkedHashMap<GSSettingCategory, GSSettingMap>();
 		listeners = new ArrayList<GSISettingChangeListener>();
 	}
 	
@@ -145,9 +146,8 @@ public class GSSettingManager {
 				GSSettingMap map = settings.get(category);
 				
 				if (map == null) {
-					map = new GSSettingMap(category);
+					map = new GSSettingMap(category, this);
 					settings.put(category, map);
-					map.setSettingOwner(this);
 				}
 				
 				try {
@@ -173,17 +173,14 @@ public class GSSettingManager {
 	
 	public GSSetting<?> getSetting(GSSettingCategory category, String name) {
 		GSSettingMap categorySettings = settings.get(category);
-		if (categorySettings == null)
-			return null;
-		return categorySettings.getSetting(name);
+		return (categorySettings != null) ? categorySettings.getSetting(name) : null;
 	}
 	
 	public void registerSetting(GSSettingCategory category, GSSetting<?> setting) {
 		GSSettingMap categorySettings = settings.get(category);
 		if (categorySettings == null) {
-			categorySettings = new GSSettingMap(category);
+			categorySettings = new GSSettingMap(category, this);
 			settings.put(category, categorySettings);
-			categorySettings.setSettingOwner(this);
 		}
 		
 		categorySettings.registerSetting(setting);

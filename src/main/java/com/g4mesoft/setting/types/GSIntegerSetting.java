@@ -12,15 +12,27 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 	private final int interval;
 
 	public GSIntegerSetting(String name, int defaultValue) {
-		this(name, defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE);
+		this(name, defaultValue, true);
+	}
+
+	public GSIntegerSetting(String name, int defaultValue, boolean availableInGui) {
+		this(name, defaultValue, Integer.MIN_VALUE, Integer.MAX_VALUE, availableInGui);
 	}
 
 	public GSIntegerSetting(String name, int defaultValue, int minValue, int maxValue) {
-		this(name, defaultValue, minValue, maxValue, 1);
+		this(name, defaultValue, minValue, maxValue, true);
+	}
+
+	public GSIntegerSetting(String name, int defaultValue, int minValue, int maxValue, boolean availableInGui) {
+		this(name, defaultValue, minValue, maxValue, 1, availableInGui);
 	}
 	
 	public GSIntegerSetting(String name, int defaultValue, int minValue, int maxValue, int interval) {
-		super(name, defaultValue);
+		this(name, defaultValue, minValue, maxValue, interval, true);
+	}
+
+	public GSIntegerSetting(String name, int defaultValue, int minValue, int maxValue, int interval, boolean availableInGui) {
+		super(name, defaultValue, availableInGui);
 
 		this.minValue = minValue;
 		this.maxValue = maxValue;
@@ -35,12 +47,14 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 	}
 
 	@Override
-	public void setValue(Integer value) {
+	public GSIntegerSetting setValue(Integer value) {
 		int newValue = adjustValue(value.intValue());
 		if (newValue != this.value) {
 			this.value = newValue;
 			notifyOwnerChange();
 		}
+		
+		return this;
 	}
 	
 	private int adjustValue(int value) {
@@ -70,5 +84,10 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 
 	public int getInterval() {
 		return interval;
+	}
+
+	@Override
+	public GSSetting<Integer> copySetting() {
+		return new GSIntegerSetting(name, defaultValue, minValue, maxValue, interval, availableInGui).setValue(value);
 	}
 }
