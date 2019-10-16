@@ -16,7 +16,7 @@ gui.tab.serverSettings=Server settings
 gui.tab.info=Info
 
 gui.info.serverVersionTitle=Server version:
-gui.info.invalidServer=G4mespeed is not installed on this server!
+gui.info.invalidServer=Not installed
 gui.info.clientVersionTitle=Client version:
 
 setting.default=Default is %s.

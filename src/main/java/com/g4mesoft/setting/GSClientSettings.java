@@ -2,8 +2,11 @@ package com.g4mesoft.setting;
 
 import org.lwjgl.glfw.GLFW;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.options.KeyBinding;
 
+@Environment(EnvType.CLIENT)
 public class GSClientSettings {
 
 	public final KeyBinding gsIncreaseTpsKey;

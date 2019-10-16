@@ -15,15 +15,20 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.math.Direction;
 
 @Mixin(PistonBlockEntity.class)
-public abstract class GSPistonBlockEntityMixin implements GSISmoothPistonBlockEntityAccess {
+public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GSISmoothPistonBlockEntityAccess {
 
-	private static final float PISTON_STEPS = 3.0f;
-	private static final float INCREMENTER = 1.0f / (PISTON_STEPS - 1.0f);
+	public GSPistonBlockEntityMixin(BlockEntityType<?> blockEntityType_1) {
+		super(blockEntityType_1);
+	}
+
+	private static final float PISTON_STEPS = 2.0f;
+	private static final float INCREMENTER = 1.0f / PISTON_STEPS;
 	
 	private float actualProgress;
 	
@@ -35,17 +40,18 @@ public abstract class GSPistonBlockEntityMixin implements GSISmoothPistonBlockEn
 	@Override
 	@Environment(EnvType.CLIENT)
 	public float getSmoothProgress(float partialTicks) {
-		if (((BlockEntity)(Object)this).isInvalid())
+		if (isInvalid())
 			return 1.0f;
 		
 		float val;
 		
 		switch (GSControllerClient.getInstance().getTpsModule().cPistonAnimationType.getValue()) {
 		case GSTpsModule.PISTON_ANIM_NO_PAUSE:
-			val = (this.nextProgress * (PISTON_STEPS - 1.0f) + partialTicks) / PISTON_STEPS;
+			val = (this.nextProgress * PISTON_STEPS + partialTicks) / (PISTON_STEPS + 1.0f);
 			break;
 		case GSTpsModule.PISTON_ANIM_PAUSE_END:
-			val = (this.nextProgress * (PISTON_STEPS - 1.0f) + partialTicks) / (PISTON_STEPS - 1.0f);
+			// Will be clamped by the return statement.
+			val = (this.nextProgress * PISTON_STEPS + partialTicks) / PISTON_STEPS;
 			break;
 		default:
 		case GSTpsModule.PISTON_ANIM_PAUSE_BEGINNING:
@@ -86,6 +92,7 @@ public abstract class GSPistonBlockEntityMixin implements GSISmoothPistonBlockEn
 		actualProgress = this.progress;
 	}
 	
+	@Override
 	@Environment(EnvType.CLIENT)
 	public double getSquaredRenderDistance() {
 		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();

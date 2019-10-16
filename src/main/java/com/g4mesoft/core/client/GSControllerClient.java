@@ -66,7 +66,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		module.initGUI(tabbedGUI);
 		module.registerClientSettings(settings);
 	}
-	
+
 	public void init(MinecraftClient minecraft) {
 		this.minecraft = minecraft;
 		
@@ -76,7 +76,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	public void setNetworkHandler(ClientPlayNetworkHandler networkHandler) {
 		this.networkHandler = networkHandler;
 	}
-	
+
 	public void keyReleased(int key, int scancode, int mods) {
 		for (GSIModule module : modules)
 			module.keyReleased(key, scancode, mods);
@@ -124,7 +124,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 
 	@Override
-	public boolean isOwnedThread() {
+	public boolean isThreadOwner() {
 		return minecraft != null && minecraft.isOnThread();
 	}
 	
@@ -164,7 +164,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	
 	@Override
 	public boolean isInGame() {
-		return minecraft.currentScreen == null;
+		return minecraft != null && minecraft.currentScreen == null;
 	}
 	
 	@Override
@@ -174,12 +174,12 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 
 	@Override
 	public void sendPacket(GSIPacket packet, GSVersion minimumServerVersion) {
-		if (serverVersion.isLessThan(minimumServerVersion))
+		if (networkHandler == null || serverVersion.isLessThan(minimumServerVersion))
 			return;
 		
 		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
 		Packet<?> customPayload = packetManger.encodePacket(packet, this);
-		if (customPayload != null && networkHandler != null)
+		if (customPayload != null)
 			networkHandler.sendPacket(customPayload);
 	}
 	

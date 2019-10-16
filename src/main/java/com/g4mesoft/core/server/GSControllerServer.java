@@ -102,7 +102,7 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 	
 	@Override
-	public boolean isOwnedThread() {
+	public boolean isThreadOwner() {
 		return server != null && server.isOnThread();
 	}
 

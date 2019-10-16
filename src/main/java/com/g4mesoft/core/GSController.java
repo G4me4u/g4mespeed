@@ -2,10 +2,10 @@ package com.g4mesoft.core;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSSettingManager;
@@ -20,6 +20,8 @@ public abstract class GSController implements GSIModuleManager {
 	
 	protected static final String CACHE_DIR_NAME = "g4mespeed/cache";
 	protected static final String INTEGRATED_CACHE_DIR_NAME = "g4mespeed/integrated/cache";
+
+	private static final Set<GSController> INSTANCES = new HashSet<GSController>();
 	
 	protected final GSSettingManager settings;
 	
@@ -37,6 +39,8 @@ public abstract class GSController implements GSIModuleManager {
 		tpsModule = new GSTpsModule();
 //		probeModule = new GSProbeModule();
 		translationModule = new GSTranslationModule();
+
+		INSTANCES.add(this);
 	}
 
 	protected void onStart() {
@@ -89,16 +93,14 @@ public abstract class GSController implements GSIModuleManager {
 	}
 	
 	public static GSController getInstanceOnThread() {
-		if (GSControllerClient.getInstance().isOwnedThread())
-			return GSControllerClient.getInstance();
-		
-		if (GSControllerServer.getInstance().isOwnedThread())
-			return GSControllerServer.getInstance();
-		
+		for (GSController controller : INSTANCES) {
+			if (controller.isThreadOwner())
+				return controller;
+		}
 		return null;
 	}
 	
-	public abstract boolean isOwnedThread();
+	public abstract boolean isThreadOwner();
 		
 	public abstract Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer);
 
