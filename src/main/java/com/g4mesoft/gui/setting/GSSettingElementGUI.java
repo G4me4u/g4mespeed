@@ -78,6 +78,11 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSScre
 
 	public abstract String getFormattedDefault();
 
+	@Override
+	protected boolean mouseScrolledTranslated(double mouseX, double mouseY, double scroll) {
+		return false;
+	}
+	
 	protected int getSettingHeight() {
 		return height;
 	}

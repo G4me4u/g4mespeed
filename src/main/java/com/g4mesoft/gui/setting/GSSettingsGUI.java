@@ -6,7 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import com.g4mesoft.gui.GSScreen;
+import com.g4mesoft.gui.GSScrollableScreen;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSISettingChangeListener;
 import com.g4mesoft.setting.GSSetting;
@@ -27,7 +27,7 @@ import net.minecraft.client.util.NarratorManager;
 import net.minecraft.util.SystemUtil;
 
 @Environment(EnvType.CLIENT)
-public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener {
+public class GSSettingsGUI extends GSScrollableScreen implements GSISettingChangeListener {
 
 	private static final int SETTING_CATEGORY_MARGIN = 5;
 	private static final int CATEGORY_TITLE_MARGIN_BOTTOM = 2;
@@ -42,6 +42,7 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 	
 	private final Map<GSSettingCategory, GSSettingCategoryElement> settingCategories;
 	private int settingsWidth;
+	private int scrollableHeight;
 	private boolean layoutChanged;
 	
 	private GSSettingElementGUI<?> hoveredElement;
@@ -120,6 +121,8 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 			y = element.layoutElements(0, y, settingsWidth);
 			y += SETTING_CATEGORY_MARGIN;
 		}
+		
+		scrollableHeight = y;
 	}
 	
 	@Override
@@ -186,7 +189,9 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 		int descWidth = width - settingsWidth;
 		
 		int descX = settingsWidth;
-		int descY = GSMathUtils.clamp(hoveredElement.getY(), 0, height);
+		
+		int scrollOffset = getScrollOffset();
+		int descY = GSMathUtils.clamp(hoveredElement.getY(), scrollOffset, height + scrollOffset - descHeight);
 		
 		if (descWidth > 0 && descHeight > 0 && targetDescHeight != 0) {
 			fill(descX, descY, descX + descWidth, descY + descHeight, DESC_BACKGROUND_COLOR);
@@ -218,6 +223,11 @@ public class GSSettingsGUI extends GSScreen implements GSISettingChangeListener 
 	public void setBounds(int x, int y, int width, int height) {
 		super.setBounds(x, y, width, height);
 		layoutChanged = true;
+	}
+	
+	@Override
+	protected int getScrollableHeight() {
+		return scrollableHeight;
 	}
 	
 	private class GSSettingCategoryElement {

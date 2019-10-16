@@ -83,7 +83,7 @@ public class GSTabbedGUI extends GSScreen {
 			tab.setWidth(font.getStringWidth(tab.getTranslatedTitle()) + TAB_HORIZONTAL_PADDING * 2);
 
 		int contentWidth = Math.max(width - HORIZONTAL_MARGIN * 2, tabs.size());
-		int contentHeight = Math.max(height - tabHeight - VERTICAL_MARGIN * 2, 1);
+		int contentHeight = Math.max(height - tabHeight - VERTICAL_MARGIN, 1);
 
 		int remainingTabs = tabs.size();
 		int remainingWidth = contentWidth;

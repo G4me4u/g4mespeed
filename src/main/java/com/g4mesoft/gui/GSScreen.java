@@ -21,8 +21,8 @@ public abstract class GSScreen extends Screen {
 	private int x;
 	private int y;
 	
-	protected GSScreen(Text text) {
-		super(text);
+	protected GSScreen(Text title) {
+		super(title);
 		
 		setSelected(true);
 	}
@@ -48,22 +48,25 @@ public abstract class GSScreen extends Screen {
 
 	@Override
 	public final void setSize(int width, int height) {
-		setBounds(0, 0, width, height);
+		setBounds(x, y, width, height);
 	}
 	
-	protected int translateMouseX(int mouseX) {
-		return mouseX - x;
+	protected int getTranslationX() {
+		return x;
 	}
 
-	protected int translateMouseY(int mouseY) {
-		return mouseY - y;
+	protected int getTranslationY() {
+		return y;
 	}
 	
 	@Override
-	public final void render(int mouseX, int mouseY, float partialTicks) {
-		GlStateManager.translatef(x, y, 0.0f);
-		renderTranslated(translateMouseX(mouseX), translateMouseY(mouseY), partialTicks);
-		GlStateManager.translatef(-x, -y, 0.0f);
+	public void render(int mouseX, int mouseY, float partialTicks) {
+		int tx = getTranslationX();
+		int ty = getTranslationY();
+		
+		GlStateManager.translatef( tx,  ty, 0.0f);
+		renderTranslated(mouseX - tx, mouseY - ty, partialTicks);
+		GlStateManager.translatef(-tx, -ty, 0.0f);
 	}
 	
 	protected void renderTranslated(int mouseX, int mouseY, float partialTicks) {
@@ -78,12 +81,12 @@ public abstract class GSScreen extends Screen {
 		return selected;
 	}
 	
-	protected double translateMouseX(double mouseX) {
-		return mouseX - x;
+	private double translateMouseX(double mouseX) {
+		return mouseX - getTranslationX();
 	}
 
-	protected double translateMouseY(double mouseY) {
-		return mouseY - y;
+	private double translateMouseY(double mouseY) {
+		return mouseY - getTranslationY();
 	}
 	
 	@Override
