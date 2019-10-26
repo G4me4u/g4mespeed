@@ -71,7 +71,7 @@ public class GSTranslationModule implements GSIModule {
 	}
 	
 	@Override
-	public void onClientClose() {
+	public void onClose() {
 		manager.runOnClient((managerClient) -> {
 			try {
 				File file = getCachedFile(manager);

@@ -93,9 +93,6 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 
 	public void onServerShutdown() {
-		for (GSIModule module : modules)
-			module.onServerShutdown();
-		
 		onStop();
 		
 		server = null;

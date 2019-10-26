@@ -118,9 +118,6 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 
 	public void onClientClose() {
-		for (GSIModule module : modules)
-			module.onClientClose();
-		
 		onStop();
 	}
 

@@ -61,6 +61,17 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		return false;
 	}
 
+	@Inject(method = "run", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
+			target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V"))
+	private void onInitialized(CallbackInfo ci) {
+		// Some mods might also modify the run loop...
+		// in this case just make sure that the init
+		// method was called *before* those loops.
+		GSControllerServer controllerServer = GSControllerServer.getInstance();
+		controllerServer.init((MinecraftServer)(Object)this);
+		controllerServer.getTpsModule().addTpsListener(this);
+	}
+	
 	@Inject(method = "run", at = @At(value = "INVOKE", shift = At.Shift.AFTER, 
 			target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V"))
 	private void modifiedRunLoop(CallbackInfo ci) {

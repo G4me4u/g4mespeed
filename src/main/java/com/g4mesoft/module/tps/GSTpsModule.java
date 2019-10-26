@@ -97,6 +97,12 @@ public class GSTpsModule implements GSIModule {
 		}
 	}
 	
+	private void clearTpsListeners() {
+		synchronized(listeners) {
+			listeners.clear();
+		}
+	}
+	
 	public void resetTps() {
 		setTps(DEFAULT_TPS);
 	}
@@ -197,6 +203,15 @@ public class GSTpsModule implements GSIModule {
 	}
 
 	@Override
+	public void onClose() {
+		resetTps();
+		
+		clearTpsListeners();
+
+		manager = null;
+	}
+
+	@Override
 	public void registerClientSettings(GSSettingManager settings) {
 		settings.registerSetting(TPS_CATEGORY, cShiftPitch);
 		settings.registerSetting(TPS_CATEGORY, cSyncTick);
@@ -286,11 +301,6 @@ public class GSTpsModule implements GSIModule {
 			manager.runOnServer(managerServer -> managerServer.sendPacket(new GSTpsChangePacket(tps), player));
 	}
 
-	@Override
-	public void onServerShutdown() {
-		resetTps();
-	}
-	
 	public boolean isPlayerAllowedTpsChange(ServerPlayerEntity player) {
 		return player.allowsPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);
 	}
