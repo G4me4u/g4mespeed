@@ -50,7 +50,13 @@ public abstract class GSController implements GSIModuleManager {
 	}
 	
 	protected void onStop() {
+		for (GSIModule module : modules)
+			module.onClose();
+		
 		settings.saveSettings(getSettingsFile());
+		settings.clearSettings();
+		
+		modules.clear();
 	}
 	
 	protected void initModules() {

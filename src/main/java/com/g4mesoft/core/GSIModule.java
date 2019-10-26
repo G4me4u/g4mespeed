@@ -13,6 +13,8 @@ public interface GSIModule {
 
 	public void init(GSIModuleManager manager);
 
+	default public void onClose() { }
+
 	@Environment(EnvType.CLIENT)
 	default public void registerClientSettings(GSSettingManager settings) { }
 
@@ -39,7 +41,6 @@ public interface GSIModule {
 	default public void initGUI(GSTabbedGUI tabbedGUI) { }
 
 	@Environment(EnvType.CLIENT)
-	default public void onClientClose() { }
 	
 	default public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) { }
 
@@ -48,7 +49,5 @@ public interface GSIModule {
 	default public void onG4mespeedClientJoin(ServerPlayerEntity player, GSVersion version) { }
 
 	default public void onPlayerLeave(ServerPlayerEntity player) { }
-
-	default public void onServerShutdown() { }
 
 }
