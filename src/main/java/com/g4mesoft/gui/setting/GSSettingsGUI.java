@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.lwjgl.opengl.GL11;
+
 import com.g4mesoft.gui.GSScrollableScreen;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSISettingChangeListener;
@@ -18,8 +20,6 @@ import com.g4mesoft.setting.types.GSFloatSetting;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 import com.g4mesoft.util.GSMathUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
-import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -204,8 +204,8 @@ public class GSSettingsGUI extends GSScrollableScreen implements GSISettingChang
 					break;
 				
 				GlStateManager.enableBlend();
-				GlStateManager.blendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO);
-				GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+				GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+				GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 				drawString(font, line, descX + DESC_LINE_MARGIN, y, (DESC_TEXT_COLOR & 0xFFFFFF) | alpha);
 				GlStateManager.disableBlend();
 				y += font.fontHeight + DESC_LINE_SPACING;

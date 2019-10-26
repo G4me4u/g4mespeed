@@ -3,6 +3,7 @@ package com.g4mesoft.gui;
 import java.awt.Rectangle;
 
 import org.lwjgl.glfw.GLFW;
+import org.lwjgl.opengl.GL11;
 
 import com.g4mesoft.util.GSMathUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -45,8 +46,7 @@ public abstract class GSScrollableScreen extends GSScreen {
 			BufferBuilder bufferBuilder = tessellator.getBufferBuilder();
 			GlStateManager.enableBlend();
 			GlStateManager.disableTexture();
-			GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE, 
-					GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
+			GlStateManager.blendFuncSeparate(GL11.GL_ZERO, GL11.GL_ONE, GL11.GL_ZERO, GL11.GL_ONE);
 			GlStateManager.color4f(0.0f, 0.0f, 0.0f, 1.0f);
 			bufferBuilder.begin(7, VertexFormats.POSITION);
 			bufferBuilder.vertex(getX(), getY(), 1.0).next();

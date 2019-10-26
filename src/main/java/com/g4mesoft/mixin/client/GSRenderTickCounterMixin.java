@@ -1,6 +1,5 @@
 package com.g4mesoft.mixin.client;
 
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,7 +29,6 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	@Shadow public float tickDelta;
 	@Shadow public float lastFrameDuration;
 	@Shadow private long prevTimeMillis;
-	@Shadow @Final private float timeScale;
 	
 	private float msPerTick = DEFAULT_MS_PER_TICK;
 	
@@ -49,7 +47,7 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 		serverLast = clientLast = currentMs;
 	}
 	
-	@Redirect(method = "beginRenderTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/RenderTickCounter;timeScale:F"))
+	@Redirect(method = "beginRenderTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/RenderTickCounter;tickTime:F"))
 	private float getMsPerTick(RenderTickCounter counter) {
 		return msPerTick;
 	}

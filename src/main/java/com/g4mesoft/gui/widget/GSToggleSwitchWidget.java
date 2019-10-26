@@ -1,8 +1,8 @@
 package com.g4mesoft.gui.widget;
 
+import org.lwjgl.opengl.GL11;
+
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
-import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.AbstractPressableButtonWidget;
@@ -47,8 +47,8 @@ public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
 		GlStateManager.enableDepthTest();
 		GlStateManager.color4f(1.0F, 1.0F, 1.0F, this.alpha);
 		GlStateManager.enableBlend();
-		GlStateManager.blendFuncSeparate(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA, SourceFactor.ONE, DestFactor.ZERO);
-		GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+		GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
+		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		
 		float tx = (isMouseOver(mouseX, mouseY) || isFocused()) ? 30.0f : 0.0f;
 		float ty = enabled ? 16.0f : 0.0f;

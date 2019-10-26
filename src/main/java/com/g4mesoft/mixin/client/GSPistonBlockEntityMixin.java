@@ -30,32 +30,32 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	private static final float PISTON_STEPS = 2.0f;
 	private static final float INCREMENTER = 1.0f / PISTON_STEPS;
 	
-	private float actualProgress;
+	private float actualLastProgress;
 	
 	@Shadow private Direction facing;
 	
-	@Shadow private float nextProgress;
 	@Shadow private float progress;
+	@Shadow private float lastProgress;
 
 	@Override
 	@Environment(EnvType.CLIENT)
 	public float getSmoothProgress(float partialTicks) {
-		if (isInvalid())
+		if (isRemoved())
 			return 1.0f;
 		
 		float val;
 		
 		switch (GSControllerClient.getInstance().getTpsModule().cPistonAnimationType.getValue()) {
 		case GSTpsModule.PISTON_ANIM_NO_PAUSE:
-			val = (this.nextProgress * PISTON_STEPS + partialTicks) / (PISTON_STEPS + 1.0f);
+			val = (this.progress * PISTON_STEPS + partialTicks) / (PISTON_STEPS + 1.0f);
 			break;
 		case GSTpsModule.PISTON_ANIM_PAUSE_END:
 			// Will be clamped by the return statement.
-			val = (this.nextProgress * PISTON_STEPS + partialTicks) / PISTON_STEPS;
+			val = (this.progress * PISTON_STEPS + partialTicks) / PISTON_STEPS;
 			break;
 		default:
 		case GSTpsModule.PISTON_ANIM_PAUSE_BEGINNING:
-			val = actualProgress + (this.nextProgress - actualProgress) * partialTicks;
+			val = actualLastProgress + (this.progress - actualLastProgress) * partialTicks;
 			break;
 		}
 		
@@ -79,17 +79,17 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 
 	@Inject(method = "fromTag", at = @At("RETURN"))
 	public void onTagRead(CompoundTag tag, CallbackInfo ci) {
-		actualProgress = Math.max(0.0f, this.progress - INCREMENTER);
+		actualLastProgress = Math.max(0.0f, this.lastProgress - INCREMENTER);
 	}
 	
-	@Inject(method = "tick", at = @At(value = "FIELD", target="Lnet/minecraft/block/entity/PistonBlockEntity;progress:F", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
+	@Inject(method = "tick", at = @At(value = "FIELD", target="Lnet/minecraft/block/entity/PistonBlockEntity;lastProgress:F", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
 	private void onTickProgressChanged(CallbackInfo ci) {
-		actualProgress = this.progress;
+		actualLastProgress = this.lastProgress;
 	}
 
-	@Inject(method = "finish", at = @At(value = "FIELD", target="Lnet/minecraft/block/entity/PistonBlockEntity;progress:F", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
+	@Inject(method = "finish", at = @At(value = "FIELD", target="Lnet/minecraft/block/entity/PistonBlockEntity;lastProgress:F", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
 	private void onFinishProgressChanged(CallbackInfo ci) {
-		actualProgress = this.progress;
+		actualLastProgress = this.lastProgress;
 	}
 	
 	@Override
