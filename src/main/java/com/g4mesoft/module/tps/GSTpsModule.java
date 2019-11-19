@@ -43,9 +43,9 @@ public class GSTpsModule implements GSIModule {
 
 	public static final String KEY_CATEGORY = "tps";
 	
-	public static final int PISTON_ANIM_PAUSE_BEGINNING = 0;
-	public static final int PISTON_ANIM_NO_PAUSE = 1;
-	public static final int PISTON_ANIM_PAUSE_END = 2;
+	public static final int PISTON_ANIM_PAUSE_END = 0;
+	public static final int PISTON_ANIM_PAUSE_BEGINNING = 1;
+	public static final int PISTON_ANIM_NO_PAUSE = 2;
 	
 	public static final int AUTOMATIC_PISTON_RENDER_DISTANCE = 0;
 	
@@ -80,7 +80,7 @@ public class GSTpsModule implements GSIModule {
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
 
 		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
-		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", 0, 0, 2);
+		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, 0, 32);
 		sBlockEventDistance = new GSIntegerSetting("blockEventDistance", 4, 0, 32);
 	}
