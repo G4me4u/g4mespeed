@@ -6,7 +6,7 @@ import com.g4mesoft.module.translation.GSTranslationModule;
 
 import net.minecraft.client.util.NarratorManager;
 
-public class GSInfoGUI extends GSScreen {
+public class GSInfoGUI extends GSParentGUI {
 
 	private static final int TEXT_COLOR              = 0xFFFFFFFF;
 	private static final int VERSION_COLOR           = 0xFF22FF22;

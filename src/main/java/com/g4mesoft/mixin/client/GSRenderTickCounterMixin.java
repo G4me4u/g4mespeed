@@ -42,9 +42,14 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	private long clientLast;
 	private float serverSyncDelay;
 	
+	private GSTpsModule tpsModule;
+	
 	@Inject(method = "<init>", at = @At("RETURN"))
 	public void onInit(float tps, long currentMs, CallbackInfo ci) {
 		serverLast = clientLast = currentMs;
+		
+		tpsModule = GSControllerClient.getInstance().getTpsModule();
+		tpsModule.addTpsListener(this);
 	}
 	
 	@Redirect(method = "beginRenderTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/RenderTickCounter;timeScale:F"))
@@ -58,7 +63,7 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 			updateServerClock(currentTimeMillis);
 			updateSyncDelay(currentTimeMillis);
 			
-			if (getTpsModule().cSyncTick.getValue() && shouldAdjustTickDelta())
+			if (tpsModule.cSyncTick.getValue() && shouldAdjustTickDelta())
 				adjustTickDelta();
 			
 			if (serverTicksSinceLastSync >= serverSyncInterval * 2)
@@ -67,12 +72,10 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	}
 	
 	private void updateServerClock(long currentTimeMillis) {
-		GSControllerClient controllerClient = GSControllerClient.getInstance();
-		
 		long deltaMsServer = currentTimeMillis - serverLast;
 		serverLast = currentTimeMillis;
 		
-		if (controllerClient.isG4mespeedServer()) {
+		if (GSControllerClient.getInstance().isG4mespeedServer()) {
 			// Assume the server has the same tps
 			approximatedServerTickDelta += deltaMsServer / msPerTick;
 		} else {
@@ -100,7 +103,7 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 		if (!serverSyncReceived)
 			return false;
 		
-		return GSMathUtils.equalsApproximate(getTpsModule().getTps(), GSTpsModule.DEFAULT_TPS);
+		return GSMathUtils.equalsApproximate(tpsModule.getTps(), GSTpsModule.DEFAULT_TPS);
 	}
 	
 	private void adjustTickDelta() {
@@ -117,7 +120,7 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 			targetOffset--;
 		}
 		
-		this.tickDelta += targetOffset * getTpsModule().cSyncTickAggression.getValue();
+		this.tickDelta += targetOffset * tpsModule.cSyncTickAggression.getValue();
 		
 		if (this.tickDelta < 0.0f) {
 			if (this.ticksThisFrame > 0) {
@@ -146,9 +149,5 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 			serverSyncInterval = syncInterval;
 			serverSyncReceived = true;
 		}
-	}
-	
-	private GSTpsModule getTpsModule() {
-		return GSControllerClient.getInstance().getTpsModule();
 	}
 }

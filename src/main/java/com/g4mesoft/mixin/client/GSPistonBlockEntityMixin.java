@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.access.GSISmoothPistonBlockEntityAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.tps.GSTpsModule;
+import com.g4mesoft.util.GSMathUtils;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -40,7 +41,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@Override
 	@Environment(EnvType.CLIENT)
 	public float getSmoothProgress(float partialTicks) {
-		if (isInvalid())
+		if (isInvalid() && GSMathUtils.equalsApproximate(this.progress, 1.0f))
 			return 1.0f;
 		
 		float val;

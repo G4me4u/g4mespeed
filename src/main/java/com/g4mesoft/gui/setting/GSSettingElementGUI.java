@@ -3,7 +3,7 @@ package com.g4mesoft.gui.setting;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.g4mesoft.gui.GSScreen;
+import com.g4mesoft.gui.GSParentGUI;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 
@@ -12,7 +12,7 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.NarratorManager;
 
-public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSScreen {
+public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSParentGUI {
 
 	public static final int HOVERED_BACKGROUND = 0x80000000;//0x66EDEDFF;
 	

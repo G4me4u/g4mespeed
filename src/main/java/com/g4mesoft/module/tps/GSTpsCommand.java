@@ -1,6 +1,9 @@
 package com.g4mesoft.module.tps;
 
+import java.text.DecimalFormat;
+
 import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.util.GSMathUtils;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -12,6 +15,8 @@ import net.minecraft.text.TranslatableText;
 
 public final class GSTpsCommand {
 
+	private static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##");
+	
 	public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
 		LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager.literal("tps").requires(context -> {
 			return context.hasPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);
@@ -28,8 +33,34 @@ public final class GSTpsCommand {
 	
 	private static int informCurrentTps(ServerCommandSource source) {
 		float tps = GSControllerServer.getInstance().getTpsModule().getTps();
-		source.sendFeedback(new TranslatableText("command.tps.get", tps), false);
+		String tpsFormatted = TPS_FORMAT.format(tps);
+		
+		float fn = (float)((Math.log(tps / GSTpsModule.DEFAULT_TPS)) / Math.log(2.0) * 12.0);
+		int n = Math.round(fn);
+		if (n % 12 != 0 && GSMathUtils.equalsApproximate(fn, n, 1E-4f)) {
+			int o = n / 12;
+			n %= 12;
+			
+			if (n < 0) {
+				o--;
+				n += 12;
+			}
+			
+			if (o != 0) {
+				source.sendFeedback(new TranslatableText("command.tps.geton", tpsFormatted, formatSign(o), formatSign(n)), false);
+			} else {
+				source.sendFeedback(new TranslatableText("command.tps.getn", tpsFormatted, formatSign(n)), false);
+			}
+		} else {
+			source.sendFeedback(new TranslatableText("command.tps.get", tpsFormatted), false);
+		}
 		return 1;
+	}
+	
+	private static String formatSign(int value) {
+		if (value > 0)
+			return "+" + Integer.toString(value);
+		return Integer.toString(value);
 	}
 	
 	private static int setCurrentTps(ServerCommandSource source, float newTps) throws CommandSyntaxException {

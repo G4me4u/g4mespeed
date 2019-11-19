@@ -15,7 +15,7 @@ import net.minecraft.client.util.NarratorManager;
 import net.minecraft.sound.SoundEvents;
 
 @Environment(EnvType.CLIENT)
-public class GSTabbedGUI extends GSScreen {
+public class GSTabbedGUI extends GSParentGUI {
 
 	private static final int TAB_VERTICAL_PADDING = 5;
 	private static final int TAB_HORIZONTAL_PADDING = 5;
@@ -45,7 +45,7 @@ public class GSTabbedGUI extends GSScreen {
 		selectedTabIndex = -1;
 	}
 
-	public void addTab(String title, GSScreen tabContent) {
+	public void addTab(String title, GSParentGUI tabContent) {
 		tabs.add(new GSTabEntry(title, tabContent));
 		tabsChanged = true;
 
@@ -119,7 +119,7 @@ public class GSTabbedGUI extends GSScreen {
 
 		int tabXOffset = HORIZONTAL_MARGIN;
 		for (GSTabEntry tab : tabs) {
-			GSScreen content = tab.getTabContent();
+			GSParentGUI content = tab.getTabContent();
 			if (content != null) {
 				int xo = HORIZONTAL_MARGIN;
 				int yo = VERTICAL_MARGIN + tabHeight;
@@ -249,18 +249,18 @@ public class GSTabbedGUI extends GSScreen {
 	private class GSTabEntry {
 
 		private final String title;
-		private final GSScreen tabContent;
+		private final GSParentGUI tabContent;
 
 		private String displayTitle;
 		private int x;
 		private int width;
 
-		public GSTabEntry(String title, GSScreen tabContent) {
+		public GSTabEntry(String title, GSParentGUI tabContent) {
 			this.title = title;
 			this.tabContent = tabContent;
 		}
 
-		public GSScreen getTabContent() {
+		public GSParentGUI getTabContent() {
 			return tabContent;
 		}
 

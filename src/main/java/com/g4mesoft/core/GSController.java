@@ -50,6 +50,8 @@ public abstract class GSController implements GSIModuleManager {
 	}
 	
 	protected void onStop() {
+		INSTANCES.remove(this);
+
 		for (GSIModule module : modules)
 			module.onClose();
 		

@@ -22,10 +22,9 @@
     "client.GSMinecraftClientMixin",
 
   	"client.GSSoundSystemMixin",
-  	"client.GSSoundManagerMixin",
   	
     "client.GSKeyboardMixin",
-    "client.GSKeyBindingMixin",
+    "client.GSMouseMixin",
     
     "client.GSRenderTickCounterMixin",
     

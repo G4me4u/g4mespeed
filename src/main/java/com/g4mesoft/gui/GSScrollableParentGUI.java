@@ -14,7 +14,7 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.text.Text;
 
-public abstract class GSScrollableScreen extends GSScreen {
+public abstract class GSScrollableParentGUI extends GSParentGUI {
 
 	private static final double SCROLL_AMOUNT = 10.0;
 	
@@ -29,7 +29,7 @@ public abstract class GSScrollableScreen extends GSScreen {
 	protected double scrollOffset;
 	protected boolean scrollDragActive;
 	
-	protected GSScrollableScreen(Text title) {
+	protected GSScrollableParentGUI(Text title) {
 		super(title);
 	}
 
@@ -145,7 +145,7 @@ public abstract class GSScrollableScreen extends GSScreen {
 		if (scrollDragActive) {
 			Rectangle r = getDraggableScrollArea();
 			int h = height - SCROLL_BAR_MARGIN_Y * 2;
-			if (r.height != h) {
+			if (r.height < h) {
 				setScrollOffset(scrollOffset + dragY * (getScrollableHeight() - height) / (h - r.height));
 				return true;
 			}

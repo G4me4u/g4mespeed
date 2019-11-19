@@ -11,7 +11,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
-public abstract class GSScreen extends Screen {
+public abstract class GSParentGUI extends Screen {
 
 	private static final String TRIMMED_TEXT_ELLIPSIS = "...";
 	private static final char FORMATTING_CHAR = '\u00A7';
@@ -21,7 +21,7 @@ public abstract class GSScreen extends Screen {
 	private int x;
 	private int y;
 	
-	protected GSScreen(Text title) {
+	protected GSParentGUI(Text title) {
 		super(title);
 		
 		setSelected(true);

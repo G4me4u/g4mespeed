@@ -13,10 +13,12 @@ import com.g4mesoft.core.GSVersionPacket;
 import com.g4mesoft.core.server.GSIModuleManagerServer;
 import com.g4mesoft.gui.GSInfoGUI;
 import com.g4mesoft.gui.GSTabbedGUI;
+import com.g4mesoft.gui.hotkey.GSHotkeyGUI;
 import com.g4mesoft.gui.setting.GSSettingsGUI;
+import com.g4mesoft.hotkey.GSEKeyEventType;
+import com.g4mesoft.hotkey.GSKeyManager;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
-import com.g4mesoft.setting.GSClientSettings;
 import com.g4mesoft.setting.GSRemoteSettingManager;
 
 import net.fabricmc.api.EnvType;
@@ -33,7 +35,11 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 
 	private static final String CLIENT_SETTINGS_GUI_TITLE = "gui.tab.clientSettings";
 	private static final String SERVER_SETTINGS_GUI_TITLE = "gui.tab.serverSettings";
+	private static final String HOTKEY_GUI_TITLE          = "gui.tab.hotkeys";
 	private static final String G4MESPEED_INFO_GUI_TITLE  = "gui.tab.info";
+	
+	private static final String GS_KEY_CATEGORY = "gs";
+	private static final String GUI_KEY_NAME    = "opengui";
 	
 	private static final GSControllerClient instance = new GSControllerClient();
 	
@@ -42,21 +48,21 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 
 	private GSVersion serverVersion;
 	private final GSRemoteSettingManager serverSettings;
+	private final GSKeyManager keyManager;
 
 	private final GSTabbedGUI tabbedGUI;
 
-	private final GSClientSettings clientSettings;
-	
 	public GSControllerClient() {
 		serverVersion = GSVersion.INVALID;
 		serverSettings = new GSRemoteSettingManager(this);
+
+		keyManager = new GSKeyManager();
 		
 		tabbedGUI = new GSTabbedGUI();
 		tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSSettingsGUI(settings));
 		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSSettingsGUI(serverSettings));
+		tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSHotkeyGUI(keyManager));
 		tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
-		
-		clientSettings = new GSClientSettings();
 	}
 
 	@Override
@@ -65,6 +71,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	
 		module.initGUI(tabbedGUI);
 		module.registerClientSettings(settings);
+		module.registerHotkeys(keyManager);
 		
 		// Register shadow server settings
 		module.registerServerSettings(serverSettings);
@@ -73,30 +80,14 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	public void init(MinecraftClient minecraft) {
 		this.minecraft = minecraft;
 		
+		keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, 
+				tabbedGUI, minecraft::openScreen, GSEKeyEventType.PRESS);
+		
 		onStart();
 	}
 
 	public void setNetworkHandler(ClientPlayNetworkHandler networkHandler) {
 		this.networkHandler = networkHandler;
-	}
-
-	public void keyReleased(int key, int scancode, int mods) {
-		for (GSIModule module : modules)
-			module.keyReleased(key, scancode, mods);
-	}
-
-	public void keyPressed(int key, int scancode, int mods) {
-		if (key == GLFW.GLFW_KEY_G) {
-			minecraft.openScreen(tabbedGUI);
-		} else {
-			for (GSIModule module : modules)
-				module.keyPressed(key, scancode, mods);
-		}
-	}
-
-	public void keyRepeat(int key, int scancode, int mods) {
-		for (GSIModule module : modules)
-			module.keyRepeat(key, scancode, mods);
 	}
 
 	public void onJoinG4mespeedServer(GSVersion serverVersion) {
@@ -121,6 +112,13 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		onStop();
 	}
 
+	@Override
+	public void tick() {
+		super.tick();
+		
+		keyManager.update();
+	}
+	
 	@Override
 	public boolean isThreadOwner() {
 		return minecraft != null && minecraft.isOnThread();
@@ -186,8 +184,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		return new File(minecraft.runDirectory, CACHE_DIR_NAME);
 	}
 	
-	public GSClientSettings getClientSettings() {
-		return clientSettings;
+	public GSKeyManager getKeyManager() {
+		return keyManager;
 	}
 	
 	public GSRemoteSettingManager getServerSettings() {
