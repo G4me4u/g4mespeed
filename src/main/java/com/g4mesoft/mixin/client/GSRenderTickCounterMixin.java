@@ -128,16 +128,15 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	
 	private void adjustTickDelta() {
 		float targetTickDelta = approximatedServerTickDelta;
-		
 		if (tickAfterServer) {
 			targetTickDelta -= serverSyncDelay / msPerTick;
-			if (targetTickDelta < 0.0f)
-				targetTickDelta++;
 		} else {
 			targetTickDelta += serverSyncDelay / msPerTick;
-			if (targetTickDelta > 1.0f)
-				targetTickDelta--;
 		}
+		
+		targetTickDelta %= 1.0f;
+		if (targetTickDelta < 0.0f)
+			targetTickDelta++;
 		
 		// Check if we have to cross tick border
 		// and adjust target value accordingly.
