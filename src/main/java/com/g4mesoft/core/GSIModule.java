@@ -1,6 +1,7 @@
 package com.g4mesoft.core;
 
 import com.g4mesoft.gui.GSTabbedGUI;
+import com.g4mesoft.hotkey.GSKeyManager;
 import com.g4mesoft.setting.GSSettingManager;
 import com.mojang.brigadier.CommandDispatcher;
 
@@ -13,36 +14,28 @@ public interface GSIModule {
 
 	public void init(GSIModuleManager manager);
 
+	@Environment(EnvType.CLIENT)
+	default public void initGUI(GSTabbedGUI tabbedGUI) { }
+	
 	default public void onClose() { }
 
 	@Environment(EnvType.CLIENT)
 	default public void registerClientSettings(GSSettingManager settings) { }
 
+	@Environment(EnvType.CLIENT)
+	default public void registerHotkeys(GSKeyManager keyManager) { }
+
 	default public void registerServerSettings(GSSettingManager settings) { }
-	
+
+	default public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) { }
+
 	default public void tick() { }
-	
-	@Environment(EnvType.CLIENT)
-	default public void keyReleased(int key, int scancode, int mods) { }
-
-	@Environment(EnvType.CLIENT)
-	default public void keyPressed(int key, int scancode, int mods) { }
-
-	@Environment(EnvType.CLIENT)
-	default public void keyRepeat(int key, int scancode, int mods) { }
 
 	@Environment(EnvType.CLIENT)
 	default public void onJoinG4mespeedServer(GSVersion serverVersion) { }
 
 	@Environment(EnvType.CLIENT)
 	default public void onDisconnectServer() { }
-
-	@Environment(EnvType.CLIENT)
-	default public void initGUI(GSTabbedGUI tabbedGUI) { }
-
-	@Environment(EnvType.CLIENT)
-	
-	default public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) { }
 
 	default public void onPlayerJoin(ServerPlayerEntity player) { }
 

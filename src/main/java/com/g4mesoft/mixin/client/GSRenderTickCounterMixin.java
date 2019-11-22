@@ -11,13 +11,16 @@ import com.g4mesoft.access.GSIRenderTickAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
+import com.g4mesoft.setting.GSISettingChangeListener;
+import com.g4mesoft.setting.GSSetting;
+import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.util.SystemUtil;
 
 @Mixin(RenderTickCounter.class)
-public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDependant {
+public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDependant, GSISettingChangeListener {
 
 	private static final float DEFAULT_MS_PER_TICK = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
 	
@@ -41,10 +44,32 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 
 	private long clientLast;
 	private float serverSyncDelay;
+	private boolean tickAfterServer;
+	
+	private GSTpsModule tpsModule;
 	
 	@Inject(method = "<init>", at = @At("RETURN"))
 	public void onInit(float tps, long currentMs, CallbackInfo ci) {
 		serverLast = clientLast = currentMs;
+		
+		GSControllerClient controllerClient = GSControllerClient.getInstance();
+		tpsModule = controllerClient.getTpsModule();
+		tpsModule.addTpsListener(this);
+		
+		controllerClient.getSettingManager().addChangeListener(this);
+		
+		updateTickRelation();
+	}
+	
+	private void updateTickRelation() {
+		// The only reason why we're ticking before the server is to
+		// allow different animation types of pistons. But the pistons
+		// can actually have pause at end whilst we are ticking after
+		// the server. This allows for better looking sand animations.
+		// The other animation types might, however, seem ambiguous.
+		// It is only here for consistency with the older versions.
+		int animType = tpsModule.cPistonAnimationType.getValue();
+		tickAfterServer = (animType == GSTpsModule.PISTON_ANIM_PAUSE_END);
 	}
 	
 	@Redirect(method = "beginRenderTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/RenderTickCounter;tickTime:F"))
@@ -58,7 +83,7 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 			updateServerClock(currentTimeMillis);
 			updateSyncDelay(currentTimeMillis);
 			
-			if (getTpsModule().cSyncTick.getValue() && shouldAdjustTickDelta())
+			if (tpsModule.cSyncTick.getValue() && shouldAdjustTickDelta())
 				adjustTickDelta();
 			
 			if (serverTicksSinceLastSync >= serverSyncInterval * 2)
@@ -67,12 +92,10 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	}
 	
 	private void updateServerClock(long currentTimeMillis) {
-		GSControllerClient controllerClient = GSControllerClient.getInstance();
-		
 		long deltaMsServer = currentTimeMillis - serverLast;
 		serverLast = currentTimeMillis;
 		
-		if (controllerClient.isG4mespeedServer()) {
+		if (GSControllerClient.getInstance().isG4mespeedServer()) {
 			// Assume the server has the same tps
 			approximatedServerTickDelta += deltaMsServer / msPerTick;
 		} else {
@@ -100,13 +123,20 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 		if (!serverSyncReceived)
 			return false;
 		
-		return GSMathUtils.equalsApproximate(getTpsModule().getTps(), GSTpsModule.DEFAULT_TPS);
+		return GSMathUtils.equalsApproximate(tpsModule.getTps(), GSTpsModule.DEFAULT_TPS);
 	}
 	
 	private void adjustTickDelta() {
-		float targetTickDelta = approximatedServerTickDelta + serverSyncDelay / msPerTick;
-		if (targetTickDelta > 1.0f)
-			targetTickDelta--;
+		float targetTickDelta = approximatedServerTickDelta;
+		if (tickAfterServer) {
+			targetTickDelta -= serverSyncDelay / msPerTick;
+		} else {
+			targetTickDelta += serverSyncDelay / msPerTick;
+		}
+		
+		targetTickDelta %= 1.0f;
+		if (targetTickDelta < 0.0f)
+			targetTickDelta++;
 		
 		// Check if we have to cross tick border
 		// and adjust target value accordingly.
@@ -117,7 +147,7 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 			targetOffset--;
 		}
 		
-		this.tickDelta += targetOffset * getTpsModule().cSyncTickAggression.getValue();
+		this.tickDelta += targetOffset * tpsModule.cSyncTickAggression.getValue();
 		
 		if (this.tickDelta < 0.0f) {
 			if (this.ticksThisFrame > 0) {
@@ -148,7 +178,9 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 		}
 	}
 	
-	private GSTpsModule getTpsModule() {
-		return GSControllerClient.getInstance().getTpsModule();
+	@Override
+	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
+		if (setting == tpsModule.cPistonAnimationType)
+			updateTickRelation();
 	}
 }

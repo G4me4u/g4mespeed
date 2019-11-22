@@ -80,13 +80,13 @@ public class GSClientPlayNetworkHandlerMixin {
 			
 			BlockPos blockPos = new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
 			
-			boolean pistonType = false;
-			if ("minecraft:piston".equals(tag.getString("id"))) {
+			boolean pistonType = "minecraft:piston".equals(tag.getString("id"));
+			
+			if (pistonType) {
 				// Because of a weird issue where the progress
 				// saved by a piston is actually 1 gametick old
 				// we have to increment the progress by 0.5.
 				tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
-				pistonType = true;
 			}
 			
 			BlockEntity blockEntity = world.getBlockEntity(blockPos);

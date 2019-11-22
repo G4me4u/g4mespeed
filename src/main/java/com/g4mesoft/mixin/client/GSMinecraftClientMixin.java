@@ -11,8 +11,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.access.GSIMinecraftClientAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.debug.GSDebug;
-import com.g4mesoft.module.tps.GSITpsDependant;
-import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -32,10 +30,6 @@ public class GSMinecraftClientMixin implements GSIMinecraftClientAccess {
 	public void onInit(CallbackInfo ci) {
 		GSControllerClient controllerClient = GSControllerClient.getInstance();
 		controllerClient.init((MinecraftClient)(Object)this);
-
-		GSTpsModule tpsModule = controllerClient.getTpsModule();
-		tpsModule.addTpsListener((GSITpsDependant)renderTickCounter);
-		tpsModule.addTpsListener((GSITpsDependant)soundManager);
 	}
 	
 	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
