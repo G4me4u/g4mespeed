@@ -1,5 +1,6 @@
 package com.g4mesoft.mixin.client;
 
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,16 +12,13 @@ import com.g4mesoft.access.GSIRenderTickAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
-import com.g4mesoft.setting.GSISettingChangeListener;
-import com.g4mesoft.setting.GSSetting;
-import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.util.SystemUtil;
 
 @Mixin(RenderTickCounter.class)
-public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDependant, GSISettingChangeListener {
+public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDependant {
 
 	private static final float DEFAULT_MS_PER_TICK = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
 	
@@ -32,6 +30,7 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	@Shadow public float tickDelta;
 	@Shadow public float lastFrameDuration;
 	@Shadow private long prevTimeMillis;
+	@Shadow @Final private float timeScale;
 	
 	private float msPerTick = DEFAULT_MS_PER_TICK;
 	
@@ -52,29 +51,31 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	public void onInit(float tps, long currentMs, CallbackInfo ci) {
 		serverLast = clientLast = currentMs;
 		
-		GSControllerClient controllerClient = GSControllerClient.getInstance();
-		tpsModule = controllerClient.getTpsModule();
+		tpsModule = GSControllerClient.getInstance().getTpsModule();
 		tpsModule.addTpsListener(this);
 		
-		controllerClient.getSettingManager().addChangeListener(this);
-		
-		updateTickRelation();
-	}
-	
-	private void updateTickRelation() {
 		// The only reason why we're ticking before the server is to
 		// allow different animation types of pistons. But the pistons
 		// can actually have pause at end whilst we are ticking after
 		// the server. This allows for better looking sand animations.
-		// The other animation types might, however, seem ambiguous.
-		// It is only here for consistency with the older versions.
-		int animType = tpsModule.cPistonAnimationType.getValue();
-		tickAfterServer = (animType == GSTpsModule.PISTON_ANIM_PAUSE_END);
+		// 
+		// However, it is not possible to reliably tick after the server
+		// since this relies on how fast the server is running. This.
+		// feature remains unused, but stays if needed in the future.
+		tickAfterServer = false;
+	}
+	
+	private float getAdjustedMsPerTick() {
+		// Other mods such as the ReplayMod modify the
+		// timeScale value of the timer. To ensure that
+		// the functionality stays as expected, scale the
+		// milliseconds per tick by that value.
+		return msPerTick * timeScale / DEFAULT_MS_PER_TICK;
 	}
 	
 	@Redirect(method = "beginRenderTick", at = @At(value = "FIELD", target = "Lnet/minecraft/client/render/RenderTickCounter;timeScale:F"))
 	private float getMsPerTick(RenderTickCounter counter) {
-		return msPerTick;
+		return getAdjustedMsPerTick();
 	}
 
 	@Inject(method = "beginRenderTick", at = @At("RETURN"))
@@ -97,7 +98,7 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 		
 		if (GSControllerClient.getInstance().isG4mespeedServer()) {
 			// Assume the server has the same tps
-			approximatedServerTickDelta += deltaMsServer / msPerTick;
+			approximatedServerTickDelta += deltaMsServer / getAdjustedMsPerTick();
 		} else {
 			// Assume the server has DEFAULT_TPS (20) tps
 			approximatedServerTickDelta += (float)deltaMsServer / DEFAULT_MS_PER_TICK;
@@ -129,9 +130,9 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 	private void adjustTickDelta() {
 		float targetTickDelta = approximatedServerTickDelta;
 		if (tickAfterServer) {
-			targetTickDelta -= serverSyncDelay / msPerTick;
+			targetTickDelta -= serverSyncDelay / getAdjustedMsPerTick();
 		} else {
-			targetTickDelta += serverSyncDelay / msPerTick;
+			targetTickDelta += serverSyncDelay / getAdjustedMsPerTick();
 		}
 		
 		targetTickDelta %= 1.0f;
@@ -176,11 +177,5 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 			serverSyncInterval = syncInterval;
 			serverSyncReceived = true;
 		}
-	}
-	
-	@Override
-	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
-		if (setting == tpsModule.cPistonAnimationType)
-			updateTickRelation();
 	}
 }
