@@ -22,6 +22,9 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	protected static final int RESET_BUTTON_WIDTH = 48;
 	protected static final int RESET_BUTTON_HEIGHT = 20;
 	protected static final String RESET_TEXT = "setting.button.reset";
+
+	private static final int ENABLED_TEXT_COLOR = 0xFFFFFFFF;
+	private static final int DISABLED_TEXT_COLOR = 0xFFAAAAAA;
 	
 	protected final GSSettingsGUI settingsGUI;
 	protected final T setting;
@@ -30,6 +33,8 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	protected final String settingTranslationName;
 	
 	protected final List<Drawable> drawableChildren;
+	
+	private ButtonWidget resetButton;
 	
 	public GSSettingElementGUI(GSSettingsGUI settingsGUI, T setting, GSSettingCategory category) {
 		super(NarratorManager.EMPTY);
@@ -41,6 +46,8 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 		settingTranslationName = "setting." + category.getName() + "." + setting.getName();
 		
 		drawableChildren = new ArrayList<Drawable>();
+	
+		resetButton = null;
 	}
 	
 	@Override
@@ -52,6 +59,10 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	
 		for (Drawable child : drawableChildren)
 			child.render(mouseX, mouseY, partialTicks);
+	}
+	
+	public int getTextColor() {
+		return setting.isEnabledInGui() ? ENABLED_TEXT_COLOR : DISABLED_TEXT_COLOR;
 	}
 	
 	public void addWidget(Element element) {
@@ -67,14 +78,20 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 		
 		drawableChildren.clear();
 		
-		addWidget(createResetButton());
+		resetButton = createResetButton();
+		resetButton.active = setting.isEnabledInGui();
+		addWidget(resetButton);
 	}
 
 	protected void resetSetting() {
-		setting.reset();
+		if (setting.isEnabledInGui())
+			setting.reset();
 	}
 	
-	public abstract void onSettingChanged();
+	public void onSettingChanged() {
+		if (resetButton != null)
+			resetButton.active = setting.isEnabledInGui();
+	}
 
 	public abstract String getFormattedDefault();
 

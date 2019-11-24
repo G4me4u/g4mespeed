@@ -19,6 +19,7 @@ import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingChangePacket;
 import com.g4mesoft.setting.GSSettingChangePacket.GSESettingChangeType;
 import com.g4mesoft.setting.GSSettingMap;
+import com.g4mesoft.setting.GSSettingPermissionPacket;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
@@ -31,6 +32,8 @@ import net.minecraft.util.PacketByteBuf;
 
 public class GSControllerServer extends GSController implements GSIModuleManagerServer, GSISettingChangeListener {
 
+	public static final GSVersion SETTING_PERMISSION_INTRODUCTION = new GSVersion(1, 0, 2);
+	
 	public static final int OP_PERMISSION_LEVEL = 2;
 
 	private static final GSControllerServer instance = new GSControllerServer();
@@ -83,6 +86,8 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		for (GSIModule module : modules)
 			module.onG4mespeedClientJoin(player, version);
 		
+		sendSettingPermissionPacket(player);
+
 		for (GSSettingMap settingMap : settings.getSettings())
 			sendPacket(new GSServerSettingMapPacket(settingMap), player);
 	}
@@ -96,6 +101,13 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		onStop();
 		
 		server = null;
+	}
+	
+	public void onPlayerPermissionChanged(ServerPlayerEntity player) {
+		sendSettingPermissionPacket(player);
+		
+		for (GSIModule module : modules)
+			module.onPlayerPermissionChanged(player);
 	}
 	
 	@Override
@@ -177,20 +189,32 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 
 	@Override
 	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
-		if (setting.isActive())
-			sendPacketToAll(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_CHANGED));
+		sendSettingChange(category, setting, GSESettingChangeType.SETTING_CHANGED);
 	}
 
 	@Override
 	public void onSettingAdded(GSSettingCategory category, GSSetting<?> setting) {
-		if (setting.isActive())
-			sendPacketToAll(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_ADDED));
+		sendSettingChange(category, setting, GSESettingChangeType.SETTING_ADDED);
 	}
 
 	@Override
 	public void onSettingRemoved(GSSettingCategory category, GSSetting<?> setting) {
-		if (setting.isActive())
-			sendPacketToAll(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_REMOVED));
+		sendSettingChange(category, setting, GSESettingChangeType.SETTING_REMOVED);
+	}
+	
+	private void sendSettingChange(GSSettingCategory category, GSSetting<?> setting, GSESettingChangeType type) {
+		if (!setting.isActive())
+			return;
+
+		sendPacketToAll(new GSSettingChangePacket(category, setting, type));
+	}
+	
+	public boolean isAllowedSettingChange(ServerPlayerEntity player) {
+		return player.allowsPermissionLevel(OP_PERMISSION_LEVEL);
+	}
+	
+	private void sendSettingPermissionPacket(ServerPlayerEntity player) {
+		sendPacket(new GSSettingPermissionPacket(isAllowedSettingChange(player)), player, SETTING_PERMISSION_INTRODUCTION);
 	}
 	
 	public MinecraftServer getServer() {

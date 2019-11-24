@@ -10,8 +10,8 @@ public class GSBooleanSetting extends GSSetting<Boolean> {
 		this(name, defaultValue, true);
 	}
 	
-	public GSBooleanSetting(String name, boolean defaultValue, boolean availableInGui) {
-		super(name, defaultValue, availableInGui);
+	public GSBooleanSetting(String name, boolean defaultValue, boolean visibleInGui) {
+		super(name, defaultValue, visibleInGui);
 		
 		this.value = defaultValue;
 	}
@@ -39,6 +39,6 @@ public class GSBooleanSetting extends GSSetting<Boolean> {
 
 	@Override
 	public GSSetting<Boolean> copySetting() {
-		return new GSBooleanSetting(name, defaultValue, availableInGui).setValue(value);
+		return new GSBooleanSetting(name, defaultValue, visibleInGui).setValue(value).setEnabledInGui(isEnabledInGui());
 	}
 }

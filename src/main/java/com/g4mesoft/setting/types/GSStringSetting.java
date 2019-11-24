@@ -10,8 +10,8 @@ public class GSStringSetting extends GSSetting<String> {
 		super(name, defaultValue, true);
 	}
 	
-	public GSStringSetting(String name, String defaultValue, boolean availableInGui) {
-		super(name, defaultValue, availableInGui);
+	public GSStringSetting(String name, String defaultValue, boolean visibleInGui) {
+		super(name, defaultValue, visibleInGui);
 		
 		this.value = defaultValue;
 	}
@@ -38,6 +38,6 @@ public class GSStringSetting extends GSSetting<String> {
 
 	@Override
 	public GSSetting<String> copySetting() {
-		return new GSStringSetting(name, defaultValue, availableInGui).setValue(value);
+		return new GSStringSetting(name, defaultValue, visibleInGui).setValue(value).setEnabledInGui(isEnabledInGui());
 	}
 }

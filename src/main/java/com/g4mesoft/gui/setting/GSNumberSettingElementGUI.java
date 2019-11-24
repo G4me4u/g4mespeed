@@ -15,7 +15,6 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	private static final String SET_VALUE_TEXT = "setting.button.set";
 	
 	private static final int TEXT_MAX_WIDTH = 96;
-	private static final int TEXT_COLOR = 0xFFFFFFFF;
 	
 	protected GSSliderWidget slider;
 	protected TextFieldWidget textField;
@@ -31,7 +30,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 		super.renderTranslated(mouseX, mouseY, partialTicks);
 
 		String name = getTranslationModule().getTranslation(settingTranslationName);
-		drawString(font, name, CONTENT_PADDING, (getSettingHeight() - font.fontHeight) / 2, TEXT_COLOR);
+		drawString(font, name, CONTENT_PADDING, (getSettingHeight() - font.fontHeight) / 2, getTextColor());
 	}
 	
 	@Override
@@ -59,6 +58,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 				setValueFromSlider(value);
 				updateFieldValue();
 			}, (value) -> getSliderText());
+			slider.active = setting.isEnabledInGui();
 			
 			slider.setWidth(Math.min(GSSliderWidget.MAX_WIDTH, width - CONTENT_PADDING * 2));
 
@@ -71,6 +71,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 			int ty = height - CONTENT_PADDING - TEXT_FIELD_HEIGHT;
 			
 			addWidget(textField = new TextFieldWidget(font, CONTENT_PADDING, ty, tw, TEXT_FIELD_HEIGHT, ""));
+			textField.active = setting.isEnabledInGui();
 
 			int bx = width - CONTENT_PADDING - RESET_BUTTON_WIDTH;
 			int by = ty + (TEXT_FIELD_HEIGHT - RESET_BUTTON_HEIGHT) / 2;
@@ -122,7 +123,14 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	
 	@Override
 	public void onSettingChanged() {
+		super.onSettingChanged();
+		
 		updateFieldValue();
+		
+		if (slider != null)
+			slider.active = setting.isEnabledInGui();
+		if (textField != null)
+			textField.active = setting.isEnabledInGui();
 	}
 	
 	

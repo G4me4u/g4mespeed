@@ -11,7 +11,6 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 	private static final int SETTING_HEIGHT = Math.max(16, GSToggleSwitchWidget.TOGGLE_SWITCH_HEIGHT);
 
 	private static final int TEXT_MAX_WIDTH = 140;
-	private static final int TEXT_COLOR = 0xFFFFFFFF;
 	
 	private static final int TOGGLE_WIDTH = GSToggleSwitchWidget.TOGGLE_SWITCH_WIDTH;
 	
@@ -30,7 +29,7 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 		super.renderTranslated(mouseX, mouseY, partialTicks);
 		
 		String name = getTranslationModule().getTranslation(settingTranslationName);
-		drawString(font, name, CONTENT_PADDING, (getSettingHeight() - font.fontHeight) / 2, TEXT_COLOR);
+		drawString(font, name, CONTENT_PADDING, (getSettingHeight() - font.fontHeight) / 2, getTextColor());
 	}
 	
 	@Override
@@ -49,13 +48,17 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 
 		switchWidget.x = width - GSToggleSwitchWidget.TOGGLE_SWITCH_WIDTH - CONTENT_MARGIN - RESET_BUTTON_WIDTH - CONTENT_PADDING;
 		switchWidget.y = (height - GSToggleSwitchWidget.TOGGLE_SWITCH_HEIGHT) / 2;
+		switchWidget.active = setting.isEnabledInGui();
 		
 		addWidget(switchWidget);
 	}
 	
 	@Override
 	public void onSettingChanged() {
-		switchWidget.setEnabledSilent(setting.getValue());
+		super.onSettingChanged();
+		
+		switchWidget.setValueSilent(setting.getValue());
+		switchWidget.active = setting.isEnabledInGui();
 	}
 
 	@Override

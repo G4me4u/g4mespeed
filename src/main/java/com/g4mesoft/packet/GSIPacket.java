@@ -2,6 +2,7 @@ package com.g4mesoft.packet;
 
 import java.io.IOException;
 
+import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 
@@ -13,6 +14,10 @@ import net.minecraft.util.PacketByteBuf;
 public interface GSIPacket {
 
 	public void read(PacketByteBuf buf) throws IOException;
+
+	default public void read(PacketByteBuf buf, GSVersion senderVersion) throws IOException {
+		read(buf);
+	}
 
 	public void write(PacketByteBuf buf) throws IOException;
 	

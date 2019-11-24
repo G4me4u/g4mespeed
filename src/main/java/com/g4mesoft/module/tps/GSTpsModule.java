@@ -11,6 +11,8 @@ import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.hotkey.GSEKeyEventType;
 import com.g4mesoft.hotkey.GSKeyManager;
+import com.g4mesoft.setting.GSISettingChangeListener;
+import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.types.GSBooleanSetting;
@@ -26,7 +28,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class GSTpsModule implements GSIModule {
+public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 
 	public static final float DEFAULT_TPS = 20.0f;
 	public static final float MIN_TPS = 0.01f;
@@ -104,10 +106,13 @@ public class GSTpsModule implements GSIModule {
 		settings.registerSetting(TPS_CATEGORY, cShiftPitch);
 		settings.registerSetting(TPS_CATEGORY, cSyncTick);
 		settings.registerSetting(TPS_CATEGORY, cSyncTickAggression);
+		cSyncTickAggression.setEnabledInGui(cSyncTick.getValue());
 		
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cCullMovingBlocks);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonAnimationType);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonRenderDistance);
+		
+		settings.addChangeListener(this);
 	}
 
 	@Override
@@ -296,6 +301,12 @@ public class GSTpsModule implements GSIModule {
 	
 	public boolean isPlayerAllowedTpsChange(ServerPlayerEntity player) {
 		return player.allowsPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);
+	}
+	
+	@Override
+	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
+		if (setting == cSyncTick)
+			cSyncTickAggression.setEnabledInGui(cSyncTick.getValue());
 	}
 	
 	public float getMsPerTick() {

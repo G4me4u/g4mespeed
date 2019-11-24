@@ -3,6 +3,7 @@ package com.g4mesoft.packet;
 import java.io.IOException;
 
 import com.g4mesoft.core.GSController;
+import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.GSVersionPacket;
 import com.g4mesoft.module.tps.GSServerSyncPacket;
 import com.g4mesoft.module.tps.GSTpsChangePacket;
@@ -11,6 +12,7 @@ import com.g4mesoft.module.translation.GSTranslationCachePacket;
 import com.g4mesoft.module.translation.GSTranslationVersionPacket;
 import com.g4mesoft.setting.GSServerSettingMapPacket;
 import com.g4mesoft.setting.GSSettingChangePacket;
+import com.g4mesoft.setting.GSSettingPermissionPacket;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.NetworkThreadUtils;
@@ -39,7 +41,8 @@ public class GSPacketManager {
 			GSTranslationCachePacket.class,
 			
 			GSServerSettingMapPacket.class,
-			GSSettingChangePacket.class
+			GSSettingChangePacket.class,
+			GSSettingPermissionPacket.class
 		});
 	}
 
@@ -60,7 +63,7 @@ public class GSPacketManager {
 		return controller.encodeCustomPayload(GS_IDENTIFIER, buffer);
 	}
 
-	public <T extends PacketListener>GSIPacket decodePacket(GSICustomPayloadHolder<T> customPayload, T packetListener, ThreadExecutor<?> executor) {
+	public <T extends PacketListener>GSIPacket decodePacket(GSICustomPayloadHolder<T> customPayload, GSVersion senderVersion, T packetListener, ThreadExecutor<?> executor) {
 		if (!GS_IDENTIFIER.equals(customPayload.getChannelGS()))
 			return null;
 		
@@ -84,7 +87,7 @@ public class GSPacketManager {
 			      NetworkThreadUtils.forceMainThread(customPayload, packetListener, executor);
 				
 			try {
-				packet.read(buffer);
+				packet.read(buffer, senderVersion);
 			} catch (IOException e) {
 				return null;
 			}

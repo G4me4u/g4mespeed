@@ -1,8 +1,8 @@
 package com.g4mesoft.gui.setting;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -55,7 +55,7 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 	public GSSettingsGUI(GSSettingManager settingManager) {
 		super(NarratorManager.EMPTY);
 		
-		this.settingCategories = new HashMap<GSSettingCategory, GSSettingCategoryElement>();
+		this.settingCategories = new LinkedHashMap<GSSettingCategory, GSSettingCategoryElement>();
 
 		for (GSSettingMap settingCategory : settingManager.getSettings()) {
 			for (GSSetting<?> setting : settingCategory.getSettings()) {
@@ -67,7 +67,7 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 	}
 
 	private void addSettingElement(GSSettingCategory category, GSSetting<?> setting) {
-		if (setting.isActive() && setting.isAvailableInGUI()) {
+		if (setting.isActive() && setting.isVisibleInGUI()) {
 			GSSettingCategoryElement categoryElement = settingCategories.get(category);
 			if (categoryElement == null) {
 				categoryElement = new GSSettingCategoryElement(category);
@@ -247,7 +247,7 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 			
 			title = "setting." + category.getName();
 			
-			settings = new ArrayList<GSSettingElementGUI<?>>();
+			settings = new LinkedList<GSSettingElementGUI<?>>();
 		}
 		
 		public int getMinimumWidth() {

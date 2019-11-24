@@ -13,11 +13,15 @@ public class GSRemoteSettingManager extends GSSettingManager {
 	private final Map<GSSettingCategory, GSSettingMap> shadowSettings;
 	private boolean remoteSettingChanging;
 
+	private boolean allowedSettingChange;
+	
 	public GSRemoteSettingManager(GSControllerClient controllerClient) {
 		this.controllerClient = controllerClient;
 	
 		shadowSettings = new HashMap<GSSettingCategory, GSSettingMap>();
 		remoteSettingChanging = false;
+	
+		allowedSettingChange = false;
 	}
 
 	@Override
@@ -54,7 +58,7 @@ public class GSRemoteSettingManager extends GSSettingManager {
 		
 		updateShadowValue(category, setting);
 		
-		if (!remoteSettingChanging)
+		if (!remoteSettingChanging && allowedSettingChange)
 			controllerClient.sendPacket(new GSSettingChangePacket(category, setting, GSESettingChangeType.SETTING_CHANGED));
 	}
 
@@ -77,8 +81,9 @@ public class GSRemoteSettingManager extends GSSettingManager {
 	public void onRemoteSettingMapReceived(GSSettingMap settingMap) {
 		GSSettingCategory category = settingMap.getCategory();
 
-		for (GSSetting<?> setting : settingMap.getSettings())
-			super.registerSetting(category, setting.copySetting());
+		for (GSSetting<?> setting : settingMap.getSettings()) {
+			super.registerSetting(category, setting.copySetting().setEnabledInGui(allowedSettingChange));
+		}
 	}
 	
 	public void onRemoteSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
@@ -92,10 +97,25 @@ public class GSRemoteSettingManager extends GSSettingManager {
 	}
 
 	public void onRemoteSettingAdded(GSSettingCategory category, GSSetting<?> setting) {
-		super.registerSetting(category, setting);
+		super.registerSetting(category, setting.copySetting().setEnabledInGui(allowedSettingChange));
 	}
 	
 	public void onRemoteSettingRemoved(GSSettingCategory category, GSSetting<?> setting) {
 		removeSetting(category, setting.getName());
+	}
+
+	public void setAllowedSettingChange(boolean allowedSettingChange) {
+		if (allowedSettingChange != this.allowedSettingChange) {
+			this.allowedSettingChange = allowedSettingChange;
+	
+			for (GSSettingMap settingMap : settings.values()) {
+				for (GSSetting<?> setting : settingMap.getSettings())
+					setting.setEnabledInGui(allowedSettingChange);
+			}
+		}
+	}
+	
+	public boolean isAllowedSettingChange() {
+		return allowedSettingChange;
 	}
 }

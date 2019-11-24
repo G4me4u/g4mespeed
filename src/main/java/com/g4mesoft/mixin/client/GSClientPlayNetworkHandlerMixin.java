@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.GSIMinecraftClientAccess;
 import com.g4mesoft.access.GSIRenderTickAccess;
+import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.packet.GSICustomPayloadHolder;
 import com.g4mesoft.packet.GSIPacket;
@@ -51,9 +52,11 @@ public class GSClientPlayNetworkHandlerMixin {
 		@SuppressWarnings("unchecked")
 		GSICustomPayloadHolder<ClientPlayPacketListener> payload = (GSICustomPayloadHolder<ClientPlayPacketListener>)packet;
 		
-		GSIPacket gsPacket = packetManger.decodePacket(payload, (ClientPlayNetworkHandler)(Object)this, this.client);
+		GSControllerClient controllerClient = GSControllerClient.getInstance();
+		GSVersion serverVersion = controllerClient.getServerVersion();
+		GSIPacket gsPacket = packetManger.decodePacket(payload, serverVersion, (ClientPlayNetworkHandler)(Object)this, this.client);
 		if (gsPacket != null) {
-			gsPacket.handleOnClient(GSControllerClient.getInstance());
+			gsPacket.handleOnClient(controllerClient);
 			ci.cancel();
 		}
 	}

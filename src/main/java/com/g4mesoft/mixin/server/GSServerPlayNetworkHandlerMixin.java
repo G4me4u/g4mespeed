@@ -37,7 +37,7 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 		GSICustomPayloadHolder<ServerPlayPacketListener> payload = (GSICustomPayloadHolder<ServerPlayPacketListener>)packet;
 		
 		GSControllerServer controllerServer = GSControllerServer.getInstance();
-		GSIPacket gsPacket = packetManger.decodePacket(payload, (ServerPlayNetworkHandler)(Object)this, controllerServer.getServer());
+		GSIPacket gsPacket = packetManger.decodePacket(payload, version, (ServerPlayNetworkHandler)(Object)this, controllerServer.getServer());
 		if (gsPacket != null) {
 			gsPacket.handleOnServer(controllerServer, player);
 			ci.cancel();

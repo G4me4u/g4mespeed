@@ -122,7 +122,7 @@ public final class GSSettingMap {
 				// Setting was not added through the registerSetting
 				// method and is therefore not necessarily active.
 				setting.setActive(false);
-
+				
 				setting.setSettingOwner(this);
 				settings.put(setting.getName(), setting);
 

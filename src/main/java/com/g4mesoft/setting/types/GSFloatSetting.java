@@ -15,24 +15,24 @@ public class GSFloatSetting extends GSSetting<Float> {
 		this(name, defaultValue, true);
 	}
 
-	public GSFloatSetting(String name, float defaultValue, boolean availableInGui) {
-		this(name, defaultValue, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, availableInGui);
+	public GSFloatSetting(String name, float defaultValue, boolean visibleInGui) {
+		this(name, defaultValue, Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY, visibleInGui);
 	}
 
 	public GSFloatSetting(String name, float defaultValue, float minValue, float maxValue) {
 		this(name, defaultValue, minValue, maxValue, true);
 	}
 
-	public GSFloatSetting(String name, float defaultValue, float minValue, float maxValue, boolean availableInGui) {
-		this(name, defaultValue, minValue, maxValue, 0.0f, availableInGui);
+	public GSFloatSetting(String name, float defaultValue, float minValue, float maxValue, boolean visibleInGui) {
+		this(name, defaultValue, minValue, maxValue, 0.0f, visibleInGui);
 	}
 
 	public GSFloatSetting(String name, float defaultValue, float minValue, float maxValue, float interval) {
 		this(name, defaultValue, minValue, maxValue, interval, true);
 	}
 	
-	public GSFloatSetting(String name, float defaultValue, float minValue, float maxValue, float interval, boolean availableInGui) {
-		super(name, defaultValue, availableInGui);
+	public GSFloatSetting(String name, float defaultValue, float minValue, float maxValue, float interval, boolean visibleInGui) {
+		super(name, defaultValue, visibleInGui);
 
 		this.minValue = minValue;
 		this.interval = interval;
@@ -88,6 +88,6 @@ public class GSFloatSetting extends GSSetting<Float> {
 
 	@Override
 	public GSSetting<Float> copySetting() {
-		return new GSFloatSetting(name, defaultValue, minValue, maxValue, interval, availableInGui).setValue(value);
+		return new GSFloatSetting(name, defaultValue, minValue, maxValue, interval, visibleInGui).setValue(value).setEnabledInGui(isEnabledInGui());
 	}
 }
