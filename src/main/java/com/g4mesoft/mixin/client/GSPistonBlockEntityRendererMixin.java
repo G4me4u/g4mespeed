@@ -13,13 +13,13 @@ import com.g4mesoft.core.client.GSControllerClient;
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.client.render.LayeredVertexConsumerStorage;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.PistonBlockEntityRenderer;
-import net.minecraft.util.math.MatrixStack;
+import net.minecraft.client.util.math.MatrixStack;
 
 @Mixin(PistonBlockEntityRenderer.class)
 public class GSPistonBlockEntityRendererMixin {
-
+	
 	@Redirect(method = "method_3576", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/PistonBlockEntity;getProgress(F)F"))
 	public float getPistonProgress(PistonBlockEntity blockEntity, float partialTicks) {
 		return ((GSISmoothPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
@@ -38,13 +38,13 @@ public class GSPistonBlockEntityRendererMixin {
 	}
 	
 	@Inject(method = "method_3576", at = @At("HEAD"))
-	private void onRenderStart(PistonBlockEntity blockEntity, double x, double y, double z, float partialTicks, MatrixStack matrixStack_1, LayeredVertexConsumerStorage layeredVertexConsumerStorage_1, int int_1, int int_2, CallbackInfo ci) {
+	private void onRenderStart(PistonBlockEntity blockEntity, float partialTicks, MatrixStack matrixStack_1, VertexConsumerProvider layeredVertexConsumerStorage_1, int int_1, int int_2, CallbackInfo ci) {
 		if (GSControllerClient.getInstance().getTpsModule().cCullMovingBlocks.getValue())
 			GlStateManager.enableCull();
 	}
 
 	@Inject(method = "method_3576", at = @At("RETURN"))
-	private void onRenderEnd(PistonBlockEntity blockEntity, double x, double y, double z, float partialTicks, MatrixStack matrixStack_1, LayeredVertexConsumerStorage layeredVertexConsumerStorage_1, int int_1, int int_2, CallbackInfo ci) {
+	private void onRenderEnd(PistonBlockEntity blockEntity, float partialTicks, MatrixStack matrixStack_1, VertexConsumerProvider layeredVertexConsumerStorage_1, int int_1, int int_2, CallbackInfo ci) {
 		// Ensure that we're disabling culling after
 		// the block entity call (since we might have
 		// enabled it).

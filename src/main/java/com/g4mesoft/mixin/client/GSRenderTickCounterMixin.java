@@ -17,7 +17,7 @@ import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.util.SystemUtil;
+import net.minecraft.util.Util;
 
 @Mixin(RenderTickCounter.class)
 public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDependant, GSISettingChangeListener {
@@ -172,7 +172,7 @@ public class GSRenderTickCounterMixin implements GSIRenderTickAccess, GSITpsDepe
 		synchronized (serverSyncLock) {
 			approximatedServerTickDelta = 0.0f;
 			serverTicksSinceLastSync = 0;
-			serverLast = SystemUtil.getMeasuringTimeMs();
+			serverLast = Util.getMeasuringTimeMs();
 			serverSyncInterval = syncInterval;
 			serverSyncReceived = true;
 		}

@@ -43,7 +43,7 @@ public abstract class GSScrollableParentGUI extends GSParentGUI {
 	public void render(int mouseX, int mouseY, float partialTicks) {
 		if (getX() > 0) {
 			Tessellator tessellator = Tessellator.getInstance();
-			BufferBuilder bufferBuilder = tessellator.getBufferBuilder();
+			BufferBuilder bufferBuilder = tessellator.getBuffer();
 			GlStateManager.enableBlend();
 			GlStateManager.disableTexture();
 			GlStateManager.blendFuncSeparate(GL11.GL_ZERO, GL11.GL_ONE, GL11.GL_ZERO, GL11.GL_ONE);

@@ -24,7 +24,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.NarratorManager;
-import net.minecraft.util.SystemUtil;
+import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
 public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingChangeListener {
@@ -167,7 +167,7 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 				targetDescHeight = Math.max(minimumDescHeight, hoveredElement.height);
 				startDescHeight = hoveredElement.height;
 				
-				descAnimStart = SystemUtil.getMeasuringTimeMs();
+				descAnimStart = Util.getMeasuringTimeMs();
 			} else {
 				descLines.clear();
 				descLines = null;
@@ -179,7 +179,7 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 	}
 	
 	private void renderHoveredDesc(GSSettingElementGUI<?> hoveredElement, float partialTicks) {
-		long delta = SystemUtil.getMeasuringTimeMs() - descAnimStart;
+		long delta = Util.getMeasuringTimeMs() - descAnimStart;
 
 		float progress = Math.min(1.0f, delta / DESC_ANIMATION_TIME);
 		
