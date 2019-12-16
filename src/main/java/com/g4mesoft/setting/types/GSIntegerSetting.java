@@ -70,6 +70,11 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 	}
 
 	@Override
+	public boolean isDefaultValue() {
+		return defaultValue.intValue() == value;
+	}
+	
+	@Override
 	public boolean isSameType(GSSetting<?> other) {
 		return other instanceof GSIntegerSetting;
 	}

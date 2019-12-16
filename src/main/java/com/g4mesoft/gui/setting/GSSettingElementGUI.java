@@ -79,7 +79,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 		drawableChildren.clear();
 		
 		resetButton = createResetButton();
-		resetButton.active = setting.isEnabledInGui();
+		updateResetActive();
 		addWidget(resetButton);
 	}
 
@@ -89,8 +89,12 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	}
 	
 	public void onSettingChanged() {
+		updateResetActive();
+	}
+	
+	private void updateResetActive() {
 		if (resetButton != null)
-			resetButton.active = setting.isEnabledInGui();
+			resetButton.active = !setting.isDefaultValue() && setting.isEnabledInGui();
 	}
 
 	public abstract String getFormattedDefault();

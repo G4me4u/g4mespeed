@@ -68,6 +68,11 @@ public class GSFloatSetting extends GSSetting<Float> {
 		
 		return GSMathUtils.clamp(value, minValue, maxValue);
 	}
+	
+	@Override
+	public boolean isDefaultValue() {
+		return GSMathUtils.equalsApproximate(defaultValue.floatValue(), value);
+	}
 
 	@Override
 	public boolean isSameType(GSSetting<?> other) {

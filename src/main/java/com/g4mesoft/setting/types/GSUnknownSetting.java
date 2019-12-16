@@ -25,6 +25,11 @@ public class GSUnknownSetting extends GSSetting<Object> {
 	}
 
 	@Override
+	public boolean isDefaultValue() {
+		return false;
+	}
+	
+	@Override
 	public boolean isSameType(GSSetting<?> other) {
 		return false;
 	}

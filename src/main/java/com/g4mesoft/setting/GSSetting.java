@@ -41,6 +41,8 @@ public abstract class GSSetting<T> {
 	
 	public abstract GSSetting<T> setValue(T value);
 
+	public abstract boolean isDefaultValue();
+
 	public abstract boolean isSameType(GSSetting<?> other);
 
 	public abstract GSSetting<T> copySetting();

@@ -31,6 +31,11 @@ public class GSBooleanSetting extends GSSetting<Boolean> {
 		
 		return this;
 	}
+	
+	@Override
+	public boolean isDefaultValue() {
+		return defaultValue.booleanValue() == value;
+	}
 
 	@Override
 	public boolean isSameType(GSSetting<?> other) {

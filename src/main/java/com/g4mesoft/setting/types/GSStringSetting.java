@@ -1,5 +1,7 @@
 package com.g4mesoft.setting.types;
 
+import java.util.Objects;
+
 import com.g4mesoft.setting.GSSetting;
 
 public class GSStringSetting extends GSSetting<String> {
@@ -29,6 +31,11 @@ public class GSStringSetting extends GSSetting<String> {
 		}
 		
 		return this;
+	}
+	
+	@Override
+	public boolean isDefaultValue() {
+		return Objects.equals(defaultValue, value);
 	}
 
 	@Override
