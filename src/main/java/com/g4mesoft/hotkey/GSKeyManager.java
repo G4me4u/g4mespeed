@@ -1,5 +1,11 @@
 package com.g4mesoft.hotkey;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -8,6 +14,8 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import com.g4mesoft.util.GSFileUtils;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.InputUtil;
@@ -15,6 +23,8 @@ import net.minecraft.client.util.InputUtil.KeyCode;
 
 @Environment(EnvType.CLIENT)
 public class GSKeyManager {
+	
+	private final Map<String, Map<String, KeyCode>> keySettings;
 
 	private final List<GSKeyBinding> keyBindings;
 	private final Map<KeyCode, LinkedList<GSKeyBinding>> codeToKeys;
@@ -22,10 +32,70 @@ public class GSKeyManager {
 	private GSIKeyRegisterListener registerListener;
 	
 	public GSKeyManager() {
+		keySettings = new HashMap<String, Map<String,KeyCode>>();
+
 		keyBindings = new ArrayList<GSKeyBinding>();
 		codeToKeys = new HashMap<KeyCode, LinkedList<GSKeyBinding>>();
 	}
 
+	public void loadKeys(File keySettingsFile) {
+		try (BufferedReader br = new BufferedReader(new FileReader(keySettingsFile))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				String[] args = line.split(":");
+				if (args.length != 3)
+					continue;
+				
+				KeyCode keyCode;
+				try {
+					keyCode = InputUtil.fromName(args[2]);
+				} catch (IllegalArgumentException e) {
+					continue;
+				}
+				
+				setKeySetting(args[0], args[1], keyCode);
+			}
+		} catch (IOException e) {
+		}
+	}
+
+	public void saveKeys(File keySettingsFile) {
+		try {
+			GSFileUtils.ensureFileExists(keySettingsFile);
+			
+			try (BufferedWriter bw = new BufferedWriter(new FileWriter(keySettingsFile))) {
+				for (Map.Entry<String, Map<String, KeyCode>> categorySettings : keySettings.entrySet()) {
+					String category = categorySettings.getKey();
+					for (Map.Entry<String, KeyCode> setting : categorySettings.getValue().entrySet()) {
+						bw.write(category);
+						bw.write(':');
+						bw.write(setting.getKey());
+						bw.write(':');
+						bw.write(setting.getValue().getName());
+						bw.newLine();
+					}
+				}
+			}
+		} catch (IOException e) {
+		}
+	}
+	
+	private KeyCode getKeySetting(String category, String keyName) {
+		Map<String, KeyCode> categorySettings = keySettings.get(category);
+		if (categorySettings == null)
+			return null;
+		return categorySettings.get(keyName);
+	}
+
+	private void setKeySetting(String category, String keyName, KeyCode keyCode) {
+		Map<String, KeyCode> categorySettings = keySettings.get(category);
+		if (categorySettings == null) {
+			categorySettings = new HashMap<String, KeyCode>();
+			keySettings.put(category, categorySettings);
+		}
+		categorySettings.put(keyName, keyCode);
+	}
+	
 	public void update() {
 		for (GSKeyBinding keyBinding : keyBindings)
 			keyBinding.update();
@@ -69,6 +139,9 @@ public class GSKeyManager {
 	}
 
 	public void registerKey(String name, String category, InputUtil.Type keyType, int keyCode, GSIKeyListener listener) {
+		if (name.contains(":") || category.contains(":"))
+			throw new IllegalArgumentException("Invalid name or category! It must not contains ':'!");
+		
 		GSKeyBinding keyBinding = new GSKeyBinding(this, name, category, keyType, keyCode);
 		keyBinding.setKeyListener(listener);
 		addKeyBinding(keyBinding);
@@ -80,6 +153,13 @@ public class GSKeyManager {
 	private void addKeyBinding(GSKeyBinding keyBinding) {
 		keyBindings.add(keyBinding);
 		addKeyCodeMapping(keyBinding);
+		
+		KeyCode keyCodeSetting = getKeySetting(keyBinding.getCategory(), keyBinding.getName());
+		if (keyCodeSetting != null) {
+			keyBinding.setKeyCode(keyCodeSetting);
+		} else {
+			setKeySetting(keyBinding.getCategory(), keyBinding.getName(), keyBinding.getKeyCode());
+		}
 	}
 	
 	public void setKeyRegisterListener(GSIKeyRegisterListener registerListener) {
@@ -107,6 +187,8 @@ public class GSKeyManager {
 		}
 		
 		addKeyCodeMapping(keyBinding);
+		
+		setKeySetting(keyBinding.getCategory(), keyBinding.getName(), keyCode);
 	}
 	
 	private void addKeyCodeMapping(GSKeyBinding keyBinding) {

@@ -41,6 +41,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	private static final String GS_KEY_CATEGORY = "gs";
 	private static final String GUI_KEY_NAME    = "opengui";
 	
+	private static final String HOTKEY_SETTINGS_FILE_NAME = "hotkeys.cfg";
+	
 	private static final GSControllerClient instance = new GSControllerClient();
 	
 	private MinecraftClient minecraft;
@@ -80,6 +82,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	public void init(MinecraftClient minecraft) {
 		this.minecraft = minecraft;
 		
+		keyManager.loadKeys(getHotkeySettingsFile());
 		keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, 
 				tabbedGUI, minecraft::openScreen, GSEKeyEventType.PRESS);
 		
@@ -109,7 +112,13 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 
 	public void onClientClose() {
+		keyManager.saveKeys(getHotkeySettingsFile());
+
 		onStop();
+	}
+	
+	private File getHotkeySettingsFile() {
+		return new File(getCacheFile(), HOTKEY_SETTINGS_FILE_NAME);
 	}
 
 	@Override
