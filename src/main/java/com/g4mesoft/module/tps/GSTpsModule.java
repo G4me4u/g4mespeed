@@ -129,8 +129,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 		keyManager.registerKey("double", KEY_CATEGORY, GLFW.GLFW_KEY_K, 
 				GSETpsHotkeyType.DOUBLE_TPS, this::onHotkey, GSEKeyEventType.PRESS);
 
-		keyManager.registerKey("half", KEY_CATEGORY, GLFW.GLFW_KEY_J, 
-				GSETpsHotkeyType.HALF_TPS, this::onHotkey, GSEKeyEventType.PRESS);
+		keyManager.registerKey("halve", KEY_CATEGORY, GLFW.GLFW_KEY_J, 
+				GSETpsHotkeyType.HALVE_TPS, this::onHotkey, GSEKeyEventType.PRESS);
 	}
 	
 	@Override
@@ -233,7 +233,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 		case DOUBLE_TPS:
 			setTps(tps * 2.0f);
 			break;
-		case HALF_TPS:
+		case HALVE_TPS:
 			setTps(tps / 2.0f);
 			break;
 			

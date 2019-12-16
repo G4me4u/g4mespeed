@@ -1,11 +1,13 @@
 package com.g4mesoft.hotkey;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.InputUtil.KeyCode;
 
 public class GSKeyBinding {
 
+	private final GSKeyManager manager;
 	private final String name;
 	private final String category;
 	private final KeyCode defaultKeyCode;
@@ -20,7 +22,8 @@ public class GSKeyBinding {
 
 	private GSIKeyListener listener;
 	
-	public GSKeyBinding(String name, String category, InputUtil.Type keyType, int keyCode) {
+	public GSKeyBinding(GSKeyManager manager, String name, String category, InputUtil.Type keyType, int keyCode) {
+		this.manager = manager;
 		this.name = name;
 		this.category = category;
 		this.defaultKeyCode = keyType.createFromCode(keyCode);
@@ -78,11 +81,30 @@ public class GSKeyBinding {
 	
 	public void update() {
 		wasPressed = pressed;
-		pressed = InputUtil.isKeyPressed(MinecraftClient.getInstance().window.getHandle(), keyCode.getKeyCode());
-	
+		pressed = keyState;
+		
 		repeatCount = 0;
 	}
-	
+
+	public String getLocalizedName() {
+		String result = null;
+		
+		switch (keyCode.getCategory()) {
+		case KEYSYM:
+			result = InputUtil.getKeycodeName(keyCode.getKeyCode());
+			break;
+		case SCANCODE:
+			result = InputUtil.getScancodeName(keyCode.getKeyCode());
+			break;
+		case MOUSE:
+			result = I18n.hasTranslation(keyCode.getName()) ? I18n.translate(keyCode.getName()) :
+				String.format("%s %d", I18n.translate(keyCode.getCategory().getName()), keyCode.getKeyCode());
+			break;
+		}
+		
+		return result != null ? result : I18n.translate(keyCode.getName());
+	}
+
 	public boolean isPressed() {
 		return pressed;
 	}
@@ -113,6 +135,14 @@ public class GSKeyBinding {
 	
 	public KeyCode getKeyCode() {
 		return keyCode;
+	}
+
+	public void setKeyCode(KeyCode keyCode) {
+		KeyCode oldKeyCode = this.keyCode;
+		this.keyCode = keyCode;
+		reset();
+		
+		manager.onKeyCodeChanged(this, oldKeyCode, keyCode);
 	}
 
 	public int getGLFWKeyCode() {

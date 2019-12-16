@@ -24,6 +24,8 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 	private int scrollableHeight;
 	private boolean needsRelayout;
 	
+	private GSHotkeyElementGUI changingElement;
+	
 	public GSHotkeyGUI(GSKeyManager keyManager) {
 		super(NarratorManager.EMPTY);
 		
@@ -33,6 +35,7 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 			addKeyEntry(keyBinding);
 
 		keyManager.setKeyRegisterListener(this);
+		changingElement = null;
 	}
 
 	private void layoutHotkeys() {
@@ -93,6 +96,16 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 	protected int getScrollableHeight() {
 		return scrollableHeight;
 	}
+
+	public void setChangingElement(GSHotkeyElementGUI element) {
+		if (changingElement != null && element != null)
+			throw new IllegalStateException("Can not change multiple elements at once!");
+		changingElement = element;
+	}
+	
+	public GSHotkeyElementGUI getChangingElement() {
+		return changingElement;
+	}
 	
 	private class GSHotkeyCategoryGUI {
 		
@@ -109,7 +122,7 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 		}
 		
 		public void addKeyBinding(GSKeyBinding keyBinding) {
-			hotkeyElements.add(new GSHotkeyElementGUI(keyBinding));
+			hotkeyElements.add(new GSHotkeyElementGUI(GSHotkeyGUI.this, keyBinding));
 		}
 
 		public int getPreferredWidth() {
@@ -132,6 +145,7 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 			for (GSHotkeyElementGUI hotkeyElement : hotkeyElements) {
 				int h = hotkeyElement.getPreferredHeight();
 				hotkeyElement.initBounds(minecraft, x, y, w, h);
+				children.add(hotkeyElement);
 				y += h + HOTKEY_MARGIN * 2;
 			}
 			

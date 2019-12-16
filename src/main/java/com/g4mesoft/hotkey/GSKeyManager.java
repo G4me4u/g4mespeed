@@ -69,7 +69,7 @@ public class GSKeyManager {
 	}
 
 	public void registerKey(String name, String category, InputUtil.Type keyType, int keyCode, GSIKeyListener listener) {
-		GSKeyBinding keyBinding = new GSKeyBinding(name, category, keyType, keyCode);
+		GSKeyBinding keyBinding = new GSKeyBinding(this, name, category, keyType, keyCode);
 		keyBinding.setKeyListener(listener);
 		addKeyBinding(keyBinding);
 		
@@ -79,13 +79,7 @@ public class GSKeyManager {
 	
 	private void addKeyBinding(GSKeyBinding keyBinding) {
 		keyBindings.add(keyBinding);
-		
-		LinkedList<GSKeyBinding> keysWithCode = codeToKeys.get(keyBinding.getKeyCode());
-		if (keysWithCode == null) {
-			keysWithCode = new LinkedList<GSKeyBinding>();
-			codeToKeys.put(keyBinding.getKeyCode(), keysWithCode);
-		}
-		keysWithCode.add(keyBinding);
+		addKeyCodeMapping(keyBinding);
 	}
 	
 	public void setKeyRegisterListener(GSIKeyRegisterListener registerListener) {
@@ -93,10 +87,36 @@ public class GSKeyManager {
 	}
 
 	private void handleKeyEvent(KeyCode keyCode, Consumer<GSKeyBinding> eventMethod) {
-		List<GSKeyBinding> keys = codeToKeys.get(keyCode);
-		if (keys != null) {
-			for (GSKeyBinding key : keys)
-				eventMethod.accept(key);
+		synchronized(codeToKeys) {
+			List<GSKeyBinding> keys = codeToKeys.get(keyCode);
+			if (keys != null) {
+				for (GSKeyBinding key : keys)
+					eventMethod.accept(key);
+			}
+		}
+	}
+	
+	protected void onKeyCodeChanged(GSKeyBinding keyBinding, KeyCode oldKeyCode, KeyCode keyCode) {
+		synchronized(codeToKeys) {
+			List<GSKeyBinding> keysWithOldCode = codeToKeys.get(oldKeyCode);
+			if (keysWithOldCode != null) {
+				keysWithOldCode.remove(keyBinding);
+				if (keysWithOldCode.isEmpty())
+					codeToKeys.remove(oldKeyCode);
+			}
+		}
+		
+		addKeyCodeMapping(keyBinding);
+	}
+	
+	private void addKeyCodeMapping(GSKeyBinding keyBinding) {
+		synchronized(codeToKeys) {
+			LinkedList<GSKeyBinding> keysWithCode = codeToKeys.get(keyBinding.getKeyCode());
+			if (keysWithCode == null) {
+				keysWithCode = new LinkedList<GSKeyBinding>();
+				codeToKeys.put(keyBinding.getKeyCode(), keysWithCode);
+			}
+			keysWithCode.add(keyBinding);
 		}
 	}
 	

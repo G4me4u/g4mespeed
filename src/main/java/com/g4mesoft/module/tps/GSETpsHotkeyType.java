@@ -8,7 +8,7 @@ public enum GSETpsHotkeyType {
 	DECREMENT_TPS(2),
 	
 	DOUBLE_TPS(3),
-	HALF_TPS(4);
+	HALVE_TPS(4);
 
 	private static final GSETpsHotkeyType[] HOTKEY_TYPES;
 	

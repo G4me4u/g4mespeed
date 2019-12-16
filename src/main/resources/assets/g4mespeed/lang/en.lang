@@ -76,4 +76,7 @@ hotkey.tps.reset=Reset tps
 hotkey.tps.increment=Increment tps
 hotkey.tps.decrement=Decrement tps
 hotkey.tps.double=Double tps
-hotkey.tps.half=Half tps
+hotkey.tps.halve=Halve tps
+
+gui.hotkey.button.reset=Reset
+gui.hotkey.button.cancel=Cancel
