@@ -81,19 +81,23 @@ public class GSKeyManager {
 	}
 	
 	private KeyCode getKeySetting(String category, String keyName) {
-		Map<String, KeyCode> categorySettings = keySettings.get(category);
-		if (categorySettings == null)
-			return null;
-		return categorySettings.get(keyName);
+		synchronized (keySettings) {
+			Map<String, KeyCode> categorySettings = keySettings.get(category);
+			if (categorySettings == null)
+				return null;
+			return categorySettings.get(keyName);
+		}
 	}
 
 	private void setKeySetting(String category, String keyName, KeyCode keyCode) {
-		Map<String, KeyCode> categorySettings = keySettings.get(category);
-		if (categorySettings == null) {
-			categorySettings = new HashMap<String, KeyCode>();
-			keySettings.put(category, categorySettings);
+		synchronized (keySettings) {
+			Map<String, KeyCode> categorySettings = keySettings.get(category);
+			if (categorySettings == null) {
+				categorySettings = new HashMap<String, KeyCode>();
+				keySettings.put(category, categorySettings);
+			}
+			categorySettings.put(keyName, keyCode);
 		}
-		categorySettings.put(keyName, keyCode);
 	}
 	
 	public void update() {
