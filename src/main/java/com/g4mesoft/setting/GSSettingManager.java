@@ -20,6 +20,7 @@ import com.g4mesoft.setting.decoder.GSISettingDecoder;
 import com.g4mesoft.setting.decoder.GSIntegerSettingDecoder;
 import com.g4mesoft.setting.decoder.GSStringSettingDecoder;
 import com.g4mesoft.setting.types.GSUnknownSetting;
+import com.g4mesoft.util.GSFileUtils;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.util.PacketByteBuf;
@@ -107,12 +108,7 @@ public class GSSettingManager {
 	
 	public void saveSettings(File settingsFile) {
 		try {
-			if (!settingsFile.isFile()) {
-				File parentSettingFile = settingsFile.getParentFile();
-				if (parentSettingFile != null && !parentSettingFile.exists())
-					parentSettingFile.mkdirs();
-				settingsFile.createNewFile();
-			}
+			GSFileUtils.ensureFileExists(settingsFile);
 			
 			try (FileOutputStream os = new FileOutputStream(settingsFile)) {
 				writeSettings(os);

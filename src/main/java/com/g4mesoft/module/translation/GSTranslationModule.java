@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.GSIModule;
@@ -34,12 +35,15 @@ public class GSTranslationModule implements GSIModule {
 	private static final String TRANSLATION_FILENAME = "en.lang";
 	public static final int INVALID_TRANSLATION_VERSION = -1;
 	
+	private static final long MAX_CACHE_LIFE_HOURS = 3 * 24;
+	
 	private final Map<String, String> translations;
 	private final Map<Integer, GSTranslationCache> caches;
 	
 	private GSIModuleManager manager;
 	
 	private int cachedTranslationVersion;
+	private long cacheSaveTime;
 	
 	public GSTranslationModule() {
 		translations = new ConcurrentHashMap<String, String>();
@@ -54,10 +58,11 @@ public class GSTranslationModule implements GSIModule {
 		
 		manager.runOnClient((managerClient) -> {
 			try (FileInputStream is = new FileInputStream(getCachedFile(manager))) {
-				loadTranslations(is);
+				loadCachedTranslations(is);
 			} catch (FileNotFoundException | SecurityException e) {
 			} catch (IOException e) {
-				e.printStackTrace();
+				// Silently handle exceptions.
+				// e.printStackTrace();
 			}
 		});
 		
@@ -66,6 +71,7 @@ public class GSTranslationModule implements GSIModule {
 			try (InputStream is = url.openStream()) {
 				loadTranslations(is);
 			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
 	}
@@ -121,48 +127,85 @@ public class GSTranslationModule implements GSIModule {
 		}
 	}
 	
-	private void loadTranslations(InputStream is) throws IOException {
+	private void loadCachedTranslations(InputStream is) throws IOException {
+		cacheSaveTime = System.currentTimeMillis();
+		
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-			Map<String, String> translations = new HashMap<String, String>();
-			
-			int currentVersion = INVALID_TRANSLATION_VERSION;
-			
-			String line;
-			while ((line = reader.readLine()) != null) {
-				if (!line.isEmpty()) {
-					switch (line.charAt(0)) {
-					case '#':
-						break;
-					case ':':
-						if (!translations.isEmpty()) {
-							addTranslationCache(new GSTranslationCache(currentVersion, translations));
-							translations.clear();
-						}
-						
-						try {
-							currentVersion = Integer.parseInt(line.substring(1));
-						} catch (NumberFormatException e) {
-							throw new IOException("Unable to read translation version! (" + line + ")");
-						}
-						break;
-					default:
-						if (currentVersion != INVALID_TRANSLATION_VERSION) {
-							String[] entry = line.split("=");
-							if (entry.length == 2)
-								translations.put(entry[0], entry[1]);
-						}
-						break;
-					}
+			String line = reader.readLine();
+			// Skip '# ' characters at the beginning
+			long cacheTime = -1;
+			if (line != null && line.length() > 2) {
+				try {
+					cacheTime = Long.parseLong(line.substring(2));
+				} catch (NumberFormatException e) {
 				}
 			}
 			
-			if (!translations.isEmpty())
-				addTranslationCache(new GSTranslationCache(currentVersion, translations));
+			if (cacheTime < 0)
+				throw new IOException("Invalid cache date: " + line);
+
+			long cacheLifeDuration = System.currentTimeMillis() - cacheTime;
+			if (cacheLifeDuration < 0L)
+				throw new IOException("Cache lifetime duration is negative! System time changed?");
+			
+			if (TimeUnit.HOURS.convert(cacheLifeDuration, TimeUnit.MILLISECONDS) > MAX_CACHE_LIFE_HOURS)
+				throw new IOException("Cache is too old. Discard it.");
+			
+			loadTranslations(reader);
+			cacheSaveTime = cacheTime;
 		}
+	}
+	
+	private void loadTranslations(InputStream is) throws IOException {
+		try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+			loadTranslations(reader);
+		}
+	}
+
+	private void loadTranslations(BufferedReader reader) throws IOException {
+		Map<String, String> translations = new HashMap<String, String>();
+		
+		int currentVersion = INVALID_TRANSLATION_VERSION;
+		
+		String line;
+		while ((line = reader.readLine()) != null) {
+			if (!line.isEmpty()) {
+				switch (line.charAt(0)) {
+				case '#':
+					break;
+				case ':':
+					if (!translations.isEmpty()) {
+						addTranslationCache(new GSTranslationCache(currentVersion, translations));
+						translations.clear();
+					}
+					
+					try {
+						currentVersion = Integer.parseInt(line.substring(1));
+					} catch (NumberFormatException e) {
+						throw new IOException("Unable to read translation version! (" + line + ")");
+					}
+					break;
+				default:
+					if (currentVersion != INVALID_TRANSLATION_VERSION) {
+						String[] entry = line.split("=");
+						if (entry.length == 2)
+							translations.put(entry[0], entry[1]);
+					}
+					break;
+				}
+			}
+		}
+		
+		if (!translations.isEmpty())
+			addTranslationCache(new GSTranslationCache(currentVersion, translations));
 	}
 	
 	private void saveTranslations(OutputStream os) throws IOException {
 		try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os))){
+			writer.write("# ");
+			writer.write(Long.toString(cacheSaveTime));
+			writer.newLine();
+
 			writer.write("# Cache saved at ");
 			writer.write(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 			writer.newLine();

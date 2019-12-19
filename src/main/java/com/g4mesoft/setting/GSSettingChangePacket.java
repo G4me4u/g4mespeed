@@ -2,6 +2,7 @@ package com.g4mesoft.setting;
 
 import java.io.IOException;
 
+import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.packet.GSIPacket;
@@ -12,13 +13,15 @@ import net.minecraft.util.PacketByteBuf;
 
 public class GSSettingChangePacket implements GSIPacket {
 
+	public static final GSVersion DISABLE_SETTING_INTRODUCTION = new GSVersion(1, 0, 2);
+	
 	private GSSettingCategory category;
 	private GSSetting<?> setting;
 	private GSESettingChangeType type;
-
+	
 	public GSSettingChangePacket() {
 	}
-	
+
 	public GSSettingChangePacket(GSSettingCategory category, GSSetting<?> setting, GSESettingChangeType type) {
 		this.category = category;
 		this.setting = setting;
@@ -59,9 +62,9 @@ public class GSSettingChangePacket implements GSIPacket {
 		if (type != GSESettingChangeType.SETTING_CHANGED)
 			return;
 		
-		if (player.allowsPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL)) {
+		if (controller.isAllowedSettingChange(player)) {
 			GSSetting<?> currentSetting = controller.getSettingManager().getSetting(category, setting.getName());
-			if (currentSetting != null && currentSetting.isActive() && currentSetting.isAvailableInGUI())
+			if (currentSetting != null && currentSetting.isActive() && currentSetting.isVisibleInGUI())
 				currentSetting.setValueIfSameType(setting);
 		}
 	}

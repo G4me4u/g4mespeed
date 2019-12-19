@@ -37,7 +37,6 @@ public final class GSSettingMap {
 	public void registerSetting(GSSetting<?> setting) {
 		GSSetting<?> currentSetting = getSetting(setting.getName());
 		if (currentSetting != null) {
-			setting.setValueIfSameType(currentSetting);
 			currentSetting.setSettingOwner(null);
 			
 			if (owner != null)
@@ -49,6 +48,12 @@ public final class GSSettingMap {
 		
 		if (owner != null)
 			owner.settingAdded(category, setting);
+
+		// This has to be done at the end of the function
+		// to ensure that the listeners will receive info
+		// about the setting change, if one occurred.
+		if (currentSetting != null)
+			setting.setValueIfSameType(currentSetting);
 	}
 	
 	public void clearSettings() {
@@ -117,7 +122,7 @@ public final class GSSettingMap {
 				// Setting was not added through the registerSetting
 				// method and is therefore not necessarily active.
 				setting.setActive(false);
-
+				
 				setting.setSettingOwner(this);
 				settings.put(setting.getName(), setting);
 

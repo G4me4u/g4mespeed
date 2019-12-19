@@ -47,17 +47,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		float val;
 		
 		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
-		int type = tpsModule.cPistonAnimationType.getValue();
-		if (type == GSTpsModule.PISTON_ANIM_PAUSE_END && tpsModule.cSyncTick.getValue()) {
-			// In this case fallback to the default animation
-			// since the animation type is handled by changing
-			// the synchronized ticking. 
-			
-			// See GSRenderTickCounterMixin for more.
-			type = -1;
-		}
-		
-		switch (type) {
+		switch (tpsModule.cPistonAnimationType.getValue()) {
 		case GSTpsModule.PISTON_ANIM_NO_PAUSE:
 			val = (this.progress * PISTON_STEPS + partialTicks) / (PISTON_STEPS + 1.0f);
 			break;

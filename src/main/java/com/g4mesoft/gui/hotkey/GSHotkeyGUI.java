@@ -16,13 +16,16 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 
 	private static final int HOTKEY_MARGIN = 1;
 
-	private static final int CATEGORY_TITLE_MARGIN = 2;
+	private static final int CATEGORY_MARGIN = 5;
+	private static final int CATEGORY_TITLE_BOTTOM_MARGIN = 2;
 	private static final int CATEGORY_TITLE_COLOR = 0xFFFFFFFF;
 	
 	private final Map<String, GSHotkeyCategoryGUI> hotkeyCategories;
 	
 	private int scrollableHeight;
 	private boolean needsRelayout;
+	
+	private GSHotkeyElementGUI changingElement;
 	
 	public GSHotkeyGUI(GSKeyManager keyManager) {
 		super(NarratorManager.EMPTY);
@@ -33,6 +36,7 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 			addKeyEntry(keyBinding);
 
 		keyManager.setKeyRegisterListener(this);
+		changingElement = null;
 	}
 
 	private void layoutHotkeys() {
@@ -46,9 +50,9 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 		if (this.width < w)
 			w = this.width;
 
-		int y = HOTKEY_MARGIN;
+		int y = 0;
 		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values())
-			y = hotkeyCategory.layoutHotkeys(HOTKEY_MARGIN, y, w);
+			y = hotkeyCategory.layoutHotkeys(0, y, w);
 		
 		scrollableHeight = y;
 	}
@@ -93,6 +97,16 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 	protected int getScrollableHeight() {
 		return scrollableHeight;
 	}
+
+	public void setChangingElement(GSHotkeyElementGUI element) {
+		if (changingElement != null && element != null)
+			throw new IllegalStateException("Can not change multiple elements at once!");
+		changingElement = element;
+	}
+	
+	public GSHotkeyElementGUI getChangingElement() {
+		return changingElement;
+	}
 	
 	private class GSHotkeyCategoryGUI {
 		
@@ -109,7 +123,7 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 		}
 		
 		public void addKeyBinding(GSKeyBinding keyBinding) {
-			hotkeyElements.add(new GSHotkeyElementGUI(keyBinding));
+			hotkeyElements.add(new GSHotkeyElementGUI(GSHotkeyGUI.this, keyBinding));
 		}
 
 		public int getPreferredWidth() {
@@ -127,11 +141,12 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 			this.y = y;
 			this.w = w;
 			
-			y += font.fontHeight + CATEGORY_TITLE_MARGIN * 2;
+			y += CATEGORY_MARGIN + font.fontHeight + CATEGORY_TITLE_BOTTOM_MARGIN;
 			
 			for (GSHotkeyElementGUI hotkeyElement : hotkeyElements) {
 				int h = hotkeyElement.getPreferredHeight();
 				hotkeyElement.initBounds(minecraft, x, y, w, h);
+				children.add(hotkeyElement);
 				y += h + HOTKEY_MARGIN * 2;
 			}
 			
@@ -141,7 +156,7 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 		
 		public void render(int mouseX, int mouseY, float partialTicks) {
 			String title = getTranslationModule().getTranslation(categoryName);
-			drawCenteredString(font, title, x + w / 2, y + CATEGORY_TITLE_MARGIN, CATEGORY_TITLE_COLOR);
+			drawCenteredString(font, title, x + w / 2, y + CATEGORY_MARGIN, CATEGORY_TITLE_COLOR);
 			
 			for (GSHotkeyElementGUI hotkeyElement : hotkeyElements)
 				hotkeyElement.render(mouseX, mouseY, partialTicks);

@@ -38,6 +38,13 @@ public class GSSliderWidget extends SliderWidget {
 		
 		updateMessage();
 	}
+	
+	@Override
+	public boolean isHovered() {
+		// An oversight when the developers made the sliders
+		// is that they do not react properly when disabled.
+		return active && super.isHovered();
+	}
 
 	public static interface GSSliderListener {
 

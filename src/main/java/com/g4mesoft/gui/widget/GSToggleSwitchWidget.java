@@ -15,29 +15,29 @@ public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
 	public static final int TOGGLE_SWITCH_WIDTH = 30;
 	public static final int TOGGLE_SWITCH_HEIGHT = 16;
 	
-	private boolean enabled;
+	private boolean value;
 	private GSSwitchListener listener;
 	
 	public GSToggleSwitchWidget(int x, int y, boolean enabled, GSSwitchListener listener) {
 		super(x, y, TOGGLE_SWITCH_WIDTH, TOGGLE_SWITCH_HEIGHT, "");
 		
-		this.enabled = enabled;
+		this.value = enabled;
 		this.listener = listener;
 	}
 	
 	@Override
 	public void onPress() {
-		enabled = !enabled;
+		value = !value;
 		
-		listener.onStateChanged(enabled);
+		listener.onStateChanged(value);
 	}
 
-	public void setEnabledSilent(boolean enabled) {
-		this.enabled = enabled;
+	public void setValueSilent(boolean value) {
+		this.value = value;
 	}
 	
 	public boolean isEnabled() {
-		return this.enabled;
+		return this.value;
 	}
 
 	@Override
@@ -50,9 +50,9 @@ public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
 		GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		
-		float tx = (isMouseOver(mouseX, mouseY) || isFocused()) ? 30.0f : 0.0f;
-		float ty = enabled ? 16.0f : 0.0f;
-		blit(x, y, tx, ty, 30, 16, 60, 32);
+		float tx = active ? ((isMouseOver(mouseX, mouseY) || isFocused()) ? 30.0f : 0.0f) : 60.0f;
+		float ty = value ? 16.0f : 0.0f;
+		blit(x, y, tx, ty, 30, 16, 90, 32);
 	}
 	
 	public static interface GSSwitchListener {

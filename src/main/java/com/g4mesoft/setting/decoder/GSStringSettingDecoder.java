@@ -12,18 +12,16 @@ public class GSStringSettingDecoder implements GSISettingDecoder<GSStringSetting
 	public GSStringSetting decodeSetting(String name, PacketByteBuf buffer) {
 		String value = buffer.readString(32767);
 		String defaultValue = buffer.readString(32767);
-		boolean availableInGui = buffer.readBoolean();
+		boolean visibleInGui = buffer.readBoolean();
 		
-		GSStringSetting setting = new GSStringSetting(name, defaultValue, availableInGui);
-		setting.setValue(value);
-		return setting;
+		return new GSStringSetting(name, defaultValue, visibleInGui).setValue(value);
 	}
 
 	@Override
 	public void encodeSetting(PacketByteBuf buffer, GSStringSetting setting) {
 		buffer.writeString(setting.getValue());
 		buffer.writeString(setting.getDefaultValue());
-		buffer.writeBoolean(setting.isAvailableInGUI());
+		buffer.writeBoolean(setting.isVisibleInGUI());
 	}
 
 	@Override

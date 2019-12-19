@@ -43,4 +43,6 @@ public interface GSIModule {
 
 	default public void onPlayerLeave(ServerPlayerEntity player) { }
 
+	default public void onPlayerPermissionChanged(ServerPlayerEntity player) { }
+
 }

@@ -4,18 +4,22 @@ public abstract class GSSetting<T> {
 
 	protected final String name;
 	protected final T defaultValue;
-	protected final boolean availableInGui;
+	protected final boolean visibleInGui;
 	
 	private GSSettingMap settingOwner;
 	private boolean active;
 	
-	public GSSetting(String name, T defaultValue, boolean availableInGui) {
+	private boolean enabledInGui;
+	
+	public GSSetting(String name, T defaultValue, boolean visibleInGui) {
 		this.name = name;
 		this.defaultValue = defaultValue;
-		this.availableInGui = availableInGui;
+		this.visibleInGui = visibleInGui;
 		
 		settingOwner = null;
 		active = true;
+		
+		enabledInGui = true;
 	}
 	
 	public String getName() {
@@ -36,6 +40,8 @@ public abstract class GSSetting<T> {
 	public abstract T getValue();
 	
 	public abstract GSSetting<T> setValue(T value);
+
+	public abstract boolean isDefaultValue();
 
 	public abstract boolean isSameType(GSSetting<?> other);
 
@@ -58,12 +64,24 @@ public abstract class GSSetting<T> {
 	void setActive(boolean active) {
 		this.active = active;
 	}
-	
+
 	public boolean isActive() {
 		return active;
 	}
-	
-	public boolean isAvailableInGUI() {
-		return availableInGui;
+
+	public boolean isVisibleInGUI() {
+		return visibleInGui;
+	}
+
+	public GSSetting<T> setEnabledInGui(boolean enabledInGui) {
+		if (enabledInGui != this.enabledInGui) {
+			this.enabledInGui = enabledInGui;
+			notifyOwnerChange();
+		}
+		return this;
+	}
+
+	public boolean isEnabledInGui() {
+		return enabledInGui;
 	}
 }
