@@ -20,30 +20,30 @@ import net.minecraft.client.util.math.MatrixStack;
 @Mixin(PistonBlockEntityRenderer.class)
 public class GSPistonBlockEntityRendererMixin {
 	
-	@Redirect(method = "method_3576", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/PistonBlockEntity;getProgress(F)F"))
+	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/PistonBlockEntity;getProgress(F)F"))
 	public float getPistonProgress(PistonBlockEntity blockEntity, float partialTicks) {
 		return ((GSISmoothPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
 	}
 	
-	@ModifyConstant(method = "method_3576", constant = @Constant(floatValue = 4.0f))
+	@ModifyConstant(method = "render", constant = @Constant(floatValue = 4.0f))
 	private float fixShortArm(float shortArmCutoff) {
 		return 0.5f;
 	}
 
-	@ModifyConstant(method = "method_3576", constant = @Constant(floatValue = 1.0f), allow = 1)
+	@ModifyConstant(method = "render", constant = @Constant(floatValue = 1.0f), allow = 1)
 	private float fixPistonBlink(float maximumProgress) {
 		// The progress is fixed in getProgress
 		// of the piston block entity.
 		return Float.MAX_VALUE;
 	}
 	
-	@Inject(method = "method_3576", at = @At("HEAD"))
+	@Inject(method = "render", at = @At("HEAD"))
 	private void onRenderStart(PistonBlockEntity blockEntity, float partialTicks, MatrixStack matrixStack_1, VertexConsumerProvider layeredVertexConsumerStorage_1, int int_1, int int_2, CallbackInfo ci) {
 		if (GSControllerClient.getInstance().getTpsModule().cCullMovingBlocks.getValue())
 			GlStateManager.enableCull();
 	}
 
-	@Inject(method = "method_3576", at = @At("RETURN"))
+	@Inject(method = "render", at = @At("RETURN"))
 	private void onRenderEnd(PistonBlockEntity blockEntity, float partialTicks, MatrixStack matrixStack_1, VertexConsumerProvider layeredVertexConsumerStorage_1, int int_1, int int_2, CallbackInfo ci) {
 		// Ensure that we're disabling culling after
 		// the block entity call (since we might have
