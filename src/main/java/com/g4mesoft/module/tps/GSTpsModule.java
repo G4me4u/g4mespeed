@@ -63,7 +63,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 	public final GSFloatSetting cSyncTickAggression;
 	public final GSIntegerSetting sSyncPacketInterval;
 
-	public final GSBooleanSetting cCullMovingBlocks;
 	public final GSIntegerSetting cPistonAnimationType;
 	public final GSIntegerSetting cPistonRenderDistance;
 	public final GSIntegerSetting sBlockEventDistance;
@@ -81,7 +80,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 		cSyncTickAggression = new GSFloatSetting("syncTickAggression", 0.05f, 0.0f, 1.0f, 0.05f);
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
 
-		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, 0, 32);
 		sBlockEventDistance = new GSIntegerSetting("blockEventDistance", 4, 0, 32);
@@ -108,7 +106,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 		settings.registerSetting(TPS_CATEGORY, cSyncTickAggression);
 		cSyncTickAggression.setEnabledInGui(cSyncTick.getValue());
 		
-		settings.registerSetting(BETTER_PISTONS_CATEGORY, cCullMovingBlocks);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonAnimationType);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonRenderDistance);
 		
