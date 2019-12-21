@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
 
-import com.g4mesoft.gui.GSScrollableParentGUI;
+import com.g4mesoft.gui.GSTabContentGUI;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSISettingChangeListener;
 import com.g4mesoft.setting.GSSetting;
@@ -27,7 +27,7 @@ import net.minecraft.client.util.NarratorManager;
 import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
-public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingChangeListener {
+public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeListener {
 
 	private static final int SETTING_CATEGORY_MARGIN = 5;
 	private static final int CATEGORY_TITLE_MARGIN_BOTTOM = 2;
@@ -42,7 +42,7 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 	
 	private final Map<GSSettingCategory, GSSettingCategoryElement> settingCategories;
 	private int settingsWidth;
-	private int scrollableHeight;
+	private int contentHeight;
 	private boolean layoutChanged;
 	
 	private GSSettingElementGUI<?> hoveredElement;
@@ -122,7 +122,7 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 			y += SETTING_CATEGORY_MARGIN;
 		}
 		
-		scrollableHeight = y;
+		contentHeight = y;
 	}
 	
 	@Override
@@ -190,8 +190,7 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 		
 		int descX = settingsWidth;
 		
-		int scrollOffset = getScrollOffset();
-		int descY = GSMathUtils.clamp(hoveredElement.getY(), scrollOffset, height + scrollOffset - descHeight);
+		int descY = GSMathUtils.clamp(hoveredElement.getY(), getScrollOffset() - getY(), height + getScrollOffset() - descHeight);
 		
 		if (descWidth > 0 && descHeight > 0 && targetDescHeight != 0) {
 			fill(descX, descY, descX + descWidth, descY + descHeight, DESC_BACKGROUND_COLOR);
@@ -226,8 +225,8 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 	}
 	
 	@Override
-	protected int getScrollableHeight() {
-		return scrollableHeight;
+	public int getContentHeight() {
+		return contentHeight;
 	}
 	
 	private class GSSettingCategoryElement {

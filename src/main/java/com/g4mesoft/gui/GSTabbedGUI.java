@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Element;
@@ -15,7 +17,7 @@ import net.minecraft.client.util.NarratorManager;
 import net.minecraft.sound.SoundEvents;
 
 @Environment(EnvType.CLIENT)
-public class GSTabbedGUI extends GSParentGUI {
+public class GSTabbedGUI extends GSScrollableParentGUI {
 
 	private static final int TAB_VERTICAL_PADDING = 5;
 	private static final int TAB_HORIZONTAL_PADDING = 5;
@@ -45,12 +47,14 @@ public class GSTabbedGUI extends GSParentGUI {
 		selectedTabIndex = -1;
 	}
 
-	public void addTab(String title, GSParentGUI tabContent) {
+	public void addTab(String title, GSTabContentGUI tabContent) {
 		tabs.add(new GSTabEntry(title, tabContent));
 		tabsChanged = true;
 
-		if (tabContent != null)
+		if (tabContent != null) {
+			tabContent.setTabOwner(this);
 			tabContent.setSelected(false);
+		}
 		
 		if (selectedTabIndex == -1)
 			setSelectedTabIndex(0);
@@ -70,6 +74,8 @@ public class GSTabbedGUI extends GSParentGUI {
 			if (getFocused() != tab.getTabContent())
 				setFocused(tab.getTabContent());
 		}
+		
+		setScrollOffset(0.0);
 	}
 	
 	public GSTabEntry getSelectedTab() {
@@ -119,7 +125,7 @@ public class GSTabbedGUI extends GSParentGUI {
 
 		int tabXOffset = HORIZONTAL_MARGIN;
 		for (GSTabEntry tab : tabs) {
-			GSParentGUI content = tab.getTabContent();
+			GSTabContentGUI content = tab.getTabContent();
 			if (content != null) {
 				int xo = HORIZONTAL_MARGIN;
 				int yo = VERTICAL_MARGIN + tabHeight;
@@ -136,7 +142,9 @@ public class GSTabbedGUI extends GSParentGUI {
 
 	@Override
 	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
+		GlStateManager.translatef(0, getScrollOffset(), 0.0f);
 		renderBackground();
+		GlStateManager.translatef(0, -getScrollOffset(), 0.0f);
 
 		super.renderTranslated(mouseX, mouseY, partialTicks);
 
@@ -245,22 +253,32 @@ public class GSTabbedGUI extends GSParentGUI {
 	public boolean isPauseScreen() {
 		return true;
 	}
+	
+	@Override
+	protected int getScrollableHeight() {
+		int scrollableHeight = VERTICAL_MARGIN + tabHeight;
+
+		GSTabEntry selectedTab = getSelectedTab();
+		if (selectedTab != null)
+			scrollableHeight += selectedTab.getTabContent().getContentHeight();
+		return scrollableHeight;
+	}
 
 	private class GSTabEntry {
 
 		private final String title;
-		private final GSParentGUI tabContent;
+		private final GSTabContentGUI tabContent;
 
 		private String displayTitle;
 		private int x;
 		private int width;
 
-		public GSTabEntry(String title, GSParentGUI tabContent) {
+		public GSTabEntry(String title, GSTabContentGUI tabContent) {
 			this.title = title;
 			this.tabContent = tabContent;
 		}
 
-		public GSParentGUI getTabContent() {
+		public GSTabContentGUI getTabContent() {
 			return tabContent;
 		}
 

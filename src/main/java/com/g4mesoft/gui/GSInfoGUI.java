@@ -6,7 +6,7 @@ import com.g4mesoft.module.translation.GSTranslationModule;
 
 import net.minecraft.client.util.NarratorManager;
 
-public class GSInfoGUI extends GSParentGUI {
+public class GSInfoGUI extends GSTabContentGUI {
 
 	private static final int TEXT_COLOR              = 0xFFFFFFFF;
 	private static final int VERSION_COLOR           = 0xFF22FF22;
@@ -51,5 +51,10 @@ public class GSInfoGUI extends GSParentGUI {
 		drawCenteredString(font, translationModule.getTranslation(CLIENT_VERSION_TITLE_MSG), xc, y, TEXT_COLOR);
 		y += lineHeight;
 		drawCenteredString(font, controllerClient.getVersion().toString(), xc, y, VERSION_COLOR);
+	}
+
+	@Override
+	public int getContentHeight() {
+		return font.fontHeight * 5 + 20;
 	}
 }

@@ -5,14 +5,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.g4mesoft.gui.GSScrollableParentGUI;
+import com.g4mesoft.gui.GSTabContentGUI;
 import com.g4mesoft.hotkey.GSIKeyRegisterListener;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
 
 import net.minecraft.client.util.NarratorManager;
 
-public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegisterListener {
+public class GSHotkeyGUI extends GSTabContentGUI implements GSIKeyRegisterListener {
 
 	private static final int HOTKEY_MARGIN = 1;
 
@@ -22,7 +22,7 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 	
 	private final Map<String, GSHotkeyCategoryGUI> hotkeyCategories;
 	
-	private int scrollableHeight;
+	private int contentHeight;
 	private boolean needsRelayout;
 	
 	private GSHotkeyElementGUI changingElement;
@@ -54,7 +54,7 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values())
 			y = hotkeyCategory.layoutHotkeys(0, y, w);
 		
-		scrollableHeight = y;
+		contentHeight = y;
 	}
 	
 	@Override
@@ -94,8 +94,8 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 	}
 
 	@Override
-	protected int getScrollableHeight() {
-		return scrollableHeight;
+	public int getContentHeight() {
+		return contentHeight;
 	}
 
 	public void setChangingElement(GSHotkeyElementGUI element) {

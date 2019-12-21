@@ -3,14 +3,9 @@ package com.g4mesoft.gui;
 import java.awt.Rectangle;
 
 import org.lwjgl.glfw.GLFW;
-import org.lwjgl.opengl.GL11;
 
 import com.g4mesoft.util.GSMathUtils;
-import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormats;
 import net.minecraft.text.Text;
 
 public abstract class GSScrollableParentGUI extends GSParentGUI {
@@ -41,30 +36,7 @@ public abstract class GSScrollableParentGUI extends GSParentGUI {
 	
 	@Override
 	public void render(int mouseX, int mouseY, float partialTicks) {
-		if (getX() > 0) {
-			Tessellator tessellator = Tessellator.getInstance();
-			BufferBuilder bufferBuilder = tessellator.getBuffer();
-			GlStateManager.enableBlend();
-			GlStateManager.disableTexture();
-			GlStateManager.blendFuncSeparate(GL11.GL_ZERO, GL11.GL_ONE, GL11.GL_ZERO, GL11.GL_ONE);
-			GlStateManager.color4f(0.0f, 0.0f, 0.0f, 1.0f);
-			bufferBuilder.begin(7, VertexFormats.POSITION);
-			bufferBuilder.vertex(getX(), getY(), 1.0).next();
-			bufferBuilder.vertex(getX() + width, getY(), 1.0).next();
-			bufferBuilder.vertex(getX() + width, 0.0, 1.0).next();
-			bufferBuilder.vertex(getX(), 0.0, 1.0).next();
-			tessellator.draw();
-			GlStateManager.enableTexture();
-			GlStateManager.disableBlend();
-		}
-		
-		// Enable depth to mimic the behavior of clipping
-		// the top of the screen. Note that this will fail
-		// in some cases. For example the EntryListWidget
-		// UI will disable depth testing during rendering.
-		GlStateManager.enableDepthTest();
 		super.render(mouseX, mouseY, partialTicks);
-		GlStateManager.disableDepthTest();
 		
 		int scrollableHeight = getScrollableHeight();
 		if (scrollableHeight > height) {
