@@ -7,7 +7,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.access.GSIMinecraftClientAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.debug.GSDebug;
 
@@ -18,7 +17,7 @@ import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.sound.SoundManager;
 
 @Mixin(MinecraftClient.class)
-public class GSMinecraftClientMixin implements GSIMinecraftClientAccess {
+public class GSMinecraftClientMixin {
 
 	@Shadow @Final private RenderTickCounter renderTickCounter;
 	@Shadow private SoundManager soundManager;
@@ -47,10 +46,5 @@ public class GSMinecraftClientMixin implements GSIMinecraftClientAccess {
 	private void onTick(CallbackInfo ci) {
 		GSDebug.onClientTick();
 		GSControllerClient.getInstance().tick();
-	}
-
-	@Override
-	public RenderTickCounter getRenderTickCounter() {
-		return renderTickCounter;
 	}
 }
