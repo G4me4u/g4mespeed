@@ -10,10 +10,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.access.GSIMinecraftClientAccess;
-import com.g4mesoft.access.GSIRenderTickAccess;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.module.tps.GSRenderTickCounterAdjuster;
 import com.g4mesoft.packet.GSICustomPayloadHolder;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
@@ -26,7 +25,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.packet.CustomPayloadS2CPacket;
 import net.minecraft.client.network.packet.WorldTimeUpdateS2CPacket;
-import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -67,10 +65,8 @@ public class GSClientPlayNetworkHandlerMixin {
 		if (GSControllerClient.getInstance().isG4mespeedServer())
 			return;
 		
-		if (!this.client.isOnThread()) {
-			RenderTickCounter counter = ((GSIMinecraftClientAccess)this.client).getRenderTickCounter();
-			((GSIRenderTickAccess)counter).onServerTickSync(WORLD_TIME_UPDATE_INTERVAL);
-		}
+		if (!this.client.isOnThread())
+			GSRenderTickCounterAdjuster.getInstance().onServerTickSync(WORLD_TIME_UPDATE_INTERVAL);
 	}
 	
 	@Redirect(method = "onChunkData", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;hasNext()Z"))

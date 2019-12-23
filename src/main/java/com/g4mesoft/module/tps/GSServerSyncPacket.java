@@ -2,16 +2,12 @@ package com.g4mesoft.module.tps;
 
 import java.io.IOException;
 
-import com.g4mesoft.access.GSIMinecraftClientAccess;
-import com.g4mesoft.access.GSIRenderTickAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.packet.GSIPacket;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
@@ -43,8 +39,7 @@ public class GSServerSyncPacket implements GSIPacket {
 	@Override
 	@Environment(EnvType.CLIENT)
 	public void handleOnClient(GSControllerClient controller) {
-		RenderTickCounter counter = ((GSIMinecraftClientAccess)MinecraftClient.getInstance()).getRenderTickCounter();
-		((GSIRenderTickAccess)counter).onServerTickSync(packetInterval);
+		GSRenderTickCounterAdjuster.getInstance().onServerTickSync(packetInterval);
 	}
 	
 	@Override
