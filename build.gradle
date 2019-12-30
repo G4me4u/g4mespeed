@@ -1,3 +1,12 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+		classpath "net.sf.proguard:proguard-gradle:6.2.2"
+    }
+}
+
 plugins {
 	id 'fabric-loom' version '0.2.5-SNAPSHOT'
 	id 'maven-publish'
@@ -54,12 +63,30 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 	from sourceSets.main.allSource
 }
 
+def outputJarName = jar.archiveName.with { it.take(it.lastIndexOf(".")) }
+def obfuscatedFileName = "${outputJarName}-release.jar"
+
+task obfuscateJar(type: proguard.gradle.ProGuardTask) {
+	configuration "proguard.txt"
+
+	injars "./build/libs/${jar.archiveName}"
+	outjars "./build/libs/${obfuscatedFileName}"
+	
+	libraryjars "./.gradle/loom-cache/remapped_mods/net.fabricmc.yarn.${project.yarn_mappings}.net.fabricmc.fabric-loader-${project.loader_version}.jar"
+}
+
 jar {
 	from "LICENSE"
 }
 
 // configure the maven publication
 publishing {
+	// select the repositories you want to publish to
+	repositories {
+		// uncomment to publish to the local maven
+		// mavenLocal()
+	}
+		
 	publications {
 		mavenJava(MavenPublication) {
 			// add all the jars that should be included when publishing to maven
@@ -70,11 +97,5 @@ publishing {
 				builtBy remapSourcesJar
 			}
 		}
-	}
-
-	// select the repositories you want to publish to
-	repositories {
-		// uncomment to publish to the local maven
-		// mavenLocal()
 	}
 }

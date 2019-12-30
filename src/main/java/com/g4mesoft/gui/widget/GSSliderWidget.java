@@ -1,5 +1,6 @@
 package com.g4mesoft.gui.widget;
 
+import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.gui.widget.SliderWidget;
@@ -22,11 +23,13 @@ public class GSSliderWidget extends SliderWidget {
 		updateMessage();
 	}
 
+	@GSCoreOverride
 	@Override
 	protected void updateMessage() {
 		setMessage(formatter.formatValue(value));
 	}
 
+	@GSCoreOverride
 	@Override
 	protected void applyValue() {
 		if (listener != null)
@@ -39,6 +42,7 @@ public class GSSliderWidget extends SliderWidget {
 		updateMessage();
 	}
 	
+	@GSCoreOverride
 	@Override
 	public boolean isHovered() {
 		// An oversight when the developers made the sliders

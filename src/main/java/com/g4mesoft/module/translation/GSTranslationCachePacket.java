@@ -59,8 +59,6 @@ public class GSTranslationCachePacket implements GSIPacket {
 	@Override
 	@Environment(EnvType.CLIENT)
 	public void handleOnClient(GSControllerClient controller) {
-		System.out.println("VERSION===!=!=!=!=!=!===== ->" + cache.getCacheVersion());
-		
 		controller.getTranslationModule().addTranslationCache(cache);
 	}
 	

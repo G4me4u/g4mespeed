@@ -3,6 +3,7 @@ package com.g4mesoft.gui.setting;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.gui.GSParentGUI;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
@@ -72,6 +73,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 			drawableChildren.add((Drawable)element);
 	}
 	
+	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();

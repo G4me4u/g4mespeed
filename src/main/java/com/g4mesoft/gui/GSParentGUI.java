@@ -3,6 +3,7 @@ package com.g4mesoft.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -34,6 +35,7 @@ public abstract class GSParentGUI extends Screen {
 		this.y = y;
 	}
 	
+	@GSCoreOverride
 	@Override
 	public final void init(MinecraftClient client, int width, int height) {
 		initBounds(client, 0, 0, width, height);
@@ -46,6 +48,7 @@ public abstract class GSParentGUI extends Screen {
 		this.y = y;
 	}
 
+	@GSCoreOverride
 	@Override
 	public final void setSize(int width, int height) {
 		setBounds(x, y, width, height);
@@ -59,6 +62,7 @@ public abstract class GSParentGUI extends Screen {
 		return y;
 	}
 	
+	@GSCoreOverride
 	@Override
 	public void render(int mouseX, int mouseY, float partialTicks) {
 		int tx = getTranslationX();
@@ -89,6 +93,7 @@ public abstract class GSParentGUI extends Screen {
 		return mouseY - getTranslationY();
 	}
 	
+	@GSCoreOverride
 	@Override
 	public final boolean mouseClicked(double mouseX, double mouseY, int button) {
 		return selected && mouseClickedTranslated(translateMouseX(mouseX), translateMouseY(mouseY), button);
@@ -98,6 +103,7 @@ public abstract class GSParentGUI extends Screen {
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 
+	@GSCoreOverride
 	@Override
 	public final boolean mouseReleased(double mouseX, double mouseY, int button) {
 		return selected && mouseReleasedTranslated(translateMouseX(mouseX), translateMouseY(mouseY), button);
@@ -107,6 +113,7 @@ public abstract class GSParentGUI extends Screen {
 		return super.mouseReleased(mouseX, mouseY, button);
 	}
 	
+	@GSCoreOverride
 	@Override
 	public final boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
 		return selected && mouseDraggedTranslated(translateMouseX(mouseX), translateMouseY(mouseY), button, dragX, dragY);
@@ -116,21 +123,25 @@ public abstract class GSParentGUI extends Screen {
 		return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
 	}
 
+	@GSCoreOverride
 	@Override
 	public boolean keyPressed(int key, int scancode, int mods) {
 		return selected && super.keyPressed(key, scancode, mods);
 	}
 
+	@GSCoreOverride
 	@Override
 	public boolean keyReleased(int key, int scancode, int mods) {
 		return selected && super.keyReleased(key, scancode, mods);
 	}
 
+	@GSCoreOverride
 	@Override
 	public boolean charTyped(char c, int mods) {
 		return selected && super.charTyped(c, mods);
 	}
 
+	@GSCoreOverride
 	@Override
 	public final boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
 		if (!selected)
@@ -142,6 +153,7 @@ public abstract class GSParentGUI extends Screen {
 		return super.mouseScrolled(mouseX, mouseY, scroll);
 	}
 	
+	@GSCoreOverride
 	@Override
 	public boolean isMouseOver(double mouseX, double mouseY) {
 		if (!selected)

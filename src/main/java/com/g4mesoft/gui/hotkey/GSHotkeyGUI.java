@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.g4mesoft.gui.GSTabContentGUI;
+import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.hotkey.GSIKeyRegisterListener;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
@@ -57,6 +58,7 @@ public class GSHotkeyGUI extends GSTabContentGUI implements GSIKeyRegisterListen
 		contentHeight = y;
 	}
 	
+	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();

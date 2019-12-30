@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
-
 import com.g4mesoft.gui.GSTabContentGUI;
+import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSISettingChangeListener;
 import com.g4mesoft.setting.GSSetting;
@@ -125,6 +125,7 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 		contentHeight = y;
 	}
 	
+	@GSCoreOverride
 	@Override
 	public void tick() {
 		super.tick();
@@ -212,12 +213,14 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 		}
 	}
 
+	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();
 		layoutChanged = true;
 	}
 	
+	@GSCoreOverride
 	@Override
 	public void setBounds(int x, int y, int width, int height) {
 		super.setBounds(x, y, width, height);
