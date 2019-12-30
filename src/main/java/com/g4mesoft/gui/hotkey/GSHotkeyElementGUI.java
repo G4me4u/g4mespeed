@@ -1,5 +1,6 @@
 package com.g4mesoft.gui.hotkey;
 
+import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.gui.GSParentGUI;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.module.translation.GSTranslationModule;
@@ -44,6 +45,7 @@ public class GSHotkeyElementGUI extends GSParentGUI {
 		this.keyName = "hotkey." + keyBinding.getCategory() + "." + keyBinding.getName();
 	}
 
+	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();
@@ -131,6 +133,7 @@ public class GSHotkeyElementGUI extends GSParentGUI {
 		}
 	}
 	
+	@GSCoreOverride
 	@Override
 	public boolean keyPressed(int key, int scancode, int mods) {
 		if (modifyingKeyCode && !resetButton.isFocused()) {

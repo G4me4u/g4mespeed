@@ -1,5 +1,6 @@
 package com.g4mesoft.gui.widget;
 
+import com.g4mesoft.core.GSCoreOverride;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
 import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
@@ -25,6 +26,7 @@ public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
 		this.listener = listener;
 	}
 	
+	@GSCoreOverride
 	@Override
 	public void onPress() {
 		value = !value;
@@ -40,6 +42,7 @@ public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
 		return this.value;
 	}
 
+	@GSCoreOverride
 	@Override
 	public void renderButton(int mouseX, int mouseY, float partialTicks) {
 		MinecraftClient.getInstance().getTextureManager().bindTexture(TEXTURE);

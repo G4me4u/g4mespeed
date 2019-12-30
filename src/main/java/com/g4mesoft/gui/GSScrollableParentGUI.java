@@ -4,6 +4,7 @@ import java.awt.Rectangle;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.util.GSMathUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
@@ -40,6 +41,7 @@ public abstract class GSScrollableParentGUI extends GSParentGUI {
 		this.scrollOffset = GSMathUtils.clamp(scroll, 0.0, maxScrollOffset);
 	}
 	
+	@GSCoreOverride
 	@Override
 	public void render(int mouseX, int mouseY, float partialTicks) {
 		if (getX() > 0) {
@@ -96,6 +98,7 @@ public abstract class GSScrollableParentGUI extends GSParentGUI {
 		return rect;
 	}
 	
+	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();

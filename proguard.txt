@@ -1,0 +1,57 @@
+# Keep filenames and line numbers
+-keepattributes SourceFile, LineNumberTable, *Annotation*
+
+# Include java runtime classes
+-libraryjars  <java.home>/lib/rt.jar
+
+# Output a source map file
+-printmapping proguard.map
+
+# Libraries and external jars
+-dontwarn net.fabricmc.**
+-dontwarn org.spongepowered.**
+
+-dontwarn net.minecraft.**
+
+-dontwarn io.netty.**
+-dontwarn org.apache.**
+-dontwarn com.mojang.**
+-dontwarn com.google.**
+
+# Keep entry class
+-keep public class com.g4mesoft.G4mespeedMod { *; }
+
+-keepnames class com.g4mesoft.mixin.**
+
+-keepclassmembernames @org.spongepowered.asm.mixin.Mixin public class * {
+    @org.spongepowered.asm.mixin.Overwrite *;
+    @org.spongepowered.asm.mixin.Shadow *;
+}
+
+-keep class com.g4mesoft.core.GSCoreOverride
+
+-keepclassmembernames class * {
+	@com.g4mesoft.core.GSCoreOverride *;
+}
+
+-keepclassmembernames class com.g4mesoft.mixin.** {
+	private <fields>;
+}
+
+-keep, allowobfuscation class * { *; }
+
+# Allow certain changes to source code.
+-optimizationpasses 3
+-overloadaggressively
+-repackageclasses 'classes'
+-allowaccessmodification
+
+-dontshrink
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+# Lazy method...
+-ignorewarnings

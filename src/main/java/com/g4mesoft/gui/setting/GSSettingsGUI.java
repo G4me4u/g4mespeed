@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.gui.GSScrollableParentGUI;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSISettingChangeListener;
@@ -125,6 +126,7 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 		scrollableHeight = y;
 	}
 	
+	@GSCoreOverride
 	@Override
 	public void tick() {
 		super.tick();
@@ -213,12 +215,14 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 		}
 	}
 
+	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();
 		layoutChanged = true;
 	}
 	
+	@GSCoreOverride
 	@Override
 	public void setBounds(int x, int y, int width, int height) {
 		super.setBounds(x, y, width, height);

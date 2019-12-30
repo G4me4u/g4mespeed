@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.g4mesoft.core.GSCoreOverride;
+
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Element;
@@ -147,6 +149,7 @@ public class GSTabbedGUI extends GSParentGUI {
 			selectedTab.getTabContent().render(mouseX, mouseY, partialTicks);
 	}
 
+	@GSCoreOverride
 	@Override
 	public void tick() {
 		super.tick();
@@ -215,6 +218,7 @@ public class GSTabbedGUI extends GSParentGUI {
 		return super.mouseClickedTranslated(mouseX, mouseY, button);
 	}
 
+	@GSCoreOverride
 	@Override
 	public void setFocused(Element element) {
 		super.setFocused(element);
@@ -229,18 +233,21 @@ public class GSTabbedGUI extends GSParentGUI {
 		}
 	}
 
+	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();
 		tabsChanged = true;
 	}
 
+	@GSCoreOverride
 	@Override
 	public void setBounds(int x, int y, int width, int height) {
 		super.setBounds(x, y, width, height);
 		tabsChanged = true;
 	}
 
+	@GSCoreOverride
 	@Override
 	public boolean isPauseScreen() {
 		return true;

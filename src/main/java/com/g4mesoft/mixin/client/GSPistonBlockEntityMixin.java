@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSISmoothPistonBlockEntityAccess;
+import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.util.GSMathUtils;
@@ -94,6 +95,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		actualProgress = this.progress;
 	}
 	
+	@GSCoreOverride
 	@Override
 	@Environment(EnvType.CLIENT)
 	public double getSquaredRenderDistance() {

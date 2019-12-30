@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.gui.GSScrollableParentGUI;
 import com.g4mesoft.hotkey.GSIKeyRegisterListener;
 import com.g4mesoft.hotkey.GSKeyBinding;
@@ -57,6 +58,7 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 		scrollableHeight = y;
 	}
 	
+	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();
