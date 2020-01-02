@@ -1,7 +1,9 @@
 package com.g4mesoft.module.tps;
 
+import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.GSIRenderTickCounterAccess;
 import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.render.RenderTickCounter;
@@ -9,7 +11,7 @@ import net.minecraft.util.Util;
 
 public final class GSRenderTickCounterAdjuster implements GSITpsDependant {
 	
-	private static final float DEFAULT_MS_PER_TICK = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
+	public static final float DEFAULT_MS_PER_TICK = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
 	
 	private static final float EXTRA_SERVER_SYNC_DELAY = 5.0f;
 	private static final float MIN_SERVER_SYNC_DELAY = 10.0f;
@@ -106,9 +108,12 @@ public final class GSRenderTickCounterAdjuster implements GSITpsDependant {
 	}
 
 	private boolean shouldAdjustTickDelta() {
-		if (GSControllerClient.getInstance().isG4mespeedServer())
-			return true;
+		GSControllerClient client = GSControllerClient.getInstance();
+		GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
 		
+		if ((!carpetCompat.isTickrateLinked() || tpsModule.cForceCarpetTickrate.getValue()) && client.isG4mespeedServer())
+			return true;
+
 		if (!serverSyncReceived)
 			return false;
 		

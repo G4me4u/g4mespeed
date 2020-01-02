@@ -80,3 +80,8 @@ hotkey.tps.halve=Halve tps
 
 gui.hotkey.button.reset=Reset
 gui.hotkey.button.cancel=Cancel
+
+# Translation version 2
+:2
+setting.tps.forceCarpetTickrate=Force Carpet tickrate
+setting.tps.forceCarpetTickrate.desc=Forces the client to use the tickrate set by G4mespeed and the Carpet mod. This overrides functionality related to smoothClientAnimations in Carpet. If you wish to use Carpet's handling for tickrate on the client, disable this setting.
