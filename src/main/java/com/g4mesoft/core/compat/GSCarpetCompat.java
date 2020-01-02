@@ -13,12 +13,12 @@ import com.g4mesoft.util.GSMathUtils;
 public final class GSCarpetCompat {
 
 	private static final String TICKSPEED_CLASSPATH = "carpet.helpers.TickSpeed";
-	private static final String ESTABLISH_LINK_METHOD_NAME = "establishTickrateLink";
+	private static final String ADD_TICKRATE_LISTENER_METHOD_NAME = "addTickrateListener";
 	private static final String TICKRATE_METHOD_NAME = "tickrate";
 	private static final String MSPT_FIELD_NAME = "mspt";
 	
 	private boolean carpetDetected;
-	private Method establishTickrateLink;
+	private Method carpetAddTickrateListener;
 	
 	private BiConsumer<String, Float> carpetTickrateListener;
 	
@@ -34,7 +34,7 @@ public final class GSCarpetCompat {
 	
 	private void reset() {
 		carpetDetected = false;
-		establishTickrateLink = null;
+		carpetAddTickrateListener = null;
 		carpetTickrateListener = null;
 		
 		msptField = null;
@@ -59,12 +59,12 @@ public final class GSCarpetCompat {
 			G4mespeedMod.GS_LOGGER.info("Carpet mod detected!");
 			
 			try {
-				establishTickrateLink = tickspeedClazz.getDeclaredMethod(ESTABLISH_LINK_METHOD_NAME, String.class, BiConsumer.class);
+				carpetAddTickrateListener = tickspeedClazz.getDeclaredMethod(ADD_TICKRATE_LISTENER_METHOD_NAME, String.class, BiConsumer.class);
 			} catch (Exception e) {
 				// Carpet version is not up to date..!
 			}
 
-			if (establishTickrateLink != null)
+			if (carpetAddTickrateListener != null)
 				carpetTickrateListener = establishTickrateLink(this::carpetTickrateChanged);
 		
 			if (carpetTickrateListener == null) {
@@ -115,9 +115,9 @@ public final class GSCarpetCompat {
 	
 	@SuppressWarnings("unchecked")
 	private BiConsumer<String, Float> establishTickrateLink(BiConsumer<String, Float> tickrateListener) {
-		if (carpetDetected && establishTickrateLink != null) {
+		if (carpetDetected && carpetAddTickrateListener != null) {
 			try {
-				return (BiConsumer<String, Float>)establishTickrateLink.invoke(null, G4mespeedMod.MOD_NAME, tickrateListener);
+				return (BiConsumer<String, Float>)carpetAddTickrateListener.invoke(null, G4mespeedMod.MOD_NAME, tickrateListener);
 			} catch (Exception e) {
 				// Handle silently
 			}
