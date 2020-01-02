@@ -5,9 +5,12 @@ import java.util.List;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.GSVersion;
+import com.g4mesoft.core.compat.GSCarpetCompat;
+import com.g4mesoft.core.compat.GSICarpetCompatTickrateListener;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.hotkey.GSEKeyEventType;
 import com.g4mesoft.hotkey.GSKeyManager;
@@ -28,7 +31,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class GSTpsModule implements GSIModule, GSISettingChangeListener {
+public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarpetCompatTickrateListener {
 
 	public static final float DEFAULT_TPS = 20.0f;
 	public static final float MIN_TPS = 0.01f;
@@ -61,6 +64,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 	public final GSBooleanSetting cShiftPitch;
 	public final GSBooleanSetting cSyncTick;
 	public final GSFloatSetting cSyncTickAggression;
+	public final GSBooleanSetting cForceCarpetTickrate;
 	public final GSIntegerSetting sSyncPacketInterval;
 
 	public final GSBooleanSetting cCullMovingBlocks;
@@ -79,6 +83,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 		cShiftPitch = new GSBooleanSetting("shiftPitch", true);
 		cSyncTick = new GSBooleanSetting("syncTick", true);
 		cSyncTickAggression = new GSFloatSetting("syncTickAggression", 0.05f, 0.0f, 1.0f, 0.05f);
+		cForceCarpetTickrate = new GSBooleanSetting("forceCarpetTickrate", true);
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
 
 		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
@@ -90,6 +95,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 	@Override
 	public void init(GSIModuleManager manager) {
 		this.manager = manager;
+		
+		G4mespeedMod.getInstance().getCarpetCompat().addCarpetTickrateListener(this);
 	}
 
 	@Override
@@ -97,6 +104,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 		resetTps();
 		
 		clearTpsListeners();
+		
+		G4mespeedMod.getInstance().getCarpetCompat().removeCarpetTickrateListener(this);
 
 		manager = null;
 	}
@@ -107,6 +116,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 		settings.registerSetting(TPS_CATEGORY, cSyncTick);
 		settings.registerSetting(TPS_CATEGORY, cSyncTickAggression);
 		cSyncTickAggression.setEnabledInGui(cSyncTick.getValue());
+		
+		if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
+			settings.registerSetting(TPS_CATEGORY, cForceCarpetTickrate);
 		
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cCullMovingBlocks);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonAnimationType);
@@ -155,6 +167,15 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 				serverSyncTimer = 0;
 			}
 		});
+		
+		GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
+		if (carpetCompat.isCarpetDetected() && carpetCompat.isOutdatedCompatMode()) {
+			// With older versions of carpet we have to poll the current tps
+			// manually since we don't receive an event directly when it changes.
+			float carpetTickrate = carpetCompat.getCarpetTickrate();
+			if (!GSMathUtils.equalsApproximate(carpetTickrate, tps))
+				setTps(carpetTickrate);
+		}
 	}
 	
 	private void onHotkey(GSETpsHotkeyType hotkeyType) {
@@ -296,6 +317,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 				// time to react to the previous packet).
 				serverSyncTimer = sSyncPacketInterval.getValue();
 			});
+
+			GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
+			if (carpetCompat.isCarpetDetected() && carpetCompat.isTickrateLinked())
+				carpetCompat.notifyTickrateChange(tps);
 		}
 	}
 	
@@ -307,6 +332,11 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
 		if (setting == cSyncTick)
 			cSyncTickAggression.setEnabledInGui(cSyncTick.getValue());
+	}
+
+	@Override
+	public void onCarpetTickrateChanged(float tickrate) {
+		setTps(tickrate);
 	}
 	
 	public float getMsPerTick() {

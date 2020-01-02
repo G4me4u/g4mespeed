@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.core.server.GSControllerServer;
@@ -56,11 +56,6 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		this.timeReference = this.field_19248 = SystemUtil.getMeasuringTimeMs() + (long)msPerTick;
 	}
 	
-	@Redirect(method = "run", at = @At(value = "FIELD", target = "Lnet/minecraft/server/MinecraftServer;running:Z"))
-	private boolean disableServerLoop(MinecraftServer server) {
-		return false;
-	}
-
 	@Inject(method = "run", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
 			target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V"))
 	private void onInitialized(CallbackInfo ci) {
@@ -71,17 +66,21 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		controllerServer.init((MinecraftServer)(Object)this);
 		controllerServer.getTpsModule().addTpsListener(this);
 	}
-	
-	@Inject(method = "run", at = @At(value = "INVOKE", shift = At.Shift.AFTER, 
-			target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V"))
-	private void modifiedRunLoop(CallbackInfo ci) {
+
+	/*
+	 * Ensure that we set require = 0. Some mods might change the overall structure of the mod. For 
+	 * example carpet modifies the loop and changes this.running to just be false.
+	 */
+	@Inject(method = "run", require = 0, allow = 1, at = @At(value = "FIELD", shift = Shift.BEFORE,
+			target = "Lnet/minecraft/server/MinecraftServer;running:Z"))
+	private void onModifiedRunLoop(CallbackInfo ci) {
 		while (this.running) {
-			long msThisTick = (long) msAccum;
+			long msThisTick = (long)msAccum;
 			msAccum += msPerTick - msThisTick;
 
 			long msBehind = SystemUtil.getMeasuringTimeMs() - this.timeReference;
 			if (msBehind > 1000L + 20L * msPerTick && this.timeReference - this.field_4557 >= 10000L + 100L * msPerTick) {
-				long ticksBehind = (long) (msBehind / msPerTick);
+				long ticksBehind = (long)(msBehind / msPerTick);
 				LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", msBehind,
 						ticksBehind);
 				this.timeReference += ticksBehind * msPerTick;
