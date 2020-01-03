@@ -9,11 +9,10 @@
     "G4me4u"
   ],
   "contact": {
-    "homepage": "https://youtube.com/user/G4me4u",
-    "sources": "https://github.com/G4me4u/mc-g4mespeed"
+    "homepage": "https://youtube.com/user/G4me4u"
   },
 
-  "license": "CC0-1.0",
+  "license": "CC-BY-ND-4.0",
   "icon": "assets/g4mespeed/icon.png",
 
   "environment": "*",
@@ -27,5 +26,6 @@
   ],
 
   "depends": {
+  	"minecraft": "1.15.x"
   }
 }
