@@ -227,6 +227,20 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 
 	@GSCoreOverride
 	@Override
+	public boolean keyPressed(int key, int scancode, int mods) {
+		if (super.keyPressed(key, scancode, mods))
+			return true;
+		
+		if (isSelected() && key == GLFW.GLFW_KEY_ESCAPE) {
+			this.onClose();
+			return true;
+		}
+		
+		return false;
+	}
+
+	@GSCoreOverride
+	@Override
 	public void setFocused(Element element) {
 		super.setFocused(element);
 
