@@ -1,5 +1,7 @@
 package com.g4mesoft.gui.hotkey;
 
+import org.lwjgl.glfw.GLFW;
+
 import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.gui.GSParentGUI;
 import com.g4mesoft.hotkey.GSKeyBinding;
@@ -137,7 +139,12 @@ public class GSHotkeyElementGUI extends GSParentGUI {
 	@Override
 	public boolean keyPressed(int key, int scancode, int mods) {
 		if (modifyingKeyCode && !resetButton.isFocused()) {
-			setKeyCode(InputUtil.getKeyCode(key, scancode));
+			if (key == GLFW.GLFW_KEY_ESCAPE) {
+				setKeyCode(InputUtil.UNKNOWN_KEYCODE);
+			} else {
+				setKeyCode(InputUtil.getKeyCode(key, scancode));
+			}
+			
 			setModifying(false);
 			return true;
 		}

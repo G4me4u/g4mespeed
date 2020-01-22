@@ -66,6 +66,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSFloatSetting cSyncTickAggression;
 	public final GSBooleanSetting cForceCarpetTickrate;
 	public final GSIntegerSetting sSyncPacketInterval;
+	public final GSBooleanSetting cDisableHotkeyControls;
 
 	public final GSBooleanSetting cCullMovingBlocks;
 	public final GSIntegerSetting cPistonAnimationType;
@@ -85,6 +86,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cSyncTickAggression = new GSFloatSetting("syncTickAggression", 0.05f, 0.0f, 1.0f, 0.05f);
 		cForceCarpetTickrate = new GSBooleanSetting("forceCarpetTickrate", true);
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
+		cDisableHotkeyControls = new GSBooleanSetting("disableHotkeys", false);
 
 		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
@@ -116,6 +118,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		settings.registerSetting(TPS_CATEGORY, cSyncTick);
 		settings.registerSetting(TPS_CATEGORY, cSyncTickAggression);
 		cSyncTickAggression.setEnabledInGui(cSyncTick.getValue());
+		settings.registerSetting(TPS_CATEGORY, cDisableHotkeyControls);
 		
 		if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
 			settings.registerSetting(TPS_CATEGORY, cForceCarpetTickrate);
@@ -179,21 +182,23 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	private void onHotkey(GSETpsHotkeyType hotkeyType) {
-		manager.runOnClient(managerClient -> {
-			MinecraftClient client = MinecraftClient.getInstance();
-			boolean sneaking = client.options.keySneak.isPressed();
-
-			if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_INTRODUCTION_VERSION)) {
-				managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
-			} else {
-				performHotkeyAction(hotkeyType, sneaking);
-				
-				if (client.inGameHud != null) {
-					Text msg = new TranslatableText("command.tps.clientOnly", tps);
-					client.inGameHud.addChatMessage(MessageType.GAME_INFO, msg);
+		if (!cDisableHotkeyControls.getValue()) {
+			manager.runOnClient(managerClient -> {
+				MinecraftClient client = MinecraftClient.getInstance();
+				boolean sneaking = client.options.keySneak.isPressed();
+	
+				if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_INTRODUCTION_VERSION)) {
+					managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
+				} else {
+					performHotkeyAction(hotkeyType, sneaking);
+					
+					if (client.inGameHud != null) {
+						Text msg = new TranslatableText("command.tps.clientOnly", tps);
+						client.inGameHud.addChatMessage(MessageType.GAME_INFO, msg);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 	
 	public void performHotkeyAction(GSETpsHotkeyType type, boolean sneaking) {

@@ -253,6 +253,13 @@ public abstract class GSParentGUI extends Screen {
 		return result;
 	}
 	
+	@GSCoreOverride
+	@Override
+	public boolean shouldCloseOnEsc() {
+		// Do this manually.
+		return false;
+	}
+	
 	public int getX() {
 		return x;
 	}
