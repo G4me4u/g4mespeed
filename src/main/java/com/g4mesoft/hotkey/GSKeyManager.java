@@ -106,47 +106,79 @@ public class GSKeyManager {
 	}
 	
 	public <T> void registerKey(String name, String category, int keyCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType) {
-		registerKey(name, category, InputUtil.Type.KEYSYM, keyCode, listenerData, listener, eventType);
+		registerKey(name, category, keyCode, listenerData, listener, eventType, true);
+	}
+
+	public <T> void registerKey(String name, String category, int keyCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType, boolean allowDisabled) {
+		registerKey(name, category, InputUtil.Type.KEYSYM, keyCode, listenerData, listener, eventType, allowDisabled);
 	}
 
 	public <T> void registerKey(String name, String category, InputUtil.Type keyType, int keyCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType) {
+		registerKey(name, category, keyType, keyCode, listenerData, listener, eventType, true);
+	}
+
+	public <T> void registerKey(String name, String category, InputUtil.Type keyType, int keyCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType, boolean allowDisabled) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener is null");
 		
 		registerKey(name, category, keyType, keyCode, (key, type) -> {
 			if (type == eventType)
 				listener.accept(listenerData);
-		});
+		}, allowDisabled);
+	}
+
+	public <T> void registerKey(String name, String category, int keyCode, T listenerData, BiConsumer<T, GSEKeyEventType> listener) {
+		registerKey(name, category, keyCode, listenerData, listener, true);
 	}
 	
-	public <T> void registerKey(String name, String category, int keyCode, T listenerData, BiConsumer<T, GSEKeyEventType> listener) {
-		registerKey(name, category, InputUtil.Type.KEYSYM, keyCode, listenerData, listener);
+	public <T> void registerKey(String name, String category, int keyCode, T listenerData, BiConsumer<T, GSEKeyEventType> listener, boolean allowDisabled) {
+		registerKey(name, category, InputUtil.Type.KEYSYM, keyCode, listenerData, listener, allowDisabled);
 	}
 
 	public <T> void registerKey(String name, String category, InputUtil.Type keyType, int keyCode, T listenerData, BiConsumer<T, GSEKeyEventType> listener) {
+		registerKey(name, category, keyType, keyCode, listenerData, listener, true);
+	}
+
+	public <T> void registerKey(String name, String category, InputUtil.Type keyType, int keyCode, T listenerData, BiConsumer<T, GSEKeyEventType> listener, boolean allowDisabled) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener is null");
 
-		registerKey(name, category, keyType, keyCode, (key, type) -> listener.accept(listenerData, type));
+		registerKey(name, category, keyType, keyCode, (key, type) -> listener.accept(listenerData, type), allowDisabled);
 	}
 
 	public void registerKey(String name, String category, int keyCode) {
-		registerKey(name, category, InputUtil.Type.KEYSYM, keyCode);
+		registerKey(name, category, keyCode, true);
+	}
+
+	public void registerKey(String name, String category, int keyCode, boolean allowDisabled) {
+		registerKey(name, category, InputUtil.Type.KEYSYM, keyCode, allowDisabled);
 	}
 
 	public void registerKey(String name, String category, InputUtil.Type keyType, int keyCode) {
-		registerKey(name, category, keyType, keyCode, null);
+		registerKey(name, category, keyType, keyCode, true);
+	}
+
+	public void registerKey(String name, String category, InputUtil.Type keyType, int keyCode, boolean allowDisabled) {
+		registerKey(name, category, keyType, keyCode, null, allowDisabled);
 	}
 
 	public void registerKey(String name, String category, int keyCode, GSIKeyListener listener) {
-		registerKey(name, category, InputUtil.Type.KEYSYM, keyCode, listener);
+		registerKey(name, category, keyCode, listener, true);
+	}
+
+	public void registerKey(String name, String category, int keyCode, GSIKeyListener listener, boolean allowDisabled) {
+		registerKey(name, category, InputUtil.Type.KEYSYM, keyCode, listener, allowDisabled);
 	}
 
 	public void registerKey(String name, String category, InputUtil.Type keyType, int keyCode, GSIKeyListener listener) {
+		registerKey(name, category, keyType, keyCode, listener, true);
+	}
+
+	public void registerKey(String name, String category, InputUtil.Type keyType, int keyCode, GSIKeyListener listener, boolean allowDisabled) {
 		if (name.contains(":") || category.contains(":"))
 			throw new IllegalArgumentException("Invalid name or category! It must not contains ':'!");
 		
-		GSKeyBinding keyBinding = new GSKeyBinding(this, name, category, keyType, keyCode);
+		GSKeyBinding keyBinding = new GSKeyBinding(this, name, category, keyType, keyCode, allowDisabled);
 		keyBinding.setKeyListener(listener);
 		addKeyBinding(keyBinding);
 		

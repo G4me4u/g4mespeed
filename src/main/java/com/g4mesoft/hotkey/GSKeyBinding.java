@@ -11,6 +11,7 @@ public class GSKeyBinding {
 	private final String name;
 	private final String category;
 	private final KeyCode defaultKeyCode;
+	private final boolean allowDisabled;
 	
 	private KeyCode keyCode;
 
@@ -22,11 +23,12 @@ public class GSKeyBinding {
 
 	private GSIKeyListener listener;
 	
-	public GSKeyBinding(GSKeyManager manager, String name, String category, InputUtil.Type keyType, int keyCode) {
+	public GSKeyBinding(GSKeyManager manager, String name, String category, InputUtil.Type keyType, int keyCode, boolean allowDisabled) {
 		this.manager = manager;
 		this.name = name;
 		this.category = category;
 		this.defaultKeyCode = keyType.createFromCode(keyCode);
+		this.allowDisabled = allowDisabled;
 	
 		this.keyCode = defaultKeyCode;
 	
@@ -138,6 +140,9 @@ public class GSKeyBinding {
 	}
 
 	public void setKeyCode(KeyCode keyCode) {
+		if (!allowDisabled && keyCode == InputUtil.UNKNOWN_KEYCODE)
+			keyCode = defaultKeyCode;
+		
 		KeyCode oldKeyCode = this.keyCode;
 		this.keyCode = keyCode;
 		reset();

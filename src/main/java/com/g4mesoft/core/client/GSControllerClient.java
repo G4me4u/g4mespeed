@@ -84,7 +84,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		
 		keyManager.loadKeys(getHotkeySettingsFile());
 		keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, 
-				tabbedGUI, minecraft::openScreen, GSEKeyEventType.PRESS);
+				tabbedGUI, minecraft::openScreen, GSEKeyEventType.PRESS, false);
 		
 		onStart();
 	}
