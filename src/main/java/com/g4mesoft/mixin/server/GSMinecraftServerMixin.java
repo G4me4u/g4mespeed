@@ -17,8 +17,9 @@ import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.TickDurationMonitor;
 import net.minecraft.util.Util;
-import net.minecraft.util.profiler.DisableableProfiler;
+import net.minecraft.util.profiler.Profiler;
 
 @Mixin(MinecraftServer.class)
 public abstract class GSMinecraftServerMixin implements GSITpsDependant {
@@ -32,7 +33,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	@Shadow private long timeReference;
 	@Shadow private long field_4557;
 	@Shadow private boolean profilerStartQueued;
-	@Shadow @Final private DisableableProfiler profiler;
+	@Shadow private Profiler profiler;
 	@Shadow private volatile boolean loading;
 	@Shadow private boolean field_19249;
 	@Shadow private long field_19248;
@@ -42,6 +43,10 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	@Shadow protected abstract boolean shouldKeepTicking();
 
 	@Shadow protected abstract void method_16208();
+
+	@Shadow protected abstract void startMonitor(TickDurationMonitor tickDurationMonitor);
+	
+	@Shadow protected abstract void endMonitor(TickDurationMonitor tickDurationMonitor);
 
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {
@@ -81,8 +86,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			long msBehind = Util.getMeasuringTimeMs() - this.timeReference;
 			if (msBehind > 1000L + 20L * msPerTick && this.timeReference - this.field_4557 >= 10000L + 100L * msPerTick) {
 				long ticksBehind = (long)(msBehind / msPerTick);
-				LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", msBehind,
-						ticksBehind);
+				LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", msBehind, ticksBehind);
 				this.timeReference += ticksBehind * msPerTick;
 				this.field_4557 = this.timeReference;
 
@@ -90,11 +94,10 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			}
 
 			this.timeReference += msThisTick;
-			if (this.profilerStartQueued) {
-				this.profilerStartQueued = false;
-				this.profiler.getController().enable();
-			}
-
+			
+			TickDurationMonitor tickDurationMonitor_1 = TickDurationMonitor.create("Server");
+			this.startMonitor(tickDurationMonitor_1);
+			
 			this.profiler.startTick();
 			this.profiler.push("tick");
 			this.tick(this::shouldKeepTicking);
@@ -109,6 +112,8 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			this.method_16208();
 			this.profiler.pop();
 			this.profiler.endTick();
+			
+			this.endMonitor(tickDurationMonitor_1);
 			this.loading = true;
 		}
 	}

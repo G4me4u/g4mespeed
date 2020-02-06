@@ -143,15 +143,16 @@ public final class GSRenderTickCounterAdjuster implements GSITpsDependant {
 		
 		counter.tickDelta += targetOffset * tpsModule.cSyncTickAggression.getValue();
 		
+		int ticksThisFrame = ((GSIRenderTickCounterAccess)counter).getTicksThisFrame();
 		if (counter.tickDelta < 0.0f) {
-			if (counter.ticksThisFrame > 0) {
-				counter.ticksThisFrame--;
+			if (ticksThisFrame > 0) {
+				((GSIRenderTickCounterAccess)counter).setTicksThisFrame(ticksThisFrame - 1);
 				counter.tickDelta++;
 			} else {
 				counter.tickDelta = 0.0f;
 			}
 		} else if (counter.tickDelta >= 1.0f) {
-			counter.ticksThisFrame++;
+			((GSIRenderTickCounterAccess)counter).setTicksThisFrame(ticksThisFrame + 1);
 			counter.tickDelta--;
 		}
 	}
