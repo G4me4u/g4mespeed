@@ -7,6 +7,8 @@ import java.util.List;
 import org.lwjgl.glfw.GLFW;
 
 import com.g4mesoft.core.GSCoreOverride;
+import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.hotkey.GSKeyBinding;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -224,12 +226,20 @@ public class GSTabbedGUI extends GSParentGUI {
 		if (super.keyPressed(key, scancode, mods))
 			return true;
 		
-		if (isSelected() && key == GLFW.GLFW_KEY_ESCAPE) {
+		if (isSelected() && canKeyCloseGUI(key)) {
 			this.onClose();
 			return true;
 		}
 		
 		return false;
+	}
+	
+	private boolean canKeyCloseGUI(int key) {
+		if (key == GLFW.GLFW_KEY_ESCAPE)
+			return true;
+		
+		GSKeyBinding openGUIKey = GSControllerClient.getInstance().getOpenGUIKey();
+		return (openGUIKey != null && key == openGUIKey.getGLFWKeyCode());
 	}
 
 	@GSCoreOverride
