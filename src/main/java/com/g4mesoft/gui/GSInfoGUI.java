@@ -29,32 +29,32 @@ public class GSInfoGUI extends GSTabContentGUI {
 	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
 		super.renderTranslated(mouseX, mouseY, partialTicks);
 	
-		int lineHeight = font.fontHeight + 2;
+		int lineHeight = textRenderer.fontHeight + 2;
 		
 		int xc = width / 2;
 		int y = height / 2 - lineHeight * 5 / 2 - 10;
 		
 		GSTranslationModule translationModule = getTranslationModule();
 		
-		drawCenteredString(font, translationModule.getTranslation(SERVER_VERSION_TITLE_MSG), xc, y, TEXT_COLOR);
+		drawCenteredString(textRenderer, translationModule.getTranslation(SERVER_VERSION_TITLE_MSG), xc, y, TEXT_COLOR);
 		y += lineHeight;
 		if (controllerClient.isG4mespeedServer()) {
 			GSVersion serverVersion = controllerClient.getServerVersion();
 			int versionColor = VERSION_COLOR;
 			if (serverVersion.isLessThan(controllerClient.getVersion()))
 				versionColor = LESS_THAN_VERSION_COLOR;
-			drawCenteredString(font, serverVersion.toString(), xc, y, versionColor);
+			drawCenteredString(textRenderer, serverVersion.toString(), xc, y, versionColor);
 		} else {
-			drawCenteredString(font, translationModule.getTranslation(INVALID_SERVER_MSG), xc, y, INVALID_VERSION_COLOR);
+			drawCenteredString(textRenderer, translationModule.getTranslation(INVALID_SERVER_MSG), xc, y, INVALID_VERSION_COLOR);
 		}
 		y += lineHeight * 2;
-		drawCenteredString(font, translationModule.getTranslation(CLIENT_VERSION_TITLE_MSG), xc, y, TEXT_COLOR);
+		drawCenteredString(textRenderer, translationModule.getTranslation(CLIENT_VERSION_TITLE_MSG), xc, y, TEXT_COLOR);
 		y += lineHeight;
-		drawCenteredString(font, controllerClient.getVersion().toString(), xc, y, VERSION_COLOR);
+		drawCenteredString(textRenderer, controllerClient.getVersion().toString(), xc, y, VERSION_COLOR);
 	}
 
 	@Override
 	public int getContentHeight() {
-		return font.fontHeight * 5 + 20;
+		return textRenderer.fontHeight * 5 + 20;
 	}
 }

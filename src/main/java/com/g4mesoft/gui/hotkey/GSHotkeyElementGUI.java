@@ -113,7 +113,7 @@ public class GSHotkeyElementGUI extends GSParentGUI {
 		super.renderTranslated(mouseX, mouseY, partialTicks);
 
 		String name = getTranslationModule().getTranslation(keyName);
-		drawString(font, name, HOTKEY_PADDING, (height - font.fontHeight) / 2, FONT_COLOR);
+		drawString(textRenderer, name, HOTKEY_PADDING, (height - textRenderer.fontHeight) / 2, FONT_COLOR);
 	}
 
 	private void setKeyCode(KeyCode keyCode) {

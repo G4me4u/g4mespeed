@@ -11,6 +11,7 @@ import com.g4mesoft.core.GSCoreOverride;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
@@ -84,10 +85,10 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 	}
 
 	private void layoutTabs() {
-		tabHeight = font.fontHeight + TAB_VERTICAL_PADDING * 2;
+		tabHeight = textRenderer.fontHeight + TAB_VERTICAL_PADDING * 2;
 
 		for (GSTabEntry tab : tabs)
-			tab.setWidth(font.getStringWidth(tab.getTranslatedTitle()) + TAB_HORIZONTAL_PADDING * 2);
+			tab.setWidth(textRenderer.getStringWidth(tab.getTranslatedTitle()) + TAB_HORIZONTAL_PADDING * 2);
 
 		int contentWidth = Math.max(width - HORIZONTAL_MARGIN * 2, tabs.size());
 		int contentHeight = Math.max(height - tabHeight - VERTICAL_MARGIN, 1);
@@ -130,7 +131,7 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 			if (content != null) {
 				int xo = HORIZONTAL_MARGIN;
 				int yo = VERTICAL_MARGIN + tabHeight;
-				content.initBounds(minecraft, xo, yo, contentWidth, contentHeight);
+				content.initBounds(client, xo, yo, contentWidth, contentHeight);
 				children.add(content);
 			}
 
@@ -181,10 +182,10 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 			totalTabWidth += tab.getWidth();
 		}
 
-		hLine(HORIZONTAL_MARGIN, totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN, TAB_BORDER_COLOR);
-		hLine(HORIZONTAL_MARGIN, totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN + tabHeight - 1, TAB_BORDER_COLOR);
-		vLine(HORIZONTAL_MARGIN, VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
-		vLine(totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
+		drawHorizontalLine(HORIZONTAL_MARGIN, totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN, TAB_BORDER_COLOR);
+		drawHorizontalLine(HORIZONTAL_MARGIN, totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN + tabHeight - 1, TAB_BORDER_COLOR);
+		drawVerticalLine(HORIZONTAL_MARGIN, VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
+		drawVerticalLine(totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
 	}
 
 	private boolean isTabHovered(GSTabEntry tab, double mouseX, double mouseY) {
@@ -202,12 +203,12 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 			fill(tab.getX(), VERTICAL_MARGIN, tab.getX() + tab.getWidth(), VERTICAL_MARGIN + tabHeight, background);
 
 		int xc = tab.getX() + tab.getWidth() / 2;
-		int yc = VERTICAL_MARGIN + (tabHeight - font.fontHeight) / 2;
+		int yc = VERTICAL_MARGIN + (tabHeight - textRenderer.fontHeight) / 2;
 		
-		drawCenteredString(font, tab.getDisplayTitle(), xc, yc, selected ? SELECTED_TEXT_COLOR : TAB_TEXT_COLOR);
+		drawCenteredString(textRenderer, tab.getDisplayTitle(), xc, yc, selected ? SELECTED_TEXT_COLOR : TAB_TEXT_COLOR);
 
 		if (tabIndex != 0)
-			vLine(tab.getX(), VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
+			drawVerticalLine(tab.getX(), VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
 	}
 
 	@Override
@@ -216,7 +217,7 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 			for (int i = 0; i < tabs.size(); i++) {
 				if (i != selectedTabIndex && isTabHovered(tabs.get(i), mouseX, mouseY)) {
 					setSelectedTabIndex(i);
-					playClickSound(minecraft.getSoundManager());
+					playClickSound(client.getSoundManager());
 					return true;
 				}
 			}
@@ -261,10 +262,9 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 		tabsChanged = true;
 	}
 
-	@GSCoreOverride
 	@Override
-	public void setBounds(int x, int y, int width, int height) {
-		super.setBounds(x, y, width, height);
+	public void setBounds(MinecraftClient client, int x, int y, int width, int height) {
+		super.setBounds(client, x, y, width, height);
 		tabsChanged = true;
 	}
 

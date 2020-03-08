@@ -15,7 +15,7 @@ public class GSSliderWidget extends SliderWidget {
 	private final GSSliderFormatter formatter;
 
 	public GSSliderWidget(int x, int y, int width, double value, GSSliderListener listener, GSSliderFormatter formatter) {
-		super(null, x, y, width, SLIDER_HEIGHT, value);
+		super(x, y, width, SLIDER_HEIGHT, "", value);
 
 		this.listener = listener;
 		this.formatter = formatter;

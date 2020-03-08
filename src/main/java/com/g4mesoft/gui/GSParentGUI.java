@@ -41,8 +41,8 @@ public abstract class GSParentGUI extends Screen {
 		initBounds(client, 0, 0, width, height);
 	}
 	
-	public void setBounds(int x, int y, int width, int height) {
-		super.setSize(width, height);
+	public void setBounds(MinecraftClient client, int x, int y, int width, int height) {
+		super.resize(client, width, height);
 		
 		this.x = x;
 		this.y = y;
@@ -50,8 +50,8 @@ public abstract class GSParentGUI extends Screen {
 
 	@GSCoreOverride
 	@Override
-	public final void setSize(int width, int height) {
-		setBounds(x, y, width, height);
+	public final void resize(MinecraftClient client, int width, int height) {
+		setBounds(client, x, y, width, height);
 	}
 	
 	protected int getTranslationX() {
@@ -169,10 +169,10 @@ public abstract class GSParentGUI extends Screen {
 			return text;
 
 		// Text fits inside bounds.
-		if (font.getStringWidth(text) <= availableWidth)
+		if (textRenderer.getStringWidth(text) <= availableWidth)
 			return text;
 
-		availableWidth -= font.getStringWidth(TRIMMED_TEXT_ELLIPSIS);
+		availableWidth -= textRenderer.getStringWidth(TRIMMED_TEXT_ELLIPSIS);
 
 		// No space for any other
 		// characters.
@@ -184,7 +184,7 @@ public abstract class GSParentGUI extends Screen {
 			// Should probably use getStringWidth
 			// and substring instead, but for
 			// optimization we use getCharWidth.
-			availableWidth -= font.getCharWidth(c);
+			availableWidth -= textRenderer.getCharWidth(c);
 
 			if (availableWidth < 0)
 				return text.substring(0, i) + TRIMMED_TEXT_ELLIPSIS;
@@ -223,7 +223,7 @@ public abstract class GSParentGUI extends Screen {
 					}
 				}
 			} else {
-				lineWidth += font.getCharWidth(c);
+				lineWidth += textRenderer.getCharWidth(c);
 				
 				if (c == ' ')
 					lastSpaceIndex = i;

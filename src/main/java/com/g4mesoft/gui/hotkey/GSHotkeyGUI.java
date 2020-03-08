@@ -143,11 +143,11 @@ public class GSHotkeyGUI extends GSTabContentGUI implements GSIKeyRegisterListen
 			this.y = y;
 			this.w = w;
 			
-			y += CATEGORY_MARGIN + font.fontHeight + CATEGORY_TITLE_BOTTOM_MARGIN;
+			y += CATEGORY_MARGIN + textRenderer.fontHeight + CATEGORY_TITLE_BOTTOM_MARGIN;
 			
 			for (GSHotkeyElementGUI hotkeyElement : hotkeyElements) {
 				int h = hotkeyElement.getPreferredHeight();
-				hotkeyElement.initBounds(minecraft, x, y, w, h);
+				hotkeyElement.initBounds(client, x, y, w, h);
 				children.add(hotkeyElement);
 				y += h + HOTKEY_MARGIN * 2;
 			}
@@ -158,7 +158,7 @@ public class GSHotkeyGUI extends GSTabContentGUI implements GSIKeyRegisterListen
 		
 		public void render(int mouseX, int mouseY, float partialTicks) {
 			String title = getTranslationModule().getTranslation(categoryName);
-			drawCenteredString(font, title, x + w / 2, y + CATEGORY_MARGIN, CATEGORY_TITLE_COLOR);
+			drawCenteredString(textRenderer, title, x + w / 2, y + CATEGORY_MARGIN, CATEGORY_TITLE_COLOR);
 			
 			for (GSHotkeyElementGUI hotkeyElement : hotkeyElements)
 				hotkeyElement.render(mouseX, mouseY, partialTicks);

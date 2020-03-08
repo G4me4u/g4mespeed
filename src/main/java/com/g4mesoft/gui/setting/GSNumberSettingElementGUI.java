@@ -31,7 +31,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 		super.renderTranslated(mouseX, mouseY, partialTicks);
 
 		String name = getTranslationModule().getTranslation(settingTranslationName);
-		drawString(font, name, CONTENT_PADDING, (getSettingHeight() - font.fontHeight) / 2, getTextColor());
+		drawString(textRenderer, name, CONTENT_PADDING, (getSettingHeight() - textRenderer.fontHeight) / 2, getTextColor());
 	}
 	
 	@Override
@@ -72,7 +72,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 			int tw = Math.min(TEXT_FIELD_MAX_WIDTH, width - CONTENT_MARGIN - RESET_BUTTON_WIDTH - CONTENT_PADDING * 2);
 			int ty = height - CONTENT_PADDING - TEXT_FIELD_HEIGHT;
 			
-			addWidget(textField = new TextFieldWidget(font, CONTENT_PADDING, ty, tw, TEXT_FIELD_HEIGHT, ""));
+			addWidget(textField = new TextFieldWidget(textRenderer, CONTENT_PADDING, ty, tw, TEXT_FIELD_HEIGHT, ""));
 			textField.active = setting.isEnabledInGui();
 
 			int bx = width - CONTENT_PADDING - RESET_BUTTON_WIDTH;

@@ -23,6 +23,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.util.Util;
 
@@ -163,7 +164,7 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 				descLines = splitToLines(desc + " " + def, descTextWidth);
 				
 				int numLines = descLines.size();
-				int minimumDescHeight = numLines * font.fontHeight + (numLines - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
+				int minimumDescHeight = numLines * textRenderer.fontHeight + (numLines - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
 				
 				targetDescHeight = Math.max(minimumDescHeight, hoveredElement.height);
 				startDescHeight = hoveredElement.height;
@@ -200,15 +201,15 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 			
 			int y = descY + DESC_LINE_MARGIN;
 			for (String line : descLines) {
-				if (y + font.fontHeight > descY + descHeight)
+				if (y + textRenderer.fontHeight > descY + descHeight)
 					break;
 				
 				GlStateManager.enableBlend();
 				GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
 				GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-				drawString(font, line, descX + DESC_LINE_MARGIN, y, (DESC_TEXT_COLOR & 0xFFFFFF) | alpha);
+				drawString(textRenderer, line, descX + DESC_LINE_MARGIN, y, (DESC_TEXT_COLOR & 0xFFFFFF) | alpha);
 				GlStateManager.disableBlend();
-				y += font.fontHeight + DESC_LINE_SPACING;
+				y += textRenderer.fontHeight + DESC_LINE_SPACING;
 			}
 		}
 	}
@@ -220,10 +221,9 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 		layoutChanged = true;
 	}
 	
-	@GSCoreOverride
 	@Override
-	public void setBounds(int x, int y, int width, int height) {
-		super.setBounds(x, y, width, height);
+	public void setBounds(MinecraftClient client, int x, int y, int width, int height) {
+		super.setBounds(client, x, y, width, height);
 		layoutChanged = true;
 	}
 	
@@ -294,11 +294,11 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 
 			this.width = width;
 			
-			y += font.fontHeight;
+			y += textRenderer.fontHeight;
 			y += CATEGORY_TITLE_MARGIN_BOTTOM;
 
 			for (GSSettingElementGUI<?> element : settings) {
-				element.initBounds(minecraft, x, y, width, element.getPreferredHeight());
+				element.initBounds(client, x, y, width, element.getPreferredHeight());
 				children.add(element);
 			
 				y += element.height;
@@ -333,7 +333,7 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 
 		public void render(int mouseX, int mouseY, float partialTicks) {
 			String title = getTranslationModule().getTranslation(this.title);
-			drawCenteredString(GSSettingsGUI.this.font, title, x + width / 2, y, CATEGORY_TITLE_COLOR);
+			drawCenteredString(GSSettingsGUI.this.textRenderer, title, x + width / 2, y, CATEGORY_TITLE_COLOR);
 			
 			for (GSSettingElementGUI<?> element : settings)
 				element.render(mouseX, mouseY, partialTicks);
