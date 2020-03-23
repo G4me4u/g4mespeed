@@ -1,6 +1,6 @@
 package com.g4mesoft.core;
 
-import net.minecraft.util.PacketByteBuf;
+import net.minecraft.network.PacketByteBuf;
 
 public class GSVersion {
 

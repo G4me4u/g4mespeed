@@ -23,7 +23,7 @@ import com.g4mesoft.setting.types.GSUnknownSetting;
 import com.g4mesoft.util.GSFileUtils;
 
 import io.netty.buffer.Unpooled;
-import net.minecraft.util.PacketByteBuf;
+import net.minecraft.network.PacketByteBuf;
 
 public class GSSettingManager {
 

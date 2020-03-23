@@ -8,7 +8,7 @@ import com.g4mesoft.packet.GSICustomPayloadHolder;
 import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.PacketByteBuf;
+import net.minecraft.network.PacketByteBuf;
 
 @Mixin(CustomPayloadC2SPacket.class)
 public abstract class GSCustomPayloadC2SPacketMixin implements GSICustomPayloadHolder<ServerPlayPacketListener> {

@@ -9,7 +9,7 @@ import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.setting.decoder.GSISettingDecoder;
 
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.PacketByteBuf;
+import net.minecraft.network.PacketByteBuf;
 
 public class GSSettingChangePacket implements GSIPacket {
 

@@ -54,7 +54,7 @@ public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
 		
 		float tx = active ? ((isMouseOver(mouseX, mouseY) || isFocused()) ? 30.0f : 0.0f) : 60.0f;
 		float ty = value ? 16.0f : 0.0f;
-		blit(x, y, tx, ty, 30, 16, 90, 32);
+		drawTexture(x, y, tx, ty, 30, 16, 90, 32);
 	}
 	
 	public static interface GSSwitchListener {

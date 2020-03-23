@@ -1,6 +1,6 @@
 package com.g4mesoft.setting;
 
-import net.minecraft.util.PacketByteBuf;
+import net.minecraft.network.PacketByteBuf;
 
 public class GSSettingCategory {
 

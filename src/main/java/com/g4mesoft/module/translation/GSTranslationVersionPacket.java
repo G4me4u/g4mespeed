@@ -9,7 +9,7 @@ import com.g4mesoft.packet.GSIPacket;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.PacketByteBuf;
+import net.minecraft.network.PacketByteBuf;
 
 public class GSTranslationVersionPacket implements GSIPacket {
 

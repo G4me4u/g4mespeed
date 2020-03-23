@@ -2,7 +2,7 @@ package com.g4mesoft.setting.decoder;
 
 import com.g4mesoft.setting.types.GSFloatSetting;
 
-import net.minecraft.util.PacketByteBuf;
+import net.minecraft.network.PacketByteBuf;
 
 public class GSFloatSettingDecoder implements GSISettingDecoder<GSFloatSetting> {
 
