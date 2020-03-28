@@ -90,14 +90,14 @@ public class GSClientPlayNetworkHandlerMixin {
 			
 			BlockEntity blockEntity = world.getBlockEntity(blockPos);
 			if (blockEntity != null) {
-				blockEntity.fromTag(tag);
+				blockEntity.fromTag(world.getBlockState(blockPos), tag);
 			} else if (pistonType) {
 				// Make sure we're actually supposed to put
 				// a moving piston block entity in this location...
 				BlockState blockState = world.getBlockState(blockPos);
 				if (blockState.getBlock() == Blocks.MOVING_PISTON) {
 					blockEntity = new PistonBlockEntity();
-					blockEntity.fromTag(tag);
+					blockEntity.fromTag(world.getBlockState(blockPos), tag);
 					world.setBlockEntity(blockPos, blockEntity);
 					
 					// Probably not needed but it's done in

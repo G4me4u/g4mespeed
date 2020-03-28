@@ -16,6 +16,7 @@ import com.g4mesoft.util.GSMathUtils;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
@@ -81,7 +82,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	}
 
 	@Inject(method = "fromTag", at = @At("RETURN"))
-	public void onTagRead(CompoundTag tag, CallbackInfo ci) {
+	public void onFromTag(BlockState blockState, CompoundTag tag, CallbackInfo ci) {
 		actualLastProgress = Math.max(0.0f, this.lastProgress - INCREMENTER);
 	}
 	
