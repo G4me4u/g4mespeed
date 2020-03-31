@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.gui.GSScrollableParentGUI;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSISettingChangeListener;
@@ -24,7 +23,6 @@ import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.util.NarratorManager;
 import net.minecraft.util.SystemUtil;
 
 @Environment(EnvType.CLIENT)
@@ -54,8 +52,6 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 	private long descAnimStart;
 	
 	public GSSettingsGUI(GSSettingManager settingManager) {
-		super(NarratorManager.EMPTY);
-		
 		this.settingCategories = new LinkedHashMap<GSSettingCategory, GSSettingCategoryElement>();
 
 		for (GSSettingMap settingCategory : settingManager.getSettings()) {
@@ -107,8 +103,8 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 	}
 
 	private void layoutSettingElements() {
-		children.clear();
-
+		clearChildren();
+		
 		settingsWidth = width / 2;
 		for (GSSettingCategoryElement element : settingCategories.values()) {
 			int minElementWidth = element.getMinimumWidth();
@@ -126,7 +122,6 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 		scrollableHeight = y;
 	}
 	
-	@GSCoreOverride
 	@Override
 	public void tick() {
 		super.tick();
@@ -137,8 +132,6 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 	
 	@Override
 	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		super.renderTranslated(mouseX, mouseY, partialTicks);
-	
 		if (layoutChanged) {
 			layoutSettingElements();
 			layoutChanged = false;
@@ -151,6 +144,8 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 			
 			element.render(mouseX, mouseY, partialTicks);
 		}
+		
+		super.renderTranslated(mouseX, mouseY, partialTicks);
 		
 		if (hoveredElement != this.hoveredElement) {
 			this.hoveredElement = hoveredElement;
@@ -193,7 +188,7 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 		int descX = settingsWidth;
 		
 		int scrollOffset = getScrollOffset();
-		int descY = GSMathUtils.clamp(hoveredElement.getY(), scrollOffset, height + scrollOffset - descHeight);
+		int descY = GSMathUtils.clamp(hoveredElement.y, scrollOffset, height + scrollOffset - descHeight);
 		
 		if (descWidth > 0 && descHeight > 0 && targetDescHeight != 0) {
 			fill(descX, descY, descX + descWidth, descY + descHeight, DESC_BACKGROUND_COLOR);
@@ -215,14 +210,12 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 		}
 	}
 
-	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();
 		layoutChanged = true;
 	}
 	
-	@GSCoreOverride
 	@Override
 	public void setBounds(int x, int y, int width, int height) {
 		super.setBounds(x, y, width, height);
@@ -300,8 +293,8 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 			y += CATEGORY_TITLE_MARGIN_BOTTOM;
 
 			for (GSSettingElementGUI<?> element : settings) {
-				element.initBounds(minecraft, x, y, width, element.getPreferredHeight());
-				children.add(element);
+				element.initBounds(client, x, y, width, element.getPreferredHeight());
+				addPanel(element);
 			
 				y += element.height;
 			}
@@ -336,9 +329,6 @@ public class GSSettingsGUI extends GSScrollableParentGUI implements GSISettingCh
 		public void render(int mouseX, int mouseY, float partialTicks) {
 			String title = getTranslationModule().getTranslation(this.title);
 			drawCenteredString(GSSettingsGUI.this.font, title, x + width / 2, y, CATEGORY_TITLE_COLOR);
-			
-			for (GSSettingElementGUI<?> element : settings)
-				element.render(mouseX, mouseY, partialTicks);
 		}
 		
 		public boolean isEmpty() {

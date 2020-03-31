@@ -13,13 +13,14 @@ import com.g4mesoft.hotkey.GSKeyBinding;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.sound.SoundEvents;
 
 @Environment(EnvType.CLIENT)
-public class GSTabbedGUI extends GSParentGUI {
+public class GSTabbedGUI extends Screen {
 
 	private static final int TAB_VERTICAL_PADDING = 5;
 	private static final int TAB_HORIZONTAL_PADDING = 5;
@@ -115,7 +116,7 @@ public class GSTabbedGUI extends GSParentGUI {
 		for (; remainingTabs > 0; remainingTabs--) {
 			GSTabEntry tab = sortedTabs[remainingTabs - 1];
 			tab.setWidth(remainingWidth / remainingTabs);
-			tab.setDisplayTitle(trimText(tab.getTranslatedTitle(), tab.getWidth()));
+			tab.setDisplayTitle(GSParentGUI.trimText(font, tab.getTranslatedTitle(), tab.getWidth()));
 			remainingWidth -= tab.getWidth();
 		}
 
@@ -138,11 +139,12 @@ public class GSTabbedGUI extends GSParentGUI {
 		tabsChanged = false;
 	}
 
+	@GSCoreOverride
 	@Override
-	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
+	public void render(int mouseX, int mouseY, float partialTicks) {
 		renderBackground();
 
-		super.renderTranslated(mouseX, mouseY, partialTicks);
+		super.render(mouseX, mouseY, partialTicks);
 
 		renderTabs(mouseX, mouseY);
 
@@ -205,8 +207,9 @@ public class GSTabbedGUI extends GSParentGUI {
 			vLine(tab.getX(), VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
 	}
 
+	@GSCoreOverride
 	@Override
-	public boolean mouseClickedTranslated(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
 			for (int i = 0; i < tabs.size(); i++) {
 				if (i != selectedTabIndex && isTabHovered(tabs.get(i), mouseX, mouseY)) {
@@ -217,7 +220,7 @@ public class GSTabbedGUI extends GSParentGUI {
 			}
 		}
 
-		return super.mouseClickedTranslated(mouseX, mouseY, button);
+		return super.mouseClicked(mouseX, mouseY, button);
 	}
 
 	@GSCoreOverride
@@ -226,7 +229,7 @@ public class GSTabbedGUI extends GSParentGUI {
 		if (super.keyPressed(key, scancode, mods))
 			return true;
 		
-		if (isSelected() && canKeyCloseGUI(key)) {
+		if (canKeyCloseGUI(key)) {
 			this.onClose();
 			return true;
 		}
@@ -261,13 +264,7 @@ public class GSTabbedGUI extends GSParentGUI {
 	@Override
 	public void init() {
 		super.init();
-		tabsChanged = true;
-	}
-
-	@GSCoreOverride
-	@Override
-	public void setBounds(int x, int y, int width, int height) {
-		super.setBounds(x, y, width, height);
+		
 		tabsChanged = true;
 	}
 
@@ -275,6 +272,12 @@ public class GSTabbedGUI extends GSParentGUI {
 	@Override
 	public boolean isPauseScreen() {
 		return true;
+	}
+	
+	@GSCoreOverride
+	@Override
+	public boolean shouldCloseOnEsc() {
+		return false;
 	}
 
 	private class GSTabEntry {
@@ -304,7 +307,8 @@ public class GSTabbedGUI extends GSParentGUI {
 		}
 		
 		public String getTranslatedTitle() {
-			return getTranslationModule().getTranslation(title);
+			return GSControllerClient.getInstance()
+					.getTranslationModule().getTranslation(title);
 		}
 
 		public void setX(int x) {

@@ -5,13 +5,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.gui.GSScrollableParentGUI;
 import com.g4mesoft.hotkey.GSIKeyRegisterListener;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
-
-import net.minecraft.client.util.NarratorManager;
 
 public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegisterListener {
 
@@ -29,8 +26,6 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 	private GSHotkeyElementGUI changingElement;
 	
 	public GSHotkeyGUI(GSKeyManager keyManager) {
-		super(NarratorManager.EMPTY);
-		
 		hotkeyCategories = new LinkedHashMap<String, GSHotkeyCategoryGUI>();
 		
 		for (GSKeyBinding keyBinding : keyManager.getKeyBindings())
@@ -58,7 +53,6 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 		scrollableHeight = y;
 	}
 	
-	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();
@@ -76,7 +70,7 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 		super.renderTranslated(mouseX, mouseY, partialTicks);
 		
 		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values())
-			hotkeyCategory.render(mouseX, mouseY, partialTicks);
+			hotkeyCategory.renderTitle(mouseX, mouseY, partialTicks);
 	}
 
 	@Override
@@ -147,8 +141,8 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 			
 			for (GSHotkeyElementGUI hotkeyElement : hotkeyElements) {
 				int h = hotkeyElement.getPreferredHeight();
-				hotkeyElement.initBounds(minecraft, x, y, w, h);
-				children.add(hotkeyElement);
+				hotkeyElement.initBounds(client, x, y, w, h);
+				addPanel(hotkeyElement);
 				y += h + HOTKEY_MARGIN * 2;
 			}
 			
@@ -156,12 +150,9 @@ public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegister
 			return y;
 		}
 		
-		public void render(int mouseX, int mouseY, float partialTicks) {
+		public void renderTitle(int mouseX, int mouseY, float partialTicks) {
 			String title = getTranslationModule().getTranslation(categoryName);
 			drawCenteredString(font, title, x + w / 2, y + CATEGORY_MARGIN, CATEGORY_TITLE_COLOR);
-			
-			for (GSHotkeyElementGUI hotkeyElement : hotkeyElements)
-				hotkeyElement.render(mouseX, mouseY, partialTicks);
 		}
 	}
 }

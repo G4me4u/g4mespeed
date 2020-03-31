@@ -4,7 +4,6 @@ import java.awt.Rectangle;
 
 import org.lwjgl.glfw.GLFW;
 
-import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.util.GSMathUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
@@ -13,7 +12,6 @@ import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.text.Text;
 
 public abstract class GSScrollableParentGUI extends GSParentGUI {
 
@@ -30,10 +28,6 @@ public abstract class GSScrollableParentGUI extends GSParentGUI {
 	protected double scrollOffset;
 	protected boolean scrollDragActive;
 	
-	protected GSScrollableParentGUI(Text title) {
-		super(title);
-	}
-
 	protected abstract int getScrollableHeight();
 	
 	public void setScrollOffset(double scroll) {
@@ -41,10 +35,9 @@ public abstract class GSScrollableParentGUI extends GSParentGUI {
 		this.scrollOffset = GSMathUtils.clamp(scroll, 0.0, maxScrollOffset);
 	}
 	
-	@GSCoreOverride
 	@Override
 	public void render(int mouseX, int mouseY, float partialTicks) {
-		if (getX() > 0) {
+		if (x > 0) {
 			Tessellator tessellator = Tessellator.getInstance();
 			BufferBuilder bufferBuilder = tessellator.getBufferBuilder();
 			GlStateManager.enableBlend();
@@ -52,10 +45,10 @@ public abstract class GSScrollableParentGUI extends GSParentGUI {
 			GlStateManager.blendFuncSeparate(SourceFactor.ZERO, DestFactor.ONE, SourceFactor.ZERO, DestFactor.ONE);
 			GlStateManager.color4f(0.0f, 0.0f, 0.0f, 1.0f);
 			bufferBuilder.begin(7, VertexFormats.POSITION);
-			bufferBuilder.vertex(getX(), getY(), 1.0).next();
-			bufferBuilder.vertex(getX() + width, getY(), 1.0).next();
-			bufferBuilder.vertex(getX() + width, 0.0, 1.0).next();
-			bufferBuilder.vertex(getX(), 0.0, 1.0).next();
+			bufferBuilder.vertex(x, y, 1.0).next();
+			bufferBuilder.vertex(x + width, y, 1.0).next();
+			bufferBuilder.vertex(x + width, 0.0, 1.0).next();
+			bufferBuilder.vertex(x, 0.0, 1.0).next();
 			tessellator.draw();
 			GlStateManager.enableTexture();
 			GlStateManager.disableBlend();
@@ -73,12 +66,12 @@ public abstract class GSScrollableParentGUI extends GSParentGUI {
 		if (scrollableHeight > height) {
 			// Note that we're not rendering in a translated
 			// mode, so we'll have to translate ourselves.
-			int x = getX() + width - SCROLL_BAR_WIDTH - SCROLL_BAR_MARGIN_X;
-			int y = getY() + SCROLL_BAR_MARGIN_Y;
-			fill(x, y, x + SCROLL_BAR_WIDTH, y + height - SCROLL_BAR_MARGIN_Y * 2, SCROLL_BACKGROUND);
+			int sx = x + width - SCROLL_BAR_WIDTH - SCROLL_BAR_MARGIN_X;
+			int sy = y + SCROLL_BAR_MARGIN_Y;
+			fill(sx, sy, sx + SCROLL_BAR_WIDTH, sy + height - SCROLL_BAR_MARGIN_Y * 2, SCROLL_BACKGROUND);
 			
 			Rectangle r = getDraggableScrollArea();
-			r.translate(getX(), getY());
+			r.translate(x, y);
 			
 			fill(r.x, r.y, r.x + r.width    , r.y + r.height    , SCROLL_SHADOW);
 			fill(r.x, r.y, r.x + r.width - 1, r.y + r.height - 1, SCROLL_HIGHLIGHT);
@@ -98,7 +91,6 @@ public abstract class GSScrollableParentGUI extends GSParentGUI {
 		return rect;
 	}
 	
-	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();

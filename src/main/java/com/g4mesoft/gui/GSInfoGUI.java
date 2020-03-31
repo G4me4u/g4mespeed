@@ -4,8 +4,6 @@ import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.translation.GSTranslationModule;
 
-import net.minecraft.client.util.NarratorManager;
-
 public class GSInfoGUI extends GSParentGUI {
 
 	private static final int TEXT_COLOR              = 0xFFFFFFFF;
@@ -20,8 +18,6 @@ public class GSInfoGUI extends GSParentGUI {
 	private final GSControllerClient controllerClient;
 	
 	public GSInfoGUI(GSControllerClient controllerClient) {
-		super(NarratorManager.EMPTY);
-		
 		this.controllerClient = controllerClient;
 	}
 

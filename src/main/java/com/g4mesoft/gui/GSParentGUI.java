@@ -9,10 +9,12 @@ import com.g4mesoft.module.translation.GSTranslationModule;
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.AbstractParentElement;
+import net.minecraft.client.gui.Drawable;
+import net.minecraft.client.gui.Element;
 
-public abstract class GSParentGUI extends Screen {
+public abstract class GSParentGUI extends AbstractParentElement {
 
 	private static final String TRIMMED_TEXT_ELLIPSIS = "...";
 	private static final char FORMATTING_CHAR = '\u00A7';
@@ -21,39 +23,73 @@ public abstract class GSParentGUI extends Screen {
 	
 	private boolean selected;
 	
-	private int x;
-	private int y;
+	protected MinecraftClient client;
+	protected TextRenderer font;
 	
-	protected GSParentGUI(Text title) {
-		super(title);
+	public int x;
+	public int y;
+	public int width;
+	public int height;
+	
+	private List<Element> children;
+	private List<Drawable> drawableWidgets;
+	private List<GSParentGUI> gsPanels;
+	
+	protected GSParentGUI() {
+		children = new ArrayList<Element>();
+		drawableWidgets = new ArrayList<Drawable>();
+		gsPanels = new ArrayList<GSParentGUI>();
 		
 		setSelected(true);
 	}
 	
-	public void initBounds(MinecraftClient client, int x, int y, int width, int height) {
-		super.init(client, width, height);
-	
-		this.x = x;
-		this.y = y;
+	public void addWidget(Element element) {
+		children.add(element);
+		
+		if (element instanceof Drawable)
+			drawableWidgets.add((Drawable)element);
 	}
 	
-	@GSCoreOverride
-	@Override
+	public void addPanel(GSParentGUI panel) {
+		gsPanels.add(panel);
+
+		addWidget(panel);
+	}
+	
+	public void clearChildren() {
+		children.clear();
+		drawableWidgets.clear();
+		gsPanels.clear();
+	}
+	
 	public final void init(MinecraftClient client, int width, int height) {
 		initBounds(client, 0, 0, width, height);
 	}
 	
 	public void setBounds(int x, int y, int width, int height) {
-		super.setSize(width, height);
-		
-		this.x = x;
-		this.y = y;
+		initBounds(client, x, y, width, height);
 	}
 
-	@GSCoreOverride
-	@Override
-	public final void setSize(int width, int height) {
-		setBounds(x, y, width, height);
+	public void initBounds(MinecraftClient client, int x, int y, int width, int height) {
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+	
+		this.client = client;
+		this.font = client.textRenderer;
+		
+		clearChildren();
+		
+		init();
+	}
+
+	public void init() {
+	}
+
+	public void tick() {
+		for (GSParentGUI panel : gsPanels)
+			panel.tick();
 	}
 	
 	protected int getTranslationX() {
@@ -64,8 +100,6 @@ public abstract class GSParentGUI extends Screen {
 		return y;
 	}
 	
-	@GSCoreOverride
-	@Override
 	public void render(int mouseX, int mouseY, float partialTicks) {
 		int tx = getTranslationX();
 		int ty = getTranslationY();
@@ -76,7 +110,10 @@ public abstract class GSParentGUI extends Screen {
 	}
 	
 	protected void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		super.render(mouseX, mouseY, partialTicks);
+		for (Drawable drawable : drawableWidgets)
+			drawable.render(mouseX, mouseY, partialTicks);
+		for (GSParentGUI panel : gsPanels)
+			panel.render(mouseX, mouseY, partialTicks);
 	}
 
 	public void setSelected(boolean selected) {
@@ -178,8 +215,12 @@ public abstract class GSParentGUI extends Screen {
 		return mouseX >= x && mouseX < x + width && 
 		       mouseY >= y && mouseY < y + height;
 	}
-	
+
 	protected String trimText(String text, int availableWidth) {
+		return trimText(font, text, availableWidth);
+	}
+	
+	public static String trimText(TextRenderer font, String text, int availableWidth) {
 		int len = text.length();
 		if (len <= 0)
 			return text;
@@ -209,8 +250,12 @@ public abstract class GSParentGUI extends Screen {
 		// This should never happen.
 		return text;
 	}
-	
+
 	public List<String> splitToLines(String text, int availableWidth) {
+		return splitToLines(font, text, availableWidth);
+	}
+	
+	public static List<String> splitToLines(TextRenderer font, String text, int availableWidth) {
 		List<String> result = new ArrayList<String>();
 		
 		int len = text.length();
@@ -304,22 +349,12 @@ public abstract class GSParentGUI extends Screen {
 		return (a << 24) | (r << 16) | (g << 8) | b;
 	}
 	
-	@GSCoreOverride
-	@Override
-	public boolean shouldCloseOnEsc() {
-		// Do this manually.
-		return false;
-	}
-	
-	public int getX() {
-		return x;
-	}
-
-	public int getY() {
-		return y;
-	}
-	
 	public GSTranslationModule getTranslationModule() {
 		return GSControllerClient.getInstance().getTranslationModule();
+	}
+	
+	@Override
+	public List<Element> children() {
+		return this.children;
 	}
 }
