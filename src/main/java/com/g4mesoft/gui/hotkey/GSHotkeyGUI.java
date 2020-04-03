@@ -5,12 +5,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.g4mesoft.gui.GSScrollableParentGUI;
+import com.g4mesoft.gui.GSScrollablePanel;
 import com.g4mesoft.hotkey.GSIKeyRegisterListener;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
 
-public class GSHotkeyGUI extends GSScrollableParentGUI implements GSIKeyRegisterListener {
+public class GSHotkeyGUI extends GSScrollablePanel implements GSIKeyRegisterListener {
 
 	private static final int HOTKEY_MARGIN = 1;
 

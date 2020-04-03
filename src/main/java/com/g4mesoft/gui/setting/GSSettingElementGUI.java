@@ -1,12 +1,12 @@
 package com.g4mesoft.gui.setting;
 
-import com.g4mesoft.gui.GSParentGUI;
+import com.g4mesoft.gui.GSPanel;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 
 import net.minecraft.client.gui.widget.ButtonWidget;
 
-public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSParentGUI {
+public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPanel {
 
 	public static final int HOVERED_BACKGROUND = 0x80000000;//0x66EDEDFF;
 	

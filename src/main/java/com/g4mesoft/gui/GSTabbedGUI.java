@@ -13,14 +13,12 @@ import com.g4mesoft.hotkey.GSKeyBinding;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
-import net.minecraft.client.util.NarratorManager;
 import net.minecraft.sound.SoundEvents;
 
 @Environment(EnvType.CLIENT)
-public class GSTabbedGUI extends Screen {
+public class GSTabbedGUI extends GSScreen {
 
 	private static final int TAB_VERTICAL_PADDING = 5;
 	private static final int TAB_HORIZONTAL_PADDING = 5;
@@ -44,13 +42,11 @@ public class GSTabbedGUI extends Screen {
 	private int selectedTabIndex;
 
 	public GSTabbedGUI() {
-		super(NarratorManager.EMPTY);
-
 		tabs = new ArrayList<GSTabEntry>();
 		selectedTabIndex = -1;
 	}
 
-	public void addTab(String title, GSParentGUI tabContent) {
+	public void addTab(String title, GSPanel tabContent) {
 		tabs.add(new GSTabEntry(title, tabContent));
 		tabsChanged = true;
 
@@ -116,7 +112,7 @@ public class GSTabbedGUI extends Screen {
 		for (; remainingTabs > 0; remainingTabs--) {
 			GSTabEntry tab = sortedTabs[remainingTabs - 1];
 			tab.setWidth(remainingWidth / remainingTabs);
-			tab.setDisplayTitle(GSParentGUI.trimText(font, tab.getTranslatedTitle(), tab.getWidth()));
+			tab.setDisplayTitle(trimText(font, tab.getTranslatedTitle(), tab.getWidth()));
 			remainingWidth -= tab.getWidth();
 		}
 
@@ -124,7 +120,7 @@ public class GSTabbedGUI extends Screen {
 
 		int tabXOffset = HORIZONTAL_MARGIN;
 		for (GSTabEntry tab : tabs) {
-			GSParentGUI content = tab.getTabContent();
+			GSPanel content = tab.getTabContent();
 			if (content != null) {
 				int xo = HORIZONTAL_MARGIN;
 				int yo = VERTICAL_MARGIN + tabHeight;
@@ -283,18 +279,18 @@ public class GSTabbedGUI extends Screen {
 	private class GSTabEntry {
 
 		private final String title;
-		private final GSParentGUI tabContent;
+		private final GSPanel tabContent;
 
 		private String displayTitle;
 		private int x;
 		private int width;
 
-		public GSTabEntry(String title, GSParentGUI tabContent) {
+		public GSTabEntry(String title, GSPanel tabContent) {
 			this.title = title;
 			this.tabContent = tabContent;
 		}
 
-		public GSParentGUI getTabContent() {
+		public GSPanel getTabContent() {
 			return tabContent;
 		}
 

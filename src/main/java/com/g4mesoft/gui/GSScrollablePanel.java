@@ -13,7 +13,7 @@ import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormats;
 
-public abstract class GSScrollableParentGUI extends GSParentGUI {
+public abstract class GSScrollablePanel extends GSPanel {
 
 	private static final double SCROLL_AMOUNT = 10.0;
 	

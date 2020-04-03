@@ -4,7 +4,7 @@ import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.translation.GSTranslationModule;
 
-public class GSInfoGUI extends GSParentGUI {
+public class GSInfoGUI extends GSPanel {
 
 	private static final int TEXT_COLOR              = 0xFFFFFFFF;
 	private static final int VERSION_COLOR           = 0xFF22FF22;
