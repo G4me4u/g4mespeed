@@ -4,14 +4,11 @@ import java.awt.Rectangle;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.g4mesoft.access.GSIBufferBuilderAccess;
 import com.g4mesoft.util.GSMathUtils;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
-import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
-import net.minecraft.client.render.VertexFormats;
 
 public abstract class GSScrollablePanel extends GSPanel {
 
@@ -37,32 +34,17 @@ public abstract class GSScrollablePanel extends GSPanel {
 	
 	@Override
 	public void render(int mouseX, int mouseY, float partialTicks) {
-		if (x > 0) {
-			Tessellator tessellator = Tessellator.getInstance();
-			BufferBuilder bufferBuilder = tessellator.getBufferBuilder();
-			GlStateManager.enableBlend();
-			GlStateManager.disableTexture();
-			GlStateManager.blendFuncSeparate(SourceFactor.ZERO, DestFactor.ONE, SourceFactor.ZERO, DestFactor.ONE);
-			GlStateManager.color4f(0.0f, 0.0f, 0.0f, 1.0f);
-			bufferBuilder.begin(7, VertexFormats.POSITION);
-			bufferBuilder.vertex(x, y, 1.0).next();
-			bufferBuilder.vertex(x + width, y, 1.0).next();
-			bufferBuilder.vertex(x + width, 0.0, 1.0).next();
-			bufferBuilder.vertex(x, 0.0, 1.0).next();
-			tessellator.draw();
-			GlStateManager.enableTexture();
-			GlStateManager.disableBlend();
-		}
-		
-		// Enable depth to mimic the behavior of clipping
-		// the top of the screen. Note that this will fail
-		// in some cases. For example the EntryListWidget
-		// UI will disable depth testing during rendering.
-		GlStateManager.enableDepthTest();
-		super.render(mouseX, mouseY, partialTicks);
-		GlStateManager.disableDepthTest();
-		
+		BufferBuilder buffer = Tessellator.getInstance().getBufferBuilder();
+		GSIBufferBuilderAccess bufferAccess = (GSIBufferBuilderAccess)buffer;
+		GSClipRect oldClipRect = bufferAccess.getClip();
+
 		int scrollableHeight = getScrollableHeight();
+		if (scrollableHeight > height)
+			bufferAccess.setClip(x, y, x + width, y + height);
+		
+		super.render(mouseX, mouseY, partialTicks);
+		bufferAccess.setClip(oldClipRect);
+		
 		if (scrollableHeight > height) {
 			// Note that we're not rendering in a translated
 			// mode, so we'll have to translate ourselves.

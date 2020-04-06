@@ -3,14 +3,16 @@ package com.g4mesoft.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.g4mesoft.access.GSIBufferBuilderAccess;
 import com.g4mesoft.core.GSCoreOverride;
-import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
 
 public abstract class GSPanel extends AbstractParentElement implements GSIDrawableHelper {
 
@@ -96,10 +98,16 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 	public void render(int mouseX, int mouseY, float partialTicks) {
 		int tx = getTranslationX();
 		int ty = getTranslationY();
+
+		BufferBuilder buffer = Tessellator.getInstance().getBufferBuilder();
+		GSIBufferBuilderAccess bufferAccess = (GSIBufferBuilderAccess)buffer;
+		double oldOffsetX = bufferAccess.getOffsetX();
+		double oldOffsetY = bufferAccess.getOffsetY();
+		double oldOffsetZ = bufferAccess.getOffsetZ();
 		
-		GlStateManager.translatef( tx,  ty, 0.0f);
+		buffer.setOffset(oldOffsetX + tx, oldOffsetY + ty, oldOffsetZ);
 		renderTranslated(mouseX - tx, mouseY - ty, partialTicks);
-		GlStateManager.translatef(-tx, -ty, 0.0f);
+		buffer.setOffset(oldOffsetX, oldOffsetY, oldOffsetZ);
 	}
 	
 	protected void renderTranslated(int mouseX, int mouseY, float partialTicks) {
