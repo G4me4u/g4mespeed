@@ -11,6 +11,13 @@ com.g4mesoft.G4mespeedMod -> com.g4mesoft.G4mespeedMod:
     42:42:com.g4mesoft.core.compat.GSCarpetCompat getCarpetCompat() -> getCarpetCompat
     46:46:com.g4mesoft.G4mespeedMod getInstance() -> getInstance
     15:17:void <clinit>() -> <clinit>
+com.g4mesoft.access.GSIBufferBuilderAccess -> core.aJ:
+    void setClip(float,float,float,float) -> a
+    void setClip(com.g4mesoft.gui.GSClipRect) -> a
+    com.g4mesoft.gui.GSClipRect getClip() -> a
+    double getOffsetX() -> a
+    double getOffsetY() -> b
+    double getOffsetZ() -> c
 com.g4mesoft.access.GSINetworkHandlerAccess -> core.a:
     void setG4mespeedVersion(com.g4mesoft.core.GSVersion) -> a
     com.g4mesoft.core.GSVersion getG4mespeedVersion() -> a
@@ -235,6 +242,15 @@ com.g4mesoft.debug.GSDebug -> core.r:
     23:23:void onServerTick() -> k
     28:31:void printTimeIntervalSync(java.lang.String) -> a
     25:25:void <clinit>() -> <clinit>
+com.g4mesoft.gui.GSClipRect -> core.aK:
+    float x0 -> w
+    float y0 -> x
+    float x1 -> y
+    float y1 -> z
+    11:13:void <init>(com.g4mesoft.gui.GSClipRect) -> <init>
+    15:17:void <init>(float,float,float,float) -> <init>
+    20:21:void setClipBounds(com.g4mesoft.gui.GSClipRect) -> b
+    24:29:void setClipBounds(float,float,float,float) -> b
 com.g4mesoft.gui.GSIDrawableHelper -> core.s:
     14:14:java.lang.String trimText(java.lang.String,int) -> a
     18:45:java.lang.String trimText(net.minecraft.class_327,java.lang.String,int) -> a
@@ -271,40 +287,40 @@ com.g4mesoft.gui.GSPanel -> core.v:
     java.util.List children -> d
     java.util.List drawableWidgets -> e
     java.util.List panels -> f
-    31:37:void <init>() -> <init>
-    40:44:void addWidget(net.minecraft.class_364) -> a
-    47:50:void addPanel(com.g4mesoft.gui.GSPanel) -> a
-    53:56:void clearChildren() -> l
-    59:60:void init(net.minecraft.class_310,int,int) -> a
-    63:64:void setBounds(int,int,int,int) -> a
-    67:78:void initBounds(net.minecraft.class_310,int,int,int,int) -> a
-    81:81:void init() -> init
-    84:86:void tick() -> tick
-    89:89:int getTranslationX() -> e
-    93:93:int getTranslationY() -> f
-    97:103:void render(int,int,float) -> render
-    106:110:void renderTranslated(int,int,float) -> a
-    113:114:void setSelected(boolean) -> a
-    117:117:boolean isSelected() -> i
-    121:121:double translateMouseX(double) -> a
-    125:125:double translateMouseY(double) -> b
-    131:133:void method_16014(double,double) -> method_16014
-    136:140:void mouseMovedTranslated(double,double) -> a
-    145:145:boolean mouseClicked(double,double,int) -> mouseClicked
-    149:149:boolean mouseClickedTranslated(double,double,int) -> a
-    155:155:boolean mouseReleased(double,double,int) -> mouseReleased
-    159:159:boolean mouseReleasedTranslated(double,double,int) -> b
-    165:165:boolean mouseDragged(double,double,int,double,double) -> mouseDragged
-    169:169:boolean mouseDraggedTranslated(double,double,int,double,double) -> a
-    175:175:boolean keyPressed(int,int,int) -> keyPressed
-    181:181:boolean method_16803(int,int,int) -> method_16803
-    187:187:boolean charTyped(char,int) -> charTyped
-    193:195:boolean mouseScrolled(double,double,double) -> mouseScrolled
-    199:199:boolean mouseScrolledTranslated(double,double,double) -> a
-    205:208:boolean isMouseOver(double,double) -> isMouseOver
-    214:214:java.util.List children() -> b
-    219:219:net.minecraft.class_327 getFont() -> a
-    137:138:boolean lambda$mouseMovedTranslated$0(double,double,net.minecraft.class_364) -> a
+    33:39:void <init>() -> <init>
+    42:46:void addWidget(net.minecraft.class_364) -> a
+    49:52:void addPanel(com.g4mesoft.gui.GSPanel) -> a
+    55:58:void clearChildren() -> l
+    61:62:void init(net.minecraft.class_310,int,int) -> a
+    65:66:void setBounds(int,int,int,int) -> a
+    69:80:void initBounds(net.minecraft.class_310,int,int,int,int) -> a
+    83:83:void init() -> init
+    86:88:void tick() -> tick
+    91:91:int getTranslationX() -> e
+    95:95:int getTranslationY() -> f
+    99:111:void render(int,int,float) -> render
+    114:118:void renderTranslated(int,int,float) -> a
+    121:122:void setSelected(boolean) -> a
+    125:125:boolean isSelected() -> i
+    129:129:double translateMouseX(double) -> a
+    133:133:double translateMouseY(double) -> b
+    139:141:void method_16014(double,double) -> method_16014
+    144:148:void mouseMovedTranslated(double,double) -> a
+    153:153:boolean mouseClicked(double,double,int) -> mouseClicked
+    157:157:boolean mouseClickedTranslated(double,double,int) -> a
+    163:163:boolean mouseReleased(double,double,int) -> mouseReleased
+    167:167:boolean mouseReleasedTranslated(double,double,int) -> b
+    173:173:boolean mouseDragged(double,double,int,double,double) -> mouseDragged
+    177:177:boolean mouseDraggedTranslated(double,double,int,double,double) -> a
+    183:183:boolean keyPressed(int,int,int) -> keyPressed
+    189:189:boolean method_16803(int,int,int) -> method_16803
+    195:195:boolean charTyped(char,int) -> charTyped
+    201:203:boolean mouseScrolled(double,double,double) -> mouseScrolled
+    207:207:boolean mouseScrolledTranslated(double,double,double) -> a
+    213:216:boolean isMouseOver(double,double) -> isMouseOver
+    222:222:java.util.List children() -> b
+    227:227:net.minecraft.class_327 getFont() -> a
+    145:146:boolean lambda$mouseMovedTranslated$0(double,double,net.minecraft.class_364) -> a
 com.g4mesoft.gui.GSScreen -> core.w:
     12:13:void <init>() -> <init>
     18:22:void method_16014(double,double) -> method_16014
@@ -320,19 +336,19 @@ com.g4mesoft.gui.GSScrollablePanel -> core.x:
     int SCROLL_BACKGROUND -> r
     double scrollOffset -> b
     boolean scrollDragActive -> f
-    16:16:void <init>() -> <init>
+    13:13:void <init>() -> <init>
     int getScrollableHeight() -> g
-    34:36:void setScrollOffset(double) -> a
-    40:79:void render(int,int,float) -> render
-    82:91:java.awt.Rectangle getDraggableScrollArea() -> a
-    96:101:void init() -> init
-    105:105:int getTranslationY() -> f
-    110:115:boolean mouseScrolledTranslated(double,double,double) -> a
-    119:119:boolean isMouseInView(double,double) -> a
-    124:129:boolean mouseClickedTranslated(double,double,int) -> a
-    134:135:boolean mouseReleasedTranslated(double,double,int) -> b
-    140:149:boolean mouseDraggedTranslated(double,double,int,double,double) -> a
-    153:153:int getScrollOffset() -> h
+    31:33:void setScrollOffset(double) -> a
+    37:61:void render(int,int,float) -> render
+    64:73:java.awt.Rectangle getDraggableScrollArea() -> a
+    78:83:void init() -> init
+    87:87:int getTranslationY() -> f
+    92:97:boolean mouseScrolledTranslated(double,double,double) -> a
+    101:101:boolean isMouseInView(double,double) -> a
+    106:111:boolean mouseClickedTranslated(double,double,int) -> a
+    116:117:boolean mouseReleasedTranslated(double,double,int) -> b
+    122:131:boolean mouseDraggedTranslated(double,double,int,double,double) -> a
+    135:135:int getScrollOffset() -> h
 com.g4mesoft.gui.GSTabbedGUI -> core.y:
     int TAB_VERTICAL_PADDING -> s
     int TAB_HORIZONTAL_PADDING -> t
@@ -708,6 +724,35 @@ com.g4mesoft.hotkey.GSKeyManager -> core.U:
     264:264:java.util.List getKeyBindings() -> c
     146:146:void lambda$registerKey$1(java.util.function.BiConsumer,java.lang.Object,com.g4mesoft.hotkey.GSKeyBinding,com.g4mesoft.hotkey.GSEKeyEventType) -> a
     125:127:void lambda$registerKey$0(com.g4mesoft.hotkey.GSEKeyEventType,java.util.function.Consumer,java.lang.Object,com.g4mesoft.hotkey.GSKeyBinding,com.g4mesoft.hotkey.GSEKeyEventType) -> a
+com.g4mesoft.mixin.client.GSBufferBuilderMixin -> com.g4mesoft.mixin.client.GSBufferBuilderMixin:
+    java.nio.ByteBuffer field_1555 -> field_1555
+    java.nio.IntBuffer field_1560 -> field_1560
+    int field_1567 -> field_1567
+    net.minecraft.class_293 field_1565 -> field_1565
+    boolean field_1556 -> field_1556
+    int field_1554 -> field_1554
+    double field_1564 -> field_1564
+    double field_1563 -> field_1563
+    double field_1562 -> field_1562
+    com.g4mesoft.gui.GSClipRect clipRect -> clipRect
+    float[] clipXBuffer -> clipXBuffer
+    float[] clipYBuffer -> clipYBuffer
+    22:39:void <init>() -> <init>
+    43:45:void onNext(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> j
+    49:51:void onEnd(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> k
+    54:150:void clipPreviousShape(boolean) -> g
+    153:174:void interpolateClipped(int,int,float,float) -> a
+    177:190:float getVertexElement(int,net.minecraft.class_296$class_297) -> a
+    195:214:void setVertexElement(int,net.minecraft.class_296$class_297,float) -> a
+    218:226:void setClip(float,float,float,float) -> a
+    230:240:void setClip(com.g4mesoft.gui.GSClipRect) -> a
+    244:244:com.g4mesoft.gui.GSClipRect getClip() -> a
+    249:249:double getOffsetX() -> a
+    254:254:double getOffsetY() -> b
+    259:259:double getOffsetZ() -> c
+com.g4mesoft.mixin.client.GSBufferBuilderMixin$1 -> com.g4mesoft.mixin.client.GSBufferBuilderMixin$1:
+    int[] $SwitchMap$net$minecraft$client$render$VertexFormatElement$Format -> d
+    177:177:void <clinit>() -> <clinit>
 com.g4mesoft.mixin.client.GSClientPlayNetworkHandlerMixin -> com.g4mesoft.mixin.client.GSClientPlayNetworkHandlerMixin:
     int WORLD_TIME_UPDATE_INTERVAL -> WORLD_TIME_UPDATE_INTERVAL
     net.minecraft.class_310 field_3690 -> field_3690
@@ -1344,12 +1389,14 @@ com.g4mesoft.util.GSFileUtils -> core.aH:
     9:11:void ensureDirectoryExists(java.io.File) -> e
     14:18:void ensureFileExists(java.io.File) -> f
 com.g4mesoft.util.GSMathUtils -> core.aI:
+    float EPSILON_F -> A
+    double EPSILON_D -> c
     3:3:void <init>() -> <init>
-    6:6:int clamp(int,int,int) -> c
-    10:10:long clamp(long,long,long) -> a
-    14:14:float clamp(float,float,float) -> a
-    18:18:double clamp(double,double,double) -> a
-    22:22:boolean equalsApproximate(float,float) -> a
-    26:26:boolean equalsApproximate(float,float,float) -> a
-    30:30:boolean equalsApproximate(double,double) -> b
-    34:34:boolean equalsApproximate(double,double,double) -> b
+    9:9:int clamp(int,int,int) -> c
+    13:13:long clamp(long,long,long) -> a
+    17:17:float clamp(float,float,float) -> a
+    21:21:double clamp(double,double,double) -> a
+    25:25:boolean equalsApproximate(float,float) -> a
+    29:29:boolean equalsApproximate(float,float,float) -> a
+    33:33:boolean equalsApproximate(double,double) -> b
+    37:37:boolean equalsApproximate(double,double,double) -> b
