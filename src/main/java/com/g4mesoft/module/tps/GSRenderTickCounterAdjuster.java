@@ -7,7 +7,7 @@ import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.util.SystemUtil;
+import net.minecraft.util.Util;
 
 public final class GSRenderTickCounterAdjuster implements GSITpsDependant {
 	
@@ -65,7 +65,7 @@ public final class GSRenderTickCounterAdjuster implements GSITpsDependant {
 		// timeScale value of the timer. To ensure that
 		// the functionality stays as expected, scale the
 		// milliseconds per tick by that value.
-		return msPerTick * ((GSIRenderTickCounterAccess)counter).getTimeScale() / DEFAULT_MS_PER_TICK;
+		return msPerTick * ((GSIRenderTickCounterAccess)counter).getTickTime() / DEFAULT_MS_PER_TICK;
 	}
 
 	public void performSynchronization(RenderTickCounter counter, long currentTimeMillis) {
@@ -165,7 +165,7 @@ public final class GSRenderTickCounterAdjuster implements GSITpsDependant {
 		synchronized (serverSyncLock) {
 			approximatedServerTickDelta = 0.0f;
 			serverTicksSinceLastSync = 0;
-			serverLast = SystemUtil.getMeasuringTimeMs();
+			serverLast = Util.getMeasuringTimeMs();
 			serverSyncInterval = syncInterval;
 			serverSyncReceived = true;
 		}

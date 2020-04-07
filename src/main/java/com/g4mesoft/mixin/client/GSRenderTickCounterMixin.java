@@ -1,6 +1,6 @@
 package com.g4mesoft.mixin.client;
 
-import org.spongepowered.asm.lib.Opcodes;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,7 +19,7 @@ import net.minecraft.client.render.RenderTickCounter;
 @Mixin(RenderTickCounter.class)
 public class GSRenderTickCounterMixin implements GSIRenderTickCounterAccess {
 
-	@Shadow @Final private float timeScale;
+	@Shadow @Final private float tickTime;
 	@Shadow public float lastFrameDuration;
 	@Shadow public long prevTimeMillis;
 	
@@ -45,7 +45,7 @@ public class GSRenderTickCounterMixin implements GSIRenderTickCounterAccess {
 	}
 
 	@Override
-	public float getTimeScale() {
-		return timeScale;
+	public float getTickTime() {
+		return tickTime;
 	}
 }

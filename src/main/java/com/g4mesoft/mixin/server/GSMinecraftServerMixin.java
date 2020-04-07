@@ -17,7 +17,7 @@ import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.SystemUtil;
+import net.minecraft.util.Util;
 import net.minecraft.util.profiler.DisableableProfiler;
 
 @Mixin(MinecraftServer.class)
@@ -53,7 +53,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 
 	private void resetTimeReference() {
-		this.timeReference = this.field_19248 = SystemUtil.getMeasuringTimeMs() + (long)msPerTick;
+		this.timeReference = this.field_19248 = Util.getMeasuringTimeMs() + (long)msPerTick;
 	}
 	
 	@Inject(method = "run", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
@@ -78,7 +78,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			long msThisTick = (long)msAccum;
 			msAccum += msPerTick - msThisTick;
 
-			long msBehind = SystemUtil.getMeasuringTimeMs() - this.timeReference;
+			long msBehind = Util.getMeasuringTimeMs() - this.timeReference;
 			if (msBehind > 1000L + 20L * msPerTick && this.timeReference - this.field_4557 >= 10000L + 100L * msPerTick) {
 				long ticksBehind = (long)(msBehind / msPerTick);
 				LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", msBehind,
@@ -104,7 +104,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 				resetTimeReference();
 			} else {
 				this.field_19249 = true;
-				this.field_19248 = Math.max(SystemUtil.getMeasuringTimeMs() + msThisTick, this.timeReference);
+				this.field_19248 = Math.max(Util.getMeasuringTimeMs() + msThisTick, this.timeReference);
 			}
 			this.method_16208();
 			this.profiler.pop();

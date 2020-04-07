@@ -21,7 +21,7 @@ import net.minecraft.client.render.VertexFormatElement;
 @Mixin(BufferBuilder.class)
 public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 
-	@Shadow private ByteBuffer bufByte;
+	@Shadow private ByteBuffer buffer;
 	@Shadow private IntBuffer bufInt;
 	@Shadow private int drawMode;
 	@Shadow private VertexFormat format;
@@ -176,16 +176,16 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	private float getVertexElement(int index, VertexFormatElement.Format vertexElementFormat) {
 		switch (vertexElementFormat) {
 		case FLOAT:
-			return bufByte.getFloat(index);
+			return buffer.getFloat(index);
 		case UINT:
 		case INT:
-			return bufByte.getInt(index);
+			return buffer.getInt(index);
 		case USHORT:
 		case SHORT:
-			return bufByte.getShort(index);
+			return buffer.getShort(index);
 		case UBYTE:
 		case BYTE:
-			return bufByte.get(index);
+			return buffer.get(index);
 		default:
 			throw new IllegalStateException("Invalid or missing format");
 		}
@@ -194,19 +194,19 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	private void setVertexElement(int index, VertexFormatElement.Format vertexElementFormat, float value) {
 		switch (vertexElementFormat) {
 		case FLOAT:
-			bufByte.putFloat(index, value);
+			buffer.putFloat(index, value);
 			break;
 		case UINT:
 		case INT:
-			bufByte.putInt(index, (int)value);
+			buffer.putInt(index, (int)value);
 			break;
 		case USHORT:
 		case SHORT:
-			bufByte.putShort(index, (short)value);
+			buffer.putShort(index, (short)value);
 			break;
 		case UBYTE:
 		case BYTE:
-			bufByte.put(index, (byte)value);
+			buffer.put(index, (byte)value);
 			break;
 		default:
 			throw new IllegalStateException("Invalid or missing format");

@@ -34,7 +34,7 @@ public abstract class GSScrollablePanel extends GSPanel {
 	
 	@Override
 	public void render(int mouseX, int mouseY, float partialTicks) {
-		BufferBuilder buffer = Tessellator.getInstance().getBufferBuilder();
+		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
 		GSIBufferBuilderAccess bufferAccess = (GSIBufferBuilderAccess)buffer;
 		GSClipRect oldClipRect = bufferAccess.getClip();
 
