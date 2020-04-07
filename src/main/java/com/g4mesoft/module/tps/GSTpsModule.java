@@ -327,7 +327,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	public boolean isPlayerAllowedTpsChange(ServerPlayerEntity player) {
-		return player.allowsPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);
+		return player.hasPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);
 	}
 	
 	@Override
