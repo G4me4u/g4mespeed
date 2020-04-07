@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import com.g4mesoft.packet.GSICustomPayloadHolder;
 
 import net.minecraft.network.listener.ServerPlayPacketListener;
-import net.minecraft.server.network.packet.CustomPayloadC2SPacket;
+import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
