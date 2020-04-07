@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.lwjgl.opengl.GL11;
-import com.g4mesoft.gui.GSTabContentGUI;
-import com.g4mesoft.core.GSCoreOverride;
+
+import com.g4mesoft.gui.GSScrollablePanel;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSISettingChangeListener;
 import com.g4mesoft.setting.GSSetting;
@@ -23,12 +23,10 @@ import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.NarratorManager;
 import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
-public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeListener {
+public class GSSettingsGUI extends GSScrollablePanel implements GSISettingChangeListener {
 
 	private static final int SETTING_CATEGORY_MARGIN = 5;
 	private static final int CATEGORY_TITLE_MARGIN_BOTTOM = 2;
@@ -54,8 +52,6 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 	private long descAnimStart;
 	
 	public GSSettingsGUI(GSSettingManager settingManager) {
-		super(NarratorManager.EMPTY);
-		
 		this.settingCategories = new LinkedHashMap<GSSettingCategory, GSSettingCategoryElement>();
 
 		for (GSSettingMap settingCategory : settingManager.getSettings()) {
@@ -107,8 +103,8 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 	}
 
 	private void layoutSettingElements() {
-		children.clear();
-
+		clearChildren();
+		
 		settingsWidth = width / 2;
 		for (GSSettingCategoryElement element : settingCategories.values()) {
 			int minElementWidth = element.getMinimumWidth();
@@ -126,7 +122,6 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 		contentHeight = y;
 	}
 	
-	@GSCoreOverride
 	@Override
 	public void tick() {
 		super.tick();
@@ -137,8 +132,6 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 	
 	@Override
 	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		super.renderTranslated(mouseX, mouseY, partialTicks);
-	
 		if (layoutChanged) {
 			layoutSettingElements();
 			layoutChanged = false;
@@ -151,6 +144,8 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 			
 			element.render(mouseX, mouseY, partialTicks);
 		}
+		
+		super.renderTranslated(mouseX, mouseY, partialTicks);
 		
 		if (hoveredElement != this.hoveredElement) {
 			this.hoveredElement = hoveredElement;
@@ -192,7 +187,8 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 		
 		int descX = settingsWidth;
 		
-		int descY = GSMathUtils.clamp(hoveredElement.getY(), getScrollOffset() - getY(), height + getScrollOffset() - descHeight);
+		int scrollOffset = getScrollOffset();
+		int descY = GSMathUtils.clamp(hoveredElement.y, scrollOffset, height + scrollOffset - descHeight);
 		
 		if (descWidth > 0 && descHeight > 0 && targetDescHeight != 0) {
 			fill(descX, descY, descX + descWidth, descY + descHeight, DESC_BACKGROUND_COLOR);
@@ -214,7 +210,6 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 		}
 	}
 
-	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();
@@ -222,13 +217,7 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 	}
 	
 	@Override
-	public void setBounds(MinecraftClient client, int x, int y, int width, int height) {
-		super.setBounds(client, x, y, width, height);
-		layoutChanged = true;
-	}
-	
-	@Override
-	public int getContentHeight() {
+	protected int getScrollableHeight() {
 		return contentHeight;
 	}
 	
@@ -299,7 +288,7 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 
 			for (GSSettingElementGUI<?> element : settings) {
 				element.initBounds(client, x, y, width, element.getPreferredHeight());
-				children.add(element);
+				addPanel(element);
 			
 				y += element.height;
 			}
@@ -334,9 +323,6 @@ public class GSSettingsGUI extends GSTabContentGUI implements GSISettingChangeLi
 		public void render(int mouseX, int mouseY, float partialTicks) {
 			String title = getTranslationModule().getTranslation(this.title);
 			drawCenteredString(GSSettingsGUI.this.textRenderer, title, x + width / 2, y, CATEGORY_TITLE_COLOR);
-			
-			for (GSSettingElementGUI<?> element : settings)
-				element.render(mouseX, mouseY, partialTicks);
 		}
 		
 		public boolean isEmpty() {

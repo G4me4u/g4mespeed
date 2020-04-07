@@ -31,7 +31,10 @@
     "client.GSClientPlayNetworkHandlerMixin",
     
     "client.GSPistonBlockEntityRendererMixin",
-    "client.GSPistonBlockEntityMixin"
+    "client.GSPistonBlockEntityMixin",
+    
+    "client.GSBufferBuilderMixin",
+    "client.GSVertexFormatElementMixin"
   ],
   "injectors": {
     "defaultRequire": 1

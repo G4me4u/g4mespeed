@@ -6,20 +6,19 @@ import java.util.List;
 
 import org.lwjgl.glfw.GLFW;
 
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.g4mesoft.core.GSCoreOverride;
+import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.hotkey.GSKeyBinding;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
-import net.minecraft.client.util.NarratorManager;
 import net.minecraft.sound.SoundEvents;
 
 @Environment(EnvType.CLIENT)
-public class GSTabbedGUI extends GSScrollableParentGUI {
+public class GSTabbedGUI extends GSScreen {
 
 	private static final int TAB_VERTICAL_PADDING = 5;
 	private static final int TAB_HORIZONTAL_PADDING = 5;
@@ -43,20 +42,16 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 	private int selectedTabIndex;
 
 	public GSTabbedGUI() {
-		super(NarratorManager.EMPTY);
-
 		tabs = new ArrayList<GSTabEntry>();
 		selectedTabIndex = -1;
 	}
 
-	public void addTab(String title, GSTabContentGUI tabContent) {
+	public void addTab(String title, GSPanel tabContent) {
 		tabs.add(new GSTabEntry(title, tabContent));
 		tabsChanged = true;
 
-		if (tabContent != null) {
-			tabContent.setTabOwner(this);
+		if (tabContent != null)
 			tabContent.setSelected(false);
-		}
 		
 		if (selectedTabIndex == -1)
 			setSelectedTabIndex(0);
@@ -76,8 +71,6 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 			if (getFocused() != tab.getTabContent())
 				setFocused(tab.getTabContent());
 		}
-		
-		setScrollOffset(0.0);
 	}
 	
 	public GSTabEntry getSelectedTab() {
@@ -119,7 +112,7 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 		for (; remainingTabs > 0; remainingTabs--) {
 			GSTabEntry tab = sortedTabs[remainingTabs - 1];
 			tab.setWidth(remainingWidth / remainingTabs);
-			tab.setDisplayTitle(trimText(tab.getTranslatedTitle(), tab.getWidth()));
+			tab.setDisplayTitle(trimText(textRenderer, tab.getTranslatedTitle(), tab.getWidth()));
 			remainingWidth -= tab.getWidth();
 		}
 
@@ -127,7 +120,7 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 
 		int tabXOffset = HORIZONTAL_MARGIN;
 		for (GSTabEntry tab : tabs) {
-			GSTabContentGUI content = tab.getTabContent();
+			GSPanel content = tab.getTabContent();
 			if (content != null) {
 				int xo = HORIZONTAL_MARGIN;
 				int yo = VERTICAL_MARGIN + tabHeight;
@@ -142,13 +135,12 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 		tabsChanged = false;
 	}
 
+	@GSCoreOverride
 	@Override
-	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		GlStateManager.translatef(0, getScrollOffset(), 0.0f);
+	public void render(int mouseX, int mouseY, float partialTicks) {
 		renderBackground();
-		GlStateManager.translatef(0, -getScrollOffset(), 0.0f);
 
-		super.renderTranslated(mouseX, mouseY, partialTicks);
+		super.render(mouseX, mouseY, partialTicks);
 
 		renderTabs(mouseX, mouseY);
 
@@ -211,8 +203,9 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 			drawVerticalLine(tab.getX(), VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
 	}
 
+	@GSCoreOverride
 	@Override
-	public boolean mouseClickedTranslated(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
 			for (int i = 0; i < tabs.size(); i++) {
 				if (i != selectedTabIndex && isTabHovered(tabs.get(i), mouseX, mouseY)) {
@@ -223,7 +216,7 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 			}
 		}
 
-		return super.mouseClickedTranslated(mouseX, mouseY, button);
+		return super.mouseClicked(mouseX, mouseY, button);
 	}
 
 	@GSCoreOverride
@@ -232,12 +225,20 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 		if (super.keyPressed(key, scancode, mods))
 			return true;
 		
-		if (isSelected() && key == GLFW.GLFW_KEY_ESCAPE) {
+		if (canKeyCloseGUI(key)) {
 			this.onClose();
 			return true;
 		}
 		
 		return false;
+	}
+	
+	private boolean canKeyCloseGUI(int key) {
+		if (key == GLFW.GLFW_KEY_ESCAPE)
+			return true;
+		
+		GSKeyBinding openGUIKey = GSControllerClient.getInstance().getOpenGUIKey();
+		return (openGUIKey != null && key == openGUIKey.getGLFWKeyCode());
 	}
 
 	@GSCoreOverride
@@ -262,43 +263,33 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 		tabsChanged = true;
 	}
 
-	@Override
-	public void setBounds(MinecraftClient client, int x, int y, int width, int height) {
-		super.setBounds(client, x, y, width, height);
-		tabsChanged = true;
-	}
-
 	@GSCoreOverride
 	@Override
 	public boolean isPauseScreen() {
 		return true;
 	}
 	
+	@GSCoreOverride
 	@Override
-	protected int getScrollableHeight() {
-		int scrollableHeight = VERTICAL_MARGIN + tabHeight;
-
-		GSTabEntry selectedTab = getSelectedTab();
-		if (selectedTab != null)
-			scrollableHeight += selectedTab.getTabContent().getContentHeight();
-		return scrollableHeight;
+	public boolean shouldCloseOnEsc() {
+		return false;
 	}
-
+	
 	private class GSTabEntry {
 
 		private final String title;
-		private final GSTabContentGUI tabContent;
+		private final GSPanel tabContent;
 
 		private String displayTitle;
 		private int x;
 		private int width;
 
-		public GSTabEntry(String title, GSTabContentGUI tabContent) {
+		public GSTabEntry(String title, GSPanel tabContent) {
 			this.title = title;
 			this.tabContent = tabContent;
 		}
 
-		public GSTabContentGUI getTabContent() {
+		public GSPanel getTabContent() {
 			return tabContent;
 		}
 
@@ -311,7 +302,8 @@ public class GSTabbedGUI extends GSScrollableParentGUI {
 		}
 		
 		public String getTranslatedTitle() {
-			return getTranslationModule().getTranslation(title);
+			return GSControllerClient.getInstance()
+					.getTranslationModule().getTranslation(title);
 		}
 
 		public void setX(int x) {

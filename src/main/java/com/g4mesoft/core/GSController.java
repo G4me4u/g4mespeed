@@ -28,8 +28,9 @@ public abstract class GSController implements GSIModuleManager {
 	protected final List<GSIModule> modules;
 	
 	protected final GSTpsModule tpsModule;
-//	protected final GSProbeModule probeModule;
 	protected final GSTranslationModule translationModule;
+	
+	private final List<GSIModuleProvider> moduleProviders;
 	
 	public GSController() {
 		settings = new GSSettingManager();
@@ -37,13 +38,14 @@ public abstract class GSController implements GSIModuleManager {
 		modules = new ArrayList<GSIModule>();
 		
 		tpsModule = new GSTpsModule();
-//		probeModule = new GSProbeModule();
 		translationModule = new GSTranslationModule();
 
-		INSTANCES.add(this);
+		moduleProviders = new ArrayList<GSIModuleProvider>();
 	}
 
 	protected void onStart() {
+		INSTANCES.add(this);
+		
 		settings.loadSettings(getSettingsFile());
 
 		initModules();
@@ -61,13 +63,19 @@ public abstract class GSController implements GSIModuleManager {
 		modules.clear();
 	}
 	
-	protected void initModules() {
-		addModule(tpsModule);
-//		addModule(probeModule);
-		addModule(translationModule);
+	public void addModuleProvider(GSIModuleProvider provider) {
+		moduleProviders.add(provider);
 	}
 	
+	protected void initModules() {
+		addModule(tpsModule);
+		addModule(translationModule);
+		
+		for (GSIModuleProvider provider : moduleProviders)
+			provider.initModules(this);
+	}
 	
+	@Override
 	public void addModule(GSIModule module) {
 		modules.add(module);
 		module.init(this);

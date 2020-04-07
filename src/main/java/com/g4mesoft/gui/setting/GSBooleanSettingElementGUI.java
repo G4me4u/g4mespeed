@@ -1,6 +1,5 @@
 package com.g4mesoft.gui.setting;
 
-import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.gui.widget.GSToggleSwitchWidget;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSBooleanSetting;
@@ -43,7 +42,6 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 		return Math.max(super.getPreferredHeight(), SETTING_HEIGHT + CONTENT_PADDING * 2);
 	}
 	
-	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();
