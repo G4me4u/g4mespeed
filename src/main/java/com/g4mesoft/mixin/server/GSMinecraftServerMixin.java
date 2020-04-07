@@ -31,11 +31,11 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	@Shadow @Final private static Logger LOGGER;
 	@Shadow private volatile boolean running;
 	@Shadow private long timeReference;
-	@Shadow private long field_4557;
+	@Shadow private long lastTimeReference;
 	@Shadow private boolean profilerStartQueued;
 	@Shadow private Profiler profiler;
 	@Shadow private volatile boolean loading;
-	@Shadow private boolean field_19249;
+	@Shadow private boolean waitingForNextTick;
 	@Shadow private long field_19248;
 
 	@Shadow protected abstract void tick(BooleanSupplier booleanSupplier);
@@ -84,11 +84,11 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			msAccum += msPerTick - msThisTick;
 
 			long msBehind = Util.getMeasuringTimeMs() - this.timeReference;
-			if (msBehind > 1000L + 20L * msPerTick && this.timeReference - this.field_4557 >= 10000L + 100L * msPerTick) {
+			if (msBehind > 1000L + 20L * msPerTick && this.timeReference - this.lastTimeReference >= 10000L + 100L * msPerTick) {
 				long ticksBehind = (long)(msBehind / msPerTick);
 				LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", msBehind, ticksBehind);
 				this.timeReference += ticksBehind * msPerTick;
-				this.field_4557 = this.timeReference;
+				this.lastTimeReference = this.timeReference;
 
 				this.msAccum = msPerTick;
 			}
@@ -106,7 +106,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 				tpsChanged = false;
 				resetTimeReference();
 			} else {
-				this.field_19249 = true;
+				this.waitingForNextTick = true;
 				this.field_19248 = Math.max(Util.getMeasuringTimeMs() + msThisTick, this.timeReference);
 			}
 			this.method_16208();

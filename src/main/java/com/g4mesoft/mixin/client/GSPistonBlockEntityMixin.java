@@ -43,7 +43,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@Override
 	@Environment(EnvType.CLIENT)
 	public float getSmoothProgress(float partialTicks) {
-		if (isRemoved() && GSMathUtils.equalsApproximate(this.progress, 1.0f))
+		if (isRemoved() && GSMathUtils.equalsApproximate(this.lastProgress, 1.0f))
 			return 1.0f;
 		
 		float val;

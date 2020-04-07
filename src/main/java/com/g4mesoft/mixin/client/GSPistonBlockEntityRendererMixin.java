@@ -13,7 +13,7 @@ import net.minecraft.client.render.block.entity.PistonBlockEntityRenderer;
 
 @Mixin(PistonBlockEntityRenderer.class)
 public class GSPistonBlockEntityRendererMixin {
-	
+
 	@Redirect(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/PistonBlockEntity;getProgress(F)F"))
 	public float getPistonProgress(PistonBlockEntity blockEntity, float partialTicks) {
 		return ((GSISmoothPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
