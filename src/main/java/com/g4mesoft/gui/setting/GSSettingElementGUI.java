@@ -1,19 +1,12 @@
 package com.g4mesoft.gui.setting;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.g4mesoft.core.GSCoreOverride;
-import com.g4mesoft.gui.GSParentGUI;
+import com.g4mesoft.gui.GSPanel;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.util.NarratorManager;
 
-public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSParentGUI {
+public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPanel {
 
 	public static final int HOVERED_BACKGROUND = 0x80000000;//0x66EDEDFF;
 	
@@ -33,21 +26,15 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	
 	protected final String settingTranslationName;
 	
-	protected final List<Drawable> drawableChildren;
-	
 	private ButtonWidget resetButton;
 	
 	public GSSettingElementGUI(GSSettingsGUI settingsGUI, T setting, GSSettingCategory category) {
-		super(NarratorManager.EMPTY);
-		
 		this.settingsGUI = settingsGUI;
 		this.setting = setting;
 		this.category = category;
 		
 		settingTranslationName = "setting." + category.getName() + "." + setting.getName();
 		
-		drawableChildren = new ArrayList<Drawable>();
-	
 		resetButton = null;
 	}
 	
@@ -57,28 +44,15 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 			fill(0, 0, width, height, HOVERED_BACKGROUND);
 		
 		super.renderTranslated(mouseX, mouseY, partialTicks);
-	
-		for (Drawable child : drawableChildren)
-			child.render(mouseX, mouseY, partialTicks);
 	}
 	
 	public int getTextColor() {
 		return setting.isEnabledInGui() ? ENABLED_TEXT_COLOR : DISABLED_TEXT_COLOR;
 	}
 	
-	public void addWidget(Element element) {
-		children.add(element);
-		
-		if (element instanceof Drawable)
-			drawableChildren.add((Drawable)element);
-	}
-	
-	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();
-		
-		drawableChildren.clear();
 		
 		resetButton = createResetButton();
 		updateResetActive();

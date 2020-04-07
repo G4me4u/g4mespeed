@@ -3,55 +3,88 @@ package com.g4mesoft.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.g4mesoft.access.GSIBufferBuilderAccess;
 import com.g4mesoft.core.GSCoreOverride;
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.module.translation.GSTranslationModule;
-import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.AbstractParentElement;
+import net.minecraft.client.gui.Drawable;
+import net.minecraft.client.gui.Element;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
 
-public abstract class GSParentGUI extends Screen {
+public abstract class GSPanel extends AbstractParentElement implements GSIDrawableHelper {
 
-	private static final String TRIMMED_TEXT_ELLIPSIS = "...";
-	private static final char FORMATTING_CHAR = '\u00A7';
-	
 	private boolean selected;
 	
-	private int x;
-	private int y;
+	protected MinecraftClient client;
+	protected TextRenderer font;
 	
-	protected GSParentGUI(Text title) {
-		super(title);
+	public int x;
+	public int y;
+	public int width;
+	public int height;
+	
+	private List<Element> children;
+	private List<Drawable> drawableWidgets;
+	private List<GSPanel> panels;
+	
+	protected GSPanel() {
+		children = new ArrayList<Element>();
+		drawableWidgets = new ArrayList<Drawable>();
+		panels = new ArrayList<GSPanel>();
 		
 		setSelected(true);
 	}
 	
-	public void initBounds(MinecraftClient client, int x, int y, int width, int height) {
-		super.init(client, width, height);
-	
-		this.x = x;
-		this.y = y;
+	public void addWidget(Element element) {
+		children.add(element);
+		
+		if (element instanceof Drawable)
+			drawableWidgets.add((Drawable)element);
 	}
 	
-	@GSCoreOverride
-	@Override
+	public void addPanel(GSPanel panel) {
+		panels.add(panel);
+
+		addWidget(panel);
+	}
+	
+	public void clearChildren() {
+		children.clear();
+		drawableWidgets.clear();
+		panels.clear();
+	}
+	
 	public final void init(MinecraftClient client, int width, int height) {
 		initBounds(client, 0, 0, width, height);
 	}
 	
 	public void setBounds(int x, int y, int width, int height) {
-		super.setSize(width, height);
-		
-		this.x = x;
-		this.y = y;
+		initBounds(client, x, y, width, height);
 	}
 
-	@GSCoreOverride
-	@Override
-	public final void setSize(int width, int height) {
-		setBounds(x, y, width, height);
+	public void initBounds(MinecraftClient client, int x, int y, int width, int height) {
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+	
+		this.client = client;
+		this.font = client.textRenderer;
+		
+		clearChildren();
+		
+		init();
+	}
+
+	public void init() {
+	}
+
+	public void tick() {
+		for (GSPanel panel : panels)
+			panel.tick();
 	}
 	
 	protected int getTranslationX() {
@@ -62,19 +95,26 @@ public abstract class GSParentGUI extends Screen {
 		return y;
 	}
 	
-	@GSCoreOverride
-	@Override
 	public void render(int mouseX, int mouseY, float partialTicks) {
 		int tx = getTranslationX();
 		int ty = getTranslationY();
+
+		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+		GSIBufferBuilderAccess bufferAccess = (GSIBufferBuilderAccess)buffer;
+		float oldOffsetX = bufferAccess.getOffsetX();
+		float oldOffsetY = bufferAccess.getOffsetY();
+		float oldOffsetZ = bufferAccess.getOffsetZ();
 		
-		GlStateManager.translatef( tx,  ty, 0.0f);
+		bufferAccess.setOffset(oldOffsetX + tx, oldOffsetY + ty, oldOffsetZ);
 		renderTranslated(mouseX - tx, mouseY - ty, partialTicks);
-		GlStateManager.translatef(-tx, -ty, 0.0f);
+		bufferAccess.setOffset(oldOffsetX, oldOffsetY, oldOffsetZ);
 	}
 	
 	protected void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		super.render(mouseX, mouseY, partialTicks);
+		for (Drawable drawable : drawableWidgets)
+			drawable.render(mouseX, mouseY, partialTicks);
+		for (GSPanel panel : panels)
+			panel.render(mouseX, mouseY, partialTicks);
 	}
 
 	public void setSelected(boolean selected) {
@@ -93,6 +133,20 @@ public abstract class GSParentGUI extends Screen {
 		return mouseY - getTranslationY();
 	}
 	
+	@GSCoreOverride
+	@Override
+	public final void mouseMoved(double mouseX, double mouseY) {
+		if (selected)
+			mouseMovedTranslated(translateMouseX(mouseX), translateMouseY(mouseY));
+	}
+
+	protected void mouseMovedTranslated(double mouseX, double mouseY) {
+		hoveredElement(mouseX, mouseY).filter((element) -> {
+			element.mouseMoved(mouseX, mouseY);
+			return true;
+		});
+	}
+
 	@GSCoreOverride
 	@Override
 	public final boolean mouseClicked(double mouseX, double mouseY, int button) {
@@ -162,113 +216,14 @@ public abstract class GSParentGUI extends Screen {
 		return mouseX >= x && mouseX < x + width && 
 		       mouseY >= y && mouseY < y + height;
 	}
-	
-	protected String trimText(String text, int availableWidth) {
-		int len = text.length();
-		if (len <= 0)
-			return text;
 
-		// Text fits inside bounds.
-		if (font.getStringWidth(text) <= availableWidth)
-			return text;
-
-		availableWidth -= font.getStringWidth(TRIMMED_TEXT_ELLIPSIS);
-
-		// No space for any other
-		// characters.
-		if (availableWidth < 0)
-			return TRIMMED_TEXT_ELLIPSIS;
-
-		for (int i = 0; i < len; i++) {
-			char c = text.charAt(i);
-			// Should probably use getStringWidth
-			// and substring instead, but for
-			// optimization we use getCharWidth.
-			availableWidth -= font.getCharWidth(c);
-
-			if (availableWidth < 0)
-				return text.substring(0, i) + TRIMMED_TEXT_ELLIPSIS;
-		}
-
-		// This should never happen.
-		return text;
-	}
-	
-	public List<String> splitToLines(String text, int availableWidth) {
-		List<String> result = new ArrayList<String>();
-		
-		int len = text.length();
-		if (len <= 0)
-			return result;
-		
-		int lineWidth = 0;
-		int lineBegin = 0;
-		
-		int lastSpaceIndex = -1;
-		
-		String formattingNextLine = "";
-		String formattingThisLine = formattingNextLine;
-		
-		for (int i = 0; i < len; i++) {
-			char c = text.charAt(i);
-			if (c == FORMATTING_CHAR) {
-				i++;
-				
-				if (i < len) {
-					c = text.charAt(i);
-					if (c == 'r') {
-						formattingNextLine = "";
-					} else {
-						formattingNextLine += Character.toString(FORMATTING_CHAR) + c;
-					}
-				}
-			} else {
-				lineWidth += font.getCharWidth(c);
-				
-				if (c == ' ')
-					lastSpaceIndex = i;
-				
-				if (lineWidth > availableWidth) {
-					if (lastSpaceIndex != -1) {
-						result.add(formattingThisLine + text.substring(lineBegin, lastSpaceIndex));
-						formattingThisLine = formattingNextLine;
-						
-						i = lastSpaceIndex;
-						lineBegin = lastSpaceIndex + 1;
-						
-						lastSpaceIndex = -1;
-					} else {
-						result.add(text.substring(lineBegin, i));
-						lineBegin = i;
-					}
-					
-					lineWidth = 0;
-				}
-			}
-		}
-
-		if (lineBegin != len)
-			result.add(formattingThisLine + text.substring(lineBegin));
-		
-		return result;
-	}
-	
-	@GSCoreOverride
 	@Override
-	public boolean shouldCloseOnEsc() {
-		// Do this manually.
-		return false;
+	public List<Element> children() {
+		return this.children;
 	}
 	
-	public int getX() {
-		return x;
-	}
-
-	public int getY() {
-		return y;
-	}
-	
-	public GSTranslationModule getTranslationModule() {
-		return GSControllerClient.getInstance().getTranslationModule();
+	@Override
+	public TextRenderer getFont() {
+		return font;
 	}
 }

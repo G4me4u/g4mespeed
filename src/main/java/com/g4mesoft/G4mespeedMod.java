@@ -12,7 +12,7 @@ import net.fabricmc.api.ModInitializer;
 public class G4mespeedMod implements ModInitializer {
 
 	public static final String MOD_NAME = "G4mespeed";
-	public static final GSVersion GS_VERSION = new GSVersion(1, 0, 5);
+	public static final GSVersion GS_VERSION = new GSVersion(1, 0, 6);
 
 	public static final Logger GS_LOGGER = LogManager.getLogger(MOD_NAME);
 

@@ -1,6 +1,5 @@
 package com.g4mesoft.gui.setting;
 
-import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.gui.widget.GSSliderWidget;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
@@ -50,7 +49,6 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 		return prefHeight;
 	}
 	
-	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();

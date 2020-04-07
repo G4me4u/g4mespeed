@@ -72,6 +72,9 @@ task obfuscateJar(type: proguard.gradle.ProGuardTask) {
 	injars "./build/libs/${jar.archiveName}"
 	outjars "./build/libs/${obfuscatedFileName}"
 	
+	printmapping "g4mespeed-mappings-mc${project.minecraft_version}.map"
+	applymapping "g4mespeed-mappings-mc${project.minecraft_version}.map"
+	
 	libraryjars "./.gradle/loom-cache/remapped_mods/net.fabricmc.yarn.${project.yarn_mappings}.net.fabricmc.fabric-loader-${project.loader_version}.jar"
 }
 

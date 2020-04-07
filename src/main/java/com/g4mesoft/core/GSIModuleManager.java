@@ -10,6 +10,8 @@ import com.g4mesoft.setting.GSSettingManager;
 
 public interface GSIModuleManager {
 
+	public void addModule(GSIModule module);
+	
 	public List<GSIModule> getModules();
 
 	public void runOnClient(Consumer<GSIModuleManagerClient> consumer);

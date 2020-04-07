@@ -3,17 +3,16 @@ package com.g4mesoft.gui.hotkey;
 import org.lwjgl.glfw.GLFW;
 
 import com.g4mesoft.core.GSCoreOverride;
-import com.g4mesoft.gui.GSParentGUI;
+import com.g4mesoft.gui.GSPanel;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.module.translation.GSTranslationModule;
 
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.InputUtil.KeyCode;
-import net.minecraft.client.util.NarratorManager;
 import net.minecraft.util.Formatting;
 
-public class GSHotkeyElementGUI extends GSParentGUI {
+public class GSHotkeyElementGUI extends GSPanel {
 
 	private static final int HOTKEY_HEIGHT = 20;
 	private static final int HOTKEY_PADDING = 2;
@@ -39,15 +38,12 @@ public class GSHotkeyElementGUI extends GSParentGUI {
 	private ButtonWidget resetButton;
 	
 	public GSHotkeyElementGUI(GSHotkeyGUI hotkeyGui, GSKeyBinding keyBinding) {
-		super(NarratorManager.EMPTY);
-		
 		this.hotkeyGui = hotkeyGui;
 		this.keyBinding = keyBinding;
 		
 		this.keyName = "hotkey." + keyBinding.getCategory() + "." + keyBinding.getName();
 	}
 
-	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();
@@ -70,8 +66,8 @@ public class GSHotkeyElementGUI extends GSParentGUI {
 			setModifying(true);
 		});
 
-		addButton(resetButton);
-		addButton(modifyButton);
+		addWidget(resetButton);
+		addWidget(modifyButton);
 		updateButtons();
 	}
 	

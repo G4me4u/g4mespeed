@@ -4,12 +4,13 @@ import java.awt.Rectangle;
 
 import org.lwjgl.glfw.GLFW;
 
-import com.g4mesoft.core.GSCoreOverride;
+import com.g4mesoft.access.GSIBufferBuilderAccess;
 import com.g4mesoft.util.GSMathUtils;
 
-import net.minecraft.text.Text;
+import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.Tessellator;
 
-public abstract class GSScrollableParentGUI extends GSParentGUI {
+public abstract class GSScrollablePanel extends GSPanel {
 
 	private static final double SCROLL_AMOUNT = 10.0;
 	
@@ -24,10 +25,6 @@ public abstract class GSScrollableParentGUI extends GSParentGUI {
 	protected double scrollOffset;
 	protected boolean scrollDragActive;
 	
-	protected GSScrollableParentGUI(Text title) {
-		super(title);
-	}
-
 	protected abstract int getScrollableHeight();
 	
 	public void setScrollOffset(double scroll) {
@@ -35,21 +32,28 @@ public abstract class GSScrollableParentGUI extends GSParentGUI {
 		this.scrollOffset = GSMathUtils.clamp(scroll, 0.0, maxScrollOffset);
 	}
 	
-	@GSCoreOverride
 	@Override
 	public void render(int mouseX, int mouseY, float partialTicks) {
-		super.render(mouseX, mouseY, partialTicks);
-		
+		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+		GSIBufferBuilderAccess bufferAccess = (GSIBufferBuilderAccess)buffer;
+		GSClipRect oldClipRect = bufferAccess.getClip();
+
 		int scrollableHeight = getScrollableHeight();
+		if (scrollableHeight > height)
+			bufferAccess.setClip(x, y, x + width, y + height);
+		
+		super.render(mouseX, mouseY, partialTicks);
+		bufferAccess.setClip(oldClipRect);
+		
 		if (scrollableHeight > height) {
 			// Note that we're not rendering in a translated
 			// mode, so we'll have to translate ourselves.
-			int x = getX() + width - SCROLL_BAR_WIDTH - SCROLL_BAR_MARGIN_X;
-			int y = getY() + SCROLL_BAR_MARGIN_Y;
-			fill(x, y, x + SCROLL_BAR_WIDTH, y + height - SCROLL_BAR_MARGIN_Y * 2, SCROLL_BACKGROUND);
+			int sx = x + width - SCROLL_BAR_WIDTH - SCROLL_BAR_MARGIN_X;
+			int sy = y + SCROLL_BAR_MARGIN_Y;
+			fill(sx, sy, sx + SCROLL_BAR_WIDTH, sy + height - SCROLL_BAR_MARGIN_Y * 2, SCROLL_BACKGROUND);
 			
 			Rectangle r = getDraggableScrollArea();
-			r.translate(getX(), getY());
+			r.translate(x, y);
 			
 			fill(r.x, r.y, r.x + r.width    , r.y + r.height    , SCROLL_SHADOW);
 			fill(r.x, r.y, r.x + r.width - 1, r.y + r.height - 1, SCROLL_HIGHLIGHT);
@@ -69,7 +73,6 @@ public abstract class GSScrollableParentGUI extends GSParentGUI {
 		return rect;
 	}
 	
-	@GSCoreOverride
 	@Override
 	public void init() {
 		super.init();

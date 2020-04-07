@@ -2,6 +2,9 @@ package com.g4mesoft.util;
 
 public final class GSMathUtils {
 
+	public static final float  EPSILON_F = 1.0E-5F;
+	public static final double EPSILON_D = 1.0E-5D;
+	
 	public static int clamp(int v, int mn, int mx) {
 		return v < mn ? mn : (v > mx ? mx : v);
 	}
@@ -19,7 +22,7 @@ public final class GSMathUtils {
 	}
 
 	public static boolean equalsApproximate(float a, float b) {
-		return equalsApproximate(a, b, 1.0E-5F);
+		return equalsApproximate(a, b, EPSILON_F);
 	}
 
 	public static boolean equalsApproximate(float a, float b, float epsilon) {
@@ -27,7 +30,7 @@ public final class GSMathUtils {
 	}
 
 	public static boolean equalsApproximate(double a, double b) {
-		return equalsApproximate(a, b, 1.0E-5F);
+		return equalsApproximate(a, b, EPSILON_D);
 	}
 
 	public static boolean equalsApproximate(double a, double b, double epsilon) {

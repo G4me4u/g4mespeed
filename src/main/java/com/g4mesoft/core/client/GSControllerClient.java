@@ -16,6 +16,7 @@ import com.g4mesoft.gui.GSTabbedGUI;
 import com.g4mesoft.gui.hotkey.GSHotkeyGUI;
 import com.g4mesoft.gui.setting.GSSettingsGUI;
 import com.g4mesoft.hotkey.GSEKeyEventType;
+import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
@@ -53,7 +54,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	private final GSKeyManager keyManager;
 
 	private final GSTabbedGUI tabbedGUI;
-
+	private GSKeyBinding openGUIKey;
+	
 	public GSControllerClient() {
 		serverVersion = GSVersion.INVALID;
 		serverSettings = new GSRemoteSettingManager(this);
@@ -83,7 +85,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		this.minecraft = minecraft;
 		
 		keyManager.loadKeys(getHotkeySettingsFile());
-		keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, 
+		openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, 
 				tabbedGUI, minecraft::openScreen, GSEKeyEventType.PRESS, false);
 		
 		onStart();
@@ -199,6 +201,10 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	
 	public GSRemoteSettingManager getServerSettings() {
 		return serverSettings;
+	}
+	
+	public GSKeyBinding getOpenGUIKey() {
+		return openGUIKey;
 	}
 	
 	public static GSControllerClient getInstance() {
