@@ -217,12 +217,6 @@ public class GSSettingsGUI extends GSScrollablePanel implements GSISettingChange
 	}
 	
 	@Override
-	public void setBounds(int x, int y, int width, int height) {
-		super.setBounds(x, y, width, height);
-		layoutChanged = true;
-	}
-	
-	@Override
 	protected int getScrollableHeight() {
 		return contentHeight;
 	}
