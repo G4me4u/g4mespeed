@@ -23,3 +23,7 @@ bin/
 # fabric
 
 run/
+
+# mappings
+g4mespeed-mappings-mc*.map
+!g4mespeed-mappings-mc1.15.2.map
