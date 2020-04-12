@@ -1412,5 +1412,4 @@ com.g4mesoft.util.GSMathUtils -> core.aK:
     29:29:boolean equalsApproximate(float,float,float) -> a
     33:33:boolean equalsApproximate(double,double) -> b
     37:37:boolean equalsApproximate(double,double,double) -> b
-
     
