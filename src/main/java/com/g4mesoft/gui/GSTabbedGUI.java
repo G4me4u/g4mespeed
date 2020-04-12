@@ -109,14 +109,14 @@ public class GSTabbedGUI extends GSScreen {
 			remainingTabs--;
 		}
 
-		for (; remainingTabs > 0; remainingTabs--) {
+		for ( ; remainingTabs > 0; remainingTabs--) {
 			GSTabEntry tab = sortedTabs[remainingTabs - 1];
 			tab.setWidth(remainingWidth / remainingTabs);
 			tab.setDisplayTitle(trimText(textRenderer, tab.getTranslatedTitle(), tab.getWidth()));
 			remainingWidth -= tab.getWidth();
 		}
 
-		children.clear();
+		clearChildren();
 
 		int tabXOffset = HORIZONTAL_MARGIN;
 		for (GSTabEntry tab : tabs) {
@@ -125,7 +125,7 @@ public class GSTabbedGUI extends GSScreen {
 				int xo = HORIZONTAL_MARGIN;
 				int yo = VERTICAL_MARGIN + tabHeight;
 				content.initBounds(client, xo, yo, contentWidth, contentHeight);
-				children.add(content);
+				addPanel(content);
 			}
 
 			tab.setX(tabXOffset);
@@ -134,35 +134,33 @@ public class GSTabbedGUI extends GSScreen {
 
 		tabsChanged = false;
 	}
-
-	@GSCoreOverride
+	
 	@Override
-	public void render(int mouseX, int mouseY, float partialTicks) {
-		renderBackground();
-
-		super.render(mouseX, mouseY, partialTicks);
-
-		renderTabs(mouseX, mouseY);
-
-		GSTabEntry selectedTab = getSelectedTab();
-		if (selectedTab != null && selectedTab.getTabContent() != null)
-			selectedTab.getTabContent().render(mouseX, mouseY, partialTicks);
-	}
-
-	@GSCoreOverride
-	@Override
-	public void tick() {
-		super.tick();
-
+	public void tickPanels() {
 		GSTabEntry selectedTab = getSelectedTab();
 		if (selectedTab != null && selectedTab.getTabContent() != null)
 			selectedTab.getTabContent().tick();
 	}
 
-	private void renderTabs(int mouseX, int mouseY) {
+	@GSCoreOverride
+	@Override
+	public void render(int mouseX, int mouseY, float partialTicks) {
 		if (tabsChanged)
 			layoutTabs();
+		
+		renderBackground();
+		super.render(mouseX, mouseY, partialTicks);
+		renderTabs(mouseX, mouseY);
+	}
+	
+	@Override
+	protected void renderPanels(int mouseX, int mouseY, float partialTicks) {
+		GSTabEntry selectedTab = getSelectedTab();
+		if (selectedTab != null && selectedTab.getTabContent() != null)
+			selectedTab.getTabContent().render(mouseX, mouseY, partialTicks);
+	}
 
+	private void renderTabs(int mouseX, int mouseY) {
 		int totalTabWidth = 0;
 
 		for (int i = 0; i < tabs.size(); i++) {

@@ -46,25 +46,23 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 	}
 	
 	public void addPanel(GSPanel panel) {
+		children.add(panel);
 		panels.add(panel);
 
-		addWidget(panel);
+		panel.onAdded();
 	}
 	
 	public void clearChildren() {
+		setFocused(null);
+		
 		children.clear();
 		drawableWidgets.clear();
+
+		for (GSPanel panel : panels)
+			panel.onRemoved();
 		panels.clear();
 	}
 	
-	public final void init(MinecraftClient client, int width, int height) {
-		initBounds(client, 0, 0, width, height);
-	}
-	
-	public void setBounds(int x, int y, int width, int height) {
-		initBounds(client, x, y, width, height);
-	}
-
 	public void initBounds(MinecraftClient client, int x, int y, int width, int height) {
 		this.x = x;
 		this.y = y;
@@ -82,6 +80,13 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 	public void init() {
 	}
 
+	protected void onAdded() {
+	}
+
+	protected void onRemoved() {
+		clearChildren();
+	}
+	
 	public void tick() {
 		for (GSPanel panel : panels)
 			panel.tick();
@@ -95,7 +100,7 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 		return y;
 	}
 	
-	public void render(int mouseX, int mouseY, float partialTicks) {
+	void render(int mouseX, int mouseY, float partialTicks) {
 		int tx = getTranslationX();
 		int ty = getTranslationY();
 
