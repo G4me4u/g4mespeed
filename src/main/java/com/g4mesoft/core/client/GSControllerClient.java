@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import org.lwjgl.glfw.GLFW;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSIExtension;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSVersion;
@@ -131,6 +132,11 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 	
 	@Override
+	protected void addExtensionModules(GSIExtension extension) {
+		extension.addClientModules(this);
+	}
+	
+	@Override
 	public boolean isThreadOwner() {
 		return minecraft != null && minecraft.isOnThread();
 	}
@@ -189,7 +195,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		if (customPayload != null)
 			networkHandler.sendPacket(customPayload);
 	}
-	
+
 	@Override
 	public File getCacheFile() {
 		return new File(minecraft.runDirectory, CACHE_DIR_NAME);

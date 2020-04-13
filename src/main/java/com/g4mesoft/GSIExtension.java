@@ -8,9 +8,9 @@ public interface GSIExtension {
 
 	public void registerPackets(GSPacketRegistry registry);
 	
-	public void addClientModules(GSControllerClient client);
+	public void addClientModules(GSControllerClient controller);
 	
-	public void addServerModules(GSControllerServer server);
+	public void addServerModules(GSControllerServer controller);
 	
 	public String getName();
 	

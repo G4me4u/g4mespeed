@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.function.Consumer;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSIExtension;
 import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSIModule;
@@ -107,6 +108,11 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		
 		for (GSIModule module : modules)
 			module.onPlayerPermissionChanged(player);
+	}
+	
+	@Override
+	protected void addExtensionModules(GSIExtension extension) {
+		extension.addServerModules(this);
 	}
 	
 	@Override

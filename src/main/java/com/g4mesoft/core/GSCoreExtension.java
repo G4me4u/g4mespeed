@@ -39,11 +39,11 @@ public class GSCoreExtension implements GSIExtension {
 	}
 
 	@Override
-	public void addClientModules(GSControllerClient client) {
+	public void addClientModules(GSControllerClient controller) {
 	}
 
 	@Override
-	public void addServerModules(GSControllerServer server) {
+	public void addServerModules(GSControllerServer controller) {
 	}
 
 	@Override
