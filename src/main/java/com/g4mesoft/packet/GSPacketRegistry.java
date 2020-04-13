@@ -5,29 +5,42 @@ import java.util.Map;
 
 public class GSPacketRegistry {
 
-	private final Class<? extends GSIPacket>[] packets;
-	private final Map<Class<? extends GSIPacket>, Integer> packetToIndex;
+	private final Map<Class<? extends GSIPacket>, Integer> packetToId;
+	private final Map<Integer, Class<? extends GSIPacket>> idToPacket;
+	private final Map<Integer, GSIPacketProvider<?>> idToPacketProvider;
 	
-	public GSPacketRegistry(Class<? extends GSIPacket>[] packets) {
-		this.packets = packets;
-		packetToIndex = new HashMap<Class<? extends GSIPacket>, Integer>();
-		
-		for (int i = 0; i < packets.length; i++)
-			packetToIndex.put(packets[i], i);
+	public GSPacketRegistry() {
+		packetToId = new HashMap<Class<? extends GSIPacket>, Integer>();
+		idToPacket = new HashMap<Integer, Class<? extends GSIPacket>>();
+		idToPacketProvider = new HashMap<Integer, GSIPacketProvider<?>>();
 	}
 	
-	public int getPacketIndex(GSIPacket packet) {
-		return getPacketIndex(packet.getClass());
+	public <T extends GSIPacket> void register(int id, Class<T> packetClazz, GSIPacketProvider<T> provider) {
+		if (idToPacket.containsKey(id))
+			throw new IllegalStateException("ID is already registered: " + id);
+		if (packetToId.containsKey(packetClazz))
+			throw new IllegalStateException("Packet class already registered: " + packetClazz);
+		
+		idToPacket.put(id, packetClazz);
+		packetToId.put(packetClazz, id);
+		idToPacketProvider.put(id, provider);
+	}
+	
+	public Class<? extends GSIPacket> getPacketFromId(int id) {
+		return idToPacket.get(id);
 	}
 
-	public int getPacketIndex(Class<? extends GSIPacket> packetClazz) {
-		Integer index = packetToIndex.get(packetClazz);
-		return (index == null) ? -1 : index.intValue();
+	public boolean containsPacket(Class<? extends GSIPacket> packetClazz) {
+		return packetToId.containsKey(packetClazz);
 	}
 	
-	public Class<? extends GSIPacket> getPacketClass(int index) {
-		if (index < 0 || index >= packets.length)
-			return null;
-		return packets[index];
+	public int getIdFromPacket(Class<? extends GSIPacket> packetClazz) {
+		Integer packetId = packetToId.get(packetClazz);
+		return (packetId == null) ? 0 : packetId.intValue();
+	}
+	
+	public GSIPacket createNewPacket(int id) {
+		GSIPacketProvider<?> provider = idToPacketProvider.get(id);
+		return (provider == null) ? null : provider.createNewPacket();
 	}
 }
