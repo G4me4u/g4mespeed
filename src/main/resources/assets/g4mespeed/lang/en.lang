@@ -3,49 +3,49 @@
 
 ############ GUI Elements ############
 
-gui.tab.clientSettings=Client settings
-gui.tab.serverSettings=Server settings
+gui.tab.clientSettings=Client Settings
+gui.tab.serverSettings=Server Settings
 gui.tab.info=Info
 gui.tab.hotkeys=Hotkeys
 
-gui.info.serverVersionTitle=Server version:
+gui.info.serverVersionTitle=Server Version:
 gui.info.invalidServer=Not installed
-gui.info.clientVersionTitle=Client version:
+gui.info.clientVersionTitle=Client Version:
 
 setting.default=Default is %s.
 setting.button.reset=Reset
 setting.button.set=Set
 
 setting.tps=Tickspeed
-setting.betterPistons=Better pistons
+setting.betterPistons=Better Pistons
 
 ############ Client Settings ############
 
-setting.tps.shiftPitch=Shift sound pitch
+setting.tps.shiftPitch=Shift Sound Pitch
 setting.tps.shiftPitch.desc=Modifies the pitch of sounds to match the speed at which the game is running.
 
-setting.tps.syncTick=Synchronized ticking
+setting.tps.syncTick=Synchronized Ticking
 setting.tps.syncTick.desc=Synchronizes the server and client tick clock to improve piston animations. This is done by approximating the server tick-cycle.
 
-setting.tps.syncTickAggression=Synchronization aggression
+setting.tps.syncTickAggression=Synchronization Aggression
 setting.tps.syncTickAggression.desc=The aggression of synchronization. A value of 1.0 will follow the approximated clock exactly. A value of 0.0 will disable synchronization.
 
-setting.tps.forceCarpetTickrate=Force Carpet tickrate
+setting.tps.forceCarpetTickrate=Force Carpet Tickrate
 setting.tps.forceCarpetTickrate.desc=Forces the client to use the tickrate set by G4mespeed and the Carpet mod. This overrides functionality related to smoothClientAnimations in Carpet. If you wish to use Carpet's handling for tickrate on the client, disable this setting.
 
-setting.tps.disableHotkeys=Turn off hotkeys
+setting.tps.disableHotkeys=Turn Off Hotkeys
 setting.tps.disableHotkeys.desc=Turns off hotkey controls. This will no longer allow you to change tps using in-game hotkeys.
 
-setting.betterPistons.cullMovingBlocks=Cull moving blocks
+setting.betterPistons.cullMovingBlocks=Cull Moving Blocks
 setting.betterPistons.cullMovingBlocks.desc=Culls the back-face of blocks that are pushed by pistons. This will mostly affect transparent moving blocks.
 
-setting.betterPistons.pistonAnimationType=Piston animation type
+setting.betterPistons.pistonAnimationType=Piston Animation Type
 setting.betterPistons.pistonAnimationType.0=Pause at end
 setting.betterPistons.pistonAnimationType.1=Pause at beginning
 setting.betterPistons.pistonAnimationType.2=No pause
 setting.betterPistons.pistonAnimationType.desc=Specifies whether to have a pause in the piston animation and if it should be at the beginning or end.
 
-setting.betterPistons.pistonRenderDistance=Piston render distance
+setting.betterPistons.pistonRenderDistance=Piston Render Distance
 setting.betterPistons.pistonRenderDistance.desc=Render distance of blocks moved by pistons. Since this has no effect if it is greater than the block event distance on the server the option can be set to Automatic to use this distance instead.
 setting.betterPistons.pistonRenderDistance.0=Automatic
 setting.betterPistons.pistonRenderDistance.1=1 chunk
@@ -57,17 +57,18 @@ hotkey.gs.title=G4mespeed
 hotkey.gs.opengui=Open GUI
 
 hotkey.tps.title=Tickspeed
-hotkey.tps.reset=Reset tps
-hotkey.tps.increment=Increment tps
-hotkey.tps.decrement=Decrement tps
-hotkey.tps.double=Double tps
-hotkey.tps.halve=Halve tps
+hotkey.tps.reset=Reset Tps
+hotkey.tps.increment=Increment Tps
+hotkey.tps.decrement=Decrement Tps
+hotkey.tps.double=Double Tps
+hotkey.tps.halve=Halve Tps
 
 gui.hotkey.button.reset=Reset
 gui.hotkey.button.cancel=Cancel
 
-# Translation version 1
-:1
+# Translation version 4
+# The older translation versions are deprecated.
+:4
 
 ###########   Commands    ############
 
@@ -82,9 +83,9 @@ command.tps.geton=Tps is %s, %so %sn
 
 ###########   Server Settings    ############
 
-setting.tps.syncPacketInterval=Synchronization interval
+setting.tps.syncPacketInterval=Synchronization Interval
 setting.tps.syncPacketInterval.desc=The interval, in ticks, at which the server transmits a synchronization packet. A value of 1 allows the clients to synchronize best but also demands higher bandwidth.
-setting.betterPistons.blockEventDistance=Block event distance
+setting.betterPistons.blockEventDistance=Block Event Distance
 setting.betterPistons.blockEventDistance.1=1 chunk
 setting.betterPistons.blockEventDistance.x=%s chunks
 setting.betterPistons.blockEventDistance.desc=The maximum block event view distance. For pistons this is also affected by piston view distance on clients.
