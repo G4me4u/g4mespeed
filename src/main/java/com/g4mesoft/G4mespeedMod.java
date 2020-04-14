@@ -21,6 +21,7 @@ public class G4mespeedMod implements ModInitializer {
 
 	public static final String MOD_NAME = "G4mespeed";
 	public static final GSVersion GS_VERSION = new GSVersion(1, 0, 6);
+	public static final byte CORE_EXTENSION_UID = (byte)0x00;
 
 	public static final Logger GS_LOGGER = LogManager.getLogger(MOD_NAME);
 
@@ -28,6 +29,8 @@ public class G4mespeedMod implements ModInitializer {
 	
 	private GSPacketManager packetManager;
 	private GSCarpetCompat carpetCompat;
+	
+	private GSCoreExtension coreExtension;
 	
 	private static final List<GSIExtension> extensions;
 	private static final Map<Byte, GSIExtension> idToExtension;
@@ -51,8 +54,10 @@ public class G4mespeedMod implements ModInitializer {
 		
 		carpetCompat = new GSCarpetCompat();
 		carpetCompat.detectCarpet();
+		
+		coreExtension = new GSCoreExtension();
 
-		addExtension(new GSCoreExtension());
+		addExtension(coreExtension);
 		
 		GS_LOGGER.info("G4mespeed " + GS_VERSION.getVersionString() + " initialized!");
 	}
@@ -94,6 +99,10 @@ public class G4mespeedMod implements ModInitializer {
 		return carpetCompat;
 	}
 
+	public GSCoreExtension getCoreExtension() {
+		return coreExtension;
+	}
+	
 	public static G4mespeedMod getInstance() {
 		return instance;
 	}

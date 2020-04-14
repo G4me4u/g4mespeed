@@ -1,5 +1,8 @@
 package com.g4mesoft.mixin.server;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,7 +28,7 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 
 	private GSVersion version = GSVersion.INVALID;
 
-	private int translationVersion = GSTranslationModule.INVALID_TRANSLATION_VERSION;
+	private Map<Byte, Integer> translationVersions = new HashMap<Byte, Integer>();
 	
 	@Shadow public ServerPlayerEntity player;
 	
@@ -55,12 +58,12 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 	}
 
 	@Override
-	public void setTranslationVersion(int translationVersion) {
-		this.translationVersion = translationVersion;
+	public void setTranslationVersion(byte uid, int translationVersion) {
+		translationVersions.put(uid, translationVersion);
 	}
 
 	@Override
-	public int getTranslationVersion() {
-		return translationVersion;
+	public int getTranslationVersion(byte uid) {
+		return translationVersions.getOrDefault(uid, GSTranslationModule.INVALID_TRANSLATION_VERSION);
 	}
 }

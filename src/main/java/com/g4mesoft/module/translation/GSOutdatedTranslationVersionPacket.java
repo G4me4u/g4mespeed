@@ -11,14 +11,15 @@ import net.fabricmc.api.Environment;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
-public class GSTranslationVersionPacket implements GSIPacket {
+public class GSOutdatedTranslationVersionPacket implements GSIPacket {
 
 	private int translationVersion;
 	
-	public GSTranslationVersionPacket() {
+	public GSOutdatedTranslationVersionPacket() {
 	}
 	
-	public GSTranslationVersionPacket(int translationVersion) {
+	@Deprecated
+	public GSOutdatedTranslationVersionPacket(int translationVersion) {
 		this.translationVersion = translationVersion;
 	}
 
@@ -34,7 +35,7 @@ public class GSTranslationVersionPacket implements GSIPacket {
 
 	@Override
 	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
-		controller.getTranslationModule().onTranslationVersionReceived(player, translationVersion);
+		controller.getTranslationModule().onOutdatedTranslationVersionReceived(player, translationVersion);
 	}
 
 	@Override

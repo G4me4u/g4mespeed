@@ -1,15 +1,7 @@
 # Translation version 0
 :0
 
-###########   Commands    ############
-
-command.gs.info=G4mespeed version is %s
-
-command.tps.get=Tps is %s
-command.tps.set=Tps has been set to %s
-command.tps.clientOnly=Client tps changed to %s
-
-############ GUI elements ############
+############ GUI Elements ############
 
 gui.tab.clientSettings=Client settings
 gui.tab.serverSettings=Server settings
@@ -27,7 +19,8 @@ setting.button.set=Set
 setting.tps=Tickspeed
 setting.betterPistons=Better pistons
 
-# Client settings
+############ Client Settings ############
+
 setting.tps.shiftPitch=Shift sound pitch
 setting.tps.shiftPitch.desc=Modifies the pitch of sounds to match the speed at which the game is running.
 
@@ -36,6 +29,12 @@ setting.tps.syncTick.desc=Synchronizes the server and client tick clock to impro
 
 setting.tps.syncTickAggression=Synchronization aggression
 setting.tps.syncTickAggression.desc=The aggression of synchronization. A value of 1.0 will follow the approximated clock exactly. A value of 0.0 will disable synchronization.
+
+setting.tps.forceCarpetTickrate=Force Carpet tickrate
+setting.tps.forceCarpetTickrate.desc=Forces the client to use the tickrate set by G4mespeed and the Carpet mod. This overrides functionality related to smoothClientAnimations in Carpet. If you wish to use Carpet's handling for tickrate on the client, disable this setting.
+
+setting.tps.disableHotkeys=Turn off hotkeys
+setting.tps.disableHotkeys.desc=Turns off hotkey controls. This will no longer allow you to change tps using in-game hotkeys.
 
 setting.betterPistons.cullMovingBlocks=Cull moving blocks
 setting.betterPistons.cullMovingBlocks.desc=Culls the back-face of blocks that are pushed by pistons. This will mostly affect transparent moving blocks.
@@ -52,20 +51,6 @@ setting.betterPistons.pistonRenderDistance.0=Automatic
 setting.betterPistons.pistonRenderDistance.1=1 chunk
 setting.betterPistons.pistonRenderDistance.x=%s chunks
 
-#Server settings
-setting.tps.syncPacketInterval=Synchronization interval
-setting.tps.syncPacketInterval.desc=The interval, in ticks, at which the server transmits a synchronization packet. A value of 1 allows the clients to synchronize best but also demands higher bandwidth.
-setting.betterPistons.blockEventDistance=Block event distance
-setting.betterPistons.blockEventDistance.1=1 chunk
-setting.betterPistons.blockEventDistance.x=%s chunks
-setting.betterPistons.blockEventDistance.desc=The maximum block event view distance. For pistons this is also affected by piston view distance on clients.
-
-# Translation version 1
-:1
-
-command.tps.getn=Tps is %s, %sn
-command.tps.geton=Tps is %s, %so %sn
-
 ############ Hotkeys ############
 
 hotkey.gs.title=G4mespeed
@@ -81,11 +66,25 @@ hotkey.tps.halve=Halve tps
 gui.hotkey.button.reset=Reset
 gui.hotkey.button.cancel=Cancel
 
-# Translation version 2
-:2
-setting.tps.forceCarpetTickrate=Force Carpet tickrate
-setting.tps.forceCarpetTickrate.desc=Forces the client to use the tickrate set by G4mespeed and the Carpet mod. This overrides functionality related to smoothClientAnimations in Carpet. If you wish to use Carpet's handling for tickrate on the client, disable this setting.
+# Translation version 1
+:1
 
-:3
-setting.tps.disableHotkeys=Turn off hotkeys
-setting.tps.disableHotkeys.desc=Turns off hotkey controls. This will no longer allow you to change tps using in-game hotkeys.
+###########   Commands    ############
+
+command.gs.info=G4mespeed version is %s
+
+command.tps.get=Tps is %s
+command.tps.set=Tps has been set to %s
+command.tps.clientOnly=Client tps changed to %s
+
+command.tps.getn=Tps is %s, %sn
+command.tps.geton=Tps is %s, %so %sn
+
+###########   Server Settings    ############
+
+setting.tps.syncPacketInterval=Synchronization interval
+setting.tps.syncPacketInterval.desc=The interval, in ticks, at which the server transmits a synchronization packet. A value of 1 allows the clients to synchronize best but also demands higher bandwidth.
+setting.betterPistons.blockEventDistance=Block event distance
+setting.betterPistons.blockEventDistance.1=1 chunk
+setting.betterPistons.blockEventDistance.x=%s chunks
+setting.betterPistons.blockEventDistance.desc=The maximum block event view distance. For pistons this is also affected by piston view distance on clients.

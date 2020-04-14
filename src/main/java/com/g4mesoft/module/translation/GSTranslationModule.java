@@ -21,35 +21,40 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSIExtension;
+import com.g4mesoft.GSIExtensionListener;
 import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.GSVersion;
+import com.g4mesoft.packet.GSIPacket;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 
-public class GSTranslationModule implements GSIModule {
+public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 
 	public static final GSVersion TRANSLATION_INTRODUCTION_VERSION = new GSVersion(1, 0, 0);
+	public static final GSVersion TRANSLATION_EXTENSION_VERSION = new GSVersion(1, 0, 6);
 	
-	private static final String TRANSLATION_FILENAME = "en.lang";
+	private static final String CACHED_TRANSLATION_FILENAME = "en.lang";
 	public static final int INVALID_TRANSLATION_VERSION = -1;
 	
 	private static final long MAX_CACHE_LIFE_HOURS = 3 * 24;
 	
 	private final Map<String, String> translations;
-	private final Map<Integer, GSTranslationCache> caches;
+	private final Map<Byte, GSTranslationCacheList> cacheLists;
 	
 	private GSIModuleManager manager;
 	
-	private int cachedTranslationVersion;
 	private long cacheSaveTime;
+	private long translationsChangeTimestamp;
 	
 	public GSTranslationModule() {
 		translations = new ConcurrentHashMap<String, String>();
-		caches = new HashMap<Integer, GSTranslationCache>();
+		cacheLists = new HashMap<Byte, GSTranslationCacheList>();
 	
-		cachedTranslationVersion = INVALID_TRANSLATION_VERSION;
+		translationsChangeTimestamp = -1L;
 	}
 
 	@Override
@@ -65,15 +70,9 @@ public class GSTranslationModule implements GSIModule {
 				// e.printStackTrace();
 			}
 		});
-		
-		URL url = GSTranslationModule.class.getResource("/assets/g4mespeed/lang/" + TRANSLATION_FILENAME);
-		if (url != null) {
-			try (InputStream is = url.openStream()) {
-				loadTranslations(is);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+
+		G4mespeedMod.getExtensions().forEach(this::addExtensionTranslations);
+		G4mespeedMod.addExtensionListener(this);
 	}
 	
 	@Override
@@ -95,36 +94,77 @@ public class GSTranslationModule implements GSIModule {
 			} catch (IOException e) {
 			}
 		});
+		
+		G4mespeedMod.removeExtensionListener(this);
+	}
+	
+	@Override
+	public void extensionAdded(GSIExtension extension) {
+		addExtensionTranslations(extension);
+	}
+	
+	private void addExtensionTranslations(GSIExtension extension) {
+		URL url = GSTranslationModule.class.getResource(extension.getTranslationPath());
+		if (url != null) {
+			try (InputStream is = url.openStream()) {
+				loadTranslations(is, extension.getUniqueId(), false);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	@Override
 	public void onJoinG4mespeedServer(GSVersion serverVersion) {
-		manager.runOnClient(m -> m.sendPacket(new GSTranslationVersionPacket(cachedTranslationVersion), TRANSLATION_INTRODUCTION_VERSION));
+		if (serverVersion.isGreaterThanOrEqualTo(TRANSLATION_INTRODUCTION_VERSION)) {
+			if (serverVersion.isGreaterThanOrEqualTo(TRANSLATION_EXTENSION_VERSION)) {
+				GSIPacket packet = new GSTranslationVersionsPacket(cacheLists);
+				manager.runOnClient(m -> m.sendPacket(packet, TRANSLATION_EXTENSION_VERSION));
+			} else {
+				GSTranslationCacheList cacheList = cacheLists.get(G4mespeedMod.CORE_EXTENSION_UID);
+				if (cacheList != null) {
+					@SuppressWarnings("deprecation")
+					GSIPacket packet = new GSOutdatedTranslationVersionPacket(cacheList.getVersion());
+					manager.runOnClient(m -> m.sendPacket(packet, TRANSLATION_INTRODUCTION_VERSION));
+				}
+			}
+		}
 	}
 	
-	public void onTranslationVersionReceived(ServerPlayerEntity player, int translationVersion) {
+	void onOutdatedTranslationVersionReceived(ServerPlayerEntity player, int translationVersion) {
+		sendMissingTranslations(player, G4mespeedMod.CORE_EXTENSION_UID, translationVersion);
+	}
+	
+	void onTranslationVersionsReceived(ServerPlayerEntity player, Map<Byte, Integer> uidToVersion) {
+		for (Byte uid : cacheLists.keySet())
+			sendMissingTranslations(player, uid, uidToVersion.getOrDefault(uid, INVALID_TRANSLATION_VERSION));
+	}
+	
+	private void sendMissingTranslations(ServerPlayerEntity player, byte uid, int translationVersion) {
 		// Make sure the player hasn't already requested
-		// a translation mapping in the current session.
-		if (((GSINetworkHandlerAccess)player.networkHandler).getTranslationVersion() != INVALID_TRANSLATION_VERSION)
-			return;
-		
-		((GSINetworkHandlerAccess)player.networkHandler).setTranslationVersion(translationVersion);
-		
-		if (translationVersion < cachedTranslationVersion) {
-			manager.runOnServer((managerServer) -> {
-				Queue<GSTranslationCache> cachesToSend = new PriorityQueue<GSTranslationCache>((e1, e2) -> {
-					return Integer.compare(e1.getCacheVersion(), e2.getCacheVersion());
+			// a translation mapping in the current session.
+			if (((GSINetworkHandlerAccess)player.networkHandler).getTranslationVersion(uid) != INVALID_TRANSLATION_VERSION)
+				return;
+			
+			
+			GSTranslationCacheList cacheList = cacheLists.get(uid);
+			if (cacheList != null && translationVersion < cacheList.getVersion()) {
+				manager.runOnServer((managerServer) -> {
+					Queue<GSTranslationCache> cachesToSend = new PriorityQueue<GSTranslationCache>((e1, e2) -> {
+						return Integer.compare(e1.getCacheVersion(), e2.getCacheVersion());
+					});
+					
+					for (GSTranslationCache cache : cacheList.getCaches().values()) {
+						if (cache.getCacheVersion() > translationVersion)
+							cachesToSend.add(cache);
+					}
+					
+					for (GSTranslationCache cache : cachesToSend)
+						managerServer.sendPacket(new GSTranslationCachePacket(uid, cache), player);
 				});
-				
-				for (GSTranslationCache cache : caches.values()) {
-					if (cache.getCacheVersion() > translationVersion)
-						cachesToSend.add(cache);
-				}
-				
-				for (GSTranslationCache cache : cachesToSend)
-					managerServer.sendPacket(new GSTranslationCachePacket(cache), player);
-			});
-		}
+
+				((GSINetworkHandlerAccess)player.networkHandler).setTranslationVersion(uid, cacheList.getVersion());
+			}
 	}
 	
 	private void loadCachedTranslations(InputStream is) throws IOException {
@@ -151,20 +191,20 @@ public class GSTranslationModule implements GSIModule {
 			if (TimeUnit.HOURS.convert(cacheLifeDuration, TimeUnit.MILLISECONDS) > MAX_CACHE_LIFE_HOURS)
 				throw new IOException("Cache is too old. Discard it.");
 			
-			loadTranslations(reader);
+			loadTranslations(reader, G4mespeedMod.CORE_EXTENSION_UID, true);
 			cacheSaveTime = cacheTime;
 		}
 	}
 	
-	private void loadTranslations(InputStream is) throws IOException {
+	private void loadTranslations(InputStream is, byte extensionUid, boolean cachedTranslations) throws IOException {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
-			loadTranslations(reader);
+			loadTranslations(reader, extensionUid, cachedTranslations);
 		}
 	}
 
-	private void loadTranslations(BufferedReader reader) throws IOException {
+	private void loadTranslations(BufferedReader reader, byte extensionUid, boolean cachedTranslations) throws IOException {
 		Map<String, String> translations = new HashMap<String, String>();
-		
+
 		int currentVersion = INVALID_TRANSLATION_VERSION;
 		
 		String line;
@@ -173,9 +213,17 @@ public class GSTranslationModule implements GSIModule {
 				switch (line.charAt(0)) {
 				case '#':
 					break;
+				case '/':
+					if (cachedTranslations) {
+						try {
+							extensionUid = Byte.parseByte(line.substring(1));
+						} catch (NumberFormatException e) {
+							throw new IOException("Unable to read extension uid! (" + line + ")");
+						}
+					}
 				case ':':
 					if (!translations.isEmpty()) {
-						addTranslationCache(new GSTranslationCache(currentVersion, translations));
+						addTranslationCache(extensionUid, new GSTranslationCache(currentVersion, translations));
 						translations.clear();
 					}
 					
@@ -197,7 +245,7 @@ public class GSTranslationModule implements GSIModule {
 		}
 		
 		if (!translations.isEmpty())
-			addTranslationCache(new GSTranslationCache(currentVersion, translations));
+			addTranslationCache(extensionUid, new GSTranslationCache(currentVersion, translations));
 	}
 	
 	private void saveTranslations(OutputStream os) throws IOException {
@@ -210,40 +258,46 @@ public class GSTranslationModule implements GSIModule {
 			writer.write(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 			writer.newLine();
 			
-			writer.write("# Cache version ");
-			writer.write(Integer.toString(cachedTranslationVersion));
-			writer.newLine();
-			
-			for (GSTranslationCache cache : caches.values()) {
-				writer.write(':');
-				writer.write(Integer.toString(cache.getCacheVersion()));
+			for (Map.Entry<Byte, GSTranslationCacheList> entry : cacheLists.entrySet()) {
+				writer.write('/');
+				writer.write(Byte.toString(entry.getKey().byteValue()));
 				writer.newLine();
 				
-				for (Map.Entry<String, String> translation : cache.getTranslationMap().entrySet()) {
-					writer.write(translation.getKey());
-					writer.write('=');
-					writer.write(translation.getValue());
+				for (GSTranslationCache cache : entry.getValue().getCaches().values()) {
+					writer.write(':');
+					writer.write(Integer.toString(cache.getCacheVersion()));
 					writer.newLine();
+					
+					for (Map.Entry<String, String> translation : cache.getTranslationMap().entrySet()) {
+						writer.write(translation.getKey());
+						writer.write('=');
+						writer.write(translation.getValue());
+						writer.newLine();
+					}
 				}
 			}
 		}
 	}
 
 	private File getCachedFile(GSIModuleManager manager) {
-		return new File(manager.getCacheFile(), TRANSLATION_FILENAME);
+		return new File(manager.getCacheFile(), CACHED_TRANSLATION_FILENAME);
 	}
 	
-	public void addTranslationCache(GSTranslationCache cache) {
-		if (cache.getCacheVersion() > cachedTranslationVersion)
-			cachedTranslationVersion = cache.getCacheVersion();
-		                                    
+	void addTranslationCache(byte uid, GSTranslationCache cache) {
 		cache.getAllTranslations(translations);
+		translationsChangeTimestamp = System.currentTimeMillis();
+
+		GSTranslationCacheList cacheList = cacheLists.get(uid);
+		if (cacheList == null) {
+			cacheList = new GSTranslationCacheList();
+			cacheLists.put(uid, cacheList);
+		}
 		
-		GSTranslationCache currentCache = caches.get(cache.getCacheVersion());
-		if (currentCache != null)
-			cache = currentCache.merge(cache);
-		
-		caches.put(cache.getCacheVersion(), cache);
+		cacheList.addTranslationCache(cache);
+	}
+	
+	public long getTranslationTimestamp() {
+		return translationsChangeTimestamp;
 	}
 	
 	public String getTranslation(String key) {
@@ -258,9 +312,5 @@ public class GSTranslationModule implements GSIModule {
 
 	public boolean hasTranslation(String key) {
 		return translations.containsKey(key);
-	}
-
-	public long getCachedTranslationVersion() {
-		return cachedTranslationVersion;
 	}
 }

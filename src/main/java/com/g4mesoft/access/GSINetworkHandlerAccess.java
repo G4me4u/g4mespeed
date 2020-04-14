@@ -8,8 +8,8 @@ public interface GSINetworkHandlerAccess {
 
 	public GSVersion getG4mespeedVersion();
 
-	public void setTranslationVersion(int translationVersion);
+	public void setTranslationVersion(byte uid, int translationVersion);
 
-	public int getTranslationVersion();
+	public int getTranslationVersion(byte uid);
 	
 }

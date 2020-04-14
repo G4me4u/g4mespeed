@@ -11,6 +11,8 @@ public interface GSIExtension {
 	public void addClientModules(GSControllerClient controller);
 	
 	public void addServerModules(GSControllerServer controller);
+
+	public String getTranslationPath();
 	
 	public String getName();
 	
