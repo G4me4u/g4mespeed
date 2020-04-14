@@ -20,6 +20,7 @@ import com.g4mesoft.setting.decoder.GSISettingDecoder;
 import com.g4mesoft.setting.decoder.GSIntegerSettingDecoder;
 import com.g4mesoft.setting.decoder.GSStringSettingDecoder;
 import com.g4mesoft.setting.types.GSUnknownSetting;
+import com.g4mesoft.util.GSBufferUtil;
 import com.g4mesoft.util.GSFileUtils;
 
 import io.netty.buffer.Unpooled;
@@ -138,7 +139,7 @@ public class GSSettingManager {
 	public void readSettings(PacketByteBuf buffer) throws IOException {
 		while (buffer.isReadable()) {
 			if (buffer.readByte() == CATEGORY_ENTRY_CODE) {
-				GSSettingCategory category = new GSSettingCategory(buffer.readString(32767));
+				GSSettingCategory category = new GSSettingCategory(buffer.readString(GSBufferUtil.MAX_STRING_LENGTH));
 				GSSettingMap map = settings.get(category);
 				
 				if (map == null) {

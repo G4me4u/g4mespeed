@@ -10,6 +10,7 @@ import java.util.function.Predicate;
 
 import com.g4mesoft.setting.decoder.GSISettingDecoder;
 import com.g4mesoft.setting.types.GSUnknownSetting;
+import com.g4mesoft.util.GSBufferUtil;
 import com.google.common.base.Predicates;
 
 import io.netty.buffer.Unpooled;
@@ -88,7 +89,7 @@ public final class GSSettingMap {
 	public void readSettings(PacketByteBuf buffer) throws DecoderException {
 		int remaining = buffer.readInt();
 		while (remaining-- > 0) {
-			String name = buffer.readString(32767);
+			String name = buffer.readString(GSBufferUtil.MAX_STRING_LENGTH);
 			String type = buffer.readString(16);
 			int sizeInBytes = buffer.readInt();
 

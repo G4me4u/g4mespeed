@@ -9,6 +9,7 @@ import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.packet.GSIPacket;
+import com.g4mesoft.util.GSBufferUtil;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -47,8 +48,8 @@ public class GSTranslationCachePacket implements GSIPacket {
 		
 		Map<String, String> translations = new HashMap<String, String>(n);
 		while (n-- > 0) {
-			String key = buf.readString(32767);
-			String value = buf.readString(32767);
+			String key = buf.readString(GSBufferUtil.MAX_STRING_LENGTH);
+			String value = buf.readString(GSBufferUtil.MAX_STRING_LENGTH);
 			translations.put(key, value);
 		}
 		
