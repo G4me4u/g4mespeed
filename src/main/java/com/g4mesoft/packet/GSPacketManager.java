@@ -6,6 +6,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSVersion;
+import com.g4mesoft.registry.GSElementRegistry;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.NetworkThreadUtils;
@@ -73,7 +74,7 @@ public class GSPacketManager {
 	}
 
 	private void registerPackets(GSIExtension extension) {
-		GSPacketRegistry registry = new GSPacketRegistry();
+		GSElementRegistry<GSIPacket> registry = new GSElementRegistry<GSIPacket>();
 		extension.registerPackets(registry);
 		registryList.addPacketRegistry(extension.getUniqueId(), registry);
 	}

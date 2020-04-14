@@ -10,7 +10,8 @@ import com.g4mesoft.module.tps.GSTpsHotkeyPacket;
 import com.g4mesoft.module.translation.GSOutdatedTranslationVersionPacket;
 import com.g4mesoft.module.translation.GSTranslationCachePacket;
 import com.g4mesoft.module.translation.GSTranslationVersionsPacket;
-import com.g4mesoft.packet.GSPacketRegistry;
+import com.g4mesoft.packet.GSIPacket;
+import com.g4mesoft.registry.GSElementRegistry;
 import com.g4mesoft.setting.GSServerSettingMapPacket;
 import com.g4mesoft.setting.GSSettingChangePacket;
 import com.g4mesoft.setting.GSSettingPermissionPacket;
@@ -20,7 +21,7 @@ public class GSCoreExtension implements GSIExtension {
 	private static final String TRANSLATION_PATH = "/assets/g4mespeed/lang/en.lang";
 	
 	@Override
-	public void registerPackets(GSPacketRegistry registry) {
+	public void registerPackets(GSElementRegistry<GSIPacket> registry) {
 		registry.register(0, GSVersionPacket.class, GSVersionPacket::new);
 		
 		registry.register(1, GSTpsHotkeyPacket.class, GSTpsHotkeyPacket::new);
