@@ -40,8 +40,6 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 		
 		tpsModule = new GSTpsModule();
 		translationModule = new GSTranslationModule();
-	
-		G4mespeedMod.addExtensionListener(this);
 	}
 
 	protected void onStart() {
@@ -50,6 +48,8 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 		settings.loadSettings(getSettingsFile());
 
 		initModules();
+
+		G4mespeedMod.addExtensionListener(this);
 	}
 	
 	protected void onStop() {
@@ -62,14 +62,15 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 		settings.clearSettings();
 		
 		modules.clear();
+
+		G4mespeedMod.removeExtensionListener(this);
 	}
 	
 	protected void initModules() {
 		addModule(tpsModule);
 		addModule(translationModule);
 		
-		for (GSIExtension extension : G4mespeedMod.getExtensions())
-			addExtensionModules(extension);
+		G4mespeedMod.getExtensions().forEach(this::addExtensionModules);
 	}
 	
 	@Override
