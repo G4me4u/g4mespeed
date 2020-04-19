@@ -8,6 +8,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 
 public interface GSIModuleManagerServer extends GSIModuleManager {
 
+	boolean isExtensionInstalled(ServerPlayerEntity player, byte extensionUid);
+
 	public void sendPacket(GSIPacket packet, ServerPlayerEntity player);
 
 	public void sendPacket(GSIPacket packet, ServerPlayerEntity player, GSVersion miminumVersion);

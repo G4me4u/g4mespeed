@@ -82,6 +82,11 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 			module.onPlayerJoin(player);
 	}
 	
+	@Override
+	public boolean isExtensionInstalled(ServerPlayerEntity player, byte extensionUid) {
+		return ((GSINetworkHandlerAccess)player.networkHandler).isExtensionInstalled(extensionUid);
+	}
+	
 	public void onG4mespeedClientJoined(ServerPlayerEntity player, GSVersion version) {
 		((GSINetworkHandlerAccess)player.networkHandler).setCoreVersion(version);
 

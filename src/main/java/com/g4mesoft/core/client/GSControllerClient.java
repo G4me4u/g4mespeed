@@ -116,6 +116,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		return serverExtensionUids;
 	}
 	
+	@Override
 	public boolean isServerExtensionInstalled(byte extensionUid) {
 		return serverExtensionUidSet.contains(extensionUid);
 	}
