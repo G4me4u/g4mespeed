@@ -7,6 +7,8 @@ import com.g4mesoft.registry.GSElementRegistry;
 
 public interface GSIExtension {
 
+	public void init();
+	
 	public void registerPackets(GSElementRegistry<GSIPacket> registry);
 	
 	public void addClientModules(GSControllerClient controller);

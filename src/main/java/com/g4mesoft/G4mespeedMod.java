@@ -20,9 +20,9 @@ import net.fabricmc.api.ModInitializer;
 public class G4mespeedMod implements ModInitializer {
 
 	public static final String CORE_MOD_NAME = "G4mespeed";
-	public static final GSVersion GS_CORE_VERSION = new GSVersion(1, 0, 6);
+	public static final GSVersion GS_CORE_VERSION = new GSVersion(1, 1, 0);
 	
-	public static final GSVersion GS_EXTENSIONS_VERSION = new GSVersion(1, 0, 6);
+	public static final GSVersion GS_EXTENSIONS_VERSION = new GSVersion(1, 1, 0);
 	public static final byte CORE_EXTENSION_UID = (byte)0x00;
 
 	public static final Logger GS_LOGGER = LogManager.getLogger(CORE_MOD_NAME);
@@ -65,6 +65,9 @@ public class G4mespeedMod implements ModInitializer {
 		addExtension(coreExtension);
 		
 		GS_LOGGER.info("G4mespeed " + GS_CORE_VERSION.getVersionString() + " initialized!");
+		
+		for (GSIExtension extension : extensions)
+			extension.init();
 	}
 	
 	public static void addExtension(GSIExtension extension) {
@@ -77,8 +80,11 @@ public class G4mespeedMod implements ModInitializer {
 			extensions.add(extension);
 		}
 
-		if (instance != null)
+		if (instance != null) {
+			extension.init();
+			
 			dispatchExtensionAddedEvent(extension);
+		}
 	}
 	
 	public static List<GSIExtension> getExtensions() {

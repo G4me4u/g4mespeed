@@ -21,6 +21,10 @@ public class GSCoreExtension implements GSIExtension {
 	private static final String TRANSLATION_PATH = "/assets/g4mespeed/lang/en.lang";
 	
 	@Override
+	public void init() {
+	}
+	
+	@Override
 	public void registerPackets(GSElementRegistry<GSIPacket> registry) {
 		registry.register(0, GSVersionPacket.class, GSVersionPacket::new);
 		

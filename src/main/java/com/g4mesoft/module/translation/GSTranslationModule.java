@@ -35,7 +35,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 
 	public static final GSVersion TRANSLATION_INTRODUCTION_VERSION = new GSVersion(1, 0, 0);
-	public static final GSVersion TRANSLATION_EXTENSION_VERSION = new GSVersion(1, 0, 6);
+	public static final GSVersion TRANSLATION_EXTENSION_VERSION = new GSVersion(1, 1, 0);
 	
 	private static final String CACHED_TRANSLATION_FILENAME = "en.lang";
 	public static final int INVALID_TRANSLATION_VERSION = -1;

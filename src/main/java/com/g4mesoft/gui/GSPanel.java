@@ -138,8 +138,8 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 		return mouseY - getTranslationY();
 	}
 	
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public final void mouseMoved(double mouseX, double mouseY) {
 		if (selected)
 			mouseMovedTranslated(translateMouseX(mouseX), translateMouseY(mouseY));
@@ -152,8 +152,8 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 		});
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public final boolean mouseClicked(double mouseX, double mouseY, int button) {
 		return selected && mouseClickedTranslated(translateMouseX(mouseX), translateMouseY(mouseY), button);
 	}
@@ -162,8 +162,8 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public final boolean mouseReleased(double mouseX, double mouseY, int button) {
 		return selected && mouseReleasedTranslated(translateMouseX(mouseX), translateMouseY(mouseY), button);
 	}
@@ -172,8 +172,8 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 		return super.mouseReleased(mouseX, mouseY, button);
 	}
 	
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public final boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
 		return selected && mouseDraggedTranslated(translateMouseX(mouseX), translateMouseY(mouseY), button, dragX, dragY);
 	}
@@ -182,26 +182,26 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 		return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public boolean keyPressed(int key, int scancode, int mods) {
 		return selected && super.keyPressed(key, scancode, mods);
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public boolean keyReleased(int key, int scancode, int mods) {
 		return selected && super.keyReleased(key, scancode, mods);
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public boolean charTyped(char c, int mods) {
 		return selected && super.charTyped(c, mods);
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public final boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
 		if (!selected)
 			return false;
@@ -212,8 +212,8 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 		return super.mouseScrolled(mouseX, mouseY, scroll);
 	}
 	
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public boolean isMouseOver(double mouseX, double mouseY) {
 		if (!selected)
 			return false;
@@ -223,6 +223,7 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 	}
 
 	@Override
+	@GSCoreOverride
 	public List<Element> children() {
 		return this.children;
 	}
