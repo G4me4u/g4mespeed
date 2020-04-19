@@ -1,7 +1,10 @@
 package com.g4mesoft.mixin.server;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,6 +31,9 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 
 	private GSVersion version = GSVersion.INVALID;
 
+	private byte[] extensionUids = new byte[0];
+	private final Set<Byte> extensionUidSet = new HashSet<Byte>();
+	
 	private Map<Byte, Integer> translationVersions = new HashMap<Byte, Integer>();
 	
 	@Shadow public ServerPlayerEntity player;
@@ -48,15 +54,34 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 	}
 	
 	@Override
-	public void setG4mespeedVersion(GSVersion version) {
+	public void setCoreVersion(GSVersion version) {
 		this.version = version;
 	}
 
 	@Override
-	public GSVersion getG4mespeedVersion() {
+	public GSVersion getCoreVersion() {
 		return version;
 	}
 
+	@Override
+	public void setExtensionUids(byte[] extensionUids) {
+		this.extensionUids = Arrays.copyOf(extensionUids, extensionUids.length);
+	
+		extensionUidSet.clear();
+		for (byte uid : this.extensionUids)
+			extensionUidSet.add(uid);
+	}
+	
+	@Override
+	public byte[] getExtensionUids() {
+		return extensionUids;
+	}
+	
+	@Override
+	public boolean isExtensionInstalled(byte extensionUid) {
+		return extensionUidSet.contains(extensionUid);
+	}
+	
 	@Override
 	public void setTranslationVersion(byte uid, int translationVersion) {
 		translationVersions.put(uid, translationVersion);

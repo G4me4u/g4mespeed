@@ -127,6 +127,6 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 
 	public abstract boolean isClient();
 
-	public abstract GSVersion getVersion();
+	public abstract GSVersion getCoreVersion();
 	
 }

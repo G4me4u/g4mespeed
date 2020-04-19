@@ -37,7 +37,7 @@ public class GSInfoGUI extends GSPanel {
 		if (controllerClient.isG4mespeedServer()) {
 			GSVersion serverVersion = controllerClient.getServerVersion();
 			int versionColor = VERSION_COLOR;
-			if (serverVersion.isLessThan(controllerClient.getVersion()))
+			if (serverVersion.isLessThan(controllerClient.getCoreVersion()))
 				versionColor = LESS_THAN_VERSION_COLOR;
 			drawCenteredString(font, serverVersion.toString(), xc, y, versionColor);
 		} else {
@@ -46,6 +46,6 @@ public class GSInfoGUI extends GSPanel {
 		y += lineHeight * 2;
 		drawCenteredString(font, translationModule.getTranslation(CLIENT_VERSION_TITLE_MSG), xc, y, TEXT_COLOR);
 		y += lineHeight;
-		drawCenteredString(font, controllerClient.getVersion().toString(), xc, y, VERSION_COLOR);
+		drawCenteredString(font, controllerClient.getCoreVersion().toString(), xc, y, VERSION_COLOR);
 	}
 }

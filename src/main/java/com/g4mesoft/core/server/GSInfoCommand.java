@@ -16,7 +16,7 @@ public final class GSInfoCommand {
 	}
 
 	private static int informG4mespeedVersion(ServerCommandSource source) {
-		source.sendFeedback(new TranslatableText("command.gs.info", G4mespeedMod.GS_VERSION), false);
+		source.sendFeedback(new TranslatableText("command.gs.info", G4mespeedMod.GS_CORE_VERSION), false);
 		return 1;
 	}
 }

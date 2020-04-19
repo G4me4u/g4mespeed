@@ -19,11 +19,13 @@ import net.fabricmc.api.ModInitializer;
 
 public class G4mespeedMod implements ModInitializer {
 
-	public static final String MOD_NAME = "G4mespeed";
-	public static final GSVersion GS_VERSION = new GSVersion(1, 0, 6);
+	public static final String CORE_MOD_NAME = "G4mespeed";
+	public static final GSVersion GS_CORE_VERSION = new GSVersion(1, 0, 6);
+	
+	public static final GSVersion GS_EXTENSIONS_VERSION = new GSVersion(1, 0, 6);
 	public static final byte CORE_EXTENSION_UID = (byte)0x00;
 
-	public static final Logger GS_LOGGER = LogManager.getLogger(MOD_NAME);
+	public static final Logger GS_LOGGER = LogManager.getLogger(CORE_MOD_NAME);
 
 	private static G4mespeedMod instance;
 	
@@ -36,10 +38,13 @@ public class G4mespeedMod implements ModInitializer {
 	private static final Map<Byte, GSIExtension> idToExtension;
 	private static final List<GSIExtensionListener> extensionListeners;
 	
+	private static byte[] extensionUidCache;
+	
 	static {
 		extensions = new ArrayList<GSIExtension>();
 		idToExtension = new HashMap<Byte, GSIExtension>();
 		extensionListeners = new ArrayList<GSIExtensionListener>();
+		extensionUidCache = new byte[0];
 	}
 	
 	public G4mespeedMod() {
@@ -59,17 +64,19 @@ public class G4mespeedMod implements ModInitializer {
 
 		addExtension(coreExtension);
 		
-		GS_LOGGER.info("G4mespeed " + GS_VERSION.getVersionString() + " initialized!");
+		GS_LOGGER.info("G4mespeed " + GS_CORE_VERSION.getVersionString() + " initialized!");
 	}
 	
 	public static void addExtension(GSIExtension extension) {
-		byte uid = extension.getUniqueId();
-		if (idToExtension.containsKey(uid))
-			throw new IllegalArgumentException("Duplicate extension ID: " + uid);
-		
-		idToExtension.put(uid, extension);
-		extensions.add(extension);
-		
+		synchronized (extensions) {
+			byte uid = extension.getUniqueId();
+			if (idToExtension.containsKey(uid))
+				throw new IllegalArgumentException("Duplicate extension ID: " + uid);
+			
+			idToExtension.put(uid, extension);
+			extensions.add(extension);
+		}
+
 		if (instance != null)
 			dispatchExtensionAddedEvent(extension);
 	}
@@ -79,16 +86,35 @@ public class G4mespeedMod implements ModInitializer {
 	}
 	
 	public static void addExtensionListener(GSIExtensionListener listener) {
-		extensionListeners.add(listener);
+		synchronized (extensionListeners) {
+			extensionListeners.add(listener);
+		}
 	}
 
 	public static void removeExtensionListener(GSIExtensionListener listener) {
-		extensionListeners.remove(listener);
+		synchronized (extensionListeners) {
+			extensionListeners.remove(listener);
+		}
+	}
+	
+	public static byte[] getExtensionUids() {
+		synchronized (extensions) {
+			int numExtensions = extensions.size();
+			if (numExtensions != extensionUidCache.length) {
+				extensionUidCache = new byte[numExtensions];
+				for (int i = 0; i < numExtensions; i++)
+					extensionUidCache[i] = extensions.get(i).getUniqueId();
+			}
+		}
+		
+		return extensionUidCache;
 	}
 
 	private static void dispatchExtensionAddedEvent(GSIExtension extension) {
-		for (GSIExtensionListener listener : extensionListeners)
-			listener.extensionAdded(extension);
+		synchronized (extensionListeners) {
+			for (GSIExtensionListener listener : extensionListeners)
+				listener.extensionAdded(extension);
+		}
 	}
 	
 	public GSPacketManager getPacketManager() {

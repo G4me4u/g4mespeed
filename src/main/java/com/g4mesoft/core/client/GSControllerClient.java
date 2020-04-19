@@ -1,6 +1,9 @@
 package com.g4mesoft.core.client;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.lwjgl.glfw.GLFW;
@@ -8,6 +11,7 @@ import org.lwjgl.glfw.GLFW;
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.core.GSController;
+import com.g4mesoft.core.GSExtensionUidsPacket;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.GSVersionPacket;
@@ -50,6 +54,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	private MinecraftClient minecraft;
 	private ClientPlayNetworkHandler networkHandler;
 
+	private byte[] serverExtensionUids;
+	private final Set<Byte> serverExtensionUidSet;
 	private GSVersion serverVersion;
 	private final GSRemoteSettingManager serverSettings;
 	private final GSKeyManager keyManager;
@@ -58,6 +64,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	private GSKeyBinding openGUIKey;
 	
 	public GSControllerClient() {
+		serverExtensionUids = new byte[0];
+		serverExtensionUidSet = new HashSet<Byte>();
 		serverVersion = GSVersion.INVALID;
 		serverSettings = new GSRemoteSettingManager(this);
 
@@ -95,17 +103,36 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	public void setNetworkHandler(ClientPlayNetworkHandler networkHandler) {
 		this.networkHandler = networkHandler;
 	}
-
+	
+	public void setServerExtensionUids(byte[] extensionUids) {
+		serverExtensionUids = Arrays.copyOf(extensionUids, extensionUids.length);
+		
+		serverExtensionUidSet.clear();
+		for (byte uid : serverExtensionUids)
+			serverExtensionUidSet.add(uid);
+	}
+	
+	public byte[] getServerExtensionUids() {
+		return serverExtensionUids;
+	}
+	
+	public boolean isServerExtensionInstalled(byte extensionUid) {
+		return serverExtensionUidSet.contains(extensionUid);
+	}
+	
 	public void onJoinG4mespeedServer(GSVersion serverVersion) {
 		this.serverVersion = serverVersion;
-		sendPacket(new GSVersionPacket(getVersion()));
+		sendPacket(new GSExtensionUidsPacket(G4mespeedMod.getExtensionUids()), G4mespeedMod.GS_EXTENSIONS_VERSION);
+		sendPacket(new GSVersionPacket(getCoreVersion()));
 
 		for (GSIModule module : modules)
 			module.onJoinG4mespeedServer(serverVersion);
 	}
-
+	
 	public void onDisconnectServer() {
-		this.serverVersion = GSVersion.INVALID;
+		serverExtensionUids = new byte[0];
+		serverExtensionUidSet.clear();
+		serverVersion = GSVersion.INVALID;
 		setNetworkHandler(null);
 
 		for (GSIModule module : modules)
@@ -152,8 +179,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 
 	@Override
-	public GSVersion getVersion() {
-		return G4mespeedMod.GS_VERSION;
+	public GSVersion getCoreVersion() {
+		return G4mespeedMod.GS_CORE_VERSION;
 	}
 
 	@Override

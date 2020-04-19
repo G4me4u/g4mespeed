@@ -36,6 +36,7 @@ public class GSCoreExtension implements GSIExtension {
 		registry.register(8, GSSettingPermissionPacket.class, GSSettingPermissionPacket::new);
 		
 		registry.register(9, GSTranslationVersionsPacket.class, GSTranslationVersionsPacket::new);
+		registry.register(10, GSExtensionUidsPacket.class, GSExtensionUidsPacket::new);
 	}
 
 	@Override
@@ -53,7 +54,7 @@ public class GSCoreExtension implements GSIExtension {
 
 	@Override
 	public String getName() {
-		return G4mespeedMod.MOD_NAME;
+		return G4mespeedMod.CORE_MOD_NAME;
 	}
 
 	@Override
