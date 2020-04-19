@@ -9,6 +9,8 @@ import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.setting.decoder.GSISettingDecoder;
 import com.g4mesoft.util.GSBufferUtil;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
@@ -71,6 +73,7 @@ public class GSSettingChangePacket implements GSIPacket {
 	}
 
 	@Override
+	@Environment(EnvType.CLIENT)
 	public void handleOnClient(GSControllerClient controller) {
 		GSRemoteSettingManager remoteSettings = controller.getServerSettings();
 		

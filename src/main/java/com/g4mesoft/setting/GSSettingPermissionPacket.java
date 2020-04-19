@@ -6,6 +6,8 @@ import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.packet.GSIPacket;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
@@ -35,6 +37,7 @@ public class GSSettingPermissionPacket implements GSIPacket {
 	}
 
 	@Override
+	@Environment(EnvType.CLIENT)
 	public void handleOnClient(GSControllerClient controller) {
 		controller.getServerSettings().setAllowedSettingChange(allowedSettingChange);
 	}
