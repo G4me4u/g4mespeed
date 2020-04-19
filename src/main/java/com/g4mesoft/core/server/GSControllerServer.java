@@ -1,6 +1,7 @@
 package com.g4mesoft.core.server;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.function.Consumer;
 
 import com.g4mesoft.G4mespeedMod;
@@ -23,6 +24,7 @@ import com.g4mesoft.setting.GSSettingChangePacket.GSESettingChangeType;
 import com.g4mesoft.setting.GSSettingMap;
 import com.g4mesoft.setting.GSSettingPermissionPacket;
 import com.mojang.brigadier.CommandDispatcher;
+
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
@@ -181,13 +183,18 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
 		Packet<?> customPayload = packetManger.encodePacket(packet, this);
 		if (customPayload != null) {
-			for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+			for (ServerPlayerEntity player : getAllPlayers()) {
 				GSVersion playerVersion = ((GSINetworkHandlerAccess)player.networkHandler).getCoreVersion();
 				
 				if (playerVersion.isGreaterThanOrEqualTo(miminumVersion))
 					player.networkHandler.sendPacket(customPayload);
 			}
 		}
+	}
+	
+	@Override
+	public Collection<ServerPlayerEntity> getAllPlayers() {
+		return server.getPlayerManager().getPlayerList();
 	}
 
 	@Override

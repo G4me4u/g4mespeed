@@ -1,5 +1,7 @@
 package com.g4mesoft.core.server;
 
+import java.util.Collection;
+
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.packet.GSIPacket;
@@ -18,4 +20,6 @@ public interface GSIModuleManagerServer extends GSIModuleManager {
 	
 	public void sendPacketToAll(GSIPacket packet, GSVersion minimumVersion);
 
+	public Collection<ServerPlayerEntity> getAllPlayers();
+	
 }
