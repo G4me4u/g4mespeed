@@ -2,6 +2,7 @@ package com.g4mesoft.gui;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.util.GSMathUtils;
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -141,11 +142,14 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 	}
 	
 	public boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
-		if (vertical == Screen.hasShiftDown())
+		// In case the user is trying to zoom in
+		// or out we shouldn't scroll.
+		if (Screen.hasControlDown())
 			return false;
 		
+		double actualScroll = (vertical != Screen.hasShiftDown()) ? scroll : ((GSIMouseAccess)client.mouse).getScrollX(); 
 		if (enabled && mouseX >= 0.0 && mouseY >= 0.0 && mouseX < parent.getWidth() && mouseY < parent.getHeight()) {
-			setScrollOffset(scrollOffset - scroll * SCROLL_AMOUNT);
+			setScrollOffset(scrollOffset - actualScroll * SCROLL_AMOUNT);
 			return true;
 		}
 		
