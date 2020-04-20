@@ -1,35 +1,19 @@
 package com.g4mesoft.gui;
 
-import java.awt.Rectangle;
-
-import org.lwjgl.glfw.GLFW;
-
 import com.g4mesoft.access.GSIBufferBuilderAccess;
-import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 
-public abstract class GSScrollablePanel extends GSPanel {
+public abstract class GSScrollablePanel extends GSPanel implements GSIScrollableViewport {
 
-	private static final double SCROLL_AMOUNT = 10.0;
-	
-	private static final int SCROLL_BAR_WIDTH    = 5;
 	private static final int SCROLL_BAR_MARGIN_X = 5;
 	private static final int SCROLL_BAR_MARGIN_Y = 10;
 	
-	private static final int SCROLL_HIGHLIGHT  = 0xFFC0C0C0;
-	private static final int SCROLL_SHADOW     = 0xFF808080;
-	private static final int SCROLL_BACKGROUND = 0xFF000000;
+	private final GSScrollBar scrollBar;
 	
-	protected double scrollOffset;
-	protected boolean scrollDragActive;
-	
-	protected abstract int getScrollableHeight();
-	
-	public void setScrollOffset(double scroll) {
-		int maxScrollOffset = Math.max(getScrollableHeight() - height, 0);
-		this.scrollOffset = GSMathUtils.clamp(scroll, 0.0, maxScrollOffset);
+	public GSScrollablePanel() {
+		scrollBar = new GSScrollBar(true, this, null);
 	}
 	
 	@Override
@@ -46,40 +30,32 @@ public abstract class GSScrollablePanel extends GSPanel {
 		bufferAccess.setClip(oldClipRect);
 		
 		if (scrollableHeight > height) {
-			// Note that we're not rendering in a translated
-			// mode, so we'll have to translate ourselves.
-			int sx = x + width - SCROLL_BAR_WIDTH - SCROLL_BAR_MARGIN_X;
-			int sy = y + SCROLL_BAR_MARGIN_Y;
-			fill(sx, sy, sx + SCROLL_BAR_WIDTH, sy + height - SCROLL_BAR_MARGIN_Y * 2, SCROLL_BACKGROUND);
-			
-			Rectangle r = getDraggableScrollArea();
-			r.translate(x, y);
-			
-			fill(r.x, r.y, r.x + r.width    , r.y + r.height    , SCROLL_SHADOW);
-			fill(r.x, r.y, r.x + r.width - 1, r.y + r.height - 1, SCROLL_HIGHLIGHT);
+			double oldOffsetX = bufferAccess.getOffsetX();
+			double oldOffsetY = bufferAccess.getOffsetY();
+			double oldOffsetZ = bufferAccess.getOffsetZ();
+			buffer.setOffset(oldOffsetX + x, oldOffsetY + y, oldOffsetZ);
+			scrollBar.render(mouseX - x, mouseY - y, partialTicks);
+			buffer.setOffset(oldOffsetX, oldOffsetY, oldOffsetZ);
 		}
-	}
-	
-	private Rectangle getDraggableScrollArea() {
-		int scrollableHeight = getScrollableHeight();
-		Rectangle rect = new Rectangle();
-		if (scrollableHeight > height) {
-			int h = height - SCROLL_BAR_MARGIN_Y * 2;
-			rect.x = width - SCROLL_BAR_WIDTH - SCROLL_BAR_MARGIN_X;
-			rect.width = SCROLL_BAR_WIDTH;
-			rect.height = Math.max(h * height / scrollableHeight, SCROLL_BAR_WIDTH);
-			rect.y = SCROLL_BAR_MARGIN_Y + (h - rect.height) * getScrollOffset() / (scrollableHeight - height);
-		}
-		return rect;
 	}
 	
 	@Override
 	public void init() {
 		super.init();
 		
-		// Update the scroll offset to make sure
-		// it is a valid scroll.
-		setScrollOffset(scrollOffset);
+		scrollBar.init(client, SCROLL_BAR_MARGIN_X, SCROLL_BAR_MARGIN_Y);
+	}
+	
+	protected abstract int getScrollableHeight();
+	
+	@Override
+	public int getContentHeight() {
+		return getScrollableHeight();
+	}
+	
+	@Override
+	public int getContentWidth() {
+		return width;
 	}
 	
 	@Override
@@ -87,51 +63,35 @@ public abstract class GSScrollablePanel extends GSPanel {
 		return super.getTranslationY() - getScrollOffset();
 	}
 	
+	protected int getScrollOffset() {
+		return (int)scrollBar.getScrollOffset();
+	}
+
 	@Override
 	protected boolean mouseScrolledTranslated(double mouseX, double mouseY, double scroll) {
-		if (isMouseInView(mouseX, mouseY - getScrollOffset())) {
-			setScrollOffset(scrollOffset - (int)(scroll * SCROLL_AMOUNT));
+		if (scrollBar.mouseScrolled(mouseX, mouseY - getScrollOffset(), scroll))
 			return true;
-		}
-		
 		return super.mouseScrolledTranslated(mouseX, mouseY, scroll);
-	}
-	
-	private boolean isMouseInView(double mouseX, double mouseY) {
-		return mouseX > 0.0 && mouseY > 0.0 && mouseX < width && mouseY < height;
 	}
 	
 	@Override
 	protected boolean mouseClickedTranslated(double mouseX, double mouseY, int button) {
-		if (button == GLFW.GLFW_MOUSE_BUTTON_1 && getDraggableScrollArea().contains(mouseX, mouseY - getScrollOffset())) {
-			scrollDragActive = true;
+		if (scrollBar.mouseClicked(mouseX, mouseY - getScrollOffset(), button))
 			return true;
-		}
-		
 		return super.mouseClickedTranslated(mouseX, mouseY, button);
 	}
 
 	@Override
 	protected boolean mouseReleasedTranslated(double mouseX, double mouseY, int button) {
-		scrollDragActive = false;
+		if (scrollBar.mouseReleased(mouseX, mouseY - getScrollOffset(), button))
+			return false;
 		return super.mouseReleasedTranslated(mouseX, mouseY, button);
 	}
 	
 	@Override
 	protected boolean mouseDraggedTranslated(double mouseX, double mouseY, int button, double dragX, double dragY) {
-		if (scrollDragActive) {
-			Rectangle r = getDraggableScrollArea();
-			int h = height - SCROLL_BAR_MARGIN_Y * 2;
-			if (r.height < h) {
-				setScrollOffset(scrollOffset + dragY * (getScrollableHeight() - height) / (h - r.height));
-				return true;
-			}
-		}
-		
+		if (scrollBar.mouseDragged(mouseX, mouseY - getScrollOffset(), button, dragX, dragY))
+			return true;
 		return super.mouseDraggedTranslated(mouseX, mouseY, button, dragX, dragY);
-	}
-	
-	public int getScrollOffset() {
-		return (int)scrollOffset;
 	}
 }

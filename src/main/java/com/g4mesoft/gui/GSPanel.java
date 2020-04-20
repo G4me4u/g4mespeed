@@ -14,7 +14,7 @@ import net.minecraft.client.gui.Element;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 
-public abstract class GSPanel extends AbstractParentElement implements GSIDrawableHelper {
+public abstract class GSPanel extends AbstractParentElement implements GSIDrawableHelper, GSIViewport {
 
 	private boolean selected;
 	
@@ -221,7 +221,7 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 		return mouseX >= x && mouseX < x + width && 
 		       mouseY >= y && mouseY < y + height;
 	}
-
+	
 	@Override
 	@GSCoreOverride
 	public List<Element> children() {
@@ -231,5 +231,23 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 	@Override
 	public TextRenderer getFont() {
 		return font;
+	}
+	
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	@Override
+	public int getWidth() {
+		return width;
+	}
+	
+	@Override
+	public int getHeight() {
+		return height;
 	}
 }

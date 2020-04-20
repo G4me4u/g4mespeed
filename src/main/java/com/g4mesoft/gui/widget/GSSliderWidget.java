@@ -23,14 +23,14 @@ public class GSSliderWidget extends SliderWidget {
 		updateMessage();
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	protected void updateMessage() {
 		setMessage(formatter.formatValue(value));
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	protected void applyValue() {
 		if (listener != null)
 			listener.onValueChanged(value);
@@ -42,8 +42,8 @@ public class GSSliderWidget extends SliderWidget {
 		updateMessage();
 	}
 	
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public boolean isHovered() {
 		// An oversight when the developers made the sliders
 		// is that they do not react properly when disabled.
