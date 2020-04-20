@@ -15,12 +15,18 @@ import net.minecraft.util.Identifier;
 
 public class GSScrollBar extends DrawableHelper implements Drawable {
 
-	private static final Identifier TEXTURE = new Identifier("g4mespeed/textures/scroll_bar.png");
+	private static final Identifier TEXTURE_LIGHT = new Identifier("g4mespeed/textures/scroll_bar_light.png");
+	private static final Identifier TEXTURE_DARK = new Identifier("g4mespeed/textures/scroll_bar_dark.png");
 	
-	private static final int KNOB_AREA_COLOR = 0xFFC6C6C6;
-	private static final int DISABLED_KNOB_AREA_COLOR = 0xFF595959;
-	private static final int KNOB_COLOR = 0xFFFFFFFF;
-	private static final int DISABLED_KNOB_COLOR = 0xFF7F7F7F;
+	private static final int LIGHT_KNOB_AREA_COLOR = 0xFFC6C6C6;
+	private static final int LIGHT_KNOB_COLOR = 0xFFFFFFFF;
+	private static final int LIGHT_DISABLED_KNOB_AREA_COLOR = 0xFF595959;
+	private static final int LIGHT_DISABLED_KNOB_COLOR = 0xFF7F7F7F;
+
+	private static final int DARK_KNOB_AREA_COLOR = 0xFF2B2A2B;
+	private static final int DARK_KNOB_COLOR = 0xFF595959;
+	private static final int DARK_DISABLED_KNOB_AREA_COLOR = 0xFF595959;
+	private static final int DARK_DISABLED_KNOB_COLOR = 0xFF7F7F7F;
 	
 	private static final double SCROLL_AMOUNT = 20.0;
 	
@@ -44,6 +50,7 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 	private double scrollOffset;
 	
 	private boolean enabled;
+	private boolean darkMode;
 	
 	public GSScrollBar(boolean vertical, GSIScrollableViewport parent, GSIScrollListener listener) {
 		this.vertical = vertical;
@@ -51,6 +58,7 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 		this.listener = listener;
 	
 		enabled = true;
+		darkMode = false;
 	}
 	
 	public void init(MinecraftClient client, int marginX, int marginY) {
@@ -84,7 +92,7 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 	}
 	
 	private void drawScrollButton(int mouseX, int mouseY, int bx, int by, boolean top) {
-		client.getTextureManager().bindTexture(TEXTURE);
+		client.getTextureManager().bindTexture(darkMode ? TEXTURE_DARK : TEXTURE_LIGHT);
 		
 		GlStateManager.disableBlend();
 		GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -102,12 +110,10 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 	}
 	
 	private void drawKnobArea() {
-		int color = enabled ? KNOB_AREA_COLOR : DISABLED_KNOB_AREA_COLOR;
-		
 		if (vertical) {
-			fill(x, y + BUTTON_SIZE, x + width, y + height - BUTTON_SIZE, color);
+			fill(x, y + BUTTON_SIZE, x + width, y + height - BUTTON_SIZE, getKnobAreaColor());
 		} else {
-			fill(x + BUTTON_SIZE, y, x + width - BUTTON_SIZE, y + height, color);
+			fill(x + BUTTON_SIZE, y, x + width - BUTTON_SIZE, y + height, getKnobAreaColor());
 		}
 	}
 	
@@ -115,13 +121,23 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 		int knobSize = getKnobSize();
 		int knobPos = getKnobPos(knobSize);
 		
-		int color = enabled ? KNOB_COLOR : DISABLED_KNOB_COLOR;
-		
 		if (vertical) {
-			fill(x + 1, knobPos, x + width - 1, knobPos + knobSize, color);
+			fill(x + 1, knobPos, x + width - 1, knobPos + knobSize, getKnobColor());
 		} else {
-			fill(knobPos, y + 1, knobPos + knobSize, y + height - 1, color);
+			fill(knobPos, y + 1, knobPos + knobSize, y + height - 1, getKnobColor());
 		}
+	}
+	
+	private int getKnobAreaColor() {
+		if (darkMode)
+			return enabled ? DARK_KNOB_AREA_COLOR : DARK_DISABLED_KNOB_AREA_COLOR;
+		return enabled ? LIGHT_KNOB_AREA_COLOR : LIGHT_DISABLED_KNOB_AREA_COLOR;
+	}
+
+	private int getKnobColor() {
+		if (darkMode)
+			return enabled ? DARK_KNOB_COLOR : DARK_DISABLED_KNOB_COLOR;
+		return enabled ? LIGHT_KNOB_COLOR : LIGHT_DISABLED_KNOB_COLOR;
 	}
 	
 	private int getKnobSize() {
@@ -159,12 +175,16 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (isMouseOver(mouseX, mouseY)) {
 			if (enabled && button == GLFW.GLFW_MOUSE_BUTTON_1) {
-				if (isMouseOverNob(mouseX, mouseY)) {
-					scrollDragActive = true;
-				} else if (mouseY < y + BUTTON_SIZE) {
+				double mousePos = vertical ? mouseY : mouseX;
+
+				int knobSize = getKnobSize();
+				int knobPos = getKnobPos(knobSize);
+				if (mousePos < knobPos) {
 					setScrollOffset(scrollOffset - SCROLL_AMOUNT);
-				} else if (mouseY > y + height - BUTTON_SIZE) {
+				} else if (mousePos >= knobPos + knobSize) {
 					setScrollOffset(scrollOffset + SCROLL_AMOUNT);
+				} else {
+					scrollDragActive = true;
 				}
 			}
 			
@@ -178,23 +198,6 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 		return (mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height);
 	}
 	
-	private boolean isMouseOverNob(double mouseX, double mouseY) {
-		double mousePos;
-		if (vertical) {
-			if (mouseX < 0.0 && mouseX >= width)
-				return false;
-			mousePos = mouseY;
-		} else {
-			if (mouseY < 0.0 && mouseY >= height)
-				return false;
-			mousePos = mouseX;
-		}
-		
-		int knobSize = getKnobSize();
-		int knobPos = getKnobPos(knobSize);
-		return (mousePos >= knobPos && mousePos < knobPos + knobSize);
-	}
-
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
 		scrollDragActive = false;
 		return false;
@@ -202,8 +205,12 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 	
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
 		if (enabled && scrollDragActive) {
-			double drag = vertical ? dragY : dragX;
-			double delta = drag * (getContentSize() - getViewSize()) / (getKnobAreaSize() - getKnobSize());
+			double delta = vertical ? dragY : dragX;
+
+			int compAreaSize = (getKnobAreaSize() - getKnobSize());
+			if (compAreaSize != 0)
+				delta *= (double)(getContentSize() - getViewSize()) / compAreaSize;
+			
 			setScrollOffset(scrollOffset + delta);
 			return true;
 		}
@@ -243,6 +250,14 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 	
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+	
+	public boolean isDarkMode() {
+		return darkMode;
+	}
+	
+	public void setDarkMode(boolean darkMode) {
+		this.darkMode = darkMode;
 	}
 	
 	public boolean isVertical() {
