@@ -157,17 +157,18 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 	}
 	
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (enabled && button == GLFW.GLFW_MOUSE_BUTTON_1 && isMouseOver(mouseX, mouseY)) {
-			if (isMouseOverNob(mouseX, mouseY)) {
-				scrollDragActive = true;
-				return true;
-			} else if (mouseY < y + BUTTON_SIZE) {
-				setScrollOffset(scrollOffset - SCROLL_AMOUNT);
-				return true;
-			} else if (mouseY > y + height - BUTTON_SIZE) {
-				setScrollOffset(scrollOffset + SCROLL_AMOUNT);
-				return true;
+		if (isMouseOver(mouseX, mouseY)) {
+			if (enabled && button == GLFW.GLFW_MOUSE_BUTTON_1) {
+				if (isMouseOverNob(mouseX, mouseY)) {
+					scrollDragActive = true;
+				} else if (mouseY < y + BUTTON_SIZE) {
+					setScrollOffset(scrollOffset - SCROLL_AMOUNT);
+				} else if (mouseY > y + height - BUTTON_SIZE) {
+					setScrollOffset(scrollOffset + SCROLL_AMOUNT);
+				}
 			}
+			
+			return true;
 		}
 		
 		return false;
