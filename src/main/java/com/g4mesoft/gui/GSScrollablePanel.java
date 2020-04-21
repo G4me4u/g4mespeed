@@ -33,6 +33,7 @@ public abstract class GSScrollablePanel extends GSPanel implements GSIScrollable
 			double oldOffsetX = bufferAccess.getOffsetX();
 			double oldOffsetY = bufferAccess.getOffsetY();
 			double oldOffsetZ = bufferAccess.getOffsetZ();
+			
 			buffer.setOffset(oldOffsetX + x, oldOffsetY + y, oldOffsetZ);
 			scrollBar.render(mouseX - x, mouseY - y, partialTicks);
 			buffer.setOffset(oldOffsetX, oldOffsetY, oldOffsetZ);

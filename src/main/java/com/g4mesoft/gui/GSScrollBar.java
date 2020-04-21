@@ -25,15 +25,14 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 
 	private static final int DARK_KNOB_AREA_COLOR = 0xFF2B2A2B;
 	private static final int DARK_KNOB_COLOR = 0xFF595959;
-	private static final int DARK_DISABLED_KNOB_AREA_COLOR = 0xFF595959;
-	private static final int DARK_DISABLED_KNOB_COLOR = 0xFF7F7F7F;
+	private static final int DARK_DISABLED_KNOB_AREA_COLOR = 0xFF000000;
+	private static final int DARK_DISABLED_KNOB_COLOR = 0xFF2B2A2B;
 	
 	private static final double SCROLL_AMOUNT = 20.0;
 	
-	private static final int SCROLL_BAR_WIDTH    = 8;
-	private static final int BUTTON_SIZE         = SCROLL_BAR_WIDTH;
-	
-	private static final int MINIMUM_NOB_SIZE    = 10;
+	public static final int SCROLL_BAR_WIDTH = 8;
+	private static final int BUTTON_SIZE = SCROLL_BAR_WIDTH;
+	private static final int MINIMUM_NOB_SIZE = 10;
 	
 	private final boolean vertical;
 	private final GSIScrollableViewport parent;
@@ -60,19 +59,23 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 		enabled = true;
 		darkMode = false;
 	}
-	
+
 	public void init(MinecraftClient client, int marginX, int marginY) {
+		init(client, marginX, marginX, marginY, marginY);
+	}
+	
+	public void init(MinecraftClient client, int ml, int mr, int mt, int mb) {
 		this.client = client;
 		
 		if (vertical) {
-			x = parent.getWidth() - marginX - SCROLL_BAR_WIDTH;
-			y = marginY;
+			x = parent.getWidth() - mr - SCROLL_BAR_WIDTH;
+			y = mt;
 			width = SCROLL_BAR_WIDTH;
-			height = parent.getHeight() - marginY * 2;
+			height = parent.getHeight() - mt - mb;
 		} else {
-			x = marginX;
-			y = parent.getHeight() - marginY - SCROLL_BAR_WIDTH;
-			width = parent.getWidth() - marginX * 2;
+			x = ml;
+			y = parent.getHeight() - mb - SCROLL_BAR_WIDTH;
+			width = parent.getWidth() - ml - mr;
 			height = SCROLL_BAR_WIDTH;
 		}
 		
