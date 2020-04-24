@@ -31,11 +31,6 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	@Shadow private int vertexCount;
 	@Shadow private int elementOffset;
 	
-	private float offsetX;
-	private float offsetY;
-	private float offsetZ;
-	
-	private boolean offsetVertices;
 	private boolean positionFormat;
 	
 	private GSClipRect clipRect;
@@ -48,12 +43,6 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 		positionFormat = hasPosition(format);
 	}
 	
-	@Inject(method = "next", at = @At("HEAD"))
-	public void onNextHead(CallbackInfo ci) {
-		if (building && positionFormat && offsetVertices)
-			offsetVertexPosition(vertexCount);
-	}
-	
 	@Inject(method = "next", at = @At("RETURN"))
 	public void onNextReturn(CallbackInfo ci) {
 		if (building && positionFormat && (vertexCount & 0x3 /* % 4 */) == 0)
@@ -63,13 +52,6 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	private static boolean hasPosition(VertexFormat format) {
 		ImmutableList<VertexFormatElement> elements = format.getElements();
 		return (elements.size() > 0 && elements.get(0).getType() == VertexFormatElement.Type.POSITION);
-	}
-	
-	private void offsetVertexPosition(int vertexIndex) {
-		int index = buildStart + vertexIndex * format.getVertexSize();
-		buffer.putFloat(index + 0, buffer.getFloat(index + 0) + offsetX);
-		buffer.putFloat(index + 4, buffer.getFloat(index + 4) + offsetY);
-		buffer.putFloat(index + 8, buffer.getFloat(index + 8) + offsetZ);
 	}
 	
 	private void clipPreviousShape() {
@@ -257,31 +239,5 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	@Override
 	public GSClipRect getClip() {
 		return (clipRect == null) ? null : new GSClipRect(clipRect);
-	}
-
-	@Override
-	public void setOffset(float offsetX, float offsetY, float offsetZ) {
-		this.offsetX = offsetX;
-		this.offsetY = offsetY;
-		this.offsetZ = offsetZ;
-		
-		offsetVertices = !GSMathUtils.equalsApproximate(offsetX, 0.0f) ||
-		                 !GSMathUtils.equalsApproximate(offsetY, 0.0f) ||
-		                 !GSMathUtils.equalsApproximate(offsetZ, 0.0f);
-	}
-	
-	@Override
-	public float getOffsetX() {
-		return offsetX;
-	}
-
-	@Override
-	public float getOffsetY() {
-		return offsetY;
-	}
-
-	@Override
-	public float getOffsetZ() {
-		return offsetZ;
 	}
 }

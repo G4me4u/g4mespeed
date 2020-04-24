@@ -9,12 +9,5 @@ public interface GSIBufferBuilderAccess {
 	public void setClip(GSClipRect clip);
 
 	public GSClipRect getClip();
-
-	public void setOffset(float offsetX, float offsetY, float offsetZ);
 	
-	public float getOffsetX();
-
-	public float getOffsetY();
-	
-	public float getOffsetZ();
 }
