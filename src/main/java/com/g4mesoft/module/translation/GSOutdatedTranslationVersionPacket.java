@@ -1,4 +1,4 @@
-package com.g4mesoft.setting;
+package com.g4mesoft.module.translation;
 
 import java.io.IOException;
 
@@ -11,34 +11,35 @@ import net.fabricmc.api.Environment;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.PacketByteBuf;
 
-public class GSSettingPermissionPacket implements GSIPacket {
+public class GSOutdatedTranslationVersionPacket implements GSIPacket {
 
-	private boolean allowedSettingChange;
+	private int translationVersion;
 	
-	public GSSettingPermissionPacket() {
-	}
-
-	public GSSettingPermissionPacket(boolean allowedSettingChange) {
-		this.allowedSettingChange = allowedSettingChange;
+	public GSOutdatedTranslationVersionPacket() {
 	}
 	
+	@Deprecated
+	public GSOutdatedTranslationVersionPacket(int translationVersion) {
+		this.translationVersion = translationVersion;
+	}
+
 	@Override
 	public void read(PacketByteBuf buf) throws IOException {
-		allowedSettingChange = buf.readBoolean();
+		translationVersion = buf.readInt();
 	}
 
 	@Override
 	public void write(PacketByteBuf buf) throws IOException {
-		buf.writeBoolean(allowedSettingChange);
+		buf.writeInt(translationVersion);
 	}
 
 	@Override
 	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
+		controller.getTranslationModule().onOutdatedTranslationVersionReceived(player, translationVersion);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
 	public void handleOnClient(GSControllerClient controller) {
-		controller.getServerSettings().setAllowedSettingChange(allowedSettingChange);
 	}
 }

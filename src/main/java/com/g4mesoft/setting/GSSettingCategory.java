@@ -1,5 +1,7 @@
 package com.g4mesoft.setting;
 
+import com.g4mesoft.util.GSBufferUtil;
+
 import net.minecraft.util.PacketByteBuf;
 
 public class GSSettingCategory {
@@ -27,7 +29,7 @@ public class GSSettingCategory {
 	}
 
 	public static GSSettingCategory read(PacketByteBuf buf) {
-		return new GSSettingCategory(buf.readString(32767));
+		return new GSSettingCategory(buf.readString(GSBufferUtil.MAX_STRING_LENGTH));
 	}
 
 	public void write(PacketByteBuf buf) {

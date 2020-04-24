@@ -16,7 +16,7 @@
 -dontwarn com.google.**
 
 # Keep entry class
--keep public class com.g4mesoft.G4mespeedMod { *; }
+-keepnames class com.g4mesoft.G4mespeedMod { }
 
 -keepnames class com.g4mesoft.mixin.**
 

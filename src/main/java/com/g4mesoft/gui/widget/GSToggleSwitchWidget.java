@@ -25,8 +25,8 @@ public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
 		this.listener = listener;
 	}
 	
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public void onPress() {
 		value = !value;
 		
@@ -41,8 +41,8 @@ public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
 		return this.value;
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public void renderButton(int mouseX, int mouseY, float partialTicks) {
 		MinecraftClient.getInstance().getTextureManager().bindTexture(TEXTURE);
 
