@@ -6,8 +6,10 @@ import com.g4mesoft.packet.GSIPacket;
 
 public interface GSIModuleManagerClient extends GSIModuleManager {
 
-	public GSVersion getServerVersion();
+	public boolean isServerExtensionInstalled(byte extensionUid);
 
+	public GSVersion getServerVersion();
+	
 	public boolean isG4mespeedServer();
 
 	public boolean isInGame();

@@ -6,6 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSIExtension;
+import com.g4mesoft.GSIExtensionListener;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSSettingManager;
@@ -14,7 +17,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;
 import net.minecraft.network.PacketByteBuf;
 
-public abstract class GSController implements GSIModuleManager {
+public abstract class GSController implements GSIModuleManager, GSIExtensionListener {
 
 	private static final String SETTINGS_PATH = "settings.cfg";
 	
@@ -30,8 +33,6 @@ public abstract class GSController implements GSIModuleManager {
 	protected final GSTpsModule tpsModule;
 	protected final GSTranslationModule translationModule;
 	
-	private final List<GSIModuleProvider> moduleProviders;
-	
 	public GSController() {
 		settings = new GSSettingManager();
 		
@@ -39,8 +40,6 @@ public abstract class GSController implements GSIModuleManager {
 		
 		tpsModule = new GSTpsModule();
 		translationModule = new GSTranslationModule();
-
-		moduleProviders = new ArrayList<GSIModuleProvider>();
 	}
 
 	protected void onStart() {
@@ -49,6 +48,8 @@ public abstract class GSController implements GSIModuleManager {
 		settings.loadSettings(getSettingsFile());
 
 		initModules();
+
+		G4mespeedMod.addExtensionListener(this);
 	}
 	
 	protected void onStop() {
@@ -61,18 +62,15 @@ public abstract class GSController implements GSIModuleManager {
 		settings.clearSettings();
 		
 		modules.clear();
-	}
-	
-	public void addModuleProvider(GSIModuleProvider provider) {
-		moduleProviders.add(provider);
+
+		G4mespeedMod.removeExtensionListener(this);
 	}
 	
 	protected void initModules() {
 		addModule(tpsModule);
 		addModule(translationModule);
 		
-		for (GSIModuleProvider provider : moduleProviders)
-			provider.initModules(this);
+		G4mespeedMod.getExtensions().forEach(this::addExtensionModules);
 	}
 	
 	@Override
@@ -116,12 +114,19 @@ public abstract class GSController implements GSIModuleManager {
 		return null;
 	}
 	
+	@Override
+	public void extensionAdded(GSIExtension extension) {
+		addExtensionModules(extension);
+	}
+	
+	protected abstract void addExtensionModules(GSIExtension extension);
+	
 	public abstract boolean isThreadOwner();
 		
 	public abstract Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer);
 
 	public abstract boolean isClient();
 
-	public abstract GSVersion getVersion();
+	public abstract GSVersion getCoreVersion();
 	
 }

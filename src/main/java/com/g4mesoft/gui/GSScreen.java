@@ -10,7 +10,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.NarratorManager;
 
-public abstract class GSScreen extends Screen implements GSIDrawableHelper {
+public abstract class GSScreen extends Screen implements GSIDrawableHelper, GSIViewport {
 
 	private boolean initialized;
 	
@@ -105,5 +105,15 @@ public abstract class GSScreen extends Screen implements GSIDrawableHelper {
 	@Override
 	public TextRenderer getTextRenderer() {
 		return textRenderer;
+	}
+	
+	@Override
+	public int getWidth() {
+		return width;
+	}
+	
+	@Override
+	public int getHeight() {
+		return height;
 	}
 }

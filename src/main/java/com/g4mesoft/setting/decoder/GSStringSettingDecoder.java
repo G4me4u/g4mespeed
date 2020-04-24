@@ -1,6 +1,7 @@
 package com.g4mesoft.setting.decoder;
 
 import com.g4mesoft.setting.types.GSStringSetting;
+import com.g4mesoft.util.GSBufferUtil;
 
 import net.minecraft.network.PacketByteBuf;
 
@@ -10,8 +11,8 @@ public class GSStringSettingDecoder implements GSISettingDecoder<GSStringSetting
 	
 	@Override
 	public GSStringSetting decodeSetting(String name, PacketByteBuf buffer) {
-		String value = buffer.readString(32767);
-		String defaultValue = buffer.readString(32767);
+		String value = buffer.readString(GSBufferUtil.MAX_STRING_LENGTH);
+		String defaultValue = buffer.readString(GSBufferUtil.MAX_STRING_LENGTH);
 		boolean visibleInGui = buffer.readBoolean();
 		
 		return new GSStringSetting(name, defaultValue, visibleInGui).setValue(value);

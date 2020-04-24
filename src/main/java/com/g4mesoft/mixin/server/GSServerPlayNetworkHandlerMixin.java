@@ -1,5 +1,11 @@
 package com.g4mesoft.mixin.server;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -25,7 +31,10 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 
 	private GSVersion version = GSVersion.INVALID;
 
-	private int translationVersion = GSTranslationModule.INVALID_TRANSLATION_VERSION;
+	private byte[] extensionUids = new byte[0];
+	private final Set<Byte> extensionUidSet = new HashSet<Byte>();
+	
+	private Map<Byte, Integer> translationVersions = new HashMap<Byte, Integer>();
 	
 	@Shadow public ServerPlayerEntity player;
 	
@@ -45,22 +54,41 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 	}
 	
 	@Override
-	public void setG4mespeedVersion(GSVersion version) {
+	public void setCoreVersion(GSVersion version) {
 		this.version = version;
 	}
 
 	@Override
-	public GSVersion getG4mespeedVersion() {
+	public GSVersion getCoreVersion() {
 		return version;
 	}
 
 	@Override
-	public void setTranslationVersion(int translationVersion) {
-		this.translationVersion = translationVersion;
+	public void setExtensionUids(byte[] extensionUids) {
+		this.extensionUids = Arrays.copyOf(extensionUids, extensionUids.length);
+	
+		extensionUidSet.clear();
+		for (byte uid : this.extensionUids)
+			extensionUidSet.add(uid);
+	}
+	
+	@Override
+	public byte[] getExtensionUids() {
+		return extensionUids;
+	}
+	
+	@Override
+	public boolean isExtensionInstalled(byte extensionUid) {
+		return extensionUidSet.contains(extensionUid);
+	}
+	
+	@Override
+	public void setTranslationVersion(byte uid, int translationVersion) {
+		translationVersions.put(uid, translationVersion);
 	}
 
 	@Override
-	public int getTranslationVersion() {
-		return translationVersion;
+	public int getTranslationVersion(byte uid) {
+		return translationVersions.getOrDefault(uid, GSTranslationModule.INVALID_TRANSLATION_VERSION);
 	}
 }

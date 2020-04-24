@@ -142,8 +142,8 @@ public class GSTabbedGUI extends GSScreen {
 			selectedTab.getTabContent().tick();
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public void render(int mouseX, int mouseY, float partialTicks) {
 		if (tabsChanged)
 			layoutTabs();
@@ -201,8 +201,8 @@ public class GSTabbedGUI extends GSScreen {
 			drawVerticalLine(tab.getX(), VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
 			for (int i = 0; i < tabs.size(); i++) {
@@ -217,8 +217,8 @@ public class GSTabbedGUI extends GSScreen {
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public boolean keyPressed(int key, int scancode, int mods) {
 		if (super.keyPressed(key, scancode, mods))
 			return true;
@@ -239,8 +239,8 @@ public class GSTabbedGUI extends GSScreen {
 		return (openGUIKey != null && key == openGUIKey.getGLFWKeyCode());
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public void setFocused(Element element) {
 		super.setFocused(element);
 
@@ -254,21 +254,21 @@ public class GSTabbedGUI extends GSScreen {
 		}
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public void init() {
 		super.init();
 		tabsChanged = true;
 	}
 
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public boolean isPauseScreen() {
 		return true;
 	}
 	
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	public boolean shouldCloseOnEsc() {
 		return false;
 	}
