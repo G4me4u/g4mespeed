@@ -15,6 +15,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundManager;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
 
 @Environment(EnvType.CLIENT)
@@ -144,23 +145,23 @@ public class GSTabbedGUI extends GSScreen {
 
 	@Override
 	@GSCoreOverride
-	public void render(int mouseX, int mouseY, float partialTicks) {
+	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		if (tabsChanged)
 			layoutTabs();
 		
-		renderBackground();
-		super.render(mouseX, mouseY, partialTicks);
-		renderTabs(mouseX, mouseY);
+		renderBackground(matrixStack);
+		super.render(matrixStack, mouseX, mouseY, partialTicks);
+		renderTabs(matrixStack, mouseX, mouseY);
 	}
 	
 	@Override
-	protected void renderPanels(int mouseX, int mouseY, float partialTicks) {
+	protected void renderPanels(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		GSTabEntry selectedTab = getSelectedTab();
 		if (selectedTab != null && selectedTab.getTabContent() != null)
-			selectedTab.getTabContent().render(mouseX, mouseY, partialTicks);
+			selectedTab.getTabContent().render(matrixStack, mouseX, mouseY, partialTicks);
 	}
 
-	private void renderTabs(int mouseX, int mouseY) {
+	private void renderTabs(MatrixStack matrixStack, int mouseX, int mouseY) {
 		int totalTabWidth = 0;
 
 		for (int i = 0; i < tabs.size(); i++) {
@@ -168,14 +169,14 @@ public class GSTabbedGUI extends GSScreen {
 			boolean selected = (i == selectedTabIndex);
 			boolean hovered = isTabHovered(tab, mouseX, mouseY);
 
-			renderTab(tab, i, selected, hovered);
+			renderTab(matrixStack, tab, i, selected, hovered);
 			totalTabWidth += tab.getWidth();
 		}
 
-		drawHorizontalLine(HORIZONTAL_MARGIN, totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN, TAB_BORDER_COLOR);
-		drawHorizontalLine(HORIZONTAL_MARGIN, totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN + tabHeight - 1, TAB_BORDER_COLOR);
-		drawVerticalLine(HORIZONTAL_MARGIN, VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
-		drawVerticalLine(totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
+		drawHorizontalLine(matrixStack, HORIZONTAL_MARGIN, totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN, TAB_BORDER_COLOR);
+		drawHorizontalLine(matrixStack, HORIZONTAL_MARGIN, totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN + tabHeight - 1, TAB_BORDER_COLOR);
+		drawVerticalLine(matrixStack, HORIZONTAL_MARGIN, VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
+		drawVerticalLine(matrixStack, totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
 	}
 
 	private boolean isTabHovered(GSTabEntry tab, double mouseX, double mouseY) {
@@ -187,18 +188,18 @@ public class GSTabbedGUI extends GSScreen {
 		soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 	}
 
-	private void renderTab(GSTabEntry tab, int tabIndex, boolean selected, boolean hovered) {
+	private void renderTab(MatrixStack matrixStack, GSTabEntry tab, int tabIndex, boolean selected, boolean hovered) {
 		int background = hovered ? HOVERED_BACKGROUND_COLOR : (selected ? SELECTED_BACKGROUND_COLOR : 0x00000000);
 		if (background != 0x00000000)
-			fill(tab.getX(), VERTICAL_MARGIN, tab.getX() + tab.getWidth(), VERTICAL_MARGIN + tabHeight, background);
+			fill(matrixStack, tab.getX(), VERTICAL_MARGIN, tab.getX() + tab.getWidth(), VERTICAL_MARGIN + tabHeight, background);
 
 		int xc = tab.getX() + tab.getWidth() / 2;
 		int yc = VERTICAL_MARGIN + (tabHeight - textRenderer.fontHeight) / 2;
 		
-		drawCenteredString(textRenderer, tab.getDisplayTitle(), xc, yc, selected ? SELECTED_TEXT_COLOR : TAB_TEXT_COLOR);
+		drawCenteredString(matrixStack, textRenderer, tab.getDisplayTitle(), xc, yc, selected ? SELECTED_TEXT_COLOR : TAB_TEXT_COLOR);
 
 		if (tabIndex != 0)
-			drawVerticalLine(tab.getX(), VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
+			drawVerticalLine(matrixStack, tab.getX(), VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
 	}
 
 	@Override

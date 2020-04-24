@@ -3,7 +3,6 @@ package com.g4mesoft.gui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.g4mesoft.access.GSIBufferBuilderAccess;
 import com.g4mesoft.core.GSCoreOverride;
 
 import net.minecraft.client.MinecraftClient;
@@ -11,8 +10,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.util.math.MatrixStack;
 
 public abstract class GSPanel extends AbstractParentElement implements GSIDrawableHelper, GSIViewport {
 
@@ -100,26 +98,21 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 		return y;
 	}
 	
-	void render(int mouseX, int mouseY, float partialTicks) {
+	void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		int tx = getTranslationX();
 		int ty = getTranslationY();
 
-		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
-		GSIBufferBuilderAccess bufferAccess = (GSIBufferBuilderAccess)buffer;
-		float oldOffsetX = bufferAccess.getOffsetX();
-		float oldOffsetY = bufferAccess.getOffsetY();
-		float oldOffsetZ = bufferAccess.getOffsetZ();
-		
-		bufferAccess.setOffset(oldOffsetX + tx, oldOffsetY + ty, oldOffsetZ);
-		renderTranslated(mouseX - tx, mouseY - ty, partialTicks);
-		bufferAccess.setOffset(oldOffsetX, oldOffsetY, oldOffsetZ);
+		matrixStack.push();
+		matrixStack.translate(tx, ty, 0.0);
+		renderTranslated(matrixStack, mouseX - tx, mouseY - ty, partialTicks);
+		matrixStack.pop();
 	}
 	
-	protected void renderTranslated(int mouseX, int mouseY, float partialTicks) {
+	protected void renderTranslated(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		for (Drawable drawable : drawableWidgets)
-			drawable.render(mouseX, mouseY, partialTicks);
+			drawable.render(matrixStack, mouseX, mouseY, partialTicks);
 		for (GSPanel panel : panels)
-			panel.render(mouseX, mouseY, partialTicks);
+			panel.render(matrixStack, mouseX, mouseY, partialTicks);
 	}
 
 	public void setSelected(boolean selected) {

@@ -11,6 +11,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
 public class GSScrollBar extends DrawableHelper implements Drawable {
@@ -86,15 +87,15 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 
 	@Override
 	@GSCoreOverride
-	public void render(int mouseX, int mouseY, float partialTicks) {
-		drawScrollButton(mouseX, mouseY, x, y, true);
-		drawScrollButton(mouseX, mouseY, x + width - BUTTON_SIZE, y + height - BUTTON_SIZE, false);
+	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+		drawScrollButton(matrixStack, mouseX, mouseY, x, y, true);
+		drawScrollButton(matrixStack, mouseX, mouseY, x + width - BUTTON_SIZE, y + height - BUTTON_SIZE, false);
 		
-		drawKnobArea();
-		drawKnob();
+		drawKnobArea(matrixStack);
+		drawKnob(matrixStack);
 	}
 	
-	private void drawScrollButton(int mouseX, int mouseY, int bx, int by, boolean top) {
+	private void drawScrollButton(MatrixStack matrixStack, int mouseX, int mouseY, int bx, int by, boolean top) {
 		client.getTextureManager().bindTexture(darkMode ? TEXTURE_DARK : TEXTURE_LIGHT);
 		
 		GlStateManager.disableBlend();
@@ -109,25 +110,25 @@ public class GSScrollBar extends DrawableHelper implements Drawable {
 			bsx = 16;
 		}
 		
-		drawTexture(bx, by, bsx, bsy, BUTTON_SIZE, BUTTON_SIZE, 24, 32);
+		drawTexture(matrixStack, bx, by, bsx, bsy, BUTTON_SIZE, BUTTON_SIZE, 24, 32);
 	}
 	
-	private void drawKnobArea() {
+	private void drawKnobArea(MatrixStack matrixStack) {
 		if (vertical) {
-			fill(x, y + BUTTON_SIZE, x + width, y + height - BUTTON_SIZE, getKnobAreaColor());
+			fill(matrixStack, x, y + BUTTON_SIZE, x + width, y + height - BUTTON_SIZE, getKnobAreaColor());
 		} else {
-			fill(x + BUTTON_SIZE, y, x + width - BUTTON_SIZE, y + height, getKnobAreaColor());
+			fill(matrixStack, x + BUTTON_SIZE, y, x + width - BUTTON_SIZE, y + height, getKnobAreaColor());
 		}
 	}
 	
-	private void drawKnob() {
+	private void drawKnob(MatrixStack matrixStack) {
 		int knobSize = getKnobSize();
 		int knobPos = getKnobPos(knobSize);
 		
 		if (vertical) {
-			fill(x + 1, knobPos, x + width - 1, knobPos + knobSize, getKnobColor());
+			fill(matrixStack, x + 1, knobPos, x + width - 1, knobPos + knobSize, getKnobColor());
 		} else {
-			fill(knobPos, y + 1, knobPos + knobSize, y + height - 1, getKnobColor());
+			fill(matrixStack, knobPos, y + 1, knobPos + knobSize, y + height - 1, getKnobColor());
 		}
 	}
 	

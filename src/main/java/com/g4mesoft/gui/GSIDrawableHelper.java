@@ -30,19 +30,19 @@ public interface GSIDrawableHelper {
 		if (availableWidth < 0)
 			return GSGUIConstants.TRIMMED_TEXT_ELLIPSIS;
 
+		String result = "";
 		for (int i = 0; i < len; i++) {
-			char c = text.charAt(i);
-			// Should probably use getStringWidth
-			// and substring instead, but for
-			// optimization we use getCharWidth.
-			availableWidth -= font.getCharWidth(c);
+			String str = text.substring(0, i + 1);
+			int width = font.getStringWidth(str);
 
-			if (availableWidth < 0)
-				return text.substring(0, i) + GSGUIConstants.TRIMMED_TEXT_ELLIPSIS;
+			if (width >= availableWidth)
+				return result + GSGUIConstants.TRIMMED_TEXT_ELLIPSIS;
+		
+			result = str;
 		}
 
 		// This should never happen.
-		return text;
+		return result;
 	}
 
 	default public List<String> splitToLines(String text, int availableWidth) {
@@ -56,9 +56,7 @@ public interface GSIDrawableHelper {
 		if (len <= 0)
 			return result;
 		
-		int lineWidth = 0;
 		int lineBegin = 0;
-		
 		int lastSpaceIndex = -1;
 		
 		String formattingNextLine = "";
@@ -78,7 +76,7 @@ public interface GSIDrawableHelper {
 					}
 				}
 			} else {
-				lineWidth += textRenderer.getCharWidth(c);
+				int lineWidth = textRenderer.getStringWidth(text.substring(lineBegin, i));
 				
 				if (c == ' ')
 					lastSpaceIndex = i;
@@ -96,8 +94,6 @@ public interface GSIDrawableHelper {
 						result.add(text.substring(lineBegin, i));
 						lineBegin = i;
 					}
-					
-					lineWidth = 0;
 				}
 			}
 		}

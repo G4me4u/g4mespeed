@@ -1,9 +1,9 @@
 package com.g4mesoft.hotkey;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.InputUtil.KeyCode;
+import net.minecraft.text.Text;
 
 public class GSKeyBinding {
 
@@ -88,23 +88,8 @@ public class GSKeyBinding {
 		repeatCount = 0;
 	}
 
-	public String getLocalizedName() {
-		String result = null;
-		
-		switch (keyCode.getCategory()) {
-		case KEYSYM:
-			result = InputUtil.getKeycodeName(keyCode.getKeyCode());
-			break;
-		case SCANCODE:
-			result = InputUtil.getScancodeName(keyCode.getKeyCode());
-			break;
-		case MOUSE:
-			result = I18n.hasTranslation(keyCode.getName()) ? I18n.translate(keyCode.getName()) :
-				String.format("%s %d", I18n.translate(keyCode.getCategory().getName()), keyCode.getKeyCode());
-			break;
-		}
-		
-		return result != null ? result : I18n.translate(keyCode.getName());
+	public Text getLocalizedName() {
+		return keyCode.method_27445();
 	}
 
 	public boolean isPressed() {

@@ -9,6 +9,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.NarratorManager;
+import net.minecraft.client.util.math.MatrixStack;
 
 public abstract class GSScreen extends Screen implements GSIDrawableHelper, GSIViewport {
 
@@ -82,15 +83,15 @@ public abstract class GSScreen extends Screen implements GSIDrawableHelper, GSIV
 	
 	@Override
 	@GSCoreOverride
-	public void render(int mouseX, int mouseY, float partialTicks) {
-		super.render(mouseX, mouseY, partialTicks);
+	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+		super.render(matrixStack, mouseX, mouseY, partialTicks);
 		
-		renderPanels(mouseX, mouseY, partialTicks);
+		renderPanels(matrixStack, mouseX, mouseY, partialTicks);
 	}
 	
-	protected void renderPanels(int mouseX, int mouseY, float partialTicks) {
+	protected void renderPanels(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		for (GSPanel panel : panels)
-			panel.render(mouseX, mouseY, partialTicks);
+			panel.render(matrixStack, mouseX, mouseY, partialTicks);
 	}
 	
 	@Override

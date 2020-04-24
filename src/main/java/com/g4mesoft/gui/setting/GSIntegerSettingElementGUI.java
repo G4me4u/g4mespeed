@@ -6,6 +6,9 @@ import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 public class GSIntegerSettingElementGUI extends GSNumberSettingElementGUI<GSIntegerSetting> {
@@ -17,7 +20,7 @@ public class GSIntegerSettingElementGUI extends GSNumberSettingElementGUI<GSInte
 	}
 
 	@Override
-	protected String getSliderText() {
+	protected Text getSliderText() {
 		return getFormattedValue(setting.getValue());
 	}
 	
@@ -51,22 +54,22 @@ public class GSIntegerSettingElementGUI extends GSNumberSettingElementGUI<GSInte
 		}
 	}
 	
-	private String getFormattedValue(int value) {
+	private Text getFormattedValue(int value) {
 		String valueText = String.format(Locale.ENGLISH, "%d", value);
 		
 		GSTranslationModule translationModule = getTranslationModule();
 
 		String key;
 		if (translationModule.hasTranslation(key = settingTranslationName + "." + valueText))
-			return translationModule.getFormattedTranslation(key, valueText);
+			return new TranslatableText(key, valueText);
 		if (translationModule.hasTranslation(key = settingTranslationName + ".x"))
-			return translationModule.getFormattedTranslation(key, valueText);
+			return new TranslatableText(key, valueText);
 		
-		return valueText;
+		return new LiteralText(valueText);
 	}
 	
 	@Override
 	public String getFormattedDefault() {
-		return Formatting.AQUA + getFormattedValue(setting.getDefaultValue()) + Formatting.RESET;
+		return Formatting.AQUA + getFormattedValue(setting.getDefaultValue()).getString() + Formatting.RESET;
 	}
 }

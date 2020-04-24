@@ -23,6 +23,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
@@ -131,7 +132,7 @@ public class GSSettingsGUI extends GSScrollablePanel implements GSISettingChange
 	}
 	
 	@Override
-	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
+	public void renderTranslated(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		if (layoutChanged) {
 			layoutSettingElements();
 			layoutChanged = false;
@@ -142,10 +143,10 @@ public class GSSettingsGUI extends GSScrollablePanel implements GSISettingChange
 			if (hoveredElement == null)
 				hoveredElement = element.getHoveredElement(mouseX, mouseY);
 			
-			element.render(mouseX, mouseY, partialTicks);
+			element.render(matrixStack, mouseX, mouseY, partialTicks);
 		}
 		
-		super.renderTranslated(mouseX, mouseY, partialTicks);
+		super.renderTranslated(matrixStack, mouseX, mouseY, partialTicks);
 		
 		if (hoveredElement != this.hoveredElement) {
 			this.hoveredElement = hoveredElement;
@@ -172,10 +173,10 @@ public class GSSettingsGUI extends GSScrollablePanel implements GSISettingChange
 		}
 		
 		if (this.hoveredElement != null)
-			renderHoveredDesc(this.hoveredElement, partialTicks);
+			renderHoveredDesc(matrixStack, this.hoveredElement, partialTicks);
 	}
 	
-	private void renderHoveredDesc(GSSettingElementGUI<?> hoveredElement, float partialTicks) {
+	private void renderHoveredDesc(MatrixStack matrixStack, GSSettingElementGUI<?> hoveredElement, float partialTicks) {
 		long delta = Util.getMeasuringTimeMs() - descAnimStart;
 
 		float progress = Math.min(1.0f, delta / DESC_ANIMATION_TIME);
@@ -191,7 +192,7 @@ public class GSSettingsGUI extends GSScrollablePanel implements GSISettingChange
 		int descY = GSMathUtils.clamp(hoveredElement.y, scrollOffset, height + scrollOffset - descHeight);
 		
 		if (descWidth > 0 && descHeight > 0 && targetDescHeight != 0) {
-			fill(descX, descY, descX + descWidth, descY + descHeight, DESC_BACKGROUND_COLOR);
+			fill(matrixStack, descX, descY, descX + descWidth, descY + descHeight, DESC_BACKGROUND_COLOR);
 			
 			int alpha = GSMathUtils.clamp((int)(progress * 128.0f + 127.0f), 0, 255) << 24;
 			
@@ -203,7 +204,7 @@ public class GSSettingsGUI extends GSScrollablePanel implements GSISettingChange
 				GlStateManager.enableBlend();
 				GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
 				GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-				drawString(textRenderer, line, descX + DESC_LINE_MARGIN, y, (DESC_TEXT_COLOR & 0xFFFFFF) | alpha);
+				drawString(matrixStack, textRenderer, line, descX + DESC_LINE_MARGIN, y, (DESC_TEXT_COLOR & 0xFFFFFF) | alpha);
 				GlStateManager.disableBlend();
 				y += textRenderer.fontHeight + DESC_LINE_SPACING;
 			}
@@ -320,9 +321,9 @@ public class GSSettingsGUI extends GSScrollablePanel implements GSISettingChange
 				element.tick();
 		}
 
-		public void render(int mouseX, int mouseY, float partialTicks) {
+		public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 			String title = getTranslationModule().getTranslation(this.title);
-			drawCenteredString(GSSettingsGUI.this.textRenderer, title, x + width / 2, y, CATEGORY_TITLE_COLOR);
+			drawCenteredString(matrixStack, GSSettingsGUI.this.textRenderer, title, x + width / 2, y, CATEGORY_TITLE_COLOR);
 		}
 		
 		public boolean isEmpty() {

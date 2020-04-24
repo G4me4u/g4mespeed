@@ -4,6 +4,7 @@ import com.g4mesoft.access.GSIBufferBuilderAccess;
 
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.util.math.MatrixStack;
 
 public abstract class GSScrollablePanel extends GSPanel implements GSIScrollableViewport {
 
@@ -17,7 +18,7 @@ public abstract class GSScrollablePanel extends GSPanel implements GSIScrollable
 	}
 	
 	@Override
-	public void render(int mouseX, int mouseY, float partialTicks) {
+	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
 		GSIBufferBuilderAccess bufferAccess = (GSIBufferBuilderAccess)buffer;
 		GSClipRect oldClipRect = bufferAccess.getClip();
@@ -26,17 +27,14 @@ public abstract class GSScrollablePanel extends GSPanel implements GSIScrollable
 		if (scrollableHeight > height)
 			bufferAccess.setClip(x, y, x + width, y + height);
 		
-		super.render(mouseX, mouseY, partialTicks);
+		super.render(matrixStack, mouseX, mouseY, partialTicks);
 		bufferAccess.setClip(oldClipRect);
 		
 		if (scrollableHeight > height) {
-			float oldOffsetX = bufferAccess.getOffsetX();
-			float oldOffsetY = bufferAccess.getOffsetY();
-			float oldOffsetZ = bufferAccess.getOffsetZ();
-			
-			bufferAccess.setOffset(oldOffsetX + x, oldOffsetY + y, oldOffsetZ);
-			scrollBar.render(mouseX - x, mouseY - y, partialTicks);
-			bufferAccess.setOffset(oldOffsetX, oldOffsetY, oldOffsetZ);
+			matrixStack.push();
+			matrixStack.translate(x, y, 0.0);
+			scrollBar.render(matrixStack, mouseX - x, mouseY - y, partialTicks);
+			matrixStack.pop();
 		}
 	}
 	

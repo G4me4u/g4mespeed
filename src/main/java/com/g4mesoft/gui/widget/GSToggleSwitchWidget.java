@@ -1,11 +1,15 @@
 package com.g4mesoft.gui.widget;
 
 import org.lwjgl.opengl.GL11;
+
 import com.g4mesoft.core.GSCoreOverride;
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.AbstractPressableButtonWidget;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
@@ -17,9 +21,13 @@ public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
 	
 	private boolean value;
 	private GSSwitchListener listener;
-	
+
 	public GSToggleSwitchWidget(int x, int y, boolean enabled, GSSwitchListener listener) {
-		super(x, y, TOGGLE_SWITCH_WIDTH, TOGGLE_SWITCH_HEIGHT, "");
+		this(x, y, LiteralText.field_24366, enabled, listener);
+	}
+	
+	public GSToggleSwitchWidget(int x, int y, Text hintText, boolean enabled, GSSwitchListener listener) {
+		super(x, y, TOGGLE_SWITCH_WIDTH, TOGGLE_SWITCH_HEIGHT, hintText);
 		
 		this.value = enabled;
 		this.listener = listener;
@@ -43,7 +51,7 @@ public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
 
 	@Override
 	@GSCoreOverride
-	public void renderButton(int mouseX, int mouseY, float partialTicks) {
+	public void renderButton(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		MinecraftClient.getInstance().getTextureManager().bindTexture(TEXTURE);
 
 		GlStateManager.enableDepthTest();
@@ -54,7 +62,7 @@ public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
 		
 		float tx = active ? ((isMouseOver(mouseX, mouseY) || isFocused()) ? 30.0f : 0.0f) : 60.0f;
 		float ty = value ? 16.0f : 0.0f;
-		drawTexture(x, y, tx, ty, 30, 16, 90, 32);
+		drawTexture(matrixStack, x, y, tx, ty, 30, 16, 90, 32);
 	}
 	
 	public static interface GSSwitchListener {

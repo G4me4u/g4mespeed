@@ -10,6 +10,8 @@ import com.g4mesoft.hotkey.GSIKeyRegisterListener;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
 
+import net.minecraft.client.util.math.MatrixStack;
+
 public class GSHotkeyGUI extends GSScrollablePanel implements GSIKeyRegisterListener {
 
 	private static final int HOTKEY_MARGIN = 1;
@@ -61,16 +63,16 @@ public class GSHotkeyGUI extends GSScrollablePanel implements GSIKeyRegisterList
 	}
 	
 	@Override
-	protected void renderTranslated(int mouseX, int mouseY, float partialTicks) {
+	protected void renderTranslated(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		if (needsRelayout) {
 			layoutHotkeys();
 			needsRelayout = false;
 		}
 		
-		super.renderTranslated(mouseX, mouseY, partialTicks);
+		super.renderTranslated(matrixStack, mouseX, mouseY, partialTicks);
 		
 		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values())
-			hotkeyCategory.renderTitle(mouseX, mouseY, partialTicks);
+			hotkeyCategory.renderTitle(matrixStack, mouseX, mouseY, partialTicks);
 	}
 
 	@Override
@@ -150,9 +152,9 @@ public class GSHotkeyGUI extends GSScrollablePanel implements GSIKeyRegisterList
 			return y;
 		}
 		
-		public void renderTitle(int mouseX, int mouseY, float partialTicks) {
+		public void renderTitle(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 			String title = getTranslationModule().getTranslation(categoryName);
-			drawCenteredString(textRenderer, title, x + w / 2, y + CATEGORY_MARGIN, CATEGORY_TITLE_COLOR);
+			drawCenteredString(matrixStack, textRenderer, title, x + w / 2, y + CATEGORY_MARGIN, CATEGORY_TITLE_COLOR);
 		}
 	}
 }

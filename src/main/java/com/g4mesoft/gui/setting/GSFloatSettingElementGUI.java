@@ -6,6 +6,8 @@ import java.util.Locale;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSFloatSetting;
 
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 public class GSFloatSettingElementGUI extends GSNumberSettingElementGUI<GSFloatSetting> {
@@ -19,8 +21,8 @@ public class GSFloatSettingElementGUI extends GSNumberSettingElementGUI<GSFloatS
 	}
 
 	@Override
-	protected String getSliderText() {
-		return FORMATTER.format(setting.getValue().doubleValue());
+	protected Text getSliderText() {
+		return new LiteralText(getFormattedString(setting.getValue()));
 	}
 	
 	@Override
@@ -53,8 +55,12 @@ public class GSFloatSettingElementGUI extends GSNumberSettingElementGUI<GSFloatS
 		}
 	}
 	
+	private String getFormattedString(double value) {
+		return FORMATTER.format(value);
+	}
+	
 	@Override
 	public String getFormattedDefault() {
-		return Formatting.AQUA + FORMATTER.format(setting.getDefaultValue().doubleValue()) + Formatting.RESET;
+		return Formatting.AQUA + getFormattedString(setting.getDefaultValue()) + Formatting.RESET;
 	}
 }

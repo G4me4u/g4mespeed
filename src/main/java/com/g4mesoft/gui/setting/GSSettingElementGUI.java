@@ -5,6 +5,9 @@ import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPanel {
 
@@ -39,11 +42,11 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPane
 	}
 	
 	@Override
-	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
+	public void renderTranslated(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		if (mouseX >= 0 && mouseY >= 0 && mouseX < width && mouseY < height)
-			fill(0, 0, width, height, HOVERED_BACKGROUND);
+			fill(matrixStack, 0, 0, width, height, HOVERED_BACKGROUND);
 		
-		super.renderTranslated(mouseX, mouseY, partialTicks);
+		super.renderTranslated(matrixStack, mouseX, mouseY, partialTicks);
 	}
 	
 	public int getTextColor() {
@@ -88,7 +91,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPane
 		int x = width - CONTENT_PADDING - RESET_BUTTON_WIDTH;
 		int y = (getSettingHeight() - RESET_BUTTON_HEIGHT) / 2;
 		
-		String resetText = getTranslationModule().getTranslation(RESET_TEXT);
+		Text resetText = new TranslatableText(RESET_TEXT);
 		return new ButtonWidget(x, y, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT, resetText, (button) -> {
 			resetSetting();
 		});

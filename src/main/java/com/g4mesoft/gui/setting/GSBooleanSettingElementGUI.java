@@ -4,6 +4,7 @@ import com.g4mesoft.gui.widget.GSToggleSwitchWidget;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSBooleanSetting;
 
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Formatting;
 
 public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSetting> {
@@ -25,11 +26,11 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 	}
 
 	@Override
-	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		super.renderTranslated(mouseX, mouseY, partialTicks);
+	public void renderTranslated(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+		super.renderTranslated(matrixStack, mouseX, mouseY, partialTicks);
 		
 		String name = getTranslationModule().getTranslation(settingTranslationName);
-		drawString(textRenderer, name, CONTENT_PADDING, (getSettingHeight() - textRenderer.fontHeight) / 2, getTextColor());
+		drawString(matrixStack, textRenderer, name, CONTENT_PADDING, (getSettingHeight() - textRenderer.fontHeight) / 2, getTextColor());
 	}
 	
 	@Override

@@ -4,6 +4,8 @@ import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.gui.widget.SliderWidget;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 
 public class GSSliderWidget extends SliderWidget {
 
@@ -15,7 +17,11 @@ public class GSSliderWidget extends SliderWidget {
 	private final GSSliderFormatter formatter;
 
 	public GSSliderWidget(int x, int y, int width, double value, GSSliderListener listener, GSSliderFormatter formatter) {
-		super(x, y, width, SLIDER_HEIGHT, "", value);
+		this(x, y, width, value, LiteralText.field_24366, listener, formatter);
+	}
+
+	public GSSliderWidget(int x, int y, int width, double value, Text hintText, GSSliderListener listener, GSSliderFormatter formatter) {
+		super(x, y, width, SLIDER_HEIGHT, hintText, value);
 
 		this.listener = listener;
 		this.formatter = formatter;
@@ -58,7 +64,7 @@ public class GSSliderWidget extends SliderWidget {
 
 	public static interface GSSliderFormatter {
 		
-		public String formatValue(double value);
+		public Text formatValue(double value);
 		
 	}
 }

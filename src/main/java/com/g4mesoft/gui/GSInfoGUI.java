@@ -4,6 +4,8 @@ import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.translation.GSTranslationModule;
 
+import net.minecraft.client.util.math.MatrixStack;
+
 public class GSInfoGUI extends GSPanel {
 
 	private static final int TEXT_COLOR              = 0xFFFFFFFF;
@@ -22,8 +24,8 @@ public class GSInfoGUI extends GSPanel {
 	}
 
 	@Override
-	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		super.renderTranslated(mouseX, mouseY, partialTicks);
+	public void renderTranslated(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+		super.renderTranslated(matrixStack, mouseX, mouseY, partialTicks);
 	
 		int lineHeight = textRenderer.fontHeight + 2;
 		
@@ -32,20 +34,20 @@ public class GSInfoGUI extends GSPanel {
 		
 		GSTranslationModule translationModule = getTranslationModule();
 		
-		drawCenteredString(textRenderer, translationModule.getTranslation(SERVER_VERSION_TITLE_MSG), xc, y, TEXT_COLOR);
+		drawCenteredString(matrixStack, textRenderer, translationModule.getTranslation(SERVER_VERSION_TITLE_MSG), xc, y, TEXT_COLOR);
 		y += lineHeight;
 		if (controllerClient.isG4mespeedServer()) {
 			GSVersion serverVersion = controllerClient.getServerVersion();
 			int versionColor = VERSION_COLOR;
 			if (serverVersion.isLessThan(controllerClient.getCoreVersion()))
 				versionColor = LESS_THAN_VERSION_COLOR;
-			drawCenteredString(textRenderer, serverVersion.toString(), xc, y, versionColor);
+			drawCenteredString(matrixStack, textRenderer, serverVersion.toString(), xc, y, versionColor);
 		} else {
-			drawCenteredString(textRenderer, translationModule.getTranslation(INVALID_SERVER_MSG), xc, y, INVALID_VERSION_COLOR);
+			drawCenteredString(matrixStack, textRenderer, translationModule.getTranslation(INVALID_SERVER_MSG), xc, y, INVALID_VERSION_COLOR);
 		}
 		y += lineHeight * 2;
-		drawCenteredString(textRenderer, translationModule.getTranslation(CLIENT_VERSION_TITLE_MSG), xc, y, TEXT_COLOR);
+		drawCenteredString(matrixStack, textRenderer, translationModule.getTranslation(CLIENT_VERSION_TITLE_MSG), xc, y, TEXT_COLOR);
 		y += lineHeight;
-		drawCenteredString(textRenderer, controllerClient.getCoreVersion().toString(), xc, y, VERSION_COLOR);
+		drawCenteredString(matrixStack, textRenderer, controllerClient.getCoreVersion().toString(), xc, y, VERSION_COLOR);
 	}
 }

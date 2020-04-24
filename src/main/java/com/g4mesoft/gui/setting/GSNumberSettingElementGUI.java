@@ -6,6 +6,10 @@ import com.g4mesoft.setting.GSSettingCategory;
 
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends GSSettingElementGUI<T> {
 
@@ -26,11 +30,11 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	}
 
 	@Override
-	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		super.renderTranslated(mouseX, mouseY, partialTicks);
+	public void renderTranslated(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+		super.renderTranslated(matrixStack, mouseX, mouseY, partialTicks);
 
 		String name = getTranslationModule().getTranslation(settingTranslationName);
-		drawString(textRenderer, name, CONTENT_PADDING, (getSettingHeight() - textRenderer.fontHeight) / 2, getTextColor());
+		drawString(matrixStack, textRenderer, name, CONTENT_PADDING, (getSettingHeight() - textRenderer.fontHeight) / 2, getTextColor());
 	}
 	
 	@Override
@@ -70,13 +74,13 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 			int tw = Math.min(TEXT_FIELD_MAX_WIDTH, width - CONTENT_MARGIN - RESET_BUTTON_WIDTH - CONTENT_PADDING * 2);
 			int ty = height - CONTENT_PADDING - TEXT_FIELD_HEIGHT;
 			
-			addWidget(textField = new TextFieldWidget(textRenderer, CONTENT_PADDING, ty, tw, TEXT_FIELD_HEIGHT, ""));
+			addWidget(textField = new TextFieldWidget(textRenderer, CONTENT_PADDING, ty, tw, TEXT_FIELD_HEIGHT, LiteralText.field_24366));
 			textField.active = setting.isEnabledInGui();
 
 			int bx = width - CONTENT_PADDING - RESET_BUTTON_WIDTH;
 			int by = ty + (TEXT_FIELD_HEIGHT - RESET_BUTTON_HEIGHT) / 2;
-			String setValueText = getTranslationModule().getTranslation(SET_VALUE_TEXT);
 
+			Text setValueText = new TranslatableText(SET_VALUE_TEXT);
 			addWidget(new ButtonWidget(bx, by, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT, setValueText, (but) -> {
 				String str = textField.getText();
 				if (!str.equals(prevTextFieldValue)) {
@@ -96,7 +100,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 		updateFieldValue();
 	}
 	
-	protected abstract String getSliderText();
+	protected abstract Text getSliderText();
 
 	protected abstract void setValueFromSlider(double value);
 	
