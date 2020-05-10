@@ -12,6 +12,12 @@ plugins {
 	id 'maven-publish'
 }
 
+repositories {
+    flatDir {
+        dirs "./compat-mods"
+    }
+}
+
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
@@ -25,11 +31,10 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
+	// Test mod compatibility in dev environment.
+	//modImplementation ":replaymod:1.14.4:2.2.0-b7"
 	// Fabric API. This is technically optional, but you probably want it anyway.
-	// modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-
-	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
-	// You may need to force-disable transitiveness on them.
+	//modImplementation "net.fabricmc.fabric-api:fabric-api:0.3.2+build.226-1.14"
 }
 
 processResources {

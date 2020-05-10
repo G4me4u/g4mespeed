@@ -57,7 +57,7 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 		int vertexStart = vertexCount - 4;
 		if (vertexStart < 0)
 			return;
-		
+
 		int componentCount = format.getVertexSizeInteger();
 		int startIndex = vertexStart * componentCount;
 		
@@ -149,7 +149,7 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 		}
 	}
 	
-	public void interpolateClipped(int i0, int i1, float t0, float t1) {
+	private void interpolateClipped(int i0, int i1, float t0, float t1) {
 		for (VertexFormatElement vertexElement : format.getElements()) {
 			if (vertexElement.getType() != VertexFormatElement.Type.PADDING) {
 				VertexFormatElement.Format vertexElementFormat = vertexElement.getFormat();
