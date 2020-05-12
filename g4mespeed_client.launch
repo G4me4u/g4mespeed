@@ -11,6 +11,6 @@
     <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="net.fabricmc.devlaunchinjector.Main"/>
     <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value=""/>
     <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="g4mespeed"/>
-    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dfabric.dli.config=C:\Users\Christian\Documents\GitHubRepos\g4mespeed\.gradle\loom-cache\launch.cfg -Dfabric.dli.env=client -Dfabric.dli.main=net.fabricmc.loader.launch.knot.KnotClient"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Dfabric.dli.config=E:\Programming\Git-repos\g4mespeed\.gradle\loom-cache\launch.cfg -Dfabric.dli.env=client -Dfabric.dli.main=net.fabricmc.loader.launch.knot.KnotClient"/>
     <stringAttribute key="org.eclipse.jdt.launching.WORKING_DIRECTORY" value="${project_loc:g4mespeed}/run"/>
 </launchConfiguration>

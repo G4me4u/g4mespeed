@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.packet.GSIPacket;
@@ -15,15 +16,15 @@ import net.minecraft.util.PacketByteBuf;
 
 public class GSTranslationVersionsPacket implements GSIPacket {
 
-	private Map<Byte, Integer> uidToVersion;
+	private Map<GSExtensionUID, Integer> uidToVersion;
 	
 	public GSTranslationVersionsPacket() {
 	}
 
-	public GSTranslationVersionsPacket(Map<Byte, GSTranslationCacheList> cacheLists) {
-		uidToVersion = new HashMap<Byte, Integer>();
+	public GSTranslationVersionsPacket(Map<GSExtensionUID, GSTranslationCacheList> cacheLists) {
+		uidToVersion = new HashMap<GSExtensionUID, Integer>();
 		
-		for (Map.Entry<Byte, GSTranslationCacheList> entry : cacheLists.entrySet())
+		for (Map.Entry<GSExtensionUID, GSTranslationCacheList> entry : cacheLists.entrySet())
 			uidToVersion.put(entry.getKey(), entry.getValue().getVersion());
 	}
 
@@ -31,9 +32,9 @@ public class GSTranslationVersionsPacket implements GSIPacket {
 	public void read(PacketByteBuf buf) throws IOException {
 		int n = buf.readInt();
 
-		uidToVersion = new HashMap<Byte, Integer>();
+		uidToVersion = new HashMap<GSExtensionUID, Integer>();
 		while (n-- != 0) {
-			byte uid = buf.readByte();
+			GSExtensionUID uid = GSExtensionUID.read(buf);
 			int version = buf.readInt();
 			uidToVersion.put(uid, version);
 		}
@@ -43,8 +44,8 @@ public class GSTranslationVersionsPacket implements GSIPacket {
 	public void write(PacketByteBuf buf) throws IOException {
 		buf.writeInt(uidToVersion.size());
 		
-		for (Map.Entry<Byte, Integer> entry : uidToVersion.entrySet()) {
-			buf.writeByte(entry.getKey().byteValue());
+		for (Map.Entry<GSExtensionUID, Integer> entry : uidToVersion.entrySet()) {
+			GSExtensionUID.write(buf, entry.getKey());
 			buf.writeInt(entry.getValue().intValue());
 		}
 	}

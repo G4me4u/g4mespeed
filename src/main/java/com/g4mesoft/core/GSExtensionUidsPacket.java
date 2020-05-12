@@ -3,6 +3,7 @@ package com.g4mesoft.core;
 import java.io.IOException;
 import java.util.Arrays;
 
+import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
@@ -15,23 +16,27 @@ import net.minecraft.util.PacketByteBuf;
 
 public class GSExtensionUidsPacket implements GSIPacket {
 
-	private byte[] extensionUids;
+	private GSExtensionUID[] extensionUids;
 	
 	public GSExtensionUidsPacket() {
 	}
 
-	public GSExtensionUidsPacket(byte[] extensionUids) {
+	public GSExtensionUidsPacket(GSExtensionUID[] extensionUids) {
 		this.extensionUids = Arrays.copyOf(extensionUids, extensionUids.length);
 	}
 
 	@Override
 	public void read(PacketByteBuf buf) throws IOException {
-		extensionUids = buf.readByteArray();
+		extensionUids = new GSExtensionUID[buf.readInt()];
+		for (int i = 0; i < extensionUids.length; i++)
+			extensionUids[i] = GSExtensionUID.read(buf);
 	}
 
 	@Override
 	public void write(PacketByteBuf buf) throws IOException {
-		buf.writeByteArray(extensionUids);
+		buf.writeInt(extensionUids.length);
+		for (int i = 0; i < extensionUids.length; i++)
+			GSExtensionUID.write(buf, extensionUids[i]);
 	}
 
 	@Override
