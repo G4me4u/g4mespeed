@@ -15,4 +15,7 @@ public interface GSIBufferBuilderAccess {
 	public double getOffsetY();
 	
 	public double getOffsetZ();
+
+	public void setVertexCount(int vertexCount);
+	
 }
