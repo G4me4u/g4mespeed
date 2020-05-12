@@ -1,6 +1,7 @@
 package com.g4mesoft.core;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
@@ -62,7 +63,7 @@ public class GSCoreExtension implements GSIExtension {
 	}
 
 	@Override
-	public byte getUniqueId() {
+	public GSExtensionUID getUniqueId() {
 		return G4mespeedMod.CORE_EXTENSION_UID;
 	}
 }

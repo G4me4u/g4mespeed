@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
@@ -18,13 +19,13 @@ import net.minecraft.network.PacketByteBuf;
 
 public class GSTranslationCachePacket implements GSIPacket {
 
-	private byte uid;
+	private GSExtensionUID uid;
 	private GSTranslationCache cache;
 	
 	public GSTranslationCachePacket() {
 	}
 
-	public GSTranslationCachePacket(byte uid, GSTranslationCache cache) {
+	public GSTranslationCachePacket(GSExtensionUID uid, GSTranslationCache cache) {
 		this.uid = uid;
 		this.cache = cache;
 	}
@@ -34,7 +35,7 @@ public class GSTranslationCachePacket implements GSIPacket {
 		read(buf);
 		
 		if (senderVersion.isGreaterThanOrEqualTo(GSTranslationModule.TRANSLATION_EXTENSION_VERSION)) {
-			uid = buf.readByte();
+			uid = GSExtensionUID.read(buf);
 		} else {
 			uid = G4mespeedMod.CORE_EXTENSION_UID;
 		}
@@ -67,7 +68,7 @@ public class GSTranslationCachePacket implements GSIPacket {
 			buf.writeString(entry.getValue());
 		}
 		
-		buf.writeByte(uid);
+		GSExtensionUID.write(buf, uid);
 	}
 
 	@Override

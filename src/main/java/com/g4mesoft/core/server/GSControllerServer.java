@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.GSController;
@@ -85,7 +86,7 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 	
 	@Override
-	public boolean isExtensionInstalled(ServerPlayerEntity player, byte extensionUid) {
+	public boolean isExtensionInstalled(ServerPlayerEntity player, GSExtensionUID extensionUid) {
 		return ((GSINetworkHandlerAccess)player.networkHandler).isExtensionInstalled(extensionUid);
 	}
 	

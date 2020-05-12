@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 import org.lwjgl.glfw.GLFW;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSExtensionUidsPacket;
@@ -54,8 +55,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	private MinecraftClient minecraft;
 	private ClientPlayNetworkHandler networkHandler;
 
-	private byte[] serverExtensionUids;
-	private final Set<Byte> serverExtensionUidSet;
+	private GSExtensionUID[] serverExtensionUids;
+	private final Set<GSExtensionUID> serverExtensionUidSet;
 	private GSVersion serverVersion;
 	private final GSRemoteSettingManager serverSettings;
 	private final GSKeyManager keyManager;
@@ -64,8 +65,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	private GSKeyBinding openGUIKey;
 	
 	public GSControllerClient() {
-		serverExtensionUids = new byte[0];
-		serverExtensionUidSet = new HashSet<Byte>();
+		serverExtensionUids = new GSExtensionUID[0];
+		serverExtensionUidSet = new HashSet<GSExtensionUID>();
 		serverVersion = GSVersion.INVALID;
 		serverSettings = new GSRemoteSettingManager(this);
 
@@ -104,20 +105,20 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		this.networkHandler = networkHandler;
 	}
 	
-	public void setServerExtensionUids(byte[] extensionUids) {
+	public void setServerExtensionUids(GSExtensionUID[] extensionUids) {
 		serverExtensionUids = Arrays.copyOf(extensionUids, extensionUids.length);
 		
 		serverExtensionUidSet.clear();
-		for (byte uid : serverExtensionUids)
+		for (GSExtensionUID uid : serverExtensionUids)
 			serverExtensionUidSet.add(uid);
 	}
 	
-	public byte[] getServerExtensionUids() {
+	public GSExtensionUID[] getServerExtensionUids() {
 		return serverExtensionUids;
 	}
 	
 	@Override
-	public boolean isServerExtensionInstalled(byte extensionUid) {
+	public boolean isServerExtensionInstalled(GSExtensionUID extensionUid) {
 		return serverExtensionUidSet.contains(extensionUid);
 	}
 	
@@ -131,7 +132,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 	
 	public void onDisconnectServer() {
-		serverExtensionUids = new byte[0];
+		serverExtensionUids = new GSExtensionUID[0];
 		serverExtensionUidSet.clear();
 		serverVersion = GSVersion.INVALID;
 		setNetworkHandler(null);
