@@ -23,7 +23,10 @@ public class G4mespeedMod implements ModInitializer {
 	public static final GSVersion GS_CORE_VERSION = new GSVersion(1, 1, 0);
 	
 	public static final GSVersion GS_EXTENSIONS_VERSION = new GSVersion(1, 1, 0);
-	public static final byte CORE_EXTENSION_UID = (byte)0x00;
+	/* CORE in hex */
+	public static final GSExtensionUID CORE_EXTENSION_UID = new GSExtensionUID(0x434f5245);
+	/* Reserved extension UID */
+	public static final GSExtensionUID INVALID_EXTENSION_UID = new GSExtensionUID(0xFFFFFFFF);
 
 	public static final Logger GS_LOGGER = LogManager.getLogger(CORE_MOD_NAME);
 
@@ -35,16 +38,16 @@ public class G4mespeedMod implements ModInitializer {
 	private GSCoreExtension coreExtension;
 	
 	private static final List<GSIExtension> extensions;
-	private static final Map<Byte, GSIExtension> idToExtension;
+	private static final Map<GSExtensionUID, GSIExtension> idToExtension;
 	private static final List<GSIExtensionListener> extensionListeners;
 	
-	private static byte[] extensionUidCache;
+	private static GSExtensionUID[] extensionUidCache;
 	
 	static {
 		extensions = new ArrayList<GSIExtension>();
-		idToExtension = new HashMap<Byte, GSIExtension>();
+		idToExtension = new HashMap<GSExtensionUID, GSIExtension>();
 		extensionListeners = new ArrayList<GSIExtensionListener>();
-		extensionUidCache = new byte[0];
+		extensionUidCache = new GSExtensionUID[0];
 	}
 	
 	public G4mespeedMod() {
@@ -72,7 +75,9 @@ public class G4mespeedMod implements ModInitializer {
 	
 	public static void addExtension(GSIExtension extension) {
 		synchronized (extensions) {
-			byte uid = extension.getUniqueId();
+			GSExtensionUID uid = extension.getUniqueId();
+			if (INVALID_EXTENSION_UID.equals(uid))
+				throw new IllegalArgumentException("Invalid extension ID: " + uid);
 			if (idToExtension.containsKey(uid))
 				throw new IllegalArgumentException("Duplicate extension ID: " + uid);
 			
@@ -103,11 +108,11 @@ public class G4mespeedMod implements ModInitializer {
 		}
 	}
 	
-	public static byte[] getExtensionUids() {
+	public static GSExtensionUID[] getExtensionUids() {
 		synchronized (extensions) {
 			int numExtensions = extensions.size();
 			if (numExtensions != extensionUidCache.length) {
-				extensionUidCache = new byte[numExtensions];
+				extensionUidCache = new GSExtensionUID[numExtensions];
 				for (int i = 0; i < numExtensions; i++)
 					extensionUidCache[i] = extensions.get(i).getUniqueId();
 			}

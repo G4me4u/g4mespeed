@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.GSIExtensionListener;
 import com.g4mesoft.access.GSINetworkHandlerAccess;
@@ -43,7 +44,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	private static final long MAX_CACHE_LIFE_HOURS = 3 * 24;
 	
 	private final Map<String, String> translations;
-	private final Map<Byte, GSTranslationCacheList> cacheLists;
+	private final Map<GSExtensionUID, GSTranslationCacheList> cacheLists;
 	
 	private GSIModuleManager manager;
 	
@@ -52,7 +53,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	
 	public GSTranslationModule() {
 		translations = new ConcurrentHashMap<String, String>();
-		cacheLists = new HashMap<Byte, GSTranslationCacheList>();
+		cacheLists = new HashMap<GSExtensionUID, GSTranslationCacheList>();
 	
 		translationsChangeTimestamp = -1L;
 	}
@@ -135,17 +136,16 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 		sendMissingTranslations(player, G4mespeedMod.CORE_EXTENSION_UID, translationVersion);
 	}
 	
-	void onTranslationVersionsReceived(ServerPlayerEntity player, Map<Byte, Integer> uidToVersion) {
-		for (Byte uid : cacheLists.keySet())
+	void onTranslationVersionsReceived(ServerPlayerEntity player, Map<GSExtensionUID, Integer> uidToVersion) {
+		for (GSExtensionUID uid : cacheLists.keySet())
 			sendMissingTranslations(player, uid, uidToVersion.getOrDefault(uid, INVALID_TRANSLATION_VERSION));
 	}
 	
-	private void sendMissingTranslations(ServerPlayerEntity player, byte uid, int translationVersion) {
+	private void sendMissingTranslations(ServerPlayerEntity player, GSExtensionUID uid, int translationVersion) {
 		// Make sure the player hasn't already requested
 			// a translation mapping in the current session.
 			if (((GSINetworkHandlerAccess)player.networkHandler).getTranslationVersion(uid) != INVALID_TRANSLATION_VERSION)
 				return;
-			
 			
 			GSTranslationCacheList cacheList = cacheLists.get(uid);
 			if (cacheList != null && translationVersion < cacheList.getVersion()) {
@@ -196,13 +196,13 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 		}
 	}
 	
-	private void loadTranslations(InputStream is, byte extensionUid, boolean cachedTranslations) throws IOException {
+	private void loadTranslations(InputStream is, GSExtensionUID extensionUid, boolean cachedTranslations) throws IOException {
 		try (BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
 			loadTranslations(reader, extensionUid, cachedTranslations);
 		}
 	}
 
-	private void loadTranslations(BufferedReader reader, byte extensionUid, boolean cachedTranslations) throws IOException {
+	private void loadTranslations(BufferedReader reader, GSExtensionUID extensionUid, boolean cachedTranslations) throws IOException {
 		Map<String, String> translations = new HashMap<String, String>();
 
 		int currentVersion = INVALID_TRANSLATION_VERSION;
@@ -215,11 +215,10 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 					break;
 				case '/':
 					if (cachedTranslations) {
-						try {
-							extensionUid = Byte.parseByte(line.substring(1));
-						} catch (NumberFormatException e) {
+						extensionUid = GSExtensionUID.parseUID(line.substring(1));
+						
+						if (extensionUid == null)
 							throw new IOException("Unable to read extension uid! (" + line + ")");
-						}
 					}
 				case ':':
 					if (!translations.isEmpty()) {
@@ -258,9 +257,9 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 			writer.write(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 			writer.newLine();
 			
-			for (Map.Entry<Byte, GSTranslationCacheList> entry : cacheLists.entrySet()) {
+			for (Map.Entry<GSExtensionUID, GSTranslationCacheList> entry : cacheLists.entrySet()) {
 				writer.write('/');
-				writer.write(Byte.toString(entry.getKey().byteValue()));
+				writer.write(GSExtensionUID.toString(entry.getKey()));
 				writer.newLine();
 				
 				for (GSTranslationCache cache : entry.getValue().getCaches().values()) {
@@ -283,7 +282,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 		return new File(manager.getCacheFile(), CACHED_TRANSLATION_FILENAME);
 	}
 	
-	void addTranslationCache(byte uid, GSTranslationCache cache) {
+	void addTranslationCache(GSExtensionUID uid, GSTranslationCache cache) {
 		cache.getAllTranslations(translations);
 		translationsChangeTimestamp = System.currentTimeMillis();
 

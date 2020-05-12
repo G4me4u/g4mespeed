@@ -19,6 +19,6 @@ public interface GSIExtension {
 	
 	public String getName();
 	
-	public byte getUniqueId();
+	public GSExtensionUID getUniqueId();
 	
 }

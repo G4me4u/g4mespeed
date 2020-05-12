@@ -1,5 +1,6 @@
 package com.g4mesoft.access;
 
+import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.core.GSVersion;
 
 public interface GSINetworkHandlerAccess {
@@ -8,14 +9,14 @@ public interface GSINetworkHandlerAccess {
 
 	public GSVersion getCoreVersion();
 
-	public boolean isExtensionInstalled(byte extensionUid);
+	public boolean isExtensionInstalled(GSExtensionUID extensionUid);
 
-	public void setExtensionUids(byte[] extensionUids);
+	public void setExtensionUids(GSExtensionUID[] extensionUids);
 	
-	public byte[] getExtensionUids();
+	public GSExtensionUID[] getExtensionUids();
 	
-	public void setTranslationVersion(byte uid, int translationVersion);
+	public void setTranslationVersion(GSExtensionUID uid, int translationVersion);
 
-	public int getTranslationVersion(byte uid);
+	public int getTranslationVersion(GSExtensionUID uid);
 	
 }

@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSControllerServer;
@@ -31,10 +32,10 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 
 	private GSVersion version = GSVersion.INVALID;
 
-	private byte[] extensionUids = new byte[0];
-	private final Set<Byte> extensionUidSet = new HashSet<Byte>();
+	private GSExtensionUID[] extensionUids = new GSExtensionUID[0];
+	private final Set<GSExtensionUID> extensionUidSet = new HashSet<GSExtensionUID>();
 	
-	private Map<Byte, Integer> translationVersions = new HashMap<Byte, Integer>();
+	private Map<GSExtensionUID, Integer> translationVersions = new HashMap<GSExtensionUID, Integer>();
 	
 	@Shadow public ServerPlayerEntity player;
 	
@@ -64,31 +65,31 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 	}
 
 	@Override
-	public void setExtensionUids(byte[] extensionUids) {
+	public void setExtensionUids(GSExtensionUID[] extensionUids) {
 		this.extensionUids = Arrays.copyOf(extensionUids, extensionUids.length);
 	
 		extensionUidSet.clear();
-		for (byte uid : this.extensionUids)
+		for (GSExtensionUID uid : this.extensionUids)
 			extensionUidSet.add(uid);
 	}
 	
 	@Override
-	public byte[] getExtensionUids() {
+	public GSExtensionUID[] getExtensionUids() {
 		return extensionUids;
 	}
 	
 	@Override
-	public boolean isExtensionInstalled(byte extensionUid) {
+	public boolean isExtensionInstalled(GSExtensionUID extensionUid) {
 		return extensionUidSet.contains(extensionUid);
 	}
 	
 	@Override
-	public void setTranslationVersion(byte uid, int translationVersion) {
+	public void setTranslationVersion(GSExtensionUID uid, int translationVersion) {
 		translationVersions.put(uid, translationVersion);
 	}
 
 	@Override
-	public int getTranslationVersion(byte uid) {
+	public int getTranslationVersion(GSExtensionUID uid) {
 		return translationVersions.getOrDefault(uid, GSTranslationModule.INVALID_TRANSLATION_VERSION);
 	}
 }

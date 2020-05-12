@@ -1,12 +1,13 @@
 package com.g4mesoft.core.client;
 
+import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.packet.GSIPacket;
 
 public interface GSIModuleManagerClient extends GSIModuleManager {
 
-	public boolean isServerExtensionInstalled(byte extensionUid);
+	public boolean isServerExtensionInstalled(GSExtensionUID extensionUid);
 
 	public GSVersion getServerVersion();
 	

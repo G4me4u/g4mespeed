@@ -105,14 +105,13 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 		int ty = getTranslationY();
 
 		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
-		GSIBufferBuilderAccess bufferAccess = (GSIBufferBuilderAccess)buffer;
-		float oldOffsetX = bufferAccess.getOffsetX();
-		float oldOffsetY = bufferAccess.getOffsetY();
-		float oldOffsetZ = bufferAccess.getOffsetZ();
+		float oldOffsetX = ((GSIBufferBuilderAccess)buffer).getOffsetX();
+		float oldOffsetY = ((GSIBufferBuilderAccess)buffer).getOffsetY();
+		float oldOffsetZ = ((GSIBufferBuilderAccess)buffer).getOffsetZ();
 		
-		bufferAccess.setOffset(oldOffsetX + tx, oldOffsetY + ty, oldOffsetZ);
+		((GSIBufferBuilderAccess)buffer).setOffset(oldOffsetX + tx, oldOffsetY + ty, oldOffsetZ);
 		renderTranslated(mouseX - tx, mouseY - ty, partialTicks);
-		bufferAccess.setOffset(oldOffsetX, oldOffsetY, oldOffsetZ);
+		((GSIBufferBuilderAccess)buffer).setOffset(oldOffsetX, oldOffsetY, oldOffsetZ);
 	}
 	
 	protected void renderTranslated(int mouseX, int mouseY, float partialTicks) {
