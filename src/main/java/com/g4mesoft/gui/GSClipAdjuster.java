@@ -61,7 +61,7 @@ public class GSClipAdjuster {
 		if (x1 < clipRect.x0 || x0 >= clipRect.x1 ||
 		    y1 < clipRect.y0 || y0 >= clipRect.y1) {
 		
-			((GSIBufferBuilderAccess)builder).setVertexCount(builder.getVertexCount() - 4);
+			((GSIBufferBuilderAccess)builder).setVertexCount(vertexStart);
 			
 			if (hasNext) {
 				// Since this is called in next after the vertex
