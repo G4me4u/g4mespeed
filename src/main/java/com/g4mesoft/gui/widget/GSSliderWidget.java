@@ -17,7 +17,7 @@ public class GSSliderWidget extends SliderWidget {
 	private final GSSliderFormatter formatter;
 
 	public GSSliderWidget(int x, int y, int width, double value, GSSliderListener listener, GSSliderFormatter formatter) {
-		this(x, y, width, value, LiteralText.field_24366, listener, formatter);
+		this(x, y, width, value, LiteralText.EMPTY, listener, formatter);
 	}
 
 	public GSSliderWidget(int x, int y, int width, double value, Text hintText, GSSliderListener listener, GSSliderFormatter formatter) {

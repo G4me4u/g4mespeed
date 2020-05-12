@@ -30,7 +30,7 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 		super.renderTranslated(matrixStack, mouseX, mouseY, partialTicks);
 		
 		String name = getTranslationModule().getTranslation(settingTranslationName);
-		drawString(matrixStack, textRenderer, name, CONTENT_PADDING, (getSettingHeight() - textRenderer.fontHeight) / 2, getTextColor());
+		drawStringWithShadow(matrixStack, textRenderer, name, CONTENT_PADDING, (getSettingHeight() - textRenderer.fontHeight) / 2, getTextColor());
 	}
 	
 	@Override

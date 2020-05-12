@@ -23,7 +23,7 @@ public class GSToggleSwitchWidget extends AbstractPressableButtonWidget {
 	private GSSwitchListener listener;
 
 	public GSToggleSwitchWidget(int x, int y, boolean enabled, GSSwitchListener listener) {
-		this(x, y, LiteralText.field_24366, enabled, listener);
+		this(x, y, LiteralText.EMPTY, enabled, listener);
 	}
 	
 	public GSToggleSwitchWidget(int x, int y, Text hintText, boolean enabled, GSSwitchListener listener) {

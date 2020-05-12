@@ -20,10 +20,10 @@ public interface GSIDrawableHelper {
 			return text;
 
 		// Text fits inside bounds.
-		if (font.getStringWidth(text) <= availableWidth)
+		if (font.getWidth(text) <= availableWidth)
 			return text;
 
-		availableWidth -= font.getStringWidth(GSGUIConstants.TRIMMED_TEXT_ELLIPSIS);
+		availableWidth -= font.getWidth(GSGUIConstants.TRIMMED_TEXT_ELLIPSIS);
 
 		// No space for any other
 		// characters.
@@ -33,7 +33,7 @@ public interface GSIDrawableHelper {
 		String result = "";
 		for (int i = 0; i < len; i++) {
 			String str = text.substring(0, i + 1);
-			int width = font.getStringWidth(str);
+			int width = font.getWidth(str);
 
 			if (width >= availableWidth)
 				return result + GSGUIConstants.TRIMMED_TEXT_ELLIPSIS;
@@ -76,7 +76,7 @@ public interface GSIDrawableHelper {
 					}
 				}
 			} else {
-				int lineWidth = textRenderer.getStringWidth(text.substring(lineBegin, i));
+				int lineWidth = textRenderer.getWidth(text.substring(lineBegin, i));
 				
 				if (c == ' ')
 					lastSpaceIndex = i;

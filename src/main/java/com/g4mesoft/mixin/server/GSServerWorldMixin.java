@@ -11,7 +11,7 @@ import net.minecraft.server.world.ServerWorld;
 @Mixin(ServerWorld.class)
 public class GSServerWorldMixin {
 
-	@ModifyConstant(method = "sendBlockActions", constant = @Constant(doubleValue = 64.0))
+	@ModifyConstant(method = "processSyncedBlockEvents", constant = @Constant(doubleValue = 64.0))
 	public double blockEventDistance(double defaultDistance) {
 		return GSControllerServer.getInstance().getTpsModule().sBlockEventDistance.getValue() * 16.0;
 	}

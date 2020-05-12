@@ -54,7 +54,7 @@ public class GSHotkeyElementGUI extends GSPanel {
 		int rbx = width - RESET_BUTTON_WIDTH - HOTKEY_PADDING;
 		int mbx = rbx - MODIFY_BUTTON_WIDTH - HOTKEY_PADDING;
 
-		resetButton = new ButtonWidget(rbx, by, RESET_BUTTON_WIDTH, HOTKEY_HEIGHT, LiteralText.field_24366, b -> {
+		resetButton = new ButtonWidget(rbx, by, RESET_BUTTON_WIDTH, HOTKEY_HEIGHT, LiteralText.EMPTY, b -> {
 			if (modifyingKeyCode) {
 				setModifying(false);
 			} else if (hotkeyGui.getChangingElement() == null) {
@@ -62,7 +62,7 @@ public class GSHotkeyElementGUI extends GSPanel {
 			}
 		});
 
-		modifyButton = new ButtonWidget(mbx, by, MODIFY_BUTTON_WIDTH, HOTKEY_HEIGHT, LiteralText.field_24366, b -> {
+		modifyButton = new ButtonWidget(mbx, by, MODIFY_BUTTON_WIDTH, HOTKEY_HEIGHT, LiteralText.EMPTY, b -> {
 			setModifying(true);
 		});
 
@@ -95,7 +95,7 @@ public class GSHotkeyElementGUI extends GSPanel {
 		
 		Text name = keyBinding.getLocalizedName();
 		if (modifyingKeyCode) {
-			modifyButton.setMessage(new LiteralText("> ").append(name.method_27661().method_27692(Formatting.YELLOW)).method_27693(" <"));
+			modifyButton.setMessage(new LiteralText("> ").append(name.shallowCopy().formatted(Formatting.YELLOW)).append(" <"));
 		} else {
 			modifyButton.setMessage(name);
 		}
@@ -109,7 +109,7 @@ public class GSHotkeyElementGUI extends GSPanel {
 		super.renderTranslated(matrixStack, mouseX, mouseY, partialTicks);
 
 		String name = getTranslationModule().getTranslation(keyName);
-		drawString(matrixStack, textRenderer, name, HOTKEY_PADDING, (height - textRenderer.fontHeight) / 2, FONT_COLOR);
+		drawStringWithShadow(matrixStack, textRenderer, name, HOTKEY_PADDING, (height - textRenderer.fontHeight) / 2, FONT_COLOR);
 	}
 
 	private void setKeyCode(KeyCode keyCode) {

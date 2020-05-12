@@ -204,7 +204,7 @@ public class GSSettingsGUI extends GSScrollablePanel implements GSISettingChange
 				GlStateManager.enableBlend();
 				GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
 				GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-				drawString(matrixStack, textRenderer, line, descX + DESC_LINE_MARGIN, y, (DESC_TEXT_COLOR & 0xFFFFFF) | alpha);
+				drawStringWithShadow(matrixStack, textRenderer, line, descX + DESC_LINE_MARGIN, y, (DESC_TEXT_COLOR & 0xFFFFFF) | alpha);
 				GlStateManager.disableBlend();
 				y += textRenderer.fontHeight + DESC_LINE_SPACING;
 			}
