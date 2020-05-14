@@ -143,28 +143,28 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	
 	private void sendMissingTranslations(ServerPlayerEntity player, GSExtensionUID uid, int translationVersion) {
 		// Make sure the player hasn't already requested
-			// a translation mapping in the current session.
-			if (((GSINetworkHandlerAccess)player.networkHandler).getTranslationVersion(uid) != INVALID_TRANSLATION_VERSION)
-				return;
-			
-			GSTranslationCacheList cacheList = cacheLists.get(uid);
-			if (cacheList != null && translationVersion < cacheList.getVersion()) {
-				manager.runOnServer((managerServer) -> {
-					Queue<GSTranslationCache> cachesToSend = new PriorityQueue<GSTranslationCache>((e1, e2) -> {
-						return Integer.compare(e1.getCacheVersion(), e2.getCacheVersion());
-					});
-					
-					for (GSTranslationCache cache : cacheList.getCaches().values()) {
-						if (cache.getCacheVersion() > translationVersion)
-							cachesToSend.add(cache);
-					}
-					
-					for (GSTranslationCache cache : cachesToSend)
-						managerServer.sendPacket(new GSTranslationCachePacket(uid, cache), player);
+		// a translation mapping in the current session.
+		if (((GSINetworkHandlerAccess)player.networkHandler).getTranslationVersion(uid) != INVALID_TRANSLATION_VERSION)
+			return;
+		
+		GSTranslationCacheList cacheList = cacheLists.get(uid);
+		if (cacheList != null && translationVersion < cacheList.getVersion()) {
+			manager.runOnServer((managerServer) -> {
+				Queue<GSTranslationCache> cachesToSend = new PriorityQueue<GSTranslationCache>((e1, e2) -> {
+					return Integer.compare(e1.getCacheVersion(), e2.getCacheVersion());
 				});
+				
+				for (GSTranslationCache cache : cacheList.getCaches().values()) {
+					if (cache.getCacheVersion() > translationVersion)
+						cachesToSend.add(cache);
+				}
+				
+				for (GSTranslationCache cache : cachesToSend)
+					managerServer.sendPacket(new GSTranslationCachePacket(uid, cache), player);
+			});
 
-				((GSINetworkHandlerAccess)player.networkHandler).setTranslationVersion(uid, cacheList.getVersion());
-			}
+			((GSINetworkHandlerAccess)player.networkHandler).setTranslationVersion(uid, cacheList.getVersion());
+		}
 	}
 	
 	private void loadCachedTranslations(InputStream is) throws IOException {
