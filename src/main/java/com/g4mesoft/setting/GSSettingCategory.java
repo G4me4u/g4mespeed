@@ -4,7 +4,7 @@ import com.g4mesoft.util.GSBufferUtil;
 
 import net.minecraft.network.PacketByteBuf;
 
-public class GSSettingCategory {
+public final class GSSettingCategory {
 
 	private final String name;
 	

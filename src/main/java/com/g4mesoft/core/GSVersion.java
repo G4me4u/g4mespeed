@@ -2,7 +2,7 @@ package com.g4mesoft.core;
 
 import net.minecraft.network.PacketByteBuf;
 
-public class GSVersion {
+public final class GSVersion {
 
 	public static final GSVersion INVALID = new GSVersion(-1, -1, -1);
 	public static final GSVersion MINIMUM_VERSION = new GSVersion(0, 0, 0);
