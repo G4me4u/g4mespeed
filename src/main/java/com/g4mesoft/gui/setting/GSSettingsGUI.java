@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.g4mesoft.gui.GSScrollablePanel;
+import com.g4mesoft.gui.scroll.GSScrollableParentPanel;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSISettingChangeListener;
 import com.g4mesoft.setting.GSSetting;
@@ -26,7 +26,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
-public class GSSettingsGUI extends GSScrollablePanel implements GSISettingChangeListener {
+public class GSSettingsGUI extends GSScrollableParentPanel implements GSISettingChangeListener {
 
 	private static final int SETTING_CATEGORY_MARGIN = 5;
 	private static final int CATEGORY_TITLE_MARGIN_BOTTOM = 2;

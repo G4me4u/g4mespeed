@@ -23,50 +23,36 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	@Shadow private double offsetY;
 	@Shadow private double offsetZ;
 	
-	private GSClipRect clipRect;
 	private final GSClipAdjuster adjuster = new GSClipAdjuster();
 	
 	@Inject(method = "next", at = @At("HEAD"))
 	public void onNext(CallbackInfo ci) {
-		if (clipRect != null && (vertexCount & 0x3 /* % 4 */) == 0)
-			adjuster.clipPreviousShape((BufferBuilder)(Object)this, clipRect, true);
+		if ((vertexCount & 0x3 /* % 4 */) == 0)
+			adjuster.clipPreviousShape((BufferBuilder)(Object)this, true);
 	}
 
 	@Inject(method = "end", at = @At("HEAD"))
 	public void onEnd(CallbackInfo ci) {
-		if (clipRect != null && building)
-			adjuster.clipPreviousShape((BufferBuilder)(Object)this, clipRect, false);
+		if (building)
+			adjuster.clipPreviousShape((BufferBuilder)(Object)this, false);
 	}
 	
 	@Override
-	public void setClip(float x0, float y0, float x1, float y1) {
-		if (building)
-			throw new IllegalStateException("Buffer Builder is building.");
-
-		if (clipRect == null) {
-			clipRect = new GSClipRect(x0, y0, x1, y1);
-		} else {
-			clipRect.setClipBounds(x0, y0, x1, y1);
-		}
+	public void pushClip(float x0, float y0, float x1, float y1) {
+		pushClip(new GSClipRect(x0, y0, x1, y1));
 	}
 
 	@Override
-	public void setClip(GSClipRect clip) {
+	public void pushClip(GSClipRect clip) {
 		if (building)
 			throw new IllegalStateException("Buffer Builder is building.");
 
-		if (clip == null) {
-			clipRect = null;
-		} else if (clipRect == null) {
-			clipRect = new GSClipRect(clip);
-		} else {
-			clipRect.setClipBounds(clip);
-		}
+		adjuster.pushClip(clip);
 	}
 
 	@Override
-	public GSClipRect getClip() {
-		return (clipRect == null) ? null : new GSClipRect(clipRect);
+	public GSClipRect popClip() {
+		return adjuster.popClip();
 	}
 
 	@Override
@@ -87,5 +73,20 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	@Override
 	public void setVertexCount(int vertexCount) {
 		this.vertexCount = vertexCount;
+	}
+
+	@Override
+	public void setClipOffset(float xOffset, float yOffset) {
+		adjuster.setClipOffset(xOffset, yOffset);
+	}
+	
+	@Override
+	public float getClipXOffset() {
+		return adjuster.getClipXOffset();
+	}
+
+	@Override
+	public float getClipYOffset() {
+		return adjuster.getClipYOffset();
 	}
 }

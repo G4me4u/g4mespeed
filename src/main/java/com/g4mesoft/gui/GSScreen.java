@@ -3,6 +3,9 @@ package com.g4mesoft.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.glfw.GLFW;
+
+import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.GSCoreOverride;
 
 import net.minecraft.client.MinecraftClient;
@@ -10,7 +13,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.NarratorManager;
 
-public abstract class GSScreen extends Screen implements GSIDrawableHelper, GSIViewport {
+public abstract class GSScreen extends Screen implements GSParentElement, GSIDrawableHelper, GSIViewport {
 
 	private boolean initialized;
 	
@@ -88,18 +91,79 @@ public abstract class GSScreen extends Screen implements GSIDrawableHelper, GSIV
 		renderPanels(mouseX, mouseY, partialTicks);
 	}
 	
+	@SuppressWarnings("deprecation")
 	protected void renderPanels(int mouseX, int mouseY, float partialTicks) {
 		for (GSPanel panel : panels)
 			panel.render(mouseX, mouseY, partialTicks);
 	}
 	
 	@Override
+	@Deprecated
 	@GSCoreOverride
-	public void mouseMoved(double mouseX, double mouseY) {
-		hoveredElement(mouseX, mouseY).filter((element) -> {
-			element.mouseMoved(mouseX, mouseY);
+	public final void mouseMoved(double mouseX, double mouseY) {
+		onMouseMovedGS(mouseX, mouseY);
+	}
+
+	@Override
+	@Deprecated
+	@GSCoreOverride
+	public final boolean mouseClicked(double mouseX, double mouseY, int button) {
+		return onMouseClickedGS(mouseX, mouseY, button);
+	}
+
+	@Override
+	@Deprecated
+	@GSCoreOverride
+	public final boolean mouseReleased(double mouseX, double mouseY, int button) {
+		return onMouseReleasedGS(mouseX, mouseY, button);
+	}
+
+	@Override
+	@Deprecated
+	@GSCoreOverride
+	public final boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+		return onMouseDraggedGS(mouseX, mouseY, button, dragX, dragY);
+	}
+	
+	@Override
+	@Deprecated
+	@GSCoreOverride
+	public final boolean keyPressed(int key, int scancode, int mods) {
+		if (key == GLFW.GLFW_KEY_ESCAPE && this.shouldCloseOnEsc()) {
+			this.onClose();
 			return true;
-		});
+		}
+		
+		if (key == GLFW.GLFW_KEY_TAB) {
+			boolean reverse = hasShiftDown();
+			if (!this.changeFocus(!reverse))
+				this.changeFocus(!reverse);
+			return true;
+		}
+
+		return onKeyPressedGS(key, scancode, mods);
+	}
+
+	@Override
+	@Deprecated
+	@GSCoreOverride
+	public final boolean keyReleased(int key, int scancode, int mods) {
+		return onKeyReleasedGS(key, scancode, mods);
+	}
+
+	@Override
+	@Deprecated
+	@GSCoreOverride
+	public final boolean charTyped(char c, int mods) {
+		return onCharTypedGS(c, mods);
+	}
+	
+	@Override
+	@Deprecated
+	@GSCoreOverride
+	public final boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
+		double scrollX = ((GSIMouseAccess)MinecraftClient.getInstance().mouse).getScrollX();
+		return onMouseScrolledGS(mouseX, mouseY, scrollX, scrollY);
 	}
 	
 	@Override
