@@ -10,6 +10,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.GSVersion;
+import com.g4mesoft.core.client.GSIModuleManagerClient;
 import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.core.compat.GSICarpetCompatTickrateListener;
 import com.g4mesoft.core.server.GSControllerServer;
@@ -25,11 +26,14 @@ import com.g4mesoft.setting.types.GSIntegerSetting;
 import com.g4mesoft.util.GSMathUtils;
 import com.mojang.brigadier.CommandDispatcher;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Util;
 
 public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarpetCompatTickrateListener {
 
@@ -37,11 +41,14 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public static final float MIN_TPS = 0.01f;
 	public static final float MAX_TPS = Float.MAX_VALUE;
 	public static final float MS_PER_SEC = 1000.0f;
+
+	private static final long SERVER_TPS_INTERVAL = 4000L;
 	
 	private static final float TPS_INCREMENT_INTERVAL = 1.0f;
 	private static final float TONE_MULTIPLIER = (float)Math.pow(2.0, 1.0 / 12.0);
 	
 	public static final GSVersion TPS_INTRODUCTION_VERSION = new GSVersion(1, 0, 0);
+	public static final GSVersion TPS_MONITOR_INTRODUCTION_VERSION = new GSVersion(1, 1, 0);
 	
 	public static final GSSettingCategory TPS_CATEGORY = new GSSettingCategory("tps");
 	public static final GSSettingCategory BETTER_PISTONS_CATEGORY = new GSSettingCategory("betterPistons");
@@ -60,6 +67,11 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	private final List<GSITpsDependant> listeners;
 
 	private int serverSyncTimer;
+	private GSTpsMonitor serverTpsMonitor;
+	private long lastServerTpsTime;
+
+	@Environment(EnvType.CLIENT)
+	private float serverTps = Float.NaN;
 
 	private GSIModuleManager manager;
 
@@ -69,6 +81,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSBooleanSetting cForceCarpetTickrate;
 	public final GSIntegerSetting sSyncPacketInterval;
 	public final GSBooleanSetting sAllowHotkeyControls;
+	public final GSBooleanSetting cShowTpsLabel;
 
 	public final GSBooleanSetting cCullMovingBlocks;
 	public final GSIntegerSetting cPistonAnimationType;
@@ -80,6 +93,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		listeners = new ArrayList<GSITpsDependant>();
 
 		serverSyncTimer = 0;
+		serverTpsMonitor = new GSTpsMonitor();
+		lastServerTpsTime = Util.getMeasuringTimeMs();
 		
 		manager = null;
 	
@@ -89,6 +104,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cForceCarpetTickrate = new GSBooleanSetting("forceCarpetTickrate", true);
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
 		sAllowHotkeyControls = new GSBooleanSetting("allowHotkeys", true);
+		cShowTpsLabel = new GSBooleanSetting("showTpsLabel", false);
 
 		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
@@ -120,9 +136,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		settings.registerSetting(TPS_CATEGORY, cSyncTick);
 		settings.registerSetting(TPS_CATEGORY, cSyncTickAggression);
 		cSyncTickAggression.setEnabledInGui(cSyncTick.getValue());
-		
 		if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
 			settings.registerSetting(TPS_CATEGORY, cForceCarpetTickrate);
+		settings.registerSetting(TPS_CATEGORY, cShowTpsLabel);
 		
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cCullMovingBlocks);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonAnimationType);
@@ -172,6 +188,30 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				managerServer.sendPacketToAll(new GSServerSyncPacket(syncInterval), TPS_INTRODUCTION_VERSION);
 				serverSyncTimer = 0;
 			}
+			
+			serverTpsMonitor.update(1);
+			
+			long now = Util.getMeasuringTimeMs();
+			
+			// Note that the interval may be less than zero in case of the
+			// first tick or in case of overflow / underflow.
+			long sererTpsInterval = now - lastServerTpsTime;
+			if (sererTpsInterval < 0L || sererTpsInterval > SERVER_TPS_INTERVAL) {
+				float averageTps = serverTpsMonitor.getAverageTps();
+				managerServer.sendPacketToAll(new GSServerTpsPacket(averageTps), TPS_MONITOR_INTRODUCTION_VERSION);
+				lastServerTpsTime = now;
+			}
+		});
+		
+		manager.runOnClient((managerClient) -> {
+			long now = Util.getMeasuringTimeMs();
+			long serverTpsInterval = now - lastServerTpsTime;
+			if (serverTpsInterval < 0L || serverTpsInterval > SERVER_TPS_INTERVAL * 2L) {
+				// We have not received the server tps in a while. There is no
+				// way to tell what the server tps actually is.
+				serverTps = Float.NaN;
+				lastServerTpsTime = now;
+			}
 		});
 		
 		GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
@@ -182,6 +222,11 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			if (!GSMathUtils.equalsApproximate(carpetTickrate, tps))
 				setTps(carpetTickrate);
 		}
+	}
+	
+	public void onServerTps(float serverTps) {
+		this.serverTps = serverTps;
+		lastServerTpsTime = Util.getMeasuringTimeMs();
 	}
 	
 	private void onHotkey(GSETpsHotkeyType hotkeyType) {
@@ -348,6 +393,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				// time to react to the previous packet).
 				serverSyncTimer = sSyncPacketInterval.getValue();
 			});
+			
+			serverTpsMonitor.reset();
+			lastServerTpsTime = Util.getMeasuringTimeMs();
 
 			GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
 			if (carpetCompat.isCarpetDetected() && carpetCompat.isTickrateLinked())
@@ -376,5 +424,24 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 
 	public float getTps() {
 		return tps;
+	}
+
+	@Environment(EnvType.CLIENT)
+	public void onServerSyncPacket(int packetInterval) {
+		GSRenderTickCounterAdjuster.getInstance().onServerTickSync(packetInterval);
+		
+		// This is only for approximating the server tps
+		serverTpsMonitor.update(packetInterval);
+	}
+	
+	@Environment(EnvType.CLIENT)
+	public float getServerTps() {
+		if (manager instanceof GSIModuleManagerClient) {
+			GSIModuleManagerClient managerClient = (GSIModuleManagerClient)manager;
+			if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_MONITOR_INTRODUCTION_VERSION))
+				return serverTps;
+		}
+		
+		return serverTpsMonitor.getAverageTps();
 	}
 }

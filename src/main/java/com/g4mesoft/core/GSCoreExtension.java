@@ -6,6 +6,7 @@ import com.g4mesoft.GSIExtension;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.module.tps.GSServerSyncPacket;
+import com.g4mesoft.module.tps.GSServerTpsPacket;
 import com.g4mesoft.module.tps.GSTpsChangePacket;
 import com.g4mesoft.module.tps.GSTpsHotkeyPacket;
 import com.g4mesoft.module.translation.GSOutdatedTranslationVersionPacket;
@@ -42,6 +43,7 @@ public class GSCoreExtension implements GSIExtension {
 		
 		registry.register(9, GSTranslationVersionsPacket.class, GSTranslationVersionsPacket::new);
 		registry.register(10, GSExtensionUidsPacket.class, GSExtensionUidsPacket::new);
+		registry.register(11, GSServerTpsPacket.class, GSServerTpsPacket::new);
 	}
 
 	@Override

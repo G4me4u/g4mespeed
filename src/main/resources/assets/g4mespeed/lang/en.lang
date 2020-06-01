@@ -33,8 +33,8 @@ setting.tps.syncTickAggression.desc=The aggression of synchronization. A value o
 setting.tps.forceCarpetTickrate=Force Carpet Tickrate
 setting.tps.forceCarpetTickrate.desc=Forces the client to use the tickrate set by G4mespeed and the Carpet mod. This overrides functionality related to smoothClientAnimations in Carpet. If you wish to use Carpet's handling for tickrate on the client, disable this setting.
 
-setting.tps.disableHotkeys=Turn Off Hotkeys
-setting.tps.disableHotkeys.desc=Turns off hotkey controls. This will no longer allow you to change tps using in-game hotkeys.
+setting.tps.showTpsLabel=Show TPS Label
+setting.tps.showTpsLabel.desc=Displays a label with the current server tps, as well as the target tps, in the top-left corner of the in-game hud.
 
 setting.betterPistons.cullMovingBlocks=Cull Moving Blocks
 setting.betterPistons.cullMovingBlocks.desc=Culls the back-face of blocks that are pushed by pistons. This will mostly affect transparent moving blocks.
@@ -66,6 +66,11 @@ hotkey.tps.halve=Halve Tps
 gui.hotkey.button.reset=Reset
 gui.hotkey.button.cancel=Cancel
 
+###########   Game Information    ############
+
+play.info.clientTpsChanged=Client tps changed to %s
+play.info.tpsLabel=%s tps (%s)
+
 # Translation version 4
 # The older translation versions are deprecated.
 :4
@@ -76,7 +81,6 @@ command.gs.info=G4mespeed version is %s
 
 command.tps.get=Tps is %s
 command.tps.set=Tps has been set to %s
-command.tps.clientOnly=Client tps changed to %s
 
 command.tps.getn=Tps is %s, %sn
 command.tps.geton=Tps is %s, %so %sn
@@ -85,7 +89,15 @@ command.tps.geton=Tps is %s, %so %sn
 
 setting.tps.syncPacketInterval=Synchronization Interval
 setting.tps.syncPacketInterval.desc=The interval, in ticks, at which the server transmits a synchronization packet. A value of 1 allows the clients to synchronize best but also demands higher bandwidth.
+
+setting.tps.allowHotkeys=Allow Hotkeys
+setting.tps.allowHotkeys.desc=Allow hotkey controls. Disabling this will no longer allow players to change tps using in-game hotkeys.
+
 setting.betterPistons.blockEventDistance=Block Event Distance
 setting.betterPistons.blockEventDistance.1=1 chunk
 setting.betterPistons.blockEventDistance.x=%s chunks
 setting.betterPistons.blockEventDistance.desc=The maximum block event view distance. For pistons this is also affected by piston view distance on clients.
+
+###########   Game Information    ############
+
+play.info.tpsChanged=%s changed the tps to %s
