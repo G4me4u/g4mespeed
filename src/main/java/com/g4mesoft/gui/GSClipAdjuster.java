@@ -1,6 +1,7 @@
 package com.g4mesoft.gui;
 
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
 
 import org.lwjgl.opengl.GL11;
 
@@ -13,11 +14,25 @@ import net.minecraft.client.render.VertexFormatElement;
 
 public class GSClipAdjuster {
 
-	private final float[] clipXBuffer = new float[4];
-	private final float[] clipYBuffer = new float[4];
+	private final float[] clipXBuffer;
+	private final float[] clipYBuffer;
 	
-	public void clipPreviousShape(BufferBuilder builder, GSClipRect clipRect) {
-		if (((GSIBufferBuilderAccess)builder).getDrawMode() != GL11.GL_QUADS)
+	private float clipXOffset;
+	private float clipYOffset;
+	
+	private LinkedList<GSClipRect> clipRectStack;
+	
+	public GSClipAdjuster() {
+		clipXBuffer = new float[4];
+		clipYBuffer = new float[4];
+	
+		clipXOffset = clipYOffset = 0.0f;
+	
+		clipRectStack = new LinkedList<GSClipRect>();
+	}
+	
+	public void clipPreviousShape(BufferBuilder builder) {
+		if (clipRectStack.isEmpty() || ((GSIBufferBuilderAccess)builder).getDrawMode() != GL11.GL_QUADS)
 			return;
 		
 		int vertexStart = ((GSIBufferBuilderAccess)builder).getVertexCount() - 4;
@@ -57,10 +72,12 @@ public class GSClipAdjuster {
 		float x1 = clipXBuffer[tri];
 		float y1 = clipYBuffer[tri];
 		
-		// Check if quad is within clip bounds.
-		if (x1 < clipRect.x0 || x0 >= clipRect.x1 ||
-		    y1 < clipRect.y0 || y0 >= clipRect.y1) {
+		GSClipRect clipRect = clipRectStack.peek();
 		
+		// Check if quad is within clip bounds.
+		if (x1 < clipRect.x0 || x0 >= clipRect.x1 || 
+		    y1 < clipRect.y0 || y0 >= clipRect.y1) {
+			
 			((GSIBufferBuilderAccess)builder).setVertexCount(vertexStart);
 			((GSIBufferBuilderAccess)builder).setElementOffset(startIndex);
 			
@@ -172,5 +189,26 @@ public class GSClipAdjuster {
 		default:
 			throw new IllegalStateException("Invalid or missing format");
 		}
+	}
+	
+	public void pushClip(GSClipRect clipRect) {
+		clipRectStack.push(clipRect.offset(clipXOffset, clipYOffset));
+	}
+
+	public GSClipRect popClip() {
+		return clipRectStack.remove();
+	}
+	
+	public void setClipOffset(float xOffset, float yOffset) {
+		clipXOffset = xOffset;
+		clipYOffset = yOffset;
+	}
+	
+	public float getClipXOffset() {
+		return clipXOffset;
+	}
+
+	public float getClipYOffset() {
+		return clipYOffset;
 	}
 }

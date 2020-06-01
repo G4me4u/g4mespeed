@@ -1,12 +1,12 @@
 package com.g4mesoft.gui.setting;
 
-import com.g4mesoft.gui.GSPanel;
+import com.g4mesoft.gui.GSParentPanel;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 
 import net.minecraft.client.gui.widget.ButtonWidget;
 
-public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPanel {
+public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSParentPanel {
 
 	public static final int HOVERED_BACKGROUND = 0x80000000;//0x66EDEDFF;
 	
@@ -76,7 +76,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPane
 	public abstract String getFormattedDefault();
 
 	@Override
-	protected boolean mouseScrolledTranslated(double mouseX, double mouseY, double scroll) {
+	public boolean onMouseScrolledGS(double mouseX, double mouseY, double scrollX, double scrollY) {
 		return false;
 	}
 	

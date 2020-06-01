@@ -1,20 +1,16 @@
 package com.g4mesoft.gui;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.g4mesoft.access.GSIBufferBuilderAccess;
+import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.GSCoreOverride;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.AbstractParentElement;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 
-public abstract class GSPanel extends AbstractParentElement implements GSIDrawableHelper, GSIViewport {
+public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDrawableHelper, GSIViewport {
 
 	private boolean selected;
 	
@@ -26,41 +22,8 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 	public int width;
 	public int height;
 	
-	private List<Element> children;
-	private List<Drawable> drawableWidgets;
-	private List<GSPanel> panels;
-	
 	protected GSPanel() {
-		children = new ArrayList<Element>();
-		drawableWidgets = new ArrayList<Drawable>();
-		panels = new ArrayList<GSPanel>();
-		
 		setSelected(true);
-	}
-	
-	public void addWidget(Element element) {
-		children.add(element);
-		
-		if (element instanceof Drawable)
-			drawableWidgets.add((Drawable)element);
-	}
-	
-	public void addPanel(GSPanel panel) {
-		children.add(panel);
-		panels.add(panel);
-
-		panel.onAdded();
-	}
-	
-	public void clearChildren() {
-		setFocused(null);
-		
-		children.clear();
-		drawableWidgets.clear();
-
-		for (GSPanel panel : panels)
-			panel.onRemoved();
-		panels.clear();
 	}
 	
 	public void initBounds(MinecraftClient client, int x, int y, int width, int height) {
@@ -72,8 +35,6 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 		this.client = client;
 		this.font = client.textRenderer;
 		
-		clearChildren();
-		
 		init();
 	}
 
@@ -84,12 +45,9 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 	}
 
 	protected void onRemoved() {
-		clearChildren();
 	}
 	
 	public void tick() {
-		for (GSPanel panel : panels)
-			panel.tick();
 	}
 	
 	protected int getTranslationX() {
@@ -100,7 +58,8 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 		return y;
 	}
 	
-	void render(int mouseX, int mouseY, float partialTicks) {
+	@Deprecated
+	public void render(int mouseX, int mouseY, float partialTicks) {
 		int tx = getTranslationX();
 		int ty = getTranslationY();
 
@@ -109,16 +68,19 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 		float oldOffsetY = ((GSIBufferBuilderAccess)buffer).getOffsetY();
 		float oldOffsetZ = ((GSIBufferBuilderAccess)buffer).getOffsetZ();
 		
+		float oldClipOffsetX = ((GSIBufferBuilderAccess)buffer).getClipXOffset();
+		float oldClipOffsetY = ((GSIBufferBuilderAccess)buffer).getClipYOffset();
+		
 		((GSIBufferBuilderAccess)buffer).setOffset(oldOffsetX + tx, oldOffsetY + ty, oldOffsetZ);
+		((GSIBufferBuilderAccess)buffer).setClipOffset(oldClipOffsetX + tx, oldClipOffsetX + ty);
+		
 		renderTranslated(mouseX - tx, mouseY - ty, partialTicks);
+
+		((GSIBufferBuilderAccess)buffer).setClipOffset(oldClipOffsetX, oldClipOffsetY);
 		((GSIBufferBuilderAccess)buffer).setOffset(oldOffsetX, oldOffsetY, oldOffsetZ);
 	}
 	
 	protected void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		for (Drawable drawable : drawableWidgets)
-			drawable.render(mouseX, mouseY, partialTicks);
-		for (GSPanel panel : panels)
-			panel.render(mouseX, mouseY, partialTicks);
 	}
 
 	public void setSelected(boolean selected) {
@@ -138,93 +100,74 @@ public abstract class GSPanel extends AbstractParentElement implements GSIDrawab
 	}
 	
 	@Override
+	@Deprecated
 	@GSCoreOverride
 	public final void mouseMoved(double mouseX, double mouseY) {
 		if (selected)
-			mouseMovedTranslated(translateMouseX(mouseX), translateMouseY(mouseY));
-	}
-
-	protected void mouseMovedTranslated(double mouseX, double mouseY) {
-		hoveredElement(mouseX, mouseY).filter((element) -> {
-			element.mouseMoved(mouseX, mouseY);
-			return true;
-		});
+			onMouseMovedGS(translateMouseX(mouseX), translateMouseY(mouseY));
 	}
 
 	@Override
+	@Deprecated
 	@GSCoreOverride
 	public final boolean mouseClicked(double mouseX, double mouseY, int button) {
-		return selected && mouseClickedTranslated(translateMouseX(mouseX), translateMouseY(mouseY), button);
-	}
-
-	protected boolean mouseClickedTranslated(double mouseX, double mouseY, int button) {
-		return super.mouseClicked(mouseX, mouseY, button);
+		return selected && onMouseClickedGS(translateMouseX(mouseX), translateMouseY(mouseY), button);
 	}
 
 	@Override
+	@Deprecated
 	@GSCoreOverride
 	public final boolean mouseReleased(double mouseX, double mouseY, int button) {
-		return selected && mouseReleasedTranslated(translateMouseX(mouseX), translateMouseY(mouseY), button);
+		return selected && onMouseReleasedGS(translateMouseX(mouseX), translateMouseY(mouseY), button);
 	}
 
-	protected boolean mouseReleasedTranslated(double mouseX, double mouseY, int button) {
-		return super.mouseReleased(mouseX, mouseY, button);
-	}
-	
 	@Override
+	@Deprecated
 	@GSCoreOverride
 	public final boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-		return selected && mouseDraggedTranslated(translateMouseX(mouseX), translateMouseY(mouseY), button, dragX, dragY);
+		return selected && onMouseDraggedGS(translateMouseX(mouseX), translateMouseY(mouseY), button, dragX, dragY);
 	}
 	
-	protected boolean mouseDraggedTranslated(double mouseX, double mouseY, int button, double dragX, double dragY) {
-		return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+	@Override
+	@Deprecated
+	@GSCoreOverride
+	public final boolean keyPressed(int key, int scancode, int mods) {
+		return selected && onKeyPressedGS(key, scancode, mods);
 	}
 
 	@Override
+	@Deprecated
 	@GSCoreOverride
-	public boolean keyPressed(int key, int scancode, int mods) {
-		return selected && super.keyPressed(key, scancode, mods);
+	public final boolean keyReleased(int key, int scancode, int mods) {
+		return selected && onKeyReleasedGS(key, scancode, mods);
 	}
 
 	@Override
+	@Deprecated
 	@GSCoreOverride
-	public boolean keyReleased(int key, int scancode, int mods) {
-		return selected && super.keyReleased(key, scancode, mods);
+	public final boolean charTyped(char c, int mods) {
+		return selected && onCharTypedGS(c, mods);
 	}
-
+	
 	@Override
+	@Deprecated
 	@GSCoreOverride
-	public boolean charTyped(char c, int mods) {
-		return selected && super.charTyped(c, mods);
-	}
-
-	@Override
-	@GSCoreOverride
-	public final boolean mouseScrolled(double mouseX, double mouseY, double scroll) {
+	public final boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
 		if (!selected)
 			return false;
-		return mouseScrolledTranslated(translateMouseX(mouseX), translateMouseY(mouseY), scroll);
-	}
-	
-	protected boolean mouseScrolledTranslated(double mouseX, double mouseY, double scroll) {
-		return super.mouseScrolled(mouseX, mouseY, scroll);
+		
+		double scrollX = ((GSIMouseAccess)MinecraftClient.getInstance().mouse).getScrollX();
+		return onMouseScrolledGS(translateMouseX(mouseX), translateMouseY(mouseY), scrollX, scrollY);
 	}
 	
 	@Override
 	@GSCoreOverride
-	public boolean isMouseOver(double mouseX, double mouseY) {
+	public final boolean isMouseOver(double mouseX, double mouseY) {
 		if (!selected)
 			return false;
 		
 		return mouseX >= x && mouseX < x + width && 
 		       mouseY >= y && mouseY < y + height;
-	}
-	
-	@Override
-	@GSCoreOverride
-	public List<Element> children() {
-		return this.children;
 	}
 	
 	@Override

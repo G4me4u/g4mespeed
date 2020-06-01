@@ -33,7 +33,9 @@
     "client.GSPistonBlockEntityRendererMixin",
     "client.GSPistonBlockEntityMixin",
     
-    "client.GSBufferBuilderMixin"
+    "client.GSBufferBuilderMixin",
+    
+    "client.GSInGameHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1

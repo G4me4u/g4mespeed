@@ -8,11 +8,11 @@ import net.minecraft.client.render.VertexFormat;
 
 public interface GSIBufferBuilderAccess {
 
-	public void setClip(float x0, float y0, float x1, float y1);
+	public void pushClip(float x0, float y0, float x1, float y1);
 
-	public void setClip(GSClipRect clip);
+	public void pushClip(GSClipRect clip);
 
-	public GSClipRect getClip();
+	public GSClipRect popClip();
 
 	public void setOffset(float offsetX, float offsetY, float offsetZ);
 	
@@ -21,6 +21,12 @@ public interface GSIBufferBuilderAccess {
 	public float getOffsetY();
 	
 	public float getOffsetZ();
+
+	public void setClipOffset(float xOffset, float yOffset);
+	
+	public float getClipXOffset();
+	
+	public float getClipYOffset();
 
 	public ByteBuffer getByteBuffer();
 
@@ -35,5 +41,5 @@ public interface GSIBufferBuilderAccess {
 	public void setVertexCount(int vertexCount);
 
 	public void setElementOffset(int elementOffset);
-
+	
 }

@@ -1,5 +1,6 @@
 package com.g4mesoft.module.tps;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.GSVersion;
+import com.g4mesoft.core.client.GSIModuleManagerClient;
 import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.core.compat.GSICarpetCompatTickrateListener;
 import com.g4mesoft.core.server.GSControllerServer;
@@ -24,12 +26,14 @@ import com.g4mesoft.setting.types.GSIntegerSetting;
 import com.g4mesoft.util.GSMathUtils;
 import com.mojang.brigadier.CommandDispatcher;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.MessageType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Util;
 
 public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarpetCompatTickrateListener {
 
@@ -37,11 +41,14 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public static final float MIN_TPS = 0.01f;
 	public static final float MAX_TPS = Float.MAX_VALUE;
 	public static final float MS_PER_SEC = 1000.0f;
+
+	private static final long SERVER_TPS_INTERVAL = 4000L;
 	
 	private static final float TPS_INCREMENT_INTERVAL = 1.0f;
 	private static final float TONE_MULTIPLIER = (float)Math.pow(2.0, 1.0 / 12.0);
 	
 	public static final GSVersion TPS_INTRODUCTION_VERSION = new GSVersion(1, 0, 0);
+	public static final GSVersion TPS_MONITOR_INTRODUCTION_VERSION = new GSVersion(1, 1, 0);
 	
 	public static final GSSettingCategory TPS_CATEGORY = new GSSettingCategory("tps");
 	public static final GSSettingCategory BETTER_PISTONS_CATEGORY = new GSSettingCategory("betterPistons");
@@ -54,10 +61,17 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	public static final int AUTOMATIC_PISTON_RENDER_DISTANCE = 0;
 	
+	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##");
+	
 	private float tps;
 	private final List<GSITpsDependant> listeners;
 
 	private int serverSyncTimer;
+	private GSTpsMonitor serverTpsMonitor;
+	private long lastServerTpsTime;
+
+	@Environment(EnvType.CLIENT)
+	private float serverTps = Float.NaN;
 
 	private GSIModuleManager manager;
 
@@ -66,7 +80,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSFloatSetting cSyncTickAggression;
 	public final GSBooleanSetting cForceCarpetTickrate;
 	public final GSIntegerSetting sSyncPacketInterval;
-	public final GSBooleanSetting cDisableHotkeyControls;
+	public final GSBooleanSetting sAllowHotkeyControls;
+	public final GSBooleanSetting cShowTpsLabel;
 
 	public final GSIntegerSetting cPistonAnimationType;
 	public final GSIntegerSetting cPistonRenderDistance;
@@ -77,6 +92,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		listeners = new ArrayList<GSITpsDependant>();
 
 		serverSyncTimer = 0;
+		serverTpsMonitor = new GSTpsMonitor();
+		lastServerTpsTime = Util.getMeasuringTimeMs();
 		
 		manager = null;
 	
@@ -85,7 +102,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cSyncTickAggression = new GSFloatSetting("syncTickAggression", 0.05f, 0.0f, 1.0f, 0.05f);
 		cForceCarpetTickrate = new GSBooleanSetting("forceCarpetTickrate", true);
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
-		cDisableHotkeyControls = new GSBooleanSetting("disableHotkeys", false);
+		sAllowHotkeyControls = new GSBooleanSetting("allowHotkeys", true);
+		cShowTpsLabel = new GSBooleanSetting("showTpsLabel", false);
 
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, 0, 32);
@@ -116,10 +134,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		settings.registerSetting(TPS_CATEGORY, cSyncTick);
 		settings.registerSetting(TPS_CATEGORY, cSyncTickAggression);
 		cSyncTickAggression.setEnabledInGui(cSyncTick.getValue());
-		settings.registerSetting(TPS_CATEGORY, cDisableHotkeyControls);
-		
 		if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
 			settings.registerSetting(TPS_CATEGORY, cForceCarpetTickrate);
+		settings.registerSetting(TPS_CATEGORY, cShowTpsLabel);
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonAnimationType);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonRenderDistance);
@@ -148,6 +165,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Override
 	public void registerServerSettings(GSSettingManager settings) {
 		settings.registerSetting(TPS_CATEGORY, sSyncPacketInterval);
+		settings.registerSetting(TPS_CATEGORY, sAllowHotkeyControls);
+
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sBlockEventDistance);
 	}
 	
@@ -166,6 +185,30 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				managerServer.sendPacketToAll(new GSServerSyncPacket(syncInterval), TPS_INTRODUCTION_VERSION);
 				serverSyncTimer = 0;
 			}
+			
+			serverTpsMonitor.update(1);
+			
+			long now = Util.getMeasuringTimeMs();
+			
+			// Note that the interval may be less than zero in case of the
+			// first tick or in case of overflow / underflow.
+			long sererTpsInterval = now - lastServerTpsTime;
+			if (sererTpsInterval < 0L || sererTpsInterval > SERVER_TPS_INTERVAL) {
+				float averageTps = serverTpsMonitor.getAverageTps();
+				managerServer.sendPacketToAll(new GSServerTpsPacket(averageTps), TPS_MONITOR_INTRODUCTION_VERSION);
+				lastServerTpsTime = now;
+			}
+		});
+		
+		manager.runOnClient((managerClient) -> {
+			long now = Util.getMeasuringTimeMs();
+			long serverTpsInterval = now - lastServerTpsTime;
+			if (serverTpsInterval < 0L || serverTpsInterval > SERVER_TPS_INTERVAL * 2L) {
+				// We have not received the server tps in a while. There is no
+				// way to tell what the server tps actually is.
+				serverTps = Float.NaN;
+				lastServerTpsTime = now;
+			}
 		});
 		
 		GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
@@ -178,23 +221,51 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		}
 	}
 	
-	private void onHotkey(GSETpsHotkeyType hotkeyType) {
-		if (!cDisableHotkeyControls.getValue()) {
-			manager.runOnClient(managerClient -> {
-				MinecraftClient client = MinecraftClient.getInstance();
-				boolean sneaking = client.options.keySneak.isPressed();
+	public void onServerTps(float serverTps) {
+		this.serverTps = serverTps;
+		lastServerTpsTime = Util.getMeasuringTimeMs();
+	}
 	
-				if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_INTRODUCTION_VERSION)) {
+	private void onHotkey(GSETpsHotkeyType hotkeyType) {
+		manager.runOnClient(managerClient -> {
+			MinecraftClient client = MinecraftClient.getInstance();
+			boolean sneaking = client.options.keySneak.isPressed();
+
+			if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_INTRODUCTION_VERSION)) {
+				if (sAllowHotkeyControls.getValue()) {
+					// Only send the hotkey packet when the server
+					// allows us to use hotkey controls.
 					managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
-				} else {
-					performHotkeyAction(hotkeyType, sneaking);
-					
-					if (client.inGameHud != null) {
-						Text msg = new TranslatableText("command.tps.clientOnly", tps);
-						client.inGameHud.addChatMessage(MessageType.GAME_INFO, msg);
-					}
 				}
-			});
+			} else {
+				performHotkeyAction(hotkeyType, sneaking);
+				
+				if (client.inGameHud != null) {
+					Text overlay = new TranslatableText("play.info.clientTpsChanged", tps);
+					client.inGameHud.setOverlayMessage(overlay, false);
+				}
+			}
+		});
+	}
+	
+	public void onPlayerHotkey(ServerPlayerEntity player, GSETpsHotkeyType type, boolean sneaking) {
+		if (sAllowHotkeyControls.getValue() && isPlayerAllowedTpsChange(player)) {
+			float oldTps = tps;
+			performHotkeyAction(type, sneaking);
+			
+			if (!GSMathUtils.equalsApproximate(oldTps, tps)) {
+				// Assume that the player changed the tps successfully.
+				manager.runOnServer((serverManager) -> {
+					Text name = player.getDisplayName();
+					String formattedTps = TPS_FORMAT.format(tps);
+					Text info = new TranslatableText("play.info.tpsChanged", name, formattedTps);
+					
+					for (ServerPlayerEntity otherPlayer : serverManager.getAllPlayers()) {
+						if (isPlayerAllowedTpsChange(otherPlayer))
+							otherPlayer.addChatMessage(info, true);
+					}
+				});
+			}
 		}
 	}
 	
@@ -319,6 +390,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				// time to react to the previous packet).
 				serverSyncTimer = sSyncPacketInterval.getValue();
 			});
+			
+			serverTpsMonitor.reset();
+			lastServerTpsTime = Util.getMeasuringTimeMs();
 
 			GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
 			if (carpetCompat.isCarpetDetected() && carpetCompat.isTickrateLinked())
@@ -347,5 +421,24 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 
 	public float getTps() {
 		return tps;
+	}
+
+	@Environment(EnvType.CLIENT)
+	public void onServerSyncPacket(int packetInterval) {
+		GSRenderTickCounterAdjuster.getInstance().onServerTickSync(packetInterval);
+		
+		// This is only for approximating the server tps
+		serverTpsMonitor.update(packetInterval);
+	}
+	
+	@Environment(EnvType.CLIENT)
+	public float getServerTps() {
+		if (manager instanceof GSIModuleManagerClient) {
+			GSIModuleManagerClient managerClient = (GSIModuleManagerClient)manager;
+			if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_MONITOR_INTRODUCTION_VERSION))
+				return serverTps;
+		}
+		
+		return serverTpsMonitor.getAverageTps();
 	}
 }
