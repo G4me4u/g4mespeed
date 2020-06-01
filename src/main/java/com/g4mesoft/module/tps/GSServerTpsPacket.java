@@ -6,30 +6,28 @@ import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.packet.GSIPacket;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
 
-public class GSServerSyncPacket implements GSIPacket {
+public class GSServerTpsPacket implements GSIPacket {
 
-	private int packetInterval;
-	
-	public GSServerSyncPacket() {
-	}
+	private float serverTps;
 
-	public GSServerSyncPacket(int packetInterval) {
-		this.packetInterval = packetInterval;
+	public GSServerTpsPacket() {
 	}
 	
+	public GSServerTpsPacket(float serverTps) {
+		this.serverTps = serverTps;
+	}
+
 	@Override
 	public void read(PacketByteBuf buf) throws IOException {
-		packetInterval = buf.readVarInt();
+		serverTps = buf.readFloat();
 	}
 
 	@Override
 	public void write(PacketByteBuf buf) throws IOException {
-		buf.writeVarInt(packetInterval);
+		buf.writeFloat(serverTps);
 	}
 
 	@Override
@@ -37,13 +35,7 @@ public class GSServerSyncPacket implements GSIPacket {
 	}
 
 	@Override
-	@Environment(EnvType.CLIENT)
 	public void handleOnClient(GSControllerClient controller) {
-		controller.getTpsModule().onServerSyncPacket(packetInterval);
-	}
-	
-	@Override
-	public boolean shouldForceMainThread() {
-		return false;
+		controller.getTpsModule().onServerTps(serverTps);
 	}
 }

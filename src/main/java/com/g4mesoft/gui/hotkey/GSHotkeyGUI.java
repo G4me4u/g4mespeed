@@ -5,14 +5,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.g4mesoft.gui.GSScrollablePanel;
+import com.g4mesoft.gui.scroll.GSScrollableParentPanel;
 import com.g4mesoft.hotkey.GSIKeyRegisterListener;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
 
 import net.minecraft.client.util.math.MatrixStack;
 
-public class GSHotkeyGUI extends GSScrollablePanel implements GSIKeyRegisterListener {
+public class GSHotkeyGUI extends GSScrollableParentPanel implements GSIKeyRegisterListener {
 
 	private static final int HOTKEY_MARGIN = 1;
 

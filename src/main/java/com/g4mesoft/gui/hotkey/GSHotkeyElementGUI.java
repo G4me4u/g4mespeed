@@ -2,8 +2,7 @@ package com.g4mesoft.gui.hotkey;
 
 import org.lwjgl.glfw.GLFW;
 
-import com.g4mesoft.core.GSCoreOverride;
-import com.g4mesoft.gui.GSPanel;
+import com.g4mesoft.gui.GSParentPanel;
 import com.g4mesoft.hotkey.GSKeyBinding;
 
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -15,7 +14,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
-public class GSHotkeyElementGUI extends GSPanel {
+public class GSHotkeyElementGUI extends GSParentPanel {
 
 	private static final int HOTKEY_HEIGHT = 20;
 	private static final int HOTKEY_PADDING = 2;
@@ -130,9 +129,8 @@ public class GSHotkeyElementGUI extends GSPanel {
 		}
 	}
 	
-	@GSCoreOverride
 	@Override
-	public boolean keyPressed(int key, int scancode, int mods) {
+	public boolean onKeyPressedGS(int key, int scancode, int mods) {
 		if (modifyingKeyCode && !resetButton.isFocused()) {
 			if (key == GLFW.GLFW_KEY_ESCAPE) {
 				setKeyCode(InputUtil.UNKNOWN_KEYCODE);
@@ -143,17 +141,19 @@ public class GSHotkeyElementGUI extends GSPanel {
 			setModifying(false);
 			return true;
 		}
-		return super.keyPressed(key, scancode, mods);
+		
+		return super.onKeyPressedGS(key, scancode, mods);
 	}
 
 	@Override
-	protected boolean mouseClickedTranslated(double mouseX, double mouseY, int button) {
+	public boolean onMouseClickedGS(double mouseX, double mouseY, int button) {
 		if (modifyingKeyCode && !resetButton.isHovered()) {
 			setKeyCode(InputUtil.Type.MOUSE.createFromCode(button));
 			setModifying(false);
 			return true;
 		}
-		return super.mouseClickedTranslated(mouseX, mouseY, button);
+		
+		return super.onMouseClickedGS(mouseX, mouseY, button);
 	}
 	
 	public int getPreferredHeight() {

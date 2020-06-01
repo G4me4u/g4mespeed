@@ -155,6 +155,7 @@ public class GSTabbedGUI extends GSScreen {
 	}
 	
 	@Override
+	@SuppressWarnings("deprecation")
 	protected void renderPanels(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		GSTabEntry selectedTab = getSelectedTab();
 		if (selectedTab != null && selectedTab.getTabContent() != null)
@@ -203,8 +204,7 @@ public class GSTabbedGUI extends GSScreen {
 	}
 
 	@Override
-	@GSCoreOverride
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean onMouseClickedGS(double mouseX, double mouseY, int button) {
 		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
 			for (int i = 0; i < tabs.size(); i++) {
 				if (i != selectedTabIndex && isTabHovered(tabs.get(i), mouseX, mouseY)) {
@@ -215,13 +215,12 @@ public class GSTabbedGUI extends GSScreen {
 			}
 		}
 
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.onMouseClickedGS(mouseX, mouseY, button);
 	}
 
 	@Override
-	@GSCoreOverride
-	public boolean keyPressed(int key, int scancode, int mods) {
-		if (super.keyPressed(key, scancode, mods))
+	public boolean onKeyPressedGS(int key, int scancode, int mods) {
+		if (super.onKeyPressedGS(key, scancode, mods))
 			return true;
 		
 		if (canKeyCloseGUI(key)) {

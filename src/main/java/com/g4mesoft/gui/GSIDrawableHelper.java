@@ -7,6 +7,8 @@ import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.translation.GSTranslationModule;
 
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.util.math.MatrixStack;
 
 public interface GSIDrawableHelper {
 
@@ -137,6 +139,26 @@ public interface GSIDrawableHelper {
 		}
 
 		return (a << 24) | (r << 16) | (g << 8) | b;
+	}
+	
+	default public void drawVerticalDottedLine(MatrixStack matrixStack, int x, int y0, int y1, int length, int spacing, int color) {
+		int n = (y1 - y0) / (length + spacing);
+		
+		for (int yl = 0; yl <= n; yl++) {
+			int yl0 = y0 + yl * (length + spacing);
+			int yl1 = Math.min(yl0 + length, y1);
+			DrawableHelper.fill(matrixStack, x, yl0, x + 1, yl1, color);
+		}
+	}
+
+	default public void drawHorizontalDottedLine(MatrixStack matrixStack, int x0, int x1, int y, int length, int spacing, int color) {
+		int n = (x1 - x0) / (length + spacing);
+		
+		for (int xl = 0; xl <= n; xl++) {
+			int xl0 = x0 + xl * (length + spacing);
+			int xl1 = Math.min(xl0 + length, x1);
+			DrawableHelper.fill(matrixStack, xl0, y, xl1, y + 1, color);
+		}
 	}
 	
 	public TextRenderer getTextRenderer();

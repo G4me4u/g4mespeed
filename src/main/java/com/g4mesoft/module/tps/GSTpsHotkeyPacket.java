@@ -38,9 +38,7 @@ public class GSTpsHotkeyPacket implements GSIPacket {
 
 	@Override
 	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
-		GSTpsModule tpsModule = controller.getTpsModule();
-		if (tpsModule.isPlayerAllowedTpsChange(player))
-			tpsModule.performHotkeyAction(type, sneaking);
+		controller.getTpsModule().onPlayerHotkey(player, type, sneaking);
 	}
 
 	@Override

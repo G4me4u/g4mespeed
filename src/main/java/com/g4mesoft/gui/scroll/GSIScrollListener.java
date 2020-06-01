@@ -1,4 +1,4 @@
-package com.g4mesoft.gui;
+package com.g4mesoft.gui.scroll;
 
 public interface GSIScrollListener {
 

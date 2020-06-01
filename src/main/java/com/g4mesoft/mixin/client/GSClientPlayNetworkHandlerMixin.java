@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.module.tps.GSRenderTickCounterAdjuster;
 import com.g4mesoft.packet.GSICustomPayloadHolder;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
@@ -62,11 +61,12 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Inject(method = "onWorldTimeUpdate", at = @At("HEAD"))
 	public void onWorldTimeSync(WorldTimeUpdateS2CPacket worldTimePacket, CallbackInfo ci) {
 		// Handled by GSServerSyncPacket
-		if (GSControllerClient.getInstance().isG4mespeedServer())
+		GSControllerClient controller = GSControllerClient.getInstance();
+		if (controller.isG4mespeedServer())
 			return;
 		
 		if (!this.client.isOnThread())
-			GSRenderTickCounterAdjuster.getInstance().onServerTickSync(WORLD_TIME_UPDATE_INTERVAL);
+			controller.getTpsModule().onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
 	}
 	
 	@Redirect(method = "onChunkData", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;hasNext()Z"))

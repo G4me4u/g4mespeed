@@ -1,7 +1,5 @@
 package com.g4mesoft.module.tps;
 
-import java.text.DecimalFormat;
-
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.util.GSMathUtils;
 import com.mojang.brigadier.CommandDispatcher;
@@ -15,8 +13,6 @@ import net.minecraft.text.TranslatableText;
 
 public final class GSTpsCommand {
 
-	private static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##");
-	
 	public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
 		LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager.literal("tps").requires(context -> {
 			return context.hasPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);
@@ -33,7 +29,7 @@ public final class GSTpsCommand {
 	
 	private static int informCurrentTps(ServerCommandSource source) {
 		float tps = GSControllerServer.getInstance().getTpsModule().getTps();
-		String tpsFormatted = TPS_FORMAT.format(tps);
+		String tpsFormatted = GSTpsModule.TPS_FORMAT.format(tps);
 		
 		float fn = (float)((Math.log(tps / GSTpsModule.DEFAULT_TPS)) / Math.log(2.0) * 12.0);
 		int n = Math.round(fn);

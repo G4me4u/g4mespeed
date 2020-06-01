@@ -34,7 +34,9 @@
     "client.GSPistonBlockEntityMixin",
     
     "client.GSBufferBuilderMixin",
-    "client.GSVertexFormatElementMixin"
+    "client.GSVertexFormatElementMixin",
+    
+    "client.GSInGameHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1
