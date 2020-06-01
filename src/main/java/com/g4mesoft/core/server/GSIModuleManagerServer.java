@@ -21,6 +21,10 @@ public interface GSIModuleManagerServer extends GSIModuleManager {
 	
 	public void sendPacketToAll(GSIPacket packet, GSVersion minimumVersion);
 
+	public void sendPacketToAllExcept(GSIPacket packet, ServerPlayerEntity player);
+	
+	public void sendPacketToAllExcept(GSIPacket packet, GSVersion minimumVersion, ServerPlayerEntity player);
+	
 	public Collection<ServerPlayerEntity> getAllPlayers();
 	
 }

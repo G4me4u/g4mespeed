@@ -1,5 +1,6 @@
 package com.g4mesoft.module.tps;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,6 @@ import com.g4mesoft.util.GSMathUtils;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.network.MessageType;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -54,6 +54,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	public static final int AUTOMATIC_PISTON_RENDER_DISTANCE = 0;
 	
+	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##");
+	
 	private float tps;
 	private final List<GSITpsDependant> listeners;
 
@@ -66,7 +68,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSFloatSetting cSyncTickAggression;
 	public final GSBooleanSetting cForceCarpetTickrate;
 	public final GSIntegerSetting sSyncPacketInterval;
-	public final GSBooleanSetting cDisableHotkeyControls;
+	public final GSBooleanSetting sAllowHotkeyControls;
 
 	public final GSBooleanSetting cCullMovingBlocks;
 	public final GSIntegerSetting cPistonAnimationType;
@@ -86,7 +88,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cSyncTickAggression = new GSFloatSetting("syncTickAggression", 0.05f, 0.0f, 1.0f, 0.05f);
 		cForceCarpetTickrate = new GSBooleanSetting("forceCarpetTickrate", true);
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
-		cDisableHotkeyControls = new GSBooleanSetting("disableHotkeys", false);
+		sAllowHotkeyControls = new GSBooleanSetting("allowHotkeys", true);
 
 		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
@@ -118,7 +120,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		settings.registerSetting(TPS_CATEGORY, cSyncTick);
 		settings.registerSetting(TPS_CATEGORY, cSyncTickAggression);
 		cSyncTickAggression.setEnabledInGui(cSyncTick.getValue());
-		settings.registerSetting(TPS_CATEGORY, cDisableHotkeyControls);
 		
 		if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
 			settings.registerSetting(TPS_CATEGORY, cForceCarpetTickrate);
@@ -151,6 +152,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Override
 	public void registerServerSettings(GSSettingManager settings) {
 		settings.registerSetting(TPS_CATEGORY, sSyncPacketInterval);
+		settings.registerSetting(TPS_CATEGORY, sAllowHotkeyControls);
+
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sBlockEventDistance);
 	}
 	
@@ -182,22 +185,45 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	private void onHotkey(GSETpsHotkeyType hotkeyType) {
-		if (!cDisableHotkeyControls.getValue()) {
-			manager.runOnClient(managerClient -> {
-				MinecraftClient client = MinecraftClient.getInstance();
-				boolean sneaking = client.options.keySneak.isPressed();
-	
-				if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_INTRODUCTION_VERSION)) {
+		manager.runOnClient(managerClient -> {
+			MinecraftClient client = MinecraftClient.getInstance();
+			boolean sneaking = client.options.keySneak.isPressed();
+
+			if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_INTRODUCTION_VERSION)) {
+				if (sAllowHotkeyControls.getValue()) {
+					// Only send the hotkey packet when the server
+					// allows us to use hotkey controls.
 					managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
-				} else {
-					performHotkeyAction(hotkeyType, sneaking);
-					
-					if (client.inGameHud != null) {
-						Text msg = new TranslatableText("command.tps.clientOnly", tps);
-						client.inGameHud.addChatMessage(MessageType.GAME_INFO, msg);
-					}
 				}
-			});
+			} else {
+				performHotkeyAction(hotkeyType, sneaking);
+				
+				if (client.inGameHud != null) {
+					Text overlay = new TranslatableText("play.info.clientTpsChanged", tps);
+					client.inGameHud.setOverlayMessage(overlay, false);
+				}
+			}
+		});
+	}
+	
+	public void onPlayerHotkey(ServerPlayerEntity player, GSETpsHotkeyType type, boolean sneaking) {
+		if (sAllowHotkeyControls.getValue() && isPlayerAllowedTpsChange(player)) {
+			float oldTps = tps;
+			performHotkeyAction(type, sneaking);
+			
+			if (!GSMathUtils.equalsApproximate(oldTps, tps)) {
+				// Assume that the player changed the tps successfully.
+				manager.runOnServer((serverManager) -> {
+					Text name = player.getDisplayName();
+					String formattedTps = TPS_FORMAT.format(tps);
+					Text info = new TranslatableText("play.info.tpsChanged", name, formattedTps);
+					
+					for (ServerPlayerEntity otherPlayer : serverManager.getAllPlayers()) {
+						if (isPlayerAllowedTpsChange(otherPlayer))
+							otherPlayer.addChatMessage(info, true);
+					}
+				});
+			}
 		}
 	}
 	

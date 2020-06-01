@@ -173,11 +173,21 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 
 	@Override
 	public void sendPacketToAll(GSIPacket packet) {
-		sendPacketToAll(packet, GSVersion.MINIMUM_VERSION);
+		sendPacketToAllExcept(packet, null);
 	}
 
 	@Override
-	public void sendPacketToAll(GSIPacket packet, GSVersion miminumVersion) {
+	public void sendPacketToAll(GSIPacket packet, GSVersion minimumVersion) {
+		sendPacketToAllExcept(packet, minimumVersion, null);
+	}
+	
+	@Override
+	public void sendPacketToAllExcept(GSIPacket packet, ServerPlayerEntity player) {
+		sendPacketToAllExcept(packet, GSVersion.MINIMUM_VERSION, player);
+	}
+	
+	@Override
+	public void sendPacketToAllExcept(GSIPacket packet, GSVersion minimumVersion, ServerPlayerEntity exceptPlayer) {
 		if (server == null)
 			return;
 		
@@ -185,10 +195,12 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		Packet<?> customPayload = packetManger.encodePacket(packet, this);
 		if (customPayload != null) {
 			for (ServerPlayerEntity player : getAllPlayers()) {
-				GSVersion playerVersion = ((GSINetworkHandlerAccess)player.networkHandler).getCoreVersion();
-				
-				if (playerVersion.isGreaterThanOrEqualTo(miminumVersion))
-					player.networkHandler.sendPacket(customPayload);
+				if (exceptPlayer == null || player != exceptPlayer) {
+					GSVersion playerVersion = ((GSINetworkHandlerAccess)player.networkHandler).getCoreVersion();
+					
+					if (playerVersion.isGreaterThanOrEqualTo(minimumVersion))
+						player.networkHandler.sendPacket(customPayload);
+				}
 			}
 		}
 	}
