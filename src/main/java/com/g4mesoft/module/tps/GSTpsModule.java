@@ -1,8 +1,10 @@
 package com.g4mesoft.module.tps;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.lwjgl.glfw.GLFW;
 
@@ -60,7 +62,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	public static final int AUTOMATIC_PISTON_RENDER_DISTANCE = 0;
 	
-	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##");
+	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##", new DecimalFormatSymbols(Locale.ENGLISH));
 	
 	private float tps;
 	private final List<GSITpsDependant> listeners;
