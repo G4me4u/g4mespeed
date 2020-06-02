@@ -34,7 +34,7 @@ setting.tps.forceCarpetTickrate=Force Carpet Tickrate
 setting.tps.forceCarpetTickrate.desc=Forces the client to use the tickrate set by G4mespeed and the Carpet mod. This overrides functionality related to smoothClientAnimations in Carpet. If you wish to use Carpet's handling for tickrate on the client, disable this setting.
 
 setting.tps.showTpsLabel=Show TPS Label
-setting.tps.showTpsLabel.desc=Displays a label with the current server tps, as well as the target tps, in the top-left corner of the in-game hud.
+setting.tps.showTpsLabel.desc=Displays a label with the current and target server tps in the top-left corner of the in-game hud. If the connected server is not a G4mespeed server the tps will be approximated.
 
 setting.betterPistons.cullMovingBlocks=Cull Moving Blocks
 setting.betterPistons.cullMovingBlocks.desc=Culls the back-face of blocks that are pushed by pistons. This will mostly affect transparent moving blocks.
@@ -92,6 +92,9 @@ setting.tps.syncPacketInterval.desc=The interval, in ticks, at which the server 
 
 setting.tps.allowHotkeys=Allow Hotkeys
 setting.tps.allowHotkeys.desc=Allow hotkey controls. Disabling this will no longer allow players to change tps using in-game hotkeys.
+
+setting.tps.broadcastTps=Broadcast TPS
+setting.tps.broadcastTps.desc=Broadcasts the server tps every two seconds to allow players to accurately monitor server performance.
 
 setting.betterPistons.blockEventDistance=Block Event Distance
 setting.betterPistons.blockEventDistance.1=1 chunk
