@@ -1,6 +1,8 @@
 package com.g4mesoft.mixin.client;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,9 +26,7 @@ public abstract class GSInGameHudMixin {
 	private static final int TPS_LABEL_MAGIN = 5;
 	private static final int TPS_LABEL_COLOR = 0xFFFFFFFF;
 	
-	private static final String UNKNOWN_TPS = "??";
-	
-	private static final DecimalFormat LOW_PRECISION_TPS_FORMAT = new DecimalFormat("0.0");
+	private static final DecimalFormat LOW_PRECISION_TPS_FORMAT = new DecimalFormat("0.0", new DecimalFormatSymbols(Locale.ENGLISH));
 	
 	@Shadow @Final private MinecraftClient client;
 	
@@ -44,13 +44,7 @@ public abstract class GSInGameHudMixin {
 			
 			float averageTps = tpsModule.getServerTps();
 			
-			String current;
-			if (Float.isFinite(averageTps)) {
-				current = LOW_PRECISION_TPS_FORMAT.format(averageTps);
-			} else {
-				current = UNKNOWN_TPS;
-			}
-
+			String current = LOW_PRECISION_TPS_FORMAT.format(averageTps);
 			String target = GSTpsModule.TPS_FORMAT.format(tpsModule.getTps());
 			String label = translationModule.getFormattedTranslation("play.info.tpsLabel", current, target);
 			font.draw(label, TPS_LABEL_MAGIN, TPS_LABEL_MAGIN, TPS_LABEL_COLOR);
