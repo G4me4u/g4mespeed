@@ -32,7 +32,7 @@ public class GSTpsMonitor {
 		tpsAccumulator = 0L;
 		
 		lastUpdateTime = Util.getMeasuringTimeMs();
-		ticks = 1;
+		ticks = 0;
 	}
 	
 	public synchronized void update(int ticksPassed) {
