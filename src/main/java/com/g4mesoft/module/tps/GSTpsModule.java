@@ -10,7 +10,6 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.GSVersion;
-import com.g4mesoft.core.client.GSIModuleManagerClient;
 import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.core.compat.GSICarpetCompatTickrateListener;
 import com.g4mesoft.core.server.GSControllerServer;
@@ -116,6 +115,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public void init(GSIModuleManager manager) {
 		this.manager = manager;
 		
+		serverTpsMonitor.reset();
+		
 		G4mespeedMod.getInstance().getCarpetCompat().addCarpetTickrateListener(this);
 	}
 
@@ -199,17 +200,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			if (sererTpsInterval < 0L || sererTpsInterval > SERVER_TPS_INTERVAL) {
 				float averageTps = serverTpsMonitor.getAverageTps();
 				managerServer.sendPacketToAll(new GSServerTpsPacket(averageTps), TPS_MONITOR_INTRODUCTION_VERSION);
-				lastServerTpsTime = now;
-			}
-		});
-		
-		manager.runOnClient((managerClient) -> {
-			long now = Util.getMeasuringTimeMs();
-			long serverTpsInterval = now - lastServerTpsTime;
-			if (serverTpsInterval < 0L || serverTpsInterval > SERVER_TPS_INTERVAL * 2L) {
-				// We have not received the server tps in a while. There is no
-				// way to tell what the server tps actually is.
-				serverTps = Float.NaN;
 				lastServerTpsTime = now;
 			}
 		});
@@ -342,6 +332,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Override
 	public void onDisconnectServer() {
 		resetTps();
+		
+		serverTps = Float.NaN;
 	}
 
 	@Override
@@ -436,12 +428,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	@Environment(EnvType.CLIENT)
 	public float getServerTps() {
-		if (manager instanceof GSIModuleManagerClient) {
-			GSIModuleManagerClient managerClient = (GSIModuleManagerClient)manager;
-			if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_MONITOR_INTRODUCTION_VERSION))
-				return serverTps;
-		}
-		
-		return serverTpsMonitor.getAverageTps();
+		if (!Float.isFinite(serverTps))
+			return serverTpsMonitor.getAverageTps();
+		return serverTps;
 	}
 }

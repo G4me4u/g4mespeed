@@ -14,9 +14,7 @@ public class GSTpsMonitor {
 	private int tpsHistoryPosition;
 	private long tpsAccumulator;
 
-	private boolean firstUpdate;
 	private long lastUpdateTime;
-	
 	private int ticks;
 
 	private volatile float averageTps;
@@ -33,45 +31,50 @@ public class GSTpsMonitor {
 		tpsHistoryPosition = 0;
 		tpsAccumulator = 0L;
 		
-		firstUpdate = true;
-		lastUpdateTime = -1L;
-		
-		ticks = 0;
+		lastUpdateTime = Util.getMeasuringTimeMs();
+		ticks = 1;
 
 		averageTps = 0.0f;
 	}
 	
 	public synchronized void update(int ticksPassed) {
-		long now = Util.getMeasuringTimeMs();
-		if (firstUpdate) {
-			firstUpdate = false;
-			lastUpdateTime = now;
-		}
-
-		long secondsPassed = (now - lastUpdateTime) / MILLIS_PER_SECOND;
+		ticks += ticksPassed;
+		
+		long millisPassed = Util.getMeasuringTimeMs() - lastUpdateTime;
+		long secondsPassed = millisPassed / MILLIS_PER_SECOND;
 		if (secondsPassed > 0L) {
-			lastUpdateTime += secondsPassed * MILLIS_PER_SECOND;
+			long millisThisUpdate = secondsPassed * MILLIS_PER_SECOND;
+			int ticksThisUpdate = (int)(ticks * millisThisUpdate / millisPassed);
+
+			if (ticksThisUpdate < 0) {
+				// In the special case where overflow occurs, we should not
+				// have negative ticks. Note that this can really only happen
+				// if the system time changes drastically.
+				ticksThisUpdate = ticks;
+			}
+			
+			lastUpdateTime += millisThisUpdate;
+			ticks -= ticksThisUpdate;
 
 			if (secondsPassed > MAX_TPS_HISTORY_SIZE) {
-				Arrays.fill(tpsHistory, 0);
-				tpsHistorySize = MAX_TPS_HISTORY_SIZE;
-				tpsHistoryPosition = 0;
-				tpsAccumulator = 0L;
-				
-				averageTps = 0.0f;
-			} else {
-				addToHistory(ticks);
-				ticks = 0;
-				
-				// Fill in the rest of the positions with zeros
-				while (--secondsPassed > 0L)
-					addToHistory(0);
-				
-				averageTps = (float)((double)tpsAccumulator / tpsHistorySize);
+				long oldSeconds = (secondsPassed - MAX_TPS_HISTORY_SIZE);
+				int oldTicks = (int)(ticksThisUpdate * oldSeconds / secondsPassed);
+				if (oldTicks > 0) {
+					// Again to handle overflow.
+					ticksThisUpdate -= oldTicks;
+				}
+				secondsPassed = MAX_TPS_HISTORY_SIZE;
 			}
+			
+			int secondsToProcess = (int)secondsPassed;
+			for (; secondsToProcess > 0; secondsToProcess--) {
+				int ticksThisSecond = ticksThisUpdate / secondsToProcess;
+				addToHistory(ticksThisSecond);
+				ticksThisUpdate -= ticksThisSecond;
+			}
+			
+			averageTps = (float)((double)tpsAccumulator / tpsHistorySize);
 		}
-		
-		ticks += ticksPassed;
 	}
 	
 	private void addToHistory(int tps) {
