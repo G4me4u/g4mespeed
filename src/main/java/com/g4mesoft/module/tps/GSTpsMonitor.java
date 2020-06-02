@@ -33,8 +33,6 @@ public class GSTpsMonitor {
 		
 		lastUpdateTime = Util.getMeasuringTimeMs();
 		ticks = 1;
-
-		averageTps = 0.0f;
 	}
 	
 	public synchronized void update(int ticksPassed) {

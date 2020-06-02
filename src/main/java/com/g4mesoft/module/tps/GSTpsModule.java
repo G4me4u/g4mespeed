@@ -41,7 +41,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public static final float MAX_TPS = Float.MAX_VALUE;
 	public static final float MS_PER_SEC = 1000.0f;
 
-	private static final long SERVER_TPS_INTERVAL = 4000L;
+	private static final long SERVER_TPS_INTERVAL = 2000L;
 	
 	private static final float TPS_INCREMENT_INTERVAL = 1.0f;
 	private static final float TONE_MULTIPLIER = (float)Math.pow(2.0, 1.0 / 12.0);
@@ -81,6 +81,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSIntegerSetting sSyncPacketInterval;
 	public final GSBooleanSetting sAllowHotkeyControls;
 	public final GSBooleanSetting cShowTpsLabel;
+	public final GSBooleanSetting sBroadcastTps;
 
 	public final GSBooleanSetting cCullMovingBlocks;
 	public final GSIntegerSetting cPistonAnimationType;
@@ -104,6 +105,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
 		sAllowHotkeyControls = new GSBooleanSetting("allowHotkeys", true);
 		cShowTpsLabel = new GSBooleanSetting("showTpsLabel", false);
+		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
 
 		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
@@ -170,6 +172,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public void registerServerSettings(GSSettingManager settings) {
 		settings.registerSetting(TPS_CATEGORY, sSyncPacketInterval);
 		settings.registerSetting(TPS_CATEGORY, sAllowHotkeyControls);
+		settings.registerSetting(TPS_CATEGORY, sBroadcastTps);
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sBlockEventDistance);
 	}
@@ -192,15 +195,17 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			
 			serverTpsMonitor.update(1);
 			
-			long now = Util.getMeasuringTimeMs();
-			
-			// Note that the interval may be less than zero in case of the
-			// first tick or in case of overflow / underflow.
-			long sererTpsInterval = now - lastServerTpsTime;
-			if (sererTpsInterval < 0L || sererTpsInterval > SERVER_TPS_INTERVAL) {
-				float averageTps = serverTpsMonitor.getAverageTps();
-				managerServer.sendPacketToAll(new GSServerTpsPacket(averageTps), TPS_MONITOR_INTRODUCTION_VERSION);
-				lastServerTpsTime = now;
+			if (sBroadcastTps.getValue()) {
+				long now = Util.getMeasuringTimeMs();
+				
+				// Note that the interval may be less than zero in case of the
+				// first tick or in case of overflow / underflow.
+				long sererTpsInterval = now - lastServerTpsTime;
+				if (sererTpsInterval < 0L || sererTpsInterval > SERVER_TPS_INTERVAL) {
+					float averageTps = serverTpsMonitor.getAverageTps();
+					managerServer.sendPacketToAll(new GSServerTpsPacket(averageTps), TPS_MONITOR_INTRODUCTION_VERSION);
+					lastServerTpsTime = now;
+				}
 			}
 		});
 		
@@ -384,11 +389,15 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				// next tick (this ensures that the client had
 				// time to react to the previous packet).
 				serverSyncTimer = sSyncPacketInterval.getValue();
+
+				// Reset the tps monitor. This should only happen
+				// on the server, since it would otherwise create
+				// a de-sync with the server tick cycle.
+				serverTpsMonitor.reset();
+
+				lastServerTpsTime = Util.getMeasuringTimeMs();
 			});
 			
-			serverTpsMonitor.reset();
-			lastServerTpsTime = Util.getMeasuringTimeMs();
-
 			GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
 			if (carpetCompat.isCarpetDetected() && carpetCompat.isTickrateLinked())
 				carpetCompat.notifyTickrateChange(tps);
@@ -428,8 +437,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	@Environment(EnvType.CLIENT)
 	public float getServerTps() {
-		if (!Float.isFinite(serverTps))
-			return serverTpsMonitor.getAverageTps();
-		return serverTps;
+		if (sBroadcastTps.getValue() && Float.isFinite(serverTps))
+			return serverTps;
+		return serverTpsMonitor.getAverageTps();
 	}
 }
