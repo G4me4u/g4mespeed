@@ -69,7 +69,7 @@ gui.hotkey.button.cancel=Cancel
 ###########   Game Information    ############
 
 play.info.clientTpsChanged=Client tps changed to %s
-play.info.tpsLabel=%s tps (%s)
+play.info.tpsLabelTarget=tps (%s)
 
 # Translation version 4
 # The older translation versions are deprecated.
