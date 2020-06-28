@@ -15,17 +15,17 @@ com.g4mesoft.G4mespeedMod -> com.g4mesoft.G4mespeedMod:
     java.util.List extensionListeners -> b
     com.g4mesoft.GSExtensionUID[] extensionUidCache -> a
     54:55:void <init>() -> <init>
-    60:77:void onInitialize() -> onInitialize
-    80:96:void addExtension(com.g4mesoft.GSIExtension) -> a
-    99:99:java.util.List getExtensions() -> a
-    103:106:void addExtensionListener(com.g4mesoft.GSIExtensionListener) -> a
-    109:112:void removeExtensionListener(com.g4mesoft.GSIExtensionListener) -> b
-    115:124:com.g4mesoft.GSExtensionUID[] getExtensionUids() -> a
-    128:132:void dispatchExtensionAddedEvent(com.g4mesoft.GSIExtension) -> b
-    135:135:com.g4mesoft.packet.GSPacketManager getPacketManager() -> a
-    139:139:com.g4mesoft.core.compat.GSCarpetCompat getCarpetCompat() -> a
-    143:143:com.g4mesoft.core.GSCoreExtension getCoreExtension() -> a
-    147:147:com.g4mesoft.G4mespeedMod getInstance() -> a
+    60:76:void onInitialize() -> onInitialize
+    79:95:void addExtension(com.g4mesoft.GSIExtension) -> a
+    98:98:java.util.List getExtensions() -> a
+    102:105:void addExtensionListener(com.g4mesoft.GSIExtensionListener) -> a
+    108:111:void removeExtensionListener(com.g4mesoft.GSIExtensionListener) -> b
+    114:123:com.g4mesoft.GSExtensionUID[] getExtensionUids() -> a
+    127:131:void dispatchExtensionAddedEvent(com.g4mesoft.GSIExtension) -> b
+    134:134:com.g4mesoft.packet.GSPacketManager getPacketManager() -> a
+    138:138:com.g4mesoft.core.compat.GSCarpetCompat getCarpetCompat() -> a
+    142:142:com.g4mesoft.core.GSCoreExtension getCoreExtension() -> a
+    146:146:com.g4mesoft.G4mespeedMod getInstance() -> a
     23:52:void <clinit>() -> <clinit>
 com.g4mesoft.GSExtensionUID -> core.a:
     int value -> a
