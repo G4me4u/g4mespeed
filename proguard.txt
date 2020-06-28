@@ -44,9 +44,6 @@
 -allowaccessmodification
 -useuniqueclassmembernames
 
-# Force build
--forceprocessing
-
 -dontshrink
 
 -keepclassmembers enum * {
