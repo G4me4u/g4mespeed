@@ -30,7 +30,8 @@ public class G4mespeedMod implements ModInitializer {
 
 	public static final Logger GS_LOGGER = LogManager.getLogger(CORE_MOD_NAME);
 
-	private static G4mespeedMod instance;
+	private static G4mespeedMod instance = null;
+	private static boolean initialized = false;
 	
 	private GSPacketManager packetManager;
 	private GSCarpetCompat carpetCompat;
@@ -71,6 +72,8 @@ public class G4mespeedMod implements ModInitializer {
 		
 		for (GSIExtension extension : extensions)
 			extension.init();
+	
+		initialized = true;
 	}
 	
 	public static void addExtension(GSIExtension extension) {
@@ -85,7 +88,7 @@ public class G4mespeedMod implements ModInitializer {
 			extensions.add(extension);
 		}
 
-		if (instance != null) {
+		if (initialized) {
 			extension.init();
 			
 			dispatchExtensionAddedEvent(extension);
