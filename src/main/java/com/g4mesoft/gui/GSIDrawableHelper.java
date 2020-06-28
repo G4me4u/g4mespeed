@@ -12,6 +12,11 @@ import net.minecraft.client.util.math.MatrixStack;
 
 public interface GSIDrawableHelper {
 
+	static final String TRIMMED_TEXT_ELLIPSIS = "...";
+	static final char FORMATTING_CHAR = '\u00A7';
+	
+	static final float COLOR_DARKEN_FACTOR = 0.7f;
+	
 	default public String trimText(String text, int availableWidth) {
 		return trimText(getTextRenderer(), text, availableWidth);
 	}
@@ -25,12 +30,12 @@ public interface GSIDrawableHelper {
 		if (font.getWidth(text) <= availableWidth)
 			return text;
 
-		availableWidth -= font.getWidth(GSGUIConstants.TRIMMED_TEXT_ELLIPSIS);
+		availableWidth -= font.getWidth(TRIMMED_TEXT_ELLIPSIS);
 
 		// No space for any other
 		// characters.
 		if (availableWidth < 0)
-			return GSGUIConstants.TRIMMED_TEXT_ELLIPSIS;
+			return TRIMMED_TEXT_ELLIPSIS;
 
 		String result = "";
 		for (int i = 0; i < len; i++) {
@@ -38,7 +43,7 @@ public interface GSIDrawableHelper {
 			int width = font.getWidth(str);
 
 			if (width >= availableWidth)
-				return result + GSGUIConstants.TRIMMED_TEXT_ELLIPSIS;
+				return result + TRIMMED_TEXT_ELLIPSIS;
 		
 			result = str;
 		}
@@ -66,7 +71,7 @@ public interface GSIDrawableHelper {
 		
 		for (int i = 0; i < len; i++) {
 			char c = text.charAt(i);
-			if (c == GSGUIConstants.FORMATTING_CHAR) {
+			if (c == FORMATTING_CHAR) {
 				i++;
 				
 				if (i < len) {
@@ -74,7 +79,7 @@ public interface GSIDrawableHelper {
 					if (c == 'r') {
 						formattingNextLine = "";
 					} else {
-						formattingNextLine += Character.toString(GSGUIConstants.FORMATTING_CHAR) + c;
+						formattingNextLine += Character.toString(FORMATTING_CHAR) + c;
 					}
 				}
 			} else {
@@ -112,9 +117,9 @@ public interface GSIDrawableHelper {
 		int g = (color >>  8) & 0xFF;
 		int b = (color >>  0) & 0xFF;
 	
-		r = (int)(r * GSGUIConstants.COLOR_DARKEN_FACTOR);
-		g = (int)(g * GSGUIConstants.COLOR_DARKEN_FACTOR);
-		b = (int)(b * GSGUIConstants.COLOR_DARKEN_FACTOR);
+		r = (int)(r * COLOR_DARKEN_FACTOR);
+		g = (int)(g * COLOR_DARKEN_FACTOR);
+		b = (int)(b * COLOR_DARKEN_FACTOR);
 
 		return (a << 24) | (r << 16) | (g << 8) | b;
 	}
@@ -125,7 +130,7 @@ public interface GSIDrawableHelper {
 		int g = (color >>  8) & 0xFF;
 		int b = (color >>  0) & 0xFF;
 	
-		int i = (int)(1.0f / (1.0f - GSGUIConstants.COLOR_DARKEN_FACTOR));
+		int i = (int)(1.0f / (1.0f - COLOR_DARKEN_FACTOR));
 		if (r == 0 && g == 0 && b == 0) {
 			r = g = b = i;
 		} else {
@@ -133,9 +138,9 @@ public interface GSIDrawableHelper {
 			if (g > 0 && g < i) g = i;
 			if (b > 0 && b < i) b = i;
 			
-			r = Math.min((int)(r / GSGUIConstants.COLOR_DARKEN_FACTOR), 0xFF);
-			g = Math.min((int)(g / GSGUIConstants.COLOR_DARKEN_FACTOR), 0xFF);
-			b = Math.min((int)(b / GSGUIConstants.COLOR_DARKEN_FACTOR), 0xFF);
+			r = Math.min((int)(r / COLOR_DARKEN_FACTOR), 0xFF);
+			g = Math.min((int)(g / COLOR_DARKEN_FACTOR), 0xFF);
+			b = Math.min((int)(b / COLOR_DARKEN_FACTOR), 0xFF);
 		}
 
 		return (a << 24) | (r << 16) | (g << 8) | b;
@@ -165,16 +170,5 @@ public interface GSIDrawableHelper {
 	
 	default public GSTranslationModule getTranslationModule() {
 		return GSControllerClient.getInstance().getTranslationModule();
-	}
-	
-	static final class GSGUIConstants {
-		
-		private static final String TRIMMED_TEXT_ELLIPSIS = "...";
-		private static final char FORMATTING_CHAR = '\u00A7';
-		
-		private static final float COLOR_DARKEN_FACTOR = 0.7f;
-		
-		private GSGUIConstants() {
-		}
 	}
 }

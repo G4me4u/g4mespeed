@@ -1,8 +1,10 @@
 package com.g4mesoft.module.tps;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import org.lwjgl.glfw.GLFW;
 
@@ -10,7 +12,6 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.GSVersion;
-import com.g4mesoft.core.client.GSIModuleManagerClient;
 import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.core.compat.GSICarpetCompatTickrateListener;
 import com.g4mesoft.core.server.GSControllerServer;
@@ -42,7 +43,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public static final float MAX_TPS = Float.MAX_VALUE;
 	public static final float MS_PER_SEC = 1000.0f;
 
-	private static final long SERVER_TPS_INTERVAL = 4000L;
+	private static final long SERVER_TPS_INTERVAL = 2000L;
 	
 	private static final float TPS_INCREMENT_INTERVAL = 1.0f;
 	private static final float TONE_MULTIPLIER = (float)Math.pow(2.0, 1.0 / 12.0);
@@ -61,7 +62,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	public static final int AUTOMATIC_PISTON_RENDER_DISTANCE = 0;
 	
-	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##");
+	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##", new DecimalFormatSymbols(Locale.ENGLISH));
 	
 	private float tps;
 	private final List<GSITpsDependant> listeners;
@@ -82,6 +83,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSIntegerSetting sSyncPacketInterval;
 	public final GSBooleanSetting sAllowHotkeyControls;
 	public final GSBooleanSetting cShowTpsLabel;
+	public final GSBooleanSetting sBroadcastTps;
 
 	public final GSIntegerSetting cPistonAnimationType;
 	public final GSIntegerSetting cPistonRenderDistance;
@@ -104,6 +106,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
 		sAllowHotkeyControls = new GSBooleanSetting("allowHotkeys", true);
 		cShowTpsLabel = new GSBooleanSetting("showTpsLabel", false);
+		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
 
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, 0, 32);
@@ -113,6 +116,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Override
 	public void init(GSIModuleManager manager) {
 		this.manager = manager;
+		
+		serverTpsMonitor.reset();
 		
 		G4mespeedMod.getInstance().getCarpetCompat().addCarpetTickrateListener(this);
 	}
@@ -166,6 +171,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public void registerServerSettings(GSSettingManager settings) {
 		settings.registerSetting(TPS_CATEGORY, sSyncPacketInterval);
 		settings.registerSetting(TPS_CATEGORY, sAllowHotkeyControls);
+		settings.registerSetting(TPS_CATEGORY, sBroadcastTps);
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sBlockEventDistance);
 	}
@@ -188,26 +194,17 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			
 			serverTpsMonitor.update(1);
 			
-			long now = Util.getMeasuringTimeMs();
-			
-			// Note that the interval may be less than zero in case of the
-			// first tick or in case of overflow / underflow.
-			long sererTpsInterval = now - lastServerTpsTime;
-			if (sererTpsInterval < 0L || sererTpsInterval > SERVER_TPS_INTERVAL) {
-				float averageTps = serverTpsMonitor.getAverageTps();
-				managerServer.sendPacketToAll(new GSServerTpsPacket(averageTps), TPS_MONITOR_INTRODUCTION_VERSION);
-				lastServerTpsTime = now;
-			}
-		});
-		
-		manager.runOnClient((managerClient) -> {
-			long now = Util.getMeasuringTimeMs();
-			long serverTpsInterval = now - lastServerTpsTime;
-			if (serverTpsInterval < 0L || serverTpsInterval > SERVER_TPS_INTERVAL * 2L) {
-				// We have not received the server tps in a while. There is no
-				// way to tell what the server tps actually is.
-				serverTps = Float.NaN;
-				lastServerTpsTime = now;
+			if (sBroadcastTps.getValue()) {
+				long now = Util.getMeasuringTimeMs();
+				
+				// Note that the interval may be less than zero in case of the
+				// first tick or in case of overflow / underflow.
+				long sererTpsInterval = now - lastServerTpsTime;
+				if (sererTpsInterval < 0L || sererTpsInterval > SERVER_TPS_INTERVAL) {
+					float averageTps = serverTpsMonitor.getAverageTps();
+					managerServer.sendPacketToAll(new GSServerTpsPacket(averageTps), TPS_MONITOR_INTRODUCTION_VERSION);
+					lastServerTpsTime = now;
+				}
 			}
 		});
 		
@@ -339,6 +336,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Override
 	public void onDisconnectServer() {
 		resetTps();
+		
+		serverTps = Float.NaN;
 	}
 
 	@Override
@@ -389,11 +388,15 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				// next tick (this ensures that the client had
 				// time to react to the previous packet).
 				serverSyncTimer = sSyncPacketInterval.getValue();
+
+				// Reset the tps monitor. This should only happen
+				// on the server, since it would otherwise create
+				// a de-sync with the server tick cycle.
+				serverTpsMonitor.reset();
+
+				lastServerTpsTime = Util.getMeasuringTimeMs();
 			});
 			
-			serverTpsMonitor.reset();
-			lastServerTpsTime = Util.getMeasuringTimeMs();
-
 			GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
 			if (carpetCompat.isCarpetDetected() && carpetCompat.isTickrateLinked())
 				carpetCompat.notifyTickrateChange(tps);
@@ -433,12 +436,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	@Environment(EnvType.CLIENT)
 	public float getServerTps() {
-		if (manager instanceof GSIModuleManagerClient) {
-			GSIModuleManagerClient managerClient = (GSIModuleManagerClient)manager;
-			if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_MONITOR_INTRODUCTION_VERSION))
-				return serverTps;
-		}
-		
+		if (sBroadcastTps.getValue() && Float.isFinite(serverTps))
+			return serverTps;
 		return serverTpsMonitor.getAverageTps();
 	}
 }
