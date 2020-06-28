@@ -16,17 +16,18 @@ import com.g4mesoft.module.translation.GSTranslationModule;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.text.TranslationException;
+import net.minecraft.util.Language;
 
 @Mixin(TranslatableText.class)
 public abstract class GSTranslatableTextMixin {
 
-	@Shadow private long languageReloadTimestamp;
+	@Shadow private Language languageCache;
 	@Shadow @Final private String key;
 	@Shadow @Final protected List<Text> translations;
 	
 	private long lastTranslationTimestamp = -1L;
 	
-	@Shadow protected abstract void setTranslation(String translationString);
+	@Shadow protected abstract void setTranslation(String translationString, Language language);
 	
 	@Inject(method = "updateTranslations", at = @At("HEAD"), cancellable = true)
 	public void onUpdateTranslations(CallbackInfo ci) {
@@ -39,8 +40,10 @@ public abstract class GSTranslatableTextMixin {
 	
 		GSTranslationModule translationModule = threadController.getTranslationModule();
 		if (translationModule.hasTranslation(this.key)) {
+			Language language = Language.getInstance();
+			
 			long timestamp = translationModule.getTranslationTimestamp();
-			if (lastTranslationTimestamp == timestamp && !this.translations.isEmpty()) {
+			if (lastTranslationTimestamp == timestamp && !this.translations.isEmpty() && this.languageCache == language) {
 				ci.cancel();
 				return;
 			}
@@ -48,13 +51,14 @@ public abstract class GSTranslatableTextMixin {
 			lastTranslationTimestamp = timestamp;
 			
 			try {
-				this.setTranslation(translationModule.getTranslation(key));
+				this.setTranslation(translationModule.getTranslation(key), language);
+				this.languageCache = language;
 				ci.cancel();
 			} catch (TranslationException e) {
 				this.translations.clear();
 				
 				// Make sure we fallback to default
-				this.languageReloadTimestamp = -1L;
+				this.languageCache = null;
 			}
 		}
 	}

@@ -31,7 +31,7 @@ public class GSMouseMixin implements GSIMouseAccess {
 	}
 
 	@Inject(method="onMouseButton(JIII)V", at = @At(value = "INVOKE", shift = At.Shift.AFTER, 
-			target = "Lnet/minecraft/client/options/KeyBinding;setKeyPressed(Lnet/minecraft/client/util/InputUtil$KeyCode;Z)V"))
+			target = "Lnet/minecraft/client/options/KeyBinding;setKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;Z)V"))
 	public void onMouseEventHandled(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
 		if (action == GLFW.GLFW_PRESS)
 			getKeyManager().onMousePressed(button, mods);

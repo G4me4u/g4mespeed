@@ -2,7 +2,7 @@ package com.g4mesoft.hotkey;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.util.InputUtil.KeyCode;
+import net.minecraft.client.util.InputUtil.Key;
 import net.minecraft.text.Text;
 
 public class GSKeyBinding {
@@ -10,10 +10,10 @@ public class GSKeyBinding {
 	private final GSKeyManager manager;
 	private final String name;
 	private final String category;
-	private final KeyCode defaultKeyCode;
+	private final Key defaultKeyCode;
 	private final boolean allowDisabled;
 	
-	private KeyCode keyCode;
+	private Key keyCode;
 
 	private boolean keyState;
 	
@@ -89,7 +89,7 @@ public class GSKeyBinding {
 	}
 
 	public Text getLocalizedName() {
-		return keyCode.method_27445();
+		return keyCode.getLocalizedText();
 	}
 
 	public boolean isPressed() {
@@ -120,15 +120,15 @@ public class GSKeyBinding {
 		return category;
 	}
 	
-	public KeyCode getKeyCode() {
+	public Key getKeyCode() {
 		return keyCode;
 	}
 
-	public void setKeyCode(KeyCode keyCode) {
-		if (!allowDisabled && keyCode == InputUtil.UNKNOWN_KEYCODE)
+	public void setKeyCode(Key keyCode) {
+		if (!allowDisabled && keyCode == InputUtil.UNKNOWN_KEY)
 			keyCode = defaultKeyCode;
 		
-		KeyCode oldKeyCode = this.keyCode;
+		Key oldKeyCode = this.keyCode;
 		this.keyCode = keyCode;
 		reset();
 		
@@ -136,10 +136,10 @@ public class GSKeyBinding {
 	}
 
 	public int getGLFWKeyCode() {
-		return keyCode.getKeyCode();
+		return keyCode.getCode();
 	}
 	
-	public KeyCode getDefaultKeyCode() {
+	public Key getDefaultKeyCode() {
 		return defaultKeyCode;
 	}
 }

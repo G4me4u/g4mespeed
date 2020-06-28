@@ -11,6 +11,7 @@ import com.g4mesoft.core.server.GSControllerServer;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.CommandManager.RegistrationEnvironment;
 import net.minecraft.server.command.ServerCommandSource;
 
 @Mixin(CommandManager.class)
@@ -19,7 +20,7 @@ public class GSCommandManagerMixin {
 	@Shadow @Final private CommandDispatcher<ServerCommandSource> dispatcher;
 	
 	@Inject(method="<init>", at = @At("RETURN"))
-	private void registerCommands(boolean isServer, CallbackInfo ci) {
+	private void registerCommands(RegistrationEnvironment environment, CallbackInfo ci) {
 		GSControllerServer.getInstance().setCommandDispatcher(dispatcher);
 	}
 }

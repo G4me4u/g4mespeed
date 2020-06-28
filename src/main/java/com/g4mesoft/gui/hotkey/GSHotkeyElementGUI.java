@@ -7,7 +7,7 @@ import com.g4mesoft.hotkey.GSKeyBinding;
 
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.util.InputUtil.KeyCode;
+import net.minecraft.client.util.InputUtil.Key;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -111,7 +111,7 @@ public class GSHotkeyElementGUI extends GSParentPanel {
 		drawStringWithShadow(matrixStack, textRenderer, name, HOTKEY_PADDING, (height - textRenderer.fontHeight) / 2, FONT_COLOR);
 	}
 
-	private void setKeyCode(KeyCode keyCode) {
+	private void setKeyCode(Key keyCode) {
 		keyBinding.setKeyCode(keyCode);
 		updateButtons();
 	}
@@ -133,9 +133,9 @@ public class GSHotkeyElementGUI extends GSParentPanel {
 	public boolean onKeyPressedGS(int key, int scancode, int mods) {
 		if (modifyingKeyCode && !resetButton.isFocused()) {
 			if (key == GLFW.GLFW_KEY_ESCAPE) {
-				setKeyCode(InputUtil.UNKNOWN_KEYCODE);
+				setKeyCode(InputUtil.UNKNOWN_KEY);
 			} else {
-				setKeyCode(InputUtil.getKeyCode(key, scancode));
+				setKeyCode(InputUtil.fromKeyCode(key, scancode));
 			}
 			
 			setModifying(false);

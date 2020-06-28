@@ -61,7 +61,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		this.timeReference = this.field_19248 = Util.getMeasuringTimeMs() + (long)msPerTick;
 	}
 	
-	@Inject(method = "run", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
+	@Inject(method = "method_29741", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
 			target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V"))
 	private void onInitialized(CallbackInfo ci) {
 		// Some mods might also modify the run loop...
@@ -76,7 +76,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	 * Ensure that we set require = 0. Some mods might change the overall structure of the mod. For 
 	 * example carpet modifies the loop and changes this.running to just be false.
 	 */
-	@Inject(method = "run", require = 0, allow = 1, at = @At(value = "FIELD", shift = Shift.BEFORE,
+	@Inject(method = "method_29741", require = 0, allow = 1, at = @At(value = "FIELD", shift = Shift.BEFORE,
 			target = "Lnet/minecraft/server/MinecraftServer;running:Z"))
 	private void onModifiedRunLoop(CallbackInfo ci) {
 		while (this.running) {
