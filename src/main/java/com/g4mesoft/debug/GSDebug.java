@@ -2,7 +2,7 @@ package com.g4mesoft.debug;
 
 public class GSDebug {
 
-	public static final boolean GS_DEBUG = true;
+	public static final boolean GS_DEBUG = false;
 	
 	private static final boolean PRINT_TICK_INTERVAL = false;
 	

@@ -2,6 +2,7 @@ package com.g4mesoft.module.tps;
 
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.util.GSMathUtils;
+import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -50,7 +51,8 @@ public final class GSTpsCommand {
 		} else {
 			source.sendFeedback(new TranslatableText("command.tps.get", tpsFormatted), false);
 		}
-		return 1;
+		
+		return Command.SINGLE_SUCCESS;
 	}
 	
 	private static String formatSign(int value) {
@@ -61,7 +63,9 @@ public final class GSTpsCommand {
 	
 	private static int setCurrentTps(ServerCommandSource source, float newTps) throws CommandSyntaxException {
 		GSControllerServer.getInstance().getTpsModule().setTps(newTps);
+		
 		source.sendFeedback(new TranslatableText("command.tps.set", newTps), true);
-		return 1;
+		
+		return Command.SINGLE_SUCCESS;
 	}
 }
