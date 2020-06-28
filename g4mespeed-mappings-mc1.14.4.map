@@ -6,6 +6,7 @@ com.g4mesoft.G4mespeedMod -> com.g4mesoft.G4mespeedMod:
     com.g4mesoft.GSExtensionUID INVALID_EXTENSION_UID -> b
     org.apache.logging.log4j.Logger GS_LOGGER -> a
     com.g4mesoft.G4mespeedMod instance -> a
+    boolean initialized -> g
     com.g4mesoft.packet.GSPacketManager packetManager -> a
     com.g4mesoft.core.compat.GSCarpetCompat carpetCompat -> a
     com.g4mesoft.core.GSCoreExtension coreExtension -> a
@@ -13,19 +14,19 @@ com.g4mesoft.G4mespeedMod -> com.g4mesoft.G4mespeedMod:
     java.util.Map idToExtension -> a
     java.util.List extensionListeners -> b
     com.g4mesoft.GSExtensionUID[] extensionUidCache -> a
-    53:54:void <init>() -> <init>
-    59:74:void onInitialize() -> onInitialize
-    77:93:void addExtension(com.g4mesoft.GSIExtension) -> a
-    96:96:java.util.List getExtensions() -> a
-    100:103:void addExtensionListener(com.g4mesoft.GSIExtensionListener) -> a
-    106:109:void removeExtensionListener(com.g4mesoft.GSIExtensionListener) -> b
-    112:121:com.g4mesoft.GSExtensionUID[] getExtensionUids() -> a
-    125:129:void dispatchExtensionAddedEvent(com.g4mesoft.GSIExtension) -> b
-    132:132:com.g4mesoft.packet.GSPacketManager getPacketManager() -> a
-    136:136:com.g4mesoft.core.compat.GSCarpetCompat getCarpetCompat() -> a
-    140:140:com.g4mesoft.core.GSCoreExtension getCoreExtension() -> a
-    144:144:com.g4mesoft.G4mespeedMod getInstance() -> a
-    23:51:void <clinit>() -> <clinit>
+    54:55:void <init>() -> <init>
+    60:77:void onInitialize() -> onInitialize
+    80:96:void addExtension(com.g4mesoft.GSIExtension) -> a
+    99:99:java.util.List getExtensions() -> a
+    103:106:void addExtensionListener(com.g4mesoft.GSIExtensionListener) -> a
+    109:112:void removeExtensionListener(com.g4mesoft.GSIExtensionListener) -> b
+    115:124:com.g4mesoft.GSExtensionUID[] getExtensionUids() -> a
+    128:132:void dispatchExtensionAddedEvent(com.g4mesoft.GSIExtension) -> b
+    135:135:com.g4mesoft.packet.GSPacketManager getPacketManager() -> a
+    139:139:com.g4mesoft.core.compat.GSCarpetCompat getCarpetCompat() -> a
+    143:143:com.g4mesoft.core.GSCoreExtension getCoreExtension() -> a
+    147:147:com.g4mesoft.G4mespeedMod getInstance() -> a
+    23:52:void <clinit>() -> <clinit>
 com.g4mesoft.GSExtensionUID -> core.a:
     int value -> a
     11:13:void <init>(int) -> <init>
