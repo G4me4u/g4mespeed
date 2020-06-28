@@ -241,7 +241,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				performHotkeyAction(hotkeyType, sneaking);
 				
 				if (client.inGameHud != null) {
-					Text overlay = new TranslatableText("play.info.clientTpsChanged", tps);
+					String formattedTps = TPS_FORMAT.format(tps);
+					Text overlay = new TranslatableText("play.info.clientTpsChanged", formattedTps);
 					client.inGameHud.setOverlayMessage(overlay, false);
 				}
 			}
