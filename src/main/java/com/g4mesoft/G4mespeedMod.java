@@ -58,15 +58,14 @@ public class G4mespeedMod implements ModInitializer {
 	@GSCoreOverride
 	public void onInitialize() {
 		instance = this;
+		
+		coreExtension = new GSCoreExtension();
+		addExtension(coreExtension);
 
 		packetManager = new GSPacketManager();
 		
 		carpetCompat = new GSCarpetCompat();
 		carpetCompat.detectCarpet();
-		
-		coreExtension = new GSCoreExtension();
-
-		addExtension(coreExtension);
 		
 		GS_LOGGER.info("G4mespeed " + GS_CORE_VERSION.getVersionString() + " initialized!");
 		
