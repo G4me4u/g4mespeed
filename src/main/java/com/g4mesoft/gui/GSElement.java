@@ -34,4 +34,9 @@ public interface GSElement extends Element {
 	default public boolean onMouseScrolledGS(double mouseX, double mouseY, double scrollX, double scrollY) {
 		return false;
 	}
+	
+	public void setFocused(boolean focused);
+	
+	public boolean isFocused();
+	
 }
