@@ -17,11 +17,13 @@ import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.sound.SoundManager;
 
 @Mixin(MinecraftClient.class)
-public class GSMinecraftClientMixin {
+public abstract class GSMinecraftClientMixin {
 
 	@Shadow @Final private RenderTickCounter renderTickCounter;
 	@Shadow private SoundManager soundManager;
 	@Shadow public ClientPlayerEntity player;
+	
+	@Shadow protected abstract boolean isPaused();
 	
 	@Inject(method = "init()V", at = @At("RETURN"))
 	public void onInit(CallbackInfo ci) {
@@ -45,6 +47,7 @@ public class GSMinecraftClientMixin {
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void onTick(CallbackInfo ci) {
 		GSDebug.onClientTick();
-		GSControllerClient.getInstance().tick();
+		
+		GSControllerClient.getInstance().tick(isPaused());
 	}
 }

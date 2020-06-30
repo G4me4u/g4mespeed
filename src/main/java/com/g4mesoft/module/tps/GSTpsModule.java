@@ -185,14 +185,16 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	@Override
-	public void tick() {
+	public void tick(boolean paused) {
 		manager.runOnServer(managerServer -> {
-			serverSyncTimer++;
-			
-			int syncInterval = sSyncPacketInterval.getValue();
-			if (serverSyncTimer >= syncInterval) {
-				managerServer.sendPacketToAll(new GSServerSyncPacket(syncInterval), TPS_INTRODUCTION_VERSION);
-				serverSyncTimer = 0;
+			if (!paused) {
+				serverSyncTimer++;
+				
+				int syncInterval = sSyncPacketInterval.getValue();
+				if (serverSyncTimer >= syncInterval) {
+					managerServer.sendPacketToAll(new GSServerSyncPacket(syncInterval), TPS_INTRODUCTION_VERSION);
+					serverSyncTimer = 0;
+				}
 			}
 			
 			serverTpsMonitor.update(1);
@@ -210,7 +212,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				}
 			}
 		});
-		
+
 		GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
 		if (carpetCompat.isCarpetDetected() && carpetCompat.isOutdatedCompatMode()) {
 			// With older versions of carpet we have to poll the current tps
