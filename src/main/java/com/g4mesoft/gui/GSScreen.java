@@ -129,6 +129,9 @@ public abstract class GSScreen extends Screen implements GSParentElement, GSIDra
 	@Deprecated
 	@GSCoreOverride
 	public final boolean keyPressed(int key, int scancode, int mods) {
+		if (onKeyPressedGS(key, scancode, mods))
+			return true;
+		
 		if (key == GLFW.GLFW_KEY_ESCAPE && this.shouldCloseOnEsc()) {
 			this.onClose();
 			return true;
@@ -141,7 +144,7 @@ public abstract class GSScreen extends Screen implements GSParentElement, GSIDra
 			return true;
 		}
 
-		return onKeyPressedGS(key, scancode, mods);
+		return false;
 	}
 
 	@Override
