@@ -30,15 +30,17 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	}
 	
 	public void initBounds(MinecraftClient client, int x, int y, int width, int height) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-	
-		this.client = client;
-		this.font = client.textRenderer;
+		if (this.client == null || this.x != x || this.y != y || this.width != width || this.height != height) {
+			this.x = x;
+			this.y = y;
+			this.width = width;
+			this.height = height;
 		
-		init();
+			this.client = client;
+			this.font = client.textRenderer;
+			
+			init();
+		}
 	}
 
 	public void init() {
@@ -51,6 +53,10 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	protected void onRemoved() {
 		added = false;
 		focused = false;
+		
+		// Used when initializing to check if the panel
+		// was removed from its parent.
+		client = null;
 	}
 	
 	public void tick() {
