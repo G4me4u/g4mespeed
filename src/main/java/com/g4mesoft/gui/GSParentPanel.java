@@ -136,6 +136,16 @@ public class GSParentPanel extends GSPanel implements GSParentElement {
 	}
 
 	@Override
+	boolean onKeyPressedSuppressed(int keyCode, int scanCode, int modifiers) {
+		return GSParentElement.super.keyPressed(keyCode, scanCode, modifiers);
+	}
+
+	@Override
+	boolean onKeyReleasedSuppressed(int keyCode, int scanCode, int modifiers) {
+		return GSParentElement.super.keyReleased(keyCode, scanCode, modifiers);
+	}
+	
+	@Override
 	public boolean onCharTypedGS(char c, int mods) {
 		return GSParentElement.super.onCharTypedGS(c, mods);
 	}

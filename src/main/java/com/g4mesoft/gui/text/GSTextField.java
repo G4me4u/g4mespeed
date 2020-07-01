@@ -144,6 +144,11 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		caret.uninstall(this);
 	}
 	
+	@Override
+	public boolean isEditingText() {
+		return isFocused() && editable;
+	}
+	
 	private float expandClippedModelLeft(float availableWidth) {
 		while (availableWidth > 0.0f && clippedModelStart > 0) {
 			clippedModelStart--;

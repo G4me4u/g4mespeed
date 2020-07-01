@@ -170,6 +170,11 @@ public abstract class GSScreen extends Screen implements GSParentElement, GSIDra
 	}
 	
 	@Override
+	public boolean isAdded() {
+		return (MinecraftClient.getInstance().currentScreen == this);
+	}
+	
+	@Override
 	public void setFocused(boolean focused) {
 	}
 	
@@ -179,8 +184,8 @@ public abstract class GSScreen extends Screen implements GSParentElement, GSIDra
 	}
 	
 	@Override
-	public boolean isAdded() {
-		return (MinecraftClient.getInstance().currentScreen == this);
+	public boolean isEditingText() {
+		return false;
 	}
 	
 	@Override

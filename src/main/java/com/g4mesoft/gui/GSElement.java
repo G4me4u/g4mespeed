@@ -41,4 +41,6 @@ public interface GSElement extends Element {
 
 	public void setFocused(boolean focused);
 	
+	public boolean isEditingText();
+	
 }
