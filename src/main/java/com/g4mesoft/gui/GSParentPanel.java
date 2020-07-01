@@ -45,11 +45,25 @@ public class GSParentPanel extends GSPanel implements GSParentElement {
 			drawableWidgets.add((Drawable)element);
 	}
 	
+	public void removeWidget(Element element) {
+		children.remove(element);
+		
+		if (element instanceof Drawable)
+			drawableWidgets.remove((Drawable)element);
+	}
+	
 	public void addPanel(GSPanel panel) {
 		children.add(panel);
 		panels.add(panel);
 
 		panel.onAdded();
+	}
+	
+	public void removePanel(GSPanel panel) {
+		children.remove(panel);
+		panels.remove(panel);
+		
+		panel.onRemoved();
 	}
 	
 	public void clearChildren() {
