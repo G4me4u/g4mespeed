@@ -60,6 +60,9 @@ public class GSParentPanel extends GSPanel implements GSParentElement {
 	}
 	
 	public void removePanel(GSPanel panel) {
+		if (getFocused() == panel)
+			setFocused((Element)null);
+		
 		children.remove(panel);
 		panels.remove(panel);
 		
