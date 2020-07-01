@@ -10,6 +10,9 @@ import net.minecraft.text.TranslatableText;
 
 public final class GSInfoCommand {
 
+	private GSInfoCommand() {
+	}
+
 	public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
 		dispatcher.register(CommandManager.literal("gs").then(CommandManager.literal("info").executes(context -> {
 			return informG4mespeedVersion(context.getSource());

@@ -222,7 +222,8 @@ public class GSTabbedGUI extends GSScreen {
 		if (super.onKeyPressedGS(key, scancode, mods))
 			return true;
 		
-		if (canKeyCloseGUI(key)) {
+		GSKeyBinding openGUIKey = GSControllerClient.getInstance().getOpenGUIKey();
+		if (openGUIKey != null && key == openGUIKey.getGLFWKeyCode()) {
 			this.onClose();
 			return true;
 		}
@@ -230,14 +231,6 @@ public class GSTabbedGUI extends GSScreen {
 		return false;
 	}
 	
-	private boolean canKeyCloseGUI(int key) {
-		if (key == GLFW.GLFW_KEY_ESCAPE)
-			return true;
-		
-		GSKeyBinding openGUIKey = GSControllerClient.getInstance().getOpenGUIKey();
-		return (openGUIKey != null && key == openGUIKey.getGLFWKeyCode());
-	}
-
 	@Override
 	@GSCoreOverride
 	public void setFocused(Element element) {
@@ -265,12 +258,6 @@ public class GSTabbedGUI extends GSScreen {
 	@GSCoreOverride
 	public boolean isPauseScreen() {
 		return true;
-	}
-	
-	@Override
-	@GSCoreOverride
-	public boolean shouldCloseOnEsc() {
-		return false;
 	}
 	
 	private class GSTabEntry {

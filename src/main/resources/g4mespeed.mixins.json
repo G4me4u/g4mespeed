@@ -20,6 +20,7 @@
   ],
   "client": [
     "client.GSMinecraftClientMixin",
+    "client.GSIntegratedServerMixin",
 
   	"client.GSSoundSystemMixin",
   	

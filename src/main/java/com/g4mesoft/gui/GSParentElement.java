@@ -78,4 +78,27 @@ public interface GSParentElement extends GSElement, ParentElement {
 		Element focusedElement = getFocused();
 		return focusedElement != null && focusedElement.charTyped(c, mods);
 	}
+	
+	default public boolean isChildEditingText() {
+		Element focused = getFocused();
+		while (focused != null) {
+			if (focused instanceof GSParentElement) {
+				GSParentElement element = ((GSParentElement)focused);
+				return element.isChildEditingText();
+			}
+
+			if (focused instanceof GSElement) {
+				GSElement element = ((GSElement)focused);
+				return element.isEditingText();
+			}
+
+			Element nextFocused = null;
+			if (focused instanceof ParentElement)
+				nextFocused = ((ParentElement)focused).getFocused();
+			
+			focused = nextFocused;
+		}
+		
+		return false;
+	}
 }

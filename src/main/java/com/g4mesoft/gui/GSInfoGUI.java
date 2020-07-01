@@ -4,7 +4,7 @@ import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.translation.GSTranslationModule;
 
-public class GSInfoGUI extends GSPanel {
+public class GSInfoGUI extends GSParentPanel {
 
 	private static final int TEXT_COLOR              = 0xFFFFFFFF;
 	private static final int VERSION_COLOR           = 0xFF22FF22;
@@ -20,7 +20,7 @@ public class GSInfoGUI extends GSPanel {
 	public GSInfoGUI(GSControllerClient controllerClient) {
 		this.controllerClient = controllerClient;
 	}
-
+	
 	@Override
 	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
 		super.renderTranslated(mouseX, mouseY, partialTicks);

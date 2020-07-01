@@ -17,6 +17,9 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	protected MinecraftClient client;
 	protected TextRenderer font;
 	
+	private boolean added;
+	private boolean focused;
+	
 	public int x;
 	public int y;
 	public int width;
@@ -27,24 +30,33 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	}
 	
 	public void initBounds(MinecraftClient client, int x, int y, int width, int height) {
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-	
-		this.client = client;
-		this.font = client.textRenderer;
+		if (this.client == null || this.x != x || this.y != y || this.width != width || this.height != height) {
+			this.x = x;
+			this.y = y;
+			this.width = width;
+			this.height = height;
 		
-		init();
+			this.client = client;
+			this.font = client.textRenderer;
+			
+			init();
+		}
 	}
 
 	public void init() {
 	}
 
 	protected void onAdded() {
+		added = true;
 	}
 
 	protected void onRemoved() {
+		added = false;
+		focused = false;
+		
+		// Used when initializing to check if the panel
+		// was removed from its parent.
+		client = null;
 	}
 	
 	public void tick() {
@@ -72,7 +84,7 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 		float oldClipOffsetY = ((GSIBufferBuilderAccess)buffer).getClipYOffset();
 		
 		((GSIBufferBuilderAccess)buffer).setOffset(oldOffsetX + tx, oldOffsetY + ty, oldOffsetZ);
-		((GSIBufferBuilderAccess)buffer).setClipOffset(oldClipOffsetX + tx, oldClipOffsetX + ty);
+		((GSIBufferBuilderAccess)buffer).setClipOffset(oldClipOffsetX + tx, oldClipOffsetY + ty);
 		
 		renderTranslated(mouseX - tx, mouseY - ty, partialTicks);
 
@@ -132,6 +144,8 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	@Deprecated
 	@GSCoreOverride
 	public final boolean keyPressed(int key, int scancode, int mods) {
+		if (preKeyPressed(key, scancode, mods))
+			return true;
 		return selected && onKeyPressedGS(key, scancode, mods);
 	}
 
@@ -139,6 +153,8 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	@Deprecated
 	@GSCoreOverride
 	public final boolean keyReleased(int key, int scancode, int mods) {
+		if (preKeyReleased(key, scancode, mods))
+			return true;
 		return selected && onKeyReleasedGS(key, scancode, mods);
 	}
 
@@ -168,6 +184,34 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 		
 		return mouseX >= x && mouseX < x + width && 
 		       mouseY >= y && mouseY < y + height;
+	}
+	
+	@Override
+	public boolean isAdded() {
+		return added;
+	}
+	
+	@Override
+	public boolean isElementFocused() {
+		return focused;
+	}
+	
+	@Override
+	public void setElementFocused(boolean focused) {
+		this.focused = focused;
+	}
+	
+	boolean preKeyPressed(int keyCode, int scanCode, int modifiers) {
+		return false;
+	}
+	
+	boolean preKeyReleased(int keyCode, int scanCode, int modifiers) {
+		return false;
+	}
+	
+	@Override
+	public boolean isEditingText() {
+		return false;
 	}
 	
 	@Override

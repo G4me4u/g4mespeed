@@ -22,12 +22,17 @@ public class GSMouseMixin implements GSIMouseAccess {
 	
 	private GSKeyManager keyManager;
 	
+	private int buttonMods;
 	private double scrollX;
 	
 	@Inject(method="onMouseButton(JIII)V", at = @At(value = "HEAD"))
 	public void onMouseEvent(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
-		if (windowHandle == MinecraftClient.getInstance().getWindow().getHandle() &&  action == GLFW.GLFW_RELEASE)
-			getKeyManager().onMouseReleased(button, mods);
+		if (windowHandle == MinecraftClient.getInstance().getWindow().getHandle()) {
+			buttonMods = mods;
+			
+			if (action == GLFW.GLFW_RELEASE)
+				getKeyManager().onMouseReleased(button, mods);
+		}
 	}
 
 	@Inject(method="onMouseButton(JIII)V", at = @At(value = "INVOKE", shift = At.Shift.AFTER, 
@@ -40,6 +45,11 @@ public class GSMouseMixin implements GSIMouseAccess {
 	@Inject(method="onMouseScroll", at = @At(value = "HEAD"))
 	private void onOnMouseScroll(long window, double scrollX, double scrollY, CallbackInfo ci) {
 		this.scrollX = (client.options.discreteMouseScroll ? Math.signum(scrollX) : scrollX) * client.options.mouseWheelSensitivity;
+	}
+
+	@Override
+	public int getButtonMods() {
+		return buttonMods;
 	}
 	
 	@Override
