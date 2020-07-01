@@ -144,7 +144,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		while (availableWidth > expandedWidth && clippedModelStart > 0) {
 			clippedModelStart--;
 			
-			String text = textModel.getText(clippedModelStart, expansionIndex);
+			String text = textModel.getText(clippedModelStart, expansionIndex - clippedModelStart);
 			expandedWidth = textRenderer.getWidth(text);
 		}
 		
@@ -158,7 +158,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		while (availableWidth > expandedWidth && clippedModelEnd < textModel.getLength()) {
 			clippedModelEnd++;
 
-			String text = textModel.getText(expansionIndex, clippedModelEnd);
+			String text = textModel.getText(expansionIndex, clippedModelEnd - expansionIndex);
 			expandedWidth = textRenderer.getWidth(text);
 		}
 		
