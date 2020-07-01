@@ -138,12 +138,8 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	@Deprecated
 	@GSCoreOverride
 	public final boolean keyPressed(int key, int scancode, int mods) {
-		if (this instanceof GSParentElement) {
-			GSParentElement parentElement = ((GSParentElement)this);
-			if (parentElement.isChildEditingText() && !isEditingText())
-				return onKeyPressedSuppressed(key, scancode, mods);
-		}
-		
+		if (preKeyPressed(key, scancode, mods))
+			return true;
 		return selected && onKeyPressedGS(key, scancode, mods);
 	}
 
@@ -151,12 +147,8 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	@Deprecated
 	@GSCoreOverride
 	public final boolean keyReleased(int key, int scancode, int mods) {
-		if (this instanceof GSParentElement) {
-			GSParentElement parentElement = ((GSParentElement)this);
-			if (parentElement.isChildEditingText() && !isEditingText())
-				return onKeyReleasedSuppressed(key, scancode, mods);
-		}
-		
+		if (preKeyReleased(key, scancode, mods))
+			return true;
 		return selected && onKeyReleasedGS(key, scancode, mods);
 	}
 
@@ -203,11 +195,11 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 		this.focused = focused;
 	}
 	
-	boolean onKeyPressedSuppressed(int keyCode, int scanCode, int modifiers) {
+	boolean preKeyPressed(int keyCode, int scanCode, int modifiers) {
 		return false;
 	}
 	
-	boolean onKeyReleasedSuppressed(int keyCode, int scanCode, int modifiers) {
+	boolean preKeyReleased(int keyCode, int scanCode, int modifiers) {
 		return false;
 	}
 	
