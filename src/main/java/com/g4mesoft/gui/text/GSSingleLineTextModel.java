@@ -139,16 +139,11 @@ public class GSSingleLineTextModel extends GSAbstractTextModel {
 			throw new GSTextModelIndexOutOfBoundsException(offset);
 		
 		int count = text.length();
-		
-		// Test if we need to shift current model
 		int n = count;
-		if (offset != length) {
-			// Doing for-loop from 0 to count will
-			// help the JIT increase performance.
-			for (int i = 0; i < count; i++) {
-				if (shouldDiscardCharacter(text.charAt(i)))
-					n--;
-			}
+		
+		for (int i = 0; i < count; i++) {
+			if (shouldDiscardCharacter(text.charAt(i)))
+				n--;
 		}
 
 		if (n != 0) {
@@ -185,13 +180,11 @@ public class GSSingleLineTextModel extends GSAbstractTextModel {
 		// Same implementation as insertText(int, String), but
 		// slightly altered to handle character-arrays.
 		int bufferEnd = bufferOffset + count;
-		
 		int n = count;
-		if (offset != length) {
-			for (int i = bufferOffset; i < bufferEnd; i++) {
-				if (shouldDiscardCharacter(charBuffer[i]))
-					n--;
-			}
+		
+		for (int i = bufferOffset; i < bufferEnd; i++) {
+			if (shouldDiscardCharacter(charBuffer[i]))
+				n--;
 		}
 
 		if (n != 0) {
@@ -244,7 +237,7 @@ public class GSSingleLineTextModel extends GSAbstractTextModel {
 		if (offset < 0 || offset >= length)
 			throw new GSTextModelIndexOutOfBoundsException(offset);
 		if (count < 0)
-			throw new IllegalArgumentException("count < 0");
+			throw new GSTextModelIndexOutOfBoundsException(count);
 		
 		int end = offset + count;
 		if (end > length)
@@ -275,6 +268,8 @@ public class GSSingleLineTextModel extends GSAbstractTextModel {
 		
 		if (offset < 0 || offset >= length)
 			throw new GSTextModelIndexOutOfBoundsException(offset);
+		if (count < 0)
+			throw new GSTextModelIndexOutOfBoundsException(count);
 		if (offset + count > length)
 			throw new GSTextModelIndexOutOfBoundsException(length);
 		
@@ -286,7 +281,7 @@ public class GSSingleLineTextModel extends GSAbstractTextModel {
 		if (offset < 0 || offset >= length)
 			throw new GSTextModelIndexOutOfBoundsException(offset);
 		if (count < 0)
-			throw new IllegalArgumentException("count < 0");
+			throw new GSTextModelIndexOutOfBoundsException(count);
 		if (offset + count > length)
 			throw new GSTextModelIndexOutOfBoundsException(length);
 		

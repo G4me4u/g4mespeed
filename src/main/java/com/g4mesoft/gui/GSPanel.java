@@ -75,7 +75,7 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 		float oldClipOffsetY = ((GSIBufferBuilderAccess)buffer).getClipYOffset();
 		
 		buffer.setOffset(oldOffsetX + tx, oldOffsetY + ty, oldOffsetZ);
-		((GSIBufferBuilderAccess)buffer).setClipOffset(oldClipOffsetX + tx, oldClipOffsetX + ty);
+		((GSIBufferBuilderAccess)buffer).setClipOffset(oldClipOffsetX + tx, oldClipOffsetY + ty);
 		
 		renderTranslated(mouseX - tx, mouseY - ty, partialTicks);
 

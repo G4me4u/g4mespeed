@@ -31,5 +31,15 @@ public interface GSITextCaret {
 	public void setBlinkRate(int blinkRate);
 	
 	public int getBlinkRate();
+
+	public boolean onMouseClicked(double mouseX, double mouseY, int button);
+	
+	public boolean onMouseReleased(double mouseX, double mouseY, int button);
+	
+	public boolean onMouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY);
+	
+	public boolean onKeyPressed(int key, int scancode, int mods);
+
+	public boolean onKeyReleased(int key, int scancode, int mods);
 	
 }

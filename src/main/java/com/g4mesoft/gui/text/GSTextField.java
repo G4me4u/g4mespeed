@@ -4,17 +4,22 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.lwjgl.glfw.GLFW;
+
 import com.g4mesoft.access.GSIBufferBuilderAccess;
 import com.g4mesoft.gui.GSClipRect;
 import com.g4mesoft.gui.GSPanel;
 import com.g4mesoft.util.GSMathUtils;
 
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 
-public class GSTextField extends GSPanel implements GSITextCaretListener {
+public class GSTextField extends GSPanel implements GSITextCaretListener, GSITextModelListener {
+
+	private static final int DEFAULT_BACKGROUND_COLOR = 0xFF000000;
 
 	private static final int DEFAULT_EDITABLE_TEXT_COLOR        = 0xFFE0E0E0;
 	private static final int DEFAULT_UNEDITABLE_TEXT_COLOR      = 0xFF707070;
@@ -23,11 +28,20 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 	
 	private static final int DEFAULT_BORDER_WIDTH = 1;
 	private static final int DEFAULT_BORDER_COLOR = 0xFFA0A0A0;
+
+	private static final int DEFAULT_VERTICAL_MARGIN   = 2;
+	private static final int DEFAULT_HORIZONTAL_MARGIN = 2;
+
+	private static final int VERTICAL_PADDING = 2;
 	
-	private static final int PRINTABLE_CHARACTERS_START = 0x20;
-	private static final int DELETE_CONTROL_CHARACTER = 0x7F;
-	
+	private static final int PRINTABLE_CHARACTERS_START  = 0x20;
+
 	private static final int BACKSPACE_CONTROL_CHARACTER = 0x08;
+	private static final int TAB_CONTROL_CHARACTER       = 0x09;
+	private static final int NEW_LINE_CONTROL_CHARACTER  = 0x0A;
+	private static final int CONTROL_Z_CONTROL_CHARACTER = 0x1A;
+	private static final int ESCAPE_CONTROL_CHARACTER    = 0x1B;
+	private static final int DELETE_CONTROL_CHARACTER    = 0x7F;
 	
 	private GSITextModel textModel;
 	private final List<GSIModelChangeListener> modelChangeListeners;
@@ -46,13 +60,16 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 
 	private int borderWidth;
 	private int borderColor;
+
+	private int verticalMargin;
+	private int horizontalMargin;
 	
 	private String clippedText;
 	private int clippedModelStart;
 	private int clippedModelEnd;
 	private int clippedViewOffset;
+	private boolean clippedModelInvalid;
 	
-	private int oldCaretLocation;
 	private int oldCaretPointX;
 	
 	public GSTextField() {
@@ -66,8 +83,10 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 		} else {
 			textModel = new GSSingleLineTextModel();
 		}
-
+		
 		modelChangeListeners = new ArrayList<GSIModelChangeListener>();
+		
+		backgroundColor = DEFAULT_BACKGROUND_COLOR;
 		
 		editableTextColor = DEFAULT_EDITABLE_TEXT_COLOR;
 		uneditableTextColor = DEFAULT_UNEDITABLE_TEXT_COLOR;
@@ -82,15 +101,34 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 		borderWidth = DEFAULT_BORDER_WIDTH;
 		borderColor = DEFAULT_BORDER_COLOR;
 		
+		verticalMargin = DEFAULT_VERTICAL_MARGIN;
+		horizontalMargin = DEFAULT_HORIZONTAL_MARGIN;
+		
+		textModel.addTextModelListener(this);
+
 		caret.install(this);
 		caret.addTextCaretListener(this);
 	}
 	
+	public void initPreferredBounds(MinecraftClient client, int x, int y) {
+		int textWidth = client.textRenderer.getStringWidth(getText());
+		int prefWidth = textWidth + (borderWidth + horizontalMargin) * 2;
+		
+		initPreferredBounds(client, x, y, prefWidth);
+	}
+
+	public void initPreferredBounds(MinecraftClient client, int x, int y, int width) {
+		int textHeight = client.textRenderer.fontHeight;
+		int prefHeight = textHeight + (borderWidth + verticalMargin + VERTICAL_PADDING) * 2;
+		
+		super.initBounds(client, x, y, width, prefHeight);
+	}
+
 	@Override
 	public void init() {
 		super.init();
 
-		reconstructClippedModel();
+		clippedModelInvalid = true;
 	}
 	
 	private float expandClippedModelLeft(float availableWidth) {
@@ -118,7 +156,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 	private void reconstructClippedModel() {
 		int caretLocation = GSMathUtils.clamp(getCaretLocation(), 0, textModel.getLength());
 
-		int width = this.width - borderWidth * 2;
+		int margin = borderWidth + horizontalMargin;
+		int width = this.width - margin * 2;
 		
 		int caretX;
 		if (caretLocation <= clippedModelStart) {
@@ -126,7 +165,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 		} else if (caretLocation >= clippedModelEnd) {
 			caretX = width;
 		} else {
-			caretX = GSMathUtils.clamp(oldCaretPointX - borderWidth, 0, width);
+			caretX = GSMathUtils.clamp(oldCaretPointX - margin, 0, width);
 		}
 		
 		clippedModelStart = caretLocation;
@@ -167,6 +206,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 		
 		int count = clippedModelEnd - clippedModelStart;
 		clippedText = (count != 0) ? textModel.getText(clippedModelStart, count) : "";
+	
+		clippedModelInvalid = false;
 	}
 	
 	private int getCaretLocation() {
@@ -189,6 +230,9 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 
 	@Override
 	protected void renderTranslated(int mouseX, int mouseY, float partialTicks) {
+		if (clippedModelInvalid)
+			reconstructClippedModel();
+		
 		drawBorderAndBackground(mouseX, mouseY, partialTicks);
 
 		int selectStart = getCaretSelectionStart();
@@ -196,6 +240,14 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 		
 		boolean hasSelection = caret.hasCaretSelection();
 		int textColor = isEditable() ? editableTextColor : uneditableTextColor;
+		
+		int x0 = borderWidth + horizontalMargin;
+		int y0 = borderWidth + verticalMargin;
+		int x1 = width - x0;
+		int y1 = height - y0;
+		
+		BufferBuilder builder = Tessellator.getInstance().getBuffer();
+		((GSIBufferBuilderAccess)builder).pushClip(new GSClipRect(x0, y0, x1, y1));
 		
 		// Only draw text if it is not all selected.
 		if (!hasSelection || selectStart > clippedModelStart || selectEnd < clippedModelEnd) {
@@ -210,13 +262,19 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 		if (hasSelection && selectEnd > clippedModelStart && selectStart < clippedModelEnd)
 			drawCaretSelection(selectStart, selectEnd);
 
+		((GSIBufferBuilderAccess)builder).popClip();
+
 		if (isEditable() && isFocused())
 			caret.render(mouseX, mouseY, partialTicks);
 	}
 	
 	protected void drawBorderAndBackground(int mouseX, int mouseY, float partialTicks) {
-		if (borderWidth != 0)
-			fill(0, 0, width, height, borderColor);
+		if (borderWidth != 0) {
+			fill(0, 0, borderWidth, height - borderWidth, borderColor);
+			fill(width - borderWidth, borderWidth, width, height, borderColor);
+			fill(borderWidth, 0, width, borderWidth, borderColor);
+			fill(0, height - borderWidth, width - borderWidth, height, borderColor);
+		}
 		
 		if (((backgroundColor >>> 24) & 0xFF) != 0x00)
 			fill(borderWidth, borderWidth, width - borderWidth, height - borderWidth, backgroundColor);
@@ -227,18 +285,17 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 		if (clipOffset < 0)
 			clipOffset = 0;
 		
-		int clipLength = modelEnd - modelStart;
+		int clipLength = modelEnd - clippedModelStart - clipOffset;
 		if (clipLength > clippedText.length() - clipOffset)
 			clipLength = clippedText.length() - clipOffset;
 
 		// No need to render an empty string.
 		if (clipOffset >= clippedText.length() || clipLength <= 0)
 			return;
-		
-		int x = clippedViewOffset;
-		
+
+		int x = borderWidth + horizontalMargin + clippedViewOffset;
+
 		String text = clippedText;
-		
 		if (clipLength != clippedText.length()) {
 			text = clippedText.substring(clipOffset, clipOffset + clipLength);
 			
@@ -246,13 +303,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 				x += font.getStringWidth(clippedText.substring(0, clipOffset));
 		}
 		
-		BufferBuilder builder = Tessellator.getInstance().getBuffer();
-		((GSIBufferBuilderAccess)builder).pushClip(new GSClipRect(borderWidth, borderWidth, 
-				width - borderWidth, height - borderWidth));
-		
-		font.drawWithShadow(text, x, borderWidth, textColor);
-		
-		((GSIBufferBuilderAccess)builder).popClip();
+		font.drawWithShadow(text, x, (height - font.fontHeight) / 2, textColor);
 	}
 	
 	protected void drawCaretSelection(int selectStart, int selectEnd) {
@@ -271,8 +322,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 		}
 		
 		if (x0 < x1) {
-			DrawableHelper.fill(x0, borderWidth, x1 - x0, height - borderWidth * 2, selectionBackgroundColor);
-	
+			DrawableHelper.fill(x0, borderWidth, x1, height - borderWidth, selectionBackgroundColor);
+			
 			drawVisibleTextSegment(selectStart, selectEnd, selectionTextColor);
 		}
 	}
@@ -283,13 +334,13 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 			return null;
 
 		Rectangle bounds = new Rectangle();
-		bounds.x = clippedViewOffset + borderWidth;
-		bounds.y = borderWidth;
+		bounds.x = clippedViewOffset + borderWidth + horizontalMargin;
+		bounds.y = borderWidth + verticalMargin;
+
+		bounds.height = height - (borderWidth + verticalMargin) * 2;
 		
 		if (clippedText.isEmpty()) {
 			bounds.width = 0;
-			bounds.height = Math.min(font.fontHeight, height - borderWidth * 2);
-			
 			return bounds;
 		}
 
@@ -305,8 +356,6 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 			bounds.width = (int)Math.ceil(font.getCharWidth(c));
 		}
 		
-		bounds.height = font.fontHeight;
-		
 		return bounds;
 	}
 
@@ -314,7 +363,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 		if (x < 0 || x >= width || y < 0 || y >= height)
 			return -1;
 
-		x -= borderWidth;
+		x -= borderWidth + horizontalMargin;
 		
 		int baseDist = x - clippedViewOffset;
 		int minimumDist = Math.abs(baseDist);
@@ -337,25 +386,22 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 	
 	@Override
 	public void caretLocationChanged(int dot, int mark) {
-		checkViewChange();
-	}
-	
-	private void checkViewChange() {
 		int caretLocation = getCaretLocation();
-		if (!isLocationInView(caretLocation))
-			reconstructClippedModel();
 		
-		if (caretLocation != oldCaretLocation) {
+		if (!clippedModelInvalid) {
 			Rectangle caretBounds = modelToView(caretLocation);
 			if (caretBounds != null) {
 				oldCaretPointX = caretBounds.x;
 			} else {
-				int mid = (clippedModelStart + clippedModelEnd) / 2;
-				oldCaretPointX = (caretLocation < mid) ? 0 : width;
+				oldCaretPointX = borderWidth + horizontalMargin;
+				
+				if (caretLocation > (clippedModelStart + clippedModelEnd) / 2)
+					oldCaretPointX = width - oldCaretPointX;
 			}
-			
-			oldCaretLocation = caretLocation;
 		}
+
+		if (!isLocationInView(caretLocation))
+			clippedModelInvalid = true;
 	}
 	
 	private boolean isLocationInView(int caretLocation) {
@@ -365,7 +411,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 		if (caretLocation == clippedModelStart) {
 			return (clippedViewOffset >= 0);
 		} else if (caretLocation == clippedModelEnd) {
-			int fieldWidth = width - borderWidth * 2;
+			int fieldWidth = width - (borderWidth + horizontalMargin) * 2;
 			
 			int clipWidth = (int)font.getStringWidth(clippedText);
 			return (clipWidth + clippedViewOffset <= fieldWidth);
@@ -375,22 +421,89 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 	}
 	
 	@Override
+	public void textInserted(GSITextModel model, int offset, int count) {
+		clippedModelInvalid = true;
+	}
+
+	@Override
+	public void textRemoved(GSITextModel model, int offset, int count) {
+		clippedModelInvalid = true;
+	}
+	
+	@Override
+	public boolean onMouseClickedGS(double mouseX, double mouseY, int button) {
+		if (caret.onMouseClicked(mouseX, mouseY, button))
+			return true;
+		
+		return super.onMouseClickedGS(mouseX, mouseY, button);
+	}
+	
+	@Override
+	public boolean onMouseReleasedGS(double mouseX, double mouseY, int button) {
+		if (caret.onMouseReleased(mouseX, mouseY, button))
+			return true;
+
+		return super.onMouseReleasedGS(mouseX, mouseY, button);
+	}
+	
+	@Override
+	public boolean onMouseDraggedGS(double mouseX, double mouseY, int button, double dragX, double dragY) {
+		if (caret.onMouseDragged(mouseX, mouseY, button, dragX, dragY))
+			return true;
+		
+		return super.onMouseDraggedGS(mouseX, mouseY, button, dragX, dragY);
+	}
+	
+	@Override
 	public boolean onKeyPressedGS(int key, int scancode, int mods) {
+		if (caret.onKeyPressed(key, scancode, mods))
+			return true;
+		
 		if (Screen.isCopy(key)) {
 			copyToClipboard();
 			return true;
-		} else if (Screen.isCut(key)) {
+		}
+		
+		if (Screen.isCut(key)) {
 			cutToClipboard();
 			return true;
-		} else if (Screen.isPaste(key)) {
+		}
+		
+		if (Screen.isPaste(key)) {
 			pasteFromClipboard();
 			return true;
 		}
 		
+		checkAndDispatchControlCharacter(key, mods);
+		
 		return super.onKeyPressedGS(key, scancode, mods);
 	}
 	
-	private void copyToClipboard() {
+	private void checkAndDispatchControlCharacter(int key, int mods) {
+		switch (key) {
+		case GLFW.GLFW_KEY_BACKSPACE:
+			handleTypedCodePoint(BACKSPACE_CONTROL_CHARACTER);
+			break;
+		case GLFW.GLFW_KEY_TAB:
+			handleTypedCodePoint(TAB_CONTROL_CHARACTER);
+			break;
+		case GLFW.GLFW_KEY_ENTER:
+			handleTypedCodePoint(NEW_LINE_CONTROL_CHARACTER);
+			break;
+		case GLFW.GLFW_KEY_Z:
+			if ((mods & GLFW.GLFW_MOD_CONTROL) != 0)
+				handleTypedCodePoint(CONTROL_Z_CONTROL_CHARACTER);
+			break;
+		case GLFW.GLFW_KEY_ESCAPE:
+			handleTypedCodePoint(ESCAPE_CONTROL_CHARACTER);
+			break;
+		case GLFW.GLFW_KEY_DELETE:
+			handleTypedCodePoint(DELETE_CONTROL_CHARACTER);
+			break;
+		}
+	}
+	
+	protected void copyToClipboard() {
 		if (caret.hasCaretSelection()) {
 			int cs = getCaretSelectionStart();
 			int ce = getCaretSelectionEnd();
@@ -402,12 +515,12 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 		}
 	}
 	
-	private void cutToClipboard() {
+	protected void cutToClipboard() {
 		copyToClipboard();
 		removeCaretSelection();
 	}
 	
-	private void pasteFromClipboard() {
+	protected void pasteFromClipboard() {
 		String clipboard = client.keyboard.getClipboard();
 		if (clipboard != null && !clipboard.isEmpty()) {
 			removeCaretSelection();
@@ -419,9 +532,17 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 	}
 
 	@Override
+	public boolean onKeyReleasedGS(int key, int scancode, int mods) {
+		if (caret.onKeyReleased(key, scancode, mods))
+			return true;
+		
+		return super.onKeyReleasedGS(key, scancode, mods);
+	}
+	
+	@Override
 	public boolean onCharTypedGS(char c, int mods) {
 		if (isEditable() && isFocused())
-			handleTypedCodePoint(c);
+			handleTypedCodePoint((int)c);
 		
 		return super.onCharTypedGS(c, mods);
 	}
@@ -452,8 +573,11 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 			int cs = getCaretSelectionStart();
 			int ce = getCaretSelectionEnd();
 			
-			if (cs >= 0 && ce <= textModel.getLength())
+			if (cs >= 0 && ce <= textModel.getLength()) {
+				moveCaretPointX(textModel.getText(cs, ce - cs), -1);
+				
 				textModel.removeText(cs, ce - cs);
+			}
 		}
 	}
 	
@@ -461,8 +585,11 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 		if (isControlCharacter(c)) {
 			switch (c) {
 			case BACKSPACE_CONTROL_CHARACTER:
-				if (offset > 0)
+				if (offset > 0) {
+					moveCaretPointX(textModel.getText(offset - 1, 1), -1);
+			
 					textModel.removeText(offset - 1, 1);
+				}
 				break;
 			case DELETE_CONTROL_CHARACTER:
 				if (offset < textModel.getLength())
@@ -471,7 +598,13 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 			}
 		} else {
 			textModel.insertChar(offset, c);
+			
+			moveCaretPointX(textModel.getText(offset, 1), 1);
 		}
+	}
+
+	private void moveCaretPointX(String removedText, int sign) {
+		oldCaretPointX += sign * font.getStringWidth(removedText);
 	}
 	
 	private boolean isControlCharacter(char c) {
@@ -490,7 +623,9 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 		if (textModel == null)
 			throw new IllegalArgumentException("Text model can not be null!");
 		
+		this.textModel.removeTextModelListener(this);
 		this.textModel = textModel;
+		textModel.addTextModelListener(this);
 		
 		invokeModelChangeEvent();
 	}
@@ -614,5 +749,27 @@ public class GSTextField extends GSPanel implements GSITextCaretListener {
 	
 	public void setBorderColor(int borderColor) {
 		this.borderColor = borderColor;
+	}
+	
+	public int getVerticalMargin() {
+		return verticalMargin;
+	}
+
+	public void setVerticalMargin(int verticalMargin) {
+		if (verticalMargin < 0)
+			throw new IllegalArgumentException("verticalMargin must be non-negative!");
+		
+		this.verticalMargin = verticalMargin;
+	}
+
+	public int getHorizontalMargin() {
+		return horizontalMargin;
+	}
+	
+	public void setHorizontalMargin(int horizontalMargin) {
+		if (horizontalMargin < 0)
+			throw new IllegalArgumentException("horizontalMargin must be non-negative!");
+		
+		this.horizontalMargin = horizontalMargin;
 	}
 }

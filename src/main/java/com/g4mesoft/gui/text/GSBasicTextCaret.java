@@ -11,6 +11,7 @@ import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.screen.Screen;
 
 /**
  * A basic text caret used by the user to navigate the text area on which this
@@ -28,18 +29,21 @@ import net.minecraft.client.gui.DrawableHelper;
  * before the first character in the view. If the user decides to create a
  * selection, this will be represented by the {@code mark}. The selection itself
  * is <i>not</i> painted in this text caret and should therefore be handled 
- * elsewhere. To see the full functionality of the {@code mark} and how it is
- * activated by the user see {@link #setSelectionModifierKey(KeyInput)}.
+ * elsewhere.
  * 
  * @author Christian
  */
 public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSIModelChangeListener {
 
-	private static final int DEFAULT_BLINK_RATE = 500;
-	private static final int DEFAULT_CARET_WIDTH = 2;
+	private static final int DEFAULT_BLINK_RATE   = 500;
+	private static final int DEFAULT_CARET_WIDTH  = 1;
 	private static final int DEFAULT_CARET_INSETS = 0;
 	
 	private static final int DEFAULT_CARET_COLOR = 0xFFFFFFFF;
+	
+	private static final int NO_MODIFIERS             = 0x00;
+	private static final int SELECTION_MODIFIER       = 0x01;
+	private static final int WORD_NAVIGATION_MODIFIER = 0x02;
 	
 	private GSTextField textField;
 	private GSITextModel textModel;
@@ -149,18 +153,95 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	 * 
 	 * @param backward - a parameter defining whether the navigation should be
 	 *                   backward or forward.
-	 * @param selectionModifier - whether the selection modifier is held.
+	 * @param modifierFlags - the flags of the currently held modifiers.
 	 */
-	protected void navigateStep(boolean backward, boolean selectionModifier) {
-		if (!selectionModifier && hasCaretSelection()) {
+	protected void navigateStep(boolean backward, int modifierFlags) {
+		if (((modifierFlags & SELECTION_MODIFIER) == 0) && hasCaretSelection()) {
 			if (backward) {
 				setCaretLocation(Math.min(dot, mark));
 			} else {
 				setCaretLocation(Math.max(dot, mark));
 			}
+		} else if ((modifierFlags & WORD_NAVIGATION_MODIFIER) != 0) {
+			navigateToNextWord(backward, modifierFlags);
 		} else {
-			navigateToLocation(backward ? (dot - 1) : (dot + 1), selectionModifier);
+			navigateToLocation(backward ? (dot - 1) : (dot + 1), modifierFlags);
 		}
+	}
+	
+	protected void navigateToNextWord(boolean backward, int modifierFlags) {
+		int nextDot;
+		
+		if (backward) {
+			GSWordCharacterType prevType = GSWordCharacterType.OTHER;
+
+			for (nextDot = dot; nextDot > 0; nextDot--) {
+				GSWordCharacterType type = getWordCharacterTypeAt(nextDot - 1);
+				if (type != prevType && prevType != GSWordCharacterType.OTHER)
+					break;
+				
+				prevType = type;
+			}
+		} else {
+			GSWordCharacterType prevType = getWordCharacterTypeAt(dot);
+
+			for (nextDot = dot; nextDot < textModel.getLength(); nextDot++) {
+				GSWordCharacterType type = getWordCharacterTypeAt(nextDot);
+				if (type != prevType && type != GSWordCharacterType.OTHER)
+					break;
+				
+				prevType = type;
+			}
+		}
+
+		navigateToLocation(nextDot, modifierFlags);
+	}
+	
+	private GSWordCharacterType getWordCharacterTypeAt(int location) {
+		if (location >= 0 && location < textModel.getLength()) {
+			char c = textModel.getChar(location);
+			
+			switch (Character.getType(c)) {
+			case Character.UPPERCASE_LETTER:
+			case Character.LOWERCASE_LETTER:
+			case Character.TITLECASE_LETTER:
+			case Character.MODIFIER_LETTER:
+			case Character.OTHER_LETTER:
+			case Character.DECIMAL_DIGIT_NUMBER:
+			case Character.OTHER_NUMBER:
+				return GSWordCharacterType.LETTER_OR_DIGIT;
+	
+			case Character.LETTER_NUMBER:
+			case Character.DASH_PUNCTUATION:
+			case Character.START_PUNCTUATION:
+			case Character.END_PUNCTUATION:
+			case Character.CONNECTOR_PUNCTUATION:
+			case Character.OTHER_PUNCTUATION:
+			case Character.MATH_SYMBOL:
+			case Character.CURRENCY_SYMBOL:
+			case Character.MODIFIER_SYMBOL:
+			case Character.OTHER_SYMBOL:
+			case Character.INITIAL_QUOTE_PUNCTUATION:
+			case Character.FINAL_QUOTE_PUNCTUATION:
+				return GSWordCharacterType.SYMBOL;
+			
+			case Character.UNASSIGNED:
+			case Character.NON_SPACING_MARK:
+			case Character.ENCLOSING_MARK:
+			case Character.COMBINING_SPACING_MARK:
+			case Character.SPACE_SEPARATOR:
+			case Character.LINE_SEPARATOR:
+			case Character.PARAGRAPH_SEPARATOR:
+			case Character.CONTROL:
+			case Character.FORMAT:
+			case Character.PRIVATE_USE:
+			case Character.SURROGATE:
+			default:
+				return GSWordCharacterType.OTHER;
+			}
+		}
+
+		return null;
 	}
 	
 	/**
@@ -169,10 +250,10 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	 * 
 	 * @param location - the new location of the caret, or the dot, if the
 	 *                   selectionModifier is not active.
-	 * @param selectionModifier - whether the selection modifier is held.
+	 * @param modifierFlags - the flags of the currently held modifiers.
 	 */
-	protected void navigateToLocation(int location, boolean selectionModifier) {
-		if (selectionModifier) {
+	protected void navigateToLocation(int location, int modifierFlags) {
+		if ((modifierFlags & SELECTION_MODIFIER) != 0) {
 			setCaretDot(location);
 		} else {
 			setCaretLocation(location);
@@ -184,13 +265,14 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	 * 
 	 * @param navX - the x-position of the navigation point
 	 * @param navY - the y-position of the navigation point
+	 * @param modifierFlags - the flags of the currently held modifiers.
 	 */
-	protected void navigateToPoint(int navX, int navY, boolean selectionModifier) {
+	protected void navigateToPoint(int navX, int navY, int modifierFlags) {
 		int x0 = textField.getBorderWidth();
 		int x1 = textField.getWidth() - textField.getBorderWidth();
 		
 		int indexOffset = 0;
-		if (selectionModifier) {
+		if ((modifierFlags & SELECTION_MODIFIER) != 0) {
 			if (navX < x0) {
 				navX = x0;
 				indexOffset = -1;
@@ -204,7 +286,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 			int navigationIndex = textField.viewToModel(navX, navY);
 			
 			if (navigationIndex != -1)
-				navigateToLocation(navigationIndex + indexOffset, selectionModifier);
+				navigateToLocation(navigationIndex + indexOffset, modifierFlags);
 		}
 	}
 	
@@ -237,15 +319,16 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	protected void paintCaret(int mouseX, int mouseY, float dt) {
 		Rectangle bounds = textField.modelToView(dot);
 		if (bounds != null) {
-			int x0 = textField.getBorderWidth();
-			int x1 = textField.getWidth() - textField.getBorderWidth();
+			int mnx = textField.getBorderWidth();
+			int mxx = textField.getWidth() - textField.getBorderWidth() - caretWidth;
 			
-			int x = GSMathUtils.clamp(bounds.x, x0, x1 - caretWidth);
-			int y = bounds.y + caretInsets;
+			int x0 = GSMathUtils.clamp(bounds.x, mnx, mxx);
+			int y0 = bounds.y + caretInsets;
+			int x1 = x0 + caretWidth;
+			int y1 = y0 + bounds.height - caretInsets * 2;
 
-			int height = bounds.height - caretInsets * 2;
-			if (height > 0)
-				DrawableHelper.fill(x, y, caretWidth, height, caretColor);
+			if (y0 < y1)
+				DrawableHelper.fill(x0, y0, x1, y1, caretColor);
 		}
 	}
 	
@@ -262,9 +345,8 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		if (location <= 0) {
 			return 0;
 		} else {
-			GSITextModel model = textField.getTextModel();
-			if (location > model.getLength())
-				return model.getLength();
+			if (location > textModel.getLength())
+				return textModel.getLength();
 		}
 		
 		return location;
@@ -282,6 +364,8 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		if (location != dot || location != mark) {
 			dot = mark = location;
 
+			blinkTimer = 0;
+			
 			dispatchCaretLocationChangedEvent();
 		}
 	}
@@ -298,6 +382,8 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		if (dot != this.dot) {
 			this.dot = dot;
 
+			blinkTimer = 0;
+			
 			dispatchCaretLocationChangedEvent();
 		}
 	}
@@ -329,9 +415,12 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		mark = getBoundedLocation(mark);
 	
 		if (dot != this.dot || mark != this.mark) {
+			if (dot != this.dot)
+				blinkTimer = 0;
+
 			this.dot = dot;
 			this.mark = mark;
-
+			
 			dispatchCaretLocationChangedEvent();
 		}
 	}
@@ -358,6 +447,9 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	public void textRemoved(GSITextModel model, int offset, int count) {
 		int dot = this.dot;
 		int mark = this.mark;
+
+		if (offset == dot)
+			blinkTimer = 0;
 		
 		if (offset + count < dot) {
 			dot -= count;
@@ -394,6 +486,8 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 			throw new IllegalArgumentException("blinkRate <= 0");
 		
 		this.blinkRate = blinkRate;
+		
+		blinkTimer = 0;
 	}
 
 	/**
@@ -449,61 +543,89 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		this.caretColor = caretColor;
 	}
 
+	@Override
 	public boolean onMouseClicked(double mouseX, double mouseY, int button) {
 		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
 			int mods = ((GSIMouseAccess)MinecraftClient.getInstance().mouse).getButtonMods();
-			navigateToPoint((int)mouseX, (int)mouseY, (mods & GLFW.GLFW_MOD_SHIFT) != 0);
+			
+			navigateToPoint((int)mouseX, (int)mouseY, getModifierFlags(mods));
+			
 			return true;
 		}
 		
 		return false;
 	}
 	
+	@Override
 	public boolean onMouseReleased(double mouseX, double mouseY, int button) {
 		return false;
 	}
 	
+	@Override
 	public boolean onMouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
 		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
+			int mods = ((GSIMouseAccess)MinecraftClient.getInstance().mouse).getButtonMods();
+
 			int y = GSMathUtils.clamp((int)mouseY, 0, textField.getHeight() - 1);
-			navigateToPoint((int)mouseX, y, true);
+			navigateToPoint((int)mouseX, y, getModifierFlags(mods) | SELECTION_MODIFIER);
+			
 			return true;
 		}
 		
 		return false;
 	}
 	
+	@Override
 	public boolean onKeyPressed(int key, int scancode, int mods) {
-		return handleKeyEvent(key, mods, (mods & GLFW.GLFW_MOD_SHIFT) != 0);
+		return handleKeyEvent(key, mods, getModifierFlags(mods));
 	}
 
+	@Override
 	public boolean onKeyReleased(int key, int scancode, int mods) {
 		return false;
 	}
 	
-	private boolean handleKeyEvent(int key, int mods, boolean selectionModifier) {
-		switch (key) {
-		case GLFW.GLFW_KEY_RIGHT:
-			navigateStep(false, selectionModifier);
+	private int getModifierFlags(int mods) {
+		int flags = NO_MODIFIERS;
+
+		if ((mods & GLFW.GLFW_MOD_SHIFT) != 0)
+			flags |= SELECTION_MODIFIER;
+		
+		if ((mods & GLFW.GLFW_MOD_CONTROL) != 0)
+			flags |= WORD_NAVIGATION_MODIFIER;
+		
+		return flags;
+	}
+	
+	private boolean handleKeyEvent(int key, int mods, int modifierFlags) {
+		if (Screen.isSelectAll(key)) {
+			setSelection(0, textModel.getLength());
 			return true;
-		case GLFW.GLFW_KEY_LEFT:
-			navigateStep(true, selectionModifier);
-			return true;
-		case GLFW.GLFW_KEY_HOME:
-			navigateToLocation(0, selectionModifier);
-			return true;
-		case GLFW.GLFW_KEY_END:
-			navigateToLocation(textModel.getLength(), selectionModifier);
-			return true;
-		case GLFW.GLFW_KEY_A:
-			if ((mods & GLFW.GLFW_MOD_CONTROL) != 0) {
-				setSelection(0, textModel.getLength());
+		} else {
+			switch (key) {
+			case GLFW.GLFW_KEY_RIGHT:
+				navigateStep(false, modifierFlags);
 				return true;
+			case GLFW.GLFW_KEY_LEFT:
+				navigateStep(true, modifierFlags);
+				return true;
+			case GLFW.GLFW_KEY_HOME:
+				navigateToLocation(0, modifierFlags);
+				return true;
+			case GLFW.GLFW_KEY_END:
+				navigateToLocation(textModel.getLength(), modifierFlags);
+				return true;
+			default:
+				break;
 			}
-		default:
-			break;
 		}
 		
 		return false;
+	}
+	
+	private enum GSWordCharacterType {
+		
+		LETTER_OR_DIGIT, SYMBOL, OTHER;
+		
 	}
 }
