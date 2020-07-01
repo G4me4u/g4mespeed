@@ -186,12 +186,12 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	}
 	
 	@Override
-	public boolean isFocused() {
+	public boolean isElementFocused() {
 		return focused;
 	}
 	
 	@Override
-	public void setFocused(boolean focused) {
+	public void setElementFocused(boolean focused) {
 		this.focused = focused;
 	}
 	

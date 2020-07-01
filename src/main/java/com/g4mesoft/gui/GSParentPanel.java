@@ -30,7 +30,7 @@ public class GSParentPanel extends GSPanel implements GSParentElement {
 	@Override
 	public void initBounds(MinecraftClient client, int x, int y, int width, int height) {
 		if (focusedElement instanceof GSElement)
-			((GSElement)focusedElement).setFocused(false);
+			((GSElement)focusedElement).setElementFocused(false);
 		
 		// Clear children before GSPanel#init() is called.
 		clearChildren();
@@ -187,12 +187,12 @@ public class GSParentPanel extends GSPanel implements GSParentElement {
 	@GSCoreOverride
 	public void setFocused(Element focused) {
 		if (focusedElement instanceof GSElement)
-			((GSElement)focusedElement).setFocused(false);
+			((GSElement)focusedElement).setElementFocused(false);
 		
 		this.focusedElement = focused;
 
 		if (focused instanceof GSElement)
-			((GSElement)focused).setFocused(true);
+			((GSElement)focused).setElementFocused(true);
 	}
 	
 	@Override

@@ -37,9 +37,9 @@ public interface GSElement extends Element {
 	
 	public boolean isAdded();
 	
-	public boolean isFocused();
+	public boolean isElementFocused();
 
-	public void setFocused(boolean focused);
+	public void setElementFocused(boolean focused);
 	
 	public boolean isEditingText();
 	

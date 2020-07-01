@@ -146,7 +146,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	@Override
 	public boolean isEditingText() {
-		return isFocused() && editable;
+		return isElementFocused() && editable;
 	}
 	
 	private float expandClippedModelLeft(float availableWidth) {
@@ -242,7 +242,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	@Override
 	public void tick() {
-		if (isEditable() && isFocused())
+		if (isEditable() && isElementFocused())
 			caret.update();
 	}
 
@@ -282,7 +282,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 
 		((GSIBufferBuilderAccess)builder).popClip();
 
-		if (isEditable() && isFocused())
+		if (isEditable() && isElementFocused())
 			caret.render(mouseX, mouseY, partialTicks);
 	}
 	
@@ -559,7 +559,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	@Override
 	public boolean onCharTypedGS(char c, int mods) {
-		if (isEditable() && isFocused())
+		if (isEditable() && isElementFocused())
 			handleTypedCodePoint((int)c);
 		
 		return super.onCharTypedGS(c, mods);

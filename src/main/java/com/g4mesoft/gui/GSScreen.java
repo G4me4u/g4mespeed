@@ -175,11 +175,11 @@ public abstract class GSScreen extends Screen implements GSParentElement, GSIDra
 	}
 	
 	@Override
-	public void setFocused(boolean focused) {
+	public void setElementFocused(boolean focused) {
 	}
 	
 	@Override
-	public boolean isFocused() {
+	public boolean isElementFocused() {
 		return isAdded();
 	}
 	
