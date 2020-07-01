@@ -63,6 +63,7 @@ com.g4mesoft.access.GSIBufferBuilderAccess -> core.d:
     void setVertexCount(int) -> a
     void setElementOffset(int) -> b
 com.g4mesoft.access.GSIMouseAccess -> core.e:
+    int getButtonMods() -> V
     double getScrollX() -> a
 com.g4mesoft.access.GSINetworkHandlerAccess -> core.f:
     void setCoreVersion(com.g4mesoft.core.GSVersion) -> a
@@ -94,7 +95,7 @@ com.g4mesoft.core.GSController -> core.j:
     56:67:void onStop() -> c
     70:74:void initModules() -> d
     78:80:void addModule(com.g4mesoft.core.GSIModule) -> a
-    83:85:void tick() -> e
+    83:85:void tick(boolean) -> h
     88:88:com.g4mesoft.module.tps.GSTpsModule getTpsModule() -> a
     92:92:com.g4mesoft.module.translation.GSTranslationModule getTranslationModule() -> a
     97:97:java.util.List getModules() -> b
@@ -135,7 +136,7 @@ com.g4mesoft.core.GSIModule -> core.m:
     26:26:void registerHotkeys(com.g4mesoft.hotkey.GSKeyManager) -> a
     28:28:void registerServerSettings(com.g4mesoft.setting.GSSettingManager) -> b
     30:30:void registerCommands(com.mojang.brigadier.CommandDispatcher) -> a
-    32:32:void tick() -> e
+    32:32:void tick(boolean) -> h
     35:35:void onJoinG4mespeedServer(com.g4mesoft.core.GSVersion) -> b
     38:38:void onDisconnectServer() -> g
     40:40:void onPlayerJoin(net.minecraft.class_3222) -> a
@@ -207,7 +208,7 @@ com.g4mesoft.core.client.GSControllerClient -> core.q:
     135:144:void onDisconnectServer() -> g
     147:150:void onClientClose() -> h
     153:153:java.io.File getHotkeySettingsFile() -> c
-    158:161:void tick() -> e
+    158:161:void tick(boolean) -> h
     165:166:void addExtensionModules(com.g4mesoft.GSIExtension) -> c
     170:170:boolean isThreadOwner() -> a
     175:175:net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> a
@@ -314,10 +315,10 @@ com.g4mesoft.core.server.GSIModuleManagerServer -> core.w:
     void sendPacketToAllExcept(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion,net.minecraft.class_3222) -> a
     java.util.Collection getAllPlayers() -> a
 com.g4mesoft.core.server.GSInfoCommand -> core.x:
-    11:11:void <init>() -> <init>
-    14:17:void registerCommand(com.mojang.brigadier.CommandDispatcher) -> c
-    20:22:int informG4mespeedVersion(net.minecraft.class_2168) -> a
-    15:15:int lambda$registerCommand$0(com.mojang.brigadier.context.CommandContext) -> a
+    13:14:void <init>() -> <init>
+    17:20:void registerCommand(com.mojang.brigadier.CommandDispatcher) -> c
+    23:25:int informG4mespeedVersion(net.minecraft.class_2168) -> a
+    18:18:int lambda$registerCommand$0(com.mojang.brigadier.context.CommandContext) -> a
 com.g4mesoft.debug.GSDebug -> core.y:
     boolean GS_DEBUG -> d
     boolean PRINT_TICK_INTERVAL -> e
@@ -363,6 +364,10 @@ com.g4mesoft.gui.GSElement -> core.C:
     27:27:boolean onKeyReleasedGS(int,int,int) -> b
     31:31:boolean onCharTypedGS(char,int) -> a
     35:35:boolean onMouseScrolledGS(double,double,double,double) -> a
+    boolean isAdded() -> A
+    boolean isElementFocused() -> B
+    void setElementFocused(boolean) -> i
+    boolean isEditingText() -> C
 com.g4mesoft.gui.GSIDrawableHelper -> core.D:
     java.lang.String TRIMMED_TEXT_ELLIPSIS -> r
     char FORMATTING_CHAR -> a
@@ -395,38 +400,46 @@ com.g4mesoft.gui.GSPanel -> core.G:
     boolean selected -> f
     net.minecraft.class_310 client -> b
     net.minecraft.class_327 textRenderer -> a
+    boolean added -> B
+    boolean focused -> C
     int x -> j
     int y -> k
     int width -> l
     int height -> m
-    26:28:void <init>() -> <init>
-    31:40:void initBounds(net.minecraft.class_310,int,int,int,int) -> a
-    43:43:void init() -> a
-    46:46:void onAdded() -> n
-    49:49:void onRemoved() -> o
-    52:52:void tick() -> e
-    55:55:int getTranslationX() -> l
-    59:59:int getTranslationY() -> m
-    64:79:void render(net.minecraft.class_4587,int,int,float) -> b
-    82:82:void renderTranslated(net.minecraft.class_4587,int,int,float) -> a
-    85:86:void setSelected(boolean) -> a
-    89:89:boolean isSelected() -> i
-    93:93:double translateMouseX(double) -> a
-    97:97:double translateMouseY(double) -> b
-    104:106:void method_16014(double,double) -> method_16014
-    112:112:boolean method_25402(double,double,int) -> method_25402
-    119:119:boolean method_25406(double,double,int) -> method_25406
-    126:126:boolean method_25403(double,double,int,double,double) -> method_25403
-    133:133:boolean method_25404(int,int,int) -> method_25404
-    140:140:boolean method_16803(int,int,int) -> method_16803
-    147:147:boolean method_25400(char,int) -> method_25400
-    154:158:boolean method_25401(double,double,double) -> method_25401
-    164:167:boolean method_25405(double,double) -> method_25405
-    173:173:net.minecraft.class_327 getTextRenderer() -> a
-    177:177:int getX() -> n
-    181:181:int getY() -> o
-    186:186:int getWidth() -> j
-    191:191:int getHeight() -> k
+    29:31:void <init>() -> <init>
+    34:45:void initBounds(net.minecraft.class_310,int,int,int,int) -> a
+    48:48:void init() -> a
+    51:52:void onAdded() -> n
+    55:61:void onRemoved() -> o
+    64:64:void tick() -> e
+    67:67:int getTranslationX() -> l
+    71:71:int getTranslationY() -> m
+    76:91:void render(net.minecraft.class_4587,int,int,float) -> b
+    94:94:void renderTranslated(net.minecraft.class_4587,int,int,float) -> a
+    97:98:void setSelected(boolean) -> a
+    101:101:boolean isSelected() -> i
+    105:105:double translateMouseX(double) -> a
+    109:109:double translateMouseY(double) -> b
+    116:118:void method_16014(double,double) -> method_16014
+    124:124:boolean method_25402(double,double,int) -> method_25402
+    131:131:boolean method_25406(double,double,int) -> method_25406
+    138:138:boolean method_25403(double,double,int,double,double) -> method_25403
+    145:147:boolean method_25404(int,int,int) -> method_25404
+    154:156:boolean method_16803(int,int,int) -> method_16803
+    163:163:boolean method_25400(char,int) -> method_25400
+    170:174:boolean method_25401(double,double,double) -> method_25401
+    180:183:boolean method_25405(double,double) -> method_25405
+    189:189:boolean isAdded() -> A
+    194:194:boolean isElementFocused() -> B
+    199:200:void setElementFocused(boolean) -> i
+    203:203:boolean preKeyPressed(int,int,int) -> c
+    207:207:boolean preKeyReleased(int,int,int) -> d
+    212:212:boolean isEditingText() -> C
+    217:217:net.minecraft.class_327 getTextRenderer() -> a
+    221:221:int getX() -> n
+    225:225:int getY() -> o
+    230:230:int getWidth() -> j
+    235:235:int getHeight() -> k
 com.g4mesoft.gui.GSParentElement -> core.H:
     12:14:void onMouseMovedGS(double,double) -> a
     18:29:boolean onMouseClickedGS(double,double,int) -> a
@@ -436,6 +449,7 @@ com.g4mesoft.gui.GSParentElement -> core.H:
     66:67:boolean onKeyPressedGS(int,int,int) -> a
     72:73:boolean onKeyReleasedGS(int,int,int) -> b
     78:79:boolean onCharTypedGS(char,int) -> a
+    83:102:boolean isChildEditingText() -> D
     19:28:boolean lambda$onMouseClickedGS$0(double,double,int,net.minecraft.class_364) -> a
 com.g4mesoft.gui.GSParentPanel -> core.I:
     java.util.List children -> e
@@ -444,26 +458,31 @@ com.g4mesoft.gui.GSParentPanel -> core.I:
     boolean dragging -> g
     net.minecraft.class_364 focusedElement -> a
     22:29:void <init>() -> <init>
-    34:37:void initBounds(net.minecraft.class_310,int,int,int,int) -> a
-    40:44:void addWidget(net.minecraft.class_364) -> a
-    47:51:void addPanel(com.g4mesoft.gui.GSPanel) -> a
-    54:62:void clearChildren() -> p
-    66:69:void onRemoved() -> o
-    73:77:void tick() -> e
-    82:88:void renderTranslated(net.minecraft.class_4587,int,int,float) -> a
-    92:93:void onMouseMovedGS(double,double) -> a
-    97:97:boolean onMouseClickedGS(double,double,int) -> a
-    102:102:boolean onMouseReleasedGS(double,double,int) -> b
-    106:106:boolean onMouseDraggedGS(double,double,int,double,double) -> a
-    111:111:boolean onKeyPressedGS(int,int,int) -> a
-    116:116:boolean onKeyReleasedGS(int,int,int) -> b
-    121:121:boolean onCharTypedGS(char,int) -> a
-    126:126:boolean onMouseScrolledGS(double,double,double,double) -> a
-    132:132:boolean method_25397() -> method_25397
-    138:139:void method_25398(boolean) -> method_25398
-    144:144:net.minecraft.class_364 method_25399() -> method_25399
-    150:151:void method_25395(net.minecraft.class_364) -> method_25395
-    156:156:java.util.List method_25396() -> method_25396
+    33:40:void initBounds(net.minecraft.class_310,int,int,int,int) -> a
+    43:47:void addWidget(net.minecraft.class_364) -> a
+    50:54:void removeWidget(net.minecraft.class_364) -> b
+    57:61:void addPanel(com.g4mesoft.gui.GSPanel) -> a
+    64:71:void removePanel(com.g4mesoft.gui.GSPanel) -> b
+    74:82:void clearChildren() -> p
+    86:89:void onRemoved() -> o
+    93:97:void tick() -> e
+    102:108:void renderTranslated(net.minecraft.class_4587,int,int,float) -> a
+    112:113:void onMouseMovedGS(double,double) -> a
+    117:117:boolean onMouseClickedGS(double,double,int) -> a
+    122:122:boolean onMouseReleasedGS(double,double,int) -> b
+    126:126:boolean onMouseDraggedGS(double,double,int,double,double) -> a
+    131:131:boolean onKeyPressedGS(int,int,int) -> a
+    136:136:boolean onKeyReleasedGS(int,int,int) -> b
+    141:146:boolean preKeyPressed(int,int,int) -> c
+    151:156:boolean preKeyReleased(int,int,int) -> d
+    161:161:boolean onCharTypedGS(char,int) -> a
+    166:166:boolean onMouseScrolledGS(double,double,double,double) -> a
+    172:172:boolean method_25397() -> method_25397
+    178:179:void method_25398(boolean) -> method_25398
+    184:184:net.minecraft.class_364 method_25399() -> method_25399
+    190:199:void method_25395(net.minecraft.class_364) -> method_25395
+    203:209:void setElementFocused(boolean) -> i
+    214:214:java.util.List method_25396() -> method_25396
 com.g4mesoft.gui.GSScreen -> core.J:
     boolean initialized -> a
     java.util.List panels -> g
@@ -482,13 +501,17 @@ com.g4mesoft.gui.GSScreen -> core.J:
     112:112:boolean method_25402(double,double,int) -> method_25402
     119:119:boolean method_25406(double,double,int) -> method_25406
     126:126:boolean method_25403(double,double,int,double,double) -> method_25403
-    133:145:boolean method_25404(int,int,int) -> method_25404
-    152:152:boolean method_16803(int,int,int) -> method_16803
-    159:159:boolean method_25400(char,int) -> method_25400
-    166:167:boolean method_25401(double,double,double) -> method_25401
-    172:172:net.minecraft.class_327 getTextRenderer() -> a
-    177:177:int getWidth() -> j
-    182:182:int getHeight() -> k
+    133:148:boolean method_25404(int,int,int) -> method_25404
+    155:155:boolean method_16803(int,int,int) -> method_16803
+    162:162:boolean method_25400(char,int) -> method_25400
+    169:170:boolean method_25401(double,double,double) -> method_25401
+    175:175:boolean isAdded() -> A
+    180:180:void setElementFocused(boolean) -> i
+    184:184:boolean isElementFocused() -> B
+    189:189:boolean isEditingText() -> C
+    194:194:net.minecraft.class_327 getTextRenderer() -> a
+    199:199:int getWidth() -> j
+    204:204:int getHeight() -> k
 com.g4mesoft.gui.GSTabbedGUI -> core.K:
     int TAB_VERTICAL_PADDING -> n
     int TAB_HORIZONTAL_PADDING -> o
@@ -517,12 +540,10 @@ com.g4mesoft.gui.GSTabbedGUI -> core.K:
     189:190:void playClickSound(net.minecraft.class_1144) -> a
     193:204:void renderTab(net.minecraft.class_4587,com.g4mesoft.gui.GSTabbedGUI$GSTabEntry,int,boolean,boolean) -> a
     208:218:boolean onMouseClickedGS(double,double,int) -> a
-    223:231:boolean onKeyPressedGS(int,int,int) -> a
-    235:239:boolean canKeyCloseGUI(int) -> a
-    245:255:void method_25395(net.minecraft.class_364) -> method_25395
-    260:262:void method_25426() -> method_25426
-    267:267:boolean method_25421() -> method_25421
-    273:273:boolean method_25422() -> method_25422
+    223:232:boolean onKeyPressedGS(int,int,int) -> a
+    238:248:void method_25395(net.minecraft.class_364) -> method_25395
+    253:255:void method_25426() -> method_25426
+    260:260:boolean method_25421() -> method_25421
     94:94:int lambda$layoutTabs$0(com.g4mesoft.gui.GSTabbedGUI$GSTabEntry,com.g4mesoft.gui.GSTabbedGUI$GSTabEntry) -> a
 com.g4mesoft.gui.GSTabbedGUI$GSTabEntry -> core.L:
     java.lang.String title -> v
@@ -531,16 +552,16 @@ com.g4mesoft.gui.GSTabbedGUI$GSTabEntry -> core.L:
     int x -> j
     int width -> l
     com.g4mesoft.gui.GSTabbedGUI this$0 -> b
-    285:288:void <init>(com.g4mesoft.gui.GSTabbedGUI,java.lang.String,com.g4mesoft.gui.GSPanel) -> <init>
-    291:291:com.g4mesoft.gui.GSPanel getTabContent() -> a
-    295:296:void setDisplayTitle(java.lang.String) -> b
-    299:299:java.lang.String getDisplayTitle() -> d
-    303:304:java.lang.String getTranslatedTitle() -> e
-    308:309:void setX(int) -> e
-    312:312:int getX() -> n
-    316:317:void setWidth(int) -> f
-    320:320:int getWidth() -> j
-    276:276:com.g4mesoft.gui.GSPanel access$000(com.g4mesoft.gui.GSTabbedGUI$GSTabEntry) -> a
+    272:275:void <init>(com.g4mesoft.gui.GSTabbedGUI,java.lang.String,com.g4mesoft.gui.GSPanel) -> <init>
+    278:278:com.g4mesoft.gui.GSPanel getTabContent() -> a
+    282:283:void setDisplayTitle(java.lang.String) -> b
+    286:286:java.lang.String getDisplayTitle() -> d
+    290:291:java.lang.String getTranslatedTitle() -> e
+    295:296:void setX(int) -> e
+    299:299:int getX() -> n
+    303:304:void setWidth(int) -> f
+    307:307:int getWidth() -> j
+    263:263:com.g4mesoft.gui.GSPanel access$000(com.g4mesoft.gui.GSTabbedGUI$GSTabEntry) -> a
 com.g4mesoft.gui.hotkey.GSHotkeyElementGUI -> core.M:
     int HOTKEY_HEIGHT -> z
     int HOTKEY_PADDING -> A
@@ -839,6 +860,275 @@ com.g4mesoft.gui.setting.GSSettingsGUI$GSSettingCategoryElement -> core.Z:
     320:322:void tick() -> e
     325:327:void render(net.minecraft.class_4587,int,int,float) -> b
     330:330:boolean isEmpty() -> o
+com.g4mesoft.gui.text.GSAbstractTextModel -> core.be:
+    java.util.List modelListeners -> n
+    30:32:void <init>() -> <init>
+    36:39:void addTextModelListener(com.g4mesoft.gui.text.GSITextModelListener) -> a
+    43:44:void removeTextModelListener(com.g4mesoft.gui.text.GSITextModelListener) -> b
+    48:49:void appendText(java.lang.String) -> d
+    60:62:void dispatchTextInsertedEvent(int,int) -> c
+    73:75:void dispatchTextRemovedEvent(int,int) -> d
+com.g4mesoft.gui.text.GSBasicTextCaret -> core.bf:
+    int DEFAULT_BLINK_RATE -> aT
+    int DEFAULT_CARET_WIDTH -> aU
+    int DEFAULT_CARET_INSETS -> aV
+    int DEFAULT_CARET_COLOR -> aW
+    int NO_MODIFIERS -> aX
+    int SELECTION_MODIFIER -> aY
+    int WORD_NAVIGATION_MODIFIER -> aZ
+    com.g4mesoft.gui.text.GSTextField textField -> a
+    com.g4mesoft.gui.text.GSITextModel textModel -> a
+    java.util.List caretListeners -> o
+    int dot -> ba
+    int mark -> bb
+    int caretInsets -> bc
+    int caretWidth -> bd
+    long lastFrame -> m
+    int blinkRate -> be
+    int blinkTimer -> bf
+    int caretColor -> bg
+    66:78:void <init>() -> <init>
+    82:93:void install(com.g4mesoft.gui.text.GSTextField) -> a
+    96:102:void installTextModel(com.g4mesoft.gui.text.GSITextModel) -> a
+    106:114:void uninstall(com.g4mesoft.gui.text.GSTextField) -> b
+    117:121:void uninstallTextModel(com.g4mesoft.gui.text.GSITextModel) -> b
+    125:127:void modelChanged() -> M
+    131:135:void addTextCaretListener(com.g4mesoft.gui.text.GSITextCaretListener) -> a
+    139:143:void removeTextCaretListener(com.g4mesoft.gui.text.GSITextCaretListener) -> b
+    146:148:void dispatchCaretLocationChangedEvent() -> N
+    163:174:void navigateStep(boolean,int) -> a
+    179:202:void navigateToNextWord(boolean,int) -> b
+    205:248:com.g4mesoft.gui.text.GSBasicTextCaret$GSWordCharacterType getWordCharacterTypeAt(int) -> a
+    260:265:void navigateToLocation(int,int) -> e
+    275:295:void navigateToPoint(int,int,int) -> d
+    299:299:void update() -> E
+    303:313:void render(net.minecraft.class_4587,int,int,float) -> b
+    325:338:void paintCaret(net.minecraft.class_4587,int,int,float) -> e
+    350:357:int getBoundedLocation(int) -> d
+    362:362:int getCaretLocation() -> W
+    367:376:void setCaretLocation(int) -> l
+    380:380:int getCaretDot() -> X
+    385:394:void setCaretDot(int) -> m
+    398:398:int getCaretMark() -> Y
+    403:410:void setCaretMark(int) -> n
+    419:431:void setSelection(int,int) -> f
+    435:435:boolean hasCaretSelection() -> E
+    440:449:void textInserted(com.g4mesoft.gui.text.GSITextModel,int,int) -> a
+    453:472:void textRemoved(com.g4mesoft.gui.text.GSITextModel,int,int) -> b
+    476:476:int getBlinkRate() -> Z
+    490:496:void setBlinkRate(int) -> o
+    502:502:int getCaretWidth() -> aa
+    514:518:void setCaretWidth(int) -> p
+    524:524:int getCaretInsets() -> ab
+    537:541:void setCaretInsets(int) -> q
+    544:544:int getCaretColor() -> ac
+    548:549:void setCaretColor(int) -> r
+    553:561:boolean onMouseClicked(double,double,int) -> c
+    566:566:boolean onMouseReleased(double,double,int) -> d
+    571:580:boolean onMouseDragged(double,double,int,double,double) -> b
+    585:585:boolean onKeyPressed(int,int,int) -> e
+    590:590:boolean onKeyReleased(int,int,int) -> f
+    594:602:int getModifierFlags(int) -> e
+    606:628:boolean handleKeyEvent(int,int,int) -> g
+com.g4mesoft.gui.text.GSBasicTextCaret$GSWordCharacterType -> core.bg:
+    com.g4mesoft.gui.text.GSBasicTextCaret$GSWordCharacterType LETTER_OR_DIGIT -> a
+    com.g4mesoft.gui.text.GSBasicTextCaret$GSWordCharacterType SYMBOL -> b
+    com.g4mesoft.gui.text.GSBasicTextCaret$GSWordCharacterType OTHER -> c
+    com.g4mesoft.gui.text.GSBasicTextCaret$GSWordCharacterType[] $VALUES -> a
+    631:631:com.g4mesoft.gui.text.GSBasicTextCaret$GSWordCharacterType[] values() -> values
+    631:631:com.g4mesoft.gui.text.GSBasicTextCaret$GSWordCharacterType valueOf(java.lang.String) -> valueOf
+    631:631:void <init>(java.lang.String,int) -> <init>
+    631:633:void <clinit>() -> <clinit>
+com.g4mesoft.gui.text.GSIModelChangeListener -> core.bh:
+    void modelChanged() -> M
+com.g4mesoft.gui.text.GSITextCaret -> core.bi:
+    void install(com.g4mesoft.gui.text.GSTextField) -> a
+    void uninstall(com.g4mesoft.gui.text.GSTextField) -> b
+    void addTextCaretListener(com.g4mesoft.gui.text.GSITextCaretListener) -> a
+    void removeTextCaretListener(com.g4mesoft.gui.text.GSITextCaretListener) -> b
+    void update() -> E
+    void render(net.minecraft.class_4587,int,int,float) -> b
+    void setCaretLocation(int) -> l
+    void setCaretDot(int) -> m
+    void setCaretMark(int) -> n
+    int getCaretLocation() -> W
+    int getCaretDot() -> X
+    int getCaretMark() -> Y
+    boolean hasCaretSelection() -> E
+    void setBlinkRate(int) -> o
+    int getBlinkRate() -> Z
+    boolean onMouseClicked(double,double,int) -> c
+    boolean onMouseReleased(double,double,int) -> d
+    boolean onMouseDragged(double,double,int,double,double) -> b
+    boolean onKeyPressed(int,int,int) -> e
+    boolean onKeyReleased(int,int,int) -> f
+com.g4mesoft.gui.text.GSITextCaretListener -> core.bj:
+    void caretLocationChanged(int,int) -> g
+com.g4mesoft.gui.text.GSITextModel -> core.bk:
+    void addTextModelListener(com.g4mesoft.gui.text.GSITextModelListener) -> a
+    void removeTextModelListener(com.g4mesoft.gui.text.GSITextModelListener) -> b
+    int getLength() -> ad
+    void appendText(java.lang.String) -> d
+    void insertText(int,java.lang.String) -> a
+    void insertChars(int,int,char[],int) -> a
+    void insertChar(int,char) -> a
+    void removeText(int,int) -> h
+    java.lang.String getText(int,int) -> a
+    void getChars(int,int,char[],int) -> b
+    char getChar(int) -> a
+com.g4mesoft.gui.text.GSITextModelListener -> core.bl:
+    void textInserted(com.g4mesoft.gui.text.GSITextModel,int,int) -> a
+    void textRemoved(com.g4mesoft.gui.text.GSITextModel,int,int) -> b
+com.g4mesoft.gui.text.GSSingleLineTextModel -> core.bm:
+    char LINE_SEPARATOR -> b
+    char PARAGRAPH_SEPARATOR -> c
+    char LINE_FEED -> d
+    char CARRIAGE_RETURN -> e
+    char VERTICAL_TAB -> f
+    char FORM_FEED -> g
+    int DEFAULT_INITIAL_CAPACITY -> bh
+    char[] buffer -> a
+    int length -> bi
+    java.lang.String cacheText -> P
+    59:60:void <init>() -> <init>
+    62:68:void <init>(int) -> <init>
+    77:92:void ensureCapacity(int) -> s
+    105:105:int getCapacity() -> ae
+    110:110:int getLength() -> ad
+    124:133:boolean shouldDiscardCharacter(char) -> a
+    138:173:void insertText(int,java.lang.String) -> a
+    177:211:void insertChars(int,int,char[],int) -> a
+    215:233:void insertChar(int,char) -> a
+    237:256:void removeText(int,int) -> h
+    260:276:java.lang.String getText(int,int) -> a
+    281:289:void getChars(int,int,char[],int) -> b
+    293:296:char getChar(int) -> a
+com.g4mesoft.gui.text.GSTextAlignment -> core.bn:
+    com.g4mesoft.gui.text.GSTextAlignment CENTER -> a
+    com.g4mesoft.gui.text.GSTextAlignment LEFT -> b
+    com.g4mesoft.gui.text.GSTextAlignment RIGHT -> c
+    com.g4mesoft.gui.text.GSTextAlignment[] $VALUES -> a
+    6:6:com.g4mesoft.gui.text.GSTextAlignment[] values() -> values
+    6:6:com.g4mesoft.gui.text.GSTextAlignment valueOf(java.lang.String) -> valueOf
+    6:6:void <init>(java.lang.String,int) -> <init>
+    6:10:void <clinit>() -> <clinit>
+com.g4mesoft.gui.text.GSTextField -> core.bo:
+    int DEFAULT_BACKGROUND_COLOR -> bj
+    int DEFAULT_EDITABLE_TEXT_COLOR -> bk
+    int DEFAULT_UNEDITABLE_TEXT_COLOR -> bl
+    int DEFAULT_SELECTION_TEXT_COLOR -> bm
+    int DEFAULT_SELECTION_BACKGROUND_COLOR -> bn
+    int DEFAULT_BORDER_WIDTH -> bo
+    int DEFAULT_BORDER_COLOR -> bp
+    int DEFAULT_VERTICAL_MARGIN -> bq
+    int DEFAULT_HORIZONTAL_MARGIN -> br
+    int VERTICAL_PADDING -> bs
+    int PRINTABLE_CHARACTERS_START -> bt
+    int BACKSPACE_CONTROL_CHARACTER -> bu
+    int TAB_CONTROL_CHARACTER -> bv
+    int NEW_LINE_CONTROL_CHARACTER -> bw
+    int CONTROL_Z_CONTROL_CHARACTER -> bx
+    int ESCAPE_CONTROL_CHARACTER -> by
+    int DELETE_CONTROL_CHARACTER -> bz
+    com.g4mesoft.gui.text.GSITextModel textModel -> a
+    java.util.List modelChangeListeners -> p
+    int backgroundColor -> bA
+    int editableTextColor -> bB
+    int uneditableTextColor -> bC
+    com.g4mesoft.gui.text.GSTextAlignment textAlignment -> d
+    boolean editable -> D
+    com.g4mesoft.gui.text.GSITextCaret caret -> a
+    int selectionTextColor -> bD
+    int selectionBackgroundColor -> bE
+    int borderWidth -> bF
+    int borderColor -> bG
+    int verticalMargin -> bH
+    int horizontalMargin -> bI
+    java.lang.String clippedText -> Q
+    int clippedModelStart -> bJ
+    int clippedModelEnd -> bK
+    int clippedViewOffset -> bL
+    boolean clippedModelInvalid -> E
+    int oldCaretPointX -> bM
+    77:78:void <init>() -> <init>
+    80:112:void <init>(java.lang.String) -> <init>
+    115:119:void initPreferredBounds(net.minecraft.class_310,int,int) -> a
+    122:126:void initPreferredBounds(net.minecraft.class_310,int,int,int) -> e
+    130:133:void init() -> a
+    137:137:boolean isEditingText() -> C
+    141:151:float expandClippedModelLeft(float) -> e
+    155:165:float expandClippedModelRight(float) -> f
+    169:223:void reconstructClippedModel() -> O
+    226:226:int getCaretLocation() -> W
+    230:230:int getCaretSelectionStart() -> af
+    234:234:int getCaretSelectionEnd() -> ag
+    239:241:void tick() -> e
+    245:281:void renderTranslated(net.minecraft.class_4587,int,int,float) -> a
+    284:293:void drawBorderAndBackground(net.minecraft.class_4587,int,int,float) -> f
+    296:320:void drawVisibleTextSegment(net.minecraft.class_4587,int,int,int) -> a
+    323:342:void drawCaretSelection(net.minecraft.class_4587,int,int) -> c
+    346:370:java.awt.Rectangle modelToView(int) -> a
+    374:395:int viewToModel(int,int) -> a
+    400:416:void caretLocationChanged(int,int) -> g
+    419:431:boolean isLocationInView(int) -> a
+    436:437:void textInserted(com.g4mesoft.gui.text.GSITextModel,int,int) -> a
+    441:442:void textRemoved(com.g4mesoft.gui.text.GSITextModel,int,int) -> b
+    446:449:boolean onMouseClickedGS(double,double,int) -> a
+    454:457:boolean onMouseReleasedGS(double,double,int) -> b
+    462:465:boolean onMouseDraggedGS(double,double,int,double,double) -> a
+    470:490:boolean onKeyPressedGS(int,int,int) -> a
+    494:515:void checkAndDispatchControlCharacter(int,int) -> i
+    518:527:void copyToClipboard() -> P
+    530:532:void cutToClipboard() -> Q
+    535:543:void pasteFromClipboard() -> R
+    547:550:boolean onKeyReleasedGS(int,int,int) -> b
+    555:558:boolean onCharTypedGS(char,int) -> a
+    562:572:void handleTypedCodePoint(int) -> t
+    575:578:boolean isTypeableCharacter(char) -> b
+    583:593:void removeCaretSelection() -> S
+    596:615:void insertTypedChar(int,char) -> b
+    618:619:void moveCaretPointX(java.lang.String,int) -> a
+    622:622:boolean isControlCharacter(char) -> c
+    626:627:void addModelChangeListener(com.g4mesoft.gui.text.GSIModelChangeListener) -> a
+    630:631:void removeModelChangeListener(com.g4mesoft.gui.text.GSIModelChangeListener) -> b
+    634:642:void setTextModel(com.g4mesoft.gui.text.GSITextModel) -> c
+    645:646:void invokeModelChangeEvent() -> T
+    649:649:com.g4mesoft.gui.text.GSITextModel getTextModel() -> a
+    653:657:void setText(java.lang.String) -> e
+    660:664:void appendText(java.lang.String) -> d
+    667:667:java.lang.String getText() -> l
+    671:671:int getBackgroundColor() -> ah
+    675:676:void setBackgroundColor(int) -> u
+    679:679:int getEditableTextColor() -> ai
+    683:684:void setEditableTextColor(int) -> v
+    687:687:int getUneditableTextColor() -> aj
+    691:692:void setUneditableTextColor(int) -> w
+    695:695:com.g4mesoft.gui.text.GSTextAlignment getTextAlignment() -> a
+    699:703:void setTextAlignment(com.g4mesoft.gui.text.GSTextAlignment) -> a
+    706:707:void setEditable(boolean) -> j
+    710:710:boolean isEditable() -> F
+    714:724:void setCaret(com.g4mesoft.gui.text.GSITextCaret) -> a
+    727:727:com.g4mesoft.gui.text.GSITextCaret getCaret() -> a
+    731:732:void setSelectionTextColor(int) -> x
+    735:735:int getSelectionTextColor() -> ak
+    739:740:void setSelectionBackgroundColor(int) -> y
+    743:743:int getSelectionBackgroundColor() -> al
+    747:747:int getBorderWidth() -> am
+    751:755:void setBorderWidth(int) -> z
+    758:758:int getBorderColor() -> an
+    762:763:void setBorderColor(int) -> A
+    766:766:int getVerticalMargin() -> ao
+    770:774:void setVerticalMargin(int) -> B
+    777:777:int getHorizontalMargin() -> ap
+    781:785:void setHorizontalMargin(int) -> C
+com.g4mesoft.gui.text.GSTextField$1 -> core.bp:
+    int[] $SwitchMap$com$g4mesoft$gui$text$GSTextAlignment -> e
+    204:204:void <clinit>() -> <clinit>
+com.g4mesoft.gui.text.GSTextModelIndexOutOfBoundsException -> core.bq:
+    long serialVersionUID -> n
+    7:8:void <init>() -> <init>
+    11:12:void <init>(java.lang.String) -> <init>
+    15:16:void <init>(int) -> <init>
 com.g4mesoft.gui.widget.GSSliderWidget -> core.aa:
     int SLIDER_HEIGHT -> ar
     int MAX_WIDTH -> as
@@ -1010,6 +1300,10 @@ com.g4mesoft.mixin.client.GSInGameHudMixin -> com.g4mesoft.mixin.client.GSInGame
     54:79:void render(net.minecraft.class_4587,float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> a
     82:92:int getTpsLabelColor(float,float) -> a
     45:45:void <clinit>() -> <clinit>
+com.g4mesoft.mixin.client.GSIntegratedServerMixin -> com.g4mesoft.mixin.client.GSIntegratedServerMixin:
+    boolean field_5524 -> field_5524
+    16:16:void <init>() -> <init>
+    22:28:void onTick(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> a
 com.g4mesoft.mixin.client.GSKeyboardMixin -> com.g4mesoft.mixin.client.GSKeyboardMixin:
     com.g4mesoft.hotkey.GSKeyManager keyManager -> keyManager
     net.minecraft.class_310 field_1678 -> field_1678
@@ -1022,20 +1316,23 @@ com.g4mesoft.mixin.client.GSMinecraftClientMixin -> com.g4mesoft.mixin.client.GS
     net.minecraft.class_1144 field_1727 -> field_1727
     net.minecraft.class_746 field_1724 -> field_1724
     21:21:void <init>() -> <init>
-    30:32:void onInit(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> b
-    38:40:void onDisconnect(net.minecraft.class_437,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> a
-    44:45:void onClientClose(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> c
-    49:51:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> d
+    boolean method_1493() -> method_1493
+    32:34:void onInit(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> b
+    40:42:void onDisconnect(net.minecraft.class_437,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> a
+    46:47:void onClientClose(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> c
+    51:54:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> d
 com.g4mesoft.mixin.client.GSMouseMixin -> com.g4mesoft.mixin.client.GSMouseMixin:
     net.minecraft.class_310 field_1779 -> field_1779
     com.g4mesoft.hotkey.GSKeyManager keyManager -> keyManager
+    int buttonMods -> buttonMods
     double scrollX -> scrollX
     19:19:void <init>() -> <init>
-    29:31:void onMouseEvent(long,int,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> a
-    36:38:void onMouseEventHandled(long,int,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> b
-    42:43:void onOnMouseScroll(long,double,double,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> a
-    47:47:double getScrollX() -> a
-    51:53:com.g4mesoft.hotkey.GSKeyManager getKeyManager() -> a
+    30:36:void onMouseEvent(long,int,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> a
+    41:43:void onMouseEventHandled(long,int,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> b
+    47:48:void onOnMouseScroll(long,double,double,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> a
+    52:52:int getButtonMods() -> V
+    57:57:double getScrollX() -> a
+    61:63:com.g4mesoft.hotkey.GSKeyManager getKeyManager() -> a
 com.g4mesoft.mixin.client.GSPistonBlockEntityMixin -> com.g4mesoft.mixin.client.GSPistonBlockEntityMixin:
     float PISTON_STEPS -> PISTON_STEPS
     float INCREMENTER -> INCREMENTER
@@ -1127,8 +1424,8 @@ com.g4mesoft.mixin.server.GSMinecraftServerMixin -> com.g4mesoft.mixin.server.GS
     61:62:void resetTimeReference() -> G
     70:73:void onInitialized(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> g
     82:119:void onModifiedRunLoop(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> h
-    123:125:void onTick(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> a
-    129:130:void onShutdown(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> i
+    123:126:void onTick(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> a
+    130:131:void onShutdown(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> i
 com.g4mesoft.mixin.server.GSPlayerManagerMixin -> com.g4mesoft.mixin.server.GSPlayerManagerMixin:
     19:19:void <init>() -> <init>
     net.minecraft.class_3222 method_14602(java.util.UUID) -> method_14602
@@ -1236,14 +1533,14 @@ com.g4mesoft.module.tps.GSTpsChangePacket -> core.ap:
     37:40:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> a
     45:46:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> b
 com.g4mesoft.module.tps.GSTpsCommand -> core.aq:
-    15:15:void <init>() -> <init>
-    18:29:void registerCommand(com.mojang.brigadier.CommandDispatcher) -> c
-    32:55:int informCurrentTps(net.minecraft.class_2168) -> b
-    59:61:java.lang.String formatSign(int) -> a
-    65:69:int setCurrentTps(net.minecraft.class_2168,float) -> a
-    25:25:int lambda$registerCommand$2(com.mojang.brigadier.context.CommandContext) -> b
-    22:22:int lambda$registerCommand$1(com.mojang.brigadier.context.CommandContext) -> c
-    19:19:boolean lambda$registerCommand$0(net.minecraft.class_2168) -> a
+    17:18:void <init>() -> <init>
+    21:32:void registerCommand(com.mojang.brigadier.CommandDispatcher) -> c
+    35:58:int informCurrentTps(net.minecraft.class_2168) -> b
+    62:64:java.lang.String formatSign(int) -> a
+    68:72:int setCurrentTps(net.minecraft.class_2168,float) -> a
+    28:28:int lambda$registerCommand$2(com.mojang.brigadier.context.CommandContext) -> b
+    25:25:int lambda$registerCommand$1(com.mojang.brigadier.context.CommandContext) -> c
+    22:22:boolean lambda$registerCommand$0(net.minecraft.class_2168) -> a
 com.g4mesoft.module.tps.GSTpsHotkeyPacket -> core.ar:
     com.g4mesoft.module.tps.GSETpsHotkeyType type -> f
     boolean sneaking -> v
@@ -1296,34 +1593,34 @@ com.g4mesoft.module.tps.GSTpsModule -> core.as:
     154:168:void registerHotkeys(com.g4mesoft.hotkey.GSKeyManager) -> a
     172:177:void registerServerSettings(com.g4mesoft.setting.GSSettingManager) -> b
     181:182:void registerCommands(com.mojang.brigadier.CommandDispatcher) -> a
-    186:219:void tick() -> e
-    222:224:void onServerTps(float) -> c
-    227:246:void onHotkey(com.g4mesoft.module.tps.GSETpsHotkeyType) -> a
-    249:267:void onPlayerHotkey(net.minecraft.class_3222,com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> a
-    270:334:void performHotkeyAction(com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> a
-    338:341:void onDisconnectServer() -> g
-    345:347:void onG4mespeedClientJoin(net.minecraft.class_3222,com.g4mesoft.core.GSVersion) -> a
-    350:354:void addTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> a
-    357:360:void removeTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> b
-    363:366:void clearTpsListeners() -> H
-    369:370:void resetTps() -> I
-    373:404:void setTps(float) -> d
-    407:407:boolean isPlayerAllowedTpsChange(net.minecraft.class_3222) -> b
-    412:414:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> a
-    418:419:void onCarpetTickrateChanged(float) -> b
-    422:422:float getMsPerTick() -> e
-    426:426:float getTps() -> f
-    431:435:void onServerSyncPacket(int) -> i
-    439:441:float getServerTps() -> g
-    385:398:void lambda$setTps$4(com.g4mesoft.core.server.GSIModuleManagerServer) -> a
-    346:346:void lambda$onG4mespeedClientJoin$3(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> a
-    256:264:void lambda$onPlayerHotkey$2(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> b
-    228:245:void lambda$onHotkey$1(com.g4mesoft.module.tps.GSETpsHotkeyType,com.g4mesoft.core.client.GSIModuleManagerClient) -> a
-    187:209:void lambda$tick$0(com.g4mesoft.core.server.GSIModuleManagerServer) -> b
+    186:221:void tick(boolean) -> h
+    224:226:void onServerTps(float) -> c
+    229:249:void onHotkey(com.g4mesoft.module.tps.GSETpsHotkeyType) -> a
+    252:270:void onPlayerHotkey(net.minecraft.class_3222,com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> a
+    273:337:void performHotkeyAction(com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> a
+    341:344:void onDisconnectServer() -> g
+    348:350:void onG4mespeedClientJoin(net.minecraft.class_3222,com.g4mesoft.core.GSVersion) -> a
+    353:357:void addTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> a
+    360:363:void removeTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> b
+    366:369:void clearTpsListeners() -> H
+    372:373:void resetTps() -> I
+    376:407:void setTps(float) -> d
+    410:410:boolean isPlayerAllowedTpsChange(net.minecraft.class_3222) -> b
+    415:417:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> a
+    421:422:void onCarpetTickrateChanged(float) -> b
+    425:425:float getMsPerTick() -> e
+    429:429:float getTps() -> f
+    434:438:void onServerSyncPacket(int) -> i
+    442:444:float getServerTps() -> g
+    388:401:void lambda$setTps$4(com.g4mesoft.core.server.GSIModuleManagerServer) -> a
+    349:349:void lambda$onG4mespeedClientJoin$3(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> a
+    259:267:void lambda$onPlayerHotkey$2(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> b
+    230:248:void lambda$onHotkey$1(com.g4mesoft.module.tps.GSETpsHotkeyType,com.g4mesoft.core.client.GSIModuleManagerClient) -> a
+    187:211:void lambda$tick$0(boolean,com.g4mesoft.core.server.GSIModuleManagerServer) -> a
     49:65:void <clinit>() -> <clinit>
 com.g4mesoft.module.tps.GSTpsModule$1 -> core.at:
     int[] $SwitchMap$com$g4mesoft$module$tps$GSETpsHotkeyType -> b
-    303:303:void <clinit>() -> <clinit>
+    306:306:void <clinit>() -> <clinit>
 com.g4mesoft.module.tps.GSTpsMonitor -> core.au:
     long MILLIS_PER_SECOND -> g
     int MAX_TPS_HISTORY_SIZE -> aF
