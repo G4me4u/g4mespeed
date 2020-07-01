@@ -128,7 +128,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	public void init() {
 		super.init();
 
-		clippedModelInvalid = true;
+		reconstructClippedModel();
 	}
 	
 	@Override
