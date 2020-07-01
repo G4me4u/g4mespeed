@@ -17,6 +17,7 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	protected MinecraftClient client;
 	protected TextRenderer font;
 	
+	private boolean added;
 	private boolean focused;
 	
 	public int x;
@@ -44,9 +45,11 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	}
 
 	protected void onAdded() {
+		added = true;
 	}
 
 	protected void onRemoved() {
+		added = false;
 		focused = false;
 	}
 	
@@ -174,13 +177,18 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	}
 	
 	@Override
-	public void setFocused(boolean focused) {
-		this.focused = focused;
+	public boolean isAdded() {
+		return added;
 	}
 	
 	@Override
 	public boolean isFocused() {
 		return focused;
+	}
+	
+	@Override
+	public void setFocused(boolean focused) {
+		this.focused = focused;
 	}
 	
 	@Override

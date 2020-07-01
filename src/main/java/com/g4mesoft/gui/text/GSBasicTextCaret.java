@@ -86,6 +86,9 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		installTextModel(textField.getTextModel());
 
 		this.textField.addModelChangeListener(this);
+		
+		lastFrame = -1L;
+		blinkTimer = 0;
 	}
 	
 	private void installTextModel(GSITextModel textModel) {

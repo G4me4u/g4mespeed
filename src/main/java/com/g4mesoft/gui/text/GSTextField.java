@@ -105,9 +105,6 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		horizontalMargin = DEFAULT_HORIZONTAL_MARGIN;
 		
 		textModel.addTextModelListener(this);
-
-		caret.install(this);
-		caret.addTextCaretListener(this);
 	}
 	
 	public void initPreferredBounds(MinecraftClient client, int x, int y) {
@@ -129,6 +126,22 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		super.init();
 
 		clippedModelInvalid = true;
+	}
+	
+	@Override
+	protected void onAdded() {
+		super.onAdded();
+
+		caret.install(this);
+		caret.addTextCaretListener(this);
+	}
+	
+	@Override
+	protected void onRemoved() {
+		super.onRemoved();
+
+		caret.removeTextCaretListener(this);
+		caret.uninstall(this);
 	}
 	
 	private float expandClippedModelLeft(float availableWidth) {
@@ -703,13 +716,15 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		if (caret == null)
 			throw new IllegalArgumentException("caret is null!");
 		
-		this.caret.removeTextCaretListener(this);
-		
-		this.caret.uninstall(this);
+		if (isAdded()) {
+			this.caret.removeTextCaretListener(this);
+			this.caret.uninstall(this);
+
+			caret.install(this);
+			caret.addTextCaretListener(this);
+		}
+
 		this.caret = caret;
-		caret.install(this);
-		
-		caret.addTextCaretListener(this);
 	}
 	
 	public GSITextCaret getCaret() {

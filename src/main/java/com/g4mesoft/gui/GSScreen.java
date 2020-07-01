@@ -175,7 +175,12 @@ public abstract class GSScreen extends Screen implements GSParentElement, GSIDra
 	
 	@Override
 	public boolean isFocused() {
-		return true;
+		return isAdded();
+	}
+	
+	@Override
+	public boolean isAdded() {
+		return (MinecraftClient.getInstance().currentScreen == this);
 	}
 	
 	@Override

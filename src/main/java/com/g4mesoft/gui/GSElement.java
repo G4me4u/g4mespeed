@@ -35,8 +35,10 @@ public interface GSElement extends Element {
 		return false;
 	}
 	
-	public void setFocused(boolean focused);
+	public boolean isAdded();
 	
 	public boolean isFocused();
+
+	public void setFocused(boolean focused);
 	
 }
