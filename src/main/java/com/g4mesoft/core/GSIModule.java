@@ -29,7 +29,7 @@ public interface GSIModule {
 
 	default public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) { }
 
-	default public void tick() { }
+	default public void tick(boolean paused) { }
 
 	@Environment(EnvType.CLIENT)
 	default public void onJoinG4mespeedServer(GSVersion serverVersion) { }

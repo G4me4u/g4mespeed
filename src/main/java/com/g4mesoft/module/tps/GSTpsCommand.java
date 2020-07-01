@@ -14,6 +14,9 @@ import net.minecraft.text.TranslatableText;
 
 public final class GSTpsCommand {
 
+	private GSTpsCommand() {
+	}
+	
 	public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
 		LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager.literal("tps").requires(context -> {
 			return context.hasPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);

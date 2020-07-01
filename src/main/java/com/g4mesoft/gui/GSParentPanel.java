@@ -30,6 +30,9 @@ public class GSParentPanel extends GSPanel implements GSParentElement {
 	
 	@Override
 	public void initBounds(MinecraftClient client, int x, int y, int width, int height) {
+		if (focusedElement instanceof GSElement)
+			((GSElement)focusedElement).setElementFocused(false);
+		
 		// Clear children before GSPanel#init() is called.
 		clearChildren();
 		
@@ -43,11 +46,28 @@ public class GSParentPanel extends GSPanel implements GSParentElement {
 			drawableWidgets.add((Drawable)element);
 	}
 	
+	public void removeWidget(Element element) {
+		children.remove(element);
+		
+		if (element instanceof Drawable)
+			drawableWidgets.remove((Drawable)element);
+	}
+	
 	public void addPanel(GSPanel panel) {
 		children.add(panel);
 		panels.add(panel);
 
 		panel.onAdded();
+	}
+	
+	public void removePanel(GSPanel panel) {
+		if (getFocused() == panel)
+			setFocused((Element)null);
+		
+		children.remove(panel);
+		panels.remove(panel);
+		
+		panel.onRemoved();
 	}
 	
 	public void clearChildren() {
@@ -117,6 +137,26 @@ public class GSParentPanel extends GSPanel implements GSParentElement {
 	}
 
 	@Override
+	boolean preKeyPressed(int keyCode, int scanCode, int modifiers) {
+		if (isChildEditingText() && !isEditingText()) {
+			GSParentElement.super.keyPressed(keyCode, scanCode, modifiers);
+			return true;
+		}
+		
+		return false;
+	}
+
+	@Override
+	boolean preKeyReleased(int keyCode, int scanCode, int modifiers) {
+		if (isChildEditingText() && !isEditingText()) {
+			GSParentElement.super.keyReleased(keyCode, scanCode, modifiers);
+			return true;
+		}
+
+		return false;
+	}
+	
+	@Override
 	public boolean onCharTypedGS(char c, int mods) {
 		return GSParentElement.super.onCharTypedGS(c, mods);
 	}
@@ -146,8 +186,26 @@ public class GSParentPanel extends GSPanel implements GSParentElement {
 
 	@Override
 	@GSCoreOverride
-	public void setFocused(Element focused) {
-		this.focusedElement = focused;
+	public void setFocused(Element focusedElement) {
+		if (focusedElement != this.focusedElement) {
+			if (this.focusedElement instanceof GSElement)
+				((GSElement)this.focusedElement).setElementFocused(false);
+			
+			this.focusedElement = focusedElement;
+	
+			if (focusedElement instanceof GSElement)
+				((GSElement)focusedElement).setElementFocused(true);
+		}
+	}
+	
+	@Override
+	public void setElementFocused(boolean focused) {
+		if (isElementFocused() && !focused) {
+			// Indicate that we no longer have a focused element.
+			setFocused(null);
+		}
+
+		super.setElementFocused(focused);
 	}
 	
 	@Override

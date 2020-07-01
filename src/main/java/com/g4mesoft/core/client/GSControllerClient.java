@@ -154,8 +154,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 
 	@Override
-	public void tick() {
-		super.tick();
+	public void tick(boolean paused) {
+		super.tick(paused);
 		
 		keyManager.update();
 	}

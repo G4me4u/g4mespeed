@@ -130,6 +130,9 @@ public abstract class GSScreen extends Screen implements GSParentElement, GSIDra
 	@Deprecated
 	@GSCoreOverride
 	public final boolean keyPressed(int key, int scancode, int mods) {
+		if (onKeyPressedGS(key, scancode, mods))
+			return true;
+		
 		if (key == GLFW.GLFW_KEY_ESCAPE && this.shouldCloseOnEsc()) {
 			this.onClose();
 			return true;
@@ -142,7 +145,7 @@ public abstract class GSScreen extends Screen implements GSParentElement, GSIDra
 			return true;
 		}
 
-		return onKeyPressedGS(key, scancode, mods);
+		return false;
 	}
 
 	@Override
@@ -165,6 +168,25 @@ public abstract class GSScreen extends Screen implements GSParentElement, GSIDra
 	public final boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
 		double scrollX = ((GSIMouseAccess)MinecraftClient.getInstance().mouse).getScrollX();
 		return onMouseScrolledGS(mouseX, mouseY, scrollX, scrollY);
+	}
+	
+	@Override
+	public boolean isAdded() {
+		return (MinecraftClient.getInstance().currentScreen == this);
+	}
+	
+	@Override
+	public void setElementFocused(boolean focused) {
+	}
+	
+	@Override
+	public boolean isElementFocused() {
+		return isAdded();
+	}
+	
+	@Override
+	public boolean isEditingText() {
+		return false;
 	}
 	
 	@Override

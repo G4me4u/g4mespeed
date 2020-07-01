@@ -79,9 +79,9 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 		module.init(this);
 	}
 	
-	public void tick() {
+	public void tick(boolean paused) {
 		for (GSIModule module : modules)
-			module.tick();
+			module.tick(paused);
 	}
 	
 	public GSTpsModule getTpsModule() {

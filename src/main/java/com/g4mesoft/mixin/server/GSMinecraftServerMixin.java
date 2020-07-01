@@ -121,7 +121,8 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
 		GSDebug.onServerTick();
-		GSControllerServer.getInstance().tick();
+		
+		GSControllerServer.getInstance().tick(false);
 	}
 	
 	@Inject(method = "shutdown", at = @At("RETURN"))
