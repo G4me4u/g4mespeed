@@ -185,14 +185,26 @@ public class GSParentPanel extends GSPanel implements GSParentElement {
 
 	@Override
 	@GSCoreOverride
-	public void setFocused(Element focused) {
-		if (focusedElement instanceof GSElement)
-			((GSElement)focusedElement).setElementFocused(false);
-		
-		this.focusedElement = focused;
+	public void setFocused(Element focusedElement) {
+		if (focusedElement != this.focusedElement) {
+			if (this.focusedElement instanceof GSElement)
+				((GSElement)this.focusedElement).setElementFocused(false);
+			
+			this.focusedElement = focusedElement;
+	
+			if (focusedElement instanceof GSElement)
+				((GSElement)focusedElement).setElementFocused(true);
+		}
+	}
+	
+	@Override
+	public void setElementFocused(boolean focused) {
+		if (isElementFocused() && !focused) {
+			// Indicate that we no longer have a focused element.
+			setFocused(null);
+		}
 
-		if (focused instanceof GSElement)
-			((GSElement)focused).setElementFocused(true);
+		super.setElementFocused(focused);
 	}
 	
 	@Override
