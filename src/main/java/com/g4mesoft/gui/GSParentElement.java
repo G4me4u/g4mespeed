@@ -14,7 +14,7 @@ public interface GSParentElement extends GSElement, ParentElement {
 	}
 
 	@Override
-	default public boolean onMouseClickedGS(double mouseX, double mouseY, int button) {
+	default public boolean onMouseClickedGS(double mouseX, double mouseY, int button, int mods) {
 		return hoveredElement(mouseX, mouseY).filter((element) -> {
 			if (element.mouseClicked(mouseX, mouseY, button)) {
 				setFocused(element);
@@ -30,7 +30,7 @@ public interface GSParentElement extends GSElement, ParentElement {
 	}
 
 	@Override
-	default public boolean onMouseReleasedGS(double mouseX, double mouseY, int button) {
+	default public boolean onMouseReleasedGS(double mouseX, double mouseY, int button, int mods) {
 		if (button == GLFW.GLFW_MOUSE_BUTTON_1)
 			setDragging(false);
 

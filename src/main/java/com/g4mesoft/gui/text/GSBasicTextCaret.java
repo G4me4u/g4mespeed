@@ -6,10 +6,8 @@ import java.util.List;
 
 import org.lwjgl.glfw.GLFW;
 
-import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.util.GSMathUtils;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
 
@@ -547,10 +545,8 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	}
 
 	@Override
-	public boolean onMouseClicked(double mouseX, double mouseY, int button) {
+	public boolean onMouseClicked(double mouseX, double mouseY, int button, int mods) {
 		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-			int mods = ((GSIMouseAccess)MinecraftClient.getInstance().mouse).getButtonMods();
-			
 			navigateToPoint((int)mouseX, (int)mouseY, getModifierFlags(mods));
 			
 			return true;
@@ -560,17 +556,15 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	}
 	
 	@Override
-	public boolean onMouseReleased(double mouseX, double mouseY, int button) {
+	public boolean onMouseReleased(double mouseX, double mouseY, int button, int mods) {
 		return false;
 	}
 	
 	@Override
 	public boolean onMouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
 		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-			int mods = ((GSIMouseAccess)MinecraftClient.getInstance().mouse).getButtonMods();
-
 			int y = GSMathUtils.clamp((int)mouseY, 0, textField.getHeight() - 1);
-			navigateToPoint((int)mouseX, y, getModifierFlags(mods) | SELECTION_MODIFIER);
+			navigateToPoint((int)mouseX, y, SELECTION_MODIFIER);
 			
 			return true;
 		}

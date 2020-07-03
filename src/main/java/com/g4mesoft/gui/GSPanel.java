@@ -124,14 +124,16 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	@Deprecated
 	@GSCoreOverride
 	public final boolean mouseClicked(double mouseX, double mouseY, int button) {
-		return selected && onMouseClickedGS(translateMouseX(mouseX), translateMouseY(mouseY), button);
+		int mods = ((GSIMouseAccess)client.mouse).getButtonMods();
+		return selected && onMouseClickedGS(translateMouseX(mouseX), translateMouseY(mouseY), button, mods);
 	}
 
 	@Override
 	@Deprecated
 	@GSCoreOverride
 	public final boolean mouseReleased(double mouseX, double mouseY, int button) {
-		return selected && onMouseReleasedGS(translateMouseX(mouseX), translateMouseY(mouseY), button);
+		int mods = ((GSIMouseAccess)client.mouse).getButtonMods();
+		return selected && onMouseReleasedGS(translateMouseX(mouseX), translateMouseY(mouseY), button, mods);
 	}
 
 	@Override
@@ -174,7 +176,7 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 		if (!selected)
 			return false;
 		
-		double scrollX = ((GSIMouseAccess)MinecraftClient.getInstance().mouse).getScrollX();
+		double scrollX = ((GSIMouseAccess)client.mouse).getScrollX();
 		return onMouseScrolledGS(translateMouseX(mouseX), translateMouseY(mouseY), scrollX, scrollY);
 	}
 	

@@ -21,9 +21,10 @@ import net.minecraft.client.MinecraftClient;
 @Mixin(Keyboard.class)
 public class GSKeyboardMixin implements GSIKeyboardAccess {
 	
-	private boolean repeatingKeyEvent;
-	
 	@Shadow @Final private MinecraftClient client;
+	@Shadow private boolean repeatEvents;
+
+	private boolean repeatingKeyEvent;
 	
 	@Inject(method = "onKey(JIIII)V", at = @At("HEAD"))
 	public void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
@@ -48,10 +49,12 @@ public class GSKeyboardMixin implements GSIKeyboardAccess {
 		}
 	}
 	
-	@Redirect(method = "onKey(JIIII)V", require = 0, allow = 1, at = @At(value = "FIELD", 
+	/* Note that we are actually targeting the lambda method in onKey
+	 * which is used in the Screen.wrapScreenError(...) method. */
+	@Redirect(method = "method_1454", require = 0, allow = 1, at = @At(value = "FIELD", 
 			opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/client/Keyboard;repeatEvents:Z"))
-	public boolean allowRepeatEvents(Keyboard keyboard, boolean prevValue) {
-		return (prevValue || (client.currentScreen instanceof GSScreen));
+	public boolean allowRepeatEvents(Keyboard keyboard) {
+		return (repeatEvents || (client.currentScreen instanceof GSScreen));
 	}
 	
 	public GSKeyManager getKeyManager() {

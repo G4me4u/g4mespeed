@@ -147,14 +147,14 @@ public class GSHotkeyElementGUI extends GSParentPanel {
 	}
 
 	@Override
-	public boolean onMouseClickedGS(double mouseX, double mouseY, int button) {
+	public boolean onMouseClickedGS(double mouseX, double mouseY, int button, int mods) {
 		if (modifyingKeyCode && !resetButton.isHovered()) {
 			setKeyCode(InputUtil.Type.MOUSE.createFromCode(button));
 			setModifying(false);
 			return true;
 		}
 		
-		return super.onMouseClickedGS(mouseX, mouseY, button);
+		return super.onMouseClickedGS(mouseX, mouseY, button, mods);
 	}
 	
 	public int getPreferredHeight() {

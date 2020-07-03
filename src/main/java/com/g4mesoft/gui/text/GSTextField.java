@@ -229,7 +229,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	@Override
 	public void tick() {
-		if (isEditable() && isElementFocused())
+		if (isEditingText())
 			caret.update();
 	}
 
@@ -269,7 +269,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 
 		((GSIBufferBuilderAccess)builder).popClip();
 
-		if (isEditable() && isElementFocused())
+		if (isEditingText())
 			caret.render(mouseX, mouseY, partialTicks);
 	}
 	
@@ -436,19 +436,19 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	}
 	
 	@Override
-	public boolean onMouseClickedGS(double mouseX, double mouseY, int button) {
-		if (caret.onMouseClicked(mouseX, mouseY, button))
+	public boolean onMouseClickedGS(double mouseX, double mouseY, int button, int mods) {
+		if (caret.onMouseClicked(mouseX, mouseY, button, mods))
 			return true;
 		
-		return super.onMouseClickedGS(mouseX, mouseY, button);
+		return super.onMouseClickedGS(mouseX, mouseY, button, mods);
 	}
 	
 	@Override
-	public boolean onMouseReleasedGS(double mouseX, double mouseY, int button) {
-		if (caret.onMouseReleased(mouseX, mouseY, button))
+	public boolean onMouseReleasedGS(double mouseX, double mouseY, int button, int mods) {
+		if (caret.onMouseReleased(mouseX, mouseY, button, mods))
 			return true;
 
-		return super.onMouseReleasedGS(mouseX, mouseY, button);
+		return super.onMouseReleasedGS(mouseX, mouseY, button, mods);
 	}
 	
 	@Override
@@ -546,7 +546,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	@Override
 	public boolean onCharTypedGS(char c, int mods) {
-		if (isEditable() && isElementFocused())
+		if (isEditingText())
 			handleTypedCodePoint((int)c);
 		
 		return super.onCharTypedGS(c, mods);
@@ -579,7 +579,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			int ce = getCaretSelectionEnd();
 			
 			if (cs >= 0 && ce <= textModel.getLength()) {
-				moveCaretPointX(textModel.getText(cs, ce - cs), -1);
+				if (cs != caret.getCaretDot())
+					moveCaretPointX(textModel.getText(cs, ce - cs), -1);
 				
 				textModel.removeText(cs, ce - cs);
 			}

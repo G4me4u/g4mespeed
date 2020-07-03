@@ -112,13 +112,13 @@ public class GSParentPanel extends GSPanel implements GSParentElement {
 	}
 
 	@Override
-	public boolean onMouseClickedGS(double mouseX, double mouseY, int button) {
-		return GSParentElement.super.onMouseClickedGS(mouseX, mouseY, button);
+	public boolean onMouseClickedGS(double mouseX, double mouseY, int button, int mods) {
+		return GSParentElement.super.onMouseClickedGS(mouseX, mouseY, button, mods);
 	}
 
 	@Override
-	public boolean onMouseReleasedGS(double mouseX, double mouseY, int button) {
-		return GSParentElement.super.onMouseReleasedGS(mouseX, mouseY, button);
+	public boolean onMouseReleasedGS(double mouseX, double mouseY, int button, int mods) {
+		return GSParentElement.super.onMouseReleasedGS(mouseX, mouseY, button, mods);
 	}
 	
 	public boolean onMouseDraggedGS(double mouseX, double mouseY, int button, double dragX, double dragY) {

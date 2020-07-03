@@ -80,18 +80,18 @@ public abstract class GSScrollableParentPanel extends GSParentPanel implements G
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public boolean onMouseClickedGS(double mouseX, double mouseY, int button) {
+	public boolean onMouseClickedGS(double mouseX, double mouseY, int button, int mods) {
 		if (scrollBar.mouseClicked(mouseX, mouseY - getScrollOffset(), button))
 			return true;
-		return super.onMouseClickedGS(mouseX, mouseY, button);
+		return super.onMouseClickedGS(mouseX, mouseY, button, mods);
 	}
 
 	@Override
 	@SuppressWarnings("deprecation")
-	public boolean onMouseReleasedGS(double mouseX, double mouseY, int button) {
+	public boolean onMouseReleasedGS(double mouseX, double mouseY, int button, int mods) {
 		if (scrollBar.mouseReleased(mouseX, mouseY - getScrollOffset(), button))
 			return false;
-		return super.onMouseReleasedGS(mouseX, mouseY, button);
+		return super.onMouseReleasedGS(mouseX, mouseY, button, mods);
 	}
 	
 	@Override

@@ -109,14 +109,16 @@ public abstract class GSScreen extends Screen implements GSParentElement, GSIDra
 	@Deprecated
 	@GSCoreOverride
 	public final boolean mouseClicked(double mouseX, double mouseY, int button) {
-		return onMouseClickedGS(mouseX, mouseY, button);
+		int mods = ((GSIMouseAccess)minecraft.mouse).getButtonMods();
+		return onMouseClickedGS(mouseX, mouseY, button, mods);
 	}
 
 	@Override
 	@Deprecated
 	@GSCoreOverride
 	public final boolean mouseReleased(double mouseX, double mouseY, int button) {
-		return onMouseReleasedGS(mouseX, mouseY, button);
+		int mods = ((GSIMouseAccess)minecraft.mouse).getButtonMods();
+		return onMouseReleasedGS(mouseX, mouseY, button, mods);
 	}
 
 	@Override
@@ -167,13 +169,13 @@ public abstract class GSScreen extends Screen implements GSParentElement, GSIDra
 	@Deprecated
 	@GSCoreOverride
 	public final boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
-		double scrollX = ((GSIMouseAccess)MinecraftClient.getInstance().mouse).getScrollX();
+		double scrollX = ((GSIMouseAccess)minecraft.mouse).getScrollX();
 		return onMouseScrolledGS(mouseX, mouseY, scrollX, scrollY);
 	}
 	
 	@Override
 	public boolean isAdded() {
-		return (MinecraftClient.getInstance().currentScreen == this);
+		return (minecraft.currentScreen == this);
 	}
 	
 	@Override

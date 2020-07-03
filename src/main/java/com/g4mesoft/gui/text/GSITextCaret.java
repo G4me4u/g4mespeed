@@ -14,27 +14,27 @@ public interface GSITextCaret {
 
 	public void render(int mouseX, int mouseY, float dt);
 
-	public void setCaretLocation(int location);
-	
-	public void setCaretDot(int dot);
-	
-	public void setCaretMark(int mark);
-	
 	public int getCaretLocation();
+
+	public void setCaretLocation(int location);
 	
 	public int getCaretDot();
 
+	public void setCaretDot(int dot);
+	
 	public int getCaretMark();
+
+	public void setCaretMark(int mark);
 	
 	public boolean hasCaretSelection();
 	
-	public void setBlinkRate(int blinkRate);
-	
 	public int getBlinkRate();
 
-	public boolean onMouseClicked(double mouseX, double mouseY, int button);
+	public void setBlinkRate(int blinkRate);
+
+	public boolean onMouseClicked(double mouseX, double mouseY, int button, int mods);
 	
-	public boolean onMouseReleased(double mouseX, double mouseY, int button);
+	public boolean onMouseReleased(double mouseX, double mouseY, int button, int mods);
 	
 	public boolean onMouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY);
 	

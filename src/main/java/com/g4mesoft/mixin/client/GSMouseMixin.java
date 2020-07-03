@@ -27,7 +27,7 @@ public class GSMouseMixin implements GSIMouseAccess {
 	
 	@Inject(method="onMouseButton(JIII)V", at = @At(value = "HEAD"))
 	public void onMouseEvent(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
-		if (windowHandle == MinecraftClient.getInstance().window.getHandle()) {
+		if (windowHandle == client.window.getHandle()) {
 			buttonMods = mods;
 			
 			if (action == GLFW.GLFW_RELEASE)

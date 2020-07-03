@@ -261,7 +261,7 @@ public class GSScrollBar extends GSPanel {
 	}
 	
 	@Override
-	public boolean onMouseClickedGS(double mouseX, double mouseY, int button) {
+	public boolean onMouseClickedGS(double mouseX, double mouseY, int button, int mods) {
 		if (isMouseOverScrollBar(mouseX, mouseY)) {
 			if (enabled && button == GLFW.GLFW_MOUSE_BUTTON_1) {
 				double mousePos = isVertical() ? mouseY : mouseX;
@@ -301,7 +301,7 @@ public class GSScrollBar extends GSPanel {
 	}
 
 	@Override
-	public boolean onMouseReleasedGS(double mouseX, double mouseY, int button) {
+	public boolean onMouseReleasedGS(double mouseX, double mouseY, int button, int mods) {
 		if (button == GLFW.GLFW_MOUSE_BUTTON_1)
 			scrollDragActive = false;
 		return false;

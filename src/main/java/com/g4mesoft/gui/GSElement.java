@@ -7,11 +7,11 @@ public interface GSElement extends Element {
 	default public void onMouseMovedGS(double mouseX, double mouseY) {
 	}
 
-	default public boolean onMouseClickedGS(double mouseX, double mouseY, int button) {
+	default public boolean onMouseClickedGS(double mouseX, double mouseY, int button, int mods) {
 		return false;
 	}
 
-	default public boolean onMouseReleasedGS(double mouseX, double mouseY, int button) {
+	default public boolean onMouseReleasedGS(double mouseX, double mouseY, int button, int mods) {
 		return false;
 	}
 

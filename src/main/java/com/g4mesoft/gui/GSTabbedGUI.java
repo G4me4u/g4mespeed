@@ -203,7 +203,7 @@ public class GSTabbedGUI extends GSScreen {
 	}
 
 	@Override
-	public boolean onMouseClickedGS(double mouseX, double mouseY, int button) {
+	public boolean onMouseClickedGS(double mouseX, double mouseY, int button, int mods) {
 		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
 			for (int i = 0; i < tabs.size(); i++) {
 				if (i != selectedTabIndex && isTabHovered(tabs.get(i), mouseX, mouseY)) {
@@ -214,7 +214,7 @@ public class GSTabbedGUI extends GSScreen {
 			}
 		}
 
-		return super.onMouseClickedGS(mouseX, mouseY, button);
+		return super.onMouseClickedGS(mouseX, mouseY, button, mods);
 	}
 
 	@Override
