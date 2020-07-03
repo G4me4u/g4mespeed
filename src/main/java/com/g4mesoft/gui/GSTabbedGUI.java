@@ -218,12 +218,12 @@ public class GSTabbedGUI extends GSScreen {
 	}
 
 	@Override
-	public boolean onKeyPressedGS(int key, int scancode, int mods) {
-		if (super.onKeyPressedGS(key, scancode, mods))
+	public boolean onKeyPressedGS(int key, int scancode, int mods, boolean repeating) {
+		if (super.onKeyPressedGS(key, scancode, mods, repeating))
 			return true;
 		
 		GSKeyBinding openGUIKey = GSControllerClient.getInstance().getOpenGUIKey();
-		if (openGUIKey != null && key == openGUIKey.getGLFWKeyCode()) {
+		if (!repeating && openGUIKey != null && key == openGUIKey.getGLFWKeyCode()) {
 			this.onClose();
 			return true;
 		}

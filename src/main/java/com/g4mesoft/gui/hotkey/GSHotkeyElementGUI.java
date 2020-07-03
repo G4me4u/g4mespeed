@@ -131,7 +131,7 @@ public class GSHotkeyElementGUI extends GSParentPanel {
 	}
 	
 	@Override
-	public boolean onKeyPressedGS(int key, int scancode, int mods) {
+	public boolean onKeyPressedGS(int key, int scancode, int mods, boolean repeating) {
 		if (modifyingKeyCode && !resetButton.isFocused()) {
 			if (key == GLFW.GLFW_KEY_ESCAPE) {
 				setKeyCode(InputUtil.UNKNOWN_KEYCODE);
@@ -143,7 +143,7 @@ public class GSHotkeyElementGUI extends GSParentPanel {
 			return true;
 		}
 		
-		return super.onKeyPressedGS(key, scancode, mods);
+		return super.onKeyPressedGS(key, scancode, mods, repeating);
 	}
 
 	@Override

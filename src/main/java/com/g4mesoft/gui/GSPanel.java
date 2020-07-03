@@ -1,6 +1,7 @@
 package com.g4mesoft.gui;
 
 import com.g4mesoft.access.GSIBufferBuilderAccess;
+import com.g4mesoft.access.GSIKeyboardAccess;
 import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.GSCoreOverride;
 
@@ -144,9 +145,10 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	@Deprecated
 	@GSCoreOverride
 	public final boolean keyPressed(int key, int scancode, int mods) {
-		if (preKeyPressed(key, scancode, mods))
+		boolean repeating = ((GSIKeyboardAccess)client.keyboard).isRepeatingKeyEvent();
+		if (preKeyPressed(key, scancode, mods, repeating))
 			return true;
-		return selected && onKeyPressedGS(key, scancode, mods);
+		return selected && onKeyPressedGS(key, scancode, mods, repeating);
 	}
 
 	@Override
@@ -201,7 +203,7 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 		this.focused = focused;
 	}
 	
-	boolean preKeyPressed(int keyCode, int scanCode, int modifiers) {
+	boolean preKeyPressed(int keyCode, int scanCode, int modifiers, boolean repeat) {
 		return false;
 	}
 	

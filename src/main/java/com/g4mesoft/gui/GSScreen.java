@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.g4mesoft.access.GSIKeyboardAccess;
 import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.GSCoreOverride;
 
@@ -129,7 +130,8 @@ public abstract class GSScreen extends Screen implements GSParentElement, GSIDra
 	@Deprecated
 	@GSCoreOverride
 	public final boolean keyPressed(int key, int scancode, int mods) {
-		if (onKeyPressedGS(key, scancode, mods))
+		boolean repeating = ((GSIKeyboardAccess)minecraft.keyboard).isRepeatingKeyEvent();
+		if (onKeyPressedGS(key, scancode, mods, repeating))
 			return true;
 		
 		if (key == GLFW.GLFW_KEY_ESCAPE && this.shouldCloseOnEsc()) {

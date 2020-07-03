@@ -19,7 +19,7 @@ public interface GSElement extends Element {
 		return false;
 	}
 
-	default public boolean onKeyPressedGS(int key, int scancode, int mods) {
+	default public boolean onKeyPressedGS(int key, int scancode, int mods, boolean repeating) {
 		return false;
 	}
 

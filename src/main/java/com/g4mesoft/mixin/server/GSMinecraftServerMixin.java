@@ -3,6 +3,7 @@ package com.g4mesoft.mixin.server;
 import java.util.function.BooleanSupplier;
 
 import org.apache.logging.log4j.Logger;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -72,7 +73,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	 * example carpet modifies the loop and changes this.running to just be false.
 	 */
 	@Inject(method = "run", require = 0, allow = 1, at = @At(value = "FIELD", shift = Shift.BEFORE,
-			target = "Lnet/minecraft/server/MinecraftServer;running:Z"))
+			opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/server/MinecraftServer;running:Z"))
 	private void onModifiedRunLoop(CallbackInfo ci) {
 		while (this.running) {
 			long msThisTick = (long)msAccum;

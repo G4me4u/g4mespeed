@@ -62,7 +62,7 @@ public interface GSParentElement extends GSElement, ParentElement {
 	}
 	
 	@Override
-	default public boolean onKeyPressedGS(int key, int scancode, int mods) {
+	default public boolean onKeyPressedGS(int key, int scancode, int mods, boolean repeating) {
 		Element focusedElement = getFocused();
 		return focusedElement != null && focusedElement.keyPressed(key, scancode, mods);
 	}

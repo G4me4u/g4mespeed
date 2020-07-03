@@ -460,16 +460,16 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	}
 	
 	@Override
-	public boolean onKeyPressedGS(int key, int scancode, int mods) {
+	public boolean onKeyPressedGS(int key, int scancode, int mods, boolean repeating) {
 		if (caret.onKeyPressed(key, scancode, mods))
 			return true;
 		
-		if (Screen.isCopy(key)) {
+		if (!repeating && Screen.isCopy(key)) {
 			copyToClipboard();
 			return true;
 		}
 		
-		if (Screen.isCut(key)) {
+		if (!repeating && Screen.isCut(key)) {
 			cutToClipboard();
 			return true;
 		}
@@ -481,7 +481,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		
 		checkAndDispatchControlCharacter(key, mods);
 		
-		return super.onKeyPressedGS(key, scancode, mods);
+		return super.onKeyPressedGS(key, scancode, mods, repeating);
 	}
 	
 	private void checkAndDispatchControlCharacter(int key, int mods) {
