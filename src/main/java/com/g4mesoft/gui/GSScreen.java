@@ -65,9 +65,12 @@ public abstract class GSScreen extends Screen implements GSParentElement, GSIDra
 	}
 	
 	protected void onAdded() {
+		minecraft.keyboard.enableRepeatEvents(true);
 	}
 
 	protected void onRemoved() {
+		minecraft.keyboard.enableRepeatEvents(false);
+
 		clearChildren();
 	}
 
