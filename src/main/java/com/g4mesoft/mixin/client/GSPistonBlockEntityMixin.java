@@ -95,8 +95,8 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		actualLastProgress = this.lastProgress;
 	}
 	
-	@GSCoreOverride
 	@Override
+	@GSCoreOverride
 	@Environment(EnvType.CLIENT)
 	public double getSquaredRenderDistance() {
 		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
