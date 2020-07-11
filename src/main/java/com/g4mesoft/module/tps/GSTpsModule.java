@@ -30,6 +30,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -155,19 +156,19 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Override
 	public void registerHotkeys(GSKeyManager keyManager) {
 		keyManager.registerKey("reset", KEY_CATEGORY, GLFW.GLFW_KEY_M, 
-				GSETpsHotkeyType.RESET_TPS, this::onHotkey, GSEKeyEventType.PRESS);
+				GSETpsHotkeyType.RESET_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 		
 		keyManager.registerKey("increment", KEY_CATEGORY, GLFW.GLFW_KEY_PERIOD, 
-				GSETpsHotkeyType.INCREMENT_TPS, this::onHotkey, GSEKeyEventType.PRESS);
+				GSETpsHotkeyType.INCREMENT_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 		
 		keyManager.registerKey("decrement", KEY_CATEGORY, GLFW.GLFW_KEY_COMMA, 
-				GSETpsHotkeyType.DECREMENT_TPS, this::onHotkey, GSEKeyEventType.PRESS);
+				GSETpsHotkeyType.DECREMENT_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 		
 		keyManager.registerKey("double", KEY_CATEGORY, GLFW.GLFW_KEY_K, 
-				GSETpsHotkeyType.DOUBLE_TPS, this::onHotkey, GSEKeyEventType.PRESS);
+				GSETpsHotkeyType.DOUBLE_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 
 		keyManager.registerKey("halve", KEY_CATEGORY, GLFW.GLFW_KEY_J, 
-				GSETpsHotkeyType.HALVE_TPS, this::onHotkey, GSEKeyEventType.PRESS);
+				GSETpsHotkeyType.HALVE_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 	}
 	
 	@Override
@@ -228,7 +229,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		lastServerTpsTime = Util.getMeasuringTimeMs();
 	}
 	
-	private void onHotkey(GSETpsHotkeyType hotkeyType) {
+	private void onClientHotkey(GSETpsHotkeyType hotkeyType) {
 		manager.runOnClient(managerClient -> {
 			MinecraftClient client = MinecraftClient.getInstance();
 			boolean sneaking = client.options.keySneak.isPressed();
@@ -239,35 +240,43 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 					// allows us to use hotkey controls.
 					managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
 				}
-			} else {
-				performHotkeyAction(hotkeyType, sneaking);
-				
-				if (client.inGameHud != null) {
-					String formattedTps = TPS_FORMAT.format(tps);
-					Text overlay = new TranslatableText("play.info.clientTpsChanged", formattedTps);
-					client.inGameHud.setOverlayMessage(overlay, false);
+			} else if (client.player != null) { 
+				if (isPlayerAllowedHotkeys(client.player)) {
+					performHotkeyAction(hotkeyType, sneaking);
+					
+					if (client.inGameHud != null) {
+						String formattedTps = TPS_FORMAT.format(tps);
+						Text overlay = new TranslatableText("play.info.clientTpsChanged", formattedTps);
+						client.inGameHud.setOverlayMessage(overlay, false);
+					}
+				} else if (isPlayerAllowedTpsChange(client.player) && client.inGameHud != null) {
+					client.inGameHud.setOverlayMessage(new TranslatableText("play.info.hotkeysDisallowed"), false);
 				}
 			}
 		});
 	}
 	
 	public void onPlayerHotkey(ServerPlayerEntity player, GSETpsHotkeyType type, boolean sneaking) {
-		if (sAllowHotkeyControls.getValue() && isPlayerAllowedTpsChange(player)) {
-			float oldTps = tps;
-			performHotkeyAction(type, sneaking);
-			
-			if (!GSMathUtils.equalsApproximate(oldTps, tps)) {
-				// Assume that the player changed the tps successfully.
-				manager.runOnServer((serverManager) -> {
-					Text name = player.getDisplayName();
-					String formattedTps = TPS_FORMAT.format(tps);
-					Text info = new TranslatableText("play.info.tpsChanged", name, formattedTps);
-					
-					for (ServerPlayerEntity otherPlayer : serverManager.getAllPlayers()) {
-						if (isPlayerAllowedTpsChange(otherPlayer))
-							otherPlayer.addChatMessage(info, true);
-					}
-				});
+		if (sAllowHotkeyControls.getValue()) {
+			if (isPlayerAllowedHotkeys(player)) {
+				float oldTps = tps;
+				performHotkeyAction(type, sneaking);
+				
+				if (!GSMathUtils.equalsApproximate(oldTps, tps)) {
+					// Assume that the player changed the tps successfully.
+					manager.runOnServer((serverManager) -> {
+						Text name = player.getDisplayName();
+						String formattedTps = TPS_FORMAT.format(tps);
+						Text info = new TranslatableText("play.info.tpsChanged", name, formattedTps);
+						
+						for (ServerPlayerEntity otherPlayer : serverManager.getAllPlayers()) {
+							if (isPlayerAllowedTpsChange(otherPlayer))
+								otherPlayer.addChatMessage(info, true);
+						}
+					});
+				}
+			} else if (isPlayerAllowedTpsChange(player)) {
+				player.addChatMessage(new TranslatableText("play.info.hotkeysDisallowed"), true);
 			}
 		}
 	}
@@ -409,7 +418,11 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		}
 	}
 	
-	public boolean isPlayerAllowedTpsChange(ServerPlayerEntity player) {
+	public boolean isPlayerAllowedHotkeys(PlayerEntity player) {
+		return (isPlayerAllowedTpsChange(player) && (player.isCreative() || player.isSpectator()));
+	}
+	
+	public boolean isPlayerAllowedTpsChange(PlayerEntity player) {
 		return player.allowsPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);
 	}
 	
