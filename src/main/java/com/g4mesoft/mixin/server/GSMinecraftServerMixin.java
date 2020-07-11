@@ -16,6 +16,7 @@ import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
+import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Util;
@@ -46,17 +47,28 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {
+		long millisPrevTick = (long)msAccum;
+		
 		msPerTick = GSTpsModule.MS_PER_SEC / newTps;
 		msAccum = msPerTick;
 		
 		tpsChanged = true;
-		resetTimeReference();
+
+		long now = Util.getMeasuringTimeMs();
+		long dt = timeReference - now;
+		long millisNextTick = (long)msAccum;
+		
+		if (dt < millisPrevTick && millisPrevTick != 0L) {
+			// Interpolate the progress until next tick with the
+			// new milliseconds per tick. This ensures that the
+			// next tick will be very close to the client tick.
+			long delta = dt * millisNextTick / millisPrevTick;
+			timeReference = now + GSMathUtils.clamp(delta, 0L, millisNextTick);
+		} else {
+			timeReference = now + millisNextTick;
+		}
 	}
 
-	private void resetTimeReference() {
-		this.timeReference = this.field_19248 = Util.getMeasuringTimeMs() + (long)msPerTick;
-	}
-	
 	@Inject(method = "run", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
 			target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V"))
 	private void onInitialized(CallbackInfo ci) {
@@ -100,13 +112,8 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			this.profiler.push("tick");
 			this.tick(this::shouldKeepTicking);
 			this.profiler.swap("nextTickWait");
-			if (tpsChanged) {
-				tpsChanged = false;
-				resetTimeReference();
-			} else {
-				this.field_19249 = true;
-				this.field_19248 = Math.max(Util.getMeasuringTimeMs() + msThisTick, this.timeReference);
-			}
+			this.field_19249 = true;
+			this.field_19248 = Math.max(Util.getMeasuringTimeMs() + msThisTick, this.timeReference);
 			this.method_16208();
 			this.profiler.pop();
 			this.profiler.endTick();
