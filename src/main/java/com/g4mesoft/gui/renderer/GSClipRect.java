@@ -1,4 +1,4 @@
-package com.g4mesoft.gui;
+package com.g4mesoft.gui.renderer;
 
 public class GSClipRect {
 
@@ -20,8 +20,8 @@ public class GSClipRect {
 		this.y1 = y1;
 	}
 
-	public GSClipRect offset(float clipXOffset, float clipYOffset) {
-		return new GSClipRect(x0 + clipXOffset, y0 + clipYOffset, 
-		                      x1 + clipXOffset, y1 + clipYOffset);
+	public GSClipRect offset(float clipOffsetX, float clipOffsetY) {
+		return new GSClipRect(x0 + clipOffsetX, y0 + clipOffsetY, 
+		                      x1 + clipOffsetX, y1 + clipOffsetY);
 	}
 }

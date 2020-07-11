@@ -104,3 +104,4 @@ setting.betterPistons.blockEventDistance.desc=The maximum block event view dista
 ###########   Game Information    ############
 
 play.info.tpsChanged=%s changed the tps to %s
+play.info.hotkeysDisallowed=Must be in Creative or Spectator to use hotkeys

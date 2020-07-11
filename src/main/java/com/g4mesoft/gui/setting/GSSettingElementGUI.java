@@ -1,10 +1,10 @@
 package com.g4mesoft.gui.setting;
 
 import com.g4mesoft.gui.GSParentPanel;
+import com.g4mesoft.gui.action.GSButtonPanel;
+import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
-
-import net.minecraft.client.gui.widget.ButtonWidget;
 
 public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSParentPanel {
 
@@ -24,26 +24,27 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	protected final T setting;
 	protected final GSSettingCategory category;
 	
-	protected final String settingTranslationName;
+	protected final String nameTranslationKey;
 	
-	private ButtonWidget resetButton;
+	private final GSButtonPanel resetButton;
 	
 	public GSSettingElementGUI(GSSettingsGUI settingsGUI, T setting, GSSettingCategory category) {
 		this.settingsGUI = settingsGUI;
 		this.setting = setting;
 		this.category = category;
 		
-		settingTranslationName = "setting." + category.getName() + "." + setting.getName();
+		nameTranslationKey = "setting." + category.getName() + "." + setting.getName();
 		
-		resetButton = null;
+		resetButton = new GSButtonPanel(RESET_TEXT, false, this::resetSetting);
+		add(resetButton);
 	}
 	
 	@Override
-	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		if (mouseX >= 0 && mouseY >= 0 && mouseX < width && mouseY < height)
-			fill(0, 0, width, height, HOVERED_BACKGROUND);
+	public void render(GSIRenderer2D renderer) {
+		if (renderer.isMouseInside(0, 0, width, height))
+			renderer.fillRect(0, 0, width, height, HOVERED_BACKGROUND);
 		
-		super.renderTranslated(mouseX, mouseY, partialTicks);
+		super.render(renderer);
 	}
 	
 	public int getTextColor() {
@@ -51,12 +52,14 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	}
 	
 	@Override
-	public void init() {
-		super.init();
+	public void onBoundsChanged() {
+		super.onBoundsChanged();
 		
-		resetButton = createResetButton();
+		int x = width - CONTENT_PADDING - RESET_BUTTON_WIDTH;
+		int y = (getSettingHeight() - RESET_BUTTON_HEIGHT) / 2;
+		resetButton.setBounds(x, y, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT);
+		
 		updateResetActive();
-		addWidget(resetButton);
 	}
 
 	protected void resetSetting() {
@@ -69,29 +72,13 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	}
 	
 	private void updateResetActive() {
-		if (resetButton != null)
-			resetButton.active = !setting.isDefaultValue() && setting.isEnabledInGui();
+		resetButton.setEnabled(!setting.isDefaultValue() && setting.isEnabledInGui());
 	}
 
 	public abstract String getFormattedDefault();
 
-	@Override
-	public boolean onMouseScrolledGS(double mouseX, double mouseY, double scrollX, double scrollY) {
-		return false;
-	}
-	
 	protected int getSettingHeight() {
 		return height;
-	}
-	
-	public ButtonWidget createResetButton() {
-		int x = width - CONTENT_PADDING - RESET_BUTTON_WIDTH;
-		int y = (getSettingHeight() - RESET_BUTTON_HEIGHT) / 2;
-		
-		String resetText = getTranslationModule().getTranslation(RESET_TEXT);
-		return new ButtonWidget(x, y, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT, resetText, (button) -> {
-			resetSetting();
-		});
 	}
 	
 	public int getPreferredWidth() {
@@ -103,6 +90,6 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	}
 	
 	public String getSettingTranslationName() {
-		return settingTranslationName;
+		return nameTranslationKey;
 	}
 }

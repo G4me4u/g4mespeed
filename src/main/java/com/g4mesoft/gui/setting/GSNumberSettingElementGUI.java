@@ -1,11 +1,12 @@
 package com.g4mesoft.gui.setting;
 
+import com.g4mesoft.gui.action.GSButtonPanel;
+import com.g4mesoft.gui.action.GSSliderPanel;
+import com.g4mesoft.gui.renderer.GSIRenderer2D;
+import com.g4mesoft.gui.text.GSTextField;
 import com.g4mesoft.gui.widget.GSSliderWidget;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
-
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
 
 public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends GSSettingElementGUI<T> {
 
@@ -16,21 +17,26 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	
 	private static final int TEXT_MAX_WIDTH = 96;
 	
-	protected GSSliderWidget slider;
-	protected TextFieldWidget textField;
+	protected GSSliderPanel slider;
+	protected GSTextField textField;
+	protected GSButtonPanel valueSetButton;
+
+	protected GSButtonPanel resetButton;
 	
 	protected String prevTextFieldValue;
 	
 	public GSNumberSettingElementGUI(GSSettingsGUI settingsGUI, T setting, GSSettingCategory category) {
 		super(settingsGUI, setting, category);
 	}
-
+	
 	@Override
-	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		super.renderTranslated(mouseX, mouseY, partialTicks);
+	public void render(GSIRenderer2D renderer) {
+		super.render(renderer);
 
-		String name = getTranslationModule().getTranslation(settingTranslationName);
-		drawString(font, name, CONTENT_PADDING, (getSettingHeight() - font.fontHeight) / 2, getTextColor());
+		String name = i18nTranslate(nameTranslationKey);
+		int ty = (getSettingHeight() - renderer.getFontHeight()) / 2;
+		
+		renderer.drawString(name, CONTENT_PADDING, ty, getTextColor());
 	}
 	
 	@Override
@@ -50,55 +56,93 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	}
 	
 	@Override
-	public void init() {
-		super.init();
+	public void onBoundsChanged() {
+		super.onBoundsChanged();
 		
 		if (shouldUseSlider()) {
-			slider = new GSSliderWidget(0, 0, 0, 0.0, (value) -> {
-				setValueFromSlider(value);
-				updateFieldValue();
-			}, (value) -> getSliderText());
-			slider.active = setting.isEnabledInGui();
-			
-			slider.setWidth(Math.min(GSSliderWidget.MAX_WIDTH, width - CONTENT_PADDING * 2));
+			if (textField != null) {
+				remove(textField);
+				textField = null;
+			}
 
-			slider.x = (width - slider.getWidth()) / 2;
-			slider.y = height - CONTENT_PADDING - GSSliderWidget.SLIDER_HEIGHT;
+			if (valueSetButton != null) {
+				remove(valueSetButton);
+				valueSetButton = null;
+			}
 			
-			addWidget(slider);
+			if (slider == null) {
+				slider = new GSSliderPanel("", this::onValueChanged);
+				add(slider);
+			}
+			
+			updateSliderBounds();
 		} else {
-			int tw = Math.min(TEXT_FIELD_MAX_WIDTH, width - CONTENT_MARGIN - RESET_BUTTON_WIDTH - CONTENT_PADDING * 2);
-			int ty = height - CONTENT_PADDING - TEXT_FIELD_HEIGHT;
+			if (slider != null) {
+				remove(slider);
+				slider = null;
+			}
 			
-			addWidget(textField = new TextFieldWidget(font, CONTENT_PADDING, ty, tw, TEXT_FIELD_HEIGHT, ""));
-			textField.active = setting.isEnabledInGui();
+			if (textField == null) {
+				textField = new GSTextField();
+				add(textField);
+			}
 
-			int bx = width - CONTENT_PADDING - RESET_BUTTON_WIDTH;
-			int by = ty + (TEXT_FIELD_HEIGHT - RESET_BUTTON_HEIGHT) / 2;
-			String setValueText = getTranslationModule().getTranslation(SET_VALUE_TEXT);
-
-			addWidget(new ButtonWidget(bx, by, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT, setValueText, (but) -> {
-				String str = textField.getText();
-				if (!str.equals(prevTextFieldValue)) {
-					if (setValueFromTextField(str)) {
-						prevTextFieldValue = str;
-
-						// Make sure the textfield text is
-						// correct (re-validate it).
-						updateFieldValue();
-					} else {
-						textField.setText(prevTextFieldValue);
-					}
-				}
-			}));
+			if (valueSetButton == null) {
+				valueSetButton = new GSButtonPanel(SET_VALUE_TEXT, this::onValueChanged);
+				
+				add(valueSetButton);
+			}
+			
+			updateTextFieldBounds();
 		}
 		
 		updateFieldValue();
 	}
 	
-	protected abstract String getSliderText();
+	private void updateSliderBounds() {
+		int sw = Math.min(GSSliderWidget.MAX_WIDTH, width - CONTENT_PADDING * 2);
+		int sh = GSSliderPanel.SLIDER_HEIGHT;
+		int sx = (width - sw) / 2;
+		int sy = height - CONTENT_PADDING - sh;
+		
+		slider.setBounds(sx, sy, sw, sh);
+		slider.setEnabled(setting.isEnabledInGui());
+	}
+	
+	private void updateTextFieldBounds() {
+		int tw = Math.min(TEXT_FIELD_MAX_WIDTH, width - CONTENT_MARGIN - RESET_BUTTON_WIDTH - CONTENT_PADDING * 2);
+		int ty = height - CONTENT_PADDING - TEXT_FIELD_HEIGHT;
+		
+		textField.setBounds(CONTENT_PADDING, ty, tw, TEXT_FIELD_HEIGHT);
+		textField.setEditable(setting.isEnabledInGui());
 
-	protected abstract void setValueFromSlider(double value);
+		int bx = width - CONTENT_PADDING - RESET_BUTTON_WIDTH;
+		int by = ty + (TEXT_FIELD_HEIGHT - RESET_BUTTON_HEIGHT) / 2;
+
+		valueSetButton.setBounds(bx, by, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT);
+	}
+	
+	private void onValueChanged() {
+		if (isSliderActive()) {
+			setValueFromSlider(slider.getValue());
+			updateFieldValue();
+		} else {
+			String str = textField.getText();
+			if (!str.equals(prevTextFieldValue)) {
+				if (setValueFromTextField(str)) {
+					prevTextFieldValue = str;
+	
+					// Make sure the textfield text is
+					// correct (re-validate it).
+					updateFieldValue();
+				} else {
+					textField.setText(prevTextFieldValue);
+				}
+			}
+		}
+	}
+	
+	protected abstract void setValueFromSlider(float value);
 	
 	protected abstract boolean setValueFromTextField(String str);
 
@@ -106,9 +150,14 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 
 	protected abstract void updateFieldValue();
 
-	public void setSliderValue(double value) {
+	public void setSliderValue(float value) {
 		if (slider != null)
-			slider.setValueSilent(value);
+			slider.setValue(value);
+	}
+	
+	public void setSliderText(String text) {
+		if (slider != null)
+			slider.setLiteralText(text);
 	}
 
 	public void setTextFieldValue(String text) {
@@ -118,7 +167,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	
 	@Override
 	protected int getSettingHeight() {
-		return super.getSettingHeight() - CONTENT_MARGIN - (isSliderActive() ? GSSliderWidget.SLIDER_HEIGHT : TEXT_FIELD_HEIGHT);
+		return super.getSettingHeight() - CONTENT_MARGIN - (isSliderActive() ? GSSliderPanel.SLIDER_HEIGHT : TEXT_FIELD_HEIGHT);
 	}
 	
 	@Override
@@ -128,9 +177,11 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 		updateFieldValue();
 		
 		if (slider != null)
-			slider.active = setting.isEnabledInGui();
+			slider.setEnabled(setting.isEnabledInGui());
 		if (textField != null)
-			textField.active = setting.isEnabledInGui();
+			textField.setEditable(setting.isEnabledInGui());
+		if (valueSetButton != null)
+			valueSetButton.setEnabled(setting.isEnabledInGui());
 	}
 	
 	

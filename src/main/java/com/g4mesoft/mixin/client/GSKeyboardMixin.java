@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.gui.GSElementContext;
 import com.g4mesoft.hotkey.GSKeyManager;
 
 import net.minecraft.client.Keyboard;
@@ -17,17 +18,31 @@ import net.minecraft.client.MinecraftClient;
 @Mixin(Keyboard.class)
 public class GSKeyboardMixin {
 	
-	private GSKeyManager keyManager;
-	
 	@Shadow @Final private MinecraftClient client;
-	
-	@Inject(method="onKey(JIIII)V", at = @At("HEAD"))
+
+	@Inject(method = "onKey(JIIII)V", at = @At("HEAD"))
 	public void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
-		if (windowHandle == client.getWindow().getHandle() && action == GLFW.GLFW_RELEASE)
-			getKeyManager().onKeyReleased(key, scancode, mods);
+		if (windowHandle == client.getWindow().getHandle()) {
+			switch (action) {
+			case GLFW.GLFW_PRESS:
+				GSElementContext.getEventDispatcher().keyPressed(key, scancode, mods);
+				break;
+			case GLFW.GLFW_REPEAT:
+				GSElementContext.getEventDispatcher().keyRepeated(key, scancode, mods);
+				break;
+			case GLFW.GLFW_RELEASE:
+				GSElementContext.getEventDispatcher().keyReleased(key, scancode, mods);
+
+				// Sometimes keys can get stuck. Make sure we do not
+				// get key ghosting. This usually happens if a key
+				// opens a GUI.
+				getKeyManager().onKeyReleased(key, scancode, mods);
+				break;
+			}
+		}
 	}
 
-	@Inject(method="onKey(JIIII)V", at = @At(value = "INVOKE", shift = At.Shift.AFTER, 
+	@Inject(method = "onKey(JIIII)V", at = @At(value = "INVOKE", shift = At.Shift.AFTER, 
 			target = "Lnet/minecraft/client/options/KeyBinding;onKeyPressed(Lnet/minecraft/client/util/InputUtil$KeyCode;)V"))
 	public void onKeyPressRepeat(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		switch (action) {
@@ -41,8 +56,6 @@ public class GSKeyboardMixin {
 	}
 	
 	public GSKeyManager getKeyManager() {
-		if (keyManager == null)
-			keyManager = GSControllerClient.getInstance().getKeyManager();
-		return keyManager;
+		return GSControllerClient.getInstance().getKeyManager();
 	}
 }

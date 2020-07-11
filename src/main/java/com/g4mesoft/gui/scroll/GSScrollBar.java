@@ -1,18 +1,20 @@
 package com.g4mesoft.gui.scroll;
 
-import org.lwjgl.glfw.GLFW;
-
+import com.g4mesoft.gui.GSIElement;
 import com.g4mesoft.gui.GSPanel;
+import com.g4mesoft.gui.event.GSIMouseListener;
+import com.g4mesoft.gui.event.GSMouseEvent;
+import com.g4mesoft.gui.renderer.GSIRenderer2D;
+import com.g4mesoft.gui.renderer.GSTexture;
 import com.g4mesoft.util.GSMathUtils;
-import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.util.Identifier;
 
-public class GSScrollBar extends GSPanel {
+public class GSScrollBar extends GSPanel implements GSIMouseListener {
 
-	private static final Identifier SCROLL_BUTTON_TEXTURE = new Identifier("g4mespeed/textures/scroll_bar.png");
+	private static final Identifier TEXTURE_IDENTIFIER = new Identifier("g4mespeed/textures/scroll_bar.png");
+	private static final GSTexture SCROLL_BUTTON_TEXTURE = new GSTexture(TEXTURE_IDENTIFIER, 30, 40);
 	
 	private static final int KNOB_AREA_COLOR = 0xFF7F7F7F;
 	private static final int DISABLED_KNOB_AREA_COLOR = 0xFF595959;
@@ -21,7 +23,7 @@ public class GSScrollBar extends GSPanel {
 	private static final int HOVERED_KNOB_COLOR = 0xFFFFFFFF;
 	private static final int DISABLED_KNOB_COLOR = 0xFF7F7F7F;
 	
-	private static final double DEFAULT_SCROLL_AMOUNT = 20.0;
+	private static final float DEFAULT_SCROLL_AMOUNT = 20.0f;
 	
 	private static final int DEFAULT_SCROLL_BAR_WIDTH = 9;
 	private static final int DEFAULT_BUTTON_WIDTH = 9;
@@ -31,10 +33,12 @@ public class GSScrollBar extends GSPanel {
 	protected final GSIScrollableViewport parent;
 	private final GSIScrollListener listener;
 	
+	private final GSParentScrollHandler parentScrollHandler;
+	
 	private boolean vertical;
 
 	private boolean scrollDragActive;
-	private double scrollOffset;
+	private float scrollOffset;
 	
 	private boolean enabled;
 	
@@ -49,86 +53,85 @@ public class GSScrollBar extends GSPanel {
 	public GSScrollBar(GSIScrollableViewport parent, GSIScrollListener listener) {
 		this.parent = parent;
 		this.listener = listener;
+		
+		parentScrollHandler = new GSParentScrollHandler();
 
 		// Vertical by default
 		vertical = true;
 		
 		enabled = true;
+		
+		addMouseEventListener(this);
 	}
 
-	public void initVerticalLeft(MinecraftClient client, int xl, int yt, int height) {
-		initBounds(client, xl, yt, getPreferredScrollBarWidth(), height);
+	public void initVerticalLeft(int xl, int yt, int height) {
+		setBounds(xl, yt, getPreferredScrollBarWidth(), height);
 		
 		vertical = true;
 	}
 
-	public void initVerticalRight(MinecraftClient client, int xr, int yt, int height) {
-		initVerticalLeft(client, xr - getPreferredScrollBarWidth(), yt, height);
+	public void initVerticalRight(int xr, int yt, int height) {
+		initVerticalLeft(xr - getPreferredScrollBarWidth(), yt, height);
 	}
 	
-	public void initHorizontalTop(MinecraftClient client, int xl, int yt, int width) {
-		initBounds(client, xl, yt, width, getPreferredScrollBarWidth());
+	public void initHorizontalTop(int xl, int yt, int width) {
+		setBounds(xl, yt, width, getPreferredScrollBarWidth());
 
 		vertical = false;
 	}
 
-	public void initHorizontalBottom(MinecraftClient client, int xl, int yb, int width) {
-		initHorizontalTop(client, xl, yb - getPreferredScrollBarWidth(), width);
-	}
-	
-	/**
-	 * @see GSScrollBar#initVerticalLeft(MinecraftClient, int, int, int)
-	 * @see GSScrollBar#initVerticalRight(MinecraftClient, int, int, int)
-	 * @see GSScrollBar#initHorizontalTop(MinecraftClient, int, int, int)
-	 * @see GSScrollBar#initHorizontalBottom(MinecraftClient, int, int, int)
-	 */
-	@Override
-	@Deprecated
-	public final void initBounds(MinecraftClient client, int x, int y, int width, int height) {
-		super.initBounds(client, x, y, width, height);
+	public void initHorizontalBottom(int xl, int yb, int width) {
+		initHorizontalTop(xl, yb - getPreferredScrollBarWidth(), width);
 	}
 	
 	@Override
-	public void init() {
-		super.init();
+	public void onBoundsChanged() {
+		super.onBoundsChanged();
 
 		// Update the scroll offset to ensure that it is valid.
 		setScrollOffset(scrollOffset);
 	}
 	
 	@Override
-	public void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		drawScrollButtons(mouseX, mouseY);
-		
-		drawKnobArea();
-		drawKnob(mouseX, mouseY, isMouseOverKnob(mouseX, mouseY));
+	public void onAdded(GSIElement parent) {
+		super.onAdded(parent);
+
+		parent.addMouseEventListener(parentScrollHandler);
 	}
 	
-	protected void drawScrollButtons(int mouseX, int mouseY) {
-		client.getTextureManager().bindTexture(getScrollButtonTexture());
-		
-		GlStateManager.disableBlend();
-		GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		
-		drawScrollButton(mouseX, mouseY, true);
-		drawScrollButton(mouseX, mouseY, false);
-	}
+	@Override
+	public void onRemoved(GSIElement parent) {
+		super.onRemoved(parent);
 
-	protected void drawScrollButton(int mouseX, int mouseY, boolean top) {
+		parent.removeMouseEventListener(parentScrollHandler);
+	}
+	
+	@Override
+	public void render(GSIRenderer2D renderer) {
+		drawScrollButton(renderer, true);
+		drawScrollButton(renderer, false);
+		
+		drawKnobArea(renderer);
+		drawKnob(renderer);
+	}
+	
+	protected void drawScrollButton(GSIRenderer2D renderer, boolean top) {
 		int bp = top ? 0 : (isVertical() ? height : width) - getButtonHeight();
-		boolean hovered = isMouseOverScrollButton(mouseX, mouseY, top);
 
 		if (isVertical()) {
-			drawScrollButton(0, bp, getButtonWidth(), getButtonHeight(), top, hovered);
+			drawScrollButton(renderer, 0, bp, getButtonWidth(), getButtonHeight(), top);
 		} else {
-			drawScrollButton(bp, 0, getButtonHeight(), getButtonWidth(), top, hovered);
+			drawScrollButton(renderer, bp, 0, getButtonHeight(), getButtonWidth(), top);
 		}
 	}
 	
-	protected void drawScrollButton(int bx, int by, int bw, int bh, boolean top, boolean hovered) {
+	protected void drawScrollButton(GSIRenderer2D renderer, int bx, int by, int bw, int bh, boolean top) {
+		boolean hovered = renderer.isMouseInside(bx, by, bw, bh);
+		
 		int sx = getScrollButtonSpriteX(top, hovered);
 		int sy = getScrollButtonSpriteY(top, hovered);
-		blit(bx, by, sx, sy, bw, bh, getScrollButtonSpriteWidth(), getScrollButtonSpriteHeight());
+		
+		renderer.drawTexture(getScrollButtonTexture(), bx, by, bw, bh, sx, sy);
 	}
 
 	protected int getScrollButtonSpriteX(boolean top, boolean hovered) {
@@ -148,9 +151,6 @@ public class GSScrollBar extends GSPanel {
 	}
 
 	protected boolean isMouseOverScrollButton(int mouseX, int mouseY, boolean top) {
-		if (!isMouseOverScrollBar(mouseX, mouseY))
-			return false;
-		
 		int mousePos = isVertical() ? mouseY : mouseX;
 		if (top)
 			return (mousePos < getButtonHeight());
@@ -159,42 +159,32 @@ public class GSScrollBar extends GSPanel {
 		return (mousePos >= length - getButtonHeight());
 	}
 	
-	protected void drawKnobArea() {
-		int buttonHeight = getButtonHeight();
+	protected void drawKnobArea(GSIRenderer2D renderer) {
+		int bh = getButtonHeight();
 		
 		if (isVertical()) {
-			fill(0, buttonHeight, width, height - buttonHeight, 0xFF000000);
-			fill(1, buttonHeight, width - 1, height - buttonHeight, getKnobAreaColor());
+			renderer.fillRect(0, bh, width    , height - 2 * bh, 0xFF000000);
+			renderer.fillRect(1, bh, width - 2, height - 2 * bh, getKnobAreaColor());
 		} else {
-			fill(buttonHeight, 0, width - buttonHeight, height, 0xFF000000);
-			fill(buttonHeight, 1, width - buttonHeight, height - 1, getKnobAreaColor());
+			renderer.fillRect(bh, 0, width - 2 * bh, height    , 0xFF000000);
+			renderer.fillRect(bh, 1, width - 2 * bh, height - 2, getKnobAreaColor());
 		}
 	}
 
-	protected void drawKnob(int mouseX, int mouseY, boolean hovered) {
-		int k0 = getKnobPos();
-		int k1 = k0 + getKnobSize();
-		
-		int color = getKnobColor(hovered);
-		
-		if (isVertical()) {
-			fill(1, k0, width - 1, k1, color);
-		} else {
-			fill(k0, 1, k1, height - 1, color);
-		}
-	}
-	
-	protected boolean isMouseOverKnob(int mouseX, int mouseY) {
-		if (!isMouseOverScrollBar(mouseX, mouseY))
-			return false;
-		
-		int mp = isVertical() ? mouseY : mouseX;
-
+	protected void drawKnob(GSIRenderer2D renderer) {
 		int kp = getKnobPos();
-		return (mp >= kp && mp < kp + getKnobSize());
+		int ks = getKnobSize();
+		
+		if (isVertical()) {
+			boolean hovered = renderer.isMouseInside(0, kp, width, ks);
+			renderer.fillRect(1, kp, width - 2, ks, getKnobColor(hovered));
+		} else {
+			boolean hovered = renderer.isMouseInside(kp, 0, ks, height);
+			renderer.fillRect(kp, 1, ks, height - 2, getKnobColor(hovered));
+		}
 	}
 	
-	protected Identifier getScrollButtonTexture() {
+	protected GSTexture getScrollButtonTexture() {
 		return SCROLL_BUTTON_TEXTURE;
 	}
 	
@@ -225,7 +215,9 @@ public class GSScrollBar extends GSPanel {
 	}
 	
 	protected int getKnobSize() {
-		return Math.max(getKnobAreaSize() * getContentViewSize() / getContentSize(), getMinimumNobSize());
+		int contentSize = getContentSize();
+		int visibleContent = Math.min(getContentViewSize(), contentSize);
+		return Math.max(getKnobAreaSize() * visibleContent / contentSize, getMinimumNobSize());
 	}
 
 	protected int getKnobAreaSize() {
@@ -256,103 +248,68 @@ public class GSScrollBar extends GSPanel {
 		return DEFAULT_SCROLL_BAR_WIDTH;
 	}
 	
-	public double getDefaultScrollAmount() {
+	public float getDefaultScrollAmount() {
 		return DEFAULT_SCROLL_AMOUNT;
 	}
 	
 	@Override
-	public boolean onMouseClickedGS(double mouseX, double mouseY, int button) {
-		if (isMouseOverScrollBar(mouseX, mouseY)) {
-			if (enabled && button == GLFW.GLFW_MOUSE_BUTTON_1) {
-				double mousePos = isVertical() ? mouseY : mouseX;
+	public void mousePressed(GSMouseEvent event) {
+		if (enabled && event.getButton() == GSMouseEvent.BUTTON_LEFT) {
+			int mousePos = isVertical() ? event.getY() : event.getX();
 
-				int knobPos = getKnobPos();
-				if (mousePos < knobPos) {
-					onIncrementalScroll(-1);
-				} else if (mousePos >= knobPos + getKnobSize()) {
-					onIncrementalScroll(1);
-				} else {
-					scrollDragActive = true;
-				}
+			int knobPos = getKnobPos();
+			if (mousePos < knobPos) {
+				onIncrementalScroll(-1);
+			} else if (mousePos >= knobPos + getKnobSize()) {
+				onIncrementalScroll(1);
+			} else {
+				scrollDragActive = true;
 			}
-			
-			return true;
-		} else if (button == GLFW.GLFW_MOUSE_BUTTON_1) {
-			scrollDragActive = false;
+
+			event.consume();
 		}
-		
-		return false;
-	}
-	
-	protected boolean isMouseOverScrollBar(double mouseX, double mouseY) {
-		return (mouseX >= 0.0 && mouseY >= 0.0 && mouseX < width && mouseY < height);
 	}
 	
 	private void onIncrementalScroll(int sign) {
-		double scrollAmount = getIncrementalScroll(sign);
-		if (Double.isNaN(scrollAmount) || scrollAmount < 0.0)
+		float scrollAmount = getIncrementalScroll(sign);
+		if (Float.isNaN(scrollAmount) || scrollAmount < 0.0)
 			scrollAmount = getDefaultScrollAmount();
 		
 		setScrollOffset(scrollOffset + sign * scrollAmount);
 	}
 	
-	protected double getIncrementalScroll(int sign) {
+	protected float getIncrementalScroll(int sign) {
 		return isVertical() ? parent.getIncrementalScrollY(sign) : parent.getIncrementalScrollX(sign);
 	}
 
 	@Override
-	public boolean onMouseReleasedGS(double mouseX, double mouseY, int button) {
-		if (button == GLFW.GLFW_MOUSE_BUTTON_1)
+	public void mouseReleased(GSMouseEvent event) {
+		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
 			scrollDragActive = false;
-		return false;
+			event.consume();
+		}
 	}
 	
 	@Override
-	public boolean onMouseDraggedGS(double mouseX, double mouseY, int button, double dragX, double dragY) {
-		if (enabled && button == GLFW.GLFW_MOUSE_BUTTON_1 && scrollDragActive) {
-			double delta = isVertical() ? dragY : dragX;
+	public void mouseDragged(GSMouseEvent event) {
+		if (enabled && event.getButton() == GSMouseEvent.BUTTON_LEFT && scrollDragActive) {
+			float delta = isVertical() ? event.getDragY() : event.getDragX();
 
 			int compAreaSize = getKnobAreaSize() - getKnobSize();
 			if (compAreaSize > 0)
-				delta *= (double)getMaxScrollOffset() / compAreaSize;
+				delta *= (float)getMaxScrollOffset() / compAreaSize;
 			
 			setScrollOffset(scrollOffset + delta);
-			return true;
-		}
-		
-		return false;
-	}
-	
-	@Override
-	public boolean onMouseScrolledGS(double mouseX, double mouseY, double scrollX, double scrollY) {
-		// In case the user is trying to zoom in or out we should not
-		// scroll. This has different behavior on different platforms.
-		if (Screen.hasControlDown())
-			return false;
-		
-		// Shift will flip the xScroll and yScroll. This makes it
-		// possible to scroll horizontally without any xScroll.
-		double actualScroll = (isVertical() != Screen.hasShiftDown()) ? scrollY : scrollX; 
-
-		// Translate into the parent's viewport. See #GSAbstractScrollBar.
-		mouseX += x;
-		mouseY += y;
-		
-		if (enabled && mouseX >= 0.0 && mouseY >= 0.0 && mouseX < parent.getWidth() && mouseY < parent.getHeight()) {
-			setScrollOffset(scrollOffset - actualScroll * getDefaultScrollAmount());
 			
-			// Do not suppress further updates
-			//return true;
+			event.consume();
 		}
-		
-		return false;
 	}
 	
-	public void setScrollOffset(double scroll) {
+	public void setScrollOffset(float scroll) {
 		if (listener != null)
 			listener.preScrollChanged(scroll);
 		
-		scrollOffset = GSMathUtils.clamp(scroll, 0.0, getMaxScrollOffset());
+		scrollOffset = GSMathUtils.clamp(scroll, 0.0f, getMaxScrollOffset());
 		
 		if (listener != null)
 			listener.scrollChanged(scrollOffset);
@@ -366,7 +323,7 @@ public class GSScrollBar extends GSPanel {
 		return vertical;
 	}
 	
-	public double getScrollOffset() {
+	public float getScrollOffset() {
 		return scrollOffset;
 	}
 	
@@ -380,5 +337,33 @@ public class GSScrollBar extends GSPanel {
 	
 	public boolean isScrollDragActive() {
 		return scrollDragActive;
+	}
+	
+	private class GSParentScrollHandler implements GSIMouseListener {
+		
+		@Override
+		public void mouseScrolled(GSMouseEvent event) {
+			// In case the user is trying to zoom in or out we should not
+			// scroll. This has different behavior on different platforms.
+			if (!Screen.hasControlDown() && !Screen.hasAltDown()) {
+				float scroll;
+
+				// Shift will flip the xScroll and yScroll. This makes it
+				// possible to scroll horizontally without any xScroll.
+				if (isVertical() != Screen.hasShiftDown()) {
+					scroll = event.getScrollY(); 
+				} else {
+					scroll = event.getScrollX();
+				}
+			
+				int mx = event.getX();
+				int my = event.getY();
+				
+				if (enabled && mx >= 0.0 && my >= 0.0 && mx < parent.getWidth() && my < parent.getHeight()) {
+					setScrollOffset(scrollOffset - scroll * getDefaultScrollAmount());
+					event.consume();
+				}
+			}
+		}
 	}
 }

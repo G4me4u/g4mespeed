@@ -16,7 +16,9 @@
     "server.GSPlayerManagerMixin",
     "server.GSClientConnectionMixin",
     
-    "server.GSTranslatableTextMixin"
+    "server.GSTranslatableTextMixin",
+    
+    "server.GSPistonBlockEntityMixin"
   ],
   "client": [
     "client.GSMinecraftClientMixin",
