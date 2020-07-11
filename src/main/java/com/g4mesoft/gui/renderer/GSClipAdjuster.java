@@ -1,4 +1,4 @@
-package com.g4mesoft.gui;
+package com.g4mesoft.gui.renderer;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
@@ -17,8 +17,8 @@ public class GSClipAdjuster {
 	private final float[] clipXBuffer;
 	private final float[] clipYBuffer;
 	
-	private float clipXOffset;
-	private float clipYOffset;
+	private float clipOffsetX;
+	private float clipOffsetY;
 	
 	private LinkedList<GSClipRect> clipRectStack;
 	
@@ -26,7 +26,7 @@ public class GSClipAdjuster {
 		clipXBuffer = new float[4];
 		clipYBuffer = new float[4];
 	
-		clipXOffset = clipYOffset = 0.0f;
+		clipOffsetX = clipOffsetY = 0.0f;
 	
 		clipRectStack = new LinkedList<GSClipRect>();
 	}
@@ -199,23 +199,23 @@ public class GSClipAdjuster {
 	}
 	
 	public void pushClip(GSClipRect clipRect) {
-		clipRectStack.push(clipRect.offset(clipXOffset, clipYOffset));
+		clipRectStack.push(clipRect.offset(clipOffsetX, clipOffsetY));
 	}
 
 	public GSClipRect popClip() {
 		return clipRectStack.remove();
 	}
 	
-	public void setClipOffset(float xOffset, float yOffset) {
-		clipXOffset = xOffset;
-		clipYOffset = yOffset;
+	public void setClipOffset(float offsetX, float offsetY) {
+		clipOffsetX = offsetX;
+		clipOffsetY = offsetY;
 	}
 	
-	public float getClipXOffset() {
-		return clipXOffset;
+	public float getClipOffsetX() {
+		return clipOffsetX;
 	}
 
-	public float getClipYOffset() {
-		return clipYOffset;
+	public float getClipOffsetY() {
+		return clipOffsetY;
 	}
 }

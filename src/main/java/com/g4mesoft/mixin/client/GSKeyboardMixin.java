@@ -8,27 +8,37 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.access.GSIKeyboardAccess;
 import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.gui.GSElementContext;
 import com.g4mesoft.hotkey.GSKeyManager;
 
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
 
 @Mixin(Keyboard.class)
-public class GSKeyboardMixin implements GSIKeyboardAccess {
+public class GSKeyboardMixin {
 	
 	@Shadow @Final private MinecraftClient client;
 
-	private boolean repeatingKeyEvent;
-	
 	@Inject(method = "onKey(JIIII)V", at = @At("HEAD"))
 	public void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		if (windowHandle == client.window.getHandle()) {
-			repeatingKeyEvent = (action == GLFW.GLFW_REPEAT);
-			
-			if (action == GLFW.GLFW_RELEASE)
+			switch (action) {
+			case GLFW.GLFW_PRESS:
+				GSElementContext.getEventDispatcher().keyPressed(key, scancode, mods);
+				break;
+			case GLFW.GLFW_REPEAT:
+				GSElementContext.getEventDispatcher().keyRepeated(key, scancode, mods);
+				break;
+			case GLFW.GLFW_RELEASE:
+				GSElementContext.getEventDispatcher().keyReleased(key, scancode, mods);
+
+				// Sometimes keys can get stuck. Make sure we do not
+				// get key ghosting. This usually happens if a key
+				// opens a GUI.
 				getKeyManager().onKeyReleased(key, scancode, mods);
+				break;
+			}
 		}
 	}
 
@@ -47,10 +57,5 @@ public class GSKeyboardMixin implements GSIKeyboardAccess {
 	
 	public GSKeyManager getKeyManager() {
 		return GSControllerClient.getInstance().getKeyManager();
-	}
-
-	@Override
-	public boolean isRepeatingKeyEvent() {
-		return repeatingKeyEvent;
 	}
 }

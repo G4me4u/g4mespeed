@@ -1,6 +1,6 @@
 package com.g4mesoft.access;
 
-import com.g4mesoft.gui.GSClipRect;
+import com.g4mesoft.gui.renderer.GSClipRect;
 
 public interface GSIBufferBuilderAccess {
 
@@ -18,10 +18,10 @@ public interface GSIBufferBuilderAccess {
 
 	public void setVertexCount(int vertexCount);
 
-	public void setClipOffset(float xOffset, float yOffset);
+	public void setClipOffset(float offsetX, float offsetY);
 	
-	public float getClipXOffset();
+	public float getClipOffsetX();
 
-	public float getClipYOffset();
+	public float getClipOffsetY();
 	
 }

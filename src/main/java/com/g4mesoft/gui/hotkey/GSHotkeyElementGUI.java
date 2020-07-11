@@ -1,17 +1,20 @@
 package com.g4mesoft.gui.hotkey;
 
-import org.lwjgl.glfw.GLFW;
-
+import com.g4mesoft.gui.GSIElement;
 import com.g4mesoft.gui.GSParentPanel;
+import com.g4mesoft.gui.action.GSButtonPanel;
+import com.g4mesoft.gui.event.GSIKeyListener;
+import com.g4mesoft.gui.event.GSIMouseListener;
+import com.g4mesoft.gui.event.GSKeyEvent;
+import com.g4mesoft.gui.event.GSMouseEvent;
+import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.hotkey.GSKeyBinding;
-import com.g4mesoft.module.translation.GSTranslationModule;
 
-import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.InputUtil.KeyCode;
 import net.minecraft.util.Formatting;
 
-public class GSHotkeyElementGUI extends GSParentPanel {
+public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListener, GSIKeyListener {
 
 	private static final int HOTKEY_HEIGHT = 20;
 	private static final int HOTKEY_PADDING = 2;
@@ -29,23 +32,36 @@ public class GSHotkeyElementGUI extends GSParentPanel {
 	private final GSHotkeyGUI hotkeyGui;
 	private final GSKeyBinding keyBinding;
 	
-	private final String keyName;
+	private final String nameTranslationKey;
 	private String localizedKeyCodeName;
 
 	private boolean modifyingKeyCode;
-	private ButtonWidget modifyButton;
-	private ButtonWidget resetButton;
+	private final GSButtonPanel modifyButton;
+	private final GSButtonPanel resetButton;
 	
 	public GSHotkeyElementGUI(GSHotkeyGUI hotkeyGui, GSKeyBinding keyBinding) {
 		this.hotkeyGui = hotkeyGui;
 		this.keyBinding = keyBinding;
 		
-		this.keyName = "hotkey." + keyBinding.getCategory() + "." + keyBinding.getName();
+		nameTranslationKey = "hotkey." + keyBinding.getCategory() + "." + keyBinding.getName();
+	
+		resetButton = new GSButtonPanel(RESET_TEXT, () -> {
+			if (modifyingKeyCode) {
+				setModifying(false);
+			} else if (hotkeyGui.getChangingElement() == null) {
+				setKeyCode(keyBinding.getDefaultKeyCode());
+			}
+		});
+		
+		modifyButton = new GSButtonPanel("", () -> setModifying(true));
+		
+		add(resetButton);
+		add(modifyButton);
 	}
 
 	@Override
-	public void init() {
-		super.init();
+	public void onBoundsChanged() {
+		super.onBoundsChanged();
 
 		localizedKeyCodeName = keyBinding.getLocalizedName();
 		
@@ -53,21 +69,26 @@ public class GSHotkeyElementGUI extends GSParentPanel {
 		int rbx = width - RESET_BUTTON_WIDTH - HOTKEY_PADDING;
 		int mbx = rbx - MODIFY_BUTTON_WIDTH - HOTKEY_PADDING;
 
-		resetButton = new ButtonWidget(rbx, by, RESET_BUTTON_WIDTH, HOTKEY_HEIGHT, "", b -> {
-			if (modifyingKeyCode) {
-				setModifying(false);
-			} else if (hotkeyGui.getChangingElement() == null) {
-				setKeyCode(keyBinding.getDefaultKeyCode());
-			}
-		});
+		resetButton.setBounds(rbx, by, RESET_BUTTON_WIDTH, HOTKEY_HEIGHT);
+		modifyButton.setBounds(mbx, by, MODIFY_BUTTON_WIDTH, HOTKEY_HEIGHT);
 
-		modifyButton = new ButtonWidget(mbx, by, MODIFY_BUTTON_WIDTH, HOTKEY_HEIGHT, "", b -> {
-			setModifying(true);
-		});
-
-		addWidget(resetButton);
-		addWidget(modifyButton);
 		updateButtons();
+	}
+	
+	@Override
+	public void onAdded(GSIElement parent) {
+		super.onAdded(parent);
+
+		parent.addMouseEventListener(this);
+		parent.addKeyEventListener(this);
+	}
+
+	@Override
+	public void onRemoved(GSIElement parent) {
+		super.onAdded(parent);
+		
+		parent.removeMouseEventListener(this);
+		parent.removeKeyEventListener(this);
 	}
 	
 	private void updateButtons() {
@@ -76,39 +97,32 @@ public class GSHotkeyElementGUI extends GSParentPanel {
 	}
 	
 	private void updateResetButton() {
-		if (resetButton == null)
-			return;
+		resetButton.setEnabled(modifyingKeyCode || !keyBinding.getKeyCode().equals(keyBinding.getDefaultKeyCode()));
 		
-		resetButton.active = modifyingKeyCode || !keyBinding.getKeyCode().equals(keyBinding.getDefaultKeyCode());
-		
-		GSTranslationModule translationModule = getTranslationModule();
 		if (modifyingKeyCode) {
-			resetButton.setMessage(translationModule.getTranslation(CANCEL_TEXT));
+			resetButton.setTranslationKey(CANCEL_TEXT);
 		} else {
-			resetButton.setMessage(translationModule.getTranslation(RESET_TEXT));
+			resetButton.setTranslationKey(RESET_TEXT);
 		}
 	}
 	
 	private void updateModifyButton() {
-		if (modifyButton == null)
-			return;
-		
 		if (modifyingKeyCode) {
-			modifyButton.setMessage("> " + Formatting.YELLOW + localizedKeyCodeName + Formatting.RESET + " <");
+			modifyButton.setLiteralText("> " + Formatting.YELLOW + localizedKeyCodeName + Formatting.RESET + " <");
 		} else {
-			modifyButton.setMessage(localizedKeyCodeName);
+			modifyButton.setLiteralText(localizedKeyCodeName);
 		}
 	}
 	
 	@Override
-	protected void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-		if (mouseX >= 0 && mouseY >= 0 && mouseX < width && mouseY < height)
-			fill(0, 0, width, height, HOVERED_BACKGROUND);
+	public void render(GSIRenderer2D renderer) {
+		if (renderer.isMouseInside(0, 0, width, height))
+			renderer.fillRect(0, 0, width, height, HOVERED_BACKGROUND);
 
-		super.renderTranslated(mouseX, mouseY, partialTicks);
+		super.render(renderer);
 
-		String name = getTranslationModule().getTranslation(keyName);
-		drawString(font, name, HOTKEY_PADDING, (height - font.fontHeight) / 2, FONT_COLOR);
+		int ty = (height - renderer.getFontHeight()) / 2;
+		renderer.drawString(i18nTranslate(nameTranslationKey), HOTKEY_PADDING, ty, FONT_COLOR);
 	}
 
 	private void setKeyCode(KeyCode keyCode) {
@@ -128,33 +142,31 @@ public class GSHotkeyElementGUI extends GSParentPanel {
 			hotkeyGui.setChangingElement(null);
 			updateButtons();
 		}
-	}
-	
-	@Override
-	public boolean onKeyPressedGS(int key, int scancode, int mods, boolean repeating) {
-		if (modifyingKeyCode && !resetButton.isFocused()) {
-			if (key == GLFW.GLFW_KEY_ESCAPE) {
-				setKeyCode(InputUtil.UNKNOWN_KEYCODE);
-			} else {
-				setKeyCode(InputUtil.getKeyCode(key, scancode));
-			}
-			
-			setModifying(false);
-			return true;
-		}
 		
-		return super.onKeyPressedGS(key, scancode, mods, repeating);
+		modifyButton.setPassingEvents(modifying);
 	}
 
 	@Override
-	public boolean onMouseClickedGS(double mouseX, double mouseY, int button, int mods) {
-		if (modifyingKeyCode && !resetButton.isHovered()) {
-			setKeyCode(InputUtil.Type.MOUSE.createFromCode(button));
+	public void mousePressed(GSMouseEvent event) {
+		if (modifyingKeyCode) {
+			setKeyCode(InputUtil.Type.MOUSE.createFromCode(event.getButton()));
 			setModifying(false);
-			return true;
+			event.consume();
 		}
-		
-		return super.onMouseClickedGS(mouseX, mouseY, button, mods);
+	}
+	
+	@Override
+	public void keyPressed(GSKeyEvent event) {
+		if (modifyingKeyCode) {
+			if (event.getKeyCode() == GSKeyEvent.KEY_ESCAPE) {
+				setKeyCode(InputUtil.UNKNOWN_KEYCODE);
+			} else if (event.getKeyCode() != GSKeyEvent.UNKNOWN_KEY) {
+				setKeyCode(InputUtil.getKeyCode(event.getKeyCode(), event.getScanCode()));
+			}
+			
+			setModifying(false);
+			event.consume();
+		}
 	}
 	
 	public int getPreferredHeight() {

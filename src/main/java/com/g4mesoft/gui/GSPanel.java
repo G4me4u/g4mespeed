@@ -1,232 +1,140 @@
 package com.g4mesoft.gui;
 
-import com.g4mesoft.access.GSIBufferBuilderAccess;
-import com.g4mesoft.access.GSIKeyboardAccess;
-import com.g4mesoft.access.GSIMouseAccess;
-import com.g4mesoft.core.GSCoreOverride;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
+import com.g4mesoft.gui.event.GSIFocusEventListener;
+import com.g4mesoft.gui.event.GSIKeyListener;
+import com.g4mesoft.gui.event.GSIMouseListener;
+import com.g4mesoft.gui.renderer.GSIRenderer2D;
 
-public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDrawableHelper, GSIViewport {
-
-	private boolean selected;
+public class GSPanel implements GSIElement {
 	
-	protected MinecraftClient client;
-	protected TextRenderer font;
+	private static final int BACKGROUND_TOP_COLOR    = 0xC0101010;
+	private static final int BACKGROUND_BOTTOM_COLOR = 0xD0101010;
 	
-	private boolean added;
-	private boolean focused;
+	private GSIElement parent;
 	
 	public int x;
 	public int y;
 	public int width;
 	public int height;
 	
+	private List<GSIMouseListener> mouseEventListeners;
+	private List<GSIKeyListener> keyEventListeners;
+	private List<GSIFocusEventListener> focusEventListeners;
+	
+	private boolean passingEvents;
+	private boolean focused;
+
+	protected GSCursorType cursor;
+	
 	protected GSPanel() {
-		setSelected(true);
+		parent = null;
+		
+		mouseEventListeners = null;
+		keyEventListeners = null;
+		focusEventListeners = null;
+		
+		focused = false;
+		
+		cursor = GSCursorType.DEFAULT;
 	}
 	
-	public void initBounds(MinecraftClient client, int x, int y, int width, int height) {
-		if (this.client == null || this.x != x || this.y != y || this.width != width || this.height != height) {
+	@Override
+	public void setBounds(int x, int y, int width, int height) {
+		if (width < 0 || height < 0)
+			throw new IllegalArgumentException("width and height must be non-negative!");
+		
+		if (this.x != x || this.y != y || this.width != width || this.height != height) {
 			this.x = x;
 			this.y = y;
 			this.width = width;
 			this.height = height;
 		
-			this.client = client;
-			this.font = client.textRenderer;
-			
-			init();
+			onBoundsChanged();
 		}
 	}
 
-	public void init() {
+	protected void onBoundsChanged() {
 	}
 
-	protected void onAdded() {
-		added = true;
+	@Override
+	public void onAdded(GSIElement parent) {
+		if (this.parent != null)
+			throw new IllegalStateException("Panel already has a parent!");
+		if (parent == null)
+			throw new IllegalArgumentException("parent is null!");
+		if (parent == this)
+			throw new IllegalArgumentException("Can not set parent to self!");
+		
+		this.parent = parent;
 	}
 
-	protected void onRemoved() {
-		added = false;
+	@Override
+	public void onRemoved(GSIElement parent) {
+		if (parent == null || parent != this.parent)
+			throw new IllegalArgumentException("Panel does not have the specified parent!");
+		
+		this.parent = null;
+		
 		focused = false;
-		
-		// Used when initializing to check if the panel
-		// was removed from its parent.
-		client = null;
-	}
-	
-	public void tick() {
-	}
-	
-	protected int getTranslationX() {
-		return x;
-	}
-
-	protected int getTranslationY() {
-		return y;
-	}
-	
-	@Deprecated
-	public void render(int mouseX, int mouseY, float partialTicks) {
-		int tx = getTranslationX();
-		int ty = getTranslationY();
-
-		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
-		double oldOffsetX = ((GSIBufferBuilderAccess)buffer).getOffsetX();
-		double oldOffsetY = ((GSIBufferBuilderAccess)buffer).getOffsetY();
-		double oldOffsetZ = ((GSIBufferBuilderAccess)buffer).getOffsetZ();
-		
-		float oldClipOffsetX = ((GSIBufferBuilderAccess)buffer).getClipXOffset();
-		float oldClipOffsetY = ((GSIBufferBuilderAccess)buffer).getClipYOffset();
-		
-		buffer.setOffset(oldOffsetX + tx, oldOffsetY + ty, oldOffsetZ);
-		((GSIBufferBuilderAccess)buffer).setClipOffset(oldClipOffsetX + tx, oldClipOffsetY + ty);
-		
-		renderTranslated(mouseX - tx, mouseY - ty, partialTicks);
-
-		((GSIBufferBuilderAccess)buffer).setClipOffset(oldClipOffsetX, oldClipOffsetY);
-		buffer.setOffset(oldOffsetX, oldOffsetY, oldOffsetZ);
-	}
-	
-	protected void renderTranslated(int mouseX, int mouseY, float partialTicks) {
-	}
-
-	public void setSelected(boolean selected) {
-		this.selected = selected;
-	}
-
-	public boolean isSelected() {
-		return selected;
-	}
-	
-	private double translateMouseX(double mouseX) {
-		return mouseX - getTranslationX();
-	}
-
-	private double translateMouseY(double mouseY) {
-		return mouseY - getTranslationY();
 	}
 	
 	@Override
-	@Deprecated
-	@GSCoreOverride
-	public final void mouseMoved(double mouseX, double mouseY) {
-		if (selected)
-			onMouseMovedGS(translateMouseX(mouseX), translateMouseY(mouseY));
-	}
-
-	@Override
-	@Deprecated
-	@GSCoreOverride
-	public final boolean mouseClicked(double mouseX, double mouseY, int button) {
-		int mods = ((GSIMouseAccess)client.mouse).getButtonMods();
-		return selected && onMouseClickedGS(translateMouseX(mouseX), translateMouseY(mouseY), button, mods);
-	}
-
-	@Override
-	@Deprecated
-	@GSCoreOverride
-	public final boolean mouseReleased(double mouseX, double mouseY, int button) {
-		int mods = ((GSIMouseAccess)client.mouse).getButtonMods();
-		return selected && onMouseReleasedGS(translateMouseX(mouseX), translateMouseY(mouseY), button, mods);
-	}
-
-	@Override
-	@Deprecated
-	@GSCoreOverride
-	public final boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-		return selected && onMouseDraggedGS(translateMouseX(mouseX), translateMouseY(mouseY), button, dragX, dragY);
+	public void update() {
 	}
 	
 	@Override
-	@Deprecated
-	@GSCoreOverride
-	public final boolean keyPressed(int key, int scancode, int mods) {
-		boolean repeating = ((GSIKeyboardAccess)client.keyboard).isRepeatingKeyEvent();
-		if (preKeyPressed(key, scancode, mods, repeating))
-			return true;
-		return selected && onKeyPressedGS(key, scancode, mods, repeating);
-	}
-
-	@Override
-	@Deprecated
-	@GSCoreOverride
-	public final boolean keyReleased(int key, int scancode, int mods) {
-		if (preKeyReleased(key, scancode, mods))
-			return true;
-		return selected && onKeyReleasedGS(key, scancode, mods);
-	}
-
-	@Override
-	@Deprecated
-	@GSCoreOverride
-	public final boolean charTyped(char c, int mods) {
-		return selected && onCharTypedGS(c, mods);
+	public void preRender(GSIRenderer2D renderer) {
+		renderer.pushTransform();
+		renderer.translate(x, y);
 	}
 	
 	@Override
-	@Deprecated
-	@GSCoreOverride
-	public final boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
-		if (!selected)
-			return false;
-		
-		double scrollX = ((GSIMouseAccess)client.mouse).getScrollX();
-		return onMouseScrolledGS(translateMouseX(mouseX), translateMouseY(mouseY), scrollX, scrollY);
+	public void render(GSIRenderer2D renderer) {
 	}
 	
 	@Override
-	@GSCoreOverride
-	public final boolean isMouseOver(double mouseX, double mouseY) {
-		if (!selected)
-			return false;
-		
-		return mouseX >= x && mouseX < x + width && 
-		       mouseY >= y && mouseY < y + height;
+	public void postRender(GSIRenderer2D renderer) {
+		renderer.popTransform();
+	}
+	
+	protected void renderBackground(GSIRenderer2D renderer) {
+		renderer.fillRectGradient(0, 0, width, height, BACKGROUND_TOP_COLOR, BACKGROUND_BOTTOM_COLOR);
 	}
 	
 	@Override
 	public boolean isAdded() {
-		return added;
+		return (parent != null);
 	}
 	
 	@Override
-	public boolean isElementFocused() {
-		return focused;
+	public GSIElement getParent() {
+		return parent;
 	}
 	
 	@Override
-	public void setElementFocused(boolean focused) {
-		this.focused = focused;
-	}
-	
-	boolean preKeyPressed(int keyCode, int scanCode, int modifiers, boolean repeat) {
-		return false;
-	}
-	
-	boolean preKeyReleased(int keyCode, int scanCode, int modifiers) {
-		return false;
+	public GSIElement getChildAt(int x, int y) {
+		return null;
 	}
 	
 	@Override
-	public boolean isEditingText() {
-		return false;
+	public boolean isInBounds(int x, int y) {
+		if (x < this.x || x >= this.x + width)
+			return false;
+		if (y < this.y || y >= this.y + height)
+			return false;
+		return true;
 	}
 	
 	@Override
-	public TextRenderer getFont() {
-		return font;
-	}
-	
 	public int getX() {
 		return x;
 	}
 
+	@Override
 	public int getY() {
 		return y;
 	}
@@ -239,5 +147,155 @@ public abstract class GSPanel extends DrawableHelper implements GSElement, GSIDr
 	@Override
 	public int getHeight() {
 		return height;
+	}
+	
+	@Override
+	public void addMouseEventListener(GSIMouseListener eventListener) {
+		if (mouseEventListeners == null)
+			mouseEventListeners = new ArrayList<GSIMouseListener>(1);
+		
+		mouseEventListeners.add(eventListener);
+	}
+
+	@Override
+	public void removeMouseEventListener(GSIMouseListener eventListener) {
+		if (mouseEventListeners != null) {
+			mouseEventListeners.remove(eventListener);
+			
+			if (mouseEventListeners.isEmpty())
+				mouseEventListeners = null;
+		}
+	}
+
+	@Override
+	public List<GSIMouseListener> getMouseEventListeners() {
+		if (mouseEventListeners == null)
+			return Collections.emptyList();
+		return Collections.unmodifiableList(mouseEventListeners);
+	}
+	
+	@Override
+	public void addKeyEventListener(GSIKeyListener eventListener) {
+		if (keyEventListeners == null)
+			keyEventListeners = new ArrayList<GSIKeyListener>(1);
+		
+		keyEventListeners.add(eventListener);
+	}
+	
+	@Override
+	public void removeKeyEventListener(GSIKeyListener eventListener) {
+		if (keyEventListeners != null) {
+			keyEventListeners.remove(eventListener);
+			
+			if (keyEventListeners.isEmpty())
+				keyEventListeners = null;
+		}
+	}
+
+	@Override
+	public List<GSIKeyListener> getKeyEventListeners() {
+		if (keyEventListeners == null)
+			return Collections.emptyList();
+		return Collections.unmodifiableList(keyEventListeners);
+	}
+
+	@Override
+	public void addFocusEventListener(GSIFocusEventListener eventListener) {
+		if (focusEventListeners == null)
+			focusEventListeners = new ArrayList<GSIFocusEventListener>(1);
+		
+		focusEventListeners.add(eventListener);
+	}
+	
+	@Override
+	public void removeFocusEventListener(GSIFocusEventListener eventListener) {
+		if (focusEventListeners != null) {
+			focusEventListeners.remove(eventListener);
+			
+			if (focusEventListeners.isEmpty())
+				focusEventListeners = null;
+		}
+	}
+
+	@Override
+	public List<GSIFocusEventListener> getFocusEventListeners() {
+		if (focusEventListeners == null)
+			return Collections.emptyList();
+		return Collections.unmodifiableList(focusEventListeners);
+	}
+
+	@Override
+	public boolean isPassingEvents() {
+		return passingEvents;
+	}
+	
+	@Override
+	public void setPassingEvents(boolean passingEvents) {
+		this.passingEvents = passingEvents;
+	}
+	
+	@Override
+	public boolean isFocused() {
+		return focused;
+	}
+	
+	@Override
+	public void setFocused(boolean focused) {
+		this.focused = focused;
+	}
+	
+	@Override
+	public void requestFocus() {
+		GSElementContext.requestFocus(this);
+	}
+	
+	@Override
+	public boolean isEditingText() {
+		return false;
+	}
+	
+	@Override
+	public GSCursorType getCursor() {
+		return cursor;
+	}
+
+	@Override
+	public void setCursor(GSCursorType cursor) {
+		if (cursor == null)
+			throw new IllegalArgumentException("cursor is null!");
+		
+		this.cursor = cursor;
+	}
+	
+	@Override
+	public int getEventOffsetX() {
+		return x;
+	}
+
+	@Override
+	public int getEventOffsetY() {
+		return y;
+	}
+	
+	public boolean hasI18nTranslation(String key) {
+		return GSElementContext.hasI18nTranslation(key);
+	}
+	
+	public String i18nTranslate(String key) {
+		return GSElementContext.i18nTranslate(key);
+	}
+
+	public String i18nTranslateFormatted(String key, Object... args) {
+		return GSElementContext.i18nTranslateFormatted(key, args);
+	}
+
+	@Override
+	public final int hashCode() {
+		return super.hashCode();
+	}
+	
+	@Override
+	public final boolean equals(Object other) {
+		return super.equals(other);
 	}
 }

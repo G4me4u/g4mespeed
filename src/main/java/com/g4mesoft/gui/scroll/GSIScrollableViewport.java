@@ -16,11 +16,11 @@ public interface GSIScrollableViewport extends GSIViewport {
 		return getHeight();
 	}
 	
-	default public double getIncrementalScrollX(int sign) {
-		return Double.NaN;
+	default public float getIncrementalScrollX(int sign) {
+		return Float.NaN;
 	}
 
-	default public double getIncrementalScrollY(int sign) {
-		return Double.NaN;
+	default public float getIncrementalScrollY(int sign) {
+		return Float.NaN;
 	}
 }

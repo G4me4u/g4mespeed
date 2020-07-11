@@ -4,21 +4,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.lwjgl.glfw.GLFW;
-
-import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.gui.event.GSIKeyListener;
+import com.g4mesoft.gui.event.GSIMouseListener;
+import com.g4mesoft.gui.event.GSKeyEvent;
+import com.g4mesoft.gui.event.GSMouseEvent;
+import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.hotkey.GSKeyBinding;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.sound.SoundManager;
 import net.minecraft.sound.SoundEvents;
 
 @Environment(EnvType.CLIENT)
-public class GSTabbedGUI extends GSScreen {
+public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener, GSIKeyListener {
 
 	private static final int TAB_VERTICAL_PADDING = 5;
 	private static final int TAB_HORIZONTAL_PADDING = 5;
@@ -44,44 +44,53 @@ public class GSTabbedGUI extends GSScreen {
 	public GSTabbedGUI() {
 		tabs = new ArrayList<GSTabEntry>();
 		selectedTabIndex = -1;
+		
+		addMouseEventListener(this);
+		addKeyEventListener(this);
 	}
 
+	@Override
+	public void onBoundsChanged() {
+		super.onBoundsChanged();
+		
+		tabsChanged = true;
+	}
+	
 	public void addTab(String title, GSPanel tabContent) {
 		tabs.add(new GSTabEntry(title, tabContent));
 		tabsChanged = true;
 
-		if (tabContent != null)
-			tabContent.setSelected(false);
-		
 		if (selectedTabIndex == -1)
 			setSelectedTabIndex(0);
 	}
 
 	public void setSelectedTabIndex(int index) {
-		GSTabEntry tab = getSelectedTab();
-		if (tab != null && tab.getTabContent() != null)
-			tab.getTabContent().setSelected(false);
+		if (index != -1 && (index < 0 || index >= tabs.size()))
+			throw new IllegalArgumentException("Invalid tab index: " + index);
+		
+		if (selectedTabIndex != -1)
+			remove(getTabContent(selectedTabIndex));
 		
 		selectedTabIndex = index;
 
-		tab = getSelectedTab();
-		if (tab != null && tab.getTabContent() != null) {
-			tab.getTabContent().setSelected(true);
-			
-			if (getFocused() != tab.getTabContent())
-				setFocused(tab.getTabContent());
-		}
+		if (index != -1)
+			add(getTabContent(index));
 	}
 	
-	public GSTabEntry getSelectedTab() {
-		return (selectedTabIndex != -1) ? tabs.get(selectedTabIndex) : null;
+	public GSPanel getTabContent(int index) {
+		return (index != -1) ? tabs.get(index).getTabContent() : null;
 	}
 
-	private void layoutTabs() {
-		tabHeight = font.fontHeight + TAB_VERTICAL_PADDING * 2;
+	private void layoutTabs(GSIRenderer2D renderer) {
+		tabHeight = renderer.getFontHeight() + TAB_VERTICAL_PADDING * 2;
 
-		for (GSTabEntry tab : tabs)
-			tab.setWidth(font.getStringWidth(tab.getTranslatedTitle()) + TAB_HORIZONTAL_PADDING * 2);
+		for (GSTabEntry tab : tabs) {
+			String title = i18nTranslate(tab.getTitle());
+			int titleWidth = (int)Math.ceil(renderer.getStringWidth(title));
+
+			tab.setDisplayTitle(title);
+			tab.setWidth(titleWidth + TAB_HORIZONTAL_PADDING * 2);
+		}
 
 		int contentWidth = Math.max(width - HORIZONTAL_MARGIN * 2, tabs.size());
 		int contentHeight = Math.max(height - tabHeight - VERTICAL_MARGIN, 1);
@@ -100,11 +109,13 @@ public class GSTabbedGUI extends GSScreen {
 		// Iterate from smallest to largest tab
 		for (int i = 0; i < sortedTabs.length; i++) {
 			GSTabEntry tab = sortedTabs[remainingTabs - 1];
+			
 			int tabWidth = Math.max(minimumTabWidth, tab.getWidth());
 			if (tabWidth * remainingTabs > remainingWidth)
 				break;
+			
 			tab.setWidth(tabWidth);
-			tab.setDisplayTitle(tab.getTranslatedTitle());
+
 			remainingWidth -= tabWidth;
 			remainingTabs--;
 		}
@@ -112,152 +123,110 @@ public class GSTabbedGUI extends GSScreen {
 		for ( ; remainingTabs > 0; remainingTabs--) {
 			GSTabEntry tab = sortedTabs[remainingTabs - 1];
 			tab.setWidth(remainingWidth / remainingTabs);
-			tab.setDisplayTitle(trimText(font, tab.getTranslatedTitle(), tab.getWidth()));
 			remainingWidth -= tab.getWidth();
 		}
 
-		clearChildren();
+		for (GSTabEntry tab : sortedTabs) {
+			String title = tab.getDisplayTitle();
+			title = renderer.trimString(title, tab.getWidth());
+			tab.setDisplayTitle(title);
+		}
 
-		int tabXOffset = HORIZONTAL_MARGIN;
+		int tabOffsetX = HORIZONTAL_MARGIN;
 		for (GSTabEntry tab : tabs) {
 			GSPanel content = tab.getTabContent();
 			if (content != null) {
 				int xo = HORIZONTAL_MARGIN;
 				int yo = VERTICAL_MARGIN + tabHeight;
-				content.initBounds(minecraft, xo, yo, contentWidth, contentHeight);
-				addPanel(content);
+				content.setBounds(xo, yo, contentWidth, contentHeight);
 			}
 
-			tab.setX(tabXOffset);
-			tabXOffset += tab.getWidth();
+			tab.setX(tabOffsetX);
+			tabOffsetX += tab.getWidth();
 		}
 
 		tabsChanged = false;
 	}
 	
 	@Override
-	public void tickPanels() {
-		GSTabEntry selectedTab = getSelectedTab();
-		if (selectedTab != null && selectedTab.getTabContent() != null)
-			selectedTab.getTabContent().tick();
-	}
-
-	@Override
-	@GSCoreOverride
-	public void render(int mouseX, int mouseY, float partialTicks) {
+	public void render(GSIRenderer2D renderer) {
 		if (tabsChanged)
-			layoutTabs();
+			layoutTabs(renderer);
 		
-		renderBackground();
-		super.render(mouseX, mouseY, partialTicks);
-		renderTabs(mouseX, mouseY);
-	}
-	
-	@Override
-	@SuppressWarnings("deprecation")
-	protected void renderPanels(int mouseX, int mouseY, float partialTicks) {
-		GSTabEntry selectedTab = getSelectedTab();
-		if (selectedTab != null && selectedTab.getTabContent() != null)
-			selectedTab.getTabContent().render(mouseX, mouseY, partialTicks);
+		renderBackground(renderer);
+		
+		super.render(renderer);
+		
+		renderTabs(renderer);
 	}
 
-	private void renderTabs(int mouseX, int mouseY) {
+	private void renderTabs(GSIRenderer2D renderer) {
 		int totalTabWidth = 0;
 
 		for (int i = 0; i < tabs.size(); i++) {
 			GSTabEntry tab = tabs.get(i);
 			boolean selected = (i == selectedTabIndex);
-			boolean hovered = isTabHovered(tab, mouseX, mouseY);
 
-			renderTab(tab, i, selected, hovered);
+			renderTab(renderer, tab, i, selected);
 			totalTabWidth += tab.getWidth();
 		}
 
-		hLine(HORIZONTAL_MARGIN, totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN, TAB_BORDER_COLOR);
-		hLine(HORIZONTAL_MARGIN, totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN + tabHeight - 1, TAB_BORDER_COLOR);
-		vLine(HORIZONTAL_MARGIN, VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
-		vLine(totalTabWidth + HORIZONTAL_MARGIN, VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
+		renderer.drawRect(HORIZONTAL_MARGIN, VERTICAL_MARGIN, totalTabWidth, tabHeight, TAB_BORDER_COLOR);
 	}
 
-	private boolean isTabHovered(GSTabEntry tab, double mouseX, double mouseY) {
-		return mouseX >= tab.getX() && mouseX <= tab.getX() + tab.getWidth() && mouseY >= VERTICAL_MARGIN
-				&& mouseY <= VERTICAL_MARGIN + tabHeight;
-	}
-
-	private void playClickSound(SoundManager soundManager) {
-		soundManager.play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-	}
-
-	private void renderTab(GSTabEntry tab, int tabIndex, boolean selected, boolean hovered) {
-		int background = hovered ? HOVERED_BACKGROUND_COLOR : (selected ? SELECTED_BACKGROUND_COLOR : 0x00000000);
-		if (background != 0x00000000)
-			fill(tab.getX(), VERTICAL_MARGIN, tab.getX() + tab.getWidth(), VERTICAL_MARGIN + tabHeight, background);
-
-		int xc = tab.getX() + tab.getWidth() / 2;
-		int yc = VERTICAL_MARGIN + (tabHeight - font.fontHeight) / 2;
+	private void renderTab(GSIRenderer2D renderer, GSTabEntry tab, int tabIndex, boolean selected) {
+		if (tab.isHovered(renderer.getMouseX(), renderer.getMouseY())) {
+			renderer.fillRect(tab.getX(), VERTICAL_MARGIN, tab.getWidth(), tabHeight, HOVERED_BACKGROUND_COLOR);
+		} else if (selected) {
+			renderer.fillRect(tab.getX(), VERTICAL_MARGIN, tab.getWidth(), tabHeight, SELECTED_BACKGROUND_COLOR);
+		}
 		
-		drawCenteredString(font, tab.getDisplayTitle(), xc, yc, selected ? SELECTED_TEXT_COLOR : TAB_TEXT_COLOR);
+		int xc = tab.getX() + tab.getWidth() / 2;
+		int yc = VERTICAL_MARGIN + (tabHeight - renderer.getFontHeight()) / 2;
+		
+		int titleColor = selected ? SELECTED_TEXT_COLOR : TAB_TEXT_COLOR;
+		renderer.drawCenteredString(tab.getDisplayTitle(), xc, yc, titleColor);
 
 		if (tabIndex != 0)
-			vLine(tab.getX(), VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
+			renderer.drawVLine(tab.getX(), VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
 	}
 
-	@Override
-	public boolean onMouseClickedGS(double mouseX, double mouseY, int button, int mods) {
-		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-			for (int i = 0; i < tabs.size(); i++) {
-				if (i != selectedTabIndex && isTabHovered(tabs.get(i), mouseX, mouseY)) {
-					setSelectedTabIndex(i);
-					playClickSound(minecraft.getSoundManager());
-					return true;
-				}
-			}
-		}
-
-		return super.onMouseClickedGS(mouseX, mouseY, button, mods);
-	}
-
-	@Override
-	public boolean onKeyPressedGS(int key, int scancode, int mods, boolean repeating) {
-		if (super.onKeyPressedGS(key, scancode, mods, repeating))
-			return true;
-		
-		GSKeyBinding openGUIKey = GSControllerClient.getInstance().getOpenGUIKey();
-		if (!repeating && openGUIKey != null && key == openGUIKey.getGLFWKeyCode()) {
-			this.onClose();
-			return true;
-		}
-		
-		return false;
+	private void playClickSound() {
+		GSElementContext.playSound(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 	}
 	
 	@Override
-	@GSCoreOverride
-	public void setFocused(Element element) {
-		super.setFocused(element);
-
-		if (element != null && !tabs.isEmpty()) {
+	public void mousePressed(GSMouseEvent event) {
+		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
 			for (int i = 0; i < tabs.size(); i++) {
-				if (i != selectedTabIndex && tabs.get(i).tabContent == element) {
-					setSelectedTabIndex(i);
-					break;
+				GSTabEntry tab = tabs.get(i);
+				if (tab.isHovered(event.getX(), event.getY())) {
+					if (i != selectedTabIndex) {
+						setSelectedTabIndex(i);
+						playClickSound();
+					}
+					
+					event.consume();
+					return;
 				}
 			}
 		}
 	}
 
 	@Override
-	@GSCoreOverride
-	public void init() {
-		super.init();
-		
-		tabsChanged = true;
-	}
-
-	@Override
-	@GSCoreOverride
-	public boolean isPauseScreen() {
-		return true;
+	public void keyPressed(GSKeyEvent event) {
+		if (!event.isRepeating()) {
+			if (event.getKeyCode() == GSKeyEvent.KEY_ESCAPE) {
+				GSElementContext.setContent(null);
+				event.consume();
+			} else {
+				GSKeyBinding openGUIKey = GSControllerClient.getInstance().getOpenGUIKey();
+				if (openGUIKey != null && event.getKeyCode() == openGUIKey.getGLFWKeyCode()) {
+					GSElementContext.setContent(null);
+					event.consume();
+				}
+			}
+		}
 	}
 	
 	private class GSTabEntry {
@@ -274,10 +243,14 @@ public class GSTabbedGUI extends GSScreen {
 			this.tabContent = tabContent;
 		}
 
+		public String getTitle() {
+			return title;
+		}
+		
 		public GSPanel getTabContent() {
 			return tabContent;
 		}
-
+		
 		public void setDisplayTitle(String displayTitle) {
 			this.displayTitle = displayTitle;
 		}
@@ -286,11 +259,14 @@ public class GSTabbedGUI extends GSScreen {
 			return displayTitle;
 		}
 		
-		public String getTranslatedTitle() {
-			return GSControllerClient.getInstance()
-					.getTranslationModule().getTranslation(title);
+		private boolean isHovered(int mouseX, int mouseY) {
+			if (mouseX < x || mouseX >= x + width)
+				return false;
+			if (mouseY < VERTICAL_MARGIN || mouseY >= VERTICAL_MARGIN + tabHeight)
+				return false;
+			return true;
 		}
-
+		
 		public void setX(int x) {
 			this.x = x;
 		}

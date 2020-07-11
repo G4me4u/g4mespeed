@@ -7,8 +7,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSIBufferBuilderAccess;
-import com.g4mesoft.gui.GSClipAdjuster;
-import com.g4mesoft.gui.GSClipRect;
+import com.g4mesoft.gui.renderer.GSClipAdjuster;
+import com.g4mesoft.gui.renderer.GSClipRect;
 
 import net.minecraft.client.render.BufferBuilder;
 
@@ -76,17 +76,17 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	}
 
 	@Override
-	public void setClipOffset(float xOffset, float yOffset) {
-		adjuster.setClipOffset(xOffset, yOffset);
+	public void setClipOffset(float offsetX, float offsetY) {
+		adjuster.setClipOffset(offsetX, offsetY);
 	}
 	
 	@Override
-	public float getClipXOffset() {
-		return adjuster.getClipXOffset();
+	public float getClipOffsetX() {
+		return adjuster.getClipOffsetX();
 	}
 
 	@Override
-	public float getClipYOffset() {
-		return adjuster.getClipYOffset();
+	public float getClipOffsetY() {
+		return adjuster.getClipOffsetY();
 	}
 }
