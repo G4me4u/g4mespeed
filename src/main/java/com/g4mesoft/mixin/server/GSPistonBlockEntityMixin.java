@@ -3,6 +3,7 @@ package com.g4mesoft.mixin.server;
 import org.spongepowered.asm.mixin.Mixin;
 
 import com.g4mesoft.core.GSCoreOverride;
+import com.g4mesoft.core.server.GSControllerServer;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -20,7 +21,9 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 	@Override
 	@GSCoreOverride
 	public BlockEntityUpdateS2CPacket toUpdatePacket() {
-		return new BlockEntityUpdateS2CPacket(pos, 0, toInitialChunkDataTag());
+		if (GSControllerServer.getInstance().getTpsModule().sParanoidMode.getValue())
+			return new BlockEntityUpdateS2CPacket(pos, 0, toInitialChunkDataTag());
+		return null;
 	}
 	
 	@Override
