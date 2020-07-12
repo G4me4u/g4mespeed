@@ -115,27 +115,29 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Inject(method = "onBlockEntityUpdate", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
 		target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
 	public void onOnBlockEntityUpdate(BlockEntityUpdateS2CPacket packet, CallbackInfo ci) {
-		BlockPos pos = packet.getPos();
-		
-		if (packet.getBlockEntityType() == 0 && world.isChunkLoaded(pos)) {
-			BlockState blockState = world.getBlockState(pos);
+		if (GSControllerClient.getInstance().getTpsModule().sParanoidMode.getValue()) {
+			BlockPos pos = packet.getPos();
 			
-			if (blockState.getBlock() == Blocks.MOVING_PISTON) {
-				BlockEntity blockEntity = world.getBlockEntity(pos);
-				CompoundTag tag = packet.getCompoundTag();
+			if (packet.getBlockEntityType() == 0 && world.isChunkLoaded(pos)) {
+				BlockState blockState = world.getBlockState(pos);
+				
+				if (blockState.getBlock() == Blocks.MOVING_PISTON) {
+					BlockEntity blockEntity = world.getBlockEntity(pos);
+					CompoundTag tag = packet.getCompoundTag();
+	
+					if (blockEntity == null && "minecraft:piston".equals(tag.getString("id"))) {
+						// See above redirect method.
+						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
+						
+						blockEntity = new PistonBlockEntity();
+						blockEntity.fromTag(tag);
+						world.setBlockEntity(pos, blockEntity);
 
-				if (blockEntity == null && "minecraft:piston".equals(tag.getString("id"))) {
-					// See above redirect method.
-					tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
+						blockEntity.resetBlock();
 
-					blockEntity = new PistonBlockEntity();
-					blockEntity.fromTag(tag);
-					world.setBlockEntity(pos, blockEntity);
-
-					blockEntity.resetBlock();
-
-					// Cancel vanilla handling of the packet.
-					ci.cancel();
+						// Cancel vanilla handling of the packet.
+						ci.cancel();
+					}
 				}
 			}
 		}

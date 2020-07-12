@@ -18,7 +18,8 @@
     
     "server.GSTranslatableTextMixin",
     
-    "server.GSPistonBlockEntityMixin"
+    "server.GSPistonBlockEntityMixin",
+    "server.GSPistonBlockMixin"
   ],
   "client": [
     "client.GSMinecraftClientMixin",

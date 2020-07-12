@@ -4,7 +4,6 @@ import com.g4mesoft.gui.action.GSButtonPanel;
 import com.g4mesoft.gui.action.GSSliderPanel;
 import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.gui.text.GSTextField;
-import com.g4mesoft.gui.widget.GSSliderWidget;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 
@@ -48,7 +47,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	public int getPreferredHeight() {
 		int prefHeight = Math.max(super.getPreferredHeight(), SETTING_HEIGHT + CONTENT_PADDING * 2);
 		if (slider != null) {
-			prefHeight += GSSliderWidget.SLIDER_HEIGHT + CONTENT_MARGIN;
+			prefHeight += GSSliderPanel.SLIDER_HEIGHT + CONTENT_MARGIN;
 		} else {
 			prefHeight += TEXT_FIELD_HEIGHT + CONTENT_MARGIN;
 		}
@@ -100,7 +99,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	}
 	
 	private void updateSliderBounds() {
-		int sw = Math.min(GSSliderWidget.MAX_WIDTH, width - CONTENT_PADDING * 2);
+		int sw = Math.min(GSSliderPanel.MAX_WIDTH, width - CONTENT_PADDING * 2);
 		int sh = GSSliderPanel.SLIDER_HEIGHT;
 		int sx = (width - sw) / 2;
 		int sy = height - CONTENT_PADDING - sh;

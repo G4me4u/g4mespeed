@@ -13,6 +13,7 @@ public class GSSliderPanel extends GSAbstractTextActionPanel {
 	private static final GSTexture SLIDER_TEXTURE = new GSTexture(TEXTURE_IDENTIFIER, 256, 256);
 	
 	public static final int SLIDER_HEIGHT = 20;
+	public static final int MAX_WIDTH = 200;
 	
 	private float value;
 	

@@ -89,6 +89,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSIntegerSetting cPistonAnimationType;
 	public final GSIntegerSetting cPistonRenderDistance;
 	public final GSIntegerSetting sBlockEventDistance;
+	public final GSBooleanSetting sParanoidMode;
 	
 	public GSTpsModule() {
 		tps = DEFAULT_TPS;
@@ -112,6 +113,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, 0, 32);
 		sBlockEventDistance = new GSIntegerSetting("blockEventDistance", 4, 0, 32);
+		sParanoidMode = new GSBooleanSetting("paranoidMode", false);
 	}
 	
 	@Override
@@ -175,6 +177,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		settings.registerSetting(TPS_CATEGORY, sBroadcastTps);
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sBlockEventDistance);
+		settings.registerSetting(BETTER_PISTONS_CATEGORY, sParanoidMode);
 	}
 	
 	@Override
