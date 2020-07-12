@@ -125,13 +125,17 @@ public class GSClientPlayNetworkHandlerMixin {
 					BlockEntity blockEntity = world.getBlockEntity(pos);
 					CompoundTag tag = packet.getCompoundTag();
 	
-					if (blockEntity == null && "minecraft:piston".equals(tag.getString("id"))) {
+					if ("minecraft:piston".equals(tag.getString("id"))) {
 						// See above redirect method.
 						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
 						
-						blockEntity = new PistonBlockEntity();
-						blockEntity.fromTag(tag);
-						world.setBlockEntity(pos, blockEntity);
+						if (blockEntity == null) {
+							blockEntity = new PistonBlockEntity();
+							blockEntity.fromTag(tag);
+							world.setBlockEntity(pos, blockEntity);
+						} else {
+							blockEntity.fromTag(tag);
+						}
 
 						blockEntity.resetBlock();
 

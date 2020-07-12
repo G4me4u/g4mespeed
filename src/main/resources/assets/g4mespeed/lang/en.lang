@@ -101,6 +101,9 @@ setting.betterPistons.blockEventDistance.1=1 chunk
 setting.betterPistons.blockEventDistance.x=%s chunks
 setting.betterPistons.blockEventDistance.desc=The maximum block event view distance. For pistons this is also affected by piston view distance on clients.
 
+setting.betterPistons.paranoidMode=Paranoid Mode
+setting.betterPistons.desc=Sends multiple redundant piston block update packets to nearby players. This ensures that clients that were unable to execute the correct piston block events can still synchronize properly.
+
 ###########   Game Information    ############
 
 play.info.tpsChanged=%s changed the tps to %s
