@@ -27,7 +27,6 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
 	private float msAccum = 0.0f;
 	private float msPerTick = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
-	private boolean tpsChanged;
 	
 	@Shadow @Final private static Logger LOGGER;
 	@Shadow private volatile boolean running;
@@ -52,8 +51,6 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		msPerTick = GSTpsModule.MS_PER_SEC / newTps;
 		msAccum = msPerTick;
 		
-		tpsChanged = true;
-
 		long now = Util.getMeasuringTimeMs();
 		long dt = timeReference - now;
 		long millisNextTick = (long)msAccum;
