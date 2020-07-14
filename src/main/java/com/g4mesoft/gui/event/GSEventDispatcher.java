@@ -16,6 +16,9 @@ public class GSEventDispatcher {
 	private static final int ESCAPE_CONTROL_CHARACTER    = 0x1B;
 	private static final int DELETE_CONTROL_CHARACTER    = 0x7F;
 	
+	private static final int TRANSLATE_TO_ROOT   =  1;
+	private static final int TRANSLATE_FROM_ROOT = -1;
+	
 	private final GSRootPanel rootPanel;
 	
 	private GSIElement focusedElement;
@@ -42,7 +45,7 @@ public class GSEventDispatcher {
 			setCurrentCursor(result.element.getCursor());
 
 			GSMouseEvent event = GSMouseEvent.createMouseMovedEvent(result.x, result.y);
-			dispatchMouseEvent(result.element, event, GSIMouseListener::mouseMoved);
+			distributeMouseEvent(result.element, event, GSIMouseListener::mouseMoved);
 		} else {
 			setCurrentCursor(GSCursorType.DEFAULT);
 		}
@@ -62,9 +65,9 @@ public class GSEventDispatcher {
 			int y = convertMouseY(mouseY);
 			
 			GSMouseEvent event = GSMouseEvent.createMouseDraggedEvent(x, y, button, dragX, dragY);
-			event = translateMouseEvent(focusedElement, event);
+			event = translateMouseEvent(focusedElement, event, TRANSLATE_FROM_ROOT);
 			
-			dispatchMouseEvent(focusedElement, event, GSIMouseListener::mouseDragged);
+			distributeMouseEvent(focusedElement, event, GSIMouseListener::mouseDragged);
 		}
 	}
 
@@ -77,9 +80,9 @@ public class GSEventDispatcher {
 		
 		if (focusedElement != null) {
 			GSMouseEvent event = GSMouseEvent.createMousePressedEvent(x, y, button, modifiers);
-			event = translateMouseEvent(focusedElement, event);
+			event = translateMouseEvent(focusedElement, event, TRANSLATE_FROM_ROOT);
 			
-			dispatchMouseEvent(focusedElement, event, GSIMouseListener::mousePressed);
+			distributeMouseEvent(focusedElement, event, GSIMouseListener::mousePressed);
 		}
 	}
 
@@ -89,9 +92,9 @@ public class GSEventDispatcher {
 			int y = convertMouseY(mouseY);
 			
 			GSMouseEvent event = GSMouseEvent.createMouseReleasedEvent(x, y, button, modifiers);
-			event = translateMouseEvent(focusedElement, event);
+			event = translateMouseEvent(focusedElement, event, TRANSLATE_FROM_ROOT);
 			
-			dispatchMouseEvent(focusedElement, event, GSIMouseListener::mouseReleased);
+			distributeMouseEvent(focusedElement, event, GSIMouseListener::mouseReleased);
 		}
 	}
 
@@ -103,14 +106,14 @@ public class GSEventDispatcher {
 
 		if (result.element != null) {
 			GSMouseEvent event = GSMouseEvent.createMouseScrolledEvent(result.x, result.y, scrollX, scrollY);
-			dispatchMouseEvent(result.element, event, GSIMouseListener::mouseScrolled);
+			distributeMouseEvent(result.element, event, GSIMouseListener::mouseScrolled);
 		}
 	}
 	
 	public void keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (focusedElement != null) {
 			GSKeyEvent event = GSKeyEvent.createKeyPressedEvent(keyCode, scanCode, modifiers);
-			dispatchKeyEvent(focusedElement, event, GSIKeyListener::keyPressed);
+			distributeKeyEvent(focusedElement, event, GSIKeyListener::keyPressed);
 		}
 		
 		checkAndDispatchControlCharacter(keyCode, modifiers);
@@ -143,21 +146,21 @@ public class GSEventDispatcher {
 	public void keyRepeated(int keyCode, int scanCode, int modifiers) {
 		if (focusedElement != null) {
 			GSKeyEvent event = GSKeyEvent.createKeyRepeatedEvent(keyCode, scanCode, modifiers);
-			dispatchKeyEvent(focusedElement, event, GSIKeyListener::keyPressed);
+			distributeKeyEvent(focusedElement, event, GSIKeyListener::keyPressed);
 		}
 	}
 
 	public void keyReleased(int keyCode, int scanCode, int modifiers) {
 		if (focusedElement != null) {
 			GSKeyEvent event = GSKeyEvent.createKeyReleasedEvent(keyCode, scanCode, modifiers);
-			dispatchKeyEvent(focusedElement, event, GSIKeyListener::keyReleased);
+			distributeKeyEvent(focusedElement, event, GSIKeyListener::keyReleased);
 		}
 	}
 
 	public void keyTyped(int codePoint) {
 		if (focusedElement != null) {
 			GSKeyEvent event = GSKeyEvent.createKeyTypedEvent(codePoint);
-			dispatchKeyEvent(focusedElement, event, GSIKeyListener::keyTyped);
+			distributeKeyEvent(focusedElement, event, GSIKeyListener::keyTyped);
 		}
 	}
 	
@@ -179,24 +182,24 @@ public class GSEventDispatcher {
 				focusedElement.setFocused(false);
 
 				GSFocusEvent event = GSFocusEvent.createFocusLostEvent();
-				dispatchFocusEvent(focusedElement, event, GSIFocusEventListener::focusLost);
+				invokeFocusEventListeners(focusedElement, event, GSIFocusEventListener::focusLost);
 			}
 			
 			if (element != null) {
 				element.setFocused(true);
 
 				GSFocusEvent event = GSFocusEvent.createFocusGainedEvent();
-				dispatchFocusEvent(element, event, GSIFocusEventListener::focusGained);
+				invokeFocusEventListeners(element, event, GSIFocusEventListener::focusGained);
 			}
 			
 			focusedElement = element;
 		}
 	}
 	
-	private GSMouseEvent translateMouseEvent(GSIElement element, GSMouseEvent event) {
+	private GSMouseEvent translateMouseEvent(GSIElement element, GSMouseEvent event, int sign) {
 		while (element != null) {
-			event.setX(event.getX() - element.getEventOffsetX());
-			event.setY(event.getY() - element.getEventOffsetY());
+			event.setX(event.getX() + sign * element.getEventOffsetX());
+			event.setY(event.getY() + sign * element.getEventOffsetY());
 			
 			element = element.getParent();
 		}
@@ -225,12 +228,62 @@ public class GSEventDispatcher {
 		return new GSIElementResult(element, x, y);
 	}
 	
-	private void dispatchMouseEvent(GSIElement panel, GSMouseEvent event, BiConsumer<GSIMouseListener, GSMouseEvent> method) {
+	public void dispatchMouseEvent(GSIElement destination, GSMouseEvent event, GSIElement source) {
+		if (destination == null)
+			throw new IllegalArgumentException("destination is null!");
+		
+		if (source != null)
+			translateMouseEvent(source, event, TRANSLATE_TO_ROOT);
+
+		translateMouseEvent(destination, event, TRANSLATE_FROM_ROOT);
+		
+		switch (event.getType()) {
+		case GSMouseEvent.MOUSE_MOVED_TYPE:
+			invokeMouseEventListeners(destination, event, GSIMouseListener::mouseMoved);
+			break;
+		case GSMouseEvent.MOUSE_DRAGGED_TYPE:
+			invokeMouseEventListeners(destination, event, GSIMouseListener::mouseDragged);
+			break;
+		case GSMouseEvent.MOUSE_PRESSED_TYPE:
+			invokeMouseEventListeners(destination, event, GSIMouseListener::mousePressed);
+			break;
+		case GSMouseEvent.MOUSE_RELEASED_TYPE:
+			invokeMouseEventListeners(destination, event, GSIMouseListener::mouseReleased);
+			break;
+		case GSMouseEvent.MOUSE_SCROLLED_TYPE:
+			invokeMouseEventListeners(destination, event, GSIMouseListener::mouseScrolled);
+			break;
+		case GSMouseEvent.UNKNOWN_TYPE:
+		default:
+			break;
+		}
+	}
+
+	public void dispatchKeyEvent(GSIElement destination, GSKeyEvent event, GSIElement source) {
+		if (destination == null)
+			throw new IllegalArgumentException("destination is null!");
+
+		switch (event.getType()) {
+		case GSKeyEvent.KEY_PRESSED_TYPE:
+		case GSKeyEvent.KEY_REPEATED_TYPE:
+			invokeKeyEventListeners(destination, event, GSIKeyListener::keyPressed);
+			break;
+		case GSKeyEvent.KEY_RELEASED_TYPE:
+			invokeKeyEventListeners(destination, event, GSIKeyListener::keyReleased);
+			break;
+		case GSKeyEvent.KEY_TYPED_TYPE:
+			invokeKeyEventListeners(destination, event, GSIKeyListener::keyTyped);
+			break;
+		case GSKeyEvent.UNKNOWN_TYPE:
+		default:
+			break;
+		}
+	}
+	
+	private void distributeMouseEvent(GSIElement panel, GSMouseEvent event, BiConsumer<GSIMouseListener, GSMouseEvent> method) {
 		while (panel != null && !event.isConsumed()) {
-			if (!panel.isPassingEvents()) {
-				for (GSIMouseListener listener : panel.getMouseEventListeners())
-					method.accept(listener, event);
-			}
+			if (!panel.isPassingEvents())
+				invokeMouseEventListeners(panel, event, method);
 
 			event.setX(event.getX() + panel.getEventOffsetX());
 			event.setY(event.getY() + panel.getEventOffsetY());
@@ -239,11 +292,10 @@ public class GSEventDispatcher {
 		}
 	}
 	
-	private void dispatchKeyEvent(GSIElement panel, GSKeyEvent event, BiConsumer<GSIKeyListener, GSKeyEvent> method) {
+	private void distributeKeyEvent(GSIElement panel, GSKeyEvent event, BiConsumer<GSIKeyListener, GSKeyEvent> method) {
 		while (panel != null && !event.isConsumed()) {
 			if (!panel.isPassingEvents()) {
-				for (GSIKeyListener listener : panel.getKeyEventListeners())
-					method.accept(listener, event);
+				invokeKeyEventListeners(panel, event, method);
 				
 				if (panel.isEditingText() && event.isPrintableKey())
 					event.consume();
@@ -253,9 +305,17 @@ public class GSEventDispatcher {
 		}
 	}
 	
-	private void dispatchFocusEvent(GSIElement source, GSFocusEvent event, BiConsumer<GSIFocusEventListener, GSFocusEvent> method) {
-		// Unlike mouse and key events, the focus events do not
-		// dispatch throughout the element's parent-hierarchy.
+	private void invokeMouseEventListeners(GSIElement panel, GSMouseEvent event, BiConsumer<GSIMouseListener, GSMouseEvent> method) {
+		for (GSIMouseListener listener : panel.getMouseEventListeners())
+			method.accept(listener, event);
+	}
+	
+	private void invokeKeyEventListeners(GSIElement panel, GSKeyEvent event, BiConsumer<GSIKeyListener, GSKeyEvent> method) {
+		for (GSIKeyListener listener : panel.getKeyEventListeners())
+			method.accept(listener, event);
+	}
+
+	private void invokeFocusEventListeners(GSIElement source, GSFocusEvent event, BiConsumer<GSIFocusEventListener, GSFocusEvent> method) {
 		for (GSIFocusEventListener listener : source.getFocusEventListeners())
 			method.accept(listener, event);
 	}
