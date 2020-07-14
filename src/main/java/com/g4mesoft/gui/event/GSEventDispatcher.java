@@ -75,7 +75,7 @@ public class GSEventDispatcher {
 		int x = convertMouseX(mouseX);
 		int y = convertMouseY(mouseY);
 		
-		if (button == GSMouseEvent.BUTTON_LEFT)
+		if (button != GSMouseEvent.UNKNOWN_BUTTON)
 			setFocusedElement(getTopElementAt(x, y));
 		
 		if (focusedElement != null) {
