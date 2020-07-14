@@ -2,9 +2,9 @@ package com.g4mesoft.gui.scroll;
 
 public interface GSIScrollListener {
 
-	default public void preScrollChanged(double newScroll) {
+	default public void preScrollChanged(float newScroll) {
 	}
 	
-	public void scrollChanged(double newScroll);
+	public void scrollChanged(float newScroll);
 	
 }
