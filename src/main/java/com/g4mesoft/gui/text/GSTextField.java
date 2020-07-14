@@ -4,6 +4,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.g4mesoft.gui.GSCursorType;
 import com.g4mesoft.gui.GSElementContext;
 import com.g4mesoft.gui.GSPanel;
 import com.g4mesoft.gui.event.GSIKeyListener;
@@ -373,6 +374,11 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		}
 		
 		return bounds;
+	}
+	
+	@Override
+	public GSCursorType getCursor() {
+		return isEditable() ? GSCursorType.IBEAM : super.getCursor();
 	}
 
 	public int viewToModel(int x, int y) {
