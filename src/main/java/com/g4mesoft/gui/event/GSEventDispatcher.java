@@ -237,30 +237,32 @@ public class GSEventDispatcher {
 		if (dest == null)
 			throw new IllegalArgumentException("destination is null!");
 		
-		if (source != null)
-			translateMouseEvent(source, event, TRANSLATE_TO_ROOT);
-
-		translateMouseEvent(dest, event, TRANSLATE_FROM_ROOT);
-		
-		switch (event.getType()) {
-		case GSMouseEvent.MOUSE_MOVED_TYPE:
-			invokeMouseEventListeners(dest, event, GSIMouseListener::mouseMoved);
-			break;
-		case GSMouseEvent.MOUSE_DRAGGED_TYPE:
-			invokeMouseEventListeners(dest, event, GSIMouseListener::mouseDragged);
-			break;
-		case GSMouseEvent.MOUSE_PRESSED_TYPE:
-			invokeMouseEventListeners(dest, event, GSIMouseListener::mousePressed);
-			break;
-		case GSMouseEvent.MOUSE_RELEASED_TYPE:
-			invokeMouseEventListeners(dest, event, GSIMouseListener::mouseReleased);
-			break;
-		case GSMouseEvent.MOUSE_SCROLLED_TYPE:
-			invokeMouseEventListeners(dest, event, GSIMouseListener::mouseScrolled);
-			break;
-		case GSMouseEvent.UNKNOWN_TYPE:
-		default:
-			break;
+		if (isChildOfRoot(dest)) {
+			if (source != null)
+				translateMouseEvent(source, event, TRANSLATE_TO_ROOT);
+	
+			translateMouseEvent(dest, event, TRANSLATE_FROM_ROOT);
+			
+			switch (event.getType()) {
+			case GSMouseEvent.MOUSE_MOVED_TYPE:
+				invokeMouseEventListeners(dest, event, GSIMouseListener::mouseMoved);
+				break;
+			case GSMouseEvent.MOUSE_DRAGGED_TYPE:
+				invokeMouseEventListeners(dest, event, GSIMouseListener::mouseDragged);
+				break;
+			case GSMouseEvent.MOUSE_PRESSED_TYPE:
+				invokeMouseEventListeners(dest, event, GSIMouseListener::mousePressed);
+				break;
+			case GSMouseEvent.MOUSE_RELEASED_TYPE:
+				invokeMouseEventListeners(dest, event, GSIMouseListener::mouseReleased);
+				break;
+			case GSMouseEvent.MOUSE_SCROLLED_TYPE:
+				invokeMouseEventListeners(dest, event, GSIMouseListener::mouseScrolled);
+				break;
+			case GSMouseEvent.UNKNOWN_TYPE:
+			default:
+				break;
+			}
 		}
 	}
 
@@ -268,20 +270,22 @@ public class GSEventDispatcher {
 		if (dest == null)
 			throw new IllegalArgumentException("destination is null!");
 
-		switch (event.getType()) {
-		case GSKeyEvent.KEY_PRESSED_TYPE:
-		case GSKeyEvent.KEY_REPEATED_TYPE:
-			invokeKeyEventListeners(dest, event, GSIKeyListener::keyPressed);
-			break;
-		case GSKeyEvent.KEY_RELEASED_TYPE:
-			invokeKeyEventListeners(dest, event, GSIKeyListener::keyReleased);
-			break;
-		case GSKeyEvent.KEY_TYPED_TYPE:
-			invokeKeyEventListeners(dest, event, GSIKeyListener::keyTyped);
-			break;
-		case GSKeyEvent.UNKNOWN_TYPE:
-		default:
-			break;
+		if (isChildOfRoot(dest)) {
+			switch (event.getType()) {
+			case GSKeyEvent.KEY_PRESSED_TYPE:
+			case GSKeyEvent.KEY_REPEATED_TYPE:
+				invokeKeyEventListeners(dest, event, GSIKeyListener::keyPressed);
+				break;
+			case GSKeyEvent.KEY_RELEASED_TYPE:
+				invokeKeyEventListeners(dest, event, GSIKeyListener::keyReleased);
+				break;
+			case GSKeyEvent.KEY_TYPED_TYPE:
+				invokeKeyEventListeners(dest, event, GSIKeyListener::keyTyped);
+				break;
+			case GSKeyEvent.UNKNOWN_TYPE:
+			default:
+				break;
+			}
 		}
 	}
 	
