@@ -3,10 +3,14 @@ package com.g4mesoft.gui;
 import java.util.Collections;
 import java.util.List;
 
+import com.g4mesoft.access.GSIKeyboardAccess;
+import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.gui.event.GSIFocusEventListener;
 import com.g4mesoft.gui.event.GSIKeyListener;
 import com.g4mesoft.gui.event.GSIMouseListener;
+import com.g4mesoft.gui.event.GSKeyEvent;
+import com.g4mesoft.gui.event.GSMouseEvent;
 import com.g4mesoft.gui.renderer.GSIRenderer2D;
 
 import net.minecraft.client.gui.screen.Screen;
@@ -23,12 +27,24 @@ public final class GSRootPanel extends Screen implements GSParentElement {
 	}
 
 	@Override
+	@GSCoreOverride
 	protected void init() {
 		super.init();
+	
+		minecraft.keyboard.enableRepeatEvents(true);
 		
-		content.setBounds(0, 0, width, height);
+		if (content != null)
+			content.setBounds(0, 0, width, height);
 	}
 	
+	@Override
+	@GSCoreOverride
+	public void removed() {
+		super.removed();
+
+		minecraft.keyboard.enableRepeatEvents(false);
+	}
+		
 	@Override
 	@GSCoreOverride
 	public void tick() {
@@ -56,48 +72,63 @@ public final class GSRootPanel extends Screen implements GSParentElement {
 	@Override
 	@GSCoreOverride
 	public void mouseMoved(double mouseX, double mouseY) {
+		GSElementContext.getEventDispatcher().mouseMoved((float)mouseX, (float)mouseY);
 	}
 
 	@Override
 	@GSCoreOverride
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		return false;
+		int modifiers = ((GSIMouseAccess)minecraft.mouse).getPreviousEventModifiers();
+		GSElementContext.getEventDispatcher().mousePressed(button, (float)mouseX, (float)mouseY, modifiers);
+		return true;
 	}
 
 	@Override
 	@GSCoreOverride
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		return false;
+		int modifiers = ((GSIMouseAccess)minecraft.mouse).getPreviousEventModifiers();
+		GSElementContext.getEventDispatcher().mouseReleased(button, (float)mouseX, (float)mouseY, modifiers);
+		return true;
 	}
 
 	@Override
 	@GSCoreOverride
 	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-		return false;
+		GSElementContext.getEventDispatcher().mouseDragged(button, (float)mouseX, (float)mouseY, (float)deltaX, (float)deltaY);
+		return true;
 	}
 
 	@Override
 	@GSCoreOverride
-	public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-		return false;
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
+		float scrollX = (float)((GSIMouseAccess)minecraft.mouse).getPreviousEventScrollX();
+		GSElementContext.getEventDispatcher().mouseScroll((float)mouseX, (float)mouseY, scrollX, (float)scrollY);
+		return true;
 	}
 
 	@Override
 	@GSCoreOverride
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		return false;
+		if (((GSIKeyboardAccess)minecraft.keyboard).isPreviousEventRepeating()) {
+			GSElementContext.getEventDispatcher().keyRepeated(keyCode, scanCode, modifiers);
+		} else {
+			GSElementContext.getEventDispatcher().keyPressed(keyCode, scanCode, modifiers);
+		}
+		return true;
 	}
 
 	@Override
 	@GSCoreOverride
 	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-		return false;
+		GSElementContext.getEventDispatcher().keyReleased(keyCode, scanCode, modifiers);
+		return true;
 	}
 
 	@Override
 	@GSCoreOverride
 	public boolean charTyped(char chr, int keyCode) {
-		return false;
+		GSElementContext.getEventDispatcher().keyTyped((int)chr);
+		return true;
 	}
 
 	@Override
@@ -230,6 +261,14 @@ public final class GSRootPanel extends Screen implements GSParentElement {
 	@Override
 	public void setPassingEvents(boolean passingEvents) {
 	}
+	
+	@Override
+	public void dispatchMouseEvent(GSMouseEvent event, GSIElement source) {
+	}
+
+	@Override
+	public void dispatchKeyEvent(GSKeyEvent event, GSIElement source) {
+	}
 
 	@Override
 	public boolean isFocused() {
@@ -244,6 +283,12 @@ public final class GSRootPanel extends Screen implements GSParentElement {
 	@Override
 	public void requestFocus() {
 		GSElementContext.requestFocus(this);
+	}
+
+	@Override
+	public void unfocus() {
+		if (isFocused())
+			GSElementContext.unfocus(this);
 	}
 
 	@Override

@@ -169,6 +169,11 @@ public class GSEventDispatcher {
 			setFocusedElement(element);
 	}
 	
+	public void unfocus(GSIElement element) {
+		if (focusedElement == element)
+			setFocusedElement(null);
+	}
+	
 	private boolean isChildOfRoot(GSIElement element) {
 		GSIElement parent;
 		while ((parent = element.getParent()) != null)
@@ -228,30 +233,30 @@ public class GSEventDispatcher {
 		return new GSIElementResult(element, x, y);
 	}
 	
-	public void dispatchMouseEvent(GSIElement destination, GSMouseEvent event, GSIElement source) {
-		if (destination == null)
+	public void dispatchMouseEvent(GSMouseEvent event, GSIElement source, GSIElement dest) {
+		if (dest == null)
 			throw new IllegalArgumentException("destination is null!");
 		
 		if (source != null)
 			translateMouseEvent(source, event, TRANSLATE_TO_ROOT);
 
-		translateMouseEvent(destination, event, TRANSLATE_FROM_ROOT);
+		translateMouseEvent(dest, event, TRANSLATE_FROM_ROOT);
 		
 		switch (event.getType()) {
 		case GSMouseEvent.MOUSE_MOVED_TYPE:
-			invokeMouseEventListeners(destination, event, GSIMouseListener::mouseMoved);
+			invokeMouseEventListeners(dest, event, GSIMouseListener::mouseMoved);
 			break;
 		case GSMouseEvent.MOUSE_DRAGGED_TYPE:
-			invokeMouseEventListeners(destination, event, GSIMouseListener::mouseDragged);
+			invokeMouseEventListeners(dest, event, GSIMouseListener::mouseDragged);
 			break;
 		case GSMouseEvent.MOUSE_PRESSED_TYPE:
-			invokeMouseEventListeners(destination, event, GSIMouseListener::mousePressed);
+			invokeMouseEventListeners(dest, event, GSIMouseListener::mousePressed);
 			break;
 		case GSMouseEvent.MOUSE_RELEASED_TYPE:
-			invokeMouseEventListeners(destination, event, GSIMouseListener::mouseReleased);
+			invokeMouseEventListeners(dest, event, GSIMouseListener::mouseReleased);
 			break;
 		case GSMouseEvent.MOUSE_SCROLLED_TYPE:
-			invokeMouseEventListeners(destination, event, GSIMouseListener::mouseScrolled);
+			invokeMouseEventListeners(dest, event, GSIMouseListener::mouseScrolled);
 			break;
 		case GSMouseEvent.UNKNOWN_TYPE:
 		default:
@@ -259,20 +264,20 @@ public class GSEventDispatcher {
 		}
 	}
 
-	public void dispatchKeyEvent(GSIElement destination, GSKeyEvent event, GSIElement source) {
-		if (destination == null)
+	public void dispatchKeyEvent(GSKeyEvent event, GSIElement source, GSIElement dest) {
+		if (dest == null)
 			throw new IllegalArgumentException("destination is null!");
 
 		switch (event.getType()) {
 		case GSKeyEvent.KEY_PRESSED_TYPE:
 		case GSKeyEvent.KEY_REPEATED_TYPE:
-			invokeKeyEventListeners(destination, event, GSIKeyListener::keyPressed);
+			invokeKeyEventListeners(dest, event, GSIKeyListener::keyPressed);
 			break;
 		case GSKeyEvent.KEY_RELEASED_TYPE:
-			invokeKeyEventListeners(destination, event, GSIKeyListener::keyReleased);
+			invokeKeyEventListeners(dest, event, GSIKeyListener::keyReleased);
 			break;
 		case GSKeyEvent.KEY_TYPED_TYPE:
-			invokeKeyEventListeners(destination, event, GSIKeyListener::keyTyped);
+			invokeKeyEventListeners(dest, event, GSIKeyListener::keyTyped);
 			break;
 		case GSKeyEvent.UNKNOWN_TYPE:
 		default:

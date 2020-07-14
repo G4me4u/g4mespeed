@@ -8,6 +8,8 @@ import org.lwjgl.system.MemoryUtil;
 
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.gui.event.GSEventDispatcher;
+import com.g4mesoft.gui.event.GSKeyEvent;
+import com.g4mesoft.gui.event.GSMouseEvent;
 import com.g4mesoft.gui.renderer.GSBasicRenderer2D;
 import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.module.translation.GSTranslationModule;
@@ -90,8 +92,20 @@ public final class GSElementContext {
 	public static void requestFocus(GSIElement panel) {
 		getContext().requestFocusImpl(panel);
 	}
+
+	public static void unfocus(GSIElement panel) {
+		getContext().unfocusImpl(panel);
+	}
 	
-	public static GSEventDispatcher getEventDispatcher() {
+	public static void dispatchMouseEvent(GSMouseEvent event, GSIElement source, GSIElement dest) {
+		getContext().dispatchMouseEventImpl(event, source, dest);
+	}
+
+	public static void dispatchKeyEvent(GSKeyEvent event, GSIElement source, GSIElement dest) {
+		getContext().dispatchKeyEventImpl(event, source, dest);
+	}
+	
+	static GSEventDispatcher getEventDispatcher() {
 		return getContext().getEventDispatcherImpl();
 	}
 	
@@ -193,6 +207,18 @@ public final class GSElementContext {
 	
 	private void requestFocusImpl(GSIElement panel) {
 		eventDispatcher.requestFocus(panel);
+	}
+
+	private void unfocusImpl(GSIElement panel) {
+		eventDispatcher.unfocus(panel);
+	}
+	
+	private void dispatchMouseEventImpl(GSMouseEvent event, GSIElement source, GSIElement dest) {
+		eventDispatcher.dispatchMouseEvent(event, source, dest);
+	}
+
+	private void dispatchKeyEventImpl(GSKeyEvent event, GSIElement source, GSIElement dest) {
+		eventDispatcher.dispatchKeyEvent(event, source, dest);
 	}
 	
 	private GSEventDispatcher getEventDispatcherImpl() {

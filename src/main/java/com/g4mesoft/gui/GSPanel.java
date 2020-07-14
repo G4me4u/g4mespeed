@@ -7,6 +7,8 @@ import java.util.List;
 import com.g4mesoft.gui.event.GSIFocusEventListener;
 import com.g4mesoft.gui.event.GSIKeyListener;
 import com.g4mesoft.gui.event.GSIMouseListener;
+import com.g4mesoft.gui.event.GSKeyEvent;
+import com.g4mesoft.gui.event.GSMouseEvent;
 import com.g4mesoft.gui.renderer.GSIRenderer2D;
 
 public class GSPanel implements GSIElement {
@@ -79,7 +81,7 @@ public class GSPanel implements GSIElement {
 		
 		this.parent = null;
 		
-		focused = false;
+		unfocus();
 	}
 	
 	@Override
@@ -235,6 +237,16 @@ public class GSPanel implements GSIElement {
 	}
 	
 	@Override
+	public void dispatchMouseEvent(GSMouseEvent event, GSIElement source) {
+		GSElementContext.dispatchMouseEvent(event, source, this);
+	}
+
+	@Override
+	public void dispatchKeyEvent(GSKeyEvent event, GSIElement source) {
+		GSElementContext.dispatchKeyEvent(event, source, this);
+	}
+	
+	@Override
 	public boolean isFocused() {
 		return focused;
 	}
@@ -247,6 +259,12 @@ public class GSPanel implements GSIElement {
 	@Override
 	public void requestFocus() {
 		GSElementContext.requestFocus(this);
+	}
+
+	@Override
+	public void unfocus() {
+		if (isFocused())
+			GSElementContext.unfocus(this);
 	}
 	
 	@Override

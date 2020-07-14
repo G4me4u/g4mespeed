@@ -8,36 +8,29 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.g4mesoft.access.GSIKeyboardAccess;
 import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.gui.GSElementContext;
-import com.g4mesoft.hotkey.GSKeyManager;
 
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
 
 @Mixin(Keyboard.class)
-public class GSKeyboardMixin {
+public class GSKeyboardMixin implements GSIKeyboardAccess {
 	
 	@Shadow @Final private MinecraftClient client;
 
+	private boolean prevEventRepeating;
+	
 	@Inject(method = "onKey(JIIII)V", at = @At("HEAD"))
 	public void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		if (windowHandle == client.window.getHandle()) {
-			switch (action) {
-			case GLFW.GLFW_PRESS:
-				GSElementContext.getEventDispatcher().keyPressed(key, scancode, mods);
-				break;
-			case GLFW.GLFW_REPEAT:
-				GSElementContext.getEventDispatcher().keyRepeated(key, scancode, mods);
-				break;
-			case GLFW.GLFW_RELEASE:
-				GSElementContext.getEventDispatcher().keyReleased(key, scancode, mods);
-
+			prevEventRepeating = (action == GLFW.GLFW_REPEAT);
+			
+			if (action == GLFW.GLFW_RELEASE) {
 				// Sometimes keys can get stuck. Make sure we do not
 				// get key ghosting. This usually happens if a key
 				// opens a GUI.
-				getKeyManager().onKeyReleased(key, scancode, mods);
-				break;
+				GSControllerClient.getInstance().getKeyManager().onKeyReleased(key, scancode, mods);
 			}
 		}
 	}
@@ -47,15 +40,16 @@ public class GSKeyboardMixin {
 	public void onKeyPressRepeat(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		switch (action) {
 		case GLFW.GLFW_PRESS:
-			getKeyManager().onKeyPressed(key, scancode, mods);
+			GSControllerClient.getInstance().getKeyManager().onKeyPressed(key, scancode, mods);
 			break;
 		case GLFW.GLFW_REPEAT:
-			getKeyManager().onKeyRepeat(key, scancode, mods);
+			GSControllerClient.getInstance().getKeyManager().onKeyRepeat(key, scancode, mods);
 			break;
 		}
 	}
 	
-	public GSKeyManager getKeyManager() {
-		return GSControllerClient.getInstance().getKeyManager();
+	@Override
+	public boolean isPreviousEventRepeating() {
+		return prevEventRepeating;
 	}
 }

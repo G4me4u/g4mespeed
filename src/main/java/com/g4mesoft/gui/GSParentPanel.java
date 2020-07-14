@@ -14,32 +14,20 @@ public class GSParentPanel extends GSPanel implements GSParentElement {
 		children = new ArrayList<GSIElement>();
 	}
 	
-	/*
-	public void addWidget(Element element) {
-		children.add(element);
-		
-		if (element instanceof Drawable)
-			drawableWidgets.add((Drawable)element);
-	}
-	
-	public void removeWidget(Element element) {
-		children.remove(element);
-		
-		if (element instanceof Drawable)
-			drawableWidgets.remove((Drawable)element);
-	}*/
-	
+	@Override
 	public void add(GSIElement element) {
 		children.add(element);
 
 		element.onAdded(this);
 	}
 	
+	@Override
 	public void remove(GSIElement element) {
 		if (children.remove(element))
 			element.onRemoved(this);
 	}
 	
+	@Override
 	public void removeAll() {
 		while (!children.isEmpty())
 			remove(children.get(children.size() - 1));

@@ -5,6 +5,8 @@ import java.util.List;
 import com.g4mesoft.gui.event.GSIFocusEventListener;
 import com.g4mesoft.gui.event.GSIKeyListener;
 import com.g4mesoft.gui.event.GSIMouseListener;
+import com.g4mesoft.gui.event.GSKeyEvent;
+import com.g4mesoft.gui.event.GSMouseEvent;
 import com.g4mesoft.gui.renderer.GSIRenderer2D;
 
 public interface GSIElement extends GSIViewport {
@@ -67,11 +69,17 @@ public interface GSIElement extends GSIViewport {
 	
 	public void setPassingEvents(boolean passingEvents);
 	
+	public void dispatchMouseEvent(GSMouseEvent event, GSIElement source);
+
+	public void dispatchKeyEvent(GSKeyEvent event, GSIElement source);
+	
 	public boolean isFocused();
 
 	public void setFocused(boolean focused);
 	
 	public void requestFocus();
+
+	public void unfocus();
 	
 	public boolean isEditingText();
 	
