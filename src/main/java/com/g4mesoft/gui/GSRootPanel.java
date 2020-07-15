@@ -17,7 +17,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.client.util.math.MatrixStack;
 
-public final class GSRootPanel extends Screen implements GSParentElement {
+public final class GSRootPanel extends Screen implements GSIParentElement {
 
 	private GSIElement content;
 	
