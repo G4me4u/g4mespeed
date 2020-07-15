@@ -16,7 +16,7 @@ import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.NarratorManager;
 
-public final class GSRootPanel extends Screen implements GSParentElement {
+public final class GSRootPanel extends Screen implements GSIParentElement {
 
 	private GSIElement content;
 	

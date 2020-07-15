@@ -2,7 +2,7 @@ package com.g4mesoft.gui;
 
 import java.util.List;
 
-public interface GSParentElement extends GSIElement {
+public interface GSIParentElement extends GSIElement {
 	
 	public void add(GSIElement element);
 	
