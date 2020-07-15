@@ -100,7 +100,7 @@ public class GSKeyBinding {
 			break;
 		case MOUSE:
 			result = I18n.hasTranslation(keyCode.getName()) ? I18n.translate(keyCode.getName()) :
-				String.format("%s %d", I18n.translate(keyCode.getCategory().getName()), keyCode.getKeyCode());
+				I18n.translate(keyCode.getCategory().getName(), keyCode.getKeyCode() + 1);
 			break;
 		}
 		
