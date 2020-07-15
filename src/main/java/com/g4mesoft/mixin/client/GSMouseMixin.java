@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.hotkey.GSKeyManager;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
@@ -19,19 +18,19 @@ import net.minecraft.client.Mouse;
 public class GSMouseMixin implements GSIMouseAccess {
 
 	@Shadow @Final private MinecraftClient client;
-	
-	private GSKeyManager keyManager;
-	
-	private int buttonMods;
-	private double scrollX;
-	
+
+	private int prevEventModifiers;
+	private float prevEventScrollX;
+
 	@Inject(method="onMouseButton(JIII)V", at = @At(value = "HEAD"))
 	public void onMouseEvent(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
-		if (windowHandle == MinecraftClient.getInstance().getWindow().getHandle()) {
-			buttonMods = mods;
+		if (windowHandle == client.getWindow().getHandle()) {
+			prevEventModifiers = mods;
 			
-			if (action == GLFW.GLFW_RELEASE)
-				getKeyManager().onMouseReleased(button, mods);
+			if (action == GLFW.GLFW_RELEASE) {
+				// Make sure we don't get ghosting.
+				GSControllerClient.getInstance().getKeyManager().onMouseReleased(button, mods);
+			}
 		}
 	}
 
@@ -39,27 +38,24 @@ public class GSMouseMixin implements GSIMouseAccess {
 			target = "Lnet/minecraft/client/options/KeyBinding;setKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;Z)V"))
 	public void onMouseEventHandled(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
 		if (action == GLFW.GLFW_PRESS)
-			getKeyManager().onMousePressed(button, mods);
+			GSControllerClient.getInstance().getKeyManager().onMousePressed(button, mods);
 	}
 	
 	@Inject(method="onMouseScroll", at = @At(value = "HEAD"))
-	private void onOnMouseScroll(long window, double scrollX, double scrollY, CallbackInfo ci) {
-		this.scrollX = (client.options.discreteMouseScroll ? Math.signum(scrollX) : scrollX) * client.options.mouseWheelSensitivity;
+	private void onOnMouseScroll(long windowHandle, double scrollX, double scrollY, CallbackInfo ci) {
+		if (windowHandle == client.getWindow().getHandle()) {
+			prevEventScrollX = (float)(client.options.discreteMouseScroll ? Math.signum(scrollX) : scrollX);
+			prevEventScrollX *= client.options.mouseWheelSensitivity;
+		}
+	}
+	
+	@Override
+	public int getPreviousEventModifiers() {
+		return prevEventModifiers;
 	}
 
 	@Override
-	public int getButtonMods() {
-		return buttonMods;
-	}
-	
-	@Override
-	public double getScrollX() {
-		return scrollX;
-	}
-	
-	public GSKeyManager getKeyManager() {
-		if (keyManager == null)
-			keyManager = GSControllerClient.getInstance().getKeyManager();
-		return keyManager;
+	public double getPreviousEventScrollX() {
+		return prevEventScrollX;
 	}
 }

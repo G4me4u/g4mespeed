@@ -3,7 +3,6 @@ package com.g4mesoft.hotkey;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.InputUtil.Key;
-import net.minecraft.text.Text;
 
 public class GSKeyBinding {
 
@@ -21,7 +20,7 @@ public class GSKeyBinding {
 	private boolean pressed;
 	private int repeatCount;
 
-	private GSIKeyListener listener;
+	private GSIKeyBindingListener listener;
 	
 	public GSKeyBinding(GSKeyManager manager, String name, String category, InputUtil.Type keyType, int keyCode, boolean allowDisabled) {
 		this.manager = manager;
@@ -35,7 +34,7 @@ public class GSKeyBinding {
 		listener = null;
 	}
 
-	public void setKeyListener(GSIKeyListener listener) {
+	public void setKeyListener(GSIKeyBindingListener listener) {
 		if (this.listener != null)
 			throw new IllegalStateException("The listener for this key binding is already set!");
 		this.listener = listener;
@@ -65,7 +64,7 @@ public class GSKeyBinding {
 		if (newKeyState != this.keyState) {
 			this.keyState = newKeyState;
 			
-			final GSIKeyListener listener = this.listener;
+			final GSIKeyBindingListener listener = this.listener;
 			if (listener != null) {
 				MinecraftClient client = MinecraftClient.getInstance();
 				if (client.isOnThread()) {
@@ -88,8 +87,8 @@ public class GSKeyBinding {
 		repeatCount = 0;
 	}
 
-	public Text getLocalizedName() {
-		return keyCode.getLocalizedText();
+	public String getLocalizedName() {
+		return keyCode.getLocalizedText().asString();
 	}
 
 	public boolean isPressed() {
@@ -135,10 +134,6 @@ public class GSKeyBinding {
 		manager.onKeyCodeChanged(this, oldKeyCode, keyCode);
 	}
 
-	public int getGLFWKeyCode() {
-		return keyCode.getCode();
-	}
-	
 	public Key getDefaultKeyCode() {
 		return defaultKeyCode;
 	}

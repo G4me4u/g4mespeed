@@ -5,14 +5,15 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.g4mesoft.gui.scroll.GSScrollableParentPanel;
-import com.g4mesoft.hotkey.GSIKeyRegisterListener;
+import com.g4mesoft.gui.GSElementContext;
+import com.g4mesoft.gui.GSParentPanel;
+import com.g4mesoft.gui.renderer.GSIRenderer2D;
+import com.g4mesoft.gui.scroll.GSIScrollableElement;
+import com.g4mesoft.hotkey.GSIKeyBindingRegisterListener;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
 
-import net.minecraft.client.util.math.MatrixStack;
-
-public class GSHotkeyGUI extends GSScrollableParentPanel implements GSIKeyRegisterListener {
+public class GSHotkeyGUI extends GSParentPanel implements GSIScrollableElement, GSIKeyBindingRegisterListener {
 
 	private static final int HOTKEY_MARGIN = 1;
 
@@ -56,23 +57,23 @@ public class GSHotkeyGUI extends GSScrollableParentPanel implements GSIKeyRegist
 	}
 	
 	@Override
-	public void init() {
-		super.init();
+	public void onBoundsChanged() {
+		super.onBoundsChanged();
 	
 		needsRelayout = true;
 	}
 	
 	@Override
-	protected void renderTranslated(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+	public void render(GSIRenderer2D renderer) {
 		if (needsRelayout) {
 			layoutHotkeys();
 			needsRelayout = false;
 		}
 		
-		super.renderTranslated(matrixStack, mouseX, mouseY, partialTicks);
+		super.render(renderer);
 		
 		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values())
-			hotkeyCategory.renderTitle(matrixStack, mouseX, mouseY, partialTicks);
+			hotkeyCategory.renderTitle(renderer);
 	}
 
 	@Override
@@ -92,7 +93,12 @@ public class GSHotkeyGUI extends GSScrollableParentPanel implements GSIKeyRegist
 	}
 
 	@Override
-	public int getScrollableHeight() {
+	public int getContentWidth() {
+		return width;
+	}
+
+	@Override
+	public int getContentHeight() {
 		return contentHeight;
 	}
 
@@ -108,29 +114,36 @@ public class GSHotkeyGUI extends GSScrollableParentPanel implements GSIKeyRegist
 	
 	private class GSHotkeyCategoryGUI {
 		
-		private final List<GSHotkeyElementGUI> hotkeyElements;
 		private final String categoryName;
+
+		private final List<GSHotkeyElementGUI> elements;
 		
 		private int x;
 		private int y;
 		private int w;
 		
 		public GSHotkeyCategoryGUI(String name) {
-			hotkeyElements = new ArrayList<GSHotkeyElementGUI>();
 			categoryName = "hotkey." + name + ".title";
+			
+			elements = new ArrayList<GSHotkeyElementGUI>();
 		}
 		
 		public void addKeyBinding(GSKeyBinding keyBinding) {
-			hotkeyElements.add(new GSHotkeyElementGUI(GSHotkeyGUI.this, keyBinding));
+			GSHotkeyElementGUI hotkeyElement = new GSHotkeyElementGUI(GSHotkeyGUI.this, keyBinding);
+			
+			elements.add(hotkeyElement);
+			
+			GSHotkeyGUI.this.add(hotkeyElement);
 		}
 
 		public int getPreferredWidth() {
 			int prefWidth = 0;
-			for (GSHotkeyElementGUI hotkeyElement : hotkeyElements) {
+			for (GSHotkeyElementGUI hotkeyElement : elements) {
 				int pw = hotkeyElement.getPreferredWidth();
 				if (pw > prefWidth)
 					prefWidth = pw;
 			}
+			
 			return prefWidth;
 		}
 
@@ -139,22 +152,24 @@ public class GSHotkeyGUI extends GSScrollableParentPanel implements GSIKeyRegist
 			this.y = y;
 			this.w = w;
 			
-			y += CATEGORY_MARGIN + textRenderer.fontHeight + CATEGORY_TITLE_BOTTOM_MARGIN;
+			GSIRenderer2D renderer = GSElementContext.getRenderer();
+			y += CATEGORY_MARGIN + renderer.getFontHeight() + CATEGORY_TITLE_BOTTOM_MARGIN;
 			
-			for (GSHotkeyElementGUI hotkeyElement : hotkeyElements) {
+			for (GSHotkeyElementGUI hotkeyElement : elements) {
 				int h = hotkeyElement.getPreferredHeight();
-				hotkeyElement.initBounds(client, x, y, w, h);
-				addPanel(hotkeyElement);
+				hotkeyElement.setBounds(x, y, w, h);
 				y += h + HOTKEY_MARGIN * 2;
 			}
-			
 			
 			return y;
 		}
 		
-		public void renderTitle(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-			String title = getTranslationModule().getTranslation(categoryName);
-			drawCenteredString(matrixStack, textRenderer, title, x + w / 2, y + CATEGORY_MARGIN, CATEGORY_TITLE_COLOR);
+		public void renderTitle(GSIRenderer2D renderer) {
+			String title = i18nTranslate(categoryName);
+			int tx = x + w / 2;
+			int ty = y + CATEGORY_MARGIN;
+
+			renderer.drawCenteredString(title, tx, ty, CATEGORY_TITLE_COLOR);
 		}
 	}
 }

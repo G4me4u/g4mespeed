@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -25,6 +26,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
@@ -97,7 +99,7 @@ public class GSClientPlayNetworkHandlerMixin {
 				BlockState blockState = world.getBlockState(blockPos);
 				if (blockState.getBlock() == Blocks.MOVING_PISTON) {
 					blockEntity = new PistonBlockEntity();
-					blockEntity.fromTag(world.getBlockState(blockPos), tag);
+					blockEntity.fromTag(blockState, tag);
 					world.setBlockEntity(blockPos, blockEntity);
 					
 					// Probably not needed but it's done in
@@ -108,5 +110,40 @@ public class GSClientPlayNetworkHandlerMixin {
 		}
 		
 		return false;
+	}
+	
+	@Inject(method = "onBlockEntityUpdate", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
+		target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
+	public void onOnBlockEntityUpdate(BlockEntityUpdateS2CPacket packet, CallbackInfo ci) {
+		if (GSControllerClient.getInstance().getTpsModule().sParanoidMode.getValue()) {
+			BlockPos pos = packet.getPos();
+			
+			if (packet.getBlockEntityType() == 0 && world.isChunkLoaded(pos)) {
+				BlockState blockState = world.getBlockState(pos);
+				
+				if (blockState.getBlock() == Blocks.MOVING_PISTON) {
+					BlockEntity blockEntity = world.getBlockEntity(pos);
+					CompoundTag tag = packet.getCompoundTag();
+	
+					if ("minecraft:piston".equals(tag.getString("id"))) {
+						// See above redirect method.
+						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
+						
+						if (blockEntity == null) {
+							blockEntity = new PistonBlockEntity();
+							blockEntity.fromTag(blockState, tag);
+							world.setBlockEntity(pos, blockEntity);
+						} else {
+							blockEntity.fromTag(blockState, tag);
+						}
+
+						blockEntity.resetBlock();
+
+						// Cancel vanilla handling of the packet.
+						ci.cancel();
+					}
+				}
+			}
+		}
 	}
 }

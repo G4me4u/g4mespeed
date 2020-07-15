@@ -1,6 +1,6 @@
 package com.g4mesoft.gui.text;
 
-import net.minecraft.client.util.math.MatrixStack;
+import com.g4mesoft.gui.renderer.GSIRenderer2D;
 
 public interface GSITextCaret {
 
@@ -14,34 +14,24 @@ public interface GSITextCaret {
 	
 	public void update();
 
-	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float dt);
+	public void render(GSIRenderer2D renderer);
+
+	public int getCaretLocation();
 
 	public void setCaretLocation(int location);
 	
-	public void setCaretDot(int dot);
-	
-	public void setCaretMark(int mark);
-	
-	public int getCaretLocation();
-	
 	public int getCaretDot();
 
+	public void setCaretDot(int dot);
+	
 	public int getCaretMark();
+
+	public void setCaretMark(int mark);
 	
 	public boolean hasCaretSelection();
 	
-	public void setBlinkRate(int blinkRate);
-	
 	public int getBlinkRate();
 
-	public boolean onMouseClicked(double mouseX, double mouseY, int button);
-	
-	public boolean onMouseReleased(double mouseX, double mouseY, int button);
-	
-	public boolean onMouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY);
-	
-	public boolean onKeyPressed(int key, int scancode, int mods);
-
-	public boolean onKeyReleased(int key, int scancode, int mods);
+	public void setBlinkRate(int blinkRate);
 	
 }

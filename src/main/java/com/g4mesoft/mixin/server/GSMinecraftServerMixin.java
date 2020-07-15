@@ -3,6 +3,7 @@ package com.g4mesoft.mixin.server;
 import java.util.function.BooleanSupplier;
 
 import org.apache.logging.log4j.Logger;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -15,6 +16,7 @@ import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
+import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.TickDurationMonitor;
@@ -26,7 +28,6 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
 	private float msAccum = 0.0f;
 	private float msPerTick = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
-	private boolean tpsChanged;
 	
 	@Shadow @Final private static Logger LOGGER;
 	@Shadow private volatile boolean running;
@@ -50,17 +51,26 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {
+		long millisPrevTick = (long)msAccum;
+		
 		msPerTick = GSTpsModule.MS_PER_SEC / newTps;
 		msAccum = msPerTick;
 		
-		tpsChanged = true;
-		resetTimeReference();
+		long now = Util.getMeasuringTimeMs();
+		long dt = timeReference - now;
+		long millisNextTick = (long)msAccum;
+		
+		if (dt < millisPrevTick && millisPrevTick != 0L) {
+			// Interpolate the progress until next tick with the
+			// new milliseconds per tick. This ensures that the
+			// next tick will be very close to the client tick.
+			long delta = dt * millisNextTick / millisPrevTick;
+			timeReference = now + GSMathUtils.clamp(delta, 0L, millisNextTick);
+		} else {
+			timeReference = now + millisNextTick;
+		}
 	}
 
-	private void resetTimeReference() {
-		this.timeReference = this.field_19248 = Util.getMeasuringTimeMs() + (long)msPerTick;
-	}
-	
 	@Inject(method = "method_29741", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
 			target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V"))
 	private void onInitialized(CallbackInfo ci) {
@@ -77,7 +87,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	 * example carpet modifies the loop and changes this.running to just be false.
 	 */
 	@Inject(method = "method_29741", require = 0, allow = 1, at = @At(value = "FIELD", shift = Shift.BEFORE,
-			target = "Lnet/minecraft/server/MinecraftServer;running:Z"))
+			opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/server/MinecraftServer;running:Z"))
 	private void onModifiedRunLoop(CallbackInfo ci) {
 		while (this.running) {
 			long msThisTick = (long)msAccum;
@@ -102,13 +112,8 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			this.profiler.push("tick");
 			this.tick(this::shouldKeepTicking);
 			this.profiler.swap("nextTickWait");
-			if (tpsChanged) {
-				tpsChanged = false;
-				resetTimeReference();
-			} else {
-				this.waitingForNextTick = true;
-				this.field_19248 = Math.max(Util.getMeasuringTimeMs() + msThisTick, this.timeReference);
-			}
+			this.waitingForNextTick = true;
+			this.field_19248 = Math.max(Util.getMeasuringTimeMs() + msThisTick, this.timeReference);
 			this.method_16208();
 			this.profiler.pop();
 			this.profiler.endTick();

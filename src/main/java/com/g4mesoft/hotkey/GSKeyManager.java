@@ -29,7 +29,7 @@ public class GSKeyManager {
 	private final List<GSKeyBinding> keyBindings;
 	private final Map<Key, LinkedList<GSKeyBinding>> codeToKeys;
 
-	private GSIKeyRegisterListener registerListener;
+	private GSIKeyBindingRegisterListener registerListener;
 	
 	public GSKeyManager() {
 		keySettings = new HashMap<String, Map<String, Key>>();
@@ -161,19 +161,19 @@ public class GSKeyManager {
 		return registerKey(name, category, keyType, keyCode, null, allowDisabled);
 	}
 
-	public GSKeyBinding registerKey(String name, String category, int keyCode, GSIKeyListener listener) {
+	public GSKeyBinding registerKey(String name, String category, int keyCode, GSIKeyBindingListener listener) {
 		return registerKey(name, category, keyCode, listener, true);
 	}
 
-	public GSKeyBinding registerKey(String name, String category, int keyCode, GSIKeyListener listener, boolean allowDisabled) {
+	public GSKeyBinding registerKey(String name, String category, int keyCode, GSIKeyBindingListener listener, boolean allowDisabled) {
 		return registerKey(name, category, InputUtil.Type.KEYSYM, keyCode, listener, allowDisabled);
 	}
 
-	public GSKeyBinding registerKey(String name, String category, InputUtil.Type keyType, int keyCode, GSIKeyListener listener) {
+	public GSKeyBinding registerKey(String name, String category, InputUtil.Type keyType, int keyCode, GSIKeyBindingListener listener) {
 		return registerKey(name, category, keyType, keyCode, listener, true);
 	}
 
-	public GSKeyBinding registerKey(String name, String category, InputUtil.Type keyType, int keyCode, GSIKeyListener listener, boolean allowDisabled) {
+	public GSKeyBinding registerKey(String name, String category, InputUtil.Type keyType, int keyCode, GSIKeyBindingListener listener, boolean allowDisabled) {
 		if (name.contains(":") || category.contains(":"))
 			throw new IllegalArgumentException("Invalid name or category! It must not contains ':'!");
 		
@@ -199,7 +199,7 @@ public class GSKeyManager {
 		}
 	}
 	
-	public void setKeyRegisterListener(GSIKeyRegisterListener registerListener) {
+	public void setKeyRegisterListener(GSIKeyBindingRegisterListener registerListener) {
 		this.registerListener = registerListener;
 	}
 

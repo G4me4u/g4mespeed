@@ -4,15 +4,15 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.lwjgl.glfw.GLFW;
-
-import com.g4mesoft.access.GSIMouseAccess;
+import com.g4mesoft.gui.event.GSEvent;
+import com.g4mesoft.gui.event.GSIKeyListener;
+import com.g4mesoft.gui.event.GSIMouseListener;
+import com.g4mesoft.gui.event.GSKeyEvent;
+import com.g4mesoft.gui.event.GSMouseEvent;
+import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.util.GSMathUtils;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.math.MatrixStack;
 
 /**
  * A basic text caret used by the user to navigate the text area on which this
@@ -34,7 +34,8 @@ import net.minecraft.client.util.math.MatrixStack;
  * 
  * @author Christian
  */
-public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSIModelChangeListener {
+public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSIModelChangeListener,
+                                         GSIMouseListener, GSIKeyListener {
 
 	private static final int DEFAULT_BLINK_RATE   = 500;
 	private static final int DEFAULT_CARET_WIDTH  = 1;
@@ -86,7 +87,9 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		
 		installTextModel(textField.getTextModel());
 
-		this.textField.addModelChangeListener(this);
+		textField.addModelChangeListener(this);
+		textField.addMouseEventListener(this);
+		textField.addKeyEventListener(this);
 		
 		lastFrame = -1L;
 		blinkTimer = 0;
@@ -107,6 +110,8 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 			throw new IllegalStateException("Caret not bound!");
 	
 		this.textField.removeModelChangeListener(this);
+		this.textField.removeMouseEventListener(this);
+		this.textField.removeKeyEventListener(this);
 		
 		this.textField = null;
 		
@@ -299,14 +304,14 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	}
 	
 	@Override
-	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float dt) {
+	public void render(GSIRenderer2D renderer) {
 		long now = System.currentTimeMillis();
 		if (lastFrame != -1L)
 			blinkTimer += (int)Math.min(blinkRate, now - lastFrame);
 		lastFrame = now;
 
 		if (blinkTimer <= blinkRate) {
-			paintCaret(matrixStack, mouseX, mouseY, dt);
+			paintCaret(renderer);
 		} else if (blinkTimer >= blinkRate << 1) {
 			blinkTimer %= blinkRate << 1;
 		}
@@ -316,24 +321,20 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	 * Paints the graphical caret. The width and insets of the caret are specified
 	 * by the methods {@link #setCaretWidth(int)} and {@link #setCaretInsets(int)}.
 	 * 
-	 * @param matrixStack - the matrix stack with the current graphics transforms.
-	 * @param mouseX - the x-coordinate of the current mouse position
-	 * @param mouseY - the y-coordinate of the current mouse position
-	 * @param dt - the delta tick parameter for animation interpolation
+	 * @param renderer - the renderer to paint the caret onto.
 	 */
-	protected void paintCaret(MatrixStack matrixStack, int mouseX, int mouseY, float dt) {
+	protected void paintCaret(GSIRenderer2D renderer) {
 		Rectangle bounds = textField.modelToView(dot);
 		if (bounds != null) {
 			int mnx = textField.getBorderWidth();
 			int mxx = textField.getWidth() - textField.getBorderWidth() - caretWidth;
 			
-			int x0 = GSMathUtils.clamp(bounds.x, mnx, mxx);
-			int y0 = bounds.y + caretInsets;
-			int x1 = x0 + caretWidth;
-			int y1 = y0 + bounds.height - caretInsets * 2;
+			int x = GSMathUtils.clamp(bounds.x, mnx, mxx);
+			int y = bounds.y + caretInsets;
+			int h = bounds.height - caretInsets * 2;
 
-			if (y0 < y1)
-				DrawableHelper.fill(matrixStack, x0, y0, x1, y1, caretColor);
+			if (h > 0)
+				renderer.fillRect(x, y, caretWidth, h, caretColor);
 		}
 	}
 	
@@ -549,83 +550,61 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	}
 
 	@Override
-	public boolean onMouseClicked(double mouseX, double mouseY, int button) {
-		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-			int mods = ((GSIMouseAccess)MinecraftClient.getInstance().mouse).getButtonMods();
-			
-			navigateToPoint((int)mouseX, (int)mouseY, getModifierFlags(mods));
-			
-			return true;
+	public void mousePressed(GSMouseEvent event) {
+		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
+			navigateToPoint(event.getX(), event.getY(), getModifierFlags(event.getModifiers()));
+			event.consume();
 		}
-		
-		return false;
 	}
 	
 	@Override
-	public boolean onMouseReleased(double mouseX, double mouseY, int button) {
-		return false;
-	}
-	
-	@Override
-	public boolean onMouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-		if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
-			int mods = ((GSIMouseAccess)MinecraftClient.getInstance().mouse).getButtonMods();
-
-			int y = GSMathUtils.clamp((int)mouseY, 0, textField.getHeight() - 1);
-			navigateToPoint((int)mouseX, y, getModifierFlags(mods) | SELECTION_MODIFIER);
-			
-			return true;
+	public void mouseDragged(GSMouseEvent event) {
+		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
+			int y = GSMathUtils.clamp(event.getY(), 0, textField.getHeight() - 1);
+			navigateToPoint(event.getX(), y, SELECTION_MODIFIER);
+			event.consume();
 		}
-		
-		return false;
 	}
 	
 	@Override
-	public boolean onKeyPressed(int key, int scancode, int mods) {
-		return handleKeyEvent(key, mods, getModifierFlags(mods));
-	}
-
-	@Override
-	public boolean onKeyReleased(int key, int scancode, int mods) {
-		return false;
-	}
-	
-	private int getModifierFlags(int mods) {
-		int flags = NO_MODIFIERS;
-
-		if ((mods & GLFW.GLFW_MOD_SHIFT) != 0)
-			flags |= SELECTION_MODIFIER;
-		
-		if ((mods & GLFW.GLFW_MOD_CONTROL) != 0)
-			flags |= WORD_NAVIGATION_MODIFIER;
-		
-		return flags;
-	}
-	
-	private boolean handleKeyEvent(int key, int mods, int modifierFlags) {
-		if (Screen.isSelectAll(key)) {
+	public void keyPressed(GSKeyEvent event) {
+		if (Screen.isSelectAll(event.getKeyCode())) {
 			setSelection(0, textModel.getLength());
-			return true;
+			event.consume();
 		} else {
-			switch (key) {
-			case GLFW.GLFW_KEY_RIGHT:
+			int modifierFlags = getModifierFlags(event.getModifiers());
+			
+			switch (event.getKeyCode()) {
+			case GSKeyEvent.KEY_RIGHT:
 				navigateStep(false, modifierFlags);
-				return true;
-			case GLFW.GLFW_KEY_LEFT:
+				event.consume();
+				break;
+			case GSKeyEvent.KEY_LEFT:
 				navigateStep(true, modifierFlags);
-				return true;
-			case GLFW.GLFW_KEY_HOME:
+				event.consume();
+				break;
+			case GSKeyEvent.KEY_HOME:
 				navigateToLocation(0, modifierFlags);
-				return true;
-			case GLFW.GLFW_KEY_END:
+				event.consume();
+				break;
+			case GSKeyEvent.KEY_END:
 				navigateToLocation(textModel.getLength(), modifierFlags);
-				return true;
-			default:
+				event.consume();
 				break;
 			}
 		}
+	}
+
+	private int getModifierFlags(int mods) {
+		int flags = NO_MODIFIERS;
+
+		if ((mods & GSEvent.MODIFIER_SHIFT) != 0)
+			flags |= SELECTION_MODIFIER;
 		
-		return false;
+		if ((mods & GSEvent.MODIFIER_CONTROL) != 0)
+			flags |= WORD_NAVIGATION_MODIFIER;
+		
+		return flags;
 	}
 	
 	private enum GSWordCharacterType {

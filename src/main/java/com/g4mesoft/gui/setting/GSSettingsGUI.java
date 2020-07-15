@@ -6,10 +6,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.lwjgl.opengl.GL11;
-
-import com.g4mesoft.gui.scroll.GSScrollableParentPanel;
-import com.g4mesoft.module.translation.GSTranslationModule;
+import com.g4mesoft.gui.GSElementContext;
+import com.g4mesoft.gui.GSParentPanel;
+import com.g4mesoft.gui.renderer.GSIRenderer2D;
+import com.g4mesoft.gui.scroll.GSIScrollableElement;
 import com.g4mesoft.setting.GSISettingChangeListener;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
@@ -19,15 +19,13 @@ import com.g4mesoft.setting.types.GSBooleanSetting;
 import com.g4mesoft.setting.types.GSFloatSetting;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 import com.g4mesoft.util.GSMathUtils;
-import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
-public class GSSettingsGUI extends GSScrollableParentPanel implements GSISettingChangeListener {
+public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement, GSISettingChangeListener {
 
 	private static final int SETTING_CATEGORY_MARGIN = 5;
 	private static final int CATEGORY_TITLE_MARGIN_BOTTOM = 2;
@@ -104,8 +102,6 @@ public class GSSettingsGUI extends GSScrollableParentPanel implements GSISetting
 	}
 
 	private void layoutSettingElements() {
-		clearChildren();
-		
 		settingsWidth = width / 2;
 		for (GSSettingCategoryElement element : settingCategories.values()) {
 			int minElementWidth = element.getMinimumWidth();
@@ -124,29 +120,32 @@ public class GSSettingsGUI extends GSScrollableParentPanel implements GSISetting
 	}
 	
 	@Override
-	public void tick() {
-		super.tick();
+	public void update() {
+		super.update();
 		
 		for (GSSettingCategoryElement element : settingCategories.values())
 			element.tick();
 	}
 	
 	@Override
-	public void renderTranslated(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+	public void render(GSIRenderer2D renderer) {
 		if (layoutChanged) {
 			layoutSettingElements();
 			layoutChanged = false;
 		}
+		
+		int mouseX = renderer.getMouseX();
+		int mouseY = renderer.getMouseY();
 		
 		GSSettingElementGUI<?> hoveredElement = null;
 		for (GSSettingCategoryElement element : settingCategories.values()) {
 			if (hoveredElement == null)
 				hoveredElement = element.getHoveredElement(mouseX, mouseY);
 			
-			element.render(matrixStack, mouseX, mouseY, partialTicks);
+			element.render(renderer);
 		}
 		
-		super.renderTranslated(matrixStack, mouseX, mouseY, partialTicks);
+		super.render(renderer);
 		
 		if (hoveredElement != this.hoveredElement) {
 			this.hoveredElement = hoveredElement;
@@ -154,13 +153,12 @@ public class GSSettingsGUI extends GSScrollableParentPanel implements GSISetting
 			if (hoveredElement != null) {
 				int descTextWidth = width - settingsWidth - DESC_LINE_MARGIN * 2;
 				
-				GSTranslationModule translationModule = getTranslationModule();
-				String desc = translationModule.getTranslation(hoveredElement.getSettingTranslationName() + ".desc");
-				String def = translationModule.getFormattedTranslation("setting.default", hoveredElement.getFormattedDefault());
-				descLines = splitToLines(desc + " " + def, descTextWidth);
+				String desc = i18nTranslate(hoveredElement.getSettingTranslationName() + ".desc");
+				String def = i18nTranslateFormatted("setting.default", hoveredElement.getFormattedDefault());
+				descLines = renderer.splitToLines(desc + " " + def, descTextWidth);
 				
 				int numLines = descLines.size();
-				int minimumDescHeight = numLines * textRenderer.fontHeight + (numLines - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
+				int minimumDescHeight = numLines * renderer.getFontHeight() + (numLines - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
 				
 				targetDescHeight = Math.max(minimumDescHeight, hoveredElement.height);
 				startDescHeight = hoveredElement.height;
@@ -173,10 +171,10 @@ public class GSSettingsGUI extends GSScrollableParentPanel implements GSISetting
 		}
 		
 		if (this.hoveredElement != null)
-			renderHoveredDesc(matrixStack, this.hoveredElement, partialTicks);
+			renderHoveredDesc(renderer, this.hoveredElement);
 	}
 	
-	private void renderHoveredDesc(MatrixStack matrixStack, GSSettingElementGUI<?> hoveredElement, float partialTicks) {
+	private void renderHoveredDesc(GSIRenderer2D renderer, GSSettingElementGUI<?> hoveredElement) {
 		long delta = Util.getMeasuringTimeMs() - descAnimStart;
 
 		float progress = Math.min(1.0f, delta / DESC_ANIMATION_TIME);
@@ -192,33 +190,35 @@ public class GSSettingsGUI extends GSScrollableParentPanel implements GSISetting
 		int descY = GSMathUtils.clamp(hoveredElement.y, scrollOffset, height + scrollOffset - descHeight);
 		
 		if (descWidth > 0 && descHeight > 0 && targetDescHeight != 0) {
-			fill(matrixStack, descX, descY, descX + descWidth, descY + descHeight, DESC_BACKGROUND_COLOR);
+			renderer.fillRect(descX, descY, descWidth, descHeight, DESC_BACKGROUND_COLOR);
 			
 			int alpha = GSMathUtils.clamp((int)(progress * 128.0f + 127.0f), 0, 255) << 24;
 			
 			int y = descY + DESC_LINE_MARGIN;
 			for (String line : descLines) {
-				if (y + textRenderer.fontHeight > descY + descHeight)
+				if (y + renderer.getFontHeight() > descY + descHeight)
 					break;
 				
-				GlStateManager.enableBlend();
-				GlStateManager.blendFuncSeparate(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA, GL11.GL_ONE, GL11.GL_ZERO);
-				GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-				drawStringWithShadow(matrixStack, textRenderer, line, descX + DESC_LINE_MARGIN, y, (DESC_TEXT_COLOR & 0xFFFFFF) | alpha);
-				GlStateManager.disableBlend();
-				y += textRenderer.fontHeight + DESC_LINE_SPACING;
+				renderer.drawString(line, descX + DESC_LINE_MARGIN, y, (DESC_TEXT_COLOR & 0xFFFFFF) | alpha);
+
+				y += renderer.getFontHeight() + DESC_LINE_SPACING;
 			}
 		}
 	}
 
 	@Override
-	public void init() {
-		super.init();
+	public void onBoundsChanged() {
+		super.onBoundsChanged();
 		layoutChanged = true;
 	}
 	
 	@Override
-	protected int getScrollableHeight() {
+	public int getContentWidth() {
+		return width;
+	}
+
+	@Override
+	public int getContentHeight() {
 		return contentHeight;
 	}
 	
@@ -252,20 +252,28 @@ public class GSSettingsGUI extends GSScrollableParentPanel implements GSISetting
 		}
 
 		public void addSetting(GSSetting<?> setting) {
+			GSSettingElementGUI<?> panel = null;
 			if (setting instanceof GSBooleanSetting) {
-				settings.add(new GSBooleanSettingElementGUI(GSSettingsGUI.this, (GSBooleanSetting)setting, category));
+				panel = new GSBooleanSettingElementGUI(GSSettingsGUI.this, (GSBooleanSetting)setting, category);
 			} else if (setting instanceof GSFloatSetting) {
-				settings.add(new GSFloatSettingElementGUI(GSSettingsGUI.this, (GSFloatSetting)setting, category));
+				panel = new GSFloatSettingElementGUI(GSSettingsGUI.this, (GSFloatSetting)setting, category);
 			} else if (setting instanceof GSIntegerSetting) {
-				settings.add(new GSIntegerSettingElementGUI(GSSettingsGUI.this, (GSIntegerSetting)setting, category));
+				panel = new GSIntegerSettingElementGUI(GSSettingsGUI.this, (GSIntegerSetting)setting, category);
 			}
+			
+			settings.add(panel);
+			
+			GSSettingsGUI.this.add(panel);
 		}
 
 		public void removeSetting(GSSetting<?> setting) {
 			Iterator<GSSettingElementGUI<?>> settingItr = settings.iterator();
 			while (settingItr.hasNext()) {
-				if (settingItr.next().setting == setting)
+				GSSettingElementGUI<?> panel = settingItr.next();
+				if (panel.setting == setting) {
+					GSSettingsGUI.this.remove(panel);
 					settingItr.remove();
+				}
 			}
 		}
 		
@@ -284,13 +292,13 @@ public class GSSettingsGUI extends GSScrollableParentPanel implements GSISetting
 
 			this.width = width;
 			
-			y += textRenderer.fontHeight;
+			GSIRenderer2D renderer = GSElementContext.getRenderer();
+			
+			y += renderer.getFontHeight();
 			y += CATEGORY_TITLE_MARGIN_BOTTOM;
 
 			for (GSSettingElementGUI<?> element : settings) {
-				element.initBounds(client, x, y, width, element.getPreferredHeight());
-				addPanel(element);
-			
+				element.setBounds(x, y, width, element.getPreferredHeight());
 				y += element.height;
 			}
 			
@@ -304,7 +312,7 @@ public class GSSettingsGUI extends GSScrollableParentPanel implements GSISetting
 				return null;
 
 			for (GSSettingElementGUI<?> element : settings) {
-				if (element.isMouseOver(mouseX, mouseY))
+				if (element.isInBounds(mouseX, mouseY))
 					return element;
 			}
 			
@@ -318,12 +326,12 @@ public class GSSettingsGUI extends GSScrollableParentPanel implements GSISetting
 		
 		public void tick() {
 			for (GSSettingElementGUI<?> element : settings)
-				element.tick();
+				element.update();
 		}
 
-		public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-			String title = getTranslationModule().getTranslation(this.title);
-			drawCenteredString(matrixStack, GSSettingsGUI.this.textRenderer, title, x + width / 2, y, CATEGORY_TITLE_COLOR);
+		public void render(GSIRenderer2D renderer) {
+			String title = i18nTranslate(this.title);
+			renderer.drawCenteredString(title, x + width / 2, y, CATEGORY_TITLE_COLOR);
 		}
 		
 		public boolean isEmpty() {

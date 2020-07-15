@@ -2,13 +2,9 @@ package com.g4mesoft.gui.setting;
 
 import java.util.Locale;
 
-import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 public class GSIntegerSettingElementGUI extends GSNumberSettingElementGUI<GSIntegerSetting> {
@@ -20,13 +16,8 @@ public class GSIntegerSettingElementGUI extends GSNumberSettingElementGUI<GSInte
 	}
 
 	@Override
-	protected Text getSliderText() {
-		return getFormattedValue(setting.getValue());
-	}
-	
-	@Override
-	protected void setValueFromSlider(double value) {
-		setting.setValue((int)Math.round(value * (setting.getMaxValue() - setting.getMinValue()) + setting.getMinValue()));
+	protected void setValueFromSlider(float value) {
+		setting.setValue(Math.round(value * (setting.getMaxValue() - setting.getMinValue()) + setting.getMinValue()));
 	}
 	
 	@Override
@@ -48,28 +39,27 @@ public class GSIntegerSettingElementGUI extends GSNumberSettingElementGUI<GSInte
 	@Override
 	protected void updateFieldValue() {
 		if (shouldUseSlider()) {
-			setSliderValue((double)(setting.getValue() - setting.getMinValue()) / (setting.getMaxValue() - setting.getMinValue()));
+			setSliderValue((float)(setting.getValue() - setting.getMinValue()) / (setting.getMaxValue() - setting.getMinValue()));
+			setSliderText(getFormattedValue(setting.getValue()));
 		} else {
 			setTextFieldValue(String.format(Locale.ENGLISH, "%d", setting.getValue()));
 		}
 	}
 	
-	private Text getFormattedValue(int value) {
+	private String getFormattedValue(int value) {
 		String valueText = String.format(Locale.ENGLISH, "%d", value);
 		
-		GSTranslationModule translationModule = getTranslationModule();
-
 		String key;
-		if (translationModule.hasTranslation(key = settingTranslationName + "." + valueText))
-			return new TranslatableText(key, valueText);
-		if (translationModule.hasTranslation(key = settingTranslationName + ".x"))
-			return new TranslatableText(key, valueText);
+		if (hasI18nTranslation(key = nameTranslationKey + "." + valueText))
+			return i18nTranslateFormatted(key, valueText);
+		if (hasI18nTranslation(key = nameTranslationKey + ".x"))
+			return i18nTranslateFormatted(key, valueText);
 		
-		return new LiteralText(valueText);
+		return valueText;
 	}
 	
 	@Override
 	public String getFormattedDefault() {
-		return Formatting.AQUA + getFormattedValue(setting.getDefaultValue()).getString() + Formatting.RESET;
+		return Formatting.AQUA + getFormattedValue(setting.getDefaultValue()) + Formatting.RESET;
 	}
 }

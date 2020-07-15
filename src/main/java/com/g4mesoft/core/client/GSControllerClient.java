@@ -17,9 +17,11 @@ import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.GSVersionPacket;
 import com.g4mesoft.core.server.GSIModuleManagerServer;
+import com.g4mesoft.gui.GSElementContext;
 import com.g4mesoft.gui.GSInfoGUI;
 import com.g4mesoft.gui.GSTabbedGUI;
 import com.g4mesoft.gui.hotkey.GSHotkeyGUI;
+import com.g4mesoft.gui.scroll.GSScrollablePanel;
 import com.g4mesoft.gui.setting.GSSettingsGUI;
 import com.g4mesoft.hotkey.GSEKeyEventType;
 import com.g4mesoft.hotkey.GSKeyBinding;
@@ -61,8 +63,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	private final GSRemoteSettingManager serverSettings;
 	private final GSKeyManager keyManager;
 
-	private final GSTabbedGUI tabbedGUI;
 	private GSKeyBinding openGUIKey;
+	private GSTabbedGUI tabbedGUI;
 	
 	public GSControllerClient() {
 		serverExtensionUids = new GSExtensionUID[0];
@@ -71,14 +73,30 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		serverSettings = new GSRemoteSettingManager(this);
 
 		keyManager = new GSKeyManager();
-		
-		tabbedGUI = new GSTabbedGUI();
-		tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSSettingsGUI(settings));
-		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSSettingsGUI(serverSettings));
-		tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSHotkeyGUI(keyManager));
-		tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
 	}
 
+	public void init(MinecraftClient minecraft) {
+		this.minecraft = minecraft;
+
+		keyManager.loadKeys(getHotkeySettingsFile());
+
+		openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, (key, type) -> {
+			// Use lambda to ensure that tabbedGUI has been initialized.
+			if (type == GSEKeyEventType.PRESS && tabbedGUI != null)
+				GSElementContext.setContent(tabbedGUI);
+		}, false);
+
+		GSElementContext.init(minecraft);
+		
+		tabbedGUI = new GSTabbedGUI();
+		tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSScrollablePanel(new GSSettingsGUI(settings)));
+		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSScrollablePanel(new GSSettingsGUI(serverSettings)));
+		tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSScrollablePanel(new GSHotkeyGUI(keyManager)));
+		tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
+		
+		onStart();
+	}
+	
 	@Override
 	public void addModule(GSIModule module) {
 		super.addModule(module);
@@ -89,16 +107,6 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		
 		// Register shadow server settings
 		module.registerServerSettings(serverSettings);
-	}
-
-	public void init(MinecraftClient minecraft) {
-		this.minecraft = minecraft;
-		
-		keyManager.loadKeys(getHotkeySettingsFile());
-		openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, 
-				tabbedGUI, minecraft::openScreen, GSEKeyEventType.PRESS, false);
-		
-		onStart();
 	}
 
 	public void setNetworkHandler(ClientPlayNetworkHandler networkHandler) {
@@ -146,6 +154,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	public void onClientClose() {
 		keyManager.saveKeys(getHotkeySettingsFile());
 
+		GSElementContext.dispose();
+		
 		onStop();
 	}
 	

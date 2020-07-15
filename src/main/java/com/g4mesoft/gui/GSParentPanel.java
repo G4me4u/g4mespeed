@@ -1,216 +1,77 @@
 package com.g4mesoft.gui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import com.g4mesoft.core.GSCoreOverride;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.util.math.MatrixStack;
+import com.g4mesoft.gui.renderer.GSIRenderer2D;
 
 public class GSParentPanel extends GSPanel implements GSParentElement {
 
-	private final List<Element> children;
-	private final List<Drawable> drawableWidgets;
-	private final List<GSPanel> panels;
-	
-	private boolean dragging;
-	private Element focusedElement;
+	private final List<GSIElement> children;
 	
 	public GSParentPanel() {
-		children = new ArrayList<Element>();
-		drawableWidgets = new ArrayList<Drawable>();
-		panels = new ArrayList<GSPanel>();
-	
-		dragging = false;
-		focusedElement = null;
+		children = new ArrayList<GSIElement>();
 	}
 	
 	@Override
-	public void initBounds(MinecraftClient client, int x, int y, int width, int height) {
-		if (focusedElement instanceof GSElement)
-			((GSElement)focusedElement).setElementFocused(false);
-		
-		// Clear children before GSPanel#init() is called.
-		clearChildren();
-		
-		super.initBounds(client, x, y, width, height);
-	}
-	
-	public void addWidget(Element element) {
+	public void add(GSIElement element) {
 		children.add(element);
-		
-		if (element instanceof Drawable)
-			drawableWidgets.add((Drawable)element);
-	}
-	
-	public void removeWidget(Element element) {
-		children.remove(element);
-		
-		if (element instanceof Drawable)
-			drawableWidgets.remove((Drawable)element);
-	}
-	
-	public void addPanel(GSPanel panel) {
-		children.add(panel);
-		panels.add(panel);
 
-		panel.onAdded();
-	}
-	
-	public void removePanel(GSPanel panel) {
-		if (getFocused() == panel)
-			setFocused((Element)null);
-		
-		children.remove(panel);
-		panels.remove(panel);
-		
-		panel.onRemoved();
-	}
-	
-	public void clearChildren() {
-		setFocused(null);
-		
-		children.clear();
-		drawableWidgets.clear();
-
-		for (GSPanel panel : panels)
-			panel.onRemoved();
-		panels.clear();
+		element.onAdded(this);
 	}
 	
 	@Override
-	protected void onRemoved() {
-		clearChildren();
-		
-		super.onRemoved();
+	public void remove(GSIElement element) {
+		if (children.remove(element))
+			element.onRemoved(this);
 	}
 	
 	@Override
-	public void tick() {
-		super.tick();
-
-		for (GSPanel panel : panels)
-			panel.tick();
+	public void removeAll() {
+		while (!children.isEmpty())
+			remove(children.get(children.size() - 1));
 	}
 	
 	@Override
-	@SuppressWarnings("deprecation")
-	protected void renderTranslated(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-		super.renderTranslated(matrixStack, mouseX, mouseY, partialTicks);
+	public void update() {
+		super.update();
 
-		for (Drawable drawable : drawableWidgets)
-			drawable.render(matrixStack, mouseX, mouseY, partialTicks);
-		for (GSPanel panel : panels)
-			panel.render(matrixStack, mouseX, mouseY, partialTicks);
+		updateChildren();
+	}
+
+	protected void updateChildren() {
+		for (GSIElement element : getChildren())
+			element.update();
 	}
 	
 	@Override
-	public void onMouseMovedGS(double mouseX, double mouseY) {
-		GSParentElement.super.onMouseMovedGS(mouseX, mouseY);
-	}
+	public void render(GSIRenderer2D renderer) {
+		super.render(renderer);
 
-	@Override
-	public boolean onMouseClickedGS(double mouseX, double mouseY, int button) {
-		return GSParentElement.super.onMouseClickedGS(mouseX, mouseY, button);
-	}
-
-	@Override
-	public boolean onMouseReleasedGS(double mouseX, double mouseY, int button) {
-		return GSParentElement.super.onMouseReleasedGS(mouseX, mouseY, button);
+		renderChildren(renderer);
 	}
 	
-	public boolean onMouseDraggedGS(double mouseX, double mouseY, int button, double dragX, double dragY) {
-		return GSParentElement.super.onMouseDraggedGS(mouseX, mouseY, button, dragX, dragY);
-	}
-
-	@Override
-	public boolean onKeyPressedGS(int key, int scancode, int mods) {
-		return GSParentElement.super.onKeyPressedGS(key, scancode, mods);
-	}
-
-	@Override
-	public boolean onKeyReleasedGS(int key, int scancode, int mods) {
-		return GSParentElement.super.onKeyReleasedGS(key, scancode, mods);
-	}
-
-	@Override
-	boolean preKeyPressed(int keyCode, int scanCode, int modifiers) {
-		if (isChildEditingText() && !isEditingText()) {
-			GSParentElement.super.keyPressed(keyCode, scanCode, modifiers);
-			return true;
-		}
-		
-		return false;
-	}
-
-	@Override
-	boolean preKeyReleased(int keyCode, int scanCode, int modifiers) {
-		if (isChildEditingText() && !isEditingText()) {
-			GSParentElement.super.keyReleased(keyCode, scanCode, modifiers);
-			return true;
-		}
-
-		return false;
-	}
-	
-	@Override
-	public boolean onCharTypedGS(char c, int mods) {
-		return GSParentElement.super.onCharTypedGS(c, mods);
-	}
-
-	@Override
-	public boolean onMouseScrolledGS(double mouseX, double mouseY, double scrollX, double scrollY) {
-		return GSParentElement.super.onMouseScrolledGS(mouseX, mouseY, scrollX, scrollY);
-	}
-	
-	@Override
-	@GSCoreOverride
-	public boolean isDragging() {
-		return dragging;
-	}
-
-	@Override
-	@GSCoreOverride
-	public void setDragging(boolean dragging) {
-		this.dragging = dragging;
-	}
-
-	@Override
-	@GSCoreOverride
-	public Element getFocused() {
-		return focusedElement;
-	}
-
-	@Override
-	@GSCoreOverride
-	public void setFocused(Element focusedElement) {
-		if (focusedElement != this.focusedElement) {
-			if (this.focusedElement instanceof GSElement)
-				((GSElement)this.focusedElement).setElementFocused(false);
-			
-			this.focusedElement = focusedElement;
-	
-			if (focusedElement instanceof GSElement)
-				((GSElement)focusedElement).setElementFocused(true);
+	protected void renderChildren(GSIRenderer2D renderer) {
+		for (GSIElement element : getChildren()) {
+			element.preRender(renderer);
+			element.render(renderer);
+			element.postRender(renderer);
 		}
 	}
 	
 	@Override
-	public void setElementFocused(boolean focused) {
-		if (isElementFocused() && !focused) {
-			// Indicate that we no longer have a focused element.
-			setFocused(null);
+	public GSIElement getChildAt(int x, int y) {
+		for (GSIElement child : children) {
+			if (child.isInBounds(x, y))
+				return child;
 		}
-
-		super.setElementFocused(focused);
+		
+		return null;
 	}
-	
+
 	@Override
-	@GSCoreOverride
-	public List<Element> children() {
-		return this.children;
+	public List<GSIElement> getChildren() {
+		return Collections.unmodifiableList(children);
 	}
 }

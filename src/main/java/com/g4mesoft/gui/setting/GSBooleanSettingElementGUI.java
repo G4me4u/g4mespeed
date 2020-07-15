@@ -1,36 +1,41 @@
 package com.g4mesoft.gui.setting;
 
-import com.g4mesoft.gui.widget.GSToggleSwitchWidget;
+import com.g4mesoft.gui.action.GSToggleSwitchPanel;
+import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSBooleanSetting;
 
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Formatting;
 
 public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSetting> {
 
-	private static final int SETTING_HEIGHT = Math.max(16, GSToggleSwitchWidget.TOGGLE_SWITCH_HEIGHT);
+	private static final int SETTING_HEIGHT = Math.max(16, GSToggleSwitchPanel.SWITCH_HEIGHT);
 
 	private static final int TEXT_MAX_WIDTH = 140;
 	
-	private static final int TOGGLE_WIDTH = GSToggleSwitchWidget.TOGGLE_SWITCH_WIDTH;
+	private static final int TOGGLE_WIDTH = GSToggleSwitchPanel.SWITCH_WIDTH;
 	
-	private final GSToggleSwitchWidget switchWidget;
+	private final GSToggleSwitchPanel switchWidget;
 	
 	public GSBooleanSettingElementGUI(GSSettingsGUI settingsGUI, GSBooleanSetting setting, GSSettingCategory category) {
 		super(settingsGUI, setting, category);
 		
-		switchWidget = new GSToggleSwitchWidget(0, 0, setting.getValue(), (state) -> {
-			this.setting.setValue(state);
-		});
+		switchWidget = new GSToggleSwitchPanel(this::updateSettingValue, setting.getValue());
+		add(switchWidget);
+	}
+	
+	public void updateSettingValue() {
+		setting.setValue(switchWidget.isToggled());
 	}
 
 	@Override
-	public void renderTranslated(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-		super.renderTranslated(matrixStack, mouseX, mouseY, partialTicks);
+	public void render(GSIRenderer2D renderer) {
+		super.render(renderer);
 		
-		String name = getTranslationModule().getTranslation(settingTranslationName);
-		drawStringWithShadow(matrixStack, textRenderer, name, CONTENT_PADDING, (getSettingHeight() - textRenderer.fontHeight) / 2, getTextColor());
+		String name = i18nTranslate(nameTranslationKey);
+		int ty = (getSettingHeight() - renderer.getFontHeight()) / 2;
+		
+		renderer.drawString(name, CONTENT_PADDING, ty, getTextColor());
 	}
 	
 	@Override
@@ -44,22 +49,21 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 	}
 	
 	@Override
-	public void init() {
-		super.init();
+	public void onBoundsChanged() {
+		super.onBoundsChanged();
 
-		switchWidget.x = width - GSToggleSwitchWidget.TOGGLE_SWITCH_WIDTH - CONTENT_MARGIN - RESET_BUTTON_WIDTH - CONTENT_PADDING;
-		switchWidget.y = (height - GSToggleSwitchWidget.TOGGLE_SWITCH_HEIGHT) / 2;
-		switchWidget.active = setting.isEnabledInGui();
-		
-		addWidget(switchWidget);
+		int sx = width - TOGGLE_WIDTH - CONTENT_MARGIN - RESET_BUTTON_WIDTH - CONTENT_PADDING;
+		int sy = (height - GSToggleSwitchPanel.SWITCH_HEIGHT) / 2;
+		switchWidget.setPreferredBounds(sx, sy);
+		switchWidget.setEnabled(setting.isEnabledInGui());
 	}
 	
 	@Override
 	public void onSettingChanged() {
 		super.onSettingChanged();
 		
-		switchWidget.setValueSilent(setting.getValue());
-		switchWidget.active = setting.isEnabledInGui();
+		switchWidget.setToggled(setting.getValue());
+		switchWidget.setEnabled(setting.isEnabledInGui());
 	}
 
 	@Override
