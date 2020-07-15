@@ -1290,36 +1290,36 @@ com.g4mesoft.gui.scroll.GSScrollBar -> core.az:
     184:186:int getKnobAreaColor() -> E
     190:194:int getKnobColor(boolean) -> a
     198:206:int getKnobPos() -> F
-    210:212:int getKnobSize() -> G
-    216:216:int getKnobAreaSize() -> H
-    220:220:int getContentSize() -> I
-    224:224:int getContentViewSize() -> J
-    228:228:int getButtonWidth() -> K
-    232:232:int getButtonHeight() -> L
-    236:236:int getMinimumNobSize() -> M
-    240:240:int getPreferredScrollBarWidth() -> N
-    244:244:float getDefaultScrollAmount() -> o
-    249:263:void mousePressed(com.g4mesoft.gui.event.GSMouseEvent) -> a
-    266:271:void onIncrementalScroll(int) -> h
-    274:274:float getIncrementalScroll(int) -> c
-    279:283:void mouseReleased(com.g4mesoft.gui.event.GSMouseEvent) -> c
-    287:298:void mouseDragged(com.g4mesoft.gui.event.GSMouseEvent) -> b
-    301:308:void setScrollOffset(float) -> f
-    311:311:int getMaxScrollOffset() -> O
-    315:315:boolean isVertical() -> u
-    319:319:float getScrollOffset() -> p
-    323:323:boolean isEnabled() -> o
-    327:328:void setEnabled(boolean) -> d
-    331:331:boolean isScrollDragActive() -> v
+    210:216:int getKnobSize() -> G
+    220:220:int getKnobAreaSize() -> H
+    224:224:int getContentSize() -> I
+    228:228:int getContentViewSize() -> J
+    232:232:int getButtonWidth() -> K
+    236:236:int getButtonHeight() -> L
+    240:240:int getMinimumNobSize() -> M
+    244:244:int getPreferredScrollBarWidth() -> N
+    248:248:float getDefaultScrollAmount() -> o
+    253:267:void mousePressed(com.g4mesoft.gui.event.GSMouseEvent) -> a
+    270:275:void onIncrementalScroll(int) -> h
+    278:278:float getIncrementalScroll(int) -> c
+    283:287:void mouseReleased(com.g4mesoft.gui.event.GSMouseEvent) -> c
+    291:302:void mouseDragged(com.g4mesoft.gui.event.GSMouseEvent) -> b
+    305:312:void setScrollOffset(float) -> f
+    315:315:int getMaxScrollOffset() -> O
+    319:319:boolean isVertical() -> u
+    323:323:float getScrollOffset() -> p
+    327:327:boolean isEnabled() -> o
+    331:332:void setEnabled(boolean) -> d
+    335:335:boolean isScrollDragActive() -> v
     14:14:boolean access$100(com.g4mesoft.gui.scroll.GSScrollBar) -> a
     14:14:float access$200(com.g4mesoft.gui.scroll.GSScrollBar) -> a
     16:17:void <clinit>() -> <clinit>
 com.g4mesoft.gui.scroll.GSScrollBar$1 -> core.aA:
 com.g4mesoft.gui.scroll.GSScrollBar$GSParentScrollHandler -> core.aB:
     com.g4mesoft.gui.scroll.GSScrollBar this$0 -> a
-    334:334:void <init>(com.g4mesoft.gui.scroll.GSScrollBar) -> <init>
-    340:359:void mouseScrolled(com.g4mesoft.gui.event.GSMouseEvent) -> e
-    334:334:void <init>(com.g4mesoft.gui.scroll.GSScrollBar,com.g4mesoft.gui.scroll.GSScrollBar$1) -> <init>
+    338:338:void <init>(com.g4mesoft.gui.scroll.GSScrollBar) -> <init>
+    344:363:void mouseScrolled(com.g4mesoft.gui.event.GSMouseEvent) -> e
+    338:338:void <init>(com.g4mesoft.gui.scroll.GSScrollBar,com.g4mesoft.gui.scroll.GSScrollBar$1) -> <init>
 com.g4mesoft.gui.scroll.GSScrollablePanel -> core.aC:
     com.g4mesoft.gui.scroll.GSScrollablePanel$GSScrollableContentPanel contentPanel -> a
     com.g4mesoft.gui.scroll.GSScrollBar scrollBar -> b
