@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.g4mesoft.gui.renderer.GSIRenderer2D;
 
-public class GSParentPanel extends GSPanel implements GSParentElement {
+public class GSParentPanel extends GSPanel implements GSIParentElement {
 
 	private final List<GSIElement> children;
 	
