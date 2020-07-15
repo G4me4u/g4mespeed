@@ -241,7 +241,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 					managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
 				}
 			} else if (client.player != null) { 
-				if (isPlayerAllowedHotkeys(client.player)) {
+				if (isGameModeAllowingHotkeys(client.player)) {
 					performHotkeyAction(hotkeyType, sneaking);
 					
 					if (client.inGameHud != null) {
@@ -249,7 +249,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 						Text overlay = new TranslatableText("play.info.clientTpsChanged", formattedTps);
 						client.inGameHud.setOverlayMessage(overlay, false);
 					}
-				} else if (isPlayerAllowedTpsChange(client.player) && client.inGameHud != null) {
+				} else if (client.inGameHud != null) {
 					client.inGameHud.setOverlayMessage(new TranslatableText("play.info.hotkeysDisallowed"), false);
 				}
 			}
@@ -257,8 +257,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	public void onPlayerHotkey(ServerPlayerEntity player, GSETpsHotkeyType type, boolean sneaking) {
-		if (sAllowHotkeyControls.getValue()) {
-			if (isPlayerAllowedHotkeys(player)) {
+		if (sAllowHotkeyControls.getValue() && isPlayerAllowedTpsChange(player)) {
+			if (isGameModeAllowingHotkeys(player)) {
 				float oldTps = tps;
 				performHotkeyAction(type, sneaking);
 				
@@ -275,7 +275,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 						}
 					});
 				}
-			} else if (isPlayerAllowedTpsChange(player)) {
+			} else {
 				player.sendMessage(new TranslatableText("play.info.hotkeysDisallowed"), true);
 			}
 		}
@@ -418,8 +418,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		}
 	}
 	
-	public boolean isPlayerAllowedHotkeys(PlayerEntity player) {
-		return (isPlayerAllowedTpsChange(player) && (player.isCreative() || player.isSpectator()));
+	public boolean isGameModeAllowingHotkeys(PlayerEntity player) {
+		return (player.isCreative() || player.isSpectator());
 	}
 	
 	public boolean isPlayerAllowedTpsChange(PlayerEntity player) {
