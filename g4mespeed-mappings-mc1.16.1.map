@@ -2192,7 +2192,7 @@ com.g4mesoft.module.tps.GSTpsModule -> core.bn:
     378:381:void clearTpsListeners() -> af
     384:385:void resetTps() -> ag
     388:419:void setTps(float) -> j
-    422:422:boolean isPlayerAllowedHotkeys(net.minecraft.class_1657) -> a
+    422:422:boolean isGameModeAllowingHotkeys(net.minecraft.class_1657) -> a
     426:426:boolean isPlayerAllowedTpsChange(net.minecraft.class_1657) -> b
     431:433:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> a
     437:438:void onCarpetTickrateChanged(float) -> b
