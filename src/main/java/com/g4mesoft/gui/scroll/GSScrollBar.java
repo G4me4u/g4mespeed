@@ -208,8 +208,12 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	
 	protected int getKnobSize() {
 		int contentSize = getContentSize();
-		int visibleContent = Math.min(getContentViewSize(), contentSize);
-		return Math.max(getKnobAreaSize() * visibleContent / contentSize, getMinimumNobSize());
+		if (contentSize > 0) {
+			int visibleContent = Math.min(getContentViewSize(), contentSize);
+			return Math.max(getKnobAreaSize() * visibleContent / contentSize, getMinimumNobSize());
+		}
+
+		return getKnobAreaSize();
 	}
 
 	protected int getKnobAreaSize() {
