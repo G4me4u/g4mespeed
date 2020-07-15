@@ -150,10 +150,6 @@ public class GSKeyBinding {
 		manager.onKeyCodeChanged(this, oldKeyCode, keyCode);
 	}
 
-	public int getGLFWKeyCode() {
-		return keyCode.getKeyCode();
-	}
-	
 	public KeyCode getDefaultKeyCode() {
 		return defaultKeyCode;
 	}
