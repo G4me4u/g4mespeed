@@ -2,17 +2,20 @@ package com.g4mesoft.gui;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
+import com.g4mesoft.gui.event.GSEvent;
+import com.g4mesoft.gui.event.GSIButtonStroke;
 import com.g4mesoft.gui.event.GSIFocusEventListener;
 import com.g4mesoft.gui.event.GSIKeyListener;
 import com.g4mesoft.gui.event.GSIMouseListener;
+import com.g4mesoft.gui.event.GSKeyEvent;
+import com.g4mesoft.gui.event.GSMouseEvent;
 import com.g4mesoft.gui.renderer.GSIRenderer2D;
 
 public class GSPanel implements GSIElement {
-	
-	private static final int BACKGROUND_TOP_COLOR    = 0xC0101010;
-	private static final int BACKGROUND_BOTTOM_COLOR = 0xD0101010;
 	
 	private GSIElement parent;
 	
@@ -27,6 +30,10 @@ public class GSPanel implements GSIElement {
 	
 	private boolean passingEvents;
 	private boolean focused;
+	
+	private Map<GSIButtonStroke, Runnable> buttonStrokes;
+	private GSIMouseListener buttonMouseListener;
+	private GSIKeyListener buttonKeyListener;
 
 	protected GSCursorType cursor;
 	
@@ -79,7 +86,7 @@ public class GSPanel implements GSIElement {
 		
 		this.parent = null;
 		
-		focused = false;
+		unfocus();
 	}
 	
 	@Override
@@ -99,10 +106,6 @@ public class GSPanel implements GSIElement {
 	@Override
 	public void postRender(GSIRenderer2D renderer) {
 		renderer.popTransform();
-	}
-	
-	protected void renderBackground(GSIRenderer2D renderer) {
-		renderer.fillRectGradient(0, 0, width, height, BACKGROUND_TOP_COLOR, BACKGROUND_BOTTOM_COLOR);
 	}
 	
 	@Override
@@ -235,6 +238,16 @@ public class GSPanel implements GSIElement {
 	}
 	
 	@Override
+	public void dispatchMouseEvent(GSMouseEvent event, GSIElement source) {
+		GSElementContext.dispatchMouseEvent(event, source, this);
+	}
+
+	@Override
+	public void dispatchKeyEvent(GSKeyEvent event, GSIElement source) {
+		GSElementContext.dispatchKeyEvent(event, source, this);
+	}
+	
+	@Override
 	public boolean isFocused() {
 		return focused;
 	}
@@ -247,6 +260,12 @@ public class GSPanel implements GSIElement {
 	@Override
 	public void requestFocus() {
 		GSElementContext.requestFocus(this);
+	}
+
+	@Override
+	public void unfocus() {
+		if (isFocused())
+			GSElementContext.unfocus(this);
 	}
 	
 	@Override
@@ -275,6 +294,53 @@ public class GSPanel implements GSIElement {
 	@Override
 	public int getEventOffsetY() {
 		return y;
+	}
+	
+	protected void putButtonStroke(GSIButtonStroke button, Runnable listener) {
+		if (buttonStrokes == null)
+			buttonStrokes = new LinkedHashMap<GSIButtonStroke, Runnable>();
+
+		if (buttonMouseListener == null) {
+			buttonMouseListener = new GSIMouseListener() {
+				@Override
+				public void mousePressed(GSMouseEvent event) {
+					handleButtonEvent(event);
+				}
+			};
+			
+			addMouseEventListener(buttonMouseListener);
+		}
+		
+		if (buttonKeyListener == null) {
+			buttonKeyListener = new GSIKeyListener() {
+				@Override
+				public void keyPressed(GSKeyEvent event) {
+					if (!event.isRepeating())
+						handleButtonEvent(event);
+				}
+			};
+			
+			addKeyEventListener(buttonKeyListener);
+		}
+		
+		buttonStrokes.put(button, listener);
+	}
+
+	protected void removeButtonStroke(GSIButtonStroke button) {
+		if (buttonStrokes != null)
+			buttonStrokes.remove(button);
+	}
+	
+	private void handleButtonEvent(GSEvent event) {
+		for (Map.Entry<GSIButtonStroke, Runnable> entry : buttonStrokes.entrySet()) {
+			GSIButtonStroke button = entry.getKey();
+			Runnable listener = entry.getValue();
+			
+			if (button.isMatching(event)) {
+				listener.run();
+				event.consume();
+			}
+		}
 	}
 	
 	public boolean hasI18nTranslation(String key) {

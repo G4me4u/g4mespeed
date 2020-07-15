@@ -63,8 +63,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	private final GSRemoteSettingManager serverSettings;
 	private final GSKeyManager keyManager;
 
-	private final GSTabbedGUI tabbedGUI;
 	private GSKeyBinding openGUIKey;
+	private GSTabbedGUI tabbedGUI;
 	
 	public GSControllerClient() {
 		serverExtensionUids = new GSExtensionUID[0];
@@ -73,14 +73,30 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		serverSettings = new GSRemoteSettingManager(this);
 
 		keyManager = new GSKeyManager();
+	}
+
+	public void init(MinecraftClient minecraft) {
+		this.minecraft = minecraft;
+
+		keyManager.loadKeys(getHotkeySettingsFile());
+
+		openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, (key, type) -> {
+			// Use lambda to ensure that tabbedGUI has been initialized.
+			if (type == GSEKeyEventType.PRESS && tabbedGUI != null)
+				GSElementContext.setContent(tabbedGUI);
+		}, false);
+
+		GSElementContext.init(minecraft);
 		
 		tabbedGUI = new GSTabbedGUI();
 		tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSScrollablePanel(new GSSettingsGUI(settings)));
 		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSScrollablePanel(new GSSettingsGUI(serverSettings)));
 		tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSScrollablePanel(new GSHotkeyGUI(keyManager)));
 		tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
+		
+		onStart();
 	}
-
+	
 	@Override
 	public void addModule(GSIModule module) {
 		super.addModule(module);
@@ -91,18 +107,6 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		
 		// Register shadow server settings
 		module.registerServerSettings(serverSettings);
-	}
-
-	public void init(MinecraftClient minecraft) {
-		this.minecraft = minecraft;
-
-		GSElementContext.init(minecraft);
-		
-		keyManager.loadKeys(getHotkeySettingsFile());
-		openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, 
-				tabbedGUI, GSElementContext::setContent, GSEKeyEventType.PRESS, false);
-		
-		onStart();
 	}
 
 	public void setNetworkHandler(ClientPlayNetworkHandler networkHandler) {

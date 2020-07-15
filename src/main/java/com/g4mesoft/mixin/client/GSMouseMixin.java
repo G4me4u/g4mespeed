@@ -8,41 +8,28 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.gui.GSElementContext;
-import com.g4mesoft.hotkey.GSKeyManager;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
 
 @Mixin(Mouse.class)
-public class GSMouseMixin {
+public class GSMouseMixin implements GSIMouseAccess {
 
 	@Shadow @Final private MinecraftClient client;
 
-	@Shadow private int activeButton;
-	@Shadow private double glfwTime;
-	@Shadow private boolean hasResolutionChanged;
-	
-	@Shadow private double x;
-	@Shadow private double y;
+	private int prevEventModifiers;
+	private float prevEventScrollX;
 
 	@Inject(method="onMouseButton(JIII)V", at = @At(value = "HEAD"))
 	public void onMouseEvent(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
-			float mouseX = getScaledMouseX((float)x);
-			float mouseY = getScaledMouseY((float)y);
+			prevEventModifiers = mods;
 			
-			switch (action) {
-			case GLFW.GLFW_PRESS:
-				GSElementContext.getEventDispatcher().mousePressed(button, mouseX, mouseY, mods);
-				break;
-			case GLFW.GLFW_RELEASE:
-				GSElementContext.getEventDispatcher().mouseReleased(button, mouseX, mouseY, mods);
-				
+			if (action == GLFW.GLFW_RELEASE) {
 				// Make sure we don't get ghosting.
-				getKeyManager().onMouseReleased(button, mods);
-				break;
+				GSControllerClient.getInstance().getKeyManager().onMouseReleased(button, mods);
 			}
 		}
 	}
@@ -51,60 +38,24 @@ public class GSMouseMixin {
 			target = "Lnet/minecraft/client/options/KeyBinding;setKeyPressed(Lnet/minecraft/client/util/InputUtil$KeyCode;Z)V"))
 	public void onMouseEventHandled(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
 		if (action == GLFW.GLFW_PRESS)
-			getKeyManager().onMousePressed(button, mods);
+			GSControllerClient.getInstance().getKeyManager().onMousePressed(button, mods);
 	}
 	
 	@Inject(method="onMouseScroll", at = @At(value = "HEAD"))
 	private void onOnMouseScroll(long windowHandle, double scrollX, double scrollY, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
-			if (client.options.discreteMouseScroll) {
-				scrollX = Math.signum(scrollX);
-				scrollY = Math.signum(scrollY);
-			}
-
-			scrollX *= client.options.mouseWheelSensitivity;
-			scrollY *= client.options.mouseWheelSensitivity;
-		
-			float mouseX = getScaledMouseX((float)x);
-			float mouseY = getScaledMouseY((float)y);
-			
-			GSElementContext.getEventDispatcher().mouseScroll(mouseX, mouseY, (float)scrollX, (float)scrollY);
+			prevEventScrollX = (float)(client.options.discreteMouseScroll ? Math.signum(scrollX) : scrollX);
+			prevEventScrollX *= client.options.mouseWheelSensitivity;
 		}
 	}
 	
-	@Inject(method = "onCursorPos", at = @At(value = "HEAD"))
-	private void onOnCursorPos(long windowHandle, double x, double y, CallbackInfo ci) {
-		if (windowHandle == client.getWindow().getHandle()) {
-			float mouseX = getScaledMouseX((float)x);
-			float mouseY = getScaledMouseY((float)y);
-			
-			GSElementContext.getEventDispatcher().mouseMoved(mouseX, mouseY);
-			
-			if (activeButton != -1 && glfwTime > 0.0) {
-				float dragX;
-				float dragY;
-				
-				if (hasResolutionChanged) {
-					dragX = dragY = 0.0f;
-				} else {
-					dragX = getScaledMouseX((float)(x - this.x));
-					dragY = getScaledMouseY((float)(y - this.y));
-				}
-			
-				GSElementContext.getEventDispatcher().mouseDragged(activeButton, mouseX, mouseY, dragX, dragY);
-			}
-		}
-	}
-	
-	private float getScaledMouseX(float mouseX) {
-        return (mouseX * client.getWindow().getScaledWidth()) / client.getWindow().getWidth();
+	@Override
+	public int getPreviousEventModifiers() {
+		return prevEventModifiers;
 	}
 
-	private float getScaledMouseY(float mouseY) {
-		return (mouseY * client.getWindow().getScaledHeight()) / client.getWindow().getHeight();
-	}
-	
-	public GSKeyManager getKeyManager() {
-		return GSControllerClient.getInstance().getKeyManager();
+	@Override
+	public double getPreviousEventScrollX() {
+		return prevEventScrollX;
 	}
 }

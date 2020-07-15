@@ -160,7 +160,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 		if (modifyingKeyCode) {
 			if (event.getKeyCode() == GSKeyEvent.KEY_ESCAPE) {
 				setKeyCode(InputUtil.UNKNOWN_KEYCODE);
-			} else if (event.getKeyCode() != GSKeyEvent.UNKNOWN_KEY) {
+			} else {
 				setKeyCode(InputUtil.getKeyCode(event.getKeyCode(), event.getScanCode()));
 			}
 			

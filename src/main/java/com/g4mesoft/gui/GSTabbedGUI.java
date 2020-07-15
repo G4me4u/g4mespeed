@@ -5,9 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.gui.event.GSIKeyListener;
+import com.g4mesoft.gui.event.GSCompoundButtonStroke;
+import com.g4mesoft.gui.event.GSIButtonStroke;
 import com.g4mesoft.gui.event.GSIMouseListener;
-import com.g4mesoft.gui.event.GSKeyEvent;
+import com.g4mesoft.gui.event.GSKeyBindingButtonStroke;
 import com.g4mesoft.gui.event.GSMouseEvent;
 import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.hotkey.GSKeyBinding;
@@ -18,7 +19,7 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
 
 @Environment(EnvType.CLIENT)
-public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener, GSIKeyListener {
+public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
 
 	private static final int TAB_VERTICAL_PADDING = 5;
 	private static final int TAB_HORIZONTAL_PADDING = 5;
@@ -45,8 +46,11 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener, GSIK
 		tabs = new ArrayList<GSTabEntry>();
 		selectedTabIndex = -1;
 		
+		GSKeyBinding guiKeyBinding = GSControllerClient.getInstance().getOpenGUIKey();
+		GSIButtonStroke guiButton = new GSKeyBindingButtonStroke(guiKeyBinding);
+		setCloseButton(new GSCompoundButtonStroke(getCloseButton(), guiButton));
+		
 		addMouseEventListener(this);
-		addKeyEventListener(this);
 	}
 
 	@Override
@@ -213,22 +217,6 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener, GSIK
 		}
 	}
 
-	@Override
-	public void keyPressed(GSKeyEvent event) {
-		if (!event.isRepeating()) {
-			if (event.getKeyCode() == GSKeyEvent.KEY_ESCAPE) {
-				GSElementContext.setContent(null);
-				event.consume();
-			} else {
-				GSKeyBinding openGUIKey = GSControllerClient.getInstance().getOpenGUIKey();
-				if (openGUIKey != null && event.getKeyCode() == openGUIKey.getGLFWKeyCode()) {
-					GSElementContext.setContent(null);
-					event.consume();
-				}
-			}
-		}
-	}
-	
 	private class GSTabEntry {
 
 		private final String title;

@@ -142,14 +142,6 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 		return isVertical() ? (top ? 0 : 10) : (top ? 20 : 30);
 	}
 	
-	protected int getScrollButtonSpriteWidth() {
-		return 30;
-	}
-
-	protected int getScrollButtonSpriteHeight() {
-		return 40;
-	}
-
 	protected boolean isMouseOverScrollButton(int mouseX, int mouseY, boolean top) {
 		int mousePos = isVertical() ? mouseY : mouseX;
 		if (top)
