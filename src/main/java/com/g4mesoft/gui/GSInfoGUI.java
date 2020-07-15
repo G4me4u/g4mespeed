@@ -40,7 +40,7 @@ public class GSInfoGUI extends GSParentPanel {
 
 		String versionString;
 		int versionColor;
-		if (controllerClient.isG4mespeedServer()) {
+		if (!version.isInvalid()) {
 			versionString = version.toString();
 			
 			if (version.isLessThan(controllerClient.getCoreVersion())) {
