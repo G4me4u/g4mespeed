@@ -20,10 +20,10 @@ import net.minecraft.client.render.RenderTickCounter;
 @Mixin(RenderTickCounter.class)
 public class GSRenderTickCounterMixin implements GSIRenderTickCounterAccess {
 
-	@Shadow @Final private float tickTime;
 	@Shadow public float lastFrameDuration;
 	@Shadow public long prevTimeMillis;
 	@Shadow public float tickDelta;
+	@Shadow @Final private float tickTime;
 	
 	private int gsTicksThisFrame;
 	

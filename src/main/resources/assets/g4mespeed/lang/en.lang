@@ -99,10 +99,13 @@ setting.tps.broadcastTps.desc=Broadcasts the server tps every two seconds to all
 setting.betterPistons.blockEventDistance=Block Event Distance
 setting.betterPistons.blockEventDistance.1=1 chunk
 setting.betterPistons.blockEventDistance.x=%s chunks
-setting.betterPistons.blockEventDistance.desc=The maximum block event view distance. For pistons this is also affected by piston view distance on clients.
+setting.betterPistons.blockEventDistance.desc=The broadcast-radius, in chunks, for which piston block-events will be sent to clients. This will also affect the maximum view distance for moving blocks on clients.
 
 setting.betterPistons.paranoidMode=Paranoid Mode
-setting.betterPistons.paranoidMode.desc=Sends multiple redundant piston block update packets to nearby players. This ensures that clients that were unable to execute the correct piston block events can still synchronize properly.
+setting.betterPistons.paranoidMode.desc=Sends multiple redundant piston block-change packets to nearby players. This ensures that clients that were unable to execute the correct piston block-events can still synchronize properly. It is recommended to use this in conjunction with Immediate Block Broadcast.
+
+setting.betterPistons.immediateBlockBroadcast=Immediate Block Broadcast
+setting.betterPistons.immediateBlockBroadcast.desc=Broadcasts all block changes caused by major redstone-related components within the same tick as they occurred. This acts as a complement to and does not replace the broadcast that occurs at the beginning of each tick. It is recommended to use this with Paranoid Mode enabled and Block Event Distance set to 0 chunks.
 
 ###########   Game Information    ############
 
