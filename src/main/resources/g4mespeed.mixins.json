@@ -19,7 +19,11 @@
     "server.GSTranslatableTextMixin",
     
     "server.GSPistonBlockEntityMixin",
-    "server.GSPistonBlockMixin"
+    "server.GSPistonBlockMixin",
+    
+    "server.GSIThreadedAnvilChunkStorageAccess",
+    "server.GSServerChunkManagerMixin",
+    "server.GSIBlockActionS2CPacketAccess"
   ],
   "client": [
     "client.GSMinecraftClientMixin",
@@ -31,6 +35,7 @@
     "client.GSMouseMixin",
     
     "client.GSRenderTickCounterMixin",
+    "client.GSIRenderTickCounterAccess",
     
     "client.GSClientPlayNetworkHandlerMixin",
     

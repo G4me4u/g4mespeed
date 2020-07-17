@@ -1,7 +1,6 @@
 package com.g4mesoft.mixin.client;
 
 import org.objectweb.asm.Opcodes;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -10,16 +9,14 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.access.GSIRenderTickCounterAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.tps.GSRenderTickCounterAdjuster;
 
 import net.minecraft.client.render.RenderTickCounter;
 
 @Mixin(RenderTickCounter.class)
-public class GSRenderTickCounterMixin implements GSIRenderTickCounterAccess {
+public class GSRenderTickCounterMixin {
 
-	@Shadow @Final private float tickTime;
 	@Shadow public float lastFrameDuration;
 	@Shadow public long prevTimeMillis;
 	
@@ -42,10 +39,5 @@ public class GSRenderTickCounterMixin implements GSIRenderTickCounterAccess {
 	@Inject(method = "beginRenderTick", at = @At("RETURN"))
 	private void onBeginRenderTick(long currentTimeMillis, CallbackInfo ci) {
 		GSRenderTickCounterAdjuster.getInstance().performSynchronization((RenderTickCounter)(Object)this, currentTimeMillis);
-	}
-
-	@Override
-	public float getTickTime() {
-		return tickTime;
 	}
 }

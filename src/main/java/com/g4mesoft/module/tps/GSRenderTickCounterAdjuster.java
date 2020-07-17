@@ -1,9 +1,9 @@
 package com.g4mesoft.module.tps;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.access.GSIRenderTickCounterAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.compat.GSCarpetCompat;
+import com.g4mesoft.mixin.client.GSIRenderTickCounterAccess;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.render.RenderTickCounter;
