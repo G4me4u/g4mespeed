@@ -42,7 +42,7 @@
     "client.GSPistonBlockEntityMixin",
     
     "client.GSBufferBuilderMixin",
-    "client.GSVertexFormatElementMixin",
+    "client.GSIVertexFormatElementAccess",
     
     "client.GSInGameHudMixin"
   ],
