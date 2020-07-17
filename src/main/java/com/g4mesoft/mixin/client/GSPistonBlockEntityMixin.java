@@ -101,8 +101,16 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	public double getSquaredRenderDistance() {
 		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
 		int dist = tpsModule.cPistonRenderDistance.getValue();
-		if (dist == GSTpsModule.AUTOMATIC_PISTON_RENDER_DISTANCE)
-			dist = tpsModule.sBlockEventDistance.getValue();
+		if (dist == GSTpsModule.AUTOMATIC_PISTON_RENDER_DISTANCE) {
+			if (tpsModule.sParanoidMode.getValue()) {
+				// When using paranoid mode there is no limit to where
+				// the piston block entities might occur. So we just
+				// render all of the ones within maximum view distance.
+				dist = tpsModule.cPistonRenderDistance.getMaxValue();
+			} else {
+				dist = tpsModule.sBlockEventDistance.getValue();
+			}
+		}
 		
 		return dist * dist * 256.0; // dist * dist * (16.0 * 16.0)
 	}

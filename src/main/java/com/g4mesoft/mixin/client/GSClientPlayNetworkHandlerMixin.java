@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.packet.GSICustomPayloadHolder;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
@@ -73,8 +74,10 @@ public class GSClientPlayNetworkHandlerMixin {
 	
 	@Redirect(method = "onChunkData", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;hasNext()Z"))
 	public boolean replaceChunkDataBlockEntityLoop(Iterator<CompoundTag> itr) {
-		// Might be possible to replace only part 
-		// of the loop but that would be a hassle.
+		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+
+		// Note that Fabric Carpet changes parts of the loop, so we have
+		// to override the entirety of the look by redirecting the condition.
 		
 		while(itr.hasNext()) {
 			CompoundTag tag = itr.next();
@@ -84,10 +87,17 @@ public class GSClientPlayNetworkHandlerMixin {
 			boolean pistonType = "minecraft:piston".equals(tag.getString("id"));
 			
 			if (pistonType) {
-				// Because of a weird issue where the progress
-				// saved by a piston is actually 1 gametick old
-				// we have to increment the progress by 0.5.
-				tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
+				// Because of a weird issue where the progress saved
+				// by a piston is actually 1 gametick old we have to
+				// increment the progress by 0.5.
+				//
+				// Make sure the block entity has actually ticked before
+				// we increment the progress. Note that it is guaranteed
+				// that the block entity has ticked if it is not a g4mespeed
+				// server or if the immediate block updates setting is not
+				// enabled.
+				if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked"))
+					tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
 			}
 			
 			BlockEntity blockEntity = world.getBlockEntity(blockPos);
@@ -115,7 +125,9 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Inject(method = "onBlockEntityUpdate", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
 		target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
 	public void onOnBlockEntityUpdate(BlockEntityUpdateS2CPacket packet, CallbackInfo ci) {
-		if (GSControllerClient.getInstance().getTpsModule().sParanoidMode.getValue()) {
+		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+		
+		if (tpsModule.sParanoidMode.getValue()) {
 			BlockPos pos = packet.getPos();
 			
 			if (packet.getBlockEntityType() == 0 && world.isBlockLoaded(pos)) {
@@ -126,8 +138,10 @@ public class GSClientPlayNetworkHandlerMixin {
 					CompoundTag tag = packet.getCompoundTag();
 	
 					if ("minecraft:piston".equals(tag.getString("id"))) {
-						// See above redirect method.
-						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
+						if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked")) {
+							// See above redirect method.
+							tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
+						}
 						
 						if (blockEntity == null) {
 							blockEntity = new PistonBlockEntity();

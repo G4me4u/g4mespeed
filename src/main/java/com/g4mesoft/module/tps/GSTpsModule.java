@@ -91,6 +91,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSIntegerSetting cPistonRenderDistance;
 	public final GSIntegerSetting sBlockEventDistance;
 	public final GSBooleanSetting sParanoidMode;
+	public final GSBooleanSetting sImmediateBlockBroadcast;
 	
 	public GSTpsModule() {
 		tps = DEFAULT_TPS;
@@ -116,6 +117,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, 0, 32);
 		sBlockEventDistance = new GSIntegerSetting("blockEventDistance", 4, 0, 32);
 		sParanoidMode = new GSBooleanSetting("paranoidMode", false);
+		sImmediateBlockBroadcast = new GSBooleanSetting("immediateBlockBroadcast", false);
 	}
 	
 	@Override
@@ -181,6 +183,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sBlockEventDistance);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sParanoidMode);
+		settings.registerSetting(BETTER_PISTONS_CATEGORY, sImmediateBlockBroadcast);
 	}
 	
 	@Override
