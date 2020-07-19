@@ -2171,42 +2171,48 @@ com.g4mesoft.module.tps.GSTpsModule -> core.bn:
     com.g4mesoft.setting.types.GSIntegerSetting sBlockEventDistance -> d
     com.g4mesoft.setting.types.GSBooleanSetting sParanoidMode -> h
     com.g4mesoft.setting.types.GSBooleanSetting sImmediateBlockBroadcast -> i
-    75:121:void <init>() -> <init>
-    125:130:void init(com.g4mesoft.core.GSIModuleManager) -> a
-    134:141:void onClose() -> d
-    145:158:void registerClientSettings(com.g4mesoft.setting.GSSettingManager) -> a
-    162:176:void registerHotkeys(com.g4mesoft.hotkey.GSKeyManager) -> a
-    180:187:void registerServerSettings(com.g4mesoft.setting.GSSettingManager) -> b
-    191:192:void registerCommands(com.mojang.brigadier.CommandDispatcher) -> a
-    196:231:void tick(boolean) -> a
-    234:236:void onServerTps(float) -> i
-    239:263:void onClientHotkey(com.g4mesoft.module.tps.GSETpsHotkeyType) -> a
-    266:288:void onPlayerHotkey(net.minecraft.class_3222,com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> a
-    291:355:void performHotkeyAction(com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> a
-    359:362:void onDisconnectServer() -> e
-    366:368:void onG4mespeedClientJoin(net.minecraft.class_3222,com.g4mesoft.core.GSVersion) -> a
-    371:375:void addTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> a
-    378:381:void removeTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> b
-    384:387:void clearTpsListeners() -> ae
-    390:391:void resetTps() -> af
-    394:425:void setTps(float) -> j
-    428:428:boolean isGameModeAllowingHotkeys(net.minecraft.class_1657) -> a
-    432:432:boolean isPlayerAllowedTpsChange(net.minecraft.class_1657) -> b
-    437:439:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> a
-    443:444:void onCarpetTickrateChanged(float) -> b
-    447:447:float getMsPerTick() -> q
-    451:451:float getTps() -> r
-    456:460:void onServerSyncPacket(int) -> B
-    464:466:float getServerTps() -> s
-    406:419:void lambda$setTps$4(com.g4mesoft.core.server.GSIModuleManagerServer) -> a
-    367:367:void lambda$onG4mespeedClientJoin$3(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> a
-    274:282:void lambda$onPlayerHotkey$2(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> b
-    240:262:void lambda$onClientHotkey$1(com.g4mesoft.module.tps.GSETpsHotkeyType,com.g4mesoft.core.client.GSIModuleManagerClient) -> a
-    197:221:void lambda$tick$0(boolean,com.g4mesoft.core.server.GSIModuleManagerServer) -> a
-    50:66:void <clinit>() -> <clinit>
+    77:123:void <init>() -> <init>
+    127:132:void init(com.g4mesoft.core.GSIModuleManager) -> a
+    136:143:void onClose() -> d
+    147:160:void registerClientSettings(com.g4mesoft.setting.GSSettingManager) -> a
+    164:178:void registerHotkeys(com.g4mesoft.hotkey.GSKeyManager) -> a
+    182:189:void registerServerSettings(com.g4mesoft.setting.GSSettingManager) -> b
+    193:194:void registerCommands(com.mojang.brigadier.CommandDispatcher) -> a
+    198:233:void tick(boolean) -> a
+    236:238:void onServerTps(float) -> i
+    241:270:void onClientHotkey(com.g4mesoft.module.tps.GSETpsHotkeyType) -> a
+    273:295:void onPlayerHotkey(net.minecraft.class_3222,com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> a
+    298:362:void performHotkeyAction(com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> a
+    366:369:void onDisconnectServer() -> e
+    373:375:void onG4mespeedClientJoin(net.minecraft.class_3222,com.g4mesoft.core.GSVersion) -> a
+    378:382:void addTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> a
+    385:388:void removeTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> b
+    391:394:void clearTpsListeners() -> ae
+    397:398:void resetTps() -> af
+    401:432:void setTps(float) -> j
+    435:435:boolean isGameModeAllowingHotkeys(net.minecraft.class_1657) -> a
+    439:439:boolean isPlayerAllowedTpsChange(net.minecraft.class_1657) -> b
+    444:446:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> a
+    450:451:void onCarpetTickrateChanged(float) -> b
+    454:454:float getMsPerTick() -> q
+    458:458:float getTps() -> r
+    463:467:void onServerSyncPacket(int) -> B
+    471:473:float getServerTps() -> s
+    413:426:void lambda$setTps$3(com.g4mesoft.core.server.GSIModuleManagerServer) -> a
+    374:374:void lambda$onG4mespeedClientJoin$2(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> a
+    281:289:void lambda$onPlayerHotkey$1(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> b
+    199:223:void lambda$tick$0(boolean,com.g4mesoft.core.server.GSIModuleManagerServer) -> a
+    42:42:float access$000(com.g4mesoft.module.tps.GSTpsModule) -> a
+    52:68:void <clinit>() -> <clinit>
 com.g4mesoft.module.tps.GSTpsModule$1 -> core.bo:
+    com.g4mesoft.module.tps.GSETpsHotkeyType val$hotkeyType -> g
+    com.g4mesoft.module.tps.GSTpsModule this$0 -> a
+    241:241:void <init>(com.g4mesoft.module.tps.GSTpsModule,com.g4mesoft.module.tps.GSETpsHotkeyType) -> <init>
+    246:268:void accept(com.g4mesoft.core.client.GSIModuleManagerClient) -> b
+    241:241:void accept(java.lang.Object) -> accept
+com.g4mesoft.module.tps.GSTpsModule$2 -> core.bZ:
     int[] $SwitchMap$com$g4mesoft$module$tps$GSETpsHotkeyType -> e
-    324:324:void <clinit>() -> <clinit>
+    331:331:void <clinit>() -> <clinit>
 com.g4mesoft.module.tps.GSTpsMonitor -> core.bp:
     long MILLIS_PER_SECOND -> i
     int MAX_TPS_HISTORY_SIZE -> eU
