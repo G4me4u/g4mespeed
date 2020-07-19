@@ -5,6 +5,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 import org.lwjgl.glfw.GLFW;
 
@@ -12,6 +13,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.GSVersion;
+import com.g4mesoft.core.client.GSIModuleManagerClient;
 import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.core.compat.GSICarpetCompatTickrateListener;
 import com.g4mesoft.core.server.GSControllerServer;
@@ -236,27 +238,32 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	private void onClientHotkey(GSETpsHotkeyType hotkeyType) {
-		manager.runOnClient(managerClient -> {
-			MinecraftClient client = MinecraftClient.getInstance();
-			boolean sneaking = client.options.keySneak.isPressed();
-
-			if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_INTRODUCTION_VERSION)) {
-				if (sAllowHotkeyControls.getValue()) {
-					// Only send the hotkey packet when the server
-					// allows us to use hotkey controls.
-					managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
-				}
-			} else if (client.player != null) { 
-				if (isGameModeAllowingHotkeys(client.player)) {
-					performHotkeyAction(hotkeyType, sneaking);
-					
-					if (client.inGameHud != null) {
-						String formattedTps = TPS_FORMAT.format(tps);
-						Text overlay = new TranslatableText("play.info.clientTpsChanged", formattedTps);
-						client.inGameHud.setOverlayMessage(overlay, false);
+		manager.runOnClient(new Consumer<GSIModuleManagerClient>() {
+			
+			@Override
+			@Environment(EnvType.CLIENT)
+			public void accept(GSIModuleManagerClient managerClient) {
+				MinecraftClient client = MinecraftClient.getInstance();
+				boolean sneaking = client.options.keySneak.isPressed();
+				
+				if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_INTRODUCTION_VERSION)) {
+					if (sAllowHotkeyControls.getValue()) {
+						// Only send the hotkey packet when the server
+						// allows us to use hotkey controls.
+						managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
 					}
-				} else if (client.inGameHud != null) {
-					client.inGameHud.setOverlayMessage(new TranslatableText("play.info.hotkeysDisallowed"), false);
+				} else if (client.player != null) { 
+					if (isGameModeAllowingHotkeys(client.player)) {
+						performHotkeyAction(hotkeyType, sneaking);
+						
+						if (client.inGameHud != null) {
+							String formattedTps = TPS_FORMAT.format(tps);
+							Text overlay = new TranslatableText("play.info.clientTpsChanged", formattedTps);
+							client.inGameHud.setOverlayMessage(overlay, false);
+						}
+					} else if (client.inGameHud != null) {
+						client.inGameHud.setOverlayMessage(new TranslatableText("play.info.hotkeysDisallowed"), false);
+					}
 				}
 			}
 		});
