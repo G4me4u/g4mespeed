@@ -182,21 +182,21 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		int nextDot;
 		
 		if (backward) {
-			GSWordCharacterType prevType = GSWordCharacterType.OTHER;
+			GSEWordCharacterType prevType = GSEWordCharacterType.OTHER;
 
 			for (nextDot = dot; nextDot > 0; nextDot--) {
-				GSWordCharacterType type = getWordCharacterTypeAt(nextDot - 1);
-				if (type != prevType && prevType != GSWordCharacterType.OTHER)
+				GSEWordCharacterType type = getWordCharacterTypeAt(nextDot - 1);
+				if (type != prevType && prevType != GSEWordCharacterType.OTHER)
 					break;
 				
 				prevType = type;
 			}
 		} else {
-			GSWordCharacterType prevType = getWordCharacterTypeAt(dot);
+			GSEWordCharacterType prevType = getWordCharacterTypeAt(dot);
 
 			for (nextDot = dot; nextDot < textModel.getLength(); nextDot++) {
-				GSWordCharacterType type = getWordCharacterTypeAt(nextDot);
-				if (type != prevType && type != GSWordCharacterType.OTHER)
+				GSEWordCharacterType type = getWordCharacterTypeAt(nextDot);
+				if (type != prevType && type != GSEWordCharacterType.OTHER)
 					break;
 				
 				prevType = type;
@@ -206,7 +206,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		navigateToLocation(nextDot, modifierFlags);
 	}
 	
-	private GSWordCharacterType getWordCharacterTypeAt(int location) {
+	private GSEWordCharacterType getWordCharacterTypeAt(int location) {
 		if (location >= 0 && location < textModel.getLength()) {
 			char c = textModel.getChar(location);
 			
@@ -218,7 +218,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 			case Character.OTHER_LETTER:
 			case Character.DECIMAL_DIGIT_NUMBER:
 			case Character.OTHER_NUMBER:
-				return GSWordCharacterType.LETTER_OR_DIGIT;
+				return GSEWordCharacterType.LETTER_OR_DIGIT;
 	
 			case Character.LETTER_NUMBER:
 			case Character.DASH_PUNCTUATION:
@@ -232,7 +232,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 			case Character.OTHER_SYMBOL:
 			case Character.INITIAL_QUOTE_PUNCTUATION:
 			case Character.FINAL_QUOTE_PUNCTUATION:
-				return GSWordCharacterType.SYMBOL;
+				return GSEWordCharacterType.SYMBOL;
 			
 			case Character.UNASSIGNED:
 			case Character.NON_SPACING_MARK:
@@ -246,7 +246,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 			case Character.PRIVATE_USE:
 			case Character.SURROGATE:
 			default:
-				return GSWordCharacterType.OTHER;
+				return GSEWordCharacterType.OTHER;
 			}
 		}
 
@@ -607,7 +607,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		return flags;
 	}
 	
-	private enum GSWordCharacterType {
+	private enum GSEWordCharacterType {
 		
 		LETTER_OR_DIGIT, SYMBOL, OTHER;
 		
