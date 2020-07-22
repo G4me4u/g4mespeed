@@ -108,11 +108,14 @@ public final class GSRenderTickCounterAdjuster implements GSITpsDependant {
 	}
 
 	private boolean shouldAdjustTickDelta() {
-		GSControllerClient client = GSControllerClient.getInstance();
-		GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
-		
-		if ((!carpetCompat.isTickrateLinked() || tpsModule.cForceCarpetTickrate.getValue()) && client.isG4mespeedServer())
-			return true;
+		if (GSControllerClient.getInstance().isG4mespeedServer()) {
+			// When Fabric Carpet tickrate is linked, it is possible
+			// to use their client tickrate. Make sure to only enforce
+			// synchronization when using G4mespeed tickrate.
+			GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
+			if (!carpetCompat.isTickrateLinked() || tpsModule.cForceCarpetTickrate.getValue())
+				return true;
+		}
 
 		if (!serverSyncReceived)
 			return false;
