@@ -31,13 +31,10 @@
 	@com.g4mesoft.core.GSCoreOverride *;
 }
 
--keepclassmembernames class com.g4mesoft.mixin.** {
-	private <fields>;
-}
-
 -keep, allowobfuscation class * { *; }
 
 # Allow certain changes to source code.
+-optimizations !code/simplification/advanced,code/simplification/*
 -optimizationpasses 3
 -overloadaggressively
 -repackageclasses 'core'
