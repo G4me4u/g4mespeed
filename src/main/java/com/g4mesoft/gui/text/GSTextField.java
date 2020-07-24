@@ -4,7 +4,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.g4mesoft.gui.GSCursorType;
+import com.g4mesoft.gui.GSECursorType;
 import com.g4mesoft.gui.GSElementContext;
 import com.g4mesoft.gui.GSPanel;
 import com.g4mesoft.gui.event.GSIKeyListener;
@@ -44,7 +44,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	private int editableTextColor;
 	private int uneditableTextColor;
-	private GSTextAlignment textAlignment;
+	private GSETextAlignment textAlignment;
 	
 	private boolean editable;
 	private GSITextCaret caret;
@@ -84,7 +84,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		
 		editableTextColor = DEFAULT_EDITABLE_TEXT_COLOR;
 		uneditableTextColor = DEFAULT_UNEDITABLE_TEXT_COLOR;
-		textAlignment = GSTextAlignment.LEFT;
+		textAlignment = GSETextAlignment.LEFT;
 		
 		editable = true;
 		caret = new GSBasicTextCaret();
@@ -377,8 +377,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	}
 	
 	@Override
-	public GSCursorType getCursor() {
-		return isEditable() ? GSCursorType.IBEAM : super.getCursor();
+	public GSECursorType getCursor() {
+		return isEditable() ? GSECursorType.IBEAM : super.getCursor();
 	}
 
 	public int viewToModel(int x, int y) {
@@ -644,11 +644,11 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		this.uneditableTextColor = uneditableTextColor;
 	}
 
-	public GSTextAlignment getTextAlignment() {
+	public GSETextAlignment getTextAlignment() {
 		return textAlignment;
 	}
 
-	public void setTextAlignment(GSTextAlignment textAlignment) {
+	public void setTextAlignment(GSETextAlignment textAlignment) {
 		if (textAlignment == null)
 			throw new IllegalArgumentException("textAlignment is null!");
 		

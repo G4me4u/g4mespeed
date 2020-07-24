@@ -298,12 +298,12 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	}
 
 	@Override
-	public GSCursorType getCursor() {
-		return GSCursorType.DEFAULT;
+	public GSECursorType getCursor() {
+		return GSECursorType.DEFAULT;
 	}
 
 	@Override
-	public void setCursor(GSCursorType cursor) {
+	public void setCursor(GSECursorType cursor) {
 	}
 	
 	@Override

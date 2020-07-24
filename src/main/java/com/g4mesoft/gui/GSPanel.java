@@ -35,7 +35,7 @@ public class GSPanel implements GSIElement {
 	private GSIMouseListener buttonMouseListener;
 	private GSIKeyListener buttonKeyListener;
 
-	protected GSCursorType cursor;
+	protected GSECursorType cursor;
 	
 	protected GSPanel() {
 		parent = null;
@@ -46,7 +46,7 @@ public class GSPanel implements GSIElement {
 		
 		focused = false;
 		
-		cursor = GSCursorType.DEFAULT;
+		cursor = GSECursorType.DEFAULT;
 	}
 	
 	@Override
@@ -274,12 +274,12 @@ public class GSPanel implements GSIElement {
 	}
 	
 	@Override
-	public GSCursorType getCursor() {
+	public GSECursorType getCursor() {
 		return cursor;
 	}
 
 	@Override
-	public void setCursor(GSCursorType cursor) {
+	public void setCursor(GSECursorType cursor) {
 		if (cursor == null)
 			throw new IllegalArgumentException("cursor is null!");
 		

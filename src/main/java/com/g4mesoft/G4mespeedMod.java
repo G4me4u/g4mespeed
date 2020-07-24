@@ -38,18 +38,11 @@ public class G4mespeedMod implements ModInitializer {
 	
 	private GSCoreExtension coreExtension;
 	
-	private static final List<GSIExtension> extensions;
-	private static final Map<GSExtensionUID, GSIExtension> idToExtension;
-	private static final List<GSIExtensionListener> extensionListeners;
+	private static final List<GSIExtension> extensions = new ArrayList<GSIExtension>();
+	private static final Map<GSExtensionUID, GSIExtension> idToExtension = new HashMap<GSExtensionUID, GSIExtension>();
+	private static final List<GSIExtensionListener> extensionListeners = new ArrayList<GSIExtensionListener>();
 	
-	private static GSExtensionUID[] extensionUidCache;
-	
-	static {
-		extensions = new ArrayList<GSIExtension>();
-		idToExtension = new HashMap<GSExtensionUID, GSIExtension>();
-		extensionListeners = new ArrayList<GSIExtensionListener>();
-		extensionUidCache = new GSExtensionUID[0];
-	}
+	private static GSExtensionUID[] extensionUidCache = new GSExtensionUID[0];
 	
 	public G4mespeedMod() {
 	}
