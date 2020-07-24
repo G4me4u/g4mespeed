@@ -1,5 +1,6 @@
 package com.g4mesoft.gui.scroll;
 
+import com.g4mesoft.gui.GSIElement;
 import com.g4mesoft.gui.GSParentPanel;
 import com.g4mesoft.gui.renderer.GSIRenderer2D;
 
@@ -85,23 +86,42 @@ public class GSScrollablePanel extends GSParentPanel {
 		}
 
 		@Override
+		public GSIElement getChildAt(int x, int y) {
+			if (content != null && x >= 0 && x < width && y >= 0) {
+				// Since the content itself is located at (0, 0) with
+				// dimensions (width, height), we have to do a manual
+				// check if the y-coordinate is within the content.
+				if (y < Math.max(getContentHeight(), height))
+					return content;
+			}
+			
+			return null;
+		}
+		
+		@Override
 		public int getContentWidth() {
-			return content.getContentWidth();
+			return (content != null) ? content.getContentWidth() : 0;
 		}
 
 		@Override
 		public int getContentHeight() {
-			return content.getContentHeight();
+			return (content != null) ? content.getContentHeight() : 0;
 		}
 		
 		@Override
 		public float getIncrementalScrollX(int sign) {
-			return content.getIncrementalScrollX(sign);
+			if (content != null)
+				return content.getIncrementalScrollX(sign);
+			
+			return GSIScrollableViewport.super.getIncrementalScrollX(sign);
 		}
 
 		@Override
 		public float getIncrementalScrollY(int sign) {
-			return content.getIncrementalScrollY(sign);
+			if (content != null)
+				return content.getIncrementalScrollY(sign);
+
+			return GSIScrollableViewport.super.getIncrementalScrollY(sign);
 		}
 	}
 }
