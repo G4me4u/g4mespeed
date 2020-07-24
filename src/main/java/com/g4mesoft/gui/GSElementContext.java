@@ -57,7 +57,7 @@ public final class GSElementContext {
 		getContext().setContentImpl(content);
 	}
 
-	public static void setCursor(GSCursorType cursor) {
+	public static void setCursor(GSECursorType cursor) {
 		getContext().setCursorImpl(cursor);
 	}
 	
@@ -130,7 +130,7 @@ public final class GSElementContext {
 		}
 	}
 
-	private void setCursorImpl(GSCursorType cursor) {
+	private void setCursorImpl(GSECursorType cursor) {
 		if (cursor == null)
 			throw new IllegalArgumentException("cursor is null!");
 		

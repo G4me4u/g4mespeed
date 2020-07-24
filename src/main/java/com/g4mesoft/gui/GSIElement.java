@@ -83,8 +83,8 @@ public interface GSIElement extends GSIViewport {
 	
 	public boolean isEditingText();
 	
-	public GSCursorType getCursor();
+	public GSECursorType getCursor();
 
-	public void setCursor(GSCursorType cursor);
+	public void setCursor(GSECursorType cursor);
 
 }

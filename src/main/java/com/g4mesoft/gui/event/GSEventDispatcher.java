@@ -2,7 +2,7 @@ package com.g4mesoft.gui.event;
 
 import java.util.function.BiConsumer;
 
-import com.g4mesoft.gui.GSCursorType;
+import com.g4mesoft.gui.GSECursorType;
 import com.g4mesoft.gui.GSIElement;
 import com.g4mesoft.gui.GSElementContext;
 import com.g4mesoft.gui.GSRootPanel;
@@ -22,18 +22,18 @@ public class GSEventDispatcher {
 	private final GSRootPanel rootPanel;
 	
 	private GSIElement focusedElement;
-	private GSCursorType cursor;
+	private GSECursorType cursor;
 
 	public GSEventDispatcher(GSRootPanel rootPanel) {
 		this.rootPanel = rootPanel;
 		
 		focusedElement = null;
-		cursor = GSCursorType.DEFAULT;
+		cursor = GSECursorType.DEFAULT;
 	}
 	
 	public void reset() {
 		setFocusedElement(null);
-		setCurrentCursor(GSCursorType.DEFAULT);
+		setCurrentCursor(GSECursorType.DEFAULT);
 	}
 	
 	public void mouseMoved(float mouseX, float mouseY) {
@@ -47,11 +47,11 @@ public class GSEventDispatcher {
 			GSMouseEvent event = GSMouseEvent.createMouseMovedEvent(result.x, result.y);
 			distributeMouseEvent(result.element, event, GSIMouseListener::mouseMoved);
 		} else {
-			setCurrentCursor(GSCursorType.DEFAULT);
+			setCurrentCursor(GSECursorType.DEFAULT);
 		}
 	}
 	
-	private void setCurrentCursor(GSCursorType cursor) {
+	private void setCurrentCursor(GSECursorType cursor) {
 		if (cursor != this.cursor) {
 			this.cursor = cursor;
 			
