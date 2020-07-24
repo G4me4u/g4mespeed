@@ -24,7 +24,7 @@ public class G4mespeedMod implements ModInitializer {
 	
 	public static final GSVersion GS_EXTENSIONS_VERSION = new GSVersion(1, 1, 0);
 	/* CORE in hex */
-	public static final GSExtensionUID CORE_EXTENSION_UID = new GSExtensionUID(0x434f5245);
+	public static final GSExtensionUID CORE_EXTENSION_UID = new GSExtensionUID(0x434F5245);
 	/* Reserved extension UID */
 	public static final GSExtensionUID INVALID_EXTENSION_UID = new GSExtensionUID(0xFFFFFFFF);
 
