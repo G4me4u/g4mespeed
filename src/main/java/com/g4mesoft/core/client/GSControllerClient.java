@@ -130,6 +130,11 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		return serverExtensionUidSet.contains(extensionUid);
 	}
 	
+	public void onJoinServer() {
+		for (GSIModule module : modules)
+			module.onJoinServer();
+	}
+	
 	public void onJoinG4mespeedServer(GSVersion serverVersion) {
 		this.serverVersion = serverVersion;
 		sendPacket(new GSExtensionUidsPacket(G4mespeedMod.getExtensionUids()), G4mespeedMod.GS_EXTENSIONS_VERSION);
