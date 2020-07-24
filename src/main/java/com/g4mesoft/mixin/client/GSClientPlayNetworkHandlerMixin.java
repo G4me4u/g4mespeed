@@ -29,6 +29,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
 
@@ -43,6 +44,11 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Inject(method = "<init>", at = @At("RETURN"))
 	public void onInit(CallbackInfo ci) {
 		GSControllerClient.getInstance().setNetworkHandler((ClientPlayNetworkHandler)(Object) this);
+	}
+	
+	@Inject(method = "onGameJoin", at = @At("RETURN"))
+	public void onOnGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
+		GSControllerClient.getInstance().onJoinServer();
 	}
 
 	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)

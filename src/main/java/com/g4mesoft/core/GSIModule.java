@@ -30,6 +30,9 @@ public interface GSIModule {
 	default public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) { }
 
 	default public void tick(boolean paused) { }
+	
+	@Environment(EnvType.CLIENT)
+	default public void onJoinServer() { }
 
 	@Environment(EnvType.CLIENT)
 	default public void onJoinG4mespeedServer(GSVersion serverVersion) { }
@@ -44,5 +47,6 @@ public interface GSIModule {
 	default public void onPlayerLeave(ServerPlayerEntity player) { }
 
 	default public void onPlayerPermissionChanged(ServerPlayerEntity player) { }
+
 
 }
