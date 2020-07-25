@@ -4,8 +4,7 @@ import com.g4mesoft.setting.GSSetting;
 
 import net.minecraft.util.PacketByteBuf;
 
-@SuppressWarnings("rawtypes")
-public interface GSISettingDecoder<T extends GSSetting> {
+public interface GSISettingDecoder<T extends GSSetting<?>> {
 
 	public T decodeSetting(String name, PacketByteBuf buffer);
 

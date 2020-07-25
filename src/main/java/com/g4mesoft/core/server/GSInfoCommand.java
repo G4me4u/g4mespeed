@@ -1,6 +1,6 @@
 package com.g4mesoft.core.server;
 
-import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.core.GSCoreExtension;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 
@@ -15,12 +15,12 @@ public final class GSInfoCommand {
 
 	public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
 		dispatcher.register(CommandManager.literal("gs").then(CommandManager.literal("info").executes(context -> {
-			return informG4mespeedVersion(context.getSource());
+			return informCoreVersion(context.getSource());
 		})));
 	}
 
-	private static int informG4mespeedVersion(ServerCommandSource source) {
-		source.sendFeedback(new TranslatableText("command.gs.info", G4mespeedMod.GS_CORE_VERSION), false);
+	private static int informCoreVersion(ServerCommandSource source) {
+		source.sendFeedback(new TranslatableText("command.gs.info", GSCoreExtension.VERSION), false);
 		
 		return Command.SINGLE_SUCCESS;
 	}

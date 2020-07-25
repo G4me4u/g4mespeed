@@ -8,9 +8,10 @@ gui.tab.serverSettings=Server Settings
 gui.tab.info=Info
 gui.tab.hotkeys=Hotkeys
 
-gui.info.serverVersionTitle=Server Version:
-gui.info.invalidServer=Not installed
-gui.info.clientVersionTitle=Client Version:
+gui.info.serverExtensionsTitle=Server Extensions:
+gui.info.clientExtensionsTitle=Client Extensions:
+gui.info.extensionName=%s:
+gui.info.invalidVersion=Not installed
 
 setting.default=Default is %s.
 setting.button.reset=Reset
@@ -47,7 +48,7 @@ setting.betterPistons.pistonAnimationType.desc=Specifies whether to have a pause
 
 setting.betterPistons.pistonRenderDistance=Piston Render Distance
 setting.betterPistons.pistonRenderDistance.desc=Render distance of blocks moved by pistons. Since this has no effect if it is greater than the block event distance on the server the option can be set to Automatic to use this distance instead.
-setting.betterPistons.pistonRenderDistance.0=Automatic
+setting.betterPistons.pistonRenderDistance.-1=Automatic
 setting.betterPistons.pistonRenderDistance.1=1 chunk
 setting.betterPistons.pistonRenderDistance.x=%s chunks
 

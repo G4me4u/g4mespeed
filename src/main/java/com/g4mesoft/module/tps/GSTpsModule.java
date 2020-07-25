@@ -10,9 +10,9 @@ import java.util.function.Consumer;
 import org.lwjgl.glfw.GLFW;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
-import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSIModuleManagerClient;
 import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.core.compat.GSICarpetCompatTickrateListener;
@@ -51,9 +51,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	private static final float TPS_INCREMENT_INTERVAL = 1.0f;
 	private static final float TONE_MULTIPLIER = (float)Math.pow(2.0, 1.0 / 12.0);
 	
-	public static final GSVersion TPS_INTRODUCTION_VERSION = new GSVersion(1, 0, 0);
-	public static final GSVersion TPS_MONITOR_INTRODUCTION_VERSION = new GSVersion(1, 1, 0);
-	
 	public static final GSSettingCategory TPS_CATEGORY = new GSSettingCategory("tps");
 	public static final GSSettingCategory BETTER_PISTONS_CATEGORY = new GSSettingCategory("betterPistons");
 
@@ -63,7 +60,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public static final int PISTON_ANIM_PAUSE_BEGINNING = 1;
 	public static final int PISTON_ANIM_NO_PAUSE = 2;
 	
-	public static final int AUTOMATIC_PISTON_RENDER_DISTANCE = 0;
+	public static final int AUTOMATIC_PISTON_RENDER_DISTANCE = -1;
 	
 	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##", new DecimalFormatSymbols(Locale.ENGLISH));
 	
@@ -116,7 +113,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 
 		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
-		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, 0, 32);
+		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, -1, 32);
 		sBlockEventDistance = new GSIntegerSetting("blockEventDistance", 4, 0, 32);
 		sParanoidMode = new GSBooleanSetting("paranoidMode", false);
 		sImmediateBlockBroadcast = new GSBooleanSetting("immediateBlockBroadcast", false);
@@ -201,7 +198,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				
 				int syncInterval = sSyncPacketInterval.getValue();
 				if (serverSyncTimer >= syncInterval) {
-					managerServer.sendPacketToAll(new GSServerSyncPacket(syncInterval), TPS_INTRODUCTION_VERSION);
+					managerServer.sendPacketToAll(new GSServerSyncPacket(syncInterval));
 					serverSyncTimer = 0;
 				}
 			}
@@ -216,7 +213,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				long sererTpsInterval = now - lastServerTpsTime;
 				if (sererTpsInterval < 0L || sererTpsInterval > SERVER_TPS_INTERVAL) {
 					float averageTps = serverTpsMonitor.getAverageTps();
-					managerServer.sendPacketToAll(new GSServerTpsPacket(averageTps), TPS_MONITOR_INTRODUCTION_VERSION);
+					managerServer.sendPacketToAll(new GSServerTpsPacket(averageTps));
 					lastServerTpsTime = now;
 				}
 			}
@@ -246,7 +243,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				MinecraftClient client = MinecraftClient.getInstance();
 				boolean sneaking = client.options.keySneak.isPressed();
 				
-				if (managerClient.getServerVersion().isGreaterThanOrEqualTo(TPS_INTRODUCTION_VERSION)) {
+				if (managerClient.isG4mespeedServer()) {
 					if (sAllowHotkeyControls.getValue()) {
 						// Only send the hotkey packet when the server
 						// allows us to use hotkey controls.
@@ -369,9 +366,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 
 	@Override
-	public void onG4mespeedClientJoin(ServerPlayerEntity player, GSVersion version) {
-		if (version.isGreaterThanOrEqualTo(TPS_INTRODUCTION_VERSION))
-			manager.runOnServer(managerServer -> managerServer.sendPacket(new GSTpsChangePacket(tps), player));
+	public void onG4mespeedClientJoin(ServerPlayerEntity player, GSExtensionInfo coreInfo) {
+		manager.runOnServer(managerServer -> managerServer.sendPacket(new GSTpsChangePacket(tps), player));
 	}
 
 	public void addTpsListener(GSITpsDependant listener) {
