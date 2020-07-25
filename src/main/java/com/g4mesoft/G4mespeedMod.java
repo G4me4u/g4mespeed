@@ -2,7 +2,7 @@ package com.g4mesoft;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +31,7 @@ public class G4mespeedMod implements ModInitializer {
 	private GSCoreExtension coreExtension;
 	
 	private static final List<GSIExtension> extensions = new ArrayList<GSIExtension>();
-	private static final Map<GSExtensionUID, GSIExtension> idToExtension = new HashMap<GSExtensionUID, GSIExtension>();
+	private static final Map<GSExtensionUID, GSIExtension> idToExtension = new LinkedHashMap<GSExtensionUID, GSIExtension>();
 	private static final List<GSIExtensionListener> extensionListeners = new ArrayList<GSIExtensionListener>();
 	
 	private static GSExtensionInfo[] extensionInfoCache = new GSExtensionInfo[0];
