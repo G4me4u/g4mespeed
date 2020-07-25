@@ -2,7 +2,6 @@ package com.g4mesoft.setting;
 
 import java.io.IOException;
 
-import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.packet.GSIPacket;
@@ -16,8 +15,6 @@ import net.minecraft.util.PacketByteBuf;
 
 public class GSSettingChangePacket implements GSIPacket {
 
-	public static final GSVersion DISABLE_SETTING_INTRODUCTION = new GSVersion(1, 0, 2);
-	
 	private GSSettingCategory category;
 	private GSSetting<?> setting;
 	private GSESettingChangeType type;

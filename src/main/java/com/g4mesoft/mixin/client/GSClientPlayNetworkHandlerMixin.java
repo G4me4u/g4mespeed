@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.packet.GSICustomPayloadHolder;
@@ -59,8 +58,7 @@ public class GSClientPlayNetworkHandlerMixin {
 		GSICustomPayloadHolder<ClientPlayPacketListener> payload = (GSICustomPayloadHolder<ClientPlayPacketListener>)packet;
 		
 		GSControllerClient controllerClient = GSControllerClient.getInstance();
-		GSVersion serverVersion = controllerClient.getServerVersion();
-		GSIPacket gsPacket = packetManger.decodePacket(payload, serverVersion, (ClientPlayNetworkHandler)(Object)this, this.client);
+		GSIPacket gsPacket = packetManger.decodePacket(payload, controllerClient.getServerExtensionInfoList(), (ClientPlayNetworkHandler)(Object)this, this.client);
 		if (gsPacket != null) {
 			gsPacket.handleOnClient(controllerClient);
 			ci.cancel();

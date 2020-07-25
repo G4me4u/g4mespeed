@@ -378,7 +378,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	@Override
 	public GSECursorType getCursor() {
-		return isEditable() ? GSECursorType.IBEAM : super.getCursor();
+		return GSECursorType.IBEAM;
 	}
 
 	public int viewToModel(int x, int y) {

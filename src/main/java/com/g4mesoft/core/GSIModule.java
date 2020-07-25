@@ -1,5 +1,6 @@
 package com.g4mesoft.core;
 
+import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.gui.GSTabbedGUI;
 import com.g4mesoft.hotkey.GSKeyManager;
 import com.g4mesoft.setting.GSSettingManager;
@@ -35,18 +36,17 @@ public interface GSIModule {
 	default public void onJoinServer() { }
 
 	@Environment(EnvType.CLIENT)
-	default public void onJoinG4mespeedServer(GSVersion serverVersion) { }
+	default public void onJoinG4mespeedServer(GSExtensionInfo coreInfo) { }
 
 	@Environment(EnvType.CLIENT)
 	default public void onDisconnectServer() { }
 
 	default public void onPlayerJoin(ServerPlayerEntity player) { }
 
-	default public void onG4mespeedClientJoin(ServerPlayerEntity player, GSVersion version) { }
+	default public void onG4mespeedClientJoin(ServerPlayerEntity player, GSExtensionInfo coreInfo) { }
 
 	default public void onPlayerLeave(ServerPlayerEntity player) { }
 
 	default public void onPlayerPermissionChanged(ServerPlayerEntity player) { }
-
 
 }

@@ -6,6 +6,7 @@ import java.util.List;
 import com.g4mesoft.access.GSIKeyboardAccess;
 import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.GSCoreOverride;
+import com.g4mesoft.gui.event.GSEventDispatcher;
 import com.g4mesoft.gui.event.GSIFocusEventListener;
 import com.g4mesoft.gui.event.GSIKeyListener;
 import com.g4mesoft.gui.event.GSIMouseListener;
@@ -320,7 +321,13 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 			element.onAdded(this);
 			element.setBounds(0, 0, width, height);
 
-			element.requestFocus();
+			GSEventDispatcher eventDispatcher = GSElementContext.getEventDispatcher();
+			
+			// Only request focus if elements have not requested
+			// focus when they were added to the root panel.
+			GSIElement focusedElement = eventDispatcher.getFocusedElement();
+			if (focusedElement == this || focusedElement == null)
+				element.requestFocus();
 		} else {
 			requestFocus();
 		}

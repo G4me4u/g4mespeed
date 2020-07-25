@@ -1,10 +1,7 @@
 package com.g4mesoft.mixin.server;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -13,6 +10,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSExtensionInfo;
+import com.g4mesoft.GSExtensionInfoList;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.GSVersion;
@@ -30,14 +29,10 @@ import net.minecraft.server.network.ServerPlayerEntity;
 @Mixin(ServerPlayNetworkHandler.class)
 public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess {
 
-	private GSVersion version = GSVersion.INVALID;
-
-	private GSExtensionUID[] extensionUids = new GSExtensionUID[0];
-	private final Set<GSExtensionUID> extensionUidSet = new HashSet<GSExtensionUID>();
-	
-	private Map<GSExtensionUID, Integer> translationVersions = new HashMap<GSExtensionUID, Integer>();
-	
 	@Shadow public ServerPlayerEntity player;
+
+	private final GSExtensionInfoList extensionInfoList = new GSExtensionInfoList();
+	private final Map<GSExtensionUID, Integer> translationVersions = new HashMap<GSExtensionUID, Integer>();
 	
 	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
 	private void onCustomPayload(CustomPayloadC2SPacket packet, CallbackInfo ci) {
@@ -47,7 +42,7 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 		GSICustomPayloadHolder<ServerPlayPacketListener> payload = (GSICustomPayloadHolder<ServerPlayPacketListener>)packet;
 		
 		GSControllerServer controllerServer = GSControllerServer.getInstance();
-		GSIPacket gsPacket = packetManger.decodePacket(payload, version, (ServerPlayNetworkHandler)(Object)this, controllerServer.getServer());
+		GSIPacket gsPacket = packetManger.decodePacket(payload, extensionInfoList, (ServerPlayNetworkHandler)(Object)this, controllerServer.getServer());
 		if (gsPacket != null) {
 			gsPacket.handleOnServer(controllerServer, player);
 			ci.cancel();
@@ -55,32 +50,33 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 	}
 	
 	@Override
-	public void setCoreVersion(GSVersion version) {
-		this.version = version;
-	}
-
-	@Override
-	public GSVersion getCoreVersion() {
-		return version;
-	}
-
-	@Override
-	public void setExtensionUids(GSExtensionUID[] extensionUids) {
-		this.extensionUids = Arrays.copyOf(extensionUids, extensionUids.length);
-	
-		extensionUidSet.clear();
-		for (GSExtensionUID uid : this.extensionUids)
-			extensionUidSet.add(uid);
-	}
-	
-	@Override
-	public GSExtensionUID[] getExtensionUids() {
-		return extensionUids;
-	}
-	
-	@Override
 	public boolean isExtensionInstalled(GSExtensionUID extensionUid) {
-		return extensionUidSet.contains(extensionUid);
+		return extensionInfoList.isExtensionInstalled(extensionUid);
+	}
+	
+	@Override
+	public boolean isExtensionInstalled(GSExtensionUID extensionUid, GSVersion minimumVersion) {
+		return extensionInfoList.isExtensionInstalled(extensionUid, minimumVersion);
+	}
+
+	@Override
+	public GSExtensionInfo getExtensionInfo(GSExtensionUID extensionUid) {
+		return extensionInfoList.getExtensionInfo(extensionUid);
+	}
+
+	@Override
+	public void clearAllExtensionInfo() {
+		extensionInfoList.clearExtensionInfo();
+	}
+	
+	@Override
+	public void addAllExtensionInfo(GSExtensionInfo[] extensionInfo) {
+		extensionInfoList.addAllExtensionInfo(extensionInfo);
+	}
+
+	@Override
+	public void addExtensionInfo(GSExtensionInfo info) {
+		extensionInfoList.addExtensionInfo(info);
 	}
 	
 	@Override

@@ -11,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSCoreOverride;
-import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.packet.GSPacketManager;
 
@@ -19,16 +18,9 @@ import net.fabricmc.api.ModInitializer;
 
 public class G4mespeedMod implements ModInitializer {
 
-	public static final String CORE_MOD_NAME = "G4mespeed";
-	public static final GSVersion GS_CORE_VERSION = new GSVersion(1, 1, 0);
-	
-	public static final GSVersion GS_EXTENSIONS_VERSION = new GSVersion(1, 1, 0);
-	/* CORE in hex */
-	public static final GSExtensionUID CORE_EXTENSION_UID = new GSExtensionUID(0x434f5245);
-	/* Reserved extension UID */
 	public static final GSExtensionUID INVALID_EXTENSION_UID = new GSExtensionUID(0xFFFFFFFF);
 
-	public static final Logger GS_LOGGER = LogManager.getLogger(CORE_MOD_NAME);
+	public static final Logger GS_LOGGER = LogManager.getLogger("G4mespeed Core");
 
 	private static G4mespeedMod instance = null;
 	private static boolean initialized = false;
@@ -42,7 +34,7 @@ public class G4mespeedMod implements ModInitializer {
 	private static final Map<GSExtensionUID, GSIExtension> idToExtension = new HashMap<GSExtensionUID, GSIExtension>();
 	private static final List<GSIExtensionListener> extensionListeners = new ArrayList<GSIExtensionListener>();
 	
-	private static GSExtensionUID[] extensionUidCache = new GSExtensionUID[0];
+	private static GSExtensionInfo[] extensionInfoCache = new GSExtensionInfo[0];
 	
 	public G4mespeedMod() {
 	}
@@ -60,7 +52,7 @@ public class G4mespeedMod implements ModInitializer {
 		carpetCompat = new GSCarpetCompat();
 		carpetCompat.detectCarpet();
 		
-		GS_LOGGER.info("G4mespeed " + GS_CORE_VERSION.getVersionString() + " initialized!");
+		GS_LOGGER.info("G4mespeed " + GSCoreExtension.VERSION + " initialized!");
 		
 		for (GSIExtension extension : extensions)
 			extension.init();
@@ -70,9 +62,11 @@ public class G4mespeedMod implements ModInitializer {
 	
 	public static void addExtension(GSIExtension extension) {
 		synchronized (extensions) {
-			GSExtensionUID uid = extension.getUniqueId();
+			GSExtensionUID uid = extension.getInfo().getUniqueId();
+			
 			if (INVALID_EXTENSION_UID.equals(uid))
 				throw new IllegalArgumentException("Invalid extension ID: " + uid);
+			
 			if (idToExtension.containsKey(uid))
 				throw new IllegalArgumentException("Duplicate extension ID: " + uid);
 			
@@ -102,20 +96,26 @@ public class G4mespeedMod implements ModInitializer {
 			extensionListeners.remove(listener);
 		}
 	}
+
+	public static GSExtensionInfo getExtensionInfo(GSExtensionUID extensionUid) {
+		return idToExtension.get(extensionUid).getInfo();
+	}
 	
-	public static GSExtensionUID[] getExtensionUids() {
+	public static GSExtensionInfo[] getAllExtensionInfo() {
 		synchronized (extensions) {
 			int numExtensions = extensions.size();
-			if (numExtensions != extensionUidCache.length) {
-				extensionUidCache = new GSExtensionUID[numExtensions];
+			
+			if (numExtensions != extensionInfoCache.length) {
+				extensionInfoCache = new GSExtensionInfo[numExtensions];
+			
 				for (int i = 0; i < numExtensions; i++)
-					extensionUidCache[i] = extensions.get(i).getUniqueId();
+					extensionInfoCache[i] = extensions.get(i).getInfo();
 			}
 		}
 		
-		return extensionUidCache;
+		return extensionInfoCache;
 	}
-
+	
 	private static void dispatchExtensionAddedEvent(GSIExtension extension) {
 		synchronized (extensionListeners) {
 			for (GSIExtensionListener listener : extensionListeners)
