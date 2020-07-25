@@ -17,6 +17,8 @@ public final class GSCarpetCompat {
 	private static final String TICKRATE_METHOD_NAME = "tickrate";
 	private static final String MSPT_FIELD_NAME = "mspt";
 	
+	private static final String G4MESPEED_INTERFACE_NAME = "g4mespeed";
+	
 	private boolean carpetDetected;
 	private Method carpetAddTickrateListener;
 	
@@ -103,7 +105,7 @@ public final class GSCarpetCompat {
 	}
 	
 	private void carpetTickrateChanged(String modId, float tickrate) {
-		if (!G4mespeedMod.CORE_MOD_NAME.equals(modId)) {
+		if (!G4MESPEED_INTERFACE_NAME.equals(modId)) {
 			synchronized(tickrateListeners) {
 				lastBroadcastCarpetTickrate = tickrate;
 				
@@ -117,7 +119,7 @@ public final class GSCarpetCompat {
 	private BiConsumer<String, Float> establishTickrateLink(BiConsumer<String, Float> tickrateListener) {
 		if (carpetDetected && carpetAddTickrateListener != null) {
 			try {
-				return (BiConsumer<String, Float>)carpetAddTickrateListener.invoke(null, G4mespeedMod.CORE_MOD_NAME, tickrateListener);
+				return (BiConsumer<String, Float>)carpetAddTickrateListener.invoke(null, G4MESPEED_INTERFACE_NAME, tickrateListener);
 			} catch (Exception e) {
 				// Handle silently
 			}
@@ -146,7 +148,7 @@ public final class GSCarpetCompat {
 	
 	public void notifyTickrateChange(float tickrate) {
 		if (carpetTickrateListener != null && !GSMathUtils.equalsApproximate(getCarpetTickrate(), tickrate)) {
-			carpetTickrateListener.accept(G4mespeedMod.CORE_MOD_NAME, Float.valueOf(tickrate));
+			carpetTickrateListener.accept(G4MESPEED_INTERFACE_NAME, Float.valueOf(tickrate));
 			
 			// Assume the tickrate was set correctly.
 			lastBroadcastCarpetTickrate = tickrate;

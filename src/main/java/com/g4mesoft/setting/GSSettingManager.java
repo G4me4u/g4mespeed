@@ -36,16 +36,11 @@ public class GSSettingManager {
 	private final List<GSISettingChangeListener> listeners;
 	
 	private static final Map<String, GSISettingDecoder<?>> typeToDecoder;
-	@SuppressWarnings("rawtypes")
-	private static final Map<Class<? extends GSSetting>, GSISettingDecoder> clazzToDecoder;
+	private static final Map<Class<? extends GSSetting<?>>, GSISettingDecoder<?>> clazzToDecoder;
 	
 	static {
 		typeToDecoder = new HashMap<String, GSISettingDecoder<?>>();
-		
-		@SuppressWarnings("rawtypes")
-		Map<Class<? extends GSSetting>, GSISettingDecoder> tmpClazzToDecoder = 
-			new HashMap<Class<? extends GSSetting>, GSISettingDecoder>();
-		clazzToDecoder = tmpClazzToDecoder;
+		clazzToDecoder = new HashMap<Class<? extends GSSetting<?>>, GSISettingDecoder<?>>();
 
 		registerDefaultParsers();
 	}
@@ -62,10 +57,10 @@ public class GSSettingManager {
 		registerSettingDecoder(new GSStringSettingDecoder());
 	}
 
-	public static synchronized void registerSettingDecoder(GSISettingDecoder<?> decoder) {
+	public static synchronized <T extends GSSetting<?>> void registerSettingDecoder(GSISettingDecoder<T> decoder) {
 		String type = decoder.getTypeString();
-		@SuppressWarnings("rawtypes")
-		Class<? extends GSSetting> clazz = decoder.getSettingClass();
+
+		Class<T> clazz = decoder.getSettingClass();
 		
 		if (typeToDecoder.containsKey(type))
 			throw new RuntimeException("A decoder with type-name \"" + type + "\" already exists.");
@@ -90,13 +85,14 @@ public class GSSettingManager {
 		}
 	}
 	
-	@SuppressWarnings("rawtypes")
-	public static GSISettingDecoder<?> getSettingDecoder(Class<? extends GSSetting> clazz) {
+	public static <T extends GSSetting<?>> GSISettingDecoder<T> getSettingDecoder(Class<T> clazz) {
 		if (GSUnknownSetting.class.equals(clazz))
 			return null;
 		
 		synchronized (clazzToDecoder) {
-			return clazzToDecoder.get(clazz);
+			@SuppressWarnings("unchecked")
+			GSISettingDecoder<T> decoder = (GSISettingDecoder<T>)clazzToDecoder.get(clazz);
+			return decoder;
 		}
 	}
 	

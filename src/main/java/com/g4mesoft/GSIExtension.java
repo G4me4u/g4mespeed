@@ -17,8 +17,6 @@ public interface GSIExtension {
 
 	public String getTranslationPath();
 	
-	public String getName();
-	
-	public GSExtensionUID getUniqueId();
+	public GSExtensionInfo getInfo();
 	
 }

@@ -51,10 +51,12 @@ public abstract class GSSetting<T> {
 		setValue(defaultValue);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public void setValueIfSameType(GSSetting<?> other) {
-		if (isSameType(other))
-			setValue((T)other.getValue());
+	void setValueIfSameType(GSSetting<?> other) {
+		if (isSameType(other)) {
+			@SuppressWarnings("unchecked")
+			T otherValue = (T)other.getValue();
+			setValue(otherValue);
+		}
 	}
 	
 	public T getDefaultValue() {

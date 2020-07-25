@@ -54,7 +54,15 @@ public final class GSSettingMap {
 		// to ensure that the listeners will receive info
 		// about the setting change, if one occurred.
 		if (currentSetting != null)
-			setting.setValueIfSameType(currentSetting);
+			setValueFromLoadedSetting(setting, currentSetting);
+	}
+	
+	private void setValueFromLoadedSetting(GSSetting<?> setting, GSSetting<?> loadedSetting) {
+		if (setting.getDefaultValue().equals(loadedSetting.getDefaultValue())) {
+			setting.setValueIfSameType(loadedSetting);
+		} else {
+			setting.reset();
+		}
 	}
 	
 	public void clearSettings() {
@@ -118,7 +126,7 @@ public final class GSSettingMap {
 			
 			GSSetting<?> currentSetting = getSetting(setting.getName());
 			if (currentSetting != null) {
-				currentSetting.setValueIfSameType(setting);
+				setValueFromLoadedSetting(currentSetting, setting);
 			} else {
 				// Setting was not added through the registerSetting
 				// method and is therefore not necessarily active.

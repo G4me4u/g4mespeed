@@ -43,19 +43,6 @@ public final class GSVersion {
 		return majorVersion < 0 || minorVersion < 0 || updateVersion < 0;
 	}
 
-	public static GSVersion read(PacketByteBuf buf) {
-		int major = buf.readShort();
-		int minor = buf.readShort();
-		int update = buf.readShort();
-		return new GSVersion(major, minor, update);
-	}
-
-	public void write(PacketByteBuf buf) {
-		buf.writeShort((short)majorVersion);
-		buf.writeShort((short)minorVersion);
-		buf.writeShort((short)updateVersion);
-	}
-
 	public boolean isGreaterThanOrEqualTo(GSVersion other) {
 		if (isInvalid())
 			return other.isInvalid();
@@ -74,10 +61,18 @@ public final class GSVersion {
 		return false;
 	}
 
+	public boolean isLessThanOrEqualTo(GSVersion other) {
+		return other.isGreaterThanOrEqualTo(this);
+	}
+
+	public boolean isGreaterThan(GSVersion other) {
+		return !isLessThanOrEqualTo(other);
+	}
+	
 	public boolean isLessThan(GSVersion other) {
 		return !isGreaterThanOrEqualTo(other);
 	}
-	
+
 	public boolean isEqual(GSVersion other) {
 		if (isInvalid())
 			return other.isInvalid();
@@ -85,6 +80,19 @@ public final class GSVersion {
 		return majorVersion  == other.majorVersion &&
 		       minorVersion  == other.minorVersion &&
 		       updateVersion == other.updateVersion;
+	}
+	
+	public static GSVersion read(PacketByteBuf buf) {
+		int major = buf.readShort();
+		int minor = buf.readShort();
+		int update = buf.readShort();
+		return new GSVersion(major, minor, update);
+	}
+
+	public static void write(PacketByteBuf buf, GSVersion version) {
+		buf.writeShort((short)version.majorVersion);
+		buf.writeShort((short)version.minorVersion);
+		buf.writeShort((short)version.updateVersion);
 	}
 	
 	@Override

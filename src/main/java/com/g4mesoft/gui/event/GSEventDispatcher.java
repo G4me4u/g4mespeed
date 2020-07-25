@@ -174,6 +174,10 @@ public class GSEventDispatcher {
 			setFocusedElement(null);
 	}
 	
+	public GSIElement getFocusedElement() {
+		return focusedElement;
+	}
+	
 	private boolean isChildOfRoot(GSIElement element) {
 		GSIElement parent;
 		while ((parent = element.getParent()) != null)

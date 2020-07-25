@@ -2,7 +2,6 @@ package com.g4mesoft.setting;
 
 import java.io.IOException;
 
-import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.packet.GSIPacket;
@@ -14,8 +13,6 @@ import net.minecraft.network.PacketByteBuf;
 
 public class GSServerSettingMapPacket implements GSIPacket {
 
-	public static final GSVersion DISABLE_SETTING_INTRODUCTION = GSSettingChangePacket.DISABLE_SETTING_INTRODUCTION;
-	
 	private GSSettingMap settingMap;
 	
 	public GSServerSettingMapPacket() {

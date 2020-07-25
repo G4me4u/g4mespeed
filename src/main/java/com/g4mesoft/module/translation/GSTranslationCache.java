@@ -1,8 +1,13 @@
 package com.g4mesoft.module.translation;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.g4mesoft.util.GSBufferUtil;
+
+import net.minecraft.network.PacketByteBuf;
 
 public class GSTranslationCache {
 
@@ -30,5 +35,30 @@ public class GSTranslationCache {
 
 	public Map<String, String> getTranslationMap() {
 		return Collections.unmodifiableMap(translations);
+	}
+	
+	public static GSTranslationCache read(PacketByteBuf buf) throws IOException {
+		int cacheVersion = buf.readInt();
+		int n = buf.readInt();
+		
+		Map<String, String> translations = new HashMap<String, String>(n);
+		while (n-- > 0) {
+			String key = buf.readString(GSBufferUtil.MAX_STRING_LENGTH);
+			String value = buf.readString(GSBufferUtil.MAX_STRING_LENGTH);
+			translations.put(key, value);
+		}
+		
+		return new GSTranslationCache(cacheVersion, translations);
+	}
+	
+	public static void write(PacketByteBuf buf, GSTranslationCache cache) throws IOException {
+		buf.writeInt(cache.getCacheVersion());
+		
+		Map<String, String> translations = cache.getTranslationMap();
+		buf.writeInt(translations.size());
+		for (Map.Entry<String, String> entry : translations.entrySet()) {
+			buf.writeString(entry.getKey());
+			buf.writeString(entry.getValue());
+		}
 	}
 }

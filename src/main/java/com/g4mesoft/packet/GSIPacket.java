@@ -2,7 +2,7 @@ package com.g4mesoft.packet;
 
 import java.io.IOException;
 
-import com.g4mesoft.core.GSVersion;
+import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 
@@ -15,7 +15,7 @@ public interface GSIPacket {
 
 	public void read(PacketByteBuf buf) throws IOException;
 
-	default public void read(PacketByteBuf buf, GSVersion senderVersion) throws IOException {
+	default public void read(PacketByteBuf buf, GSExtensionInfo extensionInfo) throws IOException {
 		read(buf);
 	}
 

@@ -22,22 +22,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.GSIExtensionListener;
 import com.g4mesoft.access.GSINetworkHandlerAccess;
+import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
-import com.g4mesoft.core.GSVersion;
-import com.g4mesoft.packet.GSIPacket;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 
-	public static final GSVersion TRANSLATION_INTRODUCTION_VERSION = new GSVersion(1, 0, 0);
-	public static final GSVersion TRANSLATION_EXTENSION_VERSION = new GSVersion(1, 1, 0);
-	
 	private static final String CACHED_TRANSLATION_FILENAME = "en.lang";
 	public static final int INVALID_TRANSLATION_VERSION = -1;
 	
@@ -108,7 +105,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 		URL url = GSTranslationModule.class.getResource(extension.getTranslationPath());
 		if (url != null) {
 			try (InputStream is = url.openStream()) {
-				loadTranslations(is, extension.getUniqueId(), false);
+				loadTranslations(is, extension.getInfo().getUniqueId(), false);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -116,24 +113,8 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	}
 
 	@Override
-	public void onJoinG4mespeedServer(GSVersion serverVersion) {
-		if (serverVersion.isGreaterThanOrEqualTo(TRANSLATION_INTRODUCTION_VERSION)) {
-			if (serverVersion.isGreaterThanOrEqualTo(TRANSLATION_EXTENSION_VERSION)) {
-				GSIPacket packet = new GSTranslationVersionsPacket(cacheLists);
-				manager.runOnClient(m -> m.sendPacket(packet, TRANSLATION_EXTENSION_VERSION));
-			} else {
-				GSTranslationCacheList cacheList = cacheLists.get(G4mespeedMod.CORE_EXTENSION_UID);
-				if (cacheList != null) {
-					@SuppressWarnings("deprecation")
-					GSIPacket packet = new GSOutdatedTranslationVersionPacket(cacheList.getVersion());
-					manager.runOnClient(m -> m.sendPacket(packet, TRANSLATION_INTRODUCTION_VERSION));
-				}
-			}
-		}
-	}
-	
-	void onOutdatedTranslationVersionReceived(ServerPlayerEntity player, int translationVersion) {
-		sendMissingTranslations(player, G4mespeedMod.CORE_EXTENSION_UID, translationVersion);
+	public void onJoinG4mespeedServer(GSExtensionInfo coreInfo) {
+		manager.runOnClient(m -> m.sendPacket(new GSTranslationVersionsPacket(cacheLists)));
 	}
 	
 	void onTranslationVersionsReceived(ServerPlayerEntity player, Map<GSExtensionUID, Integer> uidToVersion) {
@@ -191,7 +172,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 			if (TimeUnit.HOURS.convert(cacheLifeDuration, TimeUnit.MILLISECONDS) > MAX_CACHE_LIFE_HOURS)
 				throw new IOException("Cache is too old. Discard it.");
 			
-			loadTranslations(reader, G4mespeedMod.CORE_EXTENSION_UID, true);
+			loadTranslations(reader, GSCoreExtension.UID, true);
 			cacheSaveTime = cacheTime;
 		}
 	}

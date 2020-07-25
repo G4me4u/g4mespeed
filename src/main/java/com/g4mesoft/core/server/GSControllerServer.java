@@ -5,14 +5,15 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.GSController;
-import com.g4mesoft.core.GSExtensionUidsPacket;
+import com.g4mesoft.core.GSCoreExtension;
+import com.g4mesoft.core.GSConnectionPacket;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSVersion;
-import com.g4mesoft.core.GSVersionPacket;
 import com.g4mesoft.core.client.GSIModuleManagerClient;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
@@ -36,8 +37,6 @@ import net.minecraft.util.Identifier;
 
 public class GSControllerServer extends GSController implements GSIModuleManagerServer, GSISettingChangeListener {
 
-	public static final GSVersion SETTING_PERMISSION_INTRODUCTION = new GSVersion(1, 0, 2);
-	
 	public static final int OP_PERMISSION_LEVEL = 2;
 
 	private static final GSControllerServer instance = new GSControllerServer();
@@ -78,8 +77,7 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 
 	public void onPlayerJoin(ServerPlayerEntity player) {
-		sendPacket(new GSExtensionUidsPacket(G4mespeedMod.getExtensionUids()), player, GSVersion.INVALID);
-		sendPacket(new GSVersionPacket(getCoreVersion()), player, GSVersion.INVALID);
+		sendPacket(new GSConnectionPacket(G4mespeedMod.getAllExtensionInfo()), player, GSVersion.INVALID);
 
 		for (GSIModule module : modules)
 			module.onPlayerJoin(player);
@@ -90,16 +88,31 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		return ((GSINetworkHandlerAccess)player.networkHandler).isExtensionInstalled(extensionUid);
 	}
 	
-	public void onG4mespeedClientJoined(ServerPlayerEntity player, GSVersion version) {
-		((GSINetworkHandlerAccess)player.networkHandler).setCoreVersion(version);
+	@Override
+	public boolean isExtensionInstalled(ServerPlayerEntity player, GSExtensionUID extensionUid, GSVersion minimumVersion) {
+		return ((GSINetworkHandlerAccess)player.networkHandler).isExtensionInstalled(extensionUid, minimumVersion);
+	}
 
-		for (GSIModule module : modules)
-			module.onG4mespeedClientJoin(player, version);
+	@Override
+	public GSExtensionInfo getExtensionInfo(ServerPlayerEntity player, GSExtensionUID extensionUid) {
+		return ((GSINetworkHandlerAccess)player.networkHandler).getExtensionInfo(extensionUid);
+	}
+	
+	public void onG4mespeedClientJoined(ServerPlayerEntity player, GSExtensionInfo[] extensionInfo) {
+		((GSINetworkHandlerAccess)player.networkHandler).clearAllExtensionInfo();
+		((GSINetworkHandlerAccess)player.networkHandler).addAllExtensionInfo(extensionInfo);
 		
-		sendSettingPermissionPacket(player);
+		if (isExtensionInstalled(player, GSCoreExtension.UID)) {
+			GSExtensionInfo coreInfo = getExtensionInfo(player, GSCoreExtension.UID);
 
-		for (GSSettingMap settingMap : settings.getSettings())
-			sendPacket(new GSServerSettingMapPacket(settingMap), player);
+			for (GSIModule module : modules)
+				module.onG4mespeedClientJoin(player, coreInfo);
+			
+			sendSettingPermissionPacket(player);
+	
+			for (GSSettingMap settingMap : settings.getSettings())
+				sendPacket(new GSServerSettingMapPacket(settingMap), player);
+		}
 	}
 
 	public void onPlayerLeave(ServerPlayerEntity player) {
@@ -141,11 +154,6 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 
 	@Override
-	public GSVersion getCoreVersion() {
-		return G4mespeedMod.GS_CORE_VERSION;
-	}
-
-	@Override
 	public void runOnClient(Consumer<GSIModuleManagerClient> consumer) {
 	}
 
@@ -155,51 +163,39 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 	
 	@Override
-	public void sendPacket(GSIPacket packet, ServerPlayerEntity player) {
-		sendPacket(packet, player, GSVersion.MINIMUM_VERSION);
+	public void sendPacket(GSIPacket packet, ServerPlayerEntity player, GSVersion minimumExtensionVersion) {
+		if (server != null) {
+			GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
+			GSExtensionUID extensionUid = packetManager.getPacketExtensionUniqueId(packet);
+			
+			if (extensionUid != null && isExtensionInstalled(player, extensionUid, minimumExtensionVersion)) {
+				Packet<?> customPayload = packetManager.encodePacket(packet, this);
+				
+				if (customPayload != null)
+					player.networkHandler.sendPacket(customPayload);
+			}
+		}
 	}
 
 	@Override
-	public void sendPacket(GSIPacket packet, ServerPlayerEntity player, GSVersion miminumVersion) {
-		if (((GSINetworkHandlerAccess)player.networkHandler).getCoreVersion().isLessThan(miminumVersion))
-			return;
-		
-		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
-		Packet<?> customPayload = packetManger.encodePacket(packet, this);
-		if (customPayload != null)
-			player.networkHandler.sendPacket(customPayload);
-		
-	}
-
-	@Override
-	public void sendPacketToAll(GSIPacket packet) {
-		sendPacketToAllExcept(packet, null);
-	}
-
-	@Override
-	public void sendPacketToAll(GSIPacket packet, GSVersion minimumVersion) {
-		sendPacketToAllExcept(packet, minimumVersion, null);
+	public void sendPacketToAll(GSIPacket packet, GSVersion minimumExtensionVersion) {
+		sendPacketToAllExcept(packet, minimumExtensionVersion, null);
 	}
 	
 	@Override
-	public void sendPacketToAllExcept(GSIPacket packet, ServerPlayerEntity player) {
-		sendPacketToAllExcept(packet, GSVersion.MINIMUM_VERSION, player);
-	}
+	public void sendPacketToAllExcept(GSIPacket packet, GSVersion minimumExtensionVersion, ServerPlayerEntity exceptPlayer) {
+		if (server != null) {
+			GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
+			GSExtensionUID extensionUid = packetManager.getPacketExtensionUniqueId(packet);
+			
+			if (extensionUid != null) {
+				Packet<?> customPayload = packetManager.encodePacket(packet, this);
 	
-	@Override
-	public void sendPacketToAllExcept(GSIPacket packet, GSVersion minimumVersion, ServerPlayerEntity exceptPlayer) {
-		if (server == null)
-			return;
-		
-		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
-		Packet<?> customPayload = packetManger.encodePacket(packet, this);
-		if (customPayload != null) {
-			for (ServerPlayerEntity player : getAllPlayers()) {
-				if (exceptPlayer == null || player != exceptPlayer) {
-					GSVersion playerVersion = ((GSINetworkHandlerAccess)player.networkHandler).getCoreVersion();
-					
-					if (playerVersion.isGreaterThanOrEqualTo(minimumVersion))
-						player.networkHandler.sendPacket(customPayload);
+				if (customPayload != null) {
+					for (ServerPlayerEntity player : getAllPlayers()) {
+						if (player != exceptPlayer && isExtensionInstalled(player, extensionUid, minimumExtensionVersion))
+							player.networkHandler.sendPacket(customPayload);
+					}
 				}
 			}
 		}
@@ -246,7 +242,7 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 	
 	private void sendSettingPermissionPacket(ServerPlayerEntity player) {
-		sendPacket(new GSSettingPermissionPacket(isAllowedSettingChange(player)), player, SETTING_PERMISSION_INTRODUCTION);
+		sendPacket(new GSSettingPermissionPacket(isAllowedSettingChange(player)), player);
 	}
 	
 	public MinecraftServer getServer() {
