@@ -218,12 +218,12 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 	
 	@Override
-	public void sendPacket(GSIPacket packet, GSVersion minimumExtensionVersion) {
+	public void sendPacket(GSIPacket packet, GSVersion minExtensionVersion) {
 		if (networkHandler != null) {
 			GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
 			GSExtensionUID extensionUid = packetManager.getPacketExtensionUniqueId(packet);
 			
-			if (extensionUid != null && isServerExtensionInstalled(extensionUid, minimumExtensionVersion)) {
+			if (extensionUid != null && isServerExtensionInstalled(extensionUid, minExtensionVersion)) {
 				Packet<?> customPayload = packetManager.encodePacket(packet, this);
 				
 				if (customPayload != null)
