@@ -15,16 +15,29 @@ public class GSParentPanel extends GSPanel implements GSIParentElement {
 	}
 	
 	@Override
+	public void setVisible(boolean visible) {
+		if (visible != isVisible()) {
+			super.setVisible(visible);
+		
+			for (GSIElement element : children)
+				element.setVisible(visible);
+		}
+	}
+	
+	@Override
 	public void add(GSIElement element) {
 		children.add(element);
 
 		element.onAdded(this);
+		element.setVisible(isVisible());
 	}
 	
 	@Override
 	public void remove(GSIElement element) {
-		if (children.remove(element))
+		if (children.remove(element)) {
+			element.setVisible(false);
 			element.onRemoved(this);
+		}
 	}
 	
 	@Override

@@ -13,9 +13,17 @@ public interface GSIElement extends GSIViewport {
 
 	public void setBounds(int x, int y, int width, int height);
 	
+	public boolean isAdded();
+
+	public GSIElement getParent();
+	
 	public void onAdded(GSIElement parent);
 
 	public void onRemoved(GSIElement parent);
+	
+	public boolean isVisible();
+
+	public void setVisible(boolean visible);
 
 	public void update();
 	
@@ -25,10 +33,6 @@ public interface GSIElement extends GSIViewport {
 	
 	public void postRender(GSIRenderer2D renderer);
 	
-	public boolean isAdded();
-	
-	public GSIElement getParent();
-
 	public GSIElement getChildAt(int x, int y);
 	
 	public boolean isInBounds(int x, int y);
@@ -86,5 +90,5 @@ public interface GSIElement extends GSIViewport {
 	public GSECursorType getCursor();
 
 	public void setCursor(GSECursorType cursor);
-
+	
 }
