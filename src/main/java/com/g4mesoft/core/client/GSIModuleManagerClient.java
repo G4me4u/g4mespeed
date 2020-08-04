@@ -25,6 +25,6 @@ public interface GSIModuleManagerClient extends GSIModuleManager {
 		sendPacket(packet, GSVersion.MINIMUM_VERSION);
 	}
 
-	public void sendPacket(GSIPacket packet, GSVersion minimumVersion);
+	public void sendPacket(GSIPacket packet, GSVersion minExtensionVersion);
 	
 }

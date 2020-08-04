@@ -163,12 +163,12 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 	
 	@Override
-	public void sendPacket(GSIPacket packet, ServerPlayerEntity player, GSVersion minimumExtensionVersion) {
+	public void sendPacket(GSIPacket packet, ServerPlayerEntity player, GSVersion minExtensionVersion) {
 		if (server != null) {
 			GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
 			GSExtensionUID extensionUid = packetManager.getPacketExtensionUniqueId(packet);
 			
-			if (extensionUid != null && isExtensionInstalled(player, extensionUid, minimumExtensionVersion)) {
+			if (extensionUid != null && isExtensionInstalled(player, extensionUid, minExtensionVersion)) {
 				Packet<?> customPayload = packetManager.encodePacket(packet, this);
 				
 				if (customPayload != null)
@@ -178,12 +178,12 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 
 	@Override
-	public void sendPacketToAll(GSIPacket packet, GSVersion minimumExtensionVersion) {
-		sendPacketToAllExcept(packet, minimumExtensionVersion, null);
+	public void sendPacketToAll(GSIPacket packet, GSVersion minExtensionVersion) {
+		sendPacketToAllExcept(packet, minExtensionVersion, null);
 	}
 	
 	@Override
-	public void sendPacketToAllExcept(GSIPacket packet, GSVersion minimumExtensionVersion, ServerPlayerEntity exceptPlayer) {
+	public void sendPacketToAllExcept(GSIPacket packet, GSVersion minExtensionVersion, ServerPlayerEntity exceptPlayer) {
 		if (server != null) {
 			GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
 			GSExtensionUID extensionUid = packetManager.getPacketExtensionUniqueId(packet);
@@ -193,7 +193,7 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	
 				if (customPayload != null) {
 					for (ServerPlayerEntity player : getAllPlayers()) {
-						if (player != exceptPlayer && isExtensionInstalled(player, extensionUid, minimumExtensionVersion))
+						if (player != exceptPlayer && isExtensionInstalled(player, extensionUid, minExtensionVersion))
 							player.networkHandler.sendPacket(customPayload);
 					}
 				}

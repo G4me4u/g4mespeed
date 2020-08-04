@@ -2,7 +2,7 @@ package com.g4mesoft;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +16,7 @@ public class GSExtensionInfoList {
 	private Map<GSExtensionUID, GSExtensionInfo> extensionInfo;
 	
 	public GSExtensionInfoList() {
-		extensionInfo = new HashMap<GSExtensionUID, GSExtensionInfo>();
+		extensionInfo = new LinkedHashMap<GSExtensionUID, GSExtensionInfo>();
 		
 		clearExtensionInfo();
 	}

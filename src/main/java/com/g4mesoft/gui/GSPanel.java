@@ -19,6 +19,8 @@ public class GSPanel implements GSIElement {
 	
 	private GSIElement parent;
 	
+	private boolean visible;
+	
 	public int x;
 	public int y;
 	public int width;
@@ -68,6 +70,16 @@ public class GSPanel implements GSIElement {
 	}
 
 	@Override
+	public boolean isAdded() {
+		return (parent != null);
+	}
+	
+	@Override
+	public GSIElement getParent() {
+		return parent;
+	}
+	
+	@Override
 	public void onAdded(GSIElement parent) {
 		if (this.parent != null)
 			throw new IllegalStateException("Panel already has a parent!");
@@ -90,6 +102,30 @@ public class GSPanel implements GSIElement {
 	}
 	
 	@Override
+	public boolean isVisible() {
+		return visible;
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible != this.visible) {
+			this.visible = visible;
+		
+			if (visible) {
+				onShown();
+			} else {
+				onHidden();
+			}
+		}
+	}
+	
+	protected void onShown() {
+	}
+
+	protected void onHidden() {
+	}
+	
+	@Override
 	public void update() {
 	}
 	
@@ -106,16 +142,6 @@ public class GSPanel implements GSIElement {
 	@Override
 	public void postRender(GSIRenderer2D renderer) {
 		renderer.popTransform();
-	}
-	
-	@Override
-	public boolean isAdded() {
-		return (parent != null);
-	}
-	
-	@Override
-	public GSIElement getParent() {
-		return parent;
 	}
 	
 	@Override
@@ -226,6 +252,16 @@ public class GSPanel implements GSIElement {
 			return Collections.emptyList();
 		return Collections.unmodifiableList(focusEventListeners);
 	}
+	
+	@Override
+	public int getEventOffsetX() {
+		return x;
+	}
+
+	@Override
+	public int getEventOffsetY() {
+		return y;
+	}
 
 	@Override
 	public boolean isPassingEvents() {
@@ -284,16 +320,6 @@ public class GSPanel implements GSIElement {
 			throw new IllegalArgumentException("cursor is null!");
 		
 		this.cursor = cursor;
-	}
-	
-	@Override
-	public int getEventOffsetX() {
-		return x;
-	}
-
-	@Override
-	public int getEventOffsetY() {
-		return y;
 	}
 	
 	protected void putButtonStroke(GSIButtonStroke button, Runnable listener) {
