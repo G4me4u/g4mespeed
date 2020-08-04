@@ -38,6 +38,8 @@
     
     "client.GSClientPlayNetworkHandlerMixin",
     
+    "client.GSIClientWorldAccess",
+    
     "client.GSPistonBlockEntityRendererMixin",
     "client.GSPistonBlockEntityMixin",
     

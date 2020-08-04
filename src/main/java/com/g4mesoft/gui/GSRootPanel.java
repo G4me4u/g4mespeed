@@ -21,11 +21,17 @@ import net.minecraft.client.util.math.MatrixStack;
 public final class GSRootPanel extends Screen implements GSIParentElement {
 
 	private GSIElement content;
-	
+
+	private boolean visible;
 	private boolean elementFocused;
 	
 	GSRootPanel() {
 		super(NarratorManager.EMPTY);
+	
+		content = null;
+		
+		visible = false;
+		elementFocused = false;
 	}
 
 	@Override
@@ -37,6 +43,8 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 		
 		if (content != null)
 			content.setBounds(0, 0, width, height);
+		
+		setVisibleImpl(true);
 	}
 	
 	@Override
@@ -45,8 +53,10 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 		super.removed();
 
 		client.keyboard.enableRepeatEvents(false);
+
+		setVisibleImpl(false);
 	}
-		
+	
 	@Override
 	@GSCoreOverride
 	public void tick() {
@@ -139,6 +149,16 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	}
 	
 	@Override
+	public boolean isAdded() {
+		return (client.currentScreen == this);
+	}
+
+	@Override
+	public GSIElement getParent() {
+		return null;
+	}
+	
+	@Override
 	public void onAdded(GSIElement parent) {
 		throw new IllegalStateException("Root panel can not have a parent!");
 	}
@@ -146,6 +166,28 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	@Override
 	public void onRemoved(GSIElement parent) {
 		throw new IllegalStateException("Root panel does not have a parent!");
+	}
+	
+	@Override
+	public boolean isVisible() {
+		return visible;
+	}
+
+	@Override
+	public void setVisible(boolean visible) {
+		throw new UnsupportedOperationException();
+	}
+	
+	private void setVisibleImpl(boolean visible) {
+		// Make sure it is not possible to call this function from
+		// other client code, since it would break certain states.
+		
+		if (visible != this.visible) {
+			this.visible = visible;
+		
+			if (content != null)
+				content.setVisible(visible);
+		}
 	}
 
 	@Override
@@ -169,16 +211,6 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 
 	@Override
 	public void postRender(GSIRenderer2D renderer) {
-	}
-
-	@Override
-	public boolean isAdded() {
-		return (client.currentScreen == this);
-	}
-
-	@Override
-	public GSIElement getParent() {
-		return null;
 	}
 
 	@Override
@@ -313,8 +345,10 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	}
 
 	public void setContent(GSIElement element) {
-		if (content != null)
+		if (content != null) {
+			content.setVisible(false);
 			content.onRemoved(this);
+		}
 		
 		content = element;
 		
@@ -322,6 +356,8 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 			element.onAdded(this);
 			element.setBounds(0, 0, width, height);
 
+			element.setVisible(visible);
+			
 			GSEventDispatcher eventDispatcher = GSElementContext.getEventDispatcher();
 			
 			// Only request focus if elements have not requested
