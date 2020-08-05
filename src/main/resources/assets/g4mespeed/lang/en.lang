@@ -91,11 +91,11 @@ command.tps.geton=Tps is %s, %so %sn
 setting.tps.syncPacketInterval=Synchronization Interval
 setting.tps.syncPacketInterval.desc=The interval, in ticks, at which the server transmits a synchronization packet. A value of 1 allows the clients to synchronize best but also demands higher bandwidth.
 
-setting.tps.hotkeyMode=Hotkey Gamemodes
-setting.tps.hotkeyMode.desc=Specifies the gamemodes which players must be to change tps using the in-game hotkeys. When Creative only is specified then players can only use hotkeys in Creative or Spectator mode.
+setting.tps.hotkeyMode=Allowed Hotkey Gamemodes
+setting.tps.hotkeyMode.desc=Specifies which gamemodes players must be to change tps using in-game hotkeys. If All is selected then there is no restriction on players' gamemodes.
 setting.tps.hotkeyMode.0=None
-setting.tps.hotkeyMode.1=Creative only
-setting.tps.hotkeyMode.2=All gamemodes
+setting.tps.hotkeyMode.1=Creative and Spectator
+setting.tps.hotkeyMode.2=All
 
 setting.tps.broadcastTps=Broadcast TPS
 setting.tps.broadcastTps.desc=Broadcasts the server tps every two seconds to allow players to accurately monitor server performance.
