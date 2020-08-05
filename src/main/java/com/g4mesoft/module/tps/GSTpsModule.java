@@ -62,6 +62,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	public static final int AUTOMATIC_PISTON_RENDER_DISTANCE = -1;
 	
+	private static final int HOTKEY_MODE_DISABLED = 0;
+	private static final int HOTKEY_MODE_CREATIVE = 1;
+	private static final int HOTKEY_MODE_ALL      = 2;
+	
 	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##", new DecimalFormatSymbols(Locale.ENGLISH));
 	
 	private float tps;
@@ -81,7 +85,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSFloatSetting cSyncTickAggression;
 	public final GSBooleanSetting cForceCarpetTickrate;
 	public final GSIntegerSetting sSyncPacketInterval;
-	public final GSBooleanSetting sAllowHotkeyControls;
+	public final GSIntegerSetting sTpsHotkeyMode;
 	public final GSBooleanSetting cShowTpsLabel;
 	public final GSBooleanSetting sBroadcastTps;
 
@@ -106,7 +110,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cSyncTickAggression = new GSFloatSetting("syncTickAggression", 0.05f, 0.0f, 1.0f, 0.05f);
 		cForceCarpetTickrate = new GSBooleanSetting("forceCarpetTickrate", true);
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
-		sAllowHotkeyControls = new GSBooleanSetting("allowHotkeys", true);
+		sTpsHotkeyMode = new GSIntegerSetting("hotkeyMode", 1, 0, 2);
 		cShowTpsLabel = new GSBooleanSetting("showTpsLabel", false);
 		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
 
@@ -174,7 +178,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Override
 	public void registerServerSettings(GSSettingManager settings) {
 		settings.registerSetting(TPS_CATEGORY, sSyncPacketInterval);
-		settings.registerSetting(TPS_CATEGORY, sAllowHotkeyControls);
+		settings.registerSetting(TPS_CATEGORY, sTpsHotkeyMode);
 		settings.registerSetting(TPS_CATEGORY, sBroadcastTps);
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sBlockEventDistance);
@@ -241,7 +245,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				boolean sneaking = client.options.keySneak.isPressed();
 				
 				if (managerClient.isG4mespeedServer()) {
-					if (sAllowHotkeyControls.getValue()) {
+					if (sTpsHotkeyMode.getValue() != HOTKEY_MODE_DISABLED) {
 						// Only send the hotkey packet when the server
 						// allows us to use hotkey controls.
 						managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
@@ -264,7 +268,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	public void onPlayerHotkey(ServerPlayerEntity player, GSETpsHotkeyType type, boolean sneaking) {
-		if (sAllowHotkeyControls.getValue() && isPlayerAllowedTpsChange(player)) {
+		if (sTpsHotkeyMode.getValue() != HOTKEY_MODE_DISABLED && isPlayerAllowedTpsChange(player)) {
 			if (isGameModeAllowingHotkeys(player)) {
 				float oldTps = tps;
 				performHotkeyAction(type, sneaking);
@@ -425,7 +429,16 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	public boolean isGameModeAllowingHotkeys(PlayerEntity player) {
-		return (player.isCreative() || player.isSpectator());
+		switch (sTpsHotkeyMode.getValue()) {
+		case HOTKEY_MODE_DISABLED:
+			return false;
+		case HOTKEY_MODE_CREATIVE:
+			return (player.isCreative() || player.isSpectator());
+		case HOTKEY_MODE_ALL:
+			return true;
+		}
+		
+		return false;
 	}
 	
 	public boolean isPlayerAllowedTpsChange(PlayerEntity player) {
