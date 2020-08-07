@@ -32,6 +32,7 @@ import net.minecraft.entity.MovementType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
@@ -192,31 +193,54 @@ public class GSClientPlayNetworkHandlerMixin {
 			if (packet.getBlockEntityType() == 0 && world.isBlockLoaded(pos)) {
 				BlockState blockState = world.getBlockState(pos);
 				
-				if (blockState.getBlock() == Blocks.MOVING_PISTON) {
-					BlockEntity blockEntity = world.getBlockEntity(pos);
-					CompoundTag tag = packet.getCompoundTag();
-	
-					if ("minecraft:piston".equals(tag.getString("id"))) {
-						if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked")) {
-							// See above redirect method.
-							tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
-						}
-						
-						if (blockEntity == null) {
-							blockEntity = new PistonBlockEntity();
-							blockEntity.fromTag(tag);
-							world.setBlockEntity(pos, blockEntity);
-						} else {
-							blockEntity.fromTag(tag);
-						}
+				if (blockState.getBlock() != Blocks.MOVING_PISTON) {
+					blockState = Blocks.MOVING_PISTON.getDefaultState();
+					world.setBlockStateWithoutNeighborUpdates(pos, blockState);
+				}
 
-						blockEntity.resetBlock();
+				BlockEntity blockEntity = world.getBlockEntity(pos);
+				CompoundTag tag = packet.getCompoundTag();
 
-						// Cancel vanilla handling of the packet.
-						ci.cancel();
+				if ("minecraft:piston".equals(tag.getString("id"))) {
+					if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked")) {
+						// See above redirect method.
+						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
 					}
+					
+					if (blockEntity == null) {
+						blockEntity = new PistonBlockEntity();
+						blockEntity.fromTag(tag);
+						world.setBlockEntity(pos, blockEntity);
+					} else {
+						blockEntity.fromTag(tag);
+					}
+
+					blockEntity.resetBlock();
+
+					// Cancel vanilla handling of the packet.
+					ci.cancel();
 				}
 			}
 		}
+	}
+	
+	@Inject(method = "onBlockUpdate", cancellable = true, at = @At("HEAD"))
+	private void onOnBlockUpdate(BlockUpdateS2CPacket packet, CallbackInfo ci) {
+		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+
+		if (tpsModule.sParanoidMode.getValue() && packet.getState().getBlock() == Blocks.MOVING_PISTON) {
+			// In this case we will handle the block state when
+			// the block entity has been set in the above injection.
+			ci.cancel();
+		}
+	}
+	
+	@Redirect(method = "onChunkDeltaUpdate", expect = 1, allow = 1, require = 0, at = @At(value = "INVOKE", 
+			target = "Lnet/minecraft/client/world/ClientWorld;setBlockStateWithoutNeighborUpdates(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V"))
+	private void onOnChunkDeltaUpdateRedirect(ClientWorld world, BlockPos pos, BlockState state) {
+		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+
+		if (!tpsModule.sParanoidMode.getValue() || state.getBlock() != Blocks.MOVING_PISTON)
+			world.setBlockStateWithoutNeighborUpdates(pos, state);
 	}
 }
