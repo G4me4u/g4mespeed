@@ -1,12 +1,14 @@
 package com.g4mesoft.mixin.client;
 
 import java.util.Iterator;
+import java.util.function.BiConsumer;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
@@ -32,6 +34,7 @@ import net.minecraft.entity.MovementType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
@@ -190,31 +193,60 @@ public class GSClientPlayNetworkHandlerMixin {
 			if (packet.getBlockEntityType() == 0 && world.isChunkLoaded(pos)) {
 				BlockState blockState = world.getBlockState(pos);
 				
-				if (blockState.getBlock() == Blocks.MOVING_PISTON) {
-					BlockEntity blockEntity = world.getBlockEntity(pos);
-					CompoundTag tag = packet.getCompoundTag();
-	
-					if ("minecraft:piston".equals(tag.getString("id"))) {
-						if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked")) {
-							// See above redirect method.
-							tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
-						}
-						
-						if (blockEntity == null) {
-							blockEntity = new PistonBlockEntity();
-							blockEntity.fromTag(blockState, tag);
-							world.setBlockEntity(pos, blockEntity);
-						} else {
-							blockEntity.fromTag(blockState, tag);
-						}
+				if (!blockState.isOf(Blocks.MOVING_PISTON)) {
+					blockState = Blocks.MOVING_PISTON.getDefaultState();
+					world.setBlockStateWithoutNeighborUpdates(pos, blockState);
+				}
 
-						blockEntity.resetBlock();
+				BlockEntity blockEntity = world.getBlockEntity(pos);
+				CompoundTag tag = packet.getCompoundTag();
 
-						// Cancel vanilla handling of the packet.
-						ci.cancel();
+				if ("minecraft:piston".equals(tag.getString("id"))) {
+					if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked")) {
+						// See above redirect method.
+						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
 					}
+					
+					if (blockEntity == null) {
+						blockEntity = new PistonBlockEntity();
+						blockEntity.fromTag(blockState, tag);
+						world.setBlockEntity(pos, blockEntity);
+					} else {
+						blockEntity.fromTag(blockState, tag);
+					}
+
+					blockEntity.resetBlock();
+
+					// Cancel vanilla handling of the packet.
+					ci.cancel();
 				}
 			}
 		}
+	}
+	
+	@Inject(method = "onBlockUpdate", cancellable = true, at = @At("HEAD"))
+	private void onOnBlockUpdate(BlockUpdateS2CPacket packet, CallbackInfo ci) {
+		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+
+		if (tpsModule.sParanoidMode.getValue() && packet.getState().isOf(Blocks.MOVING_PISTON)) {
+			// In this case we will handle the block state when
+			// the block entity has been set in the above injection.
+			ci.cancel();
+		}
+	}
+	
+	@ModifyArg(method = "onChunkDeltaUpdate", index = 0, expect = 1, allow = 1, require = 0, at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/network/packet/s2c/play/ChunkDeltaUpdateS2CPacket;visitUpdates(Ljava/util/function/BiConsumer;)V"))
+	private BiConsumer<BlockPos, BlockState> onOnChunkDeltaUpdateRedirect(BiConsumer<BlockPos, BlockState> handler) {
+		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+		
+		if (tpsModule.sParanoidMode.getValue()) {
+			return (pos, state) -> {
+				if (!state.isOf(Blocks.MOVING_PISTON))
+					handler.accept(pos, state);
+			};
+		}
+		
+		return handler;
 	}
 }
