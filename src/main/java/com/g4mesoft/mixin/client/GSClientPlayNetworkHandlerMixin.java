@@ -32,6 +32,8 @@ import net.minecraft.entity.MovementType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
@@ -190,28 +192,64 @@ public class GSClientPlayNetworkHandlerMixin {
 			if (packet.getBlockEntityType() == 0 && world.isChunkLoaded(pos)) {
 				BlockState blockState = world.getBlockState(pos);
 				
-				if (blockState.getBlock() == Blocks.MOVING_PISTON) {
-					BlockEntity blockEntity = world.getBlockEntity(pos);
-					CompoundTag tag = packet.getCompoundTag();
+				if (blockState.getBlock() != Blocks.MOVING_PISTON) {
+					blockState = Blocks.MOVING_PISTON.getDefaultState();
+					world.setBlockStateWithoutNeighborUpdates(pos, blockState);
+				}
+
+				BlockEntity blockEntity = world.getBlockEntity(pos);
+				CompoundTag tag = packet.getCompoundTag();
+
+				if ("minecraft:piston".equals(tag.getString("id"))) {
+					if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked")) {
+						// See above redirect method.
+						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
+					}
+					
+					if (blockEntity == null) {
+						blockEntity = new PistonBlockEntity();
+						blockEntity.fromTag(tag);
+						world.setBlockEntity(pos, blockEntity);
+					} else {
+						blockEntity.fromTag(tag);
+					}
+
+					blockEntity.resetBlock();
+
+					// Cancel vanilla handling of the packet.
+					ci.cancel();
+				}
+			}
+		}
+	}
 	
-					if ("minecraft:piston".equals(tag.getString("id"))) {
-						if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked")) {
-							// See above redirect method.
-							tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
-						}
-						
-						if (blockEntity == null) {
-							blockEntity = new PistonBlockEntity();
-							blockEntity.fromTag(tag);
-							world.setBlockEntity(pos, blockEntity);
-						} else {
-							blockEntity.fromTag(tag);
-						}
+	@Inject(method = "onBlockUpdate", cancellable = true, at = @At("HEAD"))
+	private void onOnBlockUpdate(BlockUpdateS2CPacket packet, CallbackInfo ci) {
+		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
 
-						blockEntity.resetBlock();
+		if (tpsModule.sParanoidMode.getValue() && packet.getState().getBlock() == Blocks.MOVING_PISTON) {
+			// In this case we will handle the block state when
+			// the block entity has been set in the above injection.
+			ci.cancel();
+		}
+	}
+	
+	@Inject(method = "onChunkDeltaUpdate", at = @At(value = "INVOKE", shift = Shift.AFTER,
+			target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
+	private void onOnChunkDeltaUpdateRedirect(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
+		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
 
-						// Cancel vanilla handling of the packet.
-						ci.cancel();
+		if (tpsModule.sParanoidMode.getValue()) {
+			ChunkDeltaUpdateS2CPacket.ChunkDeltaRecord[] records = packet.getRecords();
+			
+			for (ChunkDeltaUpdateS2CPacket.ChunkDeltaRecord record : records) {
+				if (record.getState().getBlock() == Blocks.MOVING_PISTON) {
+					BlockState state = world.getBlockState(record.getBlockPos());
+					
+					if (state.getBlock() != Blocks.MOVING_PISTON) {
+						// By setting the block state to the state in the world, it
+						// is equivalent to ignoring the block change.
+						((GSIChunkDeltaRecordAccess)record).setBlockState(state);
 					}
 				}
 			}
