@@ -33,6 +33,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
@@ -235,12 +236,25 @@ public class GSClientPlayNetworkHandlerMixin {
 		}
 	}
 	
-	@Redirect(method = "onChunkDeltaUpdate", expect = 1, allow = 1, require = 0, at = @At(value = "INVOKE", 
-			target = "Lnet/minecraft/client/world/ClientWorld;setBlockStateWithoutNeighborUpdates(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V"))
-	private void onOnChunkDeltaUpdateRedirect(ClientWorld world, BlockPos pos, BlockState state) {
+	@Inject(method = "onChunkDeltaUpdate", at = @At(value = "INVOKE", shift = Shift.AFTER,
+			target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
+	private void onOnChunkDeltaUpdateRedirect(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
 
-		if (!tpsModule.sParanoidMode.getValue() || state.getBlock() != Blocks.MOVING_PISTON)
-			world.setBlockStateWithoutNeighborUpdates(pos, state);
+		if (tpsModule.sParanoidMode.getValue()) {
+			ChunkDeltaUpdateS2CPacket.ChunkDeltaRecord[] records = packet.getRecords();
+			
+			for (ChunkDeltaUpdateS2CPacket.ChunkDeltaRecord record : records) {
+				if (record.getState().getBlock() == Blocks.MOVING_PISTON) {
+					BlockState state = world.getBlockState(record.getBlockPos());
+					
+					if (state.getBlock() != Blocks.MOVING_PISTON) {
+						// By setting the block state to the state in the world, it
+						// is equivalent to ignoring the block change.
+						((GSIChunkDeltaRecordAccess)record).setBlockState(state);
+					}
+				}
+			}
+		}
 	}
 }

@@ -38,6 +38,7 @@
     "client.GSIRenderTickCounterAccess",
     
     "client.GSClientPlayNetworkHandlerMixin",
+    "client.GSIChunkDeltaRecordAccess",
     
     "client.GSPistonBlockEntityRendererMixin",
     "client.GSPistonBlockEntityMixin",
