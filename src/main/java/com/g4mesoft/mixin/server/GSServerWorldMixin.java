@@ -28,10 +28,9 @@ import net.minecraft.world.dimension.DimensionType;
 @Mixin(ServerWorld.class)
 public abstract class GSServerWorldMixin extends World {
 
-	protected GSServerWorldMixin(MutableWorldProperties mutableWorldProperties, RegistryKey<World> registryKey,
-			RegistryKey<DimensionType> registryKey2, DimensionType dimensionType, Supplier<Profiler> profiler,
-			boolean bl, boolean bl2, long l) {
-		super(mutableWorldProperties, registryKey, registryKey2, dimensionType, profiler, bl, bl2, l);
+	protected GSServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryKey,
+			DimensionType dimensionType, Supplier<Profiler> supplier, boolean bl, boolean bl2, long l) {
+		super(properties, registryKey, dimensionType, supplier, bl, bl2, l);
 	}
 
 	@ModifyArg(method = "processSyncedBlockEvents", allow = 1, index = 4, at = @At(value = "INVOKE", 

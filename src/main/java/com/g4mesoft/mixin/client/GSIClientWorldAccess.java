@@ -9,7 +9,7 @@ import net.minecraft.entity.Entity;
 @Mixin(ClientWorld.class)
 public interface GSIClientWorldAccess {
 
-	@Invoker("checkChunk")
-	public void invokeCheckChunk(Entity entity);
+	@Invoker("checkEntityChunkPos")
+	public void invokeCheckEntityChunkPos(Entity entity);
 	
 }

@@ -27,7 +27,7 @@ public abstract class GSTranslatableTextMixin {
 	
 	private long lastTranslationTimestamp = -1L;
 	
-	@Shadow protected abstract void setTranslation(String translationString, Language language);
+	@Shadow protected abstract void setTranslation(String translation);
 	
 	@Inject(method = "updateTranslations", at = @At("HEAD"), cancellable = true)
 	public void onUpdateTranslations(CallbackInfo ci) {
@@ -51,7 +51,7 @@ public abstract class GSTranslatableTextMixin {
 			lastTranslationTimestamp = timestamp;
 			
 			try {
-				this.setTranslation(translationModule.getTranslation(key), language);
+				this.setTranslation(translationModule.getTranslation(key));
 				this.languageCache = language;
 				ci.cancel();
 			} catch (TranslationException e) {

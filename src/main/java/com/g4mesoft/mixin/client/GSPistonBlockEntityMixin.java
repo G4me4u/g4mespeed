@@ -39,11 +39,13 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	
 	@Shadow private float progress;
 	@Shadow private float lastProgress;
+	
+	@Shadow private int field_26705;
 
 	@Override
 	@Environment(EnvType.CLIENT)
 	public float getSmoothProgress(float partialTicks) {
-		if (isRemoved() && GSMathUtils.equalsApproximate(this.lastProgress, 1.0f))
+		if ((isRemoved() || this.field_26705 != 0) && GSMathUtils.equalsApproximate(this.lastProgress, 1.0f))
 			return 1.0f;
 		
 		float val;
@@ -101,18 +103,18 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@Environment(EnvType.CLIENT)
 	public double getSquaredRenderDistance() {
 		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
-		int dist = tpsModule.cPistonRenderDistance.getValue();
-		if (dist == GSTpsModule.AUTOMATIC_PISTON_RENDER_DISTANCE) {
+		int chunkDist = tpsModule.cPistonRenderDistance.getValue();
+		if (chunkDist == GSTpsModule.AUTOMATIC_PISTON_RENDER_DISTANCE) {
 			if (tpsModule.sParanoidMode.getValue()) {
 				// When using paranoid mode there is no limit to where
 				// the piston block entities might occur. So we just
 				// render all of the ones within maximum view distance.
-				dist = tpsModule.cPistonRenderDistance.getMaxValue();
+				chunkDist = tpsModule.cPistonRenderDistance.getMaxValue();
 			} else {
-				dist = tpsModule.sBlockEventDistance.getValue();
+				chunkDist = tpsModule.sBlockEventDistance.getValue();
 			}
 		}
 		
-		return dist * dist * 256.0; // dist * dist * (16.0 * 16.0)
+		return chunkDist * 16.0; // Distance is no longer squared.
 	}
 }

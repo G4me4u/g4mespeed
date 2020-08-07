@@ -23,11 +23,4 @@ public class GSPistonBlockEntityRendererMixin {
 	private float fixShortArm(float shortArmCutoff) {
 		return 0.5f;
 	}
-
-	@ModifyConstant(method = "render", constant = @Constant(floatValue = 1.0f), allow = 1)
-	private float fixPistonBlink(float maximumProgress) {
-		// The progress is fixed in getProgress
-		// of the piston block entity.
-		return Float.MAX_VALUE;
-	}
 }

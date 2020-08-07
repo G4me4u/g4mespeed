@@ -33,7 +33,8 @@ dependencies {
 
 	// Test mod compatibility in dev environment.
 	//modImplementation ":replaymod:1.14.4:2.2.0-b7"
-	modImplementation ":sodium-fabric:mc1.16.1:0.1.0"
+	//modImplementation ":sodium-fabric:mc1.16.1:0.1.0"
+	
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	//modImplementation "net.fabricmc.fabric-api:fabric-api:0.3.2+build.226-1.14"
 }

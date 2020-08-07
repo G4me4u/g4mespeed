@@ -99,7 +99,7 @@ public class GSClientPlayNetworkHandlerMixin {
 			entity.move(MovementType.SELF, entity.getVelocity());
 			
 			// Entity has moved. Make sure its chunk is set correctly.
-			((GSIClientWorldAccess)world).invokeCheckChunk(entity);
+			((GSIClientWorldAccess)world).invokeCheckEntityChunkPos(entity);
 		}
 	}
 
