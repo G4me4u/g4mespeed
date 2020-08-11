@@ -5,6 +5,7 @@ import com.g4mesoft.gui.renderer.GSIRenderer2D;
 public abstract class GSAbstractTextActionPanel extends GSAbstractActionPanel {
 
 	private static final int TEXT_COLOR          = 0xFFFCFCFC;
+	private static final int HOVERED_TEXT_COLOR  = 0xFFFFFFA0;
 	private static final int DISABLED_TEXT_COLOR = 0xFFA0A0A0;
 	
 	private String translationKey;
@@ -45,7 +46,7 @@ public abstract class GSAbstractTextActionPanel extends GSAbstractActionPanel {
 			displayText = renderer.trimString(text, width);
 		}
 		
-		int color = enabled ? TEXT_COLOR : DISABLED_TEXT_COLOR;
+		int color = enabled ? (hovered ? HOVERED_TEXT_COLOR : TEXT_COLOR) : DISABLED_TEXT_COLOR;
 		
 		int tx = width / 2;
 		int ty = (height - renderer.getFontHeight() + 1) / 2;

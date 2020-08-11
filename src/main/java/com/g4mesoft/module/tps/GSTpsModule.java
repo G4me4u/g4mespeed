@@ -89,6 +89,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSBooleanSetting cShowTpsLabel;
 	public final GSBooleanSetting sBroadcastTps;
 
+	public final GSBooleanSetting cCullMovingBlocks;
 	public final GSIntegerSetting cPistonAnimationType;
 	public final GSIntegerSetting cPistonRenderDistance;
 	public final GSIntegerSetting sBlockEventDistance;
@@ -114,6 +115,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cShowTpsLabel = new GSBooleanSetting("showTpsLabel", false);
 		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
 
+		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, -1, 32);
 		sBlockEventDistance = new GSIntegerSetting("blockEventDistance", 4, 0, 32);
@@ -150,7 +152,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
 			settings.registerSetting(TPS_CATEGORY, cForceCarpetTickrate);
 		settings.registerSetting(TPS_CATEGORY, cShowTpsLabel);
-
+		
+		settings.registerSetting(BETTER_PISTONS_CATEGORY, cCullMovingBlocks);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonAnimationType);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonRenderDistance);
 		

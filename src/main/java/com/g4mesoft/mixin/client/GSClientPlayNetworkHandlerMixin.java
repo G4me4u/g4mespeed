@@ -96,7 +96,9 @@ public class GSClientPlayNetworkHandlerMixin {
 		if (entity instanceof FallingBlockEntity) {
 			// See #onOnEntitySpawn
 
-			entity.resetPosition(entity.getX(), entity.getY(), entity.getZ());
+			entity.lastRenderX = entity.x;
+			entity.lastRenderY = entity.y;
+			entity.lastRenderZ = entity.z;
 			
 			entity.move(MovementType.SELF, entity.getVelocity());
 			
@@ -189,7 +191,7 @@ public class GSClientPlayNetworkHandlerMixin {
 		if (tpsModule.sParanoidMode.getValue()) {
 			BlockPos pos = packet.getPos();
 			
-			if (packet.getBlockEntityType() == 0 && world.isChunkLoaded(pos)) {
+			if (packet.getBlockEntityType() == 0 && world.isBlockLoaded(pos)) {
 				BlockState blockState = world.getBlockState(pos);
 				
 				if (blockState.getBlock() != Blocks.MOVING_PISTON) {

@@ -7,7 +7,9 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 import com.g4mesoft.access.GSIBufferBuilderAccess;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
+import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
@@ -93,21 +95,21 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		bufferBuilder.vertex(x1, y1, 0.0f).color(r1, g1, b1, a1).next();
 		bufferBuilder.vertex(x1,  y, 0.0f).color(r0, g0, b0, a0).next();
 		bufferBuilder.vertex( x,  y, 0.0f).color(r0, g0, b0, a0).next();
-		
-		RenderSystem.disableTexture();
-		RenderSystem.shadeModel(GL11.GL_SMOOTH);
+
+		GlStateManager.disableTexture();
+		GlStateManager.shadeModel(GL11.GL_SMOOTH);
 
 		if (a0 != 0xFF || a1 != 0xFF) {
-			RenderSystem.enableBlend();
-			RenderSystem.defaultBlendFunc();		
+			GlStateManager.enableBlend();
+			GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);		
 		}
 		
 		tessellator.draw();
 
-		RenderSystem.disableBlend();
+		GlStateManager.disableBlend();
 
-		RenderSystem.shadeModel(GL11.GL_FLAT);
-		RenderSystem.enableTexture();
+		GlStateManager.shadeModel(GL11.GL_FLAT);
+		GlStateManager.enableTexture();
 	}
 	
 	@Override
@@ -140,13 +142,9 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		bufferBuilder.vertex(x1, y , 0.0f).texture(texture.getU1(), texture.getV0()).next();
 		bufferBuilder.vertex(x , y , 0.0f).texture(texture.getU0(), texture.getV0()).next();
 		
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
-		RenderSystem.enableAlphaTest();
-		RenderSystem.defaultAlphaFunc();
+		GlStateManager.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		
 		tessellator.draw();
-
-		RenderSystem.disableAlphaTest();
 	}
 
 	@Override
@@ -285,8 +283,8 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	@Override
 	public void drawString(String str, int x, int y, int color, boolean shadowed) {
 		if ((color >>> 24) != 0xFF) {
-			RenderSystem.enableBlend();
-			RenderSystem.defaultBlendFunc();
+			GlStateManager.enableBlend();
+			GlStateManager.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);		
 		}
 		
 		if (shadowed) {
@@ -295,7 +293,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 			client.textRenderer.draw(str, x, y, color);
 		}
 
-		RenderSystem.disableBlend();
+		GlStateManager.disableBlend();
 	}
 
 	@Override
@@ -345,7 +343,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	
 	private void onTransformChanged() {
 		BufferBuilder builder = Tessellator.getInstance().getBuffer();
-		((GSIBufferBuilderAccess)builder).setOffset(transform.offsetX, transform.offsetY, ((GSIBufferBuilderAccess)builder).getOffsetZ());
+		builder.setOffset(transform.offsetX, transform.offsetY, ((GSIBufferBuilderAccess)builder).getOffsetZ());
 		((GSIBufferBuilderAccess)builder).setClipOffset(transform.offsetX, transform.offsetY);
 	}
 

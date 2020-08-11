@@ -1,10 +1,6 @@
 package com.g4mesoft.access;
 
-import java.nio.ByteBuffer;
-
 import com.g4mesoft.gui.renderer.GSClipRect;
-
-import net.minecraft.client.render.VertexFormat;
 
 public interface GSIBufferBuilderAccess {
 
@@ -14,32 +10,18 @@ public interface GSIBufferBuilderAccess {
 
 	public GSClipRect popClip();
 
-	public void setOffset(float offsetX, float offsetY, float offsetZ);
+	public double getOffsetX();
+
+	public double getOffsetY();
 	
-	public float getOffsetX();
-
-	public float getOffsetY();
-	
-	public float getOffsetZ();
-
-	public float getClipOffsetX();
-
-	public float getClipOffsetY();
-	
-	public void setClipOffset(float offsetX, float offsetY);
-	
-	public ByteBuffer getByteBuffer();
-
-	public int getDrawMode();
-
-	public VertexFormat getVertexFormat();
-
-	public int getBuildStart();
-
-	public int getVertexCount();
+	public double getOffsetZ();
 
 	public void setVertexCount(int vertexCount);
 
-	public void setElementOffset(int elementOffset);
+	public void setClipOffset(float offsetX, float offsetY);
+	
+	public float getClipOffsetX();
+
+	public float getClipOffsetY();
 	
 }

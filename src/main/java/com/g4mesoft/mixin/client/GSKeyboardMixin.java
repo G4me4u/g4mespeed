@@ -23,7 +23,7 @@ public class GSKeyboardMixin implements GSIKeyboardAccess {
 	
 	@Inject(method = "onKey(JIIII)V", at = @At("HEAD"))
 	public void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
-		if (windowHandle == client.getWindow().getHandle()) {
+		if (windowHandle == client.window.getHandle()) {
 			prevEventRepeating = (action == GLFW.GLFW_REPEAT);
 			
 			if (action == GLFW.GLFW_RELEASE) {
