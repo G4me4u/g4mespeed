@@ -1,8 +1,4 @@
 com.g4mesoft.G4mespeedMod -> com.g4mesoft.G4mespeedMod:
-    java.lang.String CORE_MOD_NAME -> gsc_rJ
-    com.g4mesoft.core.GSVersion GS_CORE_VERSION -> gsc_rJ
-    com.g4mesoft.core.GSVersion GS_EXTENSIONS_VERSION -> gsc_hH
-    com.g4mesoft.GSExtensionUID CORE_EXTENSION_UID -> gsc_rJ
     com.g4mesoft.GSExtensionUID INVALID_EXTENSION_UID -> gsc_hH
     org.apache.logging.log4j.Logger GS_LOGGER -> gsc_rJ
     com.g4mesoft.G4mespeedMod instance -> gsc_rJ
@@ -13,20 +9,43 @@ com.g4mesoft.G4mespeedMod -> com.g4mesoft.G4mespeedMod:
     java.util.List extensions -> gsc_rJ
     java.util.Map idToExtension -> gsc_rJ
     java.util.List extensionListeners -> gsc_hH
-    com.g4mesoft.GSExtensionUID[] extensionUidCache -> gsc_rJ
-    47:48:void <init>() -> <init>
-    53:69:void onInitialize() -> onInitialize
-    72:88:void addExtension(com.g4mesoft.GSIExtension) -> gsc_rJ
-    91:91:java.util.List getExtensions() -> gsc_rJ
-    95:98:void addExtensionListener(com.g4mesoft.GSIExtensionListener) -> gsc_rJ
-    101:104:void removeExtensionListener(com.g4mesoft.GSIExtensionListener) -> gsc_hH
-    107:116:com.g4mesoft.GSExtensionUID[] getExtensionUids() -> gsc_rJ
+    com.g4mesoft.GSExtensionInfo[] extensionInfoCache -> gsc_rJ
+    39:40:void <init>() -> <init>
+    45:61:void onInitialize() -> onInitialize
+    64:82:void addExtension(com.g4mesoft.GSIExtension) -> gsc_rJ
+    85:85:java.util.List getExtensions() -> gsc_rJ
+    89:92:void addExtensionListener(com.g4mesoft.GSIExtensionListener) -> gsc_rJ
+    95:98:void removeExtensionListener(com.g4mesoft.GSIExtensionListener) -> gsc_hH
+    101:101:com.g4mesoft.GSExtensionInfo getExtensionInfo(com.g4mesoft.GSExtensionUID) -> gsc_rJ
+    105:116:com.g4mesoft.GSExtensionInfo[] getAllExtensionInfo() -> gsc_rJ
     120:124:void dispatchExtensionAddedEvent(com.g4mesoft.GSIExtension) -> gsc_hH
     127:127:com.g4mesoft.packet.GSPacketManager getPacketManager() -> gsc_rJ
     131:131:com.g4mesoft.core.compat.GSCarpetCompat getCarpetCompat() -> gsc_rJ
     135:135:com.g4mesoft.core.GSCoreExtension getCoreExtension() -> gsc_rJ
     139:139:com.g4mesoft.G4mespeedMod getInstance() -> gsc_rJ
-    23:45:void <clinit>() -> <clinit>
+    21:37:void <clinit>() -> <clinit>
+com.g4mesoft.GSExtensionInfo -> core.m:
+    java.lang.String name -> gsc_RK
+    com.g4mesoft.GSExtensionUID uid -> gsc_rJ
+    com.g4mesoft.core.GSVersion version -> gsc_rJ
+    16:20:void <init>(java.lang.String,com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> <init>
+    23:23:java.lang.String getName() -> gsc_hH
+    27:27:com.g4mesoft.GSExtensionUID getUniqueId() -> gsc_rJ
+    31:31:com.g4mesoft.core.GSVersion getVersion() -> gsc_rJ
+    35:38:com.g4mesoft.GSExtensionInfo read(net.minecraft.class_2540) -> gsc_rJ
+    42:45:void write(net.minecraft.class_2540,com.g4mesoft.GSExtensionInfo) -> gsc_rJ
+com.g4mesoft.GSExtensionInfoList -> core.q:
+    java.lang.String UNKNOWN_NAME -> gsc_rJ
+    java.util.Map extensionInfo -> gsc_ew
+    18:22:void <init>() -> <init>
+    25:28:com.g4mesoft.GSExtensionInfo getExtensionInfo(com.g4mesoft.GSExtensionUID) -> gsc_rJ
+    32:32:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_rJ
+    36:36:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    40:43:void clearExtensionInfo() -> gsc_TT
+    46:48:void addAllExtensionInfo(com.g4mesoft.GSExtensionInfo[]) -> gsc_rJ
+    51:52:void addAllExtensionInfo(java.util.List) -> gsc_rJ
+    55:56:void addExtensionInfo(com.g4mesoft.GSExtensionInfo) -> gsc_rJ
+    59:59:java.util.Collection getAllExtensionInfo() -> gsc_sc
 com.g4mesoft.GSExtensionUID -> core.a:
     int value -> gsc_rJ
     11:13:void <init>(int) -> <init>
@@ -44,8 +63,7 @@ com.g4mesoft.GSIExtension -> core.b:
     void addClientModules(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
     void addServerModules(com.g4mesoft.core.server.GSControllerServer) -> gsc_rJ
     java.lang.String getTranslationPath() -> gsc_rJ
-    java.lang.String getName() -> gsc_hH
-    com.g4mesoft.GSExtensionUID getUniqueId() -> gsc_rJ
+    com.g4mesoft.GSExtensionInfo getInfo() -> gsc_rJ
 com.g4mesoft.GSIExtensionListener -> core.c:
     void extensionAdded(com.g4mesoft.GSIExtension) -> extensionAdded
 com.g4mesoft.access.GSIBufferBuilderAccess -> core.d:
@@ -68,11 +86,12 @@ com.g4mesoft.access.GSIMouseAccess -> core.f:
     int getPreviousEventModifiers() -> gsc_UM
     double getPreviousEventScrollX() -> gsc_rJ
 com.g4mesoft.access.GSINetworkHandlerAccess -> core.g:
-    void setCoreVersion(com.g4mesoft.core.GSVersion) -> gsc_rJ
-    com.g4mesoft.core.GSVersion getCoreVersion() -> gsc_rJ
     boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_rJ
-    void setExtensionUids(com.g4mesoft.GSExtensionUID[]) -> gsc_rJ
-    com.g4mesoft.GSExtensionUID[] getExtensionUids() -> gsc_rJ
+    boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    com.g4mesoft.GSExtensionInfo getExtensionInfo(com.g4mesoft.GSExtensionUID) -> gsc_rJ
+    void clearAllExtensionInfo() -> gsc_Wl
+    void addAllExtensionInfo(com.g4mesoft.GSExtensionInfo[]) -> gsc_rJ
+    void addExtensionInfo(com.g4mesoft.GSExtensionInfo) -> gsc_rJ
     void setTranslationVersion(com.g4mesoft.GSExtensionUID,int) -> gsc_rJ
     int getTranslationVersion(com.g4mesoft.GSExtensionUID) -> gsc_rJ
 com.g4mesoft.access.GSIRenderTickCounterAccess -> core.h:
@@ -83,6 +102,14 @@ com.g4mesoft.access.GSIServerChunkManagerAccess -> core.i:
     void flushAndSendChunkUpdates() -> gsc_hH
 com.g4mesoft.access.GSISmoothPistonBlockEntityAccess -> core.j:
     float getSmoothProgress(float) -> gsc_rJ
+com.g4mesoft.core.GSConnectionPacket -> core.br:
+    com.g4mesoft.GSExtensionInfo[] extensionInfo -> gsc_hH
+    20:21:void <init>() -> <init>
+    23:25:void <init>(com.g4mesoft.GSExtensionInfo[]) -> <init>
+    29:32:void read(net.minecraft.class_2540) -> gsc_rJ
+    36:39:void write(net.minecraft.class_2540) -> gsc_hH
+    43:44:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
+    49:50:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_hH
 com.g4mesoft.core.GSController -> core.k:
     java.lang.String SETTINGS_PATH -> gsc_hH
     java.lang.String CACHE_DIR_NAME -> gsc_sc
@@ -109,42 +136,39 @@ com.g4mesoft.core.GSController -> core.k:
     boolean isThreadOwner() -> gsc_hH
     net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> gsc_rJ
     boolean isClient() -> gsc_sc
-    com.g4mesoft.core.GSVersion getCoreVersion() -> gsc_rJ
     27:27:void <clinit>() -> <clinit>
 com.g4mesoft.core.GSCoreExtension -> core.l:
+    java.lang.String NAME -> gsc_yN
+    com.g4mesoft.GSExtensionUID UID -> gsc_sc
+    com.g4mesoft.core.GSVersion VERSION -> gsc_hH
+    com.g4mesoft.GSExtensionInfo INFO -> gsc_rJ
+    com.g4mesoft.GSExtensionInfo INVALID_VERSION_INFO -> gsc_hH
     java.lang.String TRANSLATION_PATH -> gsc_UM
-    21:21:void <init>() -> <init>
-    27:27:void init() -> gsc_rJ
-    31:47:void registerPackets(com.g4mesoft.registry.GSElementRegistry) -> gsc_rJ
-    51:51:void addClientModules(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
-    55:55:void addServerModules(com.g4mesoft.core.server.GSControllerServer) -> gsc_rJ
-    59:59:java.lang.String getTranslationPath() -> gsc_rJ
-    64:64:java.lang.String getName() -> gsc_hH
-    69:69:com.g4mesoft.GSExtensionUID getUniqueId() -> gsc_rJ
+    20:20:void <init>() -> <init>
+    34:34:void init() -> gsc_rJ
+    38:51:void registerPackets(com.g4mesoft.registry.GSElementRegistry) -> gsc_rJ
+    55:55:void addClientModules(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    59:59:void addServerModules(com.g4mesoft.core.server.GSControllerServer) -> gsc_rJ
+    63:63:java.lang.String getTranslationPath() -> gsc_rJ
+    68:68:com.g4mesoft.GSExtensionInfo getInfo() -> gsc_rJ
+    24:28:void <clinit>() -> <clinit>
 com.g4mesoft.core.GSCoreOverride -> com.g4mesoft.core.GSCoreOverride:
-com.g4mesoft.core.GSExtensionUidsPacket -> core.m:
-    com.g4mesoft.GSExtensionUID[] extensionUids -> gsc_hH
-    21:22:void <init>() -> <init>
-    24:26:void <init>(com.g4mesoft.GSExtensionUID[]) -> <init>
-    30:33:void read(net.minecraft.class_2540) -> gsc_rJ
-    37:40:void write(net.minecraft.class_2540) -> gsc_hH
-    44:45:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    50:51:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_hH
 com.g4mesoft.core.GSIModule -> core.n:
     void init(com.g4mesoft.core.GSIModuleManager) -> gsc_rJ
-    18:18:void initGUI(com.g4mesoft.gui.GSTabbedGUI) -> gsc_rJ
-    20:20:void onClose() -> gsc_mg
-    23:23:void registerClientSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_rJ
-    26:26:void registerHotkeys(com.g4mesoft.hotkey.GSKeyManager) -> gsc_rJ
-    28:28:void registerServerSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_hH
-    30:30:void registerCommands(com.mojang.brigadier.CommandDispatcher) -> gsc_rJ
-    32:32:void tick(boolean) -> gsc_rJ
-    35:35:void onJoinG4mespeedServer(com.g4mesoft.core.GSVersion) -> gsc_hH
-    38:38:void onDisconnectServer() -> gsc_vm
-    40:40:void onPlayerJoin(net.minecraft.class_3222) -> gsc_rJ
-    42:42:void onG4mespeedClientJoin(net.minecraft.class_3222,com.g4mesoft.core.GSVersion) -> gsc_rJ
-    44:44:void onPlayerLeave(net.minecraft.class_3222) -> gsc_hH
-    46:46:void onPlayerPermissionChanged(net.minecraft.class_3222) -> gsc_sc
+    19:19:void initGUI(com.g4mesoft.gui.GSTabbedGUI) -> gsc_rJ
+    21:21:void onClose() -> gsc_mg
+    24:24:void registerClientSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_rJ
+    27:27:void registerHotkeys(com.g4mesoft.hotkey.GSKeyManager) -> gsc_rJ
+    29:29:void registerServerSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_hH
+    31:31:void registerCommands(com.mojang.brigadier.CommandDispatcher) -> gsc_rJ
+    33:33:void tick(boolean) -> gsc_rJ
+    36:36:void onJoinServer() -> gsc_gs
+    39:39:void onJoinG4mespeedServer(com.g4mesoft.GSExtensionInfo) -> gsc_hH
+    42:42:void onDisconnectServer() -> gsc_vm
+    44:44:void onPlayerJoin(net.minecraft.class_3222) -> gsc_rJ
+    46:46:void onG4mespeedClientJoin(net.minecraft.class_3222,com.g4mesoft.GSExtensionInfo) -> gsc_rJ
+    48:48:void onPlayerLeave(net.minecraft.class_3222) -> gsc_hH
+    50:50:void onPlayerPermissionChanged(net.minecraft.class_3222) -> gsc_sc
 com.g4mesoft.core.GSIModuleManager -> core.o:
     void addModule(com.g4mesoft.core.GSIModule) -> gsc_rJ
     java.util.List getModules() -> gsc_hH
@@ -165,22 +189,16 @@ com.g4mesoft.core.GSVersion -> core.p:
     33:33:int getUpdateVersion() -> gsc_Jn
     37:39:java.lang.String getVersionString() -> gsc_sc
     43:43:boolean isInvalid() -> gsc_bs
-    47:50:com.g4mesoft.core.GSVersion read(net.minecraft.class_2540) -> gsc_rJ
-    54:57:void write(net.minecraft.class_2540) -> gsc_hH
-    60:74:boolean isGreaterThanOrEqualTo(com.g4mesoft.core.GSVersion) -> gsc_rJ
-    78:78:boolean isLessThan(com.g4mesoft.core.GSVersion) -> gsc_hH
-    82:85:boolean isEqual(com.g4mesoft.core.GSVersion) -> gsc_sc
-    92:94:boolean equals(java.lang.Object) -> equals
-    99:99:java.lang.String toString() -> toString
+    47:61:boolean isGreaterThanOrEqualTo(com.g4mesoft.core.GSVersion) -> gsc_rJ
+    65:65:boolean isLessThanOrEqualTo(com.g4mesoft.core.GSVersion) -> gsc_bs
+    69:69:boolean isGreaterThan(com.g4mesoft.core.GSVersion) -> gsc_UM
+    73:73:boolean isLessThan(com.g4mesoft.core.GSVersion) -> gsc_hH
+    77:80:boolean isEqual(com.g4mesoft.core.GSVersion) -> gsc_sc
+    86:89:com.g4mesoft.core.GSVersion read(net.minecraft.class_2540) -> gsc_rJ
+    93:96:void write(net.minecraft.class_2540,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    100:102:boolean equals(java.lang.Object) -> equals
+    107:107:java.lang.String toString() -> toString
     7:8:void <clinit>() -> <clinit>
-com.g4mesoft.core.GSVersionPacket -> core.q:
-    com.g4mesoft.core.GSVersion version -> gsc_UM
-    18:19:void <init>() -> <init>
-    21:23:void <init>(com.g4mesoft.core.GSVersion) -> <init>
-    27:28:void read(net.minecraft.class_2540) -> gsc_rJ
-    32:33:void write(net.minecraft.class_2540) -> gsc_hH
-    37:38:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    43:44:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_hH
 com.g4mesoft.core.client.GSControllerClient -> core.r:
     java.lang.String CLIENT_SETTINGS_GUI_TITLE -> gsc_vm
     java.lang.String SERVER_SETTINGS_GUI_TITLE -> gsc_Qo
@@ -192,56 +210,56 @@ com.g4mesoft.core.client.GSControllerClient -> core.r:
     com.g4mesoft.core.client.GSControllerClient instance -> gsc_rJ
     net.minecraft.class_310 minecraft -> gsc_rJ
     net.minecraft.class_634 networkHandler -> gsc_rJ
-    com.g4mesoft.GSExtensionUID[] serverExtensionUids -> gsc_sc
-    java.util.Set serverExtensionUidSet -> gsc_hH
-    com.g4mesoft.core.GSVersion serverVersion -> gsc_mg
+    com.g4mesoft.GSExtensionInfoList serverExtensionInfoList -> gsc_rJ
     com.g4mesoft.setting.GSRemoteSettingManager serverSettings -> gsc_rJ
     com.g4mesoft.hotkey.GSKeyManager keyManager -> gsc_rJ
     com.g4mesoft.hotkey.GSKeyBinding openGUIKey -> gsc_rJ
     com.g4mesoft.gui.GSTabbedGUI tabbedGUI -> gsc_rJ
-    69:76:void <init>() -> <init>
-    79:98:void init(net.minecraft.class_310) -> gsc_rJ
-    102:110:void addModule(com.g4mesoft.core.GSIModule) -> gsc_rJ
-    113:114:void setNetworkHandler(net.minecraft.class_634) -> gsc_rJ
-    117:122:void setServerExtensionUids(com.g4mesoft.GSExtensionUID[]) -> gsc_hH
-    125:125:com.g4mesoft.GSExtensionUID[] getServerExtensionUids() -> gsc_hH
-    130:130:boolean isServerExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_hH
-    134:140:void onJoinG4mespeedServer(com.g4mesoft.core.GSVersion) -> gsc_hH
-    143:152:void onDisconnectServer() -> gsc_vm
-    155:160:void onClientClose() -> gsc_Qo
-    163:163:java.io.File getHotkeySettingsFile() -> gsc_sc
-    168:171:void tick(boolean) -> gsc_rJ
-    175:176:void addExtensionModules(com.g4mesoft.GSIExtension) -> gsc_sc
-    180:180:boolean isThreadOwner() -> gsc_hH
-    185:185:net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> gsc_rJ
-    190:190:boolean isClient() -> gsc_sc
-    195:195:com.g4mesoft.core.GSVersion getCoreVersion() -> gsc_rJ
-    200:201:void runOnClient(java.util.function.Consumer) -> gsc_rJ
-    205:205:void runOnServer(java.util.function.Consumer) -> gsc_hH
-    209:209:com.g4mesoft.core.GSVersion getServerVersion() -> gsc_hH
-    214:214:boolean isG4mespeedServer() -> gsc_UM
-    219:219:boolean isInGame() -> gsc_mg
-    224:225:void sendPacket(com.g4mesoft.packet.GSIPacket) -> gsc_rJ
-    229:236:void sendPacket(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion) -> gsc_rJ
-    240:240:java.io.File getCacheFile() -> gsc_hH
-    244:244:com.g4mesoft.hotkey.GSKeyManager getKeyManager() -> gsc_rJ
-    248:248:com.g4mesoft.setting.GSRemoteSettingManager getServerSettings() -> gsc_rJ
-    252:252:com.g4mesoft.hotkey.GSKeyBinding getOpenGUIKey() -> gsc_rJ
-    256:256:com.g4mesoft.core.client.GSControllerClient getInstance() -> gsc_rJ
-    85:87:void lambda$init$0(com.g4mesoft.hotkey.GSKeyBinding,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
-    55:55:void <clinit>() -> <clinit>
+    67:72:void <init>() -> <init>
+    75:94:void init(net.minecraft.class_310) -> gsc_rJ
+    98:106:void addModule(com.g4mesoft.core.GSIModule) -> gsc_rJ
+    109:110:void setNetworkHandler(net.minecraft.class_634) -> gsc_rJ
+    114:114:boolean isServerExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_hH
+    119:119:boolean isServerExtensionInstalled(com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_hH
+    124:124:com.g4mesoft.GSExtensionInfo getServerExtensionInfo(com.g4mesoft.GSExtensionUID) -> gsc_hH
+    129:129:com.g4mesoft.GSExtensionInfoList getServerExtensionInfoList() -> gsc_rJ
+    134:134:boolean isG4mespeedServer() -> gsc_UM
+    138:140:void onJoinServer() -> gsc_gs
+    143:154:void onJoinG4mespeedServer(com.g4mesoft.GSExtensionInfo[]) -> gsc_hH
+    157:165:void onDisconnectServer() -> gsc_vm
+    168:173:void onClientClose() -> gsc_Qo
+    176:176:java.io.File getHotkeySettingsFile() -> gsc_sc
+    181:184:void tick(boolean) -> gsc_rJ
+    188:189:void addExtensionModules(com.g4mesoft.GSIExtension) -> gsc_sc
+    193:193:boolean isThreadOwner() -> gsc_hH
+    198:198:net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> gsc_rJ
+    203:203:boolean isClient() -> gsc_sc
+    208:209:void runOnClient(java.util.function.Consumer) -> gsc_rJ
+    213:213:void runOnServer(java.util.function.Consumer) -> gsc_hH
+    217:217:boolean isInGame() -> gsc_mg
+    222:233:void sendPacket(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    237:237:java.io.File getCacheFile() -> gsc_hH
+    241:241:com.g4mesoft.hotkey.GSKeyManager getKeyManager() -> gsc_rJ
+    245:245:com.g4mesoft.setting.GSRemoteSettingManager getServerSettings() -> gsc_rJ
+    249:249:com.g4mesoft.hotkey.GSKeyBinding getOpenGUIKey() -> gsc_rJ
+    253:253:com.g4mesoft.core.client.GSControllerClient getInstance() -> gsc_rJ
+    81:83:void lambda$init$0(com.g4mesoft.hotkey.GSKeyBinding,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
+    54:54:void <clinit>() -> <clinit>
 com.g4mesoft.core.client.GSIModuleManagerClient -> core.s:
     boolean isServerExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_hH
-    com.g4mesoft.core.GSVersion getServerVersion() -> gsc_hH
+    boolean isServerExtensionInstalled(com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_hH
+    com.g4mesoft.GSExtensionInfo getServerExtensionInfo(com.g4mesoft.GSExtensionUID) -> gsc_hH
+    com.g4mesoft.GSExtensionInfoList getServerExtensionInfoList() -> gsc_rJ
     boolean isG4mespeedServer() -> gsc_UM
     boolean isInGame() -> gsc_mg
-    void sendPacket(com.g4mesoft.packet.GSIPacket) -> gsc_rJ
+    25:26:void sendPacket(com.g4mesoft.packet.GSIPacket) -> gsc_rJ
     void sendPacket(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion) -> gsc_rJ
 com.g4mesoft.core.compat.GSCarpetCompat -> core.t:
     java.lang.String TICKSPEED_CLASSPATH -> gsc_eh
     java.lang.String ADD_TICKRATE_LISTENER_METHOD_NAME -> gsc_Pt
     java.lang.String TICKRATE_METHOD_NAME -> gsc_PS
     java.lang.String MSPT_FIELD_NAME -> gsc_bx
+    java.lang.String G4MESPEED_INTERFACE_NAME -> gsc_pl
     boolean carpetDetected -> gsc_hH
     java.lang.reflect.Method carpetAddTickrateListener -> gsc_rJ
     java.util.function.BiConsumer carpetTickrateListener -> gsc_rJ
@@ -249,78 +267,77 @@ com.g4mesoft.core.compat.GSCarpetCompat -> core.t:
     float lastBroadcastCarpetTickrate -> gsc_rJ
     boolean outdatedCompatMode -> gsc_sc
     java.util.List tickrateListeners -> gsc_bs
-    31:33:void <init>() -> <init>
-    36:43:void reset() -> gsc_Jn
-    47:91:void detectCarpet() -> gsc_AS
-    94:97:void addCarpetTickrateListener(com.g4mesoft.core.compat.GSICarpetCompatTickrateListener) -> gsc_rJ
-    100:103:void removeCarpetTickrateListener(com.g4mesoft.core.compat.GSICarpetCompatTickrateListener) -> gsc_hH
-    106:114:void carpetTickrateChanged(java.lang.String,float) -> gsc_rJ
-    118:125:java.util.function.BiConsumer establishTickrateLink(java.util.function.BiConsumer) -> gsc_rJ
-    129:144:float getCarpetTickrate() -> gsc_bs
-    148:154:void notifyTickrateChange(float) -> gsc_rJ
-    157:157:boolean isCarpetDetected() -> gsc_vm
-    161:161:boolean isTickrateLinked() -> gsc_Qo
-    165:165:boolean isOutdatedCompatMode() -> gsc_Jn
+    33:35:void <init>() -> <init>
+    38:45:void reset() -> gsc_Jn
+    49:93:void detectCarpet() -> gsc_AS
+    96:99:void addCarpetTickrateListener(com.g4mesoft.core.compat.GSICarpetCompatTickrateListener) -> gsc_rJ
+    102:105:void removeCarpetTickrateListener(com.g4mesoft.core.compat.GSICarpetCompatTickrateListener) -> gsc_hH
+    108:116:void carpetTickrateChanged(java.lang.String,float) -> gsc_rJ
+    120:127:java.util.function.BiConsumer establishTickrateLink(java.util.function.BiConsumer) -> gsc_rJ
+    131:146:float getCarpetTickrate() -> gsc_bs
+    150:156:void notifyTickrateChange(float) -> gsc_rJ
+    159:159:boolean isCarpetDetected() -> gsc_vm
+    163:163:boolean isTickrateLinked() -> gsc_Qo
+    167:167:boolean isOutdatedCompatMode() -> gsc_Jn
 com.g4mesoft.core.compat.GSCarpetCompat$GSOutdatedCarpetTickrateListener -> core.u:
     java.lang.reflect.Method tickrateMethod -> gsc_hH
-    172:174:void <init>(java.lang.reflect.Method) -> <init>
-    179:182:void accept(java.lang.String,java.lang.Float) -> gsc_rJ
-    168:168:void accept(java.lang.Object,java.lang.Object) -> accept
+    174:176:void <init>(java.lang.reflect.Method) -> <init>
+    181:184:void accept(java.lang.String,java.lang.Float) -> gsc_rJ
+    170:170:void accept(java.lang.Object,java.lang.Object) -> accept
 com.g4mesoft.core.compat.GSICarpetCompatTickrateListener -> core.v:
     void onCarpetTickrateChanged(float) -> gsc_hH
 com.g4mesoft.core.server.GSControllerServer -> core.w:
-    com.g4mesoft.core.GSVersion SETTING_PERMISSION_INTRODUCTION -> gsc_vm
     int OP_PERMISSION_LEVEL -> gsc_UM
     com.g4mesoft.core.server.GSControllerServer instance -> gsc_rJ
     com.mojang.brigadier.CommandDispatcher dispatcher -> gsc_rJ
     net.minecraft.server.MinecraftServer server -> gsc_rJ
-    49:53:void <init>() -> <init>
-    57:63:void addModule(com.g4mesoft.core.GSIModule) -> gsc_rJ
-    66:69:void init(net.minecraft.server.MinecraftServer) -> gsc_rJ
-    72:78:void setCommandDispatcher(com.mojang.brigadier.CommandDispatcher) -> gsc_hH
-    81:86:void onPlayerJoin(net.minecraft.class_3222) -> gsc_rJ
-    90:90:boolean isExtensionInstalled(net.minecraft.class_3222,com.g4mesoft.GSExtensionUID) -> gsc_rJ
-    94:103:void onG4mespeedClientJoined(net.minecraft.class_3222,com.g4mesoft.core.GSVersion) -> gsc_hH
-    106:108:void onPlayerLeave(net.minecraft.class_3222) -> gsc_hH
-    111:114:void onServerShutdown() -> gsc_cT
-    117:121:void onPlayerPermissionChanged(net.minecraft.class_3222) -> gsc_sc
-    125:126:void addExtensionModules(com.g4mesoft.GSIExtension) -> gsc_sc
-    130:130:boolean isThreadOwner() -> gsc_hH
-    135:135:net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> gsc_rJ
-    140:140:boolean isClient() -> gsc_sc
-    145:145:com.g4mesoft.core.GSVersion getCoreVersion() -> gsc_rJ
-    150:150:void runOnClient(java.util.function.Consumer) -> gsc_rJ
-    154:155:void runOnServer(java.util.function.Consumer) -> gsc_hH
-    159:160:void sendPacket(com.g4mesoft.packet.GSIPacket,net.minecraft.class_3222) -> gsc_rJ
-    164:172:void sendPacket(com.g4mesoft.packet.GSIPacket,net.minecraft.class_3222,com.g4mesoft.core.GSVersion) -> gsc_rJ
-    176:177:void sendPacketToAll(com.g4mesoft.packet.GSIPacket) -> gsc_hH
-    181:182:void sendPacketToAll(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion) -> gsc_hH
-    186:187:void sendPacketToAllExcept(com.g4mesoft.packet.GSIPacket,net.minecraft.class_3222) -> gsc_hH
-    191:206:void sendPacketToAllExcept(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion,net.minecraft.class_3222) -> gsc_rJ
-    210:210:java.util.Collection getAllPlayers() -> gsc_rJ
-    215:219:java.io.File getCacheFile() -> gsc_hH
-    224:225:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_rJ
-    229:230:void onSettingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_hH
-    234:235:void onSettingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_sc
-    238:242:void sendSettingChange(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting,com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType) -> gsc_rJ
-    245:245:boolean isAllowedSettingChange(net.minecraft.class_3222) -> gsc_rJ
-    249:250:void sendSettingPermissionPacket(net.minecraft.class_3222) -> gsc_bs
-    253:253:net.minecraft.server.MinecraftServer getServer() -> gsc_rJ
-    257:257:com.g4mesoft.core.server.GSControllerServer getInstance() -> gsc_rJ
-    39:43:void <clinit>() -> <clinit>
+    48:52:void <init>() -> <init>
+    56:62:void addModule(com.g4mesoft.core.GSIModule) -> gsc_rJ
+    65:68:void init(net.minecraft.server.MinecraftServer) -> gsc_rJ
+    71:77:void setCommandDispatcher(com.mojang.brigadier.CommandDispatcher) -> gsc_hH
+    80:84:void onPlayerJoin(net.minecraft.class_3222) -> gsc_rJ
+    88:88:boolean isExtensionInstalled(net.minecraft.class_3222,com.g4mesoft.GSExtensionUID) -> gsc_rJ
+    93:93:boolean isExtensionInstalled(net.minecraft.class_3222,com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    98:98:com.g4mesoft.GSExtensionInfo getExtensionInfo(net.minecraft.class_3222,com.g4mesoft.GSExtensionUID) -> gsc_rJ
+    102:116:void onG4mespeedClientJoined(net.minecraft.class_3222,com.g4mesoft.GSExtensionInfo[]) -> gsc_rJ
+    119:121:void onPlayerLeave(net.minecraft.class_3222) -> gsc_hH
+    124:127:void onServerShutdown() -> gsc_cT
+    130:134:void onPlayerPermissionChanged(net.minecraft.class_3222) -> gsc_sc
+    138:139:void addExtensionModules(com.g4mesoft.GSIExtension) -> gsc_sc
+    143:143:boolean isThreadOwner() -> gsc_hH
+    148:148:net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> gsc_rJ
+    153:153:boolean isClient() -> gsc_sc
+    158:158:void runOnClient(java.util.function.Consumer) -> gsc_rJ
+    162:163:void runOnServer(java.util.function.Consumer) -> gsc_hH
+    167:178:void sendPacket(com.g4mesoft.packet.GSIPacket,net.minecraft.class_3222,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    182:183:void sendPacketToAll(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion) -> gsc_hH
+    187:202:void sendPacketToAllExcept(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion,net.minecraft.class_3222) -> gsc_rJ
+    206:206:java.util.Collection getAllPlayers() -> gsc_rJ
+    211:215:java.io.File getCacheFile() -> gsc_hH
+    220:221:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_rJ
+    225:226:void onSettingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_hH
+    230:231:void onSettingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_sc
+    234:238:void sendSettingChange(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting,com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType) -> gsc_rJ
+    241:241:boolean isAllowedSettingChange(net.minecraft.class_3222) -> gsc_rJ
+    245:246:void sendSettingPermissionPacket(net.minecraft.class_3222) -> gsc_bs
+    249:249:net.minecraft.server.MinecraftServer getServer() -> gsc_rJ
+    253:253:com.g4mesoft.core.server.GSControllerServer getInstance() -> gsc_rJ
+    42:42:void <clinit>() -> <clinit>
 com.g4mesoft.core.server.GSIModuleManagerServer -> core.x:
     boolean isExtensionInstalled(net.minecraft.class_3222,com.g4mesoft.GSExtensionUID) -> gsc_rJ
-    void sendPacket(com.g4mesoft.packet.GSIPacket,net.minecraft.class_3222) -> gsc_rJ
+    boolean isExtensionInstalled(net.minecraft.class_3222,com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    com.g4mesoft.GSExtensionInfo getExtensionInfo(net.minecraft.class_3222,com.g4mesoft.GSExtensionUID) -> gsc_rJ
+    22:23:void sendPacket(com.g4mesoft.packet.GSIPacket,net.minecraft.class_3222) -> gsc_rJ
     void sendPacket(com.g4mesoft.packet.GSIPacket,net.minecraft.class_3222,com.g4mesoft.core.GSVersion) -> gsc_rJ
-    void sendPacketToAll(com.g4mesoft.packet.GSIPacket) -> gsc_hH
+    28:29:void sendPacketToAll(com.g4mesoft.packet.GSIPacket) -> gsc_hH
     void sendPacketToAll(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion) -> gsc_hH
-    void sendPacketToAllExcept(com.g4mesoft.packet.GSIPacket,net.minecraft.class_3222) -> gsc_hH
+    34:35:void sendPacketToAllExcept(com.g4mesoft.packet.GSIPacket,net.minecraft.class_3222) -> gsc_hH
     void sendPacketToAllExcept(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion,net.minecraft.class_3222) -> gsc_rJ
     java.util.Collection getAllPlayers() -> gsc_rJ
 com.g4mesoft.core.server.GSInfoCommand -> core.y:
     13:14:void <init>() -> <init>
     17:20:void registerCommand(com.mojang.brigadier.CommandDispatcher) -> gsc_sc
-    23:25:int informG4mespeedVersion(net.minecraft.class_2168) -> gsc_rJ
+    23:25:int informCoreVersion(net.minecraft.class_2168) -> gsc_rJ
     18:18:int lambda$registerCommand$0(com.mojang.brigadier.context.CommandContext) -> gsc_rJ
 com.g4mesoft.debug.GSDebug -> core.z:
     boolean GS_DEBUG -> gsc_bs
@@ -400,14 +417,16 @@ com.g4mesoft.gui.GSElementContext$1 -> core.D:
     137:137:void <clinit>() -> <clinit>
 com.g4mesoft.gui.GSIElement -> core.E:
     void setBounds(int,int,int,int) -> gsc_rJ
+    boolean isAdded() -> gsc_cT
+    com.g4mesoft.gui.GSIElement getParent() -> gsc_rJ
     void onAdded(com.g4mesoft.gui.GSIElement) -> gsc_vm
     void onRemoved(com.g4mesoft.gui.GSIElement) -> gsc_Qo
+    boolean isVisible() -> gsc_tL
+    void setVisible(boolean) -> gsc_AS
     void update() -> gsc_bx
     void preRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_hH
     void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_sc
     void postRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_bs
-    boolean isAdded() -> gsc_cT
-    com.g4mesoft.gui.GSIElement getParent() -> gsc_rJ
     com.g4mesoft.gui.GSIElement getChildAt(int,int) -> gsc_rJ
     boolean isInBounds(int,int) -> gsc_rJ
     int getX() -> gsc_AS
@@ -446,18 +465,22 @@ com.g4mesoft.gui.GSIViewport -> core.G:
     int getHeight() -> gsc_gn
 com.g4mesoft.gui.GSInfoGUI -> core.H:
     int TEXT_COLOR -> gsc_Qo
+    int EXTENSION_NAME_COLOR -> gsc_p
     int VERSION_COLOR -> gsc_Jn
     int LESS_THAN_VERSION_COLOR -> gsc_AS
     int INVALID_VERSION_COLOR -> gsc_cT
-    java.lang.String SERVER_VERSION_TITLE_MSG -> gsc_yN
-    java.lang.String INVALID_VERSION_MSG -> gsc_pl
-    java.lang.String CLIENT_VERSION_TITLE_MSG -> gsc_LG
-    com.g4mesoft.core.client.GSControllerClient controllerClient -> gsc_hH
-    20:22:void <init>(com.g4mesoft.core.client.GSControllerClient) -> <init>
-    26:35:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_sc
-    38:57:void drawVersion(com.g4mesoft.gui.renderer.GSIRenderer2D,java.lang.String,com.g4mesoft.core.GSVersion,int,int) -> gsc_rJ
+    int TEXT_SPACING -> gsc_Tc
+    java.lang.String SERVER_EXTENSIONS_TITLE -> gsc_LG
+    java.lang.String CLIENT_EXTENSIONS_TITLE -> gsc_qO
+    java.lang.String EXTENSION_NAME_TEXT -> gsc_jX
+    java.lang.String INVALID_VERSION_TEXT -> gsc_Ln
+    com.g4mesoft.core.client.GSControllerClient client -> gsc_sc
+    29:31:void <init>(com.g4mesoft.core.client.GSControllerClient) -> <init>
+    35:61:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_sc
+    67:91:void drawExtensionInfo(com.g4mesoft.gui.renderer.GSIRenderer2D,com.g4mesoft.GSExtensionInfo,int,int) -> gsc_rJ
 com.g4mesoft.gui.GSPanel -> core.I:
     com.g4mesoft.gui.GSIElement parent -> gsc_rJ
+    boolean visible -> gsc_Ya
     int x -> gsc_Yp
     int y -> gsc_gn
     int width -> gsc_eh
@@ -471,132 +494,141 @@ com.g4mesoft.gui.GSPanel -> core.I:
     com.g4mesoft.gui.event.GSIMouseListener buttonMouseListener -> gsc_rJ
     com.g4mesoft.gui.event.GSIKeyListener buttonKeyListener -> gsc_rJ
     com.g4mesoft.gui.GSECursorType cursor -> gsc_vm
-    40:50:void <init>() -> <init>
-    54:65:void setBounds(int,int,int,int) -> gsc_rJ
-    68:68:void onBoundsChanged() -> gsc_VL
-    72:80:void onAdded(com.g4mesoft.gui.GSIElement) -> gsc_vm
-    84:90:void onRemoved(com.g4mesoft.gui.GSIElement) -> gsc_Qo
-    94:94:void update() -> gsc_bx
-    98:100:void preRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_hH
-    104:104:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_sc
-    108:109:void postRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_bs
-    113:113:boolean isAdded() -> gsc_cT
-    118:118:com.g4mesoft.gui.GSIElement getParent() -> gsc_rJ
-    123:123:com.g4mesoft.gui.GSIElement getChildAt(int,int) -> gsc_rJ
-    128:132:boolean isInBounds(int,int) -> gsc_rJ
-    137:137:int getX() -> gsc_AS
-    142:142:int getY() -> gsc_cT
-    147:147:int getWidth() -> gsc_Yp
-    152:152:int getHeight() -> gsc_gn
-    157:161:void addMouseEventListener(com.g4mesoft.gui.event.GSIMouseListener) -> gsc_rJ
-    165:171:void removeMouseEventListener(com.g4mesoft.gui.event.GSIMouseListener) -> gsc_hH
-    175:177:java.util.List getMouseEventListeners() -> gsc_sc
-    182:186:void addKeyEventListener(com.g4mesoft.gui.event.GSIKeyListener) -> gsc_rJ
-    190:196:void removeKeyEventListener(com.g4mesoft.gui.event.GSIKeyListener) -> gsc_hH
-    200:202:java.util.List getKeyEventListeners() -> gsc_bs
-    207:211:void addFocusEventListener(com.g4mesoft.gui.event.GSIFocusEventListener) -> gsc_rJ
-    215:221:void removeFocusEventListener(com.g4mesoft.gui.event.GSIFocusEventListener) -> gsc_hH
-    225:227:java.util.List getFocusEventListeners() -> gsc_UM
-    232:232:boolean isPassingEvents() -> gsc_Yp
-    237:238:void setPassingEvents(boolean) -> gsc_hH
-    242:243:void dispatchMouseEvent(com.g4mesoft.gui.event.GSMouseEvent,com.g4mesoft.gui.GSIElement) -> gsc_rJ
-    247:248:void dispatchKeyEvent(com.g4mesoft.gui.event.GSKeyEvent,com.g4mesoft.gui.GSIElement) -> gsc_rJ
-    252:252:boolean isFocused() -> gsc_gn
-    257:258:void setFocused(boolean) -> gsc_sc
-    262:263:void requestFocus() -> gsc_yN
-    267:269:void unfocus() -> gsc_pl
-    273:273:boolean isEditingText() -> gsc_eh
-    278:278:com.g4mesoft.gui.GSECursorType getCursor() -> gsc_rJ
-    283:287:void setCursor(com.g4mesoft.gui.GSECursorType) -> gsc_rJ
-    291:291:int getEventOffsetX() -> gsc_eh
-    296:296:int getEventOffsetY() -> gsc_Pt
-    300:327:void putButtonStroke(com.g4mesoft.gui.event.GSIButtonStroke,java.lang.Runnable) -> gsc_rJ
-    330:332:void removeButtonStroke(com.g4mesoft.gui.event.GSIButtonStroke) -> gsc_hH
-    335:344:void handleButtonEvent(com.g4mesoft.gui.event.GSEvent) -> gsc_rJ
-    347:347:boolean hasI18nTranslation(java.lang.String) -> gsc_rJ
-    351:351:java.lang.String i18nTranslate(java.lang.String) -> gsc_rJ
-    355:355:java.lang.String i18nTranslateFormatted(java.lang.String,java.lang.Object[]) -> gsc_rJ
-    360:360:int hashCode() -> hashCode
-    365:365:boolean equals(java.lang.Object) -> equals
+    42:52:void <init>() -> <init>
+    56:67:void setBounds(int,int,int,int) -> gsc_rJ
+    70:70:void onBoundsChanged() -> gsc_VL
+    74:74:boolean isAdded() -> gsc_cT
+    79:79:com.g4mesoft.gui.GSIElement getParent() -> gsc_rJ
+    84:92:void onAdded(com.g4mesoft.gui.GSIElement) -> gsc_vm
+    96:102:void onRemoved(com.g4mesoft.gui.GSIElement) -> gsc_Qo
+    106:106:boolean isVisible() -> gsc_tL
+    111:120:void setVisible(boolean) -> gsc_AS
+    123:123:void onShown() -> gsc_Vc
+    126:126:void onHidden() -> gsc_OU
+    130:130:void update() -> gsc_bx
+    134:136:void preRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_hH
+    140:140:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_sc
+    144:145:void postRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_bs
+    149:149:com.g4mesoft.gui.GSIElement getChildAt(int,int) -> gsc_rJ
+    154:158:boolean isInBounds(int,int) -> gsc_rJ
+    163:163:int getX() -> gsc_AS
+    168:168:int getY() -> gsc_cT
+    173:173:int getWidth() -> gsc_Yp
+    178:178:int getHeight() -> gsc_gn
+    183:187:void addMouseEventListener(com.g4mesoft.gui.event.GSIMouseListener) -> gsc_rJ
+    191:197:void removeMouseEventListener(com.g4mesoft.gui.event.GSIMouseListener) -> gsc_hH
+    201:203:java.util.List getMouseEventListeners() -> gsc_sc
+    208:212:void addKeyEventListener(com.g4mesoft.gui.event.GSIKeyListener) -> gsc_rJ
+    216:222:void removeKeyEventListener(com.g4mesoft.gui.event.GSIKeyListener) -> gsc_hH
+    226:228:java.util.List getKeyEventListeners() -> gsc_bs
+    233:237:void addFocusEventListener(com.g4mesoft.gui.event.GSIFocusEventListener) -> gsc_rJ
+    241:247:void removeFocusEventListener(com.g4mesoft.gui.event.GSIFocusEventListener) -> gsc_hH
+    251:253:java.util.List getFocusEventListeners() -> gsc_UM
+    258:258:int getEventOffsetX() -> gsc_eh
+    263:263:int getEventOffsetY() -> gsc_Pt
+    268:268:boolean isPassingEvents() -> gsc_Yp
+    273:274:void setPassingEvents(boolean) -> gsc_hH
+    278:279:void dispatchMouseEvent(com.g4mesoft.gui.event.GSMouseEvent,com.g4mesoft.gui.GSIElement) -> gsc_rJ
+    283:284:void dispatchKeyEvent(com.g4mesoft.gui.event.GSKeyEvent,com.g4mesoft.gui.GSIElement) -> gsc_rJ
+    288:288:boolean isFocused() -> gsc_gn
+    293:294:void setFocused(boolean) -> gsc_sc
+    298:299:void requestFocus() -> gsc_yN
+    303:305:void unfocus() -> gsc_pl
+    309:309:boolean isEditingText() -> gsc_eh
+    314:314:com.g4mesoft.gui.GSECursorType getCursor() -> gsc_rJ
+    319:323:void setCursor(com.g4mesoft.gui.GSECursorType) -> gsc_rJ
+    326:353:void putButtonStroke(com.g4mesoft.gui.event.GSIButtonStroke,java.lang.Runnable) -> gsc_rJ
+    356:358:void removeButtonStroke(com.g4mesoft.gui.event.GSIButtonStroke) -> gsc_hH
+    361:370:void handleButtonEvent(com.g4mesoft.gui.event.GSEvent) -> gsc_rJ
+    373:373:boolean hasI18nTranslation(java.lang.String) -> gsc_rJ
+    377:377:java.lang.String i18nTranslate(java.lang.String) -> gsc_rJ
+    381:381:java.lang.String i18nTranslateFormatted(java.lang.String,java.lang.Object[]) -> gsc_rJ
+    386:386:int hashCode() -> hashCode
+    391:391:boolean equals(java.lang.Object) -> equals
     18:18:void access$000(com.g4mesoft.gui.GSPanel,com.g4mesoft.gui.event.GSEvent) -> gsc_rJ
 com.g4mesoft.gui.GSPanel$1 -> core.J:
     com.g4mesoft.gui.GSPanel this$0 -> gsc_rJ
-    304:304:void <init>(com.g4mesoft.gui.GSPanel) -> <init>
-    307:308:void mousePressed(com.g4mesoft.gui.event.GSMouseEvent) -> gsc_rJ
+    330:330:void <init>(com.g4mesoft.gui.GSPanel) -> <init>
+    333:334:void mousePressed(com.g4mesoft.gui.event.GSMouseEvent) -> gsc_rJ
 com.g4mesoft.gui.GSPanel$2 -> core.K:
     com.g4mesoft.gui.GSPanel this$0 -> gsc_rJ
-    315:315:void <init>(com.g4mesoft.gui.GSPanel) -> <init>
-    318:320:void keyPressed(com.g4mesoft.gui.event.GSKeyEvent) -> gsc_rJ
+    341:341:void <init>(com.g4mesoft.gui.GSPanel) -> <init>
+    344:346:void keyPressed(com.g4mesoft.gui.event.GSKeyEvent) -> gsc_rJ
 com.g4mesoft.gui.GSParentPanel -> core.L:
     java.util.List children -> gsc_Qo
     13:15:void <init>() -> <init>
-    19:22:void add(com.g4mesoft.gui.GSIElement) -> gsc_Jn
-    26:28:void remove(com.g4mesoft.gui.GSIElement) -> gsc_AS
-    32:34:void removeAll() -> gsc_LG
-    38:41:void update() -> gsc_bx
-    44:46:void updateChildren() -> gsc_ew
-    50:53:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_sc
-    56:61:void renderChildren(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_UM
-    65:70:com.g4mesoft.gui.GSIElement getChildAt(int,int) -> gsc_rJ
-    75:75:java.util.List getChildren() -> gsc_mg
+    19:25:void setVisible(boolean) -> gsc_AS
+    29:33:void add(com.g4mesoft.gui.GSIElement) -> gsc_Jn
+    37:41:void remove(com.g4mesoft.gui.GSIElement) -> gsc_AS
+    45:47:void removeAll() -> gsc_LG
+    51:54:void update() -> gsc_bx
+    57:59:void updateChildren() -> gsc_ew
+    63:66:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_sc
+    69:74:void renderChildren(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_UM
+    78:83:com.g4mesoft.gui.GSIElement getChildAt(int,int) -> gsc_rJ
+    88:88:java.util.List getChildren() -> gsc_mg
 com.g4mesoft.gui.GSRootPanel -> core.M:
     com.g4mesoft.gui.GSIElement content -> gsc_hH
+    boolean visible -> gsc_Ya
     boolean elementFocused -> gsc_Qo
-    27:28:void <init>() -> <init>
-    33:39:void method_25426() -> method_25426
-    44:47:void method_25432() -> method_25432
-    52:55:void method_25393() -> method_25393
-    60:71:void method_25394(net.minecraft.class_4587,int,int,float) -> method_25394
-    76:77:void method_16014(double,double) -> method_16014
-    82:84:boolean method_25402(double,double,int) -> method_25402
-    90:92:boolean method_25406(double,double,int) -> method_25406
-    98:99:boolean method_25403(double,double,int,double,double) -> method_25403
-    105:107:boolean method_25401(double,double,double) -> method_25401
-    113:118:boolean method_25404(int,int,int) -> method_25404
-    124:125:boolean method_16803(int,int,int) -> method_16803
-    131:132:boolean method_25400(char,int) -> method_25400
-    137:137:void setBounds(int,int,int,int) -> gsc_rJ
-    142:142:void onAdded(com.g4mesoft.gui.GSIElement) -> gsc_vm
-    147:147:void onRemoved(com.g4mesoft.gui.GSIElement) -> gsc_Qo
-    152:154:void update() -> gsc_bx
-    158:158:void preRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_hH
-    162:167:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_sc
-    171:171:void postRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_bs
-    175:175:boolean isAdded() -> gsc_cT
-    180:180:com.g4mesoft.gui.GSIElement getParent() -> gsc_rJ
-    185:185:boolean isInBounds(int,int) -> gsc_rJ
-    190:190:int getX() -> gsc_AS
-    195:195:int getY() -> gsc_cT
-    200:200:int getWidth() -> gsc_Yp
-    205:205:int getHeight() -> gsc_gn
-    210:210:void addMouseEventListener(com.g4mesoft.gui.event.GSIMouseListener) -> gsc_rJ
-    214:214:void removeMouseEventListener(com.g4mesoft.gui.event.GSIMouseListener) -> gsc_hH
-    218:218:java.util.List getMouseEventListeners() -> gsc_sc
-    223:223:void addKeyEventListener(com.g4mesoft.gui.event.GSIKeyListener) -> gsc_rJ
-    227:227:void removeKeyEventListener(com.g4mesoft.gui.event.GSIKeyListener) -> gsc_hH
-    231:231:java.util.List getKeyEventListeners() -> gsc_bs
-    236:236:void addFocusEventListener(com.g4mesoft.gui.event.GSIFocusEventListener) -> gsc_rJ
-    240:240:void removeFocusEventListener(com.g4mesoft.gui.event.GSIFocusEventListener) -> gsc_hH
-    244:244:java.util.List getFocusEventListeners() -> gsc_UM
-    249:249:int getEventOffsetX() -> gsc_eh
-    254:254:int getEventOffsetY() -> gsc_Pt
-    259:259:boolean isPassingEvents() -> gsc_Yp
-    264:264:void setPassingEvents(boolean) -> gsc_hH
-    268:268:void dispatchMouseEvent(com.g4mesoft.gui.event.GSMouseEvent,com.g4mesoft.gui.GSIElement) -> gsc_rJ
-    272:272:void dispatchKeyEvent(com.g4mesoft.gui.event.GSKeyEvent,com.g4mesoft.gui.GSIElement) -> gsc_rJ
-    276:276:boolean isFocused() -> gsc_gn
-    281:282:void setFocused(boolean) -> gsc_sc
-    286:287:void requestFocus() -> gsc_yN
-    291:293:void unfocus() -> gsc_pl
-    297:297:boolean isEditingText() -> gsc_eh
-    302:302:com.g4mesoft.gui.GSECursorType getCursor() -> gsc_rJ
-    307:307:void setCursor(com.g4mesoft.gui.GSECursorType) -> gsc_rJ
-    311:311:com.g4mesoft.gui.GSIElement getChildAt(int,int) -> gsc_rJ
-    315:328:void setContent(com.g4mesoft.gui.GSIElement) -> gsc_rJ
-    332:332:void add(com.g4mesoft.gui.GSIElement) -> gsc_Jn
-    337:337:void remove(com.g4mesoft.gui.GSIElement) -> gsc_AS
-    342:342:void removeAll() -> gsc_LG
-    347:347:java.util.List getChildren() -> gsc_mg
+    29:35:void <init>() -> <init>
+    40:48:void method_25426() -> method_25426
+    53:58:void method_25432() -> method_25432
+    63:66:void method_25393() -> method_25393
+    71:82:void method_25394(net.minecraft.class_4587,int,int,float) -> method_25394
+    87:88:void method_16014(double,double) -> method_16014
+    93:95:boolean method_25402(double,double,int) -> method_25402
+    101:103:boolean method_25406(double,double,int) -> method_25406
+    109:110:boolean method_25403(double,double,int,double,double) -> method_25403
+    116:118:boolean method_25401(double,double,double) -> method_25401
+    124:129:boolean method_25404(int,int,int) -> method_25404
+    135:136:boolean method_16803(int,int,int) -> method_16803
+    142:143:boolean method_25400(char,int) -> method_25400
+    148:148:void setBounds(int,int,int,int) -> gsc_rJ
+    153:153:boolean isAdded() -> gsc_cT
+    158:158:com.g4mesoft.gui.GSIElement getParent() -> gsc_rJ
+    163:163:void onAdded(com.g4mesoft.gui.GSIElement) -> gsc_vm
+    168:168:void onRemoved(com.g4mesoft.gui.GSIElement) -> gsc_Qo
+    173:173:boolean isVisible() -> gsc_tL
+    178:178:void setVisible(boolean) -> gsc_AS
+    185:191:void setVisibleImpl(boolean) -> gsc_cT
+    195:197:void update() -> gsc_bx
+    201:201:void preRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_hH
+    205:210:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_sc
+    214:214:void postRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_bs
+    218:218:boolean isInBounds(int,int) -> gsc_rJ
+    223:223:int getX() -> gsc_AS
+    228:228:int getY() -> gsc_cT
+    233:233:int getWidth() -> gsc_Yp
+    238:238:int getHeight() -> gsc_gn
+    243:243:void addMouseEventListener(com.g4mesoft.gui.event.GSIMouseListener) -> gsc_rJ
+    247:247:void removeMouseEventListener(com.g4mesoft.gui.event.GSIMouseListener) -> gsc_hH
+    251:251:java.util.List getMouseEventListeners() -> gsc_sc
+    256:256:void addKeyEventListener(com.g4mesoft.gui.event.GSIKeyListener) -> gsc_rJ
+    260:260:void removeKeyEventListener(com.g4mesoft.gui.event.GSIKeyListener) -> gsc_hH
+    264:264:java.util.List getKeyEventListeners() -> gsc_bs
+    269:269:void addFocusEventListener(com.g4mesoft.gui.event.GSIFocusEventListener) -> gsc_rJ
+    273:273:void removeFocusEventListener(com.g4mesoft.gui.event.GSIFocusEventListener) -> gsc_hH
+    277:277:java.util.List getFocusEventListeners() -> gsc_UM
+    282:282:int getEventOffsetX() -> gsc_eh
+    287:287:int getEventOffsetY() -> gsc_Pt
+    292:292:boolean isPassingEvents() -> gsc_Yp
+    297:297:void setPassingEvents(boolean) -> gsc_hH
+    301:301:void dispatchMouseEvent(com.g4mesoft.gui.event.GSMouseEvent,com.g4mesoft.gui.GSIElement) -> gsc_rJ
+    305:305:void dispatchKeyEvent(com.g4mesoft.gui.event.GSKeyEvent,com.g4mesoft.gui.GSIElement) -> gsc_rJ
+    309:309:boolean isFocused() -> gsc_gn
+    314:315:void setFocused(boolean) -> gsc_sc
+    319:320:void requestFocus() -> gsc_yN
+    324:326:void unfocus() -> gsc_pl
+    330:330:boolean isEditingText() -> gsc_eh
+    335:335:com.g4mesoft.gui.GSECursorType getCursor() -> gsc_rJ
+    340:340:void setCursor(com.g4mesoft.gui.GSECursorType) -> gsc_rJ
+    344:344:com.g4mesoft.gui.GSIElement getChildAt(int,int) -> gsc_rJ
+    348:371:void setContent(com.g4mesoft.gui.GSIElement) -> gsc_rJ
+    375:375:void add(com.g4mesoft.gui.GSIElement) -> gsc_Jn
+    380:380:void remove(com.g4mesoft.gui.GSIElement) -> gsc_AS
+    385:385:void removeAll() -> gsc_LG
+    390:390:java.util.List getChildren() -> gsc_mg
 com.g4mesoft.gui.GSTabbedGUI -> core.N:
     int TAB_VERTICAL_PADDING -> gsc_PS
     int TAB_HORIZONTAL_PADDING -> gsc_bx
@@ -762,29 +794,30 @@ com.g4mesoft.gui.event.GSEventDispatcher -> core.X:
     161:165:void keyTyped(int) -> gsc_Qo
     168:170:void requestFocus(com.g4mesoft.gui.GSIElement) -> gsc_hH
     173:175:void unfocus(com.g4mesoft.gui.GSIElement) -> gsc_sc
-    179:181:boolean isChildOfRoot(com.g4mesoft.gui.GSIElement) -> gsc_rJ
-    185:202:void setFocusedElement(com.g4mesoft.gui.GSIElement) -> gsc_cT
-    205:212:com.g4mesoft.gui.event.GSMouseEvent translateMouseEvent(com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.event.GSMouseEvent,int) -> gsc_rJ
-    216:216:com.g4mesoft.gui.GSIElement getTopElementAt(int,int) -> gsc_hH
-    220:233:com.g4mesoft.gui.event.GSEventDispatcher$GSIElementResult getTopElementResultAt(int,int) -> gsc_rJ
-    237:267:void dispatchMouseEvent(com.g4mesoft.gui.event.GSMouseEvent,com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.GSIElement) -> gsc_rJ
-    270:290:void dispatchKeyEvent(com.g4mesoft.gui.event.GSKeyEvent,com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.GSIElement) -> gsc_rJ
-    293:302:void distributeMouseEvent(com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.event.GSMouseEvent,java.util.function.BiConsumer) -> gsc_rJ
-    305:315:void distributeKeyEvent(com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.event.GSKeyEvent,java.util.function.BiConsumer) -> gsc_rJ
-    318:320:void invokeMouseEventListeners(com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.event.GSMouseEvent,java.util.function.BiConsumer) -> gsc_hH
-    323:325:void invokeKeyEventListeners(com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.event.GSKeyEvent,java.util.function.BiConsumer) -> gsc_hH
-    328:330:void invokeFocusEventListeners(com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.event.GSFocusEvent,java.util.function.BiConsumer) -> gsc_rJ
-    333:333:int convertMouseX(float) -> gsc_rJ
-    337:337:int convertMouseY(float) -> gsc_hH
+    178:178:com.g4mesoft.gui.GSIElement getFocusedElement() -> gsc_hH
+    183:185:boolean isChildOfRoot(com.g4mesoft.gui.GSIElement) -> gsc_rJ
+    189:206:void setFocusedElement(com.g4mesoft.gui.GSIElement) -> gsc_cT
+    209:216:com.g4mesoft.gui.event.GSMouseEvent translateMouseEvent(com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.event.GSMouseEvent,int) -> gsc_rJ
+    220:220:com.g4mesoft.gui.GSIElement getTopElementAt(int,int) -> gsc_hH
+    224:237:com.g4mesoft.gui.event.GSEventDispatcher$GSIElementResult getTopElementResultAt(int,int) -> gsc_rJ
+    241:271:void dispatchMouseEvent(com.g4mesoft.gui.event.GSMouseEvent,com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.GSIElement) -> gsc_rJ
+    274:294:void dispatchKeyEvent(com.g4mesoft.gui.event.GSKeyEvent,com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.GSIElement) -> gsc_rJ
+    297:306:void distributeMouseEvent(com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.event.GSMouseEvent,java.util.function.BiConsumer) -> gsc_rJ
+    309:319:void distributeKeyEvent(com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.event.GSKeyEvent,java.util.function.BiConsumer) -> gsc_rJ
+    322:324:void invokeMouseEventListeners(com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.event.GSMouseEvent,java.util.function.BiConsumer) -> gsc_hH
+    327:329:void invokeKeyEventListeners(com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.event.GSKeyEvent,java.util.function.BiConsumer) -> gsc_hH
+    332:334:void invokeFocusEventListeners(com.g4mesoft.gui.GSIElement,com.g4mesoft.gui.event.GSFocusEvent,java.util.function.BiConsumer) -> gsc_rJ
+    337:337:int convertMouseX(float) -> gsc_rJ
+    341:341:int convertMouseY(float) -> gsc_hH
 com.g4mesoft.gui.event.GSEventDispatcher$GSIElementResult -> core.Y:
     com.g4mesoft.gui.GSIElement element -> gsc_bs
     int x -> gsc_Yp
     int y -> gsc_gn
     com.g4mesoft.gui.event.GSEventDispatcher this$0 -> gsc_hH
-    346:350:void <init>(com.g4mesoft.gui.event.GSEventDispatcher,com.g4mesoft.gui.GSIElement,int,int) -> <init>
-    340:340:com.g4mesoft.gui.GSIElement access$000(com.g4mesoft.gui.event.GSEventDispatcher$GSIElementResult) -> gsc_rJ
-    340:340:int access$100(com.g4mesoft.gui.event.GSEventDispatcher$GSIElementResult) -> gsc_rJ
-    340:340:int access$200(com.g4mesoft.gui.event.GSEventDispatcher$GSIElementResult) -> gsc_hH
+    350:354:void <init>(com.g4mesoft.gui.event.GSEventDispatcher,com.g4mesoft.gui.GSIElement,int,int) -> <init>
+    344:344:com.g4mesoft.gui.GSIElement access$000(com.g4mesoft.gui.event.GSEventDispatcher$GSIElementResult) -> gsc_rJ
+    344:344:int access$100(com.g4mesoft.gui.event.GSEventDispatcher$GSIElementResult) -> gsc_rJ
+    344:344:int access$200(com.g4mesoft.gui.event.GSEventDispatcher$GSIElementResult) -> gsc_hH
 com.g4mesoft.gui.event.GSFocusEvent -> core.Z:
     int FOCUS_GAINED_TYPE -> gsc_vw
     int FOCUS_LOST_TYPE -> gsc_Tk
@@ -1330,26 +1363,27 @@ com.g4mesoft.gui.scroll.GSScrollBar$GSParentScrollHandler -> core.aC:
 com.g4mesoft.gui.scroll.GSScrollablePanel -> core.aD:
     com.g4mesoft.gui.scroll.GSScrollablePanel$GSScrollableContentPanel contentPanel -> gsc_rJ
     com.g4mesoft.gui.scroll.GSScrollBar scrollBar -> gsc_hH
-    12:13:void <init>() -> <init>
-    15:24:void <init>(com.g4mesoft.gui.scroll.GSIScrollableElement) -> <init>
-    28:35:void onBoundsChanged() -> gsc_VL
-    38:39:void setContent(com.g4mesoft.gui.scroll.GSIScrollableElement) -> gsc_rJ
-    42:42:int getScrollOffset() -> gsc_BO
+    13:14:void <init>() -> <init>
+    16:25:void <init>(com.g4mesoft.gui.scroll.GSIScrollableElement) -> <init>
+    29:36:void onBoundsChanged() -> gsc_VL
+    39:40:void setContent(com.g4mesoft.gui.scroll.GSIScrollableElement) -> gsc_rJ
+    43:43:int getScrollOffset() -> gsc_BO
 com.g4mesoft.gui.scroll.GSScrollablePanel$1 -> core.aE:
 com.g4mesoft.gui.scroll.GSScrollablePanel$GSScrollableContentPanel -> core.aF:
     com.g4mesoft.gui.scroll.GSIScrollableElement content -> gsc_rJ
     com.g4mesoft.gui.scroll.GSScrollablePanel this$0 -> gsc_rJ
-    45:45:void <init>(com.g4mesoft.gui.scroll.GSScrollablePanel) -> <init>
-    50:59:void setContent(com.g4mesoft.gui.scroll.GSIScrollableElement) -> gsc_rJ
-    63:67:void onBoundsChanged() -> gsc_VL
-    71:74:void preRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_hH
-    78:80:void postRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_bs
-    84:84:int getEventOffsetY() -> gsc_Pt
-    89:89:int getContentWidth() -> gsc_kd
-    94:94:int getContentHeight() -> gsc_EE
-    99:99:float getIncrementalScrollX(int) -> gsc_rJ
-    104:104:float getIncrementalScrollY(int) -> gsc_hH
-    45:45:void <init>(com.g4mesoft.gui.scroll.GSScrollablePanel,com.g4mesoft.gui.scroll.GSScrollablePanel$1) -> <init>
+    46:46:void <init>(com.g4mesoft.gui.scroll.GSScrollablePanel) -> <init>
+    51:60:void setContent(com.g4mesoft.gui.scroll.GSIScrollableElement) -> gsc_rJ
+    64:68:void onBoundsChanged() -> gsc_VL
+    72:75:void preRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_hH
+    79:81:void postRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_bs
+    85:85:int getEventOffsetY() -> gsc_Pt
+    90:98:com.g4mesoft.gui.GSIElement getChildAt(int,int) -> gsc_rJ
+    103:103:int getContentWidth() -> gsc_kd
+    108:108:int getContentHeight() -> gsc_EE
+    113:116:float getIncrementalScrollX(int) -> gsc_rJ
+    121:124:float getIncrementalScrollY(int) -> gsc_hH
+    46:46:void <init>(com.g4mesoft.gui.scroll.GSScrollablePanel,com.g4mesoft.gui.scroll.GSScrollablePanel$1) -> <init>
 com.g4mesoft.gui.setting.GSBooleanSettingElementGUI -> core.aG:
     int SETTING_HEIGHT -> gsc_Qa
     int TEXT_MAX_WIDTH -> gsc_LY
@@ -1856,12 +1890,21 @@ com.g4mesoft.mixin.client.GSClientPlayNetworkHandlerMixin -> com.g4mesoft.mixin.
     int WORLD_TIME_UPDATE_INTERVAL -> gsc_ww
     net.minecraft.class_310 field_3690 -> field_3690
     net.minecraft.class_638 field_3699 -> field_3699
-    36:36:void <init>() -> <init>
-    45:46:void onInit(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    50:62:void onCustomPayload(net.minecraft.class_2658,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    67:73:void onWorldTimeSync(net.minecraft.class_2761,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    77:122:boolean replaceChunkDataBlockEntityLoop(java.util.Iterator) -> gsc_rJ
-    128:162:void onOnBlockEntityUpdate(net.minecraft.class_2622,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    47:47:void <init>() -> <init>
+    56:57:void onInit(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    61:62:void onOnGameJoin(net.minecraft.class_2678,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    67:84:void onOnEntitySpawn(net.minecraft.class_2604,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    88:93:void onOnVelocityUpdate(net.minecraft.class_2743,org.spongepowered.asm.mixin.injection.callback.CallbackInfo,net.minecraft.class_1297) -> gsc_rJ
+    97:107:void onOnEntityPosition(net.minecraft.class_2777,org.spongepowered.asm.mixin.injection.callback.CallbackInfo,net.minecraft.class_1297) -> gsc_rJ
+    111:122:void onCustomPayload(net.minecraft.class_2658,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    127:133:void onWorldTimeSync(net.minecraft.class_2761,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    137:182:boolean replaceChunkDataBlockEntityLoop(java.util.Iterator) -> gsc_rJ
+    188:225:void onOnBlockEntityUpdate(net.minecraft.class_2622,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    229:236:void onOnBlockUpdate(net.minecraft.class_2626,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    241:250:java.util.function.BiConsumer onOnChunkDeltaUpdateRedirect(java.util.function.BiConsumer) -> gsc_hH
+    245:247:void lambda$onOnChunkDeltaUpdateRedirect$0(java.util.function.BiConsumer,net.minecraft.class_2338,net.minecraft.class_2680) -> gsc_rJ
+com.g4mesoft.mixin.client.GSIClientWorldAccess -> com.g4mesoft.mixin.client.GSIClientWorldAccess:
+    void invokeCheckEntityChunkPos(net.minecraft.class_1297) -> gsc_rJ
 com.g4mesoft.mixin.client.GSIVertexFormatElementAccess -> com.g4mesoft.mixin.client.GSIVertexFormatElementAccess:
     int getCount() -> gsc_WZ
 com.g4mesoft.mixin.client.GSInGameHudMixin -> com.g4mesoft.mixin.client.GSInGameHudMixin:
@@ -1922,20 +1965,20 @@ com.g4mesoft.mixin.client.GSPistonBlockEntityMixin -> com.g4mesoft.mixin.client.
     net.minecraft.class_2350 field_12201 -> field_12201
     float field_12207 -> field_12207
     float field_12206 -> field_12206
+    int field_26705 -> field_26705
     30:31:void <init>(net.minecraft.class_2591) -> <init>
-    46:66:float getSmoothProgress(float) -> gsc_rJ
-    71:71:float getSmoothRenderOffsetX(net.minecraft.class_2669,float) -> gsc_rJ
-    76:76:float getSmoothRenderOffsetY(net.minecraft.class_2669,float) -> gsc_hH
-    81:81:float getSmoothRenderOffsetZ(net.minecraft.class_2669,float) -> gsc_sc
-    86:87:void onFromTag(net.minecraft.class_2680,net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    91:92:void onTickProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_UM
-    96:97:void onFinishProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_mg
-    103:116:double method_11006() -> method_11006
+    48:68:float getSmoothProgress(float) -> gsc_rJ
+    73:73:float getSmoothRenderOffsetX(net.minecraft.class_2669,float) -> gsc_rJ
+    78:78:float getSmoothRenderOffsetY(net.minecraft.class_2669,float) -> gsc_hH
+    83:83:float getSmoothRenderOffsetZ(net.minecraft.class_2669,float) -> gsc_sc
+    88:89:void onFromTag(net.minecraft.class_2680,net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    93:94:void onTickProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_UM
+    98:99:void onFinishProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_mg
+    105:118:double method_11006() -> method_11006
 com.g4mesoft.mixin.client.GSPistonBlockEntityRendererMixin -> com.g4mesoft.mixin.client.GSPistonBlockEntityRendererMixin:
     15:15:void <init>() -> <init>
     19:19:float getPistonProgress(net.minecraft.class_2669,float) -> gsc_bs
     24:24:float fixShortArm(float) -> gsc_bs
-    31:31:float fixPistonBlink(float) -> gsc_UM
 com.g4mesoft.mixin.client.GSRenderTickCounterMixin -> com.g4mesoft.mixin.client.GSRenderTickCounterMixin:
     float field_1969 -> field_1969
     long field_1971 -> field_1971
@@ -2035,24 +2078,23 @@ com.g4mesoft.mixin.server.GSServerChunkManagerMixin -> com.g4mesoft.mixin.server
     26:48:void flushAndSendChunkUpdates() -> gsc_hH
     36:42:void lambda$flushAndSendChunkUpdates$0(net.minecraft.class_3193) -> gsc_rJ
 com.g4mesoft.mixin.server.GSServerPlayNetworkHandlerMixin -> com.g4mesoft.mixin.server.GSServerPlayNetworkHandlerMixin:
-    com.g4mesoft.core.GSVersion version -> gsc_UM
-    com.g4mesoft.GSExtensionUID[] extensionUids -> gsc_hH
-    java.util.Set extensionUidSet -> gsc_sc
-    java.util.Map translationVersions -> gsc_Qo
     net.minecraft.class_3222 field_14140 -> field_14140
-    31:38:void <init>() -> <init>
-    44:55:void onCustomPayload(net.minecraft.class_2817,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    59:60:void setCoreVersion(com.g4mesoft.core.GSVersion) -> gsc_rJ
-    64:64:com.g4mesoft.core.GSVersion getCoreVersion() -> gsc_rJ
-    69:74:void setExtensionUids(com.g4mesoft.GSExtensionUID[]) -> gsc_rJ
-    78:78:com.g4mesoft.GSExtensionUID[] getExtensionUids() -> gsc_rJ
-    83:83:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_rJ
-    88:89:void setTranslationVersion(com.g4mesoft.GSExtensionUID,int) -> gsc_rJ
-    93:93:int getTranslationVersion(com.g4mesoft.GSExtensionUID) -> gsc_rJ
+    com.g4mesoft.GSExtensionInfoList extensionInfoList -> gsc_hH
+    java.util.Map translationVersions -> gsc_Qo
+    30:35:void <init>() -> <init>
+    39:50:void onCustomPayload(net.minecraft.class_2817,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    54:54:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_rJ
+    59:59:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    64:64:com.g4mesoft.GSExtensionInfo getExtensionInfo(com.g4mesoft.GSExtensionUID) -> gsc_rJ
+    69:70:void clearAllExtensionInfo() -> gsc_Wl
+    74:75:void addAllExtensionInfo(com.g4mesoft.GSExtensionInfo[]) -> gsc_rJ
+    79:80:void addExtensionInfo(com.g4mesoft.GSExtensionInfo) -> gsc_rJ
+    84:85:void setTranslationVersion(com.g4mesoft.GSExtensionUID,int) -> gsc_rJ
+    89:89:int getTranslationVersion(com.g4mesoft.GSExtensionUID) -> gsc_rJ
 com.g4mesoft.mixin.server.GSServerWorldMixin -> com.g4mesoft.mixin.server.GSServerWorldMixin:
-    34:35:void <init>(net.minecraft.class_5269,net.minecraft.class_5321,net.minecraft.class_5321,net.minecraft.class_2874,java.util.function.Supplier,boolean,boolean,long) -> <init>
-    40:47:double blockEventDistance(net.minecraft.class_1657,double,double,double,double,net.minecraft.class_5321,net.minecraft.class_2596) -> gsc_rJ
-    53:57:void onTickImmediateUpdates(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    33:34:void <init>(net.minecraft.class_5269,net.minecraft.class_5321,net.minecraft.class_2874,java.util.function.Supplier,boolean,boolean,long) -> <init>
+    39:46:double blockEventDistance(net.minecraft.class_1657,double,double,double,double,net.minecraft.class_5321,net.minecraft.class_2596) -> gsc_rJ
+    52:56:void onTickImmediateUpdates(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
     28:28:net.minecraft.class_2791 method_8392(int,int) -> gsc_rJ
 com.g4mesoft.mixin.server.GSTranslatableTextMixin -> com.g4mesoft.mixin.server.GSTranslatableTextMixin:
     net.minecraft.class_2477 field_25317 -> field_25317
@@ -2060,7 +2102,7 @@ com.g4mesoft.mixin.server.GSTranslatableTextMixin -> com.g4mesoft.mixin.server.G
     java.util.List field_11877 -> field_11877
     long lastTranslationTimestamp -> gsc_UM
     22:28:void <init>() -> <init>
-    void method_11024(java.lang.String,net.minecraft.class_2477) -> method_11024
+    void method_11024(java.lang.String) -> method_11024
     34:64:void onUpdateTranslations(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_AS
 com.g4mesoft.module.tps.GSETpsHotkeyType -> core.bf:
     com.g4mesoft.module.tps.GSETpsHotkeyType RESET_TPS -> gsc_rJ
@@ -2160,8 +2202,6 @@ com.g4mesoft.module.tps.GSTpsModule -> core.bn:
     long SERVER_TPS_INTERVAL -> gsc_Qo
     float TPS_INCREMENT_INTERVAL -> gsc_cD
     float TONE_MULTIPLIER -> gsc_qO
-    com.g4mesoft.core.GSVersion TPS_INTRODUCTION_VERSION -> gsc_Qo
-    com.g4mesoft.core.GSVersion TPS_MONITOR_INTRODUCTION_VERSION -> gsc_Jn
     com.g4mesoft.setting.GSSettingCategory TPS_CATEGORY -> gsc_hH
     com.g4mesoft.setting.GSSettingCategory BETTER_PISTONS_CATEGORY -> gsc_sc
     java.lang.String KEY_CATEGORY -> gsc_Ya
@@ -2169,6 +2209,9 @@ com.g4mesoft.module.tps.GSTpsModule -> core.bn:
     int PISTON_ANIM_PAUSE_BEGINNING -> gsc_Nu
     int PISTON_ANIM_NO_PAUSE -> gsc_xe
     int AUTOMATIC_PISTON_RENDER_DISTANCE -> gsc_Gt
+    int HOTKEY_MODE_DISABLED -> gsc_pa
+    int HOTKEY_MODE_CREATIVE -> gsc_B
+    int HOTKEY_MODE_ALL -> gsc_NE
     java.text.DecimalFormat TPS_FORMAT -> gsc_sc
     float tps -> gsc_jX
     java.util.List listeners -> gsc_bx
@@ -2182,7 +2225,7 @@ com.g4mesoft.module.tps.GSTpsModule -> core.bn:
     com.g4mesoft.setting.types.GSFloatSetting cSyncTickAggression -> gsc_rJ
     com.g4mesoft.setting.types.GSBooleanSetting cForceCarpetTickrate -> gsc_sc
     com.g4mesoft.setting.types.GSIntegerSetting sSyncPacketInterval -> gsc_rJ
-    com.g4mesoft.setting.types.GSBooleanSetting sAllowHotkeyControls -> gsc_bs
+    com.g4mesoft.setting.types.GSIntegerSetting sTpsHotkeyMode -> gsc_UM
     com.g4mesoft.setting.types.GSBooleanSetting cShowTpsLabel -> gsc_UM
     com.g4mesoft.setting.types.GSBooleanSetting sBroadcastTps -> gsc_mg
     com.g4mesoft.setting.types.GSIntegerSetting cPistonAnimationType -> gsc_hH
@@ -2190,48 +2233,48 @@ com.g4mesoft.module.tps.GSTpsModule -> core.bn:
     com.g4mesoft.setting.types.GSIntegerSetting sBlockEventDistance -> gsc_bs
     com.g4mesoft.setting.types.GSBooleanSetting sParanoidMode -> gsc_vm
     com.g4mesoft.setting.types.GSBooleanSetting sImmediateBlockBroadcast -> gsc_Qo
-    77:121:void <init>() -> <init>
-    125:130:void init(com.g4mesoft.core.GSIModuleManager) -> gsc_rJ
-    134:141:void onClose() -> gsc_mg
-    145:157:void registerClientSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_rJ
-    161:175:void registerHotkeys(com.g4mesoft.hotkey.GSKeyManager) -> gsc_rJ
-    179:186:void registerServerSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_hH
-    190:191:void registerCommands(com.mojang.brigadier.CommandDispatcher) -> gsc_rJ
-    195:230:void tick(boolean) -> gsc_rJ
-    233:235:void onServerTps(float) -> gsc_Jn
-    238:267:void onClientHotkey(com.g4mesoft.module.tps.GSETpsHotkeyType) -> gsc_rJ
-    270:292:void onPlayerHotkey(net.minecraft.class_3222,com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> gsc_rJ
-    295:359:void performHotkeyAction(com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> gsc_rJ
-    363:366:void onDisconnectServer() -> gsc_vm
-    370:372:void onG4mespeedClientJoin(net.minecraft.class_3222,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    78:122:void <init>() -> <init>
+    126:131:void init(com.g4mesoft.core.GSIModuleManager) -> gsc_rJ
+    135:142:void onClose() -> gsc_mg
+    146:158:void registerClientSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_rJ
+    162:176:void registerHotkeys(com.g4mesoft.hotkey.GSKeyManager) -> gsc_rJ
+    180:187:void registerServerSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_hH
+    191:192:void registerCommands(com.mojang.brigadier.CommandDispatcher) -> gsc_rJ
+    196:231:void tick(boolean) -> gsc_rJ
+    234:236:void onServerTps(float) -> gsc_Jn
+    239:268:void onClientHotkey(com.g4mesoft.module.tps.GSETpsHotkeyType) -> gsc_rJ
+    271:293:void onPlayerHotkey(net.minecraft.class_3222,com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> gsc_rJ
+    296:360:void performHotkeyAction(com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> gsc_rJ
+    364:367:void onDisconnectServer() -> gsc_vm
+    371:372:void onG4mespeedClientJoin(net.minecraft.class_3222,com.g4mesoft.GSExtensionInfo) -> gsc_rJ
     375:379:void addTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> gsc_rJ
     382:385:void removeTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> gsc_hH
     388:391:void clearTpsListeners() -> gsc_iv
     394:395:void resetTps() -> gsc_Ch
     398:429:void setTps(float) -> gsc_AS
-    432:432:boolean isGameModeAllowingHotkeys(net.minecraft.class_1657) -> gsc_rJ
-    436:436:boolean isPlayerAllowedTpsChange(net.minecraft.class_1657) -> gsc_hH
-    441:443:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_rJ
-    447:448:void onCarpetTickrateChanged(float) -> gsc_hH
-    451:451:float getMsPerTick() -> gsc_bx
-    455:455:float getTps() -> gsc_yN
-    460:464:void onServerSyncPacket(int) -> gsc_Ju
-    468:470:float getServerTps() -> gsc_pl
+    432:441:boolean isGameModeAllowingHotkeys(net.minecraft.class_1657) -> gsc_rJ
+    445:445:boolean isPlayerAllowedTpsChange(net.minecraft.class_1657) -> gsc_hH
+    450:452:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_rJ
+    456:457:void onCarpetTickrateChanged(float) -> gsc_hH
+    460:460:float getMsPerTick() -> gsc_bx
+    464:464:float getTps() -> gsc_yN
+    469:473:void onServerSyncPacket(int) -> gsc_Ju
+    477:479:float getServerTps() -> gsc_pl
     410:423:void lambda$setTps$3(com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_rJ
     371:371:void lambda$onG4mespeedClientJoin$2(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_rJ
-    278:286:void lambda$onPlayerHotkey$1(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_hH
-    196:220:void lambda$tick$0(boolean,com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_rJ
+    279:287:void lambda$onPlayerHotkey$1(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_hH
+    197:221:void lambda$tick$0(boolean,com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_rJ
     42:42:float access$000(com.g4mesoft.module.tps.GSTpsModule) -> gsc_rJ
-    52:68:void <clinit>() -> <clinit>
+    52:69:void <clinit>() -> <clinit>
 com.g4mesoft.module.tps.GSTpsModule$1 -> core.bo:
     com.g4mesoft.module.tps.GSETpsHotkeyType val$hotkeyType -> gsc_vm
     com.g4mesoft.module.tps.GSTpsModule this$0 -> gsc_hH
-    238:238:void <init>(com.g4mesoft.module.tps.GSTpsModule,com.g4mesoft.module.tps.GSETpsHotkeyType) -> <init>
-    243:265:void accept(com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_rJ
-    238:238:void accept(java.lang.Object) -> accept
+    239:239:void <init>(com.g4mesoft.module.tps.GSTpsModule,com.g4mesoft.module.tps.GSETpsHotkeyType) -> <init>
+    244:266:void accept(com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_rJ
+    239:239:void accept(java.lang.Object) -> accept
 com.g4mesoft.module.tps.GSTpsModule$2 -> core.bp:
     int[] $SwitchMap$com$g4mesoft$module$tps$GSETpsHotkeyType -> gsc_UM
-    328:328:void <clinit>() -> <clinit>
+    329:329:void <clinit>() -> <clinit>
 com.g4mesoft.module.tps.GSTpsMonitor -> core.bq:
     long MILLIS_PER_SECOND -> gsc_AS
     int MAX_TPS_HISTORY_SIZE -> gsc_dS
@@ -2247,22 +2290,16 @@ com.g4mesoft.module.tps.GSTpsMonitor -> core.bq:
     39:76:void update(int) -> gsc_OS
     79:87:void addToHistory(int) -> gsc_BO
     90:90:float getAverageTps() -> gsc_LG
-com.g4mesoft.module.translation.GSOutdatedTranslationVersionPacket -> core.br:
-    int translationVersion -> gsc_p
-    18:19:void <init>() -> <init>
-    22:24:void <init>(int) -> <init>
-    28:29:void read(net.minecraft.class_2540) -> gsc_rJ
-    33:34:void write(net.minecraft.class_2540) -> gsc_hH
-    38:39:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    44:44:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_hH
 com.g4mesoft.module.translation.GSTranslationCache -> core.bs:
     int cacheVersion -> gsc_GC
     java.util.Map translations -> gsc_Jn
-    12:15:void <init>(int,java.util.Map) -> <init>
-    18:19:void getAllTranslations(java.util.Map) -> gsc_rJ
-    22:22:int getCacheVersion() -> gsc_eo
-    26:28:com.g4mesoft.module.translation.GSTranslationCache merge(com.g4mesoft.module.translation.GSTranslationCache) -> gsc_rJ
-    32:32:java.util.Map getTranslationMap() -> gsc_rJ
+    17:20:void <init>(int,java.util.Map) -> <init>
+    23:24:void getAllTranslations(java.util.Map) -> gsc_rJ
+    27:27:int getCacheVersion() -> gsc_eo
+    31:33:com.g4mesoft.module.translation.GSTranslationCache merge(com.g4mesoft.module.translation.GSTranslationCache) -> gsc_rJ
+    37:37:java.util.Map getTranslationMap() -> gsc_rJ
+    41:51:com.g4mesoft.module.translation.GSTranslationCache read(net.minecraft.class_2540) -> gsc_rJ
+    55:63:void write(net.minecraft.class_2540,com.g4mesoft.module.translation.GSTranslationCache) -> gsc_rJ
 com.g4mesoft.module.translation.GSTranslationCacheList -> core.bt:
     java.util.Map caches -> gsc_AS
     int cachedTranslationVersion -> gsc_bc
@@ -2271,19 +2308,16 @@ com.g4mesoft.module.translation.GSTranslationCacheList -> core.bt:
     29:29:int getVersion() -> gsc_oL
     33:33:java.util.Map getCaches() -> gsc_hH
 com.g4mesoft.module.translation.GSTranslationCachePacket -> core.bu:
-    com.g4mesoft.GSExtensionUID uid -> gsc_sc
+    com.g4mesoft.GSExtensionUID extensionUid -> gsc_bs
     com.g4mesoft.module.translation.GSTranslationCache cache -> gsc_rJ
-    25:26:void <init>() -> <init>
-    28:31:void <init>(com.g4mesoft.GSExtensionUID,com.g4mesoft.module.translation.GSTranslationCache) -> <init>
-    35:42:void read(net.minecraft.class_2540,com.g4mesoft.core.GSVersion) -> gsc_rJ
-    46:58:void read(net.minecraft.class_2540) -> gsc_rJ
-    62:72:void write(net.minecraft.class_2540) -> gsc_hH
-    76:76:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    81:82:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_hH
-    86:86:boolean shouldForceMainThread() -> gsc_dJ
+    20:21:void <init>() -> <init>
+    23:26:void <init>(com.g4mesoft.GSExtensionUID,com.g4mesoft.module.translation.GSTranslationCache) -> <init>
+    30:32:void read(net.minecraft.class_2540) -> gsc_rJ
+    36:38:void write(net.minecraft.class_2540) -> gsc_hH
+    42:42:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
+    47:48:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_hH
+    52:52:boolean shouldForceMainThread() -> gsc_dJ
 com.g4mesoft.module.translation.GSTranslationModule -> core.bv:
-    com.g4mesoft.core.GSVersion TRANSLATION_INTRODUCTION_VERSION -> gsc_AS
-    com.g4mesoft.core.GSVersion TRANSLATION_EXTENSION_VERSION -> gsc_cT
     java.lang.String CACHED_TRANSLATION_FILENAME -> gsc_pV
     int INVALID_TRANSLATION_VERSION -> gsc_fC
     long MAX_CACHE_LIFE_HOURS -> gsc_gn
@@ -2292,32 +2326,29 @@ com.g4mesoft.module.translation.GSTranslationModule -> core.bv:
     com.g4mesoft.core.GSIModuleManager manager -> gsc_rJ
     long cacheSaveTime -> gsc_eh
     long translationsChangeTimestamp -> gsc_Pt
-    54:59:void <init>() -> <init>
-    63:77:void init(com.g4mesoft.core.GSIModuleManager) -> gsc_rJ
-    81:100:void onClose() -> gsc_mg
-    104:105:void extensionAdded(com.g4mesoft.GSIExtension) -> extensionAdded
-    108:116:void addExtensionTranslations(com.g4mesoft.GSIExtension) -> gsc_bs
-    120:133:void onJoinG4mespeedServer(com.g4mesoft.core.GSVersion) -> gsc_hH
-    136:137:void onOutdatedTranslationVersionReceived(net.minecraft.class_3222,int) -> gsc_rJ
-    140:142:void onTranslationVersionsReceived(net.minecraft.class_3222,java.util.Map) -> gsc_rJ
-    147:168:void sendMissingTranslations(net.minecraft.class_3222,com.g4mesoft.GSExtensionUID,int) -> gsc_rJ
-    171:197:void loadCachedTranslations(java.io.InputStream) -> gsc_rJ
-    200:203:void loadTranslations(java.io.InputStream,com.g4mesoft.GSExtensionUID,boolean) -> gsc_rJ
-    206:248:void loadTranslations(java.io.BufferedReader,com.g4mesoft.GSExtensionUID,boolean) -> gsc_rJ
-    251:279:void saveTranslations(java.io.OutputStream) -> gsc_rJ
-    282:282:java.io.File getCachedFile(com.g4mesoft.core.GSIModuleManager) -> gsc_rJ
-    286:296:void addTranslationCache(com.g4mesoft.GSExtensionUID,com.g4mesoft.module.translation.GSTranslationCache) -> gsc_rJ
-    299:299:long getTranslationTimestamp() -> gsc_rJ
-    303:304:java.lang.String getTranslation(java.lang.String) -> gsc_sc
-    308:309:java.lang.String getFormattedTranslation(java.lang.String,java.lang.Object[]) -> gsc_sc
-    313:313:boolean hasTranslation(java.lang.String) -> gsc_bs
-    153:164:void lambda$sendMissingTranslations$5(com.g4mesoft.module.translation.GSTranslationCacheList,int,com.g4mesoft.GSExtensionUID,net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_rJ
-    154:154:int lambda$null$4(com.g4mesoft.module.translation.GSTranslationCache,com.g4mesoft.module.translation.GSTranslationCache) -> gsc_rJ
-    129:129:void lambda$onJoinG4mespeedServer$3(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_rJ
-    123:123:void lambda$onJoinG4mespeedServer$2(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_hH
-    83:97:void lambda$onClose$1(com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_hH
-    66:73:void lambda$init$0(com.g4mesoft.core.GSIModuleManager,com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_rJ
-    38:39:void <clinit>() -> <clinit>
+    51:56:void <init>() -> <init>
+    60:74:void init(com.g4mesoft.core.GSIModuleManager) -> gsc_rJ
+    78:97:void onClose() -> gsc_mg
+    101:102:void extensionAdded(com.g4mesoft.GSIExtension) -> extensionAdded
+    105:113:void addExtensionTranslations(com.g4mesoft.GSIExtension) -> gsc_bs
+    117:118:void onJoinG4mespeedServer(com.g4mesoft.GSExtensionInfo) -> gsc_hH
+    121:123:void onTranslationVersionsReceived(net.minecraft.class_3222,java.util.Map) -> gsc_rJ
+    128:149:void sendMissingTranslations(net.minecraft.class_3222,com.g4mesoft.GSExtensionUID,int) -> gsc_rJ
+    152:178:void loadCachedTranslations(java.io.InputStream) -> gsc_rJ
+    181:184:void loadTranslations(java.io.InputStream,com.g4mesoft.GSExtensionUID,boolean) -> gsc_rJ
+    187:229:void loadTranslations(java.io.BufferedReader,com.g4mesoft.GSExtensionUID,boolean) -> gsc_rJ
+    232:260:void saveTranslations(java.io.OutputStream) -> gsc_rJ
+    263:263:java.io.File getCachedFile(com.g4mesoft.core.GSIModuleManager) -> gsc_rJ
+    267:277:void addTranslationCache(com.g4mesoft.GSExtensionUID,com.g4mesoft.module.translation.GSTranslationCache) -> gsc_rJ
+    280:280:long getTranslationTimestamp() -> gsc_rJ
+    284:285:java.lang.String getTranslation(java.lang.String) -> gsc_sc
+    289:290:java.lang.String getFormattedTranslation(java.lang.String,java.lang.Object[]) -> gsc_sc
+    294:294:boolean hasTranslation(java.lang.String) -> gsc_bs
+    134:145:void lambda$sendMissingTranslations$4(com.g4mesoft.module.translation.GSTranslationCacheList,int,com.g4mesoft.GSExtensionUID,net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_rJ
+    135:135:int lambda$null$3(com.g4mesoft.module.translation.GSTranslationCache,com.g4mesoft.module.translation.GSTranslationCache) -> gsc_rJ
+    117:117:void lambda$onJoinG4mespeedServer$2(com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_sc
+    80:94:void lambda$onClose$1(com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_hH
+    63:70:void lambda$init$0(com.g4mesoft.core.GSIModuleManager,com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_rJ
 com.g4mesoft.module.translation.GSTranslationVersionsPacket -> core.bw:
     java.util.Map uidToVersion -> gsc_Yp
     21:22:void <init>() -> <init>
@@ -2331,35 +2362,29 @@ com.g4mesoft.packet.GSICustomPayloadHolder -> core.bx:
     net.minecraft.class_2540 getDataGS() -> gsc_rJ
 com.g4mesoft.packet.GSIPacket -> core.by:
     void read(net.minecraft.class_2540) -> gsc_rJ
-    19:20:void read(net.minecraft.class_2540,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    19:20:void read(net.minecraft.class_2540,com.g4mesoft.GSExtensionInfo) -> gsc_hH
     void write(net.minecraft.class_2540) -> gsc_hH
     void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
     void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_hH
     30:30:boolean shouldForceMainThread() -> gsc_dJ
 com.g4mesoft.packet.GSPacketManager -> core.bz:
     net.minecraft.class_2960 GS_IDENTIFIER -> gsc_sc
-    int MIN_CORE_FALLBACK_PACKET_ID -> gsc_Tc
-    int MAX_CORE_FALLBACK_PACKET_ID -> gsc_pa
-    short INVALID_FALLBACK_PACKET_ID -> gsc_rJ
     com.g4mesoft.packet.GSPacketRegistryList registryList -> gsc_rJ
-    30:35:void <init>() -> <init>
-    38:57:net.minecraft.class_2596 encodePacket(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSController) -> gsc_rJ
-    61:92:com.g4mesoft.packet.GSIPacket decodePacket(com.g4mesoft.packet.GSICustomPayloadHolder,com.g4mesoft.core.GSVersion,net.minecraft.class_2547,net.minecraft.class_1255) -> gsc_rJ
-    96:106:boolean isFallbackPacket(long) -> gsc_rJ
-    110:110:short getFallbackId(long) -> gsc_rJ
-    114:114:com.g4mesoft.registry.GSElementRegistry getFallbackRegistry() -> gsc_rJ
-    118:121:void registerPackets(com.g4mesoft.GSIExtension) -> gsc_UM
-    21:21:void <clinit>() -> <clinit>
+    27:32:void <init>() -> <init>
+    35:35:com.g4mesoft.GSExtensionUID getPacketExtensionUniqueId(com.g4mesoft.packet.GSIPacket) -> gsc_rJ
+    39:53:net.minecraft.class_2596 encodePacket(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSController) -> gsc_rJ
+    60:85:com.g4mesoft.packet.GSIPacket decodePacket(com.g4mesoft.packet.GSICustomPayloadHolder,com.g4mesoft.GSExtensionInfoList,net.minecraft.class_2547,net.minecraft.class_1255) -> gsc_rJ
+    90:93:void registerPackets(com.g4mesoft.GSIExtension) -> gsc_UM
+    23:23:void <clinit>() -> <clinit>
 com.g4mesoft.packet.GSPacketRegistryList -> core.bA:
     java.util.Map uidToRegistry -> gsc_gn
+    java.util.Map uidCache -> gsc_kZ
     java.util.Map idCache -> gsc_eh
-    14:17:void <init>() -> <init>
-    20:37:long getFullPacketId(java.lang.Class) -> gsc_rJ
-    41:45:com.g4mesoft.packet.GSIPacket createNewPacket(long) -> gsc_rJ
-    49:49:com.g4mesoft.registry.GSElementRegistry getPacketRegistry(com.g4mesoft.GSExtensionUID) -> gsc_rJ
-    53:58:void addPacketRegistry(com.g4mesoft.GSExtensionUID,com.g4mesoft.registry.GSElementRegistry) -> gsc_rJ
-    61:61:com.g4mesoft.GSExtensionUID getPacketExtensionUID(long) -> gsc_rJ
-    65:65:int getBasicPacketId(long) -> gsc_rJ
+    16:20:void <init>() -> <init>
+    23:37:com.g4mesoft.GSExtensionUID getPacketExtensionUID(java.lang.Class) -> gsc_rJ
+    41:59:long getPacketId(java.lang.Class) -> gsc_rJ
+    63:66:com.g4mesoft.packet.GSIPacket createNewPacket(long) -> gsc_rJ
+    70:76:void addPacketRegistry(com.g4mesoft.GSExtensionUID,com.g4mesoft.registry.GSElementRegistry) -> gsc_rJ
 com.g4mesoft.registry.GSElementRegistry -> core.bB:
     java.util.Map elementToId -> gsc_Pt
     java.util.Map idToElement -> gsc_PS
@@ -2394,15 +2419,13 @@ com.g4mesoft.setting.GSRemoteSettingManager -> core.bD:
     108:116:void setAllowedSettingChange(boolean) -> gsc_Qo
     119:119:boolean isAllowedSettingChange() -> gsc_Gp
 com.g4mesoft.setting.GSServerSettingMapPacket -> core.bE:
-    com.g4mesoft.core.GSVersion DISABLE_SETTING_INTRODUCTION -> gsc_Yp
     com.g4mesoft.setting.GSSettingMap settingMap -> gsc_rJ
-    21:22:void <init>() -> <init>
-    24:26:void <init>(com.g4mesoft.setting.GSSettingMap) -> <init>
-    30:32:void read(net.minecraft.class_2540) -> gsc_rJ
-    36:38:void write(net.minecraft.class_2540) -> gsc_hH
-    42:42:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    47:48:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_hH
-    17:17:void <clinit>() -> <clinit>
+    18:19:void <init>() -> <init>
+    21:23:void <init>(com.g4mesoft.setting.GSSettingMap) -> <init>
+    27:29:void read(net.minecraft.class_2540) -> gsc_rJ
+    33:35:void write(net.minecraft.class_2540) -> gsc_hH
+    39:39:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
+    44:45:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_hH
 com.g4mesoft.setting.GSSetting -> core.bF:
     java.lang.String name -> gsc_RK
     java.lang.Object defaultValue -> gsc_hH
@@ -2420,13 +2443,13 @@ com.g4mesoft.setting.GSSetting -> core.bF:
     boolean isSameType(com.g4mesoft.setting.GSSetting) -> gsc_rJ
     com.g4mesoft.setting.GSSetting copySetting() -> gsc_rJ
     51:52:void reset() -> gsc_Jn
-    56:58:void setValueIfSameType(com.g4mesoft.setting.GSSetting) -> gsc_bs
-    61:61:java.lang.Object getDefaultValue() -> gsc_hH
-    65:66:void setActive(boolean) -> gsc_Jn
-    69:69:boolean isActive() -> gsc_tx
-    73:73:boolean isVisibleInGUI() -> gsc_Ya
-    77:81:com.g4mesoft.setting.GSSetting setEnabledInGui(boolean) -> gsc_rJ
-    85:85:boolean isEnabledInGui() -> gsc_pV
+    55:60:void setValueIfSameType(com.g4mesoft.setting.GSSetting) -> gsc_bs
+    63:63:java.lang.Object getDefaultValue() -> gsc_hH
+    67:68:void setActive(boolean) -> gsc_Jn
+    71:71:boolean isActive() -> gsc_tx
+    75:75:boolean isVisibleInGUI() -> gsc_Ya
+    79:83:com.g4mesoft.setting.GSSetting setEnabledInGui(boolean) -> gsc_rJ
+    87:87:boolean isEnabledInGui() -> gsc_pV
 com.g4mesoft.setting.GSSettingCategory -> core.bG:
     java.lang.String name -> gsc_RK
     11:13:void <init>(java.lang.String) -> <init>
@@ -2436,32 +2459,30 @@ com.g4mesoft.setting.GSSettingCategory -> core.bG:
     32:32:com.g4mesoft.setting.GSSettingCategory read(net.minecraft.class_2540) -> gsc_rJ
     36:37:void write(net.minecraft.class_2540) -> gsc_hH
 com.g4mesoft.setting.GSSettingChangePacket -> core.bH:
-    com.g4mesoft.core.GSVersion DISABLE_SETTING_INTRODUCTION -> gsc_Yp
     com.g4mesoft.setting.GSSettingCategory category -> gsc_rJ
     com.g4mesoft.setting.GSSetting setting -> gsc_rJ
     com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType type -> gsc_rJ
-    25:26:void <init>() -> <init>
-    28:32:void <init>(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting,com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType) -> <init>
-    36:45:void read(net.minecraft.class_2540) -> gsc_rJ
-    51:61:void write(net.minecraft.class_2540) -> gsc_hH
-    65:73:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    78:91:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_hH
-    19:19:void <clinit>() -> <clinit>
+    22:23:void <init>() -> <init>
+    25:29:void <init>(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting,com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType) -> <init>
+    33:42:void read(net.minecraft.class_2540) -> gsc_rJ
+    48:58:void write(net.minecraft.class_2540) -> gsc_hH
+    62:70:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
+    75:88:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_hH
 com.g4mesoft.setting.GSSettingChangePacket$1 -> core.bI:
     int[] $SwitchMap$com$g4mesoft$setting$GSSettingChangePacket$GSESettingChangeType -> gsc_vm
-    80:80:void <clinit>() -> <clinit>
+    77:77:void <clinit>() -> <clinit>
 com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType -> core.bJ:
     com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType SETTING_CHANGED -> gsc_hH
     com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType SETTING_ADDED -> gsc_sc
     com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType SETTING_REMOVED -> gsc_bs
     int index -> gsc_bG
     com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType[] $VALUES -> gsc_rJ
-    93:93:com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType[] values() -> values
-    93:93:com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType valueOf(java.lang.String) -> valueOf
-    100:102:void <init>(java.lang.String,int,int) -> <init>
-    105:114:com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType fromIndex(int) -> gsc_rJ
-    118:118:int getIndex() -> gsc_OF
-    93:96:void <clinit>() -> <clinit>
+    90:90:com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType[] values() -> values
+    90:90:com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType valueOf(java.lang.String) -> valueOf
+    97:99:void <init>(java.lang.String,int,int) -> <init>
+    102:111:com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType fromIndex(int) -> gsc_rJ
+    115:115:int getIndex() -> gsc_OF
+    90:93:void <clinit>() -> <clinit>
 com.g4mesoft.setting.GSSettingManager -> core.bK:
     java.lang.String UNKNOWN_SETTING_TYPE -> gsc_tL
     byte CATEGORY_ENTRY_CODE -> gsc_rJ
@@ -2469,29 +2490,29 @@ com.g4mesoft.setting.GSSettingManager -> core.bK:
     java.util.List listeners -> gsc_bx
     java.util.Map typeToDecoder -> gsc_LG
     java.util.Map clazzToDecoder -> gsc_VL
-    53:56:void <init>() -> <init>
-    59:63:void registerDefaultParsers() -> gsc_Ri
-    66:82:void registerSettingDecoder(com.g4mesoft.setting.decoder.GSISettingDecoder) -> gsc_rJ
-    85:90:com.g4mesoft.setting.decoder.GSISettingDecoder getSettingDecoder(java.lang.String) -> gsc_rJ
-    95:100:com.g4mesoft.setting.decoder.GSISettingDecoder getSettingDecoder(java.lang.Class) -> gsc_rJ
-    104:108:void loadSettings(java.io.File) -> gsc_sc
-    112:119:void saveSettings(java.io.File) -> gsc_bs
-    122:126:void readSettings(java.io.FileInputStream) -> gsc_rJ
-    129:137:void writeSettings(java.io.FileOutputStream) -> gsc_rJ
-    140:156:void readSettings(net.minecraft.class_2540) -> gsc_sc
-    159:169:void writeSettings(net.minecraft.class_2540) -> gsc_bs
-    172:173:com.g4mesoft.setting.GSSetting getSetting(com.g4mesoft.setting.GSSettingCategory,java.lang.String) -> gsc_hH
-    177:184:void registerSetting(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_UM
-    187:190:void removeSetting(com.g4mesoft.setting.GSSettingCategory,java.lang.String) -> gsc_rJ
-    193:193:java.util.Collection getSettings() -> gsc_hH
-    197:197:boolean hasCategory(com.g4mesoft.setting.GSSettingCategory) -> gsc_rJ
-    201:204:void clearSettings() -> gsc_BC
-    207:209:void settingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_Qo
-    212:214:void settingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_Jn
-    217:219:void settingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_AS
-    222:223:void addChangeListener(com.g4mesoft.setting.GSISettingChangeListener) -> gsc_rJ
-    226:227:void removeChangeListener(com.g4mesoft.setting.GSISettingChangeListener) -> gsc_hH
-    43:51:void <clinit>() -> <clinit>
+    48:51:void <init>() -> <init>
+    54:58:void registerDefaultParsers() -> gsc_Ri
+    61:77:void registerSettingDecoder(com.g4mesoft.setting.decoder.GSISettingDecoder) -> gsc_rJ
+    80:85:com.g4mesoft.setting.decoder.GSISettingDecoder getSettingDecoder(java.lang.String) -> gsc_rJ
+    89:96:com.g4mesoft.setting.decoder.GSISettingDecoder getSettingDecoder(java.lang.Class) -> gsc_rJ
+    100:104:void loadSettings(java.io.File) -> gsc_sc
+    108:115:void saveSettings(java.io.File) -> gsc_bs
+    118:122:void readSettings(java.io.FileInputStream) -> gsc_rJ
+    125:133:void writeSettings(java.io.FileOutputStream) -> gsc_rJ
+    136:152:void readSettings(net.minecraft.class_2540) -> gsc_sc
+    155:165:void writeSettings(net.minecraft.class_2540) -> gsc_bs
+    168:169:com.g4mesoft.setting.GSSetting getSetting(com.g4mesoft.setting.GSSettingCategory,java.lang.String) -> gsc_hH
+    173:180:void registerSetting(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_UM
+    183:186:void removeSetting(com.g4mesoft.setting.GSSettingCategory,java.lang.String) -> gsc_rJ
+    189:189:java.util.Collection getSettings() -> gsc_hH
+    193:193:boolean hasCategory(com.g4mesoft.setting.GSSettingCategory) -> gsc_rJ
+    197:200:void clearSettings() -> gsc_BC
+    203:205:void settingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_Qo
+    208:210:void settingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_Jn
+    213:215:void settingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_AS
+    218:219:void addChangeListener(com.g4mesoft.setting.GSISettingChangeListener) -> gsc_rJ
+    222:223:void removeChangeListener(com.g4mesoft.setting.GSISettingChangeListener) -> gsc_hH
+    42:46:void <clinit>() -> <clinit>
 com.g4mesoft.setting.GSSettingMap -> core.bL:
     com.g4mesoft.setting.GSSettingCategory category -> gsc_rJ
     java.util.Map settings -> gsc_pl
@@ -2499,14 +2520,15 @@ com.g4mesoft.setting.GSSettingMap -> core.bL:
     27:32:void <init>(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSettingManager) -> <init>
     35:35:com.g4mesoft.setting.GSSetting getSetting(java.lang.String) -> gsc_rJ
     39:58:void registerSetting(com.g4mesoft.setting.GSSetting) -> gsc_UM
-    61:67:void clearSettings() -> gsc_BC
-    70:73:com.g4mesoft.setting.GSSetting removeSetting(java.lang.String) -> gsc_hH
-    77:77:java.util.Collection getSettings() -> gsc_hH
-    81:83:void settingChanged(com.g4mesoft.setting.GSSetting) -> gsc_mg
-    86:86:com.g4mesoft.setting.GSSettingCategory getCategory() -> gsc_rJ
-    90:134:void readSettings(net.minecraft.class_2540) -> gsc_sc
-    137:138:void writeSettings(net.minecraft.class_2540) -> gsc_bs
-    142:178:void writeSettings(net.minecraft.class_2540,java.util.function.Predicate) -> gsc_rJ
+    61:66:void setValueFromLoadedSetting(com.g4mesoft.setting.GSSetting,com.g4mesoft.setting.GSSetting) -> gsc_rJ
+    69:75:void clearSettings() -> gsc_BC
+    78:81:com.g4mesoft.setting.GSSetting removeSetting(java.lang.String) -> gsc_hH
+    85:85:java.util.Collection getSettings() -> gsc_hH
+    89:91:void settingChanged(com.g4mesoft.setting.GSSetting) -> gsc_mg
+    94:94:com.g4mesoft.setting.GSSettingCategory getCategory() -> gsc_rJ
+    98:142:void readSettings(net.minecraft.class_2540) -> gsc_sc
+    145:146:void writeSettings(net.minecraft.class_2540) -> gsc_bs
+    150:186:void writeSettings(net.minecraft.class_2540,java.util.function.Predicate) -> gsc_rJ
 com.g4mesoft.setting.GSSettingPermissionPacket -> core.bM:
     boolean allowedSettingChange -> gsc_BO
     18:19:void <init>() -> <init>
