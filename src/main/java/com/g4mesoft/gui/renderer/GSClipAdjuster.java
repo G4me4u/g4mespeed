@@ -31,18 +31,18 @@ public class GSClipAdjuster {
 		clipRectStack = new LinkedList<GSClipRect>();
 	}
 	
-	public void clipPreviousShape(BufferBuilder builder, boolean hasNext) {
-		if (clipRectStack.isEmpty() || builder.getDrawMode() != GL11.GL_QUADS)
+	public void clipPreviousShape(BufferBuilder builder) {
+		if (clipRectStack.isEmpty() || ((GSIBufferBuilderAccess)builder).getDrawMode() != GL11.GL_QUADS)
 			return;
 		
-		int vertexStart = builder.getVertexCount() - 4;
+		int vertexStart = ((GSIBufferBuilderAccess)builder).getVertexCount() - 4;
 		if (vertexStart < 0)
 			return;
 
-		VertexFormat format = builder.getVertexFormat();
-		ByteBuffer buffer = builder.getByteBuffer();
+		VertexFormat format = ((GSIBufferBuilderAccess)builder).getVertexFormat();
+		ByteBuffer buffer = ((GSIBufferBuilderAccess)builder).getByteBuffer();
 		
-		int startIndex = vertexStart * format.getVertexSize();
+		int startIndex = ((GSIBufferBuilderAccess)builder).getBuildStart() + vertexStart * format.getVertexSize();
 		
 		// Assume the quad is on the x-y plane where z = z0 for
 		// all the vertices. Also assume that the sides of the
@@ -79,14 +79,7 @@ public class GSClipAdjuster {
 		    y1 < clipRect.y0 || y0 >= clipRect.y1) {
 			
 			((GSIBufferBuilderAccess)builder).setVertexCount(vertexStart);
-			
-			if (hasNext) {
-				// Since this is called in next after the vertex
-				// after this shape has been added we have to copy
-				// that vertex to the new location.
-				for (int i = 0; i < format.getVertexSize(); i++)
-					buffer.put(startIndex + i, buffer.get(index + i));
-			}
+			((GSIBufferBuilderAccess)builder).setElementOffset(startIndex);
 			
 			return;
 		}
@@ -121,32 +114,32 @@ public class GSClipAdjuster {
 		float t0 = (clipRect.x0 - x0) / w;
 		float t1 = (clipRect.x1 - x0) / w;
 		if (t0 > 0.0f || t1 < 1.0f) {
-			interpolateClipped(builder, bli, bri, t0, t1);
-			interpolateClipped(builder, tli, tri, t0, t1);
+			interpolateClipped(buffer, format, bli, bri, t0, t1);
+			interpolateClipped(buffer, format, tli, tri, t0, t1);
 		}
 		
 		float h = (y1 - y0);
 		t0 = (clipRect.y0 - y0) / h;
 		t1 = (clipRect.y1 - y0) / h;
 		if (t0 > 0.0f || t1 < 1.0f) {
-			interpolateClipped(builder, bli, tli, t0, t1);
-			interpolateClipped(builder, bri, tri, t0, t1);
+			interpolateClipped(buffer, format, bli, tli, t0, t1);
+			interpolateClipped(buffer, format, bri, tri, t0, t1);
 		}
 	}
 	
-	private void interpolateClipped(BufferBuilder builder, int i0, int i1, float t0, float t1) {
-		for (VertexFormatElement vertexElement : builder.getVertexFormat().getElements()) {
+	private void interpolateClipped(ByteBuffer buffer, VertexFormat format, int i0, int i1, float t0, float t1) {
+		for (VertexFormatElement vertexElement : format.getElements()) {
 			if (vertexElement.getType() != VertexFormatElement.Type.PADDING) {
 				VertexFormatElement.Format vertexElementFormat = vertexElement.getFormat();
 				for (int i = 0; i < vertexElement.getCount(); i++) {
-					float v0 = getVertexElement(builder.getByteBuffer(), i0, vertexElementFormat);
-					float v1 = getVertexElement(builder.getByteBuffer(), i1, vertexElementFormat);
+					float v0 = getVertexElement(buffer, i0, vertexElementFormat);
+					float v1 = getVertexElement(buffer, i1, vertexElementFormat);
 	
 					float dv = v1 - v0;
 					if (t0 > 0.0f)
-						setVertexElement(builder.getByteBuffer(), i0, vertexElementFormat, v0 + dv * t0);
+						setVertexElement(buffer, i0, vertexElementFormat, v0 + dv * t0);
 					if (t1 < 1.0f)
-						setVertexElement(builder.getByteBuffer(), i1, vertexElementFormat, v0 + dv * t1);
+						setVertexElement(buffer, i1, vertexElementFormat, v0 + dv * t1);
 				
 					i0 += vertexElementFormat.getSize();
 					i1 += vertexElementFormat.getSize();

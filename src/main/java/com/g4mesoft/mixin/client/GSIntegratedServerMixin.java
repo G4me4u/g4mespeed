@@ -15,11 +15,11 @@ import net.minecraft.server.integrated.IntegratedServer;
 @Mixin(IntegratedServer.class)
 public class GSIntegratedServerMixin {
 
-	@Shadow private boolean field_5524;
+	@Shadow private boolean paused;
 	
 	@Inject(method = "tick", at = @At("RETURN"))
 	private void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
-		if (this.field_5524) {
+		if (this.paused) {
 			// At this point the client is paused and the tick method of
 			// MinecraftServer was not called. Hence we have to call the
 			// method ourselves to ensure that the modules receive the tick.
