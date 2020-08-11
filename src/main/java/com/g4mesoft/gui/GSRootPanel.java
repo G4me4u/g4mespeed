@@ -39,7 +39,7 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	protected void init() {
 		super.init();
 	
-		client.keyboard.enableRepeatEvents(true);
+		client.keyboard.setRepeatEvents(true);
 		
 		if (content != null)
 			content.setBounds(0, 0, width, height);
@@ -52,7 +52,7 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	public void removed() {
 		super.removed();
 
-		client.keyboard.enableRepeatEvents(false);
+		client.keyboard.setRepeatEvents(false);
 
 		setVisibleImpl(false);
 	}
