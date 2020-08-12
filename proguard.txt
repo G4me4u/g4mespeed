@@ -37,9 +37,9 @@
 # Allow certain changes to source code.
 -optimizations !code/simplification/advanced,code/simplification/*
 -optimizationpasses 3
--overloadaggressively
 -repackageclasses 'core'
 -useuniqueclassmembernames
+-allowaccessmodification
 
 -dontshrink
 
