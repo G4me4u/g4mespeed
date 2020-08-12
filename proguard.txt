@@ -7,6 +7,7 @@
 # Libraries and external jars
 -dontwarn net.fabricmc.**
 -dontwarn org.spongepowered.**
+-dontwarn org.lwjgl.**
 
 -dontwarn net.minecraft.**
 
@@ -38,7 +39,6 @@
 -optimizationpasses 3
 -overloadaggressively
 -repackageclasses 'core'
--allowaccessmodification
 -useuniqueclassmembernames
 
 -dontshrink
