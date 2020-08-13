@@ -38,7 +38,6 @@
 -optimizations !code/simplification/advanced,code/simplification/*
 -optimizationpasses 3
 -repackageclasses 'core'
--useuniqueclassmembernames
 -allowaccessmodification
 
 -dontshrink
