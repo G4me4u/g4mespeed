@@ -64,8 +64,10 @@ hotkey.tps.decrement=Decrement Tps
 hotkey.tps.double=Double Tps
 hotkey.tps.halve=Halve Tps
 
-gui.hotkey.button.reset=Reset
-gui.hotkey.button.cancel=Cancel
+gui.hotkey.reset=Reset
+gui.hotkey.cancel=Cancel
+gui.hotkey.resetAll=Reset All
+gui.hotkey.unbindAll=Unbind all
 
 ###########   Game Information    ############
 

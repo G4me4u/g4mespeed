@@ -26,8 +26,8 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	private static final int FONT_COLOR = 0xFFFFFFFF;
 	private static final int HOVERED_BACKGROUND = 0x80000000;//0x66EDEDFF;
 	
-	private static final String RESET_TEXT = "gui.hotkey.button.reset";
-	private static final String CANCEL_TEXT = "gui.hotkey.button.cancel";
+	private static final String RESET_TEXT = "gui.hotkey.reset";
+	private static final String CANCEL_TEXT = "gui.hotkey.cancel";
 	
 	private final GSHotkeyGUI hotkeyGui;
 	private final GSKeyBinding keyBinding;
@@ -49,7 +49,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 			if (modifyingKeyCode) {
 				setModifying(false);
 			} else if (hotkeyGui.getChangingElement() == null) {
-				setKeyCode(keyBinding.getDefaultKeyCode());
+				resetKeyCode();
 			}
 		});
 		
@@ -130,6 +130,14 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 		localizedKeyCodeName = keyBinding.getLocalizedName();
 		updateButtons();
 	}
+
+	public void resetKeyCode() {
+		setKeyCode(keyBinding.getDefaultKeyCode());
+	}
+
+	public void unbindKeyCode() {
+		setKeyCode(InputUtil.UNKNOWN_KEYCODE);
+	}
 	
 	private void setModifying(boolean modifying) {
 		GSHotkeyElementGUI changingElement = hotkeyGui.getChangingElement();
@@ -159,7 +167,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	public void keyPressed(GSKeyEvent event) {
 		if (modifyingKeyCode) {
 			if (event.getKeyCode() == GSKeyEvent.KEY_ESCAPE) {
-				setKeyCode(InputUtil.UNKNOWN_KEYCODE);
+				unbindKeyCode();
 			} else {
 				setKeyCode(InputUtil.getKeyCode(event.getKeyCode(), event.getScanCode()));
 			}
