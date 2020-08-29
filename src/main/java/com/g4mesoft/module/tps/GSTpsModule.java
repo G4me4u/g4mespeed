@@ -66,6 +66,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	private static final int HOTKEY_MODE_CREATIVE = 1;
 	private static final int HOTKEY_MODE_ALL      = 2;
 	
+	private static final int HOTKEY_FEEDBACK_DISABLED = 0;
+	private static final int HOTKEY_FEEDBACK_STATUS   = 1;
+	private static final int HOTKEY_FEEDBACK_CHAT     = 2;
+	
 	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##", new DecimalFormatSymbols(Locale.ENGLISH));
 	
 	private float tps;
@@ -86,6 +90,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSBooleanSetting cForceCarpetTickrate;
 	public final GSIntegerSetting sSyncPacketInterval;
 	public final GSIntegerSetting sTpsHotkeyMode;
+	public final GSIntegerSetting sTpsHotkeyFeedback;
 	public final GSBooleanSetting cShowTpsLabel;
 	public final GSBooleanSetting sBroadcastTps;
 
@@ -110,7 +115,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cSyncTickAggression = new GSFloatSetting("syncTickAggression", 0.05f, 0.0f, 1.0f, 0.05f);
 		cForceCarpetTickrate = new GSBooleanSetting("forceCarpetTickrate", true);
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
-		sTpsHotkeyMode = new GSIntegerSetting("hotkeyMode", 1, 0, 2);
+		sTpsHotkeyMode = new GSIntegerSetting("hotkeyMode", HOTKEY_MODE_CREATIVE, 0, 2);
+		sTpsHotkeyFeedback = new GSIntegerSetting("hotkeyFeedback", HOTKEY_FEEDBACK_STATUS, 0, 2);
 		cShowTpsLabel = new GSBooleanSetting("showTpsLabel", false);
 		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
 
@@ -178,8 +184,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Override
 	public void registerServerSettings(GSSettingManager settings) {
 		settings.registerSetting(TPS_CATEGORY, sSyncPacketInterval);
-		settings.registerSetting(TPS_CATEGORY, sTpsHotkeyMode);
 		settings.registerSetting(TPS_CATEGORY, sBroadcastTps);
+		settings.registerSetting(TPS_CATEGORY, sTpsHotkeyMode);
+		settings.registerSetting(TPS_CATEGORY, sTpsHotkeyFeedback);
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sBlockEventDistance);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sParanoidMode);
@@ -278,17 +285,32 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 					manager.runOnServer((serverManager) -> {
 						Text name = player.getDisplayName();
 						String formattedTps = TPS_FORMAT.format(tps);
-						Text info = new TranslatableText("play.info.tpsChanged", name, formattedTps);
+						Text feedbackText = new TranslatableText("play.info.tpsChanged", name, formattedTps);
 						
 						for (ServerPlayerEntity otherPlayer : serverManager.getAllPlayers()) {
 							if (isPlayerAllowedTpsChange(otherPlayer))
-								otherPlayer.addChatMessage(info, true);
+								sendHotkeyFeedback(otherPlayer, feedbackText);
 						}
 					});
 				}
 			} else {
-				player.addChatMessage(new TranslatableText("play.info.hotkeysDisallowed"), true);
+				sendHotkeyFeedback(player, new TranslatableText("play.info.hotkeysDisallowed"));
 			}
+		}
+	}
+	
+	private void sendHotkeyFeedback(ServerPlayerEntity player, Text feedbackText) {
+		switch (sTpsHotkeyFeedback.getValue()) {
+		case HOTKEY_FEEDBACK_DISABLED:
+			break;
+		case HOTKEY_FEEDBACK_STATUS:
+			player.addChatMessage(feedbackText, true);
+			break;
+		case HOTKEY_FEEDBACK_CHAT:
+			player.addChatMessage(feedbackText, false);
+			break;
+		default:
+			break;
 		}
 	}
 	
