@@ -64,15 +64,17 @@ hotkey.tps.decrement=Decrement Tps
 hotkey.tps.double=Double Tps
 hotkey.tps.halve=Halve Tps
 
-gui.hotkey.button.reset=Reset
-gui.hotkey.button.cancel=Cancel
+gui.hotkey.reset=Reset
+gui.hotkey.cancel=Cancel
+gui.hotkey.resetAll=Reset All
+gui.hotkey.unbindAll=Unbind all
 
 ###########   Game Information    ############
 
 play.info.clientTpsChanged=Client tps changed to %s
 play.info.tpsLabelTarget=tps (%s)
 
-# Translation version 4
+# Translation version 4 (v1.1.0)
 # The older translation versions are deprecated.
 :4
 
@@ -115,3 +117,12 @@ setting.betterPistons.immediateBlockBroadcast.desc=Broadcasts all block changes 
 
 play.info.tpsChanged=%s changed the tps to %s
 play.info.hotkeysDisallowed=Must be in Creative or Spectator to use hotkeys
+
+# Translation version 5 (v1.1.1)
+:5
+
+setting.tps.hotkeyFeedback=Hotkey Feedback
+setting.tps.hotkeyFeedback.desc=Specifies where the feedback from tps hotkeys will be displayed. If feedback is Disabled there will not be sent any messages when a player changes tps.
+setting.tps.hotkeyFeedback.0=Disabled
+setting.tps.hotkeyFeedback.1=Info bar
+setting.tps.hotkeyFeedback.2=Chat

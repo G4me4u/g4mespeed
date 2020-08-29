@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.g4mesoft.gui.GSElementContext;
 import com.g4mesoft.gui.GSParentPanel;
+import com.g4mesoft.gui.action.GSButtonPanel;
 import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.gui.scroll.GSIScrollableElement;
 import com.g4mesoft.hotkey.GSIKeyBindingRegisterListener;
@@ -20,8 +21,16 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollableElement, 
 	private static final int CATEGORY_MARGIN = 5;
 	private static final int CATEGORY_TITLE_BOTTOM_MARGIN = 2;
 	private static final int CATEGORY_TITLE_COLOR = 0xFFFFFFFF;
+
+	private static final int BUTTON_WIDTH = 96;
+	
+	private static final String RESET_ALL_TEXT = "gui.hotkey.resetAll";
+	private static final String UNBIND_ALL_TEXT = "gui.hotkey.unbindAll";
 	
 	private final Map<String, GSHotkeyCategoryGUI> hotkeyCategories;
+	
+	private final GSButtonPanel resetAllButton;
+	private final GSButtonPanel unbindAllButton;
 	
 	private int contentHeight;
 	private boolean needsRelayout;
@@ -31,11 +40,21 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollableElement, 
 	public GSHotkeyGUI(GSKeyManager keyManager) {
 		hotkeyCategories = new LinkedHashMap<String, GSHotkeyCategoryGUI>();
 		
-		for (GSKeyBinding keyBinding : keyManager.getKeyBindings())
-			addKeyEntry(keyBinding);
-
+		resetAllButton = new GSButtonPanel(RESET_ALL_TEXT, () -> {
+			for (GSHotkeyCategoryGUI category : hotkeyCategories.values())
+				category.resetAll();
+		});
+		
+		unbindAllButton = new GSButtonPanel(UNBIND_ALL_TEXT, () -> {
+			for (GSHotkeyCategoryGUI category : hotkeyCategories.values())
+				category.unbindAll();
+		});
+		
+		add(resetAllButton);
+		add(unbindAllButton);
+		
+		keyManager.getKeyBindings().forEach(this::addKeyEntry);
 		keyManager.setKeyRegisterListener(this);
-		changingElement = null;
 	}
 
 	private void layoutHotkeys() {
@@ -52,6 +71,16 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollableElement, 
 		int y = 0;
 		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values())
 			y = hotkeyCategory.layoutHotkeys(0, y, w);
+		
+		y += CATEGORY_MARGIN;
+
+		int buttonMargin = w - BUTTON_WIDTH * 2;
+		int bw = Math.min(BUTTON_WIDTH, BUTTON_WIDTH + buttonMargin / 2);
+		
+		resetAllButton.setPreferredBounds(0, y, bw);
+		unbindAllButton.setPreferredBounds(bw + buttonMargin, y, bw);
+		
+		y += GSButtonPanel.BUTTON_HEIGHT;
 		
 		contentHeight = y;
 	}
@@ -170,6 +199,14 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollableElement, 
 			int ty = y + CATEGORY_MARGIN;
 
 			renderer.drawCenteredString(title, tx, ty, CATEGORY_TITLE_COLOR);
+		}
+		
+		public void resetAll() {
+			elements.forEach(GSHotkeyElementGUI::resetKeyCode);
+		}
+
+		public void unbindAll() {
+			elements.forEach(GSHotkeyElementGUI::unbindKeyCode);
 		}
 	}
 }
