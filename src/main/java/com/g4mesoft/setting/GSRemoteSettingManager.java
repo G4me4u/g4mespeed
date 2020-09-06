@@ -18,7 +18,7 @@ public class GSRemoteSettingManager extends GSSettingManager {
 	public GSRemoteSettingManager(GSControllerClient controllerClient) {
 		this.controllerClient = controllerClient;
 	
-		shadowSettings = new HashMap<GSSettingCategory, GSSettingMap>();
+		shadowSettings = new HashMap<>();
 		remoteSettingChanging = false;
 	
 		allowedSettingChange = false;

@@ -28,7 +28,7 @@ public abstract class GSAbstractTextModel implements GSITextModel {
 	private final List<GSITextModelListener> modelListeners;
 	
 	public GSAbstractTextModel() {
-		modelListeners = new ArrayList<GSITextModelListener>();
+		modelListeners = new ArrayList<>();
 	}
 	
 	@Override

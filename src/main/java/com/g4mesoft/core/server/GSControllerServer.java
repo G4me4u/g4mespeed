@@ -77,7 +77,7 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 
 	public void onPlayerJoin(ServerPlayerEntity player) {
-		sendPacket(new GSConnectionPacket(G4mespeedMod.getAllExtensionInfo()), player, GSVersion.INVALID);
+		sendPacket(new GSConnectionPacket(G4mespeedMod.getExtensionInfoList()), player, GSVersion.INVALID);
 
 		for (GSIModule module : modules)
 			module.onPlayerJoin(player);

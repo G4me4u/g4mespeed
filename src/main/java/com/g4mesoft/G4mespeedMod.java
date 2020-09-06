@@ -2,9 +2,9 @@ package com.g4mesoft;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,11 +30,11 @@ public class G4mespeedMod implements ModInitializer {
 	
 	private GSCoreExtension coreExtension;
 	
-	private static final List<GSIExtension> extensions = new ArrayList<GSIExtension>();
-	private static final Map<GSExtensionUID, GSIExtension> idToExtension = new LinkedHashMap<GSExtensionUID, GSIExtension>();
-	private static final List<GSIExtensionListener> extensionListeners = new ArrayList<GSIExtensionListener>();
+	private static final List<GSIExtension> extensions = new ArrayList<>();
+	private static final Set<GSExtensionUID> extensionIds = new HashSet<>();
+	private static final List<GSIExtensionListener> extensionListeners = new ArrayList<>();
 	
-	private static GSExtensionInfo[] extensionInfoCache = new GSExtensionInfo[0];
+	private static final GSExtensionInfoList extensionInfoList = new GSExtensionInfoList();
 	
 	public G4mespeedMod() {
 	}
@@ -67,11 +67,11 @@ public class G4mespeedMod implements ModInitializer {
 			if (INVALID_EXTENSION_UID.equals(uid))
 				throw new IllegalArgumentException("Invalid extension ID: " + uid);
 			
-			if (idToExtension.containsKey(uid))
+			if (!extensionIds.add(uid))
 				throw new IllegalArgumentException("Duplicate extension ID: " + uid);
 			
-			idToExtension.put(uid, extension);
 			extensions.add(extension);
+			extensionInfoList.addInfo(extension.getInfo());
 		}
 
 		if (initialized) {
@@ -79,10 +79,6 @@ public class G4mespeedMod implements ModInitializer {
 			
 			dispatchExtensionAddedEvent(extension);
 		}
-	}
-	
-	public static List<GSIExtension> getExtensions() {
-		return Collections.unmodifiableList(extensions);
 	}
 	
 	public static void addExtensionListener(GSIExtensionListener listener) {
@@ -97,30 +93,26 @@ public class G4mespeedMod implements ModInitializer {
 		}
 	}
 
-	public static GSExtensionInfo getExtensionInfo(GSExtensionUID extensionUid) {
-		return idToExtension.get(extensionUid).getInfo();
-	}
-	
-	public static GSExtensionInfo[] getAllExtensionInfo() {
-		synchronized (extensions) {
-			int numExtensions = extensions.size();
-			
-			if (numExtensions != extensionInfoCache.length) {
-				extensionInfoCache = new GSExtensionInfo[numExtensions];
-			
-				for (int i = 0; i < numExtensions; i++)
-					extensionInfoCache[i] = extensions.get(i).getInfo();
-			}
-		}
-		
-		return extensionInfoCache;
-	}
-	
 	private static void dispatchExtensionAddedEvent(GSIExtension extension) {
 		synchronized (extensionListeners) {
 			for (GSIExtensionListener listener : extensionListeners)
 				listener.extensionAdded(extension);
 		}
+	}
+	
+	/*
+	 * Not thread safe! It is recommended only to invoke these method after the
+	 * invocation of the main Minecraft method. This should ensure that no further
+	 * extensions are added to the collection, since extensions must be added
+	 * during the fabric initialization.
+	 */
+	
+	public static List<GSIExtension> getExtensions() {
+		return Collections.unmodifiableList(extensions);
+	}
+	
+	public static GSExtensionInfoList getExtensionInfoList() {
+		return extensionInfoList;
 	}
 	
 	public GSPacketManager getPacketManager() {

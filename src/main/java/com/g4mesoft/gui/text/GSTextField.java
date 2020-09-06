@@ -78,7 +78,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			textModel = new GSSingleLineTextModel();
 		}
 		
-		modelChangeListeners = new ArrayList<GSIModelChangeListener>();
+		modelChangeListeners = new ArrayList<>();
 		
 		backgroundColor = DEFAULT_BACKGROUND_COLOR;
 		

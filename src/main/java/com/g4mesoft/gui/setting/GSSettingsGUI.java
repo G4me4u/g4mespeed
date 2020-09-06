@@ -51,7 +51,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 	private long descAnimStart;
 	
 	public GSSettingsGUI(GSSettingManager settingManager) {
-		this.settingCategories = new LinkedHashMap<GSSettingCategory, GSSettingCategoryElement>();
+		this.settingCategories = new LinkedHashMap<>();
 
 		for (GSSettingMap settingCategory : settingManager.getSettings()) {
 			for (GSSetting<?> setting : settingCategory.getSettings()) {
@@ -239,7 +239,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 			
 			title = "setting." + category.getName();
 			
-			settings = new LinkedList<GSSettingElementGUI<?>>();
+			settings = new LinkedList<>();
 		}
 		
 		public int getMinimumWidth() {

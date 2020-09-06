@@ -36,7 +36,7 @@ public final class GSElementContext {
 		rootPanel = new GSRootPanel();
 		eventDispatcher = new GSEventDispatcher(rootPanel);
 
-		standardCursors = new HashMap<Integer, Long>();
+		standardCursors = new HashMap<>();
 	}
 
 	public static void init(MinecraftClient client) {

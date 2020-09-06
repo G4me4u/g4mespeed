@@ -43,7 +43,7 @@ public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
 	private int selectedTabIndex;
 
 	public GSTabbedGUI() {
-		tabs = new ArrayList<GSTabEntry>();
+		tabs = new ArrayList<>();
 		selectedTabIndex = -1;
 		
 		GSKeyBinding guiKeyBinding = GSControllerClient.getInstance().getOpenGUIKey();

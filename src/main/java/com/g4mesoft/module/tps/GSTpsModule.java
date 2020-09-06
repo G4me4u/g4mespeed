@@ -102,7 +102,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	public GSTpsModule() {
 		tps = DEFAULT_TPS;
-		listeners = new ArrayList<GSITpsDependant>();
+		listeners = new ArrayList<>();
 
 		serverSyncTimer = 0;
 		serverTpsMonitor = new GSTpsMonitor();

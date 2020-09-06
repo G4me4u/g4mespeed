@@ -28,7 +28,7 @@ public class GSClipAdjuster {
 	
 		clipOffsetX = clipOffsetY = 0.0f;
 	
-		clipRectStack = new LinkedList<GSClipRect>();
+		clipRectStack = new LinkedList<>();
 	}
 	
 	public void clipPreviousShape(BufferBuilder builder) {

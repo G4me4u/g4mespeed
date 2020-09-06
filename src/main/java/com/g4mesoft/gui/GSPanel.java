@@ -324,7 +324,7 @@ public class GSPanel implements GSIElement {
 	
 	protected void putButtonStroke(GSIButtonStroke button, Runnable listener) {
 		if (buttonStrokes == null)
-			buttonStrokes = new LinkedHashMap<GSIButtonStroke, Runnable>();
+			buttonStrokes = new LinkedHashMap<>();
 
 		if (buttonMouseListener == null) {
 			buttonMouseListener = new GSIMouseListener() {

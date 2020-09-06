@@ -32,7 +32,7 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 	@Shadow public ServerPlayerEntity player;
 
 	private final GSExtensionInfoList extensionInfoList = new GSExtensionInfoList();
-	private final Map<GSExtensionUID, Integer> translationVersions = new HashMap<GSExtensionUID, Integer>();
+	private final Map<GSExtensionUID, Integer> translationVersions = new HashMap<>();
 	
 	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
 	private void onCustomPayload(CustomPayloadC2SPacket packet, CallbackInfo ci) {
@@ -61,22 +61,22 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 
 	@Override
 	public GSExtensionInfo getExtensionInfo(GSExtensionUID extensionUid) {
-		return extensionInfoList.getExtensionInfo(extensionUid);
+		return extensionInfoList.getInfo(extensionUid);
 	}
 
 	@Override
 	public void clearAllExtensionInfo() {
-		extensionInfoList.clearExtensionInfo();
+		extensionInfoList.clearInfo();
 	}
 	
 	@Override
 	public void addAllExtensionInfo(GSExtensionInfo[] extensionInfo) {
-		extensionInfoList.addAllExtensionInfo(extensionInfo);
+		extensionInfoList.addAllInfo(extensionInfo);
 	}
 
 	@Override
 	public void addExtensionInfo(GSExtensionInfo info) {
-		extensionInfoList.addExtensionInfo(info);
+		extensionInfoList.addInfo(info);
 	}
 	
 	@Override

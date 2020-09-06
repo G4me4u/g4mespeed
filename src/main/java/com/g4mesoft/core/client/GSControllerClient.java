@@ -121,7 +121,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 
 	@Override
 	public GSExtensionInfo getServerExtensionInfo(GSExtensionUID extensionUid) {
-		return serverExtensionInfoList.getExtensionInfo(extensionUid);
+		return serverExtensionInfoList.getInfo(extensionUid);
 	}
 	
 	@Override
@@ -140,11 +140,11 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 	
 	public void onJoinG4mespeedServer(GSExtensionInfo[] extensionInfo) {
-		serverExtensionInfoList.clearExtensionInfo();
-		serverExtensionInfoList.addAllExtensionInfo(extensionInfo);
+		serverExtensionInfoList.clearInfo();
+		serverExtensionInfoList.addAllInfo(extensionInfo);
 
 		if (isServerExtensionInstalled(GSCoreExtension.UID)) {
-			sendPacket(new GSConnectionPacket(G4mespeedMod.getAllExtensionInfo()));
+			sendPacket(new GSConnectionPacket(G4mespeedMod.getExtensionInfoList()));
 	
 			GSExtensionInfo coreInfo = getServerExtensionInfo(GSCoreExtension.UID);
 			
@@ -154,7 +154,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 	
 	public void onDisconnectServer() {
-		serverExtensionInfoList.clearExtensionInfo();
+		serverExtensionInfoList.clearInfo();
 
 		setNetworkHandler(null);
 

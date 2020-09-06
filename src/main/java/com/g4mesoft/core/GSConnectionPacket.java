@@ -1,9 +1,9 @@
 package com.g4mesoft.core;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import com.g4mesoft.GSExtensionInfo;
+import com.g4mesoft.GSExtensionInfoList;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.packet.GSIPacket;
@@ -20,8 +20,9 @@ public class GSConnectionPacket implements GSIPacket {
 	public GSConnectionPacket() {
 	}
 
-	public GSConnectionPacket(GSExtensionInfo[] extensionInfo) {
-		this.extensionInfo = Arrays.copyOf(extensionInfo, extensionInfo.length);
+	public GSConnectionPacket(GSExtensionInfoList infoList) {
+		// Copy the extension info list to ensure thread-safety.
+		this.extensionInfo = infoList.getAllInfo().toArray(new GSExtensionInfo[0]);
 	}
 
 	@Override

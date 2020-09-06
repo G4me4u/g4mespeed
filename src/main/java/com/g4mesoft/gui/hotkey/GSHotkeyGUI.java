@@ -38,7 +38,7 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollableElement, 
 	private GSHotkeyElementGUI changingElement;
 	
 	public GSHotkeyGUI(GSKeyManager keyManager) {
-		hotkeyCategories = new LinkedHashMap<String, GSHotkeyCategoryGUI>();
+		hotkeyCategories = new LinkedHashMap<>();
 		
 		resetAllButton = new GSButtonPanel(RESET_ALL_TEXT, () -> {
 			for (GSHotkeyCategoryGUI category : hotkeyCategories.values())
@@ -154,7 +154,7 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollableElement, 
 		public GSHotkeyCategoryGUI(String name) {
 			categoryName = "hotkey." + name + ".title";
 			
-			elements = new ArrayList<GSHotkeyElementGUI>();
+			elements = new ArrayList<>();
 		}
 		
 		public void addKeyBinding(GSKeyBinding keyBinding) {

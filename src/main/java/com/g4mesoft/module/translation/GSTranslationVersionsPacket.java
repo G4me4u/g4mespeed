@@ -22,7 +22,7 @@ public class GSTranslationVersionsPacket implements GSIPacket {
 	}
 
 	public GSTranslationVersionsPacket(Map<GSExtensionUID, GSTranslationCacheList> cacheLists) {
-		uidToVersion = new HashMap<GSExtensionUID, Integer>();
+		uidToVersion = new HashMap<>();
 		
 		for (Map.Entry<GSExtensionUID, GSTranslationCacheList> entry : cacheLists.entrySet())
 			uidToVersion.put(entry.getKey(), entry.getValue().getVersion());
@@ -32,7 +32,7 @@ public class GSTranslationVersionsPacket implements GSIPacket {
 	public void read(PacketByteBuf buf) throws IOException {
 		int n = buf.readInt();
 
-		uidToVersion = new HashMap<GSExtensionUID, Integer>();
+		uidToVersion = new HashMap<>();
 		while (n-- != 0) {
 			GSExtensionUID uid = GSExtensionUID.read(buf);
 			int version = buf.readInt();
