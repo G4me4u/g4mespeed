@@ -141,6 +141,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	
 	private void setModifying(boolean modifying) {
 		GSHotkeyElementGUI changingElement = hotkeyGui.getChangingElement();
+		
 		if (modifying && changingElement == null) {
 			modifyingKeyCode = true;
 			hotkeyGui.setChangingElement(this);
@@ -150,8 +151,8 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 			hotkeyGui.setChangingElement(null);
 			updateButtons();
 		}
-		
-		modifyButton.setPassingEvents(modifying);
+
+		modifyButton.setPassingEvents(modifyingKeyCode);
 	}
 
 	@Override
