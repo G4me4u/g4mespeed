@@ -72,7 +72,7 @@ public class GSPacketManager {
 			      NetworkThreadUtils.forceMainThread(customPayload, packetListener, executor);
 				
 			GSExtensionUID extensionUid = getPacketExtensionUniqueId(packet);
-			GSExtensionInfo extensionInfo = extensionInfoList.getExtensionInfo(extensionUid);
+			GSExtensionInfo extensionInfo = extensionInfoList.getInfo(extensionUid);
 
 			try {
 				packet.read(buffer, extensionInfo);
@@ -87,7 +87,7 @@ public class GSPacketManager {
 	}
 	
 	private void registerPackets(GSIExtension extension) {
-		GSElementRegistry<GSIPacket> registry = new GSElementRegistry<GSIPacket>();
+		GSElementRegistry<GSIPacket> registry = new GSElementRegistry<>();
 		extension.registerPackets(registry);
 		registryList.addPacketRegistry(extension.getInfo().getUniqueId(), registry);
 	}

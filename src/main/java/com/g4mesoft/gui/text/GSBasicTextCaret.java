@@ -65,7 +65,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	private int caretColor;
 	
 	public GSBasicTextCaret() {
-		caretListeners = new ArrayList<GSITextCaretListener>();
+		caretListeners = new ArrayList<>();
 		
 		dot = mark = 0;
 		

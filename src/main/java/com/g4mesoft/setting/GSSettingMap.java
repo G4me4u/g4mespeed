@@ -28,7 +28,7 @@ public final class GSSettingMap {
 		this.category = category;
 		this.owner = owner;
 		
-		settings = new LinkedHashMap<String, GSSetting<?>>();
+		settings = new LinkedHashMap<>();
 	}
 	
 	public GSSetting<?> getSetting(String name) {

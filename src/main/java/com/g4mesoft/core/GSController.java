@@ -24,7 +24,7 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 	protected static final String CACHE_DIR_NAME = "g4mespeed/cache";
 	protected static final String INTEGRATED_CACHE_DIR_NAME = "g4mespeed/integrated/cache";
 
-	private static final Set<GSController> INSTANCES = new HashSet<GSController>();
+	private static final Set<GSController> INSTANCES = new HashSet<>();
 	
 	protected final GSSettingManager settings;
 	
@@ -36,7 +36,7 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 	public GSController() {
 		settings = new GSSettingManager();
 		
-		modules = new ArrayList<GSIModule>();
+		modules = new ArrayList<>();
 		
 		tpsModule = new GSTpsModule();
 		translationModule = new GSTranslationModule();

@@ -32,10 +32,10 @@ public class GSKeyManager {
 	private GSIKeyBindingRegisterListener registerListener;
 	
 	public GSKeyManager() {
-		keySettings = new HashMap<String, Map<String, Key>>();
+		keySettings = new HashMap<>();
 
-		keyBindings = new ArrayList<GSKeyBinding>();
-		codeToKeys = new HashMap<Key, LinkedList<GSKeyBinding>>();
+		keyBindings = new ArrayList<>();
+		codeToKeys = new HashMap<>();
 	}
 
 	public void loadKeys(File keySettingsFile) {
@@ -91,7 +91,7 @@ public class GSKeyManager {
 		synchronized (keySettings) {
 			Map<String, Key> categorySettings = keySettings.get(category);
 			if (categorySettings == null) {
-				categorySettings = new HashMap<String, Key>();
+				categorySettings = new HashMap<>();
 				keySettings.put(category, categorySettings);
 			}
 			
@@ -232,7 +232,7 @@ public class GSKeyManager {
 		synchronized(codeToKeys) {
 			LinkedList<GSKeyBinding> keysWithCode = codeToKeys.get(keyBinding.getKeyCode());
 			if (keysWithCode == null) {
-				keysWithCode = new LinkedList<GSKeyBinding>();
+				keysWithCode = new LinkedList<>();
 				codeToKeys.put(keyBinding.getKeyCode(), keysWithCode);
 			}
 			keysWithCode.add(keyBinding);

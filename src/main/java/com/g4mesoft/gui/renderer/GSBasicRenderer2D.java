@@ -37,7 +37,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		this.client = client;
 		
 		transform = new GSTransform2D();
-		transformStack = new LinkedList<GSTransform2D>();
+		transformStack = new LinkedList<>();
 	}
 	
 	@Override
@@ -236,7 +236,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	
 	@Override
 	public List<String> splitToLines(String str, int availableWidth) {
-		List<String> result = new ArrayList<String>();
+		List<String> result = new ArrayList<>();
 		
 		int len = str.length();
 		if (len <= 0)

@@ -14,9 +14,9 @@ public class GSPacketRegistryList {
 	private final Map<Class<? extends GSIPacket>, Long> idCache;
 
 	public GSPacketRegistryList() {
-		uidToRegistry = new HashMap<GSExtensionUID, GSElementRegistry<GSIPacket>>();
-		uidCache = new HashMap<Class<? extends GSIPacket>, GSExtensionUID>();
-		idCache = new HashMap<Class<? extends GSIPacket>, Long>();
+		uidToRegistry = new HashMap<>();
+		uidCache = new HashMap<>();
+		idCache = new HashMap<>();
 	}
 
 	public GSExtensionUID getPacketExtensionUID(Class<? extends GSIPacket> packetClazz) {

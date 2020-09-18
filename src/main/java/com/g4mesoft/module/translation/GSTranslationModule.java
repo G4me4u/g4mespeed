@@ -49,8 +49,8 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	private long translationsChangeTimestamp;
 	
 	public GSTranslationModule() {
-		translations = new ConcurrentHashMap<String, String>();
-		cacheLists = new HashMap<GSExtensionUID, GSTranslationCacheList>();
+		translations = new ConcurrentHashMap<>();
+		cacheLists = new HashMap<>();
 	
 		translationsChangeTimestamp = -1L;
 	}
@@ -184,7 +184,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	}
 
 	private void loadTranslations(BufferedReader reader, GSExtensionUID extensionUid, boolean cachedTranslations) throws IOException {
-		Map<String, String> translations = new HashMap<String, String>();
+		Map<String, String> translations = new HashMap<>();
 
 		int currentVersion = INVALID_TRANSLATION_VERSION;
 		

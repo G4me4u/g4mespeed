@@ -39,15 +39,15 @@ public class GSSettingManager {
 	private static final Map<Class<? extends GSSetting<?>>, GSISettingDecoder<?>> clazzToDecoder;
 	
 	static {
-		typeToDecoder = new HashMap<String, GSISettingDecoder<?>>();
-		clazzToDecoder = new HashMap<Class<? extends GSSetting<?>>, GSISettingDecoder<?>>();
+		typeToDecoder = new HashMap<>();
+		clazzToDecoder = new HashMap<>();
 
 		registerDefaultParsers();
 	}
 	
 	public GSSettingManager() {
-		settings = new LinkedHashMap<GSSettingCategory, GSSettingMap>();
-		listeners = new ArrayList<GSISettingChangeListener>();
+		settings = new LinkedHashMap<>();
+		listeners = new ArrayList<>();
 	}
 	
 	private static void registerDefaultParsers() {

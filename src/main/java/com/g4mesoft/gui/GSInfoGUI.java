@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
+import com.g4mesoft.GSExtensionInfoList;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.gui.renderer.GSIRenderer2D;
@@ -34,10 +35,10 @@ public class GSInfoGUI extends GSParentPanel {
 	public void render(GSIRenderer2D renderer) {
 		super.render(renderer);
 
-		Collection<GSExtensionInfo> serverInfoList = client.getServerExtensionInfoList().getAllExtensionInfo();
-		GSExtensionInfo[] clientInfoList = G4mespeedMod.getAllExtensionInfo();
+		Collection<GSExtensionInfo> serverInfoList = client.getServerExtensionInfoList().getAllInfo();
+		Collection<GSExtensionInfo> clientInfoList = G4mespeedMod.getExtensionInfoList().getAllInfo();
 		
-		int numLines = 3 + serverInfoList.size() + clientInfoList.length;
+		int numLines = 3 + serverInfoList.size() + clientInfoList.size();
 		
 		int xc = width / 2;
 		int y = height / 2 - renderer.getLineHeight() * numLines / 2 - 10;
@@ -69,7 +70,9 @@ public class GSInfoGUI extends GSParentPanel {
 		if (!version.isInvalid()) {
 			versionString = version.toString();
 			
-			GSExtensionInfo clientInfo = G4mespeedMod.getExtensionInfo(info.getUniqueId());
+			GSExtensionInfoList clientInfoList = G4mespeedMod.getExtensionInfoList();
+			GSExtensionInfo clientInfo = clientInfoList.getInfo(info.getUniqueId());
+			
 			if (version.isLessThan(clientInfo.getVersion())) {
 				versionColor = LESS_THAN_VERSION_COLOR;
 			} else {

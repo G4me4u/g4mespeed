@@ -11,9 +11,9 @@ public class GSElementRegistry<E> {
 	private final Map<Integer, Supplier<? extends E>> idToSupplier;
 	
 	public GSElementRegistry() {
-		elementToId = new HashMap<Class<? extends E>, Integer>();
-		idToElement = new HashMap<Integer, Class<? extends E>>();
-		idToSupplier = new HashMap<Integer, Supplier<? extends E>>();
+		elementToId = new HashMap<>();
+		idToElement = new HashMap<>();
+		idToSupplier = new HashMap<>();
 	}
 	
 	public <T extends E> void register(int id, Class<T> elementClazz, Supplier<T> provider) {

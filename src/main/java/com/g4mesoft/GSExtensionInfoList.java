@@ -16,16 +16,29 @@ public class GSExtensionInfoList {
 	private Map<GSExtensionUID, GSExtensionInfo> extensionInfo;
 	
 	public GSExtensionInfoList() {
-		extensionInfo = new LinkedHashMap<GSExtensionUID, GSExtensionInfo>();
+		extensionInfo = new LinkedHashMap<>();
 		
-		clearExtensionInfo();
+		clearInfo();
 	}
 	
-	public GSExtensionInfo getExtensionInfo(GSExtensionUID extensionUid) {
+	public GSExtensionInfo getInfo(GSExtensionUID extensionUid) {
 		GSExtensionInfo info = extensionInfo.get(extensionUid);
-		if (info != null)
-			return info;
-		return new GSExtensionInfo(UNKNOWN_NAME, extensionUid, GSVersion.INVALID);
+		
+		if (info == null) {
+			// Make a default extension info. Note that the name may
+			// be invalid in the case where the version is invalid.
+			return new GSExtensionInfo(UNKNOWN_NAME, extensionUid, GSVersion.INVALID);
+		}
+		
+		return info;
+	}
+	
+	public Collection<GSExtensionInfo> getAllInfo() {
+		return Collections.unmodifiableCollection(extensionInfo.values());
+	}
+	
+	public void addInfo(GSExtensionInfo info) {
+		extensionInfo.put(info.getUniqueId(), info);
 	}
 	
 	public boolean isExtensionInstalled(GSExtensionUID extensionUid) {
@@ -33,29 +46,21 @@ public class GSExtensionInfoList {
 	}
 
 	public boolean isExtensionInstalled(GSExtensionUID extensionUid, GSVersion minimumVersion) {
-		return getExtensionInfo(extensionUid).getVersion().isGreaterThanOrEqualTo(minimumVersion);
+		return getInfo(extensionUid).getVersion().isGreaterThanOrEqualTo(minimumVersion);
 	}
 	
-	public void clearExtensionInfo() {
+	public void clearInfo() {
 		extensionInfo.clear();
 		
-		addExtensionInfo(GSCoreExtension.INVALID_VERSION_INFO);
+		addInfo(GSCoreExtension.INVALID_VERSION_INFO);
 	}
 	
-	public void addAllExtensionInfo(GSExtensionInfo[] infoArray) {
+	public void addAllInfo(GSExtensionInfo[] infoArray) {
 		for (GSExtensionInfo info : infoArray)
-			addExtensionInfo(info);
+			addInfo(info);
 	}
 
 	public void addAllExtensionInfo(List<GSExtensionInfo> infoList) {
-		infoList.forEach(this::addExtensionInfo);
-	}
-
-	public void addExtensionInfo(GSExtensionInfo info) {
-		extensionInfo.put(info.getUniqueId(), info);
-	}
-	
-	public Collection<GSExtensionInfo> getAllExtensionInfo() {
-		return Collections.unmodifiableCollection(extensionInfo.values());
+		infoList.forEach(this::addInfo);
 	}
 }

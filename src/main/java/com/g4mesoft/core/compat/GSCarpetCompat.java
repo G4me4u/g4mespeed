@@ -31,7 +31,7 @@ public final class GSCarpetCompat {
 	private final List<GSICarpetCompatTickrateListener> tickrateListeners;
 	
 	public GSCarpetCompat() {
-		tickrateListeners = new ArrayList<GSICarpetCompatTickrateListener>();
+		tickrateListeners = new ArrayList<>();
 	}
 	
 	private void reset() {

@@ -11,7 +11,7 @@ public class GSParentPanel extends GSPanel implements GSIParentElement {
 	private final List<GSIElement> children;
 	
 	public GSParentPanel() {
-		children = new ArrayList<GSIElement>();
+		children = new ArrayList<>();
 	}
 	
 	@Override
