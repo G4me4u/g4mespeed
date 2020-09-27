@@ -53,12 +53,12 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	
 	@Override
 	public void addModule(GSIModule module) {
-		super.addModule(module);
-		
 		module.registerServerSettings(settings);
 		
 		if (dispatcher != null)
 			module.registerCommands(dispatcher);
+
+		super.addModule(module);
 	}
 	
 	public void init(MinecraftServer server) {
