@@ -131,6 +131,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public void init(GSIModuleManager manager) {
 		this.manager = manager;
 		
+		resetTps();
 		serverTpsMonitor.reset();
 		
 		G4mespeedMod.getInstance().getCarpetCompat().addCarpetTickrateListener(this);
@@ -138,8 +139,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 
 	@Override
 	public void onClose() {
-		resetTps();
-		
 		clearTpsListeners();
 		
 		G4mespeedMod.getInstance().getCarpetCompat().removeCarpetTickrateListener(this);

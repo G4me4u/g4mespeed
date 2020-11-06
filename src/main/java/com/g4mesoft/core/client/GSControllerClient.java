@@ -95,14 +95,15 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	
 	@Override
 	public void addModule(GSIModule module) {
-		super.addModule(module);
-	
-		module.initGUI(tabbedGUI);
 		module.registerClientSettings(settings);
 		module.registerHotkeys(keyManager);
 		
 		// Register shadow server settings
 		module.registerServerSettings(serverSettings);
+
+		super.addModule(module);
+		
+		module.initGUI(tabbedGUI);
 	}
 
 	public void setNetworkHandler(ClientPlayNetworkHandler networkHandler) {

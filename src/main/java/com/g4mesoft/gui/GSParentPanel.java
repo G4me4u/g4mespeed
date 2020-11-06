@@ -34,16 +34,19 @@ public class GSParentPanel extends GSPanel implements GSIParentElement {
 	
 	@Override
 	public void remove(GSIElement element) {
-		if (children.remove(element)) {
-			element.setVisible(false);
-			element.onRemoved(this);
-		}
+		if (children.remove(element))
+			onChildRemoved(element);
 	}
 	
 	@Override
 	public void removeAll() {
 		while (!children.isEmpty())
-			remove(children.get(children.size() - 1));
+			onChildRemoved(children.remove(children.size() - 1));
+	}
+	
+	protected void onChildRemoved(GSIElement child) {
+		child.setVisible(false);
+		child.onRemoved(this);
 	}
 	
 	@Override
