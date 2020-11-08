@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.g4mesoft.GSExtensionUID;
-import com.g4mesoft.registry.GSElementRegistry;
+import com.g4mesoft.registry.GSSupplierRegistry;
 
 public class GSPacketRegistryList {
 
-	private final Map<GSExtensionUID, GSElementRegistry<GSIPacket>> uidToRegistry;
+	private final Map<GSExtensionUID, GSSupplierRegistry<Integer, GSIPacket>> uidToRegistry;
 	
 	private final Map<Class<? extends GSIPacket>, GSExtensionUID> uidCache;
 	private final Map<Class<? extends GSIPacket>, Long> idCache;
@@ -24,8 +24,8 @@ public class GSPacketRegistryList {
 		if (extensionUid != null)
 			return extensionUid;
 	
-		for (Map.Entry<GSExtensionUID, GSElementRegistry<GSIPacket>> entry : uidToRegistry.entrySet()) {
-			GSElementRegistry<GSIPacket> registry = entry.getValue();
+		for (Map.Entry<GSExtensionUID, GSSupplierRegistry<Integer, GSIPacket>> entry : uidToRegistry.entrySet()) {
+			GSSupplierRegistry<Integer, GSIPacket> registry = entry.getValue();
 
 			if (registry.containsElement(packetClazz)) {
 				extensionUid = entry.getKey();
@@ -45,10 +45,10 @@ public class GSPacketRegistryList {
 		GSExtensionUID extensionUid = getPacketExtensionUID(packetClazz);
 
 		if (extensionUid != null) {
-			GSElementRegistry<GSIPacket> registry = uidToRegistry.get(extensionUid);
+			GSSupplierRegistry<Integer, GSIPacket> registry = uidToRegistry.get(extensionUid);
 			
 			int uid = extensionUid.getValue();
-			int id = registry.getIdFromElement(packetClazz);
+			int id = registry.getIdentifier(packetClazz);
 
 			long value = ((long)uid << 32L) | (long)id;
 			idCache.put(packetClazz, Long.valueOf(value));
@@ -61,12 +61,12 @@ public class GSPacketRegistryList {
 	
 	public GSIPacket createNewPacket(long packetId) {
 		GSExtensionUID extensionUid = new GSExtensionUID((int)(packetId >> 32L));
-		GSElementRegistry<GSIPacket> registry = uidToRegistry.get(extensionUid);
+		GSSupplierRegistry<Integer, GSIPacket> registry = uidToRegistry.get(extensionUid);
 		
 		return (registry != null) ? registry.createNewElement((int)packetId) : null;
 	}
 
-	public void addPacketRegistry(GSExtensionUID uid, GSElementRegistry<GSIPacket> registry) {
+	public void addPacketRegistry(GSExtensionUID uid, GSSupplierRegistry<Integer, GSIPacket> registry) {
 		if (uidToRegistry.containsKey(uid))
 			throw new IllegalStateException("The UID is already registered!");
 		if (registry == null)
