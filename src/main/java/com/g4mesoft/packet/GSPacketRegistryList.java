@@ -1,6 +1,7 @@
 package com.g4mesoft.packet;
 
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
 import com.g4mesoft.GSExtensionUID;
@@ -15,8 +16,8 @@ public class GSPacketRegistryList {
 
 	public GSPacketRegistryList() {
 		uidToRegistry = new HashMap<>();
-		uidCache = new HashMap<>();
-		idCache = new HashMap<>();
+		uidCache = new IdentityHashMap<>();
+		idCache = new IdentityHashMap<>();
 	}
 
 	public GSExtensionUID getPacketExtensionUID(Class<? extends GSIPacket> packetClazz) {
