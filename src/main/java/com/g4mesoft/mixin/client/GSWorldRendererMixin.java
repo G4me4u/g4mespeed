@@ -38,7 +38,6 @@ public class GSWorldRendererMixin {
 	
 	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/render/WorldRenderer;renderChunkDebugInfo(Lnet/minecraft/client/render/Camera;)V"))
 	private void onRenderAlwaysOnTop(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
-		RenderSystem.disableDepthTest();
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.disableTexture();
@@ -49,7 +48,7 @@ public class GSWorldRendererMixin {
         
 		renderer3d.begin(Tessellator.getInstance().getBuffer(), matrixStack);
 		for (GSIRenderable3D renderable : GSControllerClient.getInstance().getRenderables()) {
-			if (renderable.getRenderPhase() == GSERenderPhase.ALWAYS_ON_TOP)
+			if (renderable.getRenderPhase() == GSERenderPhase.TRANSPARENT_LAST)
 				renderable.render(renderer3d);
 		}
 		renderer3d.end();
@@ -58,6 +57,5 @@ public class GSWorldRendererMixin {
 
 		RenderSystem.enableTexture();
 		RenderSystem.disableBlend();
-		RenderSystem.enableDepthTest();
 	}
 }
