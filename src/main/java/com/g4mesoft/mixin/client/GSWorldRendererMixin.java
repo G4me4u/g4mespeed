@@ -21,8 +21,8 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.math.Matrix4f;
 
 @Mixin(WorldRenderer.class)
 public class GSWorldRendererMixin {
@@ -36,8 +36,11 @@ public class GSWorldRendererMixin {
 		renderer3d = new GSBasicRenderer3D(client);
 	}
 	
-	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/render/WorldRenderer;renderChunkDebugInfo(Lnet/minecraft/client/render/Camera;)V"))
+	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.AFTER, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V"))
 	private void onRenderAlwaysOnTop(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
+		// Rendering world border has depth mask disabled.
+		RenderSystem.depthMask(true);
+
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		RenderSystem.disableTexture();
@@ -57,5 +60,8 @@ public class GSWorldRendererMixin {
 
 		RenderSystem.enableTexture();
 		RenderSystem.disableBlend();
+		
+		// Restore in case other mods rely on it.
+		RenderSystem.depthMask(false);
 	}
 }
