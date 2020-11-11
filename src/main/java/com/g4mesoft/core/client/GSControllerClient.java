@@ -1,6 +1,10 @@
 package com.g4mesoft.core.client;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import org.lwjgl.glfw.GLFW;
@@ -27,6 +31,7 @@ import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
+import com.g4mesoft.renderer.GSIRenderable3D;
 import com.g4mesoft.setting.GSRemoteSettingManager;
 
 import net.fabricmc.api.EnvType;
@@ -64,11 +69,15 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	private GSKeyBinding openGUIKey;
 	private GSTabbedGUI tabbedGUI;
 	
+	private List<GSIRenderable3D> renderables;
+	
 	public GSControllerClient() {
 		serverExtensionInfoList = new GSExtensionInfoList();
 		
 		serverSettings = new GSRemoteSettingManager(this);
 		keyManager = new GSKeyManager();
+		
+		renderables = new LinkedList<GSIRenderable3D>();
 	}
 
 	public void init(MinecraftClient minecraft) {
@@ -238,6 +247,20 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		return new File(minecraft.runDirectory, CACHE_DIR_NAME);
 	}
 	
+	@Override
+	public void addRenderable(GSIRenderable3D renderable) {
+		renderables.add(renderable);
+	}
+
+	@Override
+	public void removeRenderable(GSIRenderable3D renderable) {
+		renderables.remove(renderable);
+	}
+	
+	public Collection<GSIRenderable3D> getRenderables() {
+		return Collections.unmodifiableCollection(renderables);
+	}
+	
 	public GSKeyManager getKeyManager() {
 		return keyManager;
 	}
@@ -249,7 +272,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	public GSKeyBinding getOpenGUIKey() {
 		return openGUIKey;
 	}
-	
+
 	public static GSControllerClient getInstance() {
 		return instance;
 	}

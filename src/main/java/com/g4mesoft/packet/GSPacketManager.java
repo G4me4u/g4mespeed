@@ -8,7 +8,7 @@ import com.g4mesoft.GSExtensionInfoList;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.core.GSController;
-import com.g4mesoft.registry.GSElementRegistry;
+import com.g4mesoft.registry.GSSupplierRegistry;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.NetworkThreadUtils;
@@ -87,7 +87,7 @@ public class GSPacketManager {
 	}
 	
 	private void registerPackets(GSIExtension extension) {
-		GSElementRegistry<GSIPacket> registry = new GSElementRegistry<>();
+		GSSupplierRegistry<Integer, GSIPacket> registry = new GSSupplierRegistry<>();
 		extension.registerPackets(registry);
 		registryList.addPacketRegistry(extension.getInfo().getUniqueId(), registry);
 	}

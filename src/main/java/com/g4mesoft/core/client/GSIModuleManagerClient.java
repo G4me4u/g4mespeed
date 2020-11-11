@@ -6,6 +6,7 @@ import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.packet.GSIPacket;
+import com.g4mesoft.renderer.GSIRenderable3D;
 
 public interface GSIModuleManagerClient extends GSIModuleManager {
 
@@ -26,5 +27,9 @@ public interface GSIModuleManagerClient extends GSIModuleManager {
 	}
 
 	public void sendPacket(GSIPacket packet, GSVersion minExtensionVersion);
+	
+	public void addRenderable(GSIRenderable3D renderable);
+
+	public void removeRenderable(GSIRenderable3D renderable);
 	
 }

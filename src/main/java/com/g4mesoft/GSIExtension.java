@@ -3,13 +3,13 @@ package com.g4mesoft;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.packet.GSIPacket;
-import com.g4mesoft.registry.GSElementRegistry;
+import com.g4mesoft.registry.GSSupplierRegistry;
 
 public interface GSIExtension {
 
 	public void init();
 	
-	public void registerPackets(GSElementRegistry<GSIPacket> registry);
+	public void registerPackets(GSSupplierRegistry<Integer, GSIPacket> registry);
 	
 	public void addClientModules(GSControllerClient controller);
 	

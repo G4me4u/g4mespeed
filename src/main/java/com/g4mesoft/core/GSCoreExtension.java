@@ -12,7 +12,7 @@ import com.g4mesoft.module.tps.GSTpsHotkeyPacket;
 import com.g4mesoft.module.translation.GSTranslationCachePacket;
 import com.g4mesoft.module.translation.GSTranslationVersionsPacket;
 import com.g4mesoft.packet.GSIPacket;
-import com.g4mesoft.registry.GSElementRegistry;
+import com.g4mesoft.registry.GSSupplierRegistry;
 import com.g4mesoft.setting.GSServerSettingMapPacket;
 import com.g4mesoft.setting.GSSettingChangePacket;
 import com.g4mesoft.setting.GSSettingPermissionPacket;
@@ -34,7 +34,7 @@ public class GSCoreExtension implements GSIExtension {
 	}
 	
 	@Override
-	public void registerPackets(GSElementRegistry<GSIPacket> registry) {
+	public void registerPackets(GSSupplierRegistry<Integer, GSIPacket> registry) {
 		registry.register( 1, GSTpsHotkeyPacket.class, GSTpsHotkeyPacket::new);
 		registry.register( 2, GSTpsChangePacket.class, GSTpsChangePacket::new);
 		registry.register( 3, GSServerSyncPacket.class, GSServerSyncPacket::new);

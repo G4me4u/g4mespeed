@@ -46,7 +46,9 @@
     "client.GSBufferBuilderMixin",
     "client.GSIVertexFormatElementAccess",
     
-    "client.GSInGameHudMixin"
+    "client.GSInGameHudMixin",
+    
+    "client.GSWorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
