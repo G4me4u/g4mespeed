@@ -172,85 +172,10 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 				setCaretLocation(Math.max(dot, mark));
 			}
 		} else if ((modifierFlags & WORD_NAVIGATION_MODIFIER) != 0) {
-			navigateToNextWord(backward, modifierFlags);
+			navigateToLocation(textField.getLocationAfterWord(dot, backward), modifierFlags);
 		} else {
 			navigateToLocation(backward ? (dot - 1) : (dot + 1), modifierFlags);
 		}
-	}
-	
-	protected void navigateToNextWord(boolean backward, int modifierFlags) {
-		int nextDot;
-		
-		if (backward) {
-			GSEWordCharacterType prevType = GSEWordCharacterType.OTHER;
-
-			for (nextDot = dot; nextDot > 0; nextDot--) {
-				GSEWordCharacterType type = getWordCharacterTypeAt(nextDot - 1);
-				if (type != prevType && prevType != GSEWordCharacterType.OTHER)
-					break;
-				
-				prevType = type;
-			}
-		} else {
-			GSEWordCharacterType prevType = getWordCharacterTypeAt(dot);
-
-			for (nextDot = dot; nextDot < textModel.getLength(); nextDot++) {
-				GSEWordCharacterType type = getWordCharacterTypeAt(nextDot);
-				if (type != prevType && type != GSEWordCharacterType.OTHER)
-					break;
-				
-				prevType = type;
-			}
-		}
-
-		navigateToLocation(nextDot, modifierFlags);
-	}
-	
-	private GSEWordCharacterType getWordCharacterTypeAt(int location) {
-		if (location >= 0 && location < textModel.getLength()) {
-			char c = textModel.getChar(location);
-			
-			switch (Character.getType(c)) {
-			case Character.UPPERCASE_LETTER:
-			case Character.LOWERCASE_LETTER:
-			case Character.TITLECASE_LETTER:
-			case Character.MODIFIER_LETTER:
-			case Character.OTHER_LETTER:
-			case Character.DECIMAL_DIGIT_NUMBER:
-			case Character.OTHER_NUMBER:
-				return GSEWordCharacterType.LETTER_OR_DIGIT;
-	
-			case Character.LETTER_NUMBER:
-			case Character.DASH_PUNCTUATION:
-			case Character.START_PUNCTUATION:
-			case Character.END_PUNCTUATION:
-			case Character.CONNECTOR_PUNCTUATION:
-			case Character.OTHER_PUNCTUATION:
-			case Character.MATH_SYMBOL:
-			case Character.CURRENCY_SYMBOL:
-			case Character.MODIFIER_SYMBOL:
-			case Character.OTHER_SYMBOL:
-			case Character.INITIAL_QUOTE_PUNCTUATION:
-			case Character.FINAL_QUOTE_PUNCTUATION:
-				return GSEWordCharacterType.SYMBOL;
-			
-			case Character.UNASSIGNED:
-			case Character.NON_SPACING_MARK:
-			case Character.ENCLOSING_MARK:
-			case Character.COMBINING_SPACING_MARK:
-			case Character.SPACE_SEPARATOR:
-			case Character.LINE_SEPARATOR:
-			case Character.PARAGRAPH_SEPARATOR:
-			case Character.CONTROL:
-			case Character.FORMAT:
-			case Character.PRIVATE_USE:
-			case Character.SURROGATE:
-			default:
-				return GSEWordCharacterType.OTHER;
-			}
-		}
-
-		return null;
 	}
 	
 	/**
@@ -605,11 +530,5 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 			flags |= WORD_NAVIGATION_MODIFIER;
 		
 		return flags;
-	}
-	
-	private enum GSEWordCharacterType {
-		
-		LETTER_OR_DIGIT, SYMBOL, OTHER;
-		
 	}
 }

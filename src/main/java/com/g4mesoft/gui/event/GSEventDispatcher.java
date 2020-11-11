@@ -122,23 +122,23 @@ public class GSEventDispatcher {
 	private void checkAndDispatchControlCharacter(int key, int mods) {
 		switch (key) {
 		case GSKeyEvent.KEY_BACKSPACE:
-			keyTyped(BACKSPACE_CONTROL_CHARACTER);
+			keyTyped(BACKSPACE_CONTROL_CHARACTER, mods);
 			break;
 		case GSKeyEvent.KEY_TAB:
-			keyTyped(TAB_CONTROL_CHARACTER);
+			keyTyped(TAB_CONTROL_CHARACTER, mods);
 			break;
 		case GSKeyEvent.KEY_ENTER:
-			keyTyped(NEW_LINE_CONTROL_CHARACTER);
+			keyTyped(NEW_LINE_CONTROL_CHARACTER, mods);
 			break;
 		case GSKeyEvent.KEY_Z:
 			if ((mods & GSEvent.MODIFIER_CONTROL) != 0)
-				keyTyped(CONTROL_Z_CONTROL_CHARACTER);
+				keyTyped(CONTROL_Z_CONTROL_CHARACTER, mods);
 			break;
 		case GSKeyEvent.KEY_ESCAPE:
-			keyTyped(ESCAPE_CONTROL_CHARACTER);
+			keyTyped(ESCAPE_CONTROL_CHARACTER, mods);
 			break;
 		case GSKeyEvent.KEY_DELETE:
-			keyTyped(DELETE_CONTROL_CHARACTER);
+			keyTyped(DELETE_CONTROL_CHARACTER, mods);
 			break;
 		}
 	}
@@ -157,9 +157,9 @@ public class GSEventDispatcher {
 		}
 	}
 
-	public void keyTyped(int codePoint) {
+	public void keyTyped(int codePoint, int modifiers) {
 		if (focusedElement != null) {
-			GSKeyEvent event = GSKeyEvent.createKeyTypedEvent(codePoint);
+			GSKeyEvent event = GSKeyEvent.createKeyTypedEvent(codePoint, modifiers);
 			distributeKeyEvent(focusedElement, event, GSIKeyListener::keyTyped);
 		}
 	}

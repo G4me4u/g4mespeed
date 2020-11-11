@@ -6,6 +6,7 @@ import java.util.List;
 import com.g4mesoft.access.GSIKeyboardAccess;
 import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.GSCoreOverride;
+import com.g4mesoft.gui.event.GSEvent;
 import com.g4mesoft.gui.event.GSEventDispatcher;
 import com.g4mesoft.gui.event.GSIFocusEventListener;
 import com.g4mesoft.gui.event.GSIKeyListener;
@@ -138,7 +139,7 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	@Override
 	@GSCoreOverride
 	public boolean charTyped(char chr, int keyCode) {
-		GSElementContext.getEventDispatcher().keyTyped((int)chr);
+		GSElementContext.getEventDispatcher().keyTyped((int)chr, GSEvent.NO_MODIFIERS);
 		return true;
 	}
 
