@@ -43,9 +43,9 @@ public class GSWorldRendererMixin {
 		RenderSystem.disableTexture();
 		
 		// Fix model matrix
-        RenderSystem.pushMatrix();
-        RenderSystem.loadIdentity();
-        
+		RenderSystem.pushMatrix();
+		RenderSystem.loadIdentity();
+		
 		renderer3d.begin(Tessellator.getInstance().getBuffer(), matrixStack);
 		for (GSIRenderable3D renderable : GSControllerClient.getInstance().getRenderables()) {
 			if (renderable.getRenderPhase() == GSERenderPhase.TRANSPARENT_LAST)
