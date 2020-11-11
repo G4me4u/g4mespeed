@@ -38,7 +38,7 @@ public class GSWorldRendererMixin {
 	
 	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.AFTER, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V"))
 	private void onRenderAlwaysOnTop(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
-		// Rendering world border has depth mask disabled.
+		// Rendering world border sometimes has depth mask disabled.
 		RenderSystem.depthMask(true);
 
 		RenderSystem.enableBlend();
@@ -60,8 +60,5 @@ public class GSWorldRendererMixin {
 
 		RenderSystem.enableTexture();
 		RenderSystem.disableBlend();
-		
-		// Restore in case other mods rely on it.
-		RenderSystem.depthMask(false);
 	}
 }
