@@ -7,6 +7,7 @@ import java.util.List;
 import com.g4mesoft.gui.GSECursorType;
 import com.g4mesoft.gui.GSElementContext;
 import com.g4mesoft.gui.GSPanel;
+import com.g4mesoft.gui.event.GSEvent;
 import com.g4mesoft.gui.event.GSIKeyListener;
 import com.g4mesoft.gui.event.GSKeyEvent;
 import com.g4mesoft.gui.renderer.GSIRenderer2D;
@@ -502,12 +503,12 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	@Override
 	public void keyTyped(GSKeyEvent event) {
 		if (isEditingText()) {
-			handleTypedCodePoint(event.getCodePoint());
+			handleTypedCodePoint(event.getCodePoint(), event.getModifiers());
 			event.consume();
 		}
 	}
 	
-	protected void handleTypedCodePoint(int codePoint) {
+	protected void handleTypedCodePoint(int codePoint, int modifiers) {
 		if (Character.isBmpCodePoint(codePoint)) {
 			char c = (char)codePoint;
 			
@@ -515,7 +516,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 				removeCaretSelection();
 				
 				if (!caret.hasCaretSelection() || !isControlCharacter(c))
-					insertTypedChar(getCaretLocation(), c);
+					insertTypedChar(getCaretLocation(), c, modifiers);
 			}
 		}
 	}
@@ -542,19 +543,26 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		}
 	}
 	
-	private void insertTypedChar(int offset, char c) {
+	private void insertTypedChar(int offset, char c, int modifiers) {
 		if (isControlCharacter(c)) {
 			switch (c) {
 			case BACKSPACE_CONTROL_CHARACTER:
 				if (offset > 0) {
-					moveCaretPointX(textModel.getText(offset - 1, 1), -1);
-			
-					textModel.removeText(offset - 1, 1);
+					if ((modifiers & GSEvent.MODIFIER_CONTROL) != 0) {
+						removeTextRange(offset, getLocationAfterWord(offset, true));
+					} else {
+						removeTextRange(offset, offset - 1);
+					}
 				}
 				break;
 			case DELETE_CONTROL_CHARACTER:
-				if (offset < textModel.getLength())
-					textModel.removeText(offset, 1);
+				if (offset < textModel.getLength()) {
+					if ((modifiers & GSEvent.MODIFIER_CONTROL) != 0) {
+						removeTextRange(offset, getLocationAfterWord(offset, false));
+					} else {
+						removeTextRange(offset, offset + 1);
+					}
+				}
 				break;
 			}
 		} else {
@@ -562,6 +570,19 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			
 			moveCaretPointX(textModel.getText(offset, 1), 1);
 		}
+	}
+	
+	private void removeTextRange(int startOffset, int endOffset) {
+		int count = Math.abs(endOffset - startOffset);
+		int offset = Math.min(startOffset, endOffset);
+
+		if (startOffset > endOffset) {
+			// The caret is located after the removed text. We should
+			// move the caret to the left to make it more intuitive.
+			moveCaretPointX(textModel.getText(offset, count), -1);
+		}
+		
+		textModel.removeText(offset, count);
 	}
 
 	private void moveCaretPointX(String removedText, int sign) {
@@ -573,6 +594,81 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	private boolean isControlCharacter(char c) {
 		return (c < PRINTABLE_CHARACTERS_START || c == DELETE_CONTROL_CHARACTER);
+	}
+	
+	int getLocationAfterWord(int startLocation, boolean backward) {
+		int nextLocation = startLocation;
+		
+		if (backward) {
+			GSEWordCharacterType prevType = GSEWordCharacterType.OTHER;
+
+			for ( ; nextLocation > 0; nextLocation--) {
+				GSEWordCharacterType type = getWordCharacterTypeAt(nextLocation - 1);
+				if (type != prevType && prevType != GSEWordCharacterType.OTHER)
+					break;
+				
+				prevType = type;
+			}
+		} else {
+			GSEWordCharacterType prevType = getWordCharacterTypeAt(startLocation);
+
+			for ( ; nextLocation < textModel.getLength(); nextLocation++) {
+				GSEWordCharacterType type = getWordCharacterTypeAt(nextLocation);
+				if (type != prevType && type != GSEWordCharacterType.OTHER)
+					break;
+				
+				prevType = type;
+			}
+		}
+		
+		return nextLocation;
+	}
+	
+	private GSEWordCharacterType getWordCharacterTypeAt(int location) {
+		if (location >= 0 && location < textModel.getLength()) {
+			char c = textModel.getChar(location);
+			
+			switch (Character.getType(c)) {
+			case Character.UPPERCASE_LETTER:
+			case Character.LOWERCASE_LETTER:
+			case Character.TITLECASE_LETTER:
+			case Character.MODIFIER_LETTER:
+			case Character.OTHER_LETTER:
+			case Character.DECIMAL_DIGIT_NUMBER:
+			case Character.OTHER_NUMBER:
+				return GSEWordCharacterType.LETTER_OR_DIGIT;
+	
+			case Character.LETTER_NUMBER:
+			case Character.DASH_PUNCTUATION:
+			case Character.START_PUNCTUATION:
+			case Character.END_PUNCTUATION:
+			case Character.CONNECTOR_PUNCTUATION:
+			case Character.OTHER_PUNCTUATION:
+			case Character.MATH_SYMBOL:
+			case Character.CURRENCY_SYMBOL:
+			case Character.MODIFIER_SYMBOL:
+			case Character.OTHER_SYMBOL:
+			case Character.INITIAL_QUOTE_PUNCTUATION:
+			case Character.FINAL_QUOTE_PUNCTUATION:
+				return GSEWordCharacterType.SYMBOL;
+			
+			case Character.UNASSIGNED:
+			case Character.NON_SPACING_MARK:
+			case Character.ENCLOSING_MARK:
+			case Character.COMBINING_SPACING_MARK:
+			case Character.SPACE_SEPARATOR:
+			case Character.LINE_SEPARATOR:
+			case Character.PARAGRAPH_SEPARATOR:
+			case Character.CONTROL:
+			case Character.FORMAT:
+			case Character.PRIVATE_USE:
+			case Character.SURROGATE:
+			default:
+				return GSEWordCharacterType.OTHER;
+			}
+		}
+
+		return null;
 	}
 	
 	public void addModelChangeListener(GSIModelChangeListener changeListener) {
@@ -735,5 +831,11 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			throw new IllegalArgumentException("horizontalMargin must be non-negative!");
 		
 		this.horizontalMargin = horizontalMargin;
+	}
+	
+	private enum GSEWordCharacterType {
+		
+		LETTER_OR_DIGIT, SYMBOL, OTHER;
+		
 	}
 }
