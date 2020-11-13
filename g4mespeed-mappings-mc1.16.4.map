@@ -577,64 +577,64 @@ com.g4mesoft.gui.GSRootPanel -> core.N:
     com.g4mesoft.gui.GSIElement content -> gsc_rJ
     boolean visible -> gsc_hH
     boolean elementFocused -> gsc_sc
-    29:35:void <init>() -> <init>
-    40:48:void method_25426() -> method_25426
-    53:58:void method_25432() -> method_25432
-    63:66:void method_25393() -> method_25393
-    71:82:void method_25394(net.minecraft.class_4587,int,int,float) -> method_25394
-    87:88:void method_16014(double,double) -> method_16014
-    93:95:boolean method_25402(double,double,int) -> method_25402
-    101:103:boolean method_25406(double,double,int) -> method_25406
-    109:110:boolean method_25403(double,double,int,double,double) -> method_25403
-    116:118:boolean method_25401(double,double,double) -> method_25401
-    124:129:boolean method_25404(int,int,int) -> method_25404
-    135:136:boolean method_16803(int,int,int) -> method_16803
-    142:143:boolean method_25400(char,int) -> method_25400
-    148:148:void setBounds(int,int,int,int) -> gsc_rJ
-    153:153:boolean isAdded() -> b_
-    158:158:com.g4mesoft.gui.GSIElement getParent() -> c_
-    163:163:void onAdded(com.g4mesoft.gui.GSIElement) -> gsc_rJ
-    168:168:void onRemoved(com.g4mesoft.gui.GSIElement) -> gsc_hH
-    173:173:boolean isVisible() -> gsc_UM
-    178:178:void setVisible(boolean) -> gsc_rJ
-    185:191:void setVisibleImpl(boolean) -> gsc_bs
-    195:197:void update() -> gsc_mg
-    201:201:void preRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_hH
-    205:210:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_sc
-    214:214:void postRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_bs
-    218:218:boolean isInBounds(int,int) -> gsc_hH
-    223:223:int getX() -> gsc_vm
-    228:228:int getY() -> gsc_Qo
-    233:233:int getWidth() -> gsc_Jn
-    238:238:int getHeight() -> gsc_AS
-    243:243:void addMouseEventListener(com.g4mesoft.gui.event.GSIMouseListener) -> gsc_rJ
-    247:247:void removeMouseEventListener(com.g4mesoft.gui.event.GSIMouseListener) -> gsc_hH
-    251:251:java.util.List getMouseEventListeners() -> gsc_cT
-    256:256:void addKeyEventListener(com.g4mesoft.gui.event.GSIKeyListener) -> gsc_rJ
-    260:260:void removeKeyEventListener(com.g4mesoft.gui.event.GSIKeyListener) -> gsc_hH
-    264:264:java.util.List getKeyEventListeners() -> gsc_Yp
-    269:269:void addFocusEventListener(com.g4mesoft.gui.event.GSIFocusEventListener) -> gsc_rJ
-    273:273:void removeFocusEventListener(com.g4mesoft.gui.event.GSIFocusEventListener) -> gsc_hH
-    277:277:java.util.List getFocusEventListeners() -> gsc_gn
-    282:282:int getEventOffsetX() -> gsc_eh
-    287:287:int getEventOffsetY() -> gsc_Pt
-    292:292:boolean isPassingEvents() -> gsc_PS
-    297:297:void setPassingEvents(boolean) -> gsc_hH
-    301:301:void dispatchMouseEvent(com.g4mesoft.gui.event.GSMouseEvent,com.g4mesoft.gui.GSIElement) -> gsc_rJ
-    305:305:void dispatchKeyEvent(com.g4mesoft.gui.event.GSKeyEvent,com.g4mesoft.gui.GSIElement) -> gsc_rJ
-    309:309:boolean isFocused() -> gsc_bx
-    314:315:void setFocused(boolean) -> gsc_sc
-    319:320:void requestFocus() -> gsc_yN
-    324:326:void unfocus() -> gsc_pl
-    330:330:boolean isEditingText() -> gsc_LG
-    335:335:com.g4mesoft.gui.GSECursorType getCursor() -> gsc_VL
-    340:340:void setCursor(com.g4mesoft.gui.GSECursorType) -> gsc_rJ
-    344:344:com.g4mesoft.gui.GSIElement getChildAt(int,int) -> a_
-    348:371:void setContent(com.g4mesoft.gui.GSIElement) -> gsc_UM
-    375:375:void add(com.g4mesoft.gui.GSIElement) -> gsc_sc
-    380:380:void remove(com.g4mesoft.gui.GSIElement) -> gsc_bs
-    385:385:void removeAll() -> a_
-    390:390:java.util.List getChildren() -> gsc_kZ
+    30:36:void <init>() -> <init>
+    41:49:void method_25426() -> method_25426
+    54:59:void method_25432() -> method_25432
+    64:67:void method_25393() -> method_25393
+    72:83:void method_25394(net.minecraft.class_4587,int,int,float) -> method_25394
+    88:89:void method_16014(double,double) -> method_16014
+    94:96:boolean method_25402(double,double,int) -> method_25402
+    102:104:boolean method_25406(double,double,int) -> method_25406
+    110:111:boolean method_25403(double,double,int,double,double) -> method_25403
+    117:119:boolean method_25401(double,double,double) -> method_25401
+    125:130:boolean method_25404(int,int,int) -> method_25404
+    136:137:boolean method_16803(int,int,int) -> method_16803
+    143:144:boolean method_25400(char,int) -> method_25400
+    149:149:void setBounds(int,int,int,int) -> gsc_rJ
+    154:154:boolean isAdded() -> b_
+    159:159:com.g4mesoft.gui.GSIElement getParent() -> c_
+    164:164:void onAdded(com.g4mesoft.gui.GSIElement) -> gsc_rJ
+    169:169:void onRemoved(com.g4mesoft.gui.GSIElement) -> gsc_hH
+    174:174:boolean isVisible() -> gsc_UM
+    179:179:void setVisible(boolean) -> gsc_rJ
+    186:192:void setVisibleImpl(boolean) -> gsc_bs
+    196:198:void update() -> gsc_mg
+    202:202:void preRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_hH
+    206:211:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_sc
+    215:215:void postRender(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_bs
+    219:219:boolean isInBounds(int,int) -> gsc_hH
+    224:224:int getX() -> gsc_vm
+    229:229:int getY() -> gsc_Qo
+    234:234:int getWidth() -> gsc_Jn
+    239:239:int getHeight() -> gsc_AS
+    244:244:void addMouseEventListener(com.g4mesoft.gui.event.GSIMouseListener) -> gsc_rJ
+    248:248:void removeMouseEventListener(com.g4mesoft.gui.event.GSIMouseListener) -> gsc_hH
+    252:252:java.util.List getMouseEventListeners() -> gsc_cT
+    257:257:void addKeyEventListener(com.g4mesoft.gui.event.GSIKeyListener) -> gsc_rJ
+    261:261:void removeKeyEventListener(com.g4mesoft.gui.event.GSIKeyListener) -> gsc_hH
+    265:265:java.util.List getKeyEventListeners() -> gsc_Yp
+    270:270:void addFocusEventListener(com.g4mesoft.gui.event.GSIFocusEventListener) -> gsc_rJ
+    274:274:void removeFocusEventListener(com.g4mesoft.gui.event.GSIFocusEventListener) -> gsc_hH
+    278:278:java.util.List getFocusEventListeners() -> gsc_gn
+    283:283:int getEventOffsetX() -> gsc_eh
+    288:288:int getEventOffsetY() -> gsc_Pt
+    293:293:boolean isPassingEvents() -> gsc_PS
+    298:298:void setPassingEvents(boolean) -> gsc_hH
+    302:302:void dispatchMouseEvent(com.g4mesoft.gui.event.GSMouseEvent,com.g4mesoft.gui.GSIElement) -> gsc_rJ
+    306:306:void dispatchKeyEvent(com.g4mesoft.gui.event.GSKeyEvent,com.g4mesoft.gui.GSIElement) -> gsc_rJ
+    310:310:boolean isFocused() -> gsc_bx
+    315:316:void setFocused(boolean) -> gsc_sc
+    320:321:void requestFocus() -> gsc_yN
+    325:327:void unfocus() -> gsc_pl
+    331:331:boolean isEditingText() -> gsc_LG
+    336:336:com.g4mesoft.gui.GSECursorType getCursor() -> gsc_VL
+    341:341:void setCursor(com.g4mesoft.gui.GSECursorType) -> gsc_rJ
+    345:345:com.g4mesoft.gui.GSIElement getChildAt(int,int) -> a_
+    349:372:void setContent(com.g4mesoft.gui.GSIElement) -> gsc_UM
+    376:376:void add(com.g4mesoft.gui.GSIElement) -> gsc_sc
+    381:381:void remove(com.g4mesoft.gui.GSIElement) -> gsc_bs
+    386:386:void removeAll() -> a_
+    391:391:java.util.List getChildren() -> gsc_kZ
 com.g4mesoft.gui.GSTabbedGUI -> core.O:
     int TAB_VERTICAL_PADDING -> gsc_mg
     int TAB_HORIZONTAL_PADDING -> gsc_vm
@@ -797,7 +797,7 @@ com.g4mesoft.gui.event.GSEventDispatcher -> core.Y:
     123:144:void checkAndDispatchControlCharacter(int,int) -> gsc_rJ
     147:151:void keyRepeated(int,int,int) -> gsc_hH
     154:158:void keyReleased(int,int,int) -> gsc_sc
-    161:165:void keyTyped(int) -> gsc_rJ
+    161:165:void keyTyped(int,int) -> gsc_bs
     168:170:void requestFocus(com.g4mesoft.gui.GSIElement) -> gsc_rJ
     173:175:void unfocus(com.g4mesoft.gui.GSIElement) -> gsc_hH
     178:178:com.g4mesoft.gui.GSIElement getFocusedElement() -> gsc_hH
@@ -1012,7 +1012,7 @@ com.g4mesoft.gui.event.GSKeyEvent -> core.aj:
     244:244:com.g4mesoft.gui.event.GSKeyEvent createKeyPressedEvent(int,int,int) -> gsc_rJ
     248:248:com.g4mesoft.gui.event.GSKeyEvent createKeyRepeatedEvent(int,int,int) -> gsc_hH
     252:252:com.g4mesoft.gui.event.GSKeyEvent createKeyReleasedEvent(int,int,int) -> gsc_sc
-    256:256:com.g4mesoft.gui.event.GSKeyEvent createKeyTypedEvent(int) -> gsc_hH
+    256:256:com.g4mesoft.gui.event.GSKeyEvent createKeyTypedEvent(int,int) -> gsc_rJ
 com.g4mesoft.gui.event.GSMouseButtonStroke -> core.ak:
     int button -> gsc_rJ
     int modifiers -> gsc_hH
@@ -1576,45 +1576,34 @@ com.g4mesoft.gui.text.GSBasicTextCaret -> core.aP:
     144:148:void removeTextCaretListener(com.g4mesoft.gui.text.GSITextCaretListener) -> gsc_hH
     151:153:void dispatchCaretLocationChangedEvent() -> gsc_cT
     168:179:void navigateStep(boolean,int) -> gsc_rJ
-    184:207:void navigateToNextWord(boolean,int) -> gsc_hH
-    210:253:com.g4mesoft.gui.text.GSBasicTextCaret$GSEWordCharacterType getWordCharacterTypeAt(int) -> gsc_Qo
-    265:270:void navigateToLocation(int,int) -> gsc_rJ
-    280:300:void navigateToPoint(int,int,int) -> gsc_rJ
-    304:304:void update() -> gsc_hH
-    308:318:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_rJ
-    327:339:void paintCaret(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_hH
-    351:358:int getBoundedLocation(int) -> gsc_Jn
-    363:363:int getCaretLocation() -> gsc_sc
-    368:377:void setCaretLocation(int) -> gsc_rJ
-    381:381:int getCaretDot() -> gsc_bs
-    386:395:void setCaretDot(int) -> gsc_hH
-    399:399:int getCaretMark() -> gsc_UM
-    404:411:void setCaretMark(int) -> gsc_sc
-    420:432:void setSelection(int,int) -> gsc_hH
-    436:436:boolean hasCaretSelection() -> gsc_mg
-    441:450:void textInserted(com.g4mesoft.gui.text.GSITextModel,int,int) -> gsc_rJ
-    454:473:void textRemoved(com.g4mesoft.gui.text.GSITextModel,int,int) -> gsc_hH
-    477:477:int getBlinkRate() -> gsc_vm
-    491:497:void setBlinkRate(int) -> gsc_bs
-    503:503:int getCaretWidth() -> gsc_Qo
-    515:519:void setCaretWidth(int) -> gsc_UM
-    525:525:int getCaretInsets() -> gsc_Jn
-    538:542:void setCaretInsets(int) -> gsc_mg
-    545:545:int getCaretColor() -> gsc_AS
-    549:550:void setCaretColor(int) -> gsc_vm
-    554:558:void mousePressed(com.g4mesoft.gui.event.GSMouseEvent) -> gsc_rJ
-    562:567:void mouseDragged(com.g4mesoft.gui.event.GSMouseEvent) -> gsc_hH
-    571:596:void keyPressed(com.g4mesoft.gui.event.GSKeyEvent) -> gsc_rJ
-    599:607:int getModifierFlags(int) -> gsc_AS
-com.g4mesoft.gui.text.GSBasicTextCaret$GSEWordCharacterType -> core.aQ:
-    com.g4mesoft.gui.text.GSBasicTextCaret$GSEWordCharacterType LETTER_OR_DIGIT -> gsc_rJ
-    com.g4mesoft.gui.text.GSBasicTextCaret$GSEWordCharacterType SYMBOL -> gsc_hH
-    com.g4mesoft.gui.text.GSBasicTextCaret$GSEWordCharacterType OTHER -> gsc_sc
-    com.g4mesoft.gui.text.GSBasicTextCaret$GSEWordCharacterType[] $VALUES -> gsc_bs
-    610:610:com.g4mesoft.gui.text.GSBasicTextCaret$GSEWordCharacterType[] values() -> values
-    610:610:com.g4mesoft.gui.text.GSBasicTextCaret$GSEWordCharacterType valueOf(java.lang.String) -> valueOf
-    610:610:void <init>(java.lang.String,int) -> <init>
-    610:612:void <clinit>() -> <clinit>
+    190:195:void navigateToLocation(int,int) -> gsc_rJ
+    205:225:void navigateToPoint(int,int,int) -> gsc_rJ
+    229:229:void update() -> gsc_hH
+    233:243:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_rJ
+    252:264:void paintCaret(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_hH
+    276:283:int getBoundedLocation(int) -> gsc_Jn
+    288:288:int getCaretLocation() -> gsc_sc
+    293:302:void setCaretLocation(int) -> gsc_rJ
+    306:306:int getCaretDot() -> gsc_bs
+    311:320:void setCaretDot(int) -> gsc_hH
+    324:324:int getCaretMark() -> gsc_UM
+    329:336:void setCaretMark(int) -> gsc_sc
+    345:357:void setSelection(int,int) -> gsc_hH
+    361:361:boolean hasCaretSelection() -> gsc_mg
+    366:375:void textInserted(com.g4mesoft.gui.text.GSITextModel,int,int) -> gsc_rJ
+    379:398:void textRemoved(com.g4mesoft.gui.text.GSITextModel,int,int) -> gsc_hH
+    402:402:int getBlinkRate() -> gsc_vm
+    416:422:void setBlinkRate(int) -> gsc_bs
+    428:428:int getCaretWidth() -> gsc_Qo
+    440:444:void setCaretWidth(int) -> gsc_UM
+    450:450:int getCaretInsets() -> gsc_Jn
+    463:467:void setCaretInsets(int) -> gsc_mg
+    470:470:int getCaretColor() -> gsc_AS
+    474:475:void setCaretColor(int) -> gsc_vm
+    479:483:void mousePressed(com.g4mesoft.gui.event.GSMouseEvent) -> gsc_rJ
+    487:492:void mouseDragged(com.g4mesoft.gui.event.GSMouseEvent) -> gsc_hH
+    496:521:void keyPressed(com.g4mesoft.gui.event.GSKeyEvent) -> gsc_rJ
+    524:532:int getModifierFlags(int) -> gsc_AS
 com.g4mesoft.gui.text.GSETextAlignment -> core.aR:
     com.g4mesoft.gui.text.GSETextAlignment CENTER -> gsc_rJ
     com.g4mesoft.gui.text.GSETextAlignment LEFT -> gsc_hH
@@ -1717,76 +1706,88 @@ com.g4mesoft.gui.text.GSTextField -> core.aY:
     int clippedViewOffset -> gsc_tx
     boolean clippedModelInvalid -> gsc_Ya
     int oldCaretPointX -> gsc_pV
-    70:71:void <init>() -> <init>
-    73:107:void <init>(java.lang.String) -> <init>
-    110:116:void setPreferredBounds(int,int) -> gsc_sc
-    119:125:void setPreferredBounds(int,int,int) -> gsc_rJ
-    129:132:void onBoundsChanged() -> gsc_kd
-    136:136:boolean isEditingText() -> gsc_LG
-    140:152:float expandClippedModelLeft(float) -> gsc_rJ
-    156:168:float expandClippedModelRight(float) -> gsc_hH
-    172:226:void reconstructClippedModel() -> gsc_ig
-    229:229:int getCaretLocation() -> gsc_rC
-    233:233:int getCaretSelectionStart() -> gsc_DG
-    237:237:int getCaretSelectionEnd() -> gsc_vB
-    242:244:void update() -> gsc_mg
-    248:282:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_sc
-    285:297:void drawBorderAndBackground(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_rJ
-    300:324:void drawVisibleTextSegment(com.g4mesoft.gui.renderer.GSIRenderer2D,int,int,int) -> gsc_rJ
-    327:346:void drawCaretSelection(com.g4mesoft.gui.renderer.GSIRenderer2D,int,int) -> gsc_rJ
-    350:376:java.awt.Rectangle modelToView(int) -> gsc_rJ
-    381:381:com.g4mesoft.gui.GSECursorType getCursor() -> gsc_VL
-    385:408:int viewToModel(int,int) -> gsc_bs
-    413:429:void caretLocationChanged(int,int) -> gsc_rJ
-    432:445:boolean isLocationInView(int) -> gsc_Yp
-    450:451:void textInserted(com.g4mesoft.gui.text.GSITextModel,int,int) -> gsc_rJ
-    455:456:void textRemoved(com.g4mesoft.gui.text.GSITextModel,int,int) -> gsc_hH
-    460:472:void keyPressed(com.g4mesoft.gui.event.GSKeyEvent) -> gsc_rJ
-    475:484:void copyToClipboard() -> gsc_rJ
-    487:489:void cutToClipboard() -> gsc_hH
-    492:500:void pasteFromClipboard() -> gsc_ew
-    504:508:void keyTyped(com.g4mesoft.gui.event.GSKeyEvent) -> gsc_sc
-    511:521:void handleTypedCodePoint(int) -> gsc_hH
-    524:527:boolean isTypeableCharacter(char) -> gsc_rJ
-    532:543:void removeCaretSelection() -> gsc_mr
-    546:565:void insertTypedChar(int,char) -> gsc_rJ
-    568:572:void moveCaretPointX(java.lang.String,int) -> gsc_rJ
-    575:575:boolean isControlCharacter(char) -> gsc_hH
-    579:580:void addModelChangeListener(com.g4mesoft.gui.text.GSIModelChangeListener) -> gsc_rJ
-    583:584:void removeModelChangeListener(com.g4mesoft.gui.text.GSIModelChangeListener) -> gsc_hH
-    587:595:void setTextModel(com.g4mesoft.gui.text.GSITextModel) -> gsc_rJ
-    598:599:void invokeModelChangeEvent() -> gsc_cD
-    602:602:com.g4mesoft.gui.text.GSITextModel getTextModel() -> gsc_kZ
-    606:610:void setText(java.lang.String) -> gsc_sc
-    613:617:void appendText(java.lang.String) -> gsc_bs
-    620:620:java.lang.String getText() -> gsc_PX
-    624:624:int getBackgroundColor() -> gsc_Nt
-    628:629:void setBackgroundColor(int) -> gsc_sc
-    632:632:int getEditableTextColor() -> gsc_vs
-    636:637:void setEditableTextColor(int) -> gsc_bs
-    640:640:int getUneditableTextColor() -> gsc_Ju
-    644:645:void setUneditableTextColor(int) -> gsc_UM
-    648:648:com.g4mesoft.gui.text.GSETextAlignment getTextAlignment() -> gsc_OS
-    652:656:void setTextAlignment(com.g4mesoft.gui.text.GSETextAlignment) -> gsc_rJ
-    659:660:void setEditable(boolean) -> gsc_bs
-    663:663:boolean isEditable() -> gsc_BO
-    667:677:void setCaret(com.g4mesoft.gui.text.GSITextCaret) -> gsc_rJ
-    680:680:com.g4mesoft.gui.text.GSITextCaret getCaret() -> gsc_dJ
-    684:685:void setSelectionTextColor(int) -> gsc_mg
-    688:688:int getSelectionTextColor() -> gsc_Gp
-    692:693:void setSelectionBackgroundColor(int) -> gsc_vm
-    696:696:int getSelectionBackgroundColor() -> gsc_RK
-    700:700:int getBorderWidth() -> gsc_tx
-    704:708:void setBorderWidth(int) -> gsc_Qo
-    711:711:int getBorderColor() -> gsc_Ya
-    715:716:void setBorderColor(int) -> gsc_Jn
-    719:719:int getVerticalMargin() -> gsc_pV
-    723:727:void setVerticalMargin(int) -> gsc_AS
-    730:730:int getHorizontalMargin() -> gsc_tL
-    734:738:void setHorizontalMargin(int) -> gsc_cT
+    71:72:void <init>() -> <init>
+    74:108:void <init>(java.lang.String) -> <init>
+    111:117:void setPreferredBounds(int,int) -> gsc_sc
+    120:126:void setPreferredBounds(int,int,int) -> gsc_rJ
+    130:133:void onBoundsChanged() -> gsc_kd
+    137:137:boolean isEditingText() -> gsc_LG
+    141:153:float expandClippedModelLeft(float) -> gsc_rJ
+    157:169:float expandClippedModelRight(float) -> gsc_hH
+    173:227:void reconstructClippedModel() -> gsc_ig
+    230:230:int getCaretLocation() -> gsc_rC
+    234:234:int getCaretSelectionStart() -> gsc_DG
+    238:238:int getCaretSelectionEnd() -> gsc_vB
+    243:245:void update() -> gsc_mg
+    249:283:void render(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_sc
+    286:298:void drawBorderAndBackground(com.g4mesoft.gui.renderer.GSIRenderer2D) -> gsc_rJ
+    301:325:void drawVisibleTextSegment(com.g4mesoft.gui.renderer.GSIRenderer2D,int,int,int) -> gsc_rJ
+    328:347:void drawCaretSelection(com.g4mesoft.gui.renderer.GSIRenderer2D,int,int) -> gsc_rJ
+    351:377:java.awt.Rectangle modelToView(int) -> gsc_rJ
+    382:382:com.g4mesoft.gui.GSECursorType getCursor() -> gsc_VL
+    386:409:int viewToModel(int,int) -> gsc_bs
+    414:430:void caretLocationChanged(int,int) -> gsc_rJ
+    433:446:boolean isLocationInView(int) -> gsc_Yp
+    451:452:void textInserted(com.g4mesoft.gui.text.GSITextModel,int,int) -> gsc_rJ
+    456:457:void textRemoved(com.g4mesoft.gui.text.GSITextModel,int,int) -> gsc_hH
+    461:473:void keyPressed(com.g4mesoft.gui.event.GSKeyEvent) -> gsc_rJ
+    476:485:void copyToClipboard() -> gsc_rJ
+    488:490:void cutToClipboard() -> gsc_hH
+    493:501:void pasteFromClipboard() -> gsc_ew
+    505:509:void keyTyped(com.g4mesoft.gui.event.GSKeyEvent) -> gsc_sc
+    512:522:void handleTypedCodePoint(int,int) -> gsc_UM
+    525:528:boolean isTypeableCharacter(char) -> gsc_rJ
+    533:544:void removeCaretSelection() -> gsc_mr
+    547:573:void insertTypedChar(int,char,int) -> gsc_rJ
+    576:586:void removeTextRange(int,int) -> gsc_mg
+    589:593:void moveCaretPointX(java.lang.String,int) -> gsc_rJ
+    596:596:boolean isControlCharacter(char) -> gsc_hH
+    600:624:int getLocationAfterWord(int,boolean) -> gsc_rJ
+    628:671:com.g4mesoft.gui.text.GSTextField$GSEWordCharacterType getWordCharacterTypeAt(int) -> gsc_hH
+    675:676:void addModelChangeListener(com.g4mesoft.gui.text.GSIModelChangeListener) -> gsc_rJ
+    679:680:void removeModelChangeListener(com.g4mesoft.gui.text.GSIModelChangeListener) -> gsc_hH
+    683:691:void setTextModel(com.g4mesoft.gui.text.GSITextModel) -> gsc_rJ
+    694:695:void invokeModelChangeEvent() -> gsc_cD
+    698:698:com.g4mesoft.gui.text.GSITextModel getTextModel() -> gsc_kZ
+    702:706:void setText(java.lang.String) -> gsc_sc
+    709:713:void appendText(java.lang.String) -> gsc_bs
+    716:716:java.lang.String getText() -> gsc_PX
+    720:720:int getBackgroundColor() -> gsc_Nt
+    724:725:void setBackgroundColor(int) -> gsc_sc
+    728:728:int getEditableTextColor() -> gsc_vs
+    732:733:void setEditableTextColor(int) -> gsc_bs
+    736:736:int getUneditableTextColor() -> gsc_Ju
+    740:741:void setUneditableTextColor(int) -> gsc_UM
+    744:744:com.g4mesoft.gui.text.GSETextAlignment getTextAlignment() -> gsc_OS
+    748:752:void setTextAlignment(com.g4mesoft.gui.text.GSETextAlignment) -> gsc_rJ
+    755:756:void setEditable(boolean) -> gsc_bs
+    759:759:boolean isEditable() -> gsc_BO
+    763:773:void setCaret(com.g4mesoft.gui.text.GSITextCaret) -> gsc_rJ
+    776:776:com.g4mesoft.gui.text.GSITextCaret getCaret() -> gsc_dJ
+    780:781:void setSelectionTextColor(int) -> gsc_mg
+    784:784:int getSelectionTextColor() -> gsc_Gp
+    788:789:void setSelectionBackgroundColor(int) -> gsc_vm
+    792:792:int getSelectionBackgroundColor() -> gsc_RK
+    796:796:int getBorderWidth() -> gsc_tx
+    800:804:void setBorderWidth(int) -> gsc_Qo
+    807:807:int getBorderColor() -> gsc_Ya
+    811:812:void setBorderColor(int) -> gsc_Jn
+    815:815:int getVerticalMargin() -> gsc_pV
+    819:823:void setVerticalMargin(int) -> gsc_AS
+    826:826:int getHorizontalMargin() -> gsc_tL
+    830:834:void setHorizontalMargin(int) -> gsc_cT
 com.g4mesoft.gui.text.GSTextField$1 -> core.aZ:
     int[] $SwitchMap$com$g4mesoft$gui$text$GSETextAlignment -> gsc_rJ
-    207:207:void <clinit>() -> <clinit>
+    208:208:void <clinit>() -> <clinit>
+com.g4mesoft.gui.text.GSTextField$GSEWordCharacterType -> core.aQ:
+    com.g4mesoft.gui.text.GSTextField$GSEWordCharacterType LETTER_OR_DIGIT -> gsc_rJ
+    com.g4mesoft.gui.text.GSTextField$GSEWordCharacterType SYMBOL -> gsc_hH
+    com.g4mesoft.gui.text.GSTextField$GSEWordCharacterType OTHER -> gsc_sc
+    com.g4mesoft.gui.text.GSTextField$GSEWordCharacterType[] $VALUES -> gsc_bs
+    836:836:com.g4mesoft.gui.text.GSTextField$GSEWordCharacterType[] values() -> values
+    836:836:com.g4mesoft.gui.text.GSTextField$GSEWordCharacterType valueOf(java.lang.String) -> valueOf
+    836:836:void <init>(java.lang.String,int) -> <init>
+    836:838:void <clinit>() -> <clinit>
 com.g4mesoft.gui.text.GSTextModelIndexOutOfBoundsException -> core.ba:
     long serialVersionUID -> gsc_rJ
     7:8:void <init>() -> <init>
@@ -2025,7 +2026,7 @@ com.g4mesoft.mixin.client.GSWorldRendererMixin -> com.g4mesoft.mixin.client.GSWo
     com.g4mesoft.renderer.GSBasicRenderer3D renderer3d -> gsc_rJ
     28:28:void <init>() -> <init>
     36:37:void onInit(net.minecraft.class_310,net.minecraft.class_4599,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    42:66:void onRenderAlwaysOnTop(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    42:63:void onRenderAlwaysOnTop(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
 com.g4mesoft.mixin.server.GSClientConnectionMixin -> com.g4mesoft.mixin.server.GSClientConnectionMixin:
     14:14:void <init>() -> <init>
     20:20:void onExceptionCaught(io.netty.channel.ChannelHandlerContext,java.lang.Throwable,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
