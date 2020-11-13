@@ -1,5 +1,7 @@
 package com.g4mesoft.mixin.client;
 
+import java.util.Collection;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,27 +40,42 @@ public class GSWorldRendererMixin {
 	
 	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.AFTER, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V"))
 	private void onRenderAlwaysOnTop(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
-		// Rendering world border sometimes has depth mask disabled.
-		RenderSystem.depthMask(true);
-
-		RenderSystem.enableBlend();
-		RenderSystem.defaultBlendFunc();
-		RenderSystem.disableTexture();
+		Collection<GSIRenderable3D> renderables = GSControllerClient.getInstance().getRenderables();
 		
-		// Fix model matrix
-		RenderSystem.pushMatrix();
-		RenderSystem.loadIdentity();
-		
-		renderer3d.begin(Tessellator.getInstance().getBuffer(), matrixStack);
-		for (GSIRenderable3D renderable : GSControllerClient.getInstance().getRenderables()) {
-			if (renderable.getRenderPhase() == GSERenderPhase.TRANSPARENT_LAST)
-				renderable.render(renderer3d);
+		if (hasRenderPhase(renderables, GSERenderPhase.TRANSPARENT_LAST)) {
+			// Rendering world border sometimes has depth and
+			// depth mask disabled. Fix it here.
+			RenderSystem.depthMask(true);
+			RenderSystem.enableDepthTest();
+	
+			RenderSystem.enableBlend();
+			RenderSystem.defaultBlendFunc();
+			RenderSystem.disableTexture();
+			
+			// Fix model matrix
+			RenderSystem.pushMatrix();
+			RenderSystem.loadIdentity();
+			
+			renderer3d.begin(Tessellator.getInstance().getBuffer(), matrixStack);
+			for (GSIRenderable3D renderable : renderables) {
+				if (renderable.getRenderPhase() == GSERenderPhase.TRANSPARENT_LAST)
+					renderable.render(renderer3d);
+			}
+			renderer3d.end();
+	
+			RenderSystem.popMatrix();
+	
+			RenderSystem.enableTexture();
+			RenderSystem.disableBlend();
 		}
-		renderer3d.end();
+	}
+	
+	private boolean hasRenderPhase(Collection<GSIRenderable3D> renderables, GSERenderPhase phase) {
+		for (GSIRenderable3D renderable : renderables) {
+			if (renderable.getRenderPhase() == phase)
+				return true;
+		}
 
-		RenderSystem.popMatrix();
-
-		RenderSystem.enableTexture();
-		RenderSystem.disableBlend();
+		return false;
 	}
 }
