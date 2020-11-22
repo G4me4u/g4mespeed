@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.lwjgl.opengl.GL11;
-
 import com.g4mesoft.access.GSIBufferBuilderAccess;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -49,16 +47,6 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		this.matrixStack = matrixStack;
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
-		
-		prepareGLState();
-	}
-	
-	private void prepareGLState() {
-		RenderSystem.disableTexture();
-		RenderSystem.shadeModel(GL11.GL_SMOOTH);
-		RenderSystem.enableBlend();
-		RenderSystem.defaultBlendFunc();
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	
 	public void end() {
@@ -68,10 +56,6 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		transformStack.clear();
 		transform.reset();
 		builder = null;
-		
-		RenderSystem.disableBlend();
-		RenderSystem.shadeModel(GL11.GL_FLAT);
-		RenderSystem.enableTexture();
 	}
 
 	@Override
@@ -280,7 +264,8 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 			client.textRenderer.draw(matrixStack, text, x, y, color);
 		}
 
-		prepareGLState();
+		RenderSystem.disableTexture();
+		RenderSystem.enableBlend();
 	}
 	
 	@Override
@@ -296,7 +281,8 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 			client.textRenderer.draw(matrixStack, text, x, y, color);
 		}
 		
-		prepareGLState();
+		RenderSystem.disableTexture();
+		RenderSystem.enableBlend();
 	}
 	
 	@Override

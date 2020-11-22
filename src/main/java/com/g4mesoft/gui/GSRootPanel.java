@@ -3,6 +3,8 @@ package com.g4mesoft.gui;
 import java.util.Collections;
 import java.util.List;
 
+import org.lwjgl.opengl.GL11;
+
 import com.g4mesoft.access.GSIKeyboardAccess;
 import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.GSCoreOverride;
@@ -15,6 +17,7 @@ import com.g4mesoft.gui.event.GSKeyEvent;
 import com.g4mesoft.gui.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSBasicRenderer2D;
 import com.g4mesoft.renderer.GSIRenderer2D;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.Tessellator;
@@ -73,14 +76,24 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
 
+		RenderSystem.disableTexture();
+		RenderSystem.shadeModel(GL11.GL_SMOOTH);
+		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		
 		GSIRenderer2D renderer = GSElementContext.getRenderer();
 		((GSBasicRenderer2D)renderer).begin(Tessellator.getInstance().getBuffer(), matrixStack, mouseX, mouseY);
 		
 		preRender(renderer);
 		render(renderer);
 		postRender(renderer);
-
+		
 		((GSBasicRenderer2D)renderer).end();
+		
+		RenderSystem.disableBlend();
+		RenderSystem.shadeModel(GL11.GL_FLAT);
+		RenderSystem.enableTexture();
 	}
 
 	@Override
