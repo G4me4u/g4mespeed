@@ -1,5 +1,6 @@
 package com.g4mesoft.gui.text;
 
+import com.g4mesoft.gui.GSElementContext;
 import com.g4mesoft.gui.GSPanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
@@ -34,6 +35,16 @@ public class GSTextLabel extends GSPanel {
 		backgroundColor = DEFAULT_BACKGROUND_COLOR;
 		textColor = DEFAULT_TEXT_COLOR;
 		textAlignment = GSETextAlignment.LEFT;;
+	}
+	
+	public void setPreferredBounds(int x, int y) {
+		GSIRenderer2D renderer = GSElementContext.getRenderer();
+		setPreferredBounds(x, y, renderer.getLineHeight());
+	}
+
+	public void setPreferredBounds(int x, int y, int height) {
+		GSIRenderer2D renderer = GSElementContext.getRenderer();
+		super.setBounds(x, y, (int)Math.ceil(renderer.getTextWidth(getText())), height);
 	}
 
 	@Override
