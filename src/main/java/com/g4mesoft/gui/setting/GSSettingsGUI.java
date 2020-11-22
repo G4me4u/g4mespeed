@@ -22,6 +22,8 @@ import com.g4mesoft.util.GSMathUtils;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
@@ -46,7 +48,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 	private boolean layoutChanged;
 	
 	private GSSettingElementGUI<?> hoveredElement;
-	private List<String> descLines;
+	private List<OrderedText> descLines;
 	private int startDescHeight;
 	private int targetDescHeight;
 
@@ -155,10 +157,9 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 			if (hoveredElement != null) {
 				int descTextWidth = width - settingsWidth - DESC_LINE_MARGIN * 2;
 				
-				String desc = i18nTranslate(hoveredElement.getSettingNameText().getKey() + ".desc");
-				String def = i18nTranslateFormatted("setting.default", hoveredElement.getFormattedDefault().getString());
-
-				descLines = renderer.splitToLines(desc + " " + def, descTextWidth);
+				MutableText desc = new TranslatableText(hoveredElement.getSettingNameText().getKey() + ".desc");
+				Text def = new TranslatableText("setting.default", hoveredElement.getFormattedDefault());
+				descLines = renderer.splitToLines(desc.append(" ").append(def), descTextWidth);
 				
 				int numLines = descLines.size();
 				int minimumDescHeight = numLines * renderer.getTextHeight() + (numLines - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
@@ -168,7 +169,6 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 				
 				descAnimStart = Util.getMeasuringTimeMs();
 			} else {
-				descLines.clear();
 				descLines = null;
 			}
 		}
@@ -198,7 +198,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 			int alpha = GSMathUtils.clamp((int)(progress * 128.0f + 127.0f), 0, 255) << 24;
 			
 			int y = descY + DESC_LINE_MARGIN;
-			for (String line : descLines) {
+			for (OrderedText line : descLines) {
 				if (y + renderer.getTextHeight() > descY + descHeight)
 					break;
 				

@@ -13,13 +13,15 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.OrderedText;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
+import net.minecraft.util.Language;
 
 public class GSBasicRenderer2D implements GSIRenderer2D {
 
 	private static final int LINE_SPACING = 2;
-	private static final char FORMATTING_CHAR = '\u00A7';
-
 	private static final float DEFAULT_Z_OFFSET = 0.0f;
 	
 	private final MinecraftClient client;
@@ -269,12 +271,12 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	}
 	
 	@Override
-	public float getTextWidth(Text text) {
+	public float getTextWidth(OrderedText text) {
 		return client.textRenderer.getWidth(text);
 	}
 
 	@Override
-	public void drawText(Text text, int x, int y, int color, boolean shadowed) {
+	public void drawText(OrderedText text, int x, int y, int color, boolean shadowed) {
 		if (shadowed) {
 			client.textRenderer.drawWithShadow(matrixStack, text, x, y, color);
 		} else {
@@ -286,14 +288,14 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	}
 	
 	@Override
-	public String trimString(String str, int availableWidth, String ellipsis) {
-		int len = str.length();
+	public String trimString(String text, int availableWidth, String ellipsis) {
+		int len = text.length();
 		if (len <= 0)
-			return str;
+			return text;
 
 		// Text fits inside bounds.
-		if (getTextWidth(str) <= availableWidth)
-			return str;
+		if (getTextWidth(text) <= availableWidth)
+			return text;
 
 		availableWidth -= getTextWidth(ellipsis);
 
@@ -303,7 +305,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 
 		String result = "";
 		for (int i = 0; i < len; i++) {
-			String substr = str.substring(0, i + 1);
+			String substr = text.substring(0, i + 1);
 			if (getTextWidth(substr) >= availableWidth)
 				return result + ellipsis;
 		
@@ -315,59 +317,60 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	}
 	
 	@Override
-	public List<String> splitToLines(String str, int availableWidth) {
+	public List<String> splitToLines(String text, int availableWidth) {
 		List<String> result = new ArrayList<>();
 		
-		int len = str.length();
+		int len = text.length();
 		if (len <= 0)
 			return result;
 		
 		int lineBegin = 0;
 		int lastSpaceIndex = -1;
 		
-		String formattingNextLine = "";
-		String formattingThisLine = formattingNextLine;
-		
 		for (int i = 0; i < len; i++) {
-			char c = str.charAt(i);
-			if (c == FORMATTING_CHAR) {
-				i++;
-				
-				if (i < len) {
-					c = str.charAt(i);
-					if (c == 'r') {
-						formattingNextLine = "";
-					} else {
-						formattingNextLine += Character.toString(FORMATTING_CHAR) + c;
-					}
-				}
-			} else {
-				int lineWidth = (int)Math.ceil(getTextWidth(str.substring(lineBegin, i)));
-				
-				if (c == ' ')
-					lastSpaceIndex = i;
-				
-				if (lineWidth > availableWidth) {
-					if (lastSpaceIndex != -1) {
-						result.add(formattingThisLine + str.substring(lineBegin, lastSpaceIndex));
-						formattingThisLine = formattingNextLine;
-						
-						i = lastSpaceIndex;
-						lineBegin = lastSpaceIndex + 1;
-						
-						lastSpaceIndex = -1;
-					} else {
-						result.add(str.substring(lineBegin, i));
-						lineBegin = i;
-					}
+			char c = text.charAt(i);
+			int lineWidth = (int)Math.ceil(getTextWidth(text.substring(lineBegin, i)));
+			
+			if (c == ' ')
+				lastSpaceIndex = i;
+			
+			if (lineWidth > availableWidth) {
+				if (lastSpaceIndex != -1) {
+					result.add(text.substring(lineBegin, lastSpaceIndex));
+					
+					i = lastSpaceIndex;
+					lineBegin = lastSpaceIndex + 1;
+					
+					lastSpaceIndex = -1;
+				} else {
+					result.add(text.substring(lineBegin, i));
+					lineBegin = i;
 				}
 			}
 		}
 
 		if (lineBegin != len)
-			result.add(formattingThisLine + str.substring(lineBegin));
+			result.add(text.substring(lineBegin));
 		
 		return result;
+	}
+	
+	@Override
+	public OrderedText trimString(Text text, int availableWidth, String ellipsis) {
+		if (getTextWidth(text) <= availableWidth)
+			return text.asOrderedText();
+		
+		availableWidth -= (int)Math.ceil(getTextWidth(ellipsis));
+		
+		StringVisitable trimmed = client.textRenderer.trimToWidth(text, availableWidth);
+		StringVisitable result = StringVisitable.concat(trimmed, new LiteralText(ellipsis));
+		
+		return Language.getInstance().reorder(result);
+	}
+	
+	@Override
+	public List<OrderedText> splitToLines(Text text, int availableWidth) {
+		return client.textRenderer.wrapLines(text, availableWidth);
 	}
 	
 	@Override
