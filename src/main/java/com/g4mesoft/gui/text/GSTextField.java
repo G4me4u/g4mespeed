@@ -72,7 +72,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	}
 	
 	public GSTextField(String text) {
-		if (text != null) {
+		if (text != null && !text.isEmpty()) {
 			textModel = new GSSingleLineTextModel(text.length());
 			textModel.insertText(0, text);
 		} else {
