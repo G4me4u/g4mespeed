@@ -46,16 +46,6 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		this.builder = builder;
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
-		
-		prepareGLState();
-	}
-	
-	private void prepareGLState() {
-		RenderSystem.disableTexture();
-		RenderSystem.shadeModel(GL11.GL_SMOOTH);
-		RenderSystem.enableBlend();
-		RenderSystem.defaultBlendFunc();
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	
 	public void end() {
@@ -65,10 +55,6 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		transformStack.clear();
 		transform.reset();
 		builder = null;
-		
-		RenderSystem.disableBlend();
-		RenderSystem.shadeModel(GL11.GL_FLAT);
-		RenderSystem.enableTexture();
 	}
 
 	@Override
@@ -270,8 +256,9 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		} else {
 			client.textRenderer.draw(text, x + transform.offsetX, y + transform.offsetY, color);
 		}
-		
-		prepareGLState();
+
+		RenderSystem.disableTexture();
+		RenderSystem.enableBlend();
 	}
 	
 	@Override
