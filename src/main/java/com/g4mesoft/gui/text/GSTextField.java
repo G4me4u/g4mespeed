@@ -10,7 +10,7 @@ import com.g4mesoft.gui.GSPanel;
 import com.g4mesoft.gui.event.GSEvent;
 import com.g4mesoft.gui.event.GSIKeyListener;
 import com.g4mesoft.gui.event.GSKeyEvent;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
+import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.gui.screen.Screen;
@@ -110,7 +110,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	public void setPreferredBounds(int x, int y) {
 		GSIRenderer2D renderer = GSElementContext.getRenderer();
 		
-		int textWidth = (int)Math.ceil(renderer.getStringWidth(getText()));
+		int textWidth = (int)Math.ceil(renderer.getTextWidth(getText()));
 		int prefWidth = textWidth + (borderWidth + horizontalMargin) * 2;
 		
 		setPreferredBounds(x, y, prefWidth);
@@ -119,7 +119,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	public void setPreferredBounds(int x, int y, int width) {
 		GSIRenderer2D renderer = GSElementContext.getRenderer();
 
-		int textHeight = renderer.getFontHeight();
+		int textHeight = renderer.getTextHeight();
 		int prefHeight = textHeight + (borderWidth + verticalMargin + VERTICAL_PADDING) * 2;
 		
 		super.setBounds(x, y, width, prefHeight);
@@ -147,7 +147,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			clippedModelStart--;
 			
 			String text = textModel.getText(clippedModelStart, expansionIndex - clippedModelStart);
-			expandedWidth = renderer.getStringWidth(text);
+			expandedWidth = renderer.getTextWidth(text);
 		}
 		
 		return availableWidth - expandedWidth;
@@ -163,7 +163,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			clippedModelEnd++;
 
 			String text = textModel.getText(expansionIndex, clippedModelEnd - expansionIndex);
-			expandedWidth = renderer.getStringWidth(text);
+			expandedWidth = renderer.getTextWidth(text);
 		}
 		
 		return availableWidth - expandedWidth;
@@ -311,17 +311,17 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			return;
 
 		int x = borderWidth + horizontalMargin + clippedViewOffset;
-		int y = (height - renderer.getFontHeight() + 1) / 2;
+		int y = (height - renderer.getTextHeight() + 1) / 2;
 		
 		String text = clippedText;
 		if (clipLength != clippedText.length()) {
 			text = clippedText.substring(clipOffset, clipOffset + clipLength);
 			
 			if (clipOffset != 0)
-				x += renderer.getStringWidth(clippedText.substring(0, clipOffset));
+				x += renderer.getTextWidth(clippedText.substring(0, clipOffset));
 		}
 		
-		renderer.drawString(text, x, y, textColor, true);
+		renderer.drawText(text, x, y, textColor, true);
 	}
 	
 	protected void drawCaretSelection(GSIRenderer2D renderer, int selectStart, int selectEnd) {
@@ -365,13 +365,13 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		GSIRenderer2D renderer = GSElementContext.getRenderer();
 		
 		int offset = location - clippedModelStart;
-		bounds.x += renderer.getStringWidth(clippedText.substring(0, offset));
+		bounds.x += renderer.getTextWidth(clippedText.substring(0, offset));
 		
 		if (offset == clippedText.length()) {
 			bounds.width = 0;
 		} else {
 			String cs = clippedText.substring(offset, offset + 1);
-			bounds.width = (int)Math.ceil(renderer.getStringWidth(cs));
+			bounds.width = (int)Math.ceil(renderer.getTextWidth(cs));
 		}
 		
 		return bounds;
@@ -396,7 +396,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		int index = 0;
 		while (index < clippedText.length()) {
 			String text = clippedText.substring(0, index + 1);
-			int width = (int)Math.ceil(renderer.getStringWidth(text));
+			int width = (int)Math.ceil(renderer.getTextWidth(text));
 			int dist = Math.abs(baseDist - width);
 		
 			if (dist > minimumDist)
@@ -439,7 +439,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			int fieldWidth = width - (borderWidth + horizontalMargin) * 2;
 			
 			GSIRenderer2D renderer = GSElementContext.getRenderer();
-			int clipWidth = (int)Math.ceil(renderer.getStringWidth(clippedText));
+			int clipWidth = (int)Math.ceil(renderer.getTextWidth(clippedText));
 			return (clipWidth + clippedViewOffset <= fieldWidth);
 		}
 		
@@ -588,7 +588,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	private void moveCaretPointX(String removedText, int sign) {
 		GSIRenderer2D renderer = GSElementContext.getRenderer();
 		
-		float tw = renderer.getStringWidth(removedText);
+		float tw = renderer.getTextWidth(removedText);
 		oldCaretPointX += sign * (int)Math.ceil(tw);
 	}
 	

@@ -7,11 +7,14 @@ import com.g4mesoft.gui.event.GSIKeyListener;
 import com.g4mesoft.gui.event.GSIMouseListener;
 import com.g4mesoft.gui.event.GSKeyEvent;
 import com.g4mesoft.gui.event.GSMouseEvent;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.hotkey.GSKeyBinding;
+import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.InputUtil.KeyCode;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListener, GSIKeyListener {
@@ -26,14 +29,13 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	private static final int FONT_COLOR = 0xFFFFFFFF;
 	private static final int HOVERED_BACKGROUND = 0x80000000;//0x66EDEDFF;
 	
-	private static final String RESET_TEXT = "gui.hotkey.reset";
-	private static final String CANCEL_TEXT = "gui.hotkey.cancel";
+	private static final Text RESET_TEXT = new TranslatableText("gui.hotkey.reset");
+	private static final Text CANCEL_TEXT = new TranslatableText("gui.hotkey.cancel");
 	
 	private final GSHotkeyGUI hotkeyGui;
 	private final GSKeyBinding keyBinding;
 	
-	private final String nameTranslationKey;
-	private String localizedKeyCodeName;
+	private final Text nameText;
 
 	private boolean modifyingKeyCode;
 	private final GSButtonPanel modifyButton;
@@ -43,7 +45,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 		this.hotkeyGui = hotkeyGui;
 		this.keyBinding = keyBinding;
 		
-		nameTranslationKey = "hotkey." + keyBinding.getCategory() + "." + keyBinding.getName();
+		nameText = new TranslatableText("hotkey." + keyBinding.getCategory() + "." + keyBinding.getName());
 	
 		resetButton = new GSButtonPanel(RESET_TEXT, () -> {
 			if (modifyingKeyCode) {
@@ -63,8 +65,6 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	public void onBoundsChanged() {
 		super.onBoundsChanged();
 
-		localizedKeyCodeName = keyBinding.getLocalizedName();
-		
 		int by = HOTKEY_PADDING;
 		int rbx = width - RESET_BUTTON_WIDTH - HOTKEY_PADDING;
 		int mbx = rbx - MODIFY_BUTTON_WIDTH - HOTKEY_PADDING;
@@ -100,17 +100,21 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 		resetButton.setEnabled(modifyingKeyCode || !keyBinding.getKeyCode().equals(keyBinding.getDefaultKeyCode()));
 		
 		if (modifyingKeyCode) {
-			resetButton.setTranslationKey(CANCEL_TEXT);
+			resetButton.setText(CANCEL_TEXT);
 		} else {
-			resetButton.setTranslationKey(RESET_TEXT);
+			resetButton.setText(RESET_TEXT);
 		}
 	}
 	
 	private void updateModifyButton() {
+		Text keyName = keyBinding.getLocalizedName();
+		
 		if (modifyingKeyCode) {
-			modifyButton.setLiteralText("> " + Formatting.YELLOW + localizedKeyCodeName + Formatting.RESET + " <");
+			keyName = keyName.copy().formatted(Formatting.YELLOW);
+
+			modifyButton.setText(new LiteralText("> ").append(keyName).append(" <"));
 		} else {
-			modifyButton.setLiteralText(localizedKeyCodeName);
+			modifyButton.setText(keyName);
 		}
 	}
 	
@@ -121,13 +125,12 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 
 		super.render(renderer);
 
-		int ty = (height - renderer.getFontHeight()) / 2;
-		renderer.drawString(i18nTranslate(nameTranslationKey), HOTKEY_PADDING, ty, FONT_COLOR);
+		int ty = (height - renderer.getTextHeight() + 1) / 2;
+		renderer.drawText(nameText, HOTKEY_PADDING, ty, FONT_COLOR);
 	}
 
 	private void setKeyCode(KeyCode keyCode) {
 		keyBinding.setKeyCode(keyCode);
-		localizedKeyCodeName = keyBinding.getLocalizedName();
 		updateButtons();
 	}
 

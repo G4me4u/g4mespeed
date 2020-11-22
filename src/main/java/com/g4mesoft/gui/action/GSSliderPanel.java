@@ -1,10 +1,12 @@
 package com.g4mesoft.gui.action;
 
 import com.g4mesoft.gui.event.GSMouseEvent;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
-import com.g4mesoft.gui.renderer.GSTexture;
+import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.renderer.GSTexture;
 import com.g4mesoft.util.GSMathUtils;
 
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class GSSliderPanel extends GSAbstractTextActionPanel {
@@ -17,12 +19,12 @@ public class GSSliderPanel extends GSAbstractTextActionPanel {
 	
 	private float value;
 	
-	public GSSliderPanel(String translationKey, GSIActionListener listener) {
-		this(translationKey, false, listener);
+	public GSSliderPanel(String text, GSIActionListener listener) {
+		this(new LiteralText(text), listener);
 	}
 
-	public GSSliderPanel(String translationKey, boolean literalText, GSIActionListener listener) {
-		super(translationKey, literalText, listener);
+	public GSSliderPanel(Text text, GSIActionListener listener) {
+		super(text, listener);
 		
 		this.value = 0.0f;
 	}

@@ -8,11 +8,14 @@ import java.util.Map;
 import com.g4mesoft.gui.GSElementContext;
 import com.g4mesoft.gui.GSParentPanel;
 import com.g4mesoft.gui.action.GSButtonPanel;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.gui.scroll.GSIScrollableElement;
 import com.g4mesoft.hotkey.GSIKeyBindingRegisterListener;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
+import com.g4mesoft.renderer.GSIRenderer2D;
+
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public class GSHotkeyGUI extends GSParentPanel implements GSIScrollableElement, GSIKeyBindingRegisterListener {
 
@@ -24,8 +27,8 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollableElement, 
 
 	private static final int BUTTON_WIDTH = 96;
 	
-	private static final String RESET_ALL_TEXT = "gui.hotkey.resetAll";
-	private static final String UNBIND_ALL_TEXT = "gui.hotkey.unbindAll";
+	private static final Text RESET_ALL_TEXT = new TranslatableText("gui.hotkey.resetAll");
+	private static final Text UNBIND_ALL_TEXT = new TranslatableText("gui.hotkey.unbindAll");
 	
 	private final Map<String, GSHotkeyCategoryGUI> hotkeyCategories;
 	
@@ -143,7 +146,7 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollableElement, 
 	
 	private class GSHotkeyCategoryGUI {
 		
-		private final String categoryName;
+		private final Text categoryNameText;
 
 		private final List<GSHotkeyElementGUI> elements;
 		
@@ -152,7 +155,7 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollableElement, 
 		private int w;
 		
 		public GSHotkeyCategoryGUI(String name) {
-			categoryName = "hotkey." + name + ".title";
+			categoryNameText = new TranslatableText("hotkey." + name + ".title");
 			
 			elements = new ArrayList<>();
 		}
@@ -182,7 +185,7 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollableElement, 
 			this.w = w;
 			
 			GSIRenderer2D renderer = GSElementContext.getRenderer();
-			y += CATEGORY_MARGIN + renderer.getFontHeight() + CATEGORY_TITLE_BOTTOM_MARGIN;
+			y += CATEGORY_MARGIN + renderer.getTextHeight() + CATEGORY_TITLE_BOTTOM_MARGIN;
 			
 			for (GSHotkeyElementGUI hotkeyElement : elements) {
 				int h = hotkeyElement.getPreferredHeight();
@@ -194,11 +197,10 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollableElement, 
 		}
 		
 		public void renderTitle(GSIRenderer2D renderer) {
-			String title = i18nTranslate(categoryName);
 			int tx = x + w / 2;
 			int ty = y + CATEGORY_MARGIN;
 
-			renderer.drawCenteredString(title, tx, ty, CATEGORY_TITLE_COLOR);
+			renderer.drawCenteredText(categoryNameText, tx, ty, CATEGORY_TITLE_COLOR);
 		}
 		
 		public void resetAll() {

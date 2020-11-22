@@ -4,6 +4,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.InputUtil.KeyCode;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 
 public class GSKeyBinding {
 
@@ -88,7 +90,7 @@ public class GSKeyBinding {
 		repeatCount = 0;
 	}
 
-	public String getLocalizedName() {
+	public Text getLocalizedName() {
 		String result = null;
 		
 		switch (keyCode.getCategory()) {
@@ -104,7 +106,10 @@ public class GSKeyBinding {
 			break;
 		}
 		
-		return result != null ? result : I18n.translate(keyCode.getName());
+		if (result == null)
+			result = I18n.translate(keyCode.getName());
+	
+		return new LiteralText(result);
 	}
 
 	public boolean isPressed() {

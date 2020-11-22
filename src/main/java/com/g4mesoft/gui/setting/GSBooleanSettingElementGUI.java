@@ -1,19 +1,22 @@
 package com.g4mesoft.gui.setting;
 
 import com.g4mesoft.gui.action.GSToggleSwitchPanel;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
+import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSBooleanSetting;
 
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSetting> {
 
 	private static final int SETTING_HEIGHT = Math.max(16, GSToggleSwitchPanel.SWITCH_HEIGHT);
-
 	private static final int TEXT_MAX_WIDTH = 140;
-	
 	private static final int TOGGLE_WIDTH = GSToggleSwitchPanel.SWITCH_WIDTH;
+
+	private static final Text ENABLED_TEXT = new LiteralText("enabled").formatted(Formatting.GREEN);
+	private static final Text DISABLED_TEXT = new LiteralText("disabled").formatted(Formatting.RED);
 	
 	private final GSToggleSwitchPanel switchWidget;
 	
@@ -32,10 +35,8 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 	public void render(GSIRenderer2D renderer) {
 		super.render(renderer);
 		
-		String name = i18nTranslate(nameTranslationKey);
-		int ty = (getSettingHeight() - renderer.getFontHeight()) / 2;
-		
-		renderer.drawString(name, CONTENT_PADDING, ty, getTextColor());
+		int ty = (getSettingHeight() - renderer.getTextHeight()) / 2;
+		renderer.drawText(nameText, CONTENT_PADDING, ty, getTextColor());
 	}
 	
 	@Override
@@ -67,7 +68,7 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 	}
 
 	@Override
-	public String getFormattedDefault() {
-		return (setting.getDefaultValue() ? (Formatting.GREEN + "enabled") : (Formatting.RED + "disabled")) + Formatting.RESET;
+	public Text getFormattedDefault() {
+		return (setting.getDefaultValue() ? ENABLED_TEXT : DISABLED_TEXT);
 	}
 }

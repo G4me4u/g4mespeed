@@ -8,8 +8,8 @@ import java.util.Map;
 
 import com.g4mesoft.gui.GSElementContext;
 import com.g4mesoft.gui.GSParentPanel;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.gui.scroll.GSIScrollableElement;
+import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.setting.GSISettingChangeListener;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
@@ -22,6 +22,8 @@ import com.g4mesoft.util.GSMathUtils;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
@@ -153,12 +155,12 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 			if (hoveredElement != null) {
 				int descTextWidth = width - settingsWidth - DESC_LINE_MARGIN * 2;
 				
-				String desc = i18nTranslate(hoveredElement.getSettingTranslationName() + ".desc");
-				String def = i18nTranslateFormatted("setting.default", hoveredElement.getFormattedDefault());
+				String desc = i18nTranslate(hoveredElement.getSettingNameText().getKey() + ".desc");
+				String def = i18nTranslateFormatted("setting.default", hoveredElement.getFormattedDefault().asFormattedString());
 				descLines = renderer.splitToLines(desc + " " + def, descTextWidth);
 				
 				int numLines = descLines.size();
-				int minimumDescHeight = numLines * renderer.getFontHeight() + (numLines - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
+				int minimumDescHeight = numLines * renderer.getTextHeight() + (numLines - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
 				
 				targetDescHeight = Math.max(minimumDescHeight, hoveredElement.height);
 				startDescHeight = hoveredElement.height;
@@ -196,12 +198,12 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 			
 			int y = descY + DESC_LINE_MARGIN;
 			for (String line : descLines) {
-				if (y + renderer.getFontHeight() > descY + descHeight)
+				if (y + renderer.getTextHeight() > descY + descHeight)
 					break;
 				
-				renderer.drawString(line, descX + DESC_LINE_MARGIN, y, (DESC_TEXT_COLOR & 0xFFFFFF) | alpha);
+				renderer.drawText(line, descX + DESC_LINE_MARGIN, y, (DESC_TEXT_COLOR & 0xFFFFFF) | alpha);
 
-				y += renderer.getFontHeight() + DESC_LINE_SPACING;
+				y += renderer.getTextHeight() + DESC_LINE_SPACING;
 			}
 		}
 	}
@@ -225,7 +227,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 	private class GSSettingCategoryElement {
 		
 		private final GSSettingCategory category;
-		private final String title;
+		private final Text titleText;
 		
 		private final List<GSSettingElementGUI<?>> settings;
 		
@@ -237,7 +239,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 		public GSSettingCategoryElement(GSSettingCategory category) {
 			this.category = category;
 			
-			title = "setting." + category.getName();
+			titleText = new TranslatableText("setting." + category.getName());
 			
 			settings = new LinkedList<>();
 		}
@@ -294,7 +296,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 			
 			GSIRenderer2D renderer = GSElementContext.getRenderer();
 			
-			y += renderer.getFontHeight();
+			y += renderer.getTextHeight();
 			y += CATEGORY_TITLE_MARGIN_BOTTOM;
 
 			for (GSSettingElementGUI<?> element : settings) {
@@ -330,8 +332,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 		}
 
 		public void render(GSIRenderer2D renderer) {
-			String title = i18nTranslate(this.title);
-			renderer.drawCenteredString(title, x + width / 2, y, CATEGORY_TITLE_COLOR);
+			renderer.drawCenteredText(titleText, x + width / 2, y, CATEGORY_TITLE_COLOR);
 		}
 		
 		public boolean isEmpty() {

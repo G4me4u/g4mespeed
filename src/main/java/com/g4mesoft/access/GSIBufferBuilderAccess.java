@@ -2,7 +2,7 @@ package com.g4mesoft.access;
 
 import java.nio.ByteBuffer;
 
-import com.g4mesoft.gui.renderer.GSClipRect;
+import com.g4mesoft.renderer.GSClipRect;
 
 import net.minecraft.client.render.VertexFormat;
 
@@ -13,14 +13,6 @@ public interface GSIBufferBuilderAccess {
 	public void pushClip(GSClipRect clip);
 
 	public GSClipRect popClip();
-
-	public void setOffset(float offsetX, float offsetY, float offsetZ);
-	
-	public float getOffsetX();
-
-	public float getOffsetY();
-	
-	public float getOffsetZ();
 
 	public float getClipOffsetX();
 

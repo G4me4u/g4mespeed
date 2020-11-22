@@ -7,7 +7,7 @@ import com.g4mesoft.gui.event.GSIKeyListener;
 import com.g4mesoft.gui.event.GSIMouseListener;
 import com.g4mesoft.gui.event.GSKeyEvent;
 import com.g4mesoft.gui.event.GSMouseEvent;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
+import com.g4mesoft.renderer.GSIRenderer2D;
 
 public interface GSIElement extends GSIViewport {
 
