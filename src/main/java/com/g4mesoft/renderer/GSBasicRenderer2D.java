@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.lwjgl.opengl.GL11;
-
 import com.g4mesoft.access.GSIBufferBuilderAccess;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -301,10 +299,10 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	}
 	
 	@Override
-	public List<String> splitToLines(String str, int availableWidth) {
+	public List<String> splitToLines(String text, int availableWidth) {
 		List<String> result = new ArrayList<>();
 		
-		int len = str.length();
+		int len = text.length();
 		if (len <= 0)
 			return result;
 		
@@ -315,12 +313,12 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		String formattingThisLine = formattingNextLine;
 		
 		for (int i = 0; i < len; i++) {
-			char c = str.charAt(i);
+			char c = text.charAt(i);
 			if (c == FORMATTING_CHAR) {
 				i++;
 				
 				if (i < len) {
-					c = str.charAt(i);
+					c = text.charAt(i);
 					if (c == 'r') {
 						formattingNextLine = "";
 					} else {
@@ -328,14 +326,14 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 					}
 				}
 			} else {
-				int lineWidth = (int)Math.ceil(getTextWidth(str.substring(lineBegin, i)));
+				int lineWidth = (int)Math.ceil(getTextWidth(text.substring(lineBegin, i)));
 				
 				if (c == ' ')
 					lastSpaceIndex = i;
 				
 				if (lineWidth > availableWidth) {
 					if (lastSpaceIndex != -1) {
-						result.add(formattingThisLine + str.substring(lineBegin, lastSpaceIndex));
+						result.add(formattingThisLine + text.substring(lineBegin, lastSpaceIndex));
 						formattingThisLine = formattingNextLine;
 						
 						i = lastSpaceIndex;
@@ -343,7 +341,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 						
 						lastSpaceIndex = -1;
 					} else {
-						result.add(str.substring(lineBegin, i));
+						result.add(text.substring(lineBegin, i));
 						lineBegin = i;
 					}
 				}
@@ -351,7 +349,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		}
 
 		if (lineBegin != len)
-			result.add(formattingThisLine + str.substring(lineBegin));
+			result.add(formattingThisLine + text.substring(lineBegin));
 		
 		return result;
 	}

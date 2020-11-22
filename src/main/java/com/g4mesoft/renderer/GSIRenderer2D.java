@@ -119,8 +119,8 @@ public interface GSIRenderer2D extends GSIRenderer {
 
 	public String trimString(String str, int availableWidth, String ellipsis);
 
-	public List<String> splitToLines(String str, int availableWidth);
-	
+	public List<String> splitToLines(String text, int availableWidth);
+
 	default public void vert(float x, float y) {
 		vert(x, y, 0.0f);
 	}
