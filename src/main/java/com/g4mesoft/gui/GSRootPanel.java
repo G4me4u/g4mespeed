@@ -13,9 +13,11 @@ import com.g4mesoft.gui.event.GSIKeyListener;
 import com.g4mesoft.gui.event.GSIMouseListener;
 import com.g4mesoft.gui.event.GSKeyEvent;
 import com.g4mesoft.gui.event.GSMouseEvent;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
+import com.g4mesoft.renderer.GSBasicRenderer2D;
+import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -72,14 +74,13 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 		super.render(matrixStack, mouseX, mouseY, partialTicks);
 
 		GSIRenderer2D renderer = GSElementContext.getRenderer();
-
-		renderer.beginRendering(matrixStack, mouseX, mouseY, partialTicks);
+		((GSBasicRenderer2D)renderer).begin(Tessellator.getInstance().getBuffer(), matrixStack, mouseX, mouseY);
 		
 		preRender(renderer);
 		render(renderer);
 		postRender(renderer);
 
-		renderer.endRendering();
+		((GSBasicRenderer2D)renderer).end();
 	}
 
 	@Override

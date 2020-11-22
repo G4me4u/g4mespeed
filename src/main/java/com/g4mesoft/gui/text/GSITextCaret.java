@@ -1,6 +1,6 @@
 package com.g4mesoft.gui.text;
 
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
+import com.g4mesoft.renderer.GSIRenderer2D;
 
 public interface GSITextCaret {
 

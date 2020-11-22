@@ -3,7 +3,7 @@ package com.g4mesoft.gui;
 import com.g4mesoft.gui.event.GSIButtonStroke;
 import com.g4mesoft.gui.event.GSKeyButtonStroke;
 import com.g4mesoft.gui.event.GSKeyEvent;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
+import com.g4mesoft.renderer.GSIRenderer2D;
 
 public class GSBasePanel extends GSParentPanel {
 

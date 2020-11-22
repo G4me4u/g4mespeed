@@ -1,4 +1,4 @@
-package com.g4mesoft.gui.renderer;
+package com.g4mesoft.renderer;
 
 import net.minecraft.util.Identifier;
 

@@ -10,8 +10,8 @@ import com.g4mesoft.gui.event.GSIButtonStroke;
 import com.g4mesoft.gui.event.GSIMouseListener;
 import com.g4mesoft.gui.event.GSKeyBindingButtonStroke;
 import com.g4mesoft.gui.event.GSMouseEvent;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.hotkey.GSKeyBinding;
+import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -86,11 +86,11 @@ public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
 	}
 
 	private void layoutTabs(GSIRenderer2D renderer) {
-		tabHeight = renderer.getFontHeight() + TAB_VERTICAL_PADDING * 2;
+		tabHeight = renderer.getTextHeight() + TAB_VERTICAL_PADDING * 2;
 
 		for (GSTabEntry tab : tabs) {
 			String title = i18nTranslate(tab.getTitle());
-			int titleWidth = (int)Math.ceil(renderer.getStringWidth(title));
+			int titleWidth = (int)Math.ceil(renderer.getTextWidth(title));
 
 			tab.setDisplayTitle(title);
 			tab.setWidth(titleWidth + TAB_HORIZONTAL_PADDING * 2);
@@ -186,10 +186,10 @@ public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
 		}
 		
 		int xc = tab.getX() + tab.getWidth() / 2;
-		int yc = VERTICAL_MARGIN + (tabHeight - renderer.getFontHeight()) / 2;
+		int yc = VERTICAL_MARGIN + (tabHeight - renderer.getTextHeight()) / 2;
 		
 		int titleColor = selected ? SELECTED_TEXT_COLOR : TAB_TEXT_COLOR;
-		renderer.drawCenteredString(tab.getDisplayTitle(), xc, yc, titleColor);
+		renderer.drawCenteredText(tab.getDisplayTitle(), xc, yc, titleColor);
 
 		if (tabIndex != 0)
 			renderer.drawVLine(tab.getX(), VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);

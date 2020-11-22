@@ -33,6 +33,9 @@ public class GSBasicRenderer3D implements GSIRenderer3D {
 	}
 	
 	public void end() {
+		if (building)
+			throw new IllegalStateException("Renderer is still building");
+		
 		matrixStack.pop();
 
 		matrixStack = null;
@@ -66,8 +69,8 @@ public class GSBasicRenderer3D implements GSIRenderer3D {
 	
 	@Override
 	public void fillCuboid(float x0, float y0, float z0,
-	                     float x1, float y1, float z1,
-	                     float r, float g, float b, float a) {
+	                       float x1, float y1, float z1,
+	                       float r, float g, float b, float a) {
 		
 		if (building && buildingShape != QUADS)
 			throw new IllegalStateException("Building quads is required!");
@@ -88,13 +91,13 @@ public class GSBasicRenderer3D implements GSIRenderer3D {
 		vert(x1, y1, z1).color(r, g, b, a).next();
 		vert(x1, y0, z1).color(r, g, b, a).next();
 
-		// Right Face
+		// Left Face
 		vert(x0, y0, z0).color(r, g, b, a).next();
 		vert(x0, y1, z0).color(r, g, b, a).next();
 		vert(x1, y1, z0).color(r, g, b, a).next();
 		vert(x1, y0, z0).color(r, g, b, a).next();
 
-		// Left Face
+		// Right Face
 		vert(x0, y0, z1).color(r, g, b, a).next();
 		vert(x1, y0, z1).color(r, g, b, a).next();
 		vert(x1, y1, z1).color(r, g, b, a).next();
@@ -118,8 +121,8 @@ public class GSBasicRenderer3D implements GSIRenderer3D {
 
 	@Override
 	public void drawCuboidOutline(float x0, float y0, float z0,
-	                            float x1, float y1, float z1,
-	                            float r, float g, float b, float a) {
+	                              float x1, float y1, float z1,
+	                              float r, float g, float b, float a) {
 		
 		if (building && buildingShape != LINES)
 			throw new IllegalStateException("Building lines is required!");

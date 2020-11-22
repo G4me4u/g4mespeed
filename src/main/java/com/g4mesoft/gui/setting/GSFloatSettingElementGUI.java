@@ -7,6 +7,8 @@ import java.util.Locale;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSFloatSetting;
 
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
 public class GSFloatSettingElementGUI extends GSNumberSettingElementGUI<GSFloatSetting> {
@@ -44,14 +46,14 @@ public class GSFloatSettingElementGUI extends GSNumberSettingElementGUI<GSFloatS
 	protected void updateFieldValue() {
 		if (shouldUseSlider()) {
 			setSliderValue((setting.getValue() - setting.getMinValue()) / (setting.getMaxValue() - setting.getMinValue()));
-			setSliderText(FORMATTER.format(setting.getValue().doubleValue()));
+			setSliderText(new LiteralText(FORMATTER.format(setting.getValue().doubleValue())));
 		} else {
 			setTextFieldValue(String.format(Locale.ENGLISH, "%.3f", setting.getValue()));
 		}
 	}
 	
 	@Override
-	public String getFormattedDefault() {
-		return Formatting.AQUA + FORMATTER.format(setting.getDefaultValue().doubleValue()) + Formatting.RESET;
+	public Text getFormattedDefault() {
+		return new LiteralText(FORMATTER.format(setting.getDefaultValue().doubleValue())).formatted(Formatting.AQUA);
 	}
 }

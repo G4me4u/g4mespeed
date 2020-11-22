@@ -2,9 +2,12 @@ package com.g4mesoft.gui.setting;
 
 import com.g4mesoft.gui.GSParentPanel;
 import com.g4mesoft.gui.action.GSButtonPanel;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
+import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
+
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSParentPanel {
 
@@ -15,7 +18,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	
 	protected static final int RESET_BUTTON_WIDTH = 48;
 	protected static final int RESET_BUTTON_HEIGHT = 20;
-	protected static final String RESET_TEXT = "setting.button.reset";
+	protected static final Text RESET_TEXT = new TranslatableText("setting.button.reset");
 
 	private static final int ENABLED_TEXT_COLOR = 0xFFFFFFFF;
 	private static final int DISABLED_TEXT_COLOR = 0xFFAAAAAA;
@@ -24,7 +27,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	protected final T setting;
 	protected final GSSettingCategory category;
 	
-	protected final String nameTranslationKey;
+	protected final TranslatableText nameText;
 	
 	private final GSButtonPanel resetButton;
 	
@@ -33,9 +36,9 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 		this.setting = setting;
 		this.category = category;
 		
-		nameTranslationKey = "setting." + category.getName() + "." + setting.getName();
+		nameText = new TranslatableText("setting." + category.getName() + "." + setting.getName());
 		
-		resetButton = new GSButtonPanel(RESET_TEXT, false, this::resetSetting);
+		resetButton = new GSButtonPanel(RESET_TEXT, this::resetSetting);
 		add(resetButton);
 	}
 	
@@ -75,7 +78,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 		resetButton.setEnabled(!setting.isDefaultValue() && setting.isEnabledInGui());
 	}
 
-	public abstract String getFormattedDefault();
+	public abstract Text getFormattedDefault();
 
 	protected int getSettingHeight() {
 		return height;
@@ -89,7 +92,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 		return RESET_BUTTON_HEIGHT + CONTENT_PADDING * 2;
 	}
 	
-	public String getSettingTranslationName() {
-		return nameTranslationKey;
+	public TranslatableText getSettingNameText() {
+		return nameText;
 	}
 }

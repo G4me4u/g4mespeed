@@ -2,7 +2,7 @@ package com.g4mesoft.gui.scroll;
 
 import com.g4mesoft.gui.GSIElement;
 import com.g4mesoft.gui.GSParentPanel;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
+import com.g4mesoft.renderer.GSIRenderer2D;
 
 public class GSScrollablePanel extends GSParentPanel {
 
@@ -69,7 +69,7 @@ public class GSScrollablePanel extends GSParentPanel {
 		
 		@Override
 		public void preRender(GSIRenderer2D renderer) {
-			renderer.pushTransform();
+			renderer.pushMatrix();
 			renderer.pushClip(x, y, width, height);
 			renderer.translate(x, y - getScrollOffset());
 		}
@@ -77,7 +77,7 @@ public class GSScrollablePanel extends GSParentPanel {
 		@Override
 		public void postRender(GSIRenderer2D renderer) {
 			renderer.popClip();
-			renderer.popTransform();
+			renderer.popMatrix();
 		}
 		
 		@Override

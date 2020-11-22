@@ -3,6 +3,7 @@ package com.g4mesoft.hotkey;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.InputUtil.Key;
+import net.minecraft.text.Text;
 
 public class GSKeyBinding {
 
@@ -87,8 +88,8 @@ public class GSKeyBinding {
 		repeatCount = 0;
 	}
 
-	public String getLocalizedName() {
-		return keyCode.getLocalizedText().asString();
+	public Text getLocalizedName() {
+		return keyCode.getLocalizedText();
 	}
 
 	public boolean isPressed() {

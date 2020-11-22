@@ -2,8 +2,8 @@ package com.g4mesoft.gui.action;
 
 import com.g4mesoft.gui.event.GSIKeyListener;
 import com.g4mesoft.gui.event.GSKeyEvent;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
-import com.g4mesoft.gui.renderer.GSTexture;
+import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.renderer.GSTexture;
 
 import net.minecraft.util.Identifier;
 

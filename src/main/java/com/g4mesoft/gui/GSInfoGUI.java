@@ -7,7 +7,11 @@ import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionInfoList;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
+import com.g4mesoft.renderer.GSIRenderer2D;
+
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public class GSInfoGUI extends GSParentPanel {
 
@@ -20,10 +24,10 @@ public class GSInfoGUI extends GSParentPanel {
 	
 	private static final int TEXT_SPACING = 5;
 	
-	private static final String SERVER_EXTENSIONS_TITLE = "gui.info.serverExtensionsTitle";
-	private static final String CLIENT_EXTENSIONS_TITLE = "gui.info.clientExtensionsTitle";
-	private static final String EXTENSION_NAME_TEXT     = "gui.info.extensionName";
-	private static final String INVALID_VERSION_TEXT    = "gui.info.invalidVersion";
+	private static final Text SERVER_EXTENSIONS_TITLE = new TranslatableText("gui.info.serverExtensionsTitle");
+	private static final Text CLIENT_EXTENSIONS_TITLE = new TranslatableText("gui.info.clientExtensionsTitle");
+	private static final Text INVALID_VERSION_TEXT    = new TranslatableText("gui.info.invalidVersion");
+	private static final String EXTENSION_NAME_TRANSLATION_KEY = "gui.info.extensionName";
 	
 	private final GSControllerClient client;
 	
@@ -43,7 +47,7 @@ public class GSInfoGUI extends GSParentPanel {
 		int xc = width / 2;
 		int y = height / 2 - renderer.getLineHeight() * numLines / 2 - 10;
 		
-		renderer.drawCenteredString(i18nTranslate(SERVER_EXTENSIONS_TITLE), xc, y, TEXT_COLOR);
+		renderer.drawCenteredText(SERVER_EXTENSIONS_TITLE, xc, y, TEXT_COLOR);
 		y += renderer.getLineHeight();
 
 		for (GSExtensionInfo info : serverInfoList) {
@@ -52,7 +56,7 @@ public class GSInfoGUI extends GSParentPanel {
 		}
 
 		y += renderer.getLineHeight();
-		renderer.drawCenteredString(i18nTranslate(CLIENT_EXTENSIONS_TITLE), xc, y, TEXT_COLOR);
+		renderer.drawCenteredText(CLIENT_EXTENSIONS_TITLE, xc, y, TEXT_COLOR);
 		y += renderer.getLineHeight();
 
 		for (GSExtensionInfo info : clientInfoList) {
@@ -62,13 +66,13 @@ public class GSInfoGUI extends GSParentPanel {
 	}
 	
 	private void drawExtensionInfo(GSIRenderer2D renderer, GSExtensionInfo info, int xc, int y) {
-		String versionString;
+		Text versionText;
 		int versionColor;
 		
 		GSVersion version = info.getVersion();
 
 		if (!version.isInvalid()) {
-			versionString = version.toString();
+			versionText = new LiteralText(version.toString());
 			
 			GSExtensionInfoList clientInfoList = G4mespeedMod.getExtensionInfoList();
 			GSExtensionInfo clientInfo = clientInfoList.getInfo(info.getUniqueId());
@@ -79,17 +83,17 @@ public class GSInfoGUI extends GSParentPanel {
 				versionColor = VERSION_COLOR;
 			}
 		} else {
-			versionString = i18nTranslate(INVALID_VERSION_TEXT);
+			versionText = INVALID_VERSION_TEXT;
 			versionColor = INVALID_VERSION_COLOR;
 		}
 		
-		String prefix = i18nTranslateFormatted(EXTENSION_NAME_TEXT, info.getName());
+		Text prefix = new TranslatableText(EXTENSION_NAME_TRANSLATION_KEY, info.getName());
 
-		float pw = renderer.getStringWidth(prefix) + TEXT_SPACING;
-		float tw = pw + renderer.getStringWidth(versionString);
+		float pw = renderer.getTextWidth(prefix) + TEXT_SPACING;
+		float tw = pw + renderer.getTextWidth(versionText);
 		
 		int tx = xc - (int)(tw / 2.0f);
-		renderer.drawString(prefix, tx, y, EXTENSION_NAME_COLOR);
-		renderer.drawString(versionString, tx + (int)Math.ceil(pw), y, versionColor);
+		renderer.drawText(prefix, tx, y, EXTENSION_NAME_COLOR);
+		renderer.drawText(versionText, tx + (int)Math.ceil(pw), y, versionColor);
 	}
 }

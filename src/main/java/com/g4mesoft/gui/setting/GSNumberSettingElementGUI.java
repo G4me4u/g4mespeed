@@ -2,17 +2,20 @@ package com.g4mesoft.gui.setting;
 
 import com.g4mesoft.gui.action.GSButtonPanel;
 import com.g4mesoft.gui.action.GSSliderPanel;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.gui.text.GSTextField;
+import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
+
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends GSSettingElementGUI<T> {
 
 	private static final int SETTING_HEIGHT = 16;
 	private static final int TEXT_FIELD_HEIGHT = 20;
 	private static final int TEXT_FIELD_MAX_WIDTH = 128;
-	private static final String SET_VALUE_TEXT = "setting.button.set";
+	private static final Text SET_VALUE_TEXT = new TranslatableText("setting.button.set");
 	
 	private static final int TEXT_MAX_WIDTH = 96;
 	
@@ -32,10 +35,8 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	public void render(GSIRenderer2D renderer) {
 		super.render(renderer);
 
-		String name = i18nTranslate(nameTranslationKey);
-		int ty = (getSettingHeight() - renderer.getFontHeight()) / 2;
-		
-		renderer.drawString(name, CONTENT_PADDING, ty, getTextColor());
+		int ty = (getSettingHeight() - renderer.getTextHeight()) / 2;
+		renderer.drawText(nameText, CONTENT_PADDING, ty, getTextColor());
 	}
 	
 	@Override
@@ -153,10 +154,10 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 		if (slider != null)
 			slider.setValue(value);
 	}
-	
-	public void setSliderText(String text) {
+
+	public void setSliderText(Text text) {
 		if (slider != null)
-			slider.setLiteralText(text);
+			slider.setText(text);
 	}
 
 	public void setTextFieldValue(String text) {

@@ -9,13 +9,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSIBufferBuilderAccess;
-import com.g4mesoft.gui.renderer.GSClipAdjuster;
-import com.g4mesoft.gui.renderer.GSClipRect;
-import com.google.common.collect.ImmutableList;
+import com.g4mesoft.renderer.GSClipAdjuster;
+import com.g4mesoft.renderer.GSClipRect;
 
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexFormat;
-import net.minecraft.client.render.VertexFormatElement;
 
 @Mixin(BufferBuilder.class)
 public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
@@ -30,24 +28,12 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	@Shadow private int vertexCount;
 	@Shadow private int elementOffset;
 	
-	private boolean positionFormat;
-	
 	private final GSClipAdjuster adjuster = new GSClipAdjuster();
 
-	@Inject(method = "begin", at = @At("RETURN"))
-	public void begin(int drawMode, VertexFormat format, CallbackInfo ci) {
-		positionFormat = hasPosition(format);
-	}
-	
 	@Inject(method = "next", at = @At("RETURN"))
 	public void onNextReturn(CallbackInfo ci) {
-		if (building && positionFormat && (vertexCount & 0x3 /* % 4 */) == 0)
+		if (building && (vertexCount & 0x3 /* % 4 */) == 0)
 			adjuster.clipPreviousShape((BufferBuilder)(Object)this);
-	}
-
-	private static boolean hasPosition(VertexFormat format) {
-		ImmutableList<VertexFormatElement> elements = format.getElements();
-		return (elements.size() > 0 && elements.get(0).getType() == VertexFormatElement.Type.POSITION);
 	}
 	
 	@Override

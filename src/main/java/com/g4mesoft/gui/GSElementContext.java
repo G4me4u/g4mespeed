@@ -10,9 +10,9 @@ import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.gui.event.GSEventDispatcher;
 import com.g4mesoft.gui.event.GSKeyEvent;
 import com.g4mesoft.gui.event.GSMouseEvent;
-import com.g4mesoft.gui.renderer.GSBasicRenderer2D;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
 import com.g4mesoft.module.translation.GSTranslationModule;
+import com.g4mesoft.renderer.GSBasicRenderer2D;
+import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.SoundInstance;
