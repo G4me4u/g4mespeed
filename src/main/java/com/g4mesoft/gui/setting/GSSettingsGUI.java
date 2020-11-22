@@ -167,7 +167,6 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 				
 				descAnimStart = Util.getMeasuringTimeMs();
 			} else {
-				descLines.clear();
 				descLines = null;
 			}
 		}
