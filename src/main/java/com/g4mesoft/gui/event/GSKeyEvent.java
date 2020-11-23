@@ -252,7 +252,7 @@ public final class GSKeyEvent extends GSEvent {
 		return new GSKeyEvent(KEY_RELEASED_TYPE, keyCode, scanCode, modifiers);
 	}
 
-	public static GSKeyEvent createKeyTypedEvent(int codePoint, int modifiers) {
-		return new GSKeyEvent(KEY_TYPED_TYPE, codePoint, UNKNOWN_SCANCODE, modifiers);
+	public static GSKeyEvent createKeyTypedEvent(int codePoint) {
+		return new GSKeyEvent(KEY_TYPED_TYPE, codePoint, UNKNOWN_SCANCODE, NO_MODIFIERS);
 	}
 }

@@ -2,8 +2,8 @@ package com.g4mesoft.util;
 
 public final class GSMathUtils {
 
-	public static final float  EPSILON_F = 1.0E-5F;
-	public static final double EPSILON_D = 1.0E-5D;
+	public static final float  EPSILON_F = 1.0e-5f;
+	public static final double EPSILON_D = 1.0e-5;
 	
 	public static int clamp(int v, int mn, int mx) {
 		return v < mn ? mn : (v > mx ? mx : v);
