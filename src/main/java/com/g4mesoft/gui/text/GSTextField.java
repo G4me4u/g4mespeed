@@ -257,12 +257,13 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		boolean hasSelection = caret.hasCaretSelection();
 		int textColor = isEditable() ? editableTextColor : uneditableTextColor;
 		
+		// Calculate clip bounds
 		int x0 = borderWidth + horizontalMargin;
 		int y0 = borderWidth + verticalMargin;
 		int x1 = width - x0;
 		int y1 = height - y0;
 		
-		renderer.pushClip(x0, y0, x1, y1);
+		renderer.pushClip(x0, y0, x1 - x0, y1 - y0);
 		
 		// Only draw selection if it is visible
 		if (hasSelection && selectEnd > clippedModelStart && selectStart < clippedModelEnd) {
@@ -340,7 +341,10 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		}
 		
 		if (x0 < x1) {
-			renderer.fillRect(x0, borderWidth, x1 - x0, height - borderWidth * 2, selectionBackgroundColor);
+			int y0 = borderWidth + verticalMargin;
+			int y1 = height - y0;
+			
+			renderer.fillRect(x0, y0, x1 - x0, y1 - y0, selectionBackgroundColor);
 			
 			drawVisibleTextSegment(renderer, selectStart, selectEnd, selectionTextColor);
 		}
@@ -468,7 +472,20 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			} else if (Screen.isPaste(event.getKeyCode())) {
 				pasteFromClipboard();
 				event.consume();
+			} else {
+				checkTypedControlCharacter(event.getKeyCode(), event.getModifiers());
 			}
+		}
+	}
+	
+	private void checkTypedControlCharacter(int key, int modifiers) {
+		switch (key) {
+		case GSKeyEvent.KEY_BACKSPACE:
+			handleTypedCodePoint(BACKSPACE_CONTROL_CHARACTER, modifiers);
+			break;
+		case GSKeyEvent.KEY_DELETE:
+			handleTypedCodePoint(DELETE_CONTROL_CHARACTER, modifiers);
+			break;
 		}
 	}
 	
@@ -486,17 +503,31 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	protected void cutToClipboard() {
 		copyToClipboard();
-		removeCaretSelection();
+		removeSelectionText();
 	}
 	
 	protected void pasteFromClipboard() {
 		String clipboard = GSElementContext.getClipboardString();
 		if (clipboard != null && !clipboard.isEmpty()) {
-			removeCaretSelection();
+			removeSelectionText();
 			
 			int cl = getCaretLocation();
 			if (cl >= 0 && cl <= textModel.getLength())
 				textModel.insertText(cl, clipboard);
+		}
+	}
+	
+	private void removeSelectionText() {
+		if (caret.hasCaretSelection()) {
+			int cs = getCaretSelectionStart();
+			int ce = getCaretSelectionEnd();
+			
+			if (cs >= 0 && ce <= textModel.getLength()) {
+				if (cs != caret.getCaretDot())
+					moveCaretPointX(textModel.getText(cs, ce - cs), -1);
+				
+				textModel.removeText(cs, ce - cs);
+			}
 		}
 	}
 
@@ -513,66 +544,62 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			char c = (char)codePoint;
 			
 			if (isTypeableCharacter(c)) {
-				removeCaretSelection();
-				
-				if (!caret.hasCaretSelection() || !isControlCharacter(c))
+				boolean wasTextSelected = caret.hasCaretSelection();
+				if (wasTextSelected) {
+					// Replace selection by the codePoint.
+					removeSelectionText();
+				}
+
+				if (isControlCharacter(c)) {
+					// Ensure that we do not handle control characters
+					// when we have replaced a selection.
+					if (!wasTextSelected)
+						handleTypedControlChar(getCaretLocation(), c, modifiers);
+				} else {
 					insertTypedChar(getCaretLocation(), c, modifiers);
+				}
 			}
 		}
 	}
 	
-	private boolean isTypeableCharacter(char c) {
+	protected boolean isTypeableCharacter(char c) {
 		if (!isControlCharacter(c))
 			return true;
 		
 		return c == BACKSPACE_CONTROL_CHARACTER ||
 		       c == DELETE_CONTROL_CHARACTER;
 	}
+	
+	protected void handleTypedControlChar(int offset, char c, int modifiers) {
+		switch (c) {
+		case BACKSPACE_CONTROL_CHARACTER:
+			if (offset > 0) {
+				if ((modifiers & GSEvent.MODIFIER_CONTROL) != 0) {
+					removeTextRange(offset, getLocationAfterWord(offset, true));
+				} else {
+					removeTextRange(offset, offset - 1);
+				}
+			}
+			break;
+		case DELETE_CONTROL_CHARACTER:
+			if (offset < textModel.getLength()) {
+				if ((modifiers & GSEvent.MODIFIER_CONTROL) != 0) {
+					removeTextRange(offset, getLocationAfterWord(offset, false));
+				} else {
+					removeTextRange(offset, offset + 1);
+				}
+			}
+			break;
+		}
+	}
 
-	private void removeCaretSelection() {
-		if (caret.hasCaretSelection()) {
-			int cs = getCaretSelectionStart();
-			int ce = getCaretSelectionEnd();
-			
-			if (cs >= 0 && ce <= textModel.getLength()) {
-				if (cs != caret.getCaretDot())
-					moveCaretPointX(textModel.getText(cs, ce - cs), -1);
-				
-				textModel.removeText(cs, ce - cs);
-			}
-		}
+	protected void insertTypedChar(int offset, char c, int modifiers) {
+		textModel.insertChar(offset, c);
+		
+		moveCaretPointX(textModel.getText(offset, 1), 1);
 	}
 	
-	private void insertTypedChar(int offset, char c, int modifiers) {
-		if (isControlCharacter(c)) {
-			switch (c) {
-			case BACKSPACE_CONTROL_CHARACTER:
-				if (offset > 0) {
-					if ((modifiers & GSEvent.MODIFIER_CONTROL) != 0) {
-						removeTextRange(offset, getLocationAfterWord(offset, true));
-					} else {
-						removeTextRange(offset, offset - 1);
-					}
-				}
-				break;
-			case DELETE_CONTROL_CHARACTER:
-				if (offset < textModel.getLength()) {
-					if ((modifiers & GSEvent.MODIFIER_CONTROL) != 0) {
-						removeTextRange(offset, getLocationAfterWord(offset, false));
-					} else {
-						removeTextRange(offset, offset + 1);
-					}
-				}
-				break;
-			}
-		} else {
-			textModel.insertChar(offset, c);
-			
-			moveCaretPointX(textModel.getText(offset, 1), 1);
-		}
-	}
-	
-	private void removeTextRange(int startOffset, int endOffset) {
+	protected final void removeTextRange(int startOffset, int endOffset) {
 		int count = Math.abs(endOffset - startOffset);
 		int offset = Math.min(startOffset, endOffset);
 
@@ -585,7 +612,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		textModel.removeText(offset, count);
 	}
 
-	private void moveCaretPointX(String removedText, int sign) {
+	protected final void moveCaretPointX(String removedText, int sign) {
 		GSIRenderer2D renderer = GSElementContext.getRenderer();
 		
 		float tw = renderer.getTextWidth(removedText);
