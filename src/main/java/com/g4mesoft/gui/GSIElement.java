@@ -12,6 +12,8 @@ import com.g4mesoft.renderer.GSIRenderer2D;
 public interface GSIElement extends GSIViewport {
 
 	public void setBounds(int x, int y, int width, int height);
+
+	public void layout();
 	
 	public boolean isAdded();
 
@@ -90,5 +92,15 @@ public interface GSIElement extends GSIViewport {
 	public GSECursorType getCursor();
 
 	public void setCursor(GSECursorType cursor);
+
+	public GSDimension getMinimumSize();
+
+	public void setMinimumSize(GSDimension minimumSize);
+
+	public GSDimension getPreferredSize();
+
+	public void setPreferredSize(GSDimension preferredSize);
+	
+	public void requestLayout();
 	
 }

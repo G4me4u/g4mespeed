@@ -10,8 +10,21 @@ public class GSParentPanel extends GSPanel implements GSIParentElement {
 
 	private final List<GSIElement> children;
 	
+	private GSILayoutManager layoutManager;
+	private boolean minimumSizeSet;
+	private boolean preferredSizeSet;
+	
 	public GSParentPanel() {
 		children = new ArrayList<>();
+		
+		layoutManager = null;
+		minimumSizeSet = preferredSizeSet = false;
+	}
+	
+	@Override
+	public void layout() {
+		if (layoutManager != null)
+			layoutManager.layoutChildren(this);
 	}
 	
 	@Override
@@ -89,5 +102,45 @@ public class GSParentPanel extends GSPanel implements GSIParentElement {
 	@Override
 	public List<GSIElement> getChildren() {
 		return Collections.unmodifiableList(children);
+	}
+	
+	public GSILayoutManager getLayoutManager() {
+		return layoutManager;
+	}
+
+	public void setLayoutManager(GSILayoutManager layoutManager) {
+		this.layoutManager = layoutManager;
+	
+		requestLayout();
+	}
+	
+	@Override
+	public GSDimension getMinimumSize() {
+		if (!minimumSizeSet && minimumSize == null && layoutManager != null)
+			minimumSize = layoutManager.getMinimumSize(this);
+		
+		return super.getMinimumSize();
+	}
+	
+	@Override
+	public void setMinimumSize(GSDimension minimumSize) {
+		super.setMinimumSize(minimumSize);
+		
+		minimumSizeSet = (minimumSize != null);
+	}
+
+	@Override
+	public GSDimension getPreferredSize() {
+		if (!preferredSizeSet && preferredSize == null && layoutManager != null)
+			preferredSize = layoutManager.getPreferredSize(this);
+		
+		return super.getPreferredSize();
+	}
+	
+	@Override
+	public void setPreferredSize(GSDimension preferredSize) {
+		super.setPreferredSize(preferredSize);
+		
+		preferredSizeSet = (preferredSize != null);
 	}
 }

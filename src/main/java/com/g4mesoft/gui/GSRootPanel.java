@@ -165,6 +165,10 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	}
 	
 	@Override
+	public void layout() {
+	}
+	
+	@Override
 	public boolean isAdded() {
 		return (minecraft.currentScreen == this);
 	}
@@ -356,6 +360,28 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	}
 	
 	@Override
+	public GSDimension getMinimumSize() {
+		return GSDimension.ZERO;
+	}
+
+	@Override
+	public void setMinimumSize(GSDimension minimumSize) {
+	}
+
+	@Override
+	public GSDimension getPreferredSize() {
+		return GSDimension.MAX_VALUE;
+	}
+
+	@Override
+	public void setPreferredSize(GSDimension preferredSize) {
+	}
+
+	@Override
+	public void requestLayout() {
+	}
+	
+	@Override
 	public GSIElement getChildAt(int x, int y) {
 		return content;
 	}
@@ -404,5 +430,14 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	@Override
 	public List<GSIElement> getChildren() {
 		return Collections.singletonList(content);
+	}
+
+	@Override
+	public void setLayoutManager(GSILayoutManager layoutManager) {
+	}
+
+	@Override
+	public GSILayoutManager getLayoutManager() {
+		return null;
 	}
 }

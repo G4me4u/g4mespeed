@@ -39,6 +39,9 @@ public class GSPanel implements GSIElement {
 
 	protected GSECursorType cursor;
 	
+	protected GSDimension minimumSize;
+	protected GSDimension preferredSize;
+	
 	protected GSPanel() {
 		parent = null;
 		
@@ -69,6 +72,10 @@ public class GSPanel implements GSIElement {
 	protected void onBoundsChanged() {
 	}
 
+	@Override
+	public void layout() {
+	}
+	
 	@Override
 	public boolean isAdded() {
 		return (parent != null);
@@ -322,6 +329,37 @@ public class GSPanel implements GSIElement {
 		this.cursor = cursor;
 	}
 	
+	@Override
+	public GSDimension getMinimumSize() {
+		return (minimumSize != null) ? minimumSize : GSDimension.ZERO;
+	}
+
+	@Override
+	public void setMinimumSize(GSDimension minimumSize) {
+		this.minimumSize = minimumSize;
+
+		if (parent != null)
+			parent.requestLayout();
+	}
+
+	@Override
+	public GSDimension getPreferredSize() {
+		return (preferredSize != null) ? preferredSize : GSDimension.MAX_VALUE;
+	}
+	
+	@Override
+	public void setPreferredSize(GSDimension preferredSize) {
+		this.preferredSize = preferredSize;
+		
+		if (parent != null)
+			parent.requestLayout();
+	}
+
+	@Override
+	public void requestLayout() {
+		layout();
+	}
+	
 	protected void putButtonStroke(GSIButtonStroke button, Runnable listener) {
 		if (buttonStrokes == null)
 			buttonStrokes = new LinkedHashMap<>();
@@ -380,7 +418,7 @@ public class GSPanel implements GSIElement {
 	public String i18nTranslateFormatted(String key, Object... args) {
 		return GSElementContext.i18nTranslateFormatted(key, args);
 	}
-
+	
 	@Override
 	public final int hashCode() {
 		return super.hashCode();
