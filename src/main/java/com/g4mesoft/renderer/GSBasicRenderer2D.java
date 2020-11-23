@@ -249,6 +249,9 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 
 	@Override
 	public void drawText(String text, int x, int y, int color, boolean shadowed) {
+		if (building)
+			throw new IllegalStateException("Batches are not supported for drawing text");
+		
 		if (shadowed) {
 			client.textRenderer.drawWithShadow(text, x + transform.offsetX, y + transform.offsetY, color);
 		} else {
