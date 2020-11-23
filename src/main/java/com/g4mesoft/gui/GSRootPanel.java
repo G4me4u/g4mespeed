@@ -75,6 +75,7 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 		super.render(mouseX, mouseY, partialTicks);
 
 		RenderSystem.disableTexture();
+		RenderSystem.disableAlphaTest();
 		RenderSystem.shadeModel(GL11.GL_SMOOTH);
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
@@ -92,6 +93,7 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 		
 		RenderSystem.disableBlend();
 		RenderSystem.shadeModel(GL11.GL_FLAT);
+		RenderSystem.enableAlphaTest();
 		RenderSystem.enableTexture();
 	}
 
