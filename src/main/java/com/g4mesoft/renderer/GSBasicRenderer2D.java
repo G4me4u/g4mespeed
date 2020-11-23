@@ -257,6 +257,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 
 		RenderSystem.disableTexture();
 		RenderSystem.enableBlend();
+		RenderSystem.disableAlphaTest();
 	}
 	
 	@Override
