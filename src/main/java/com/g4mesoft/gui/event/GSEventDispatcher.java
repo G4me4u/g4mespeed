@@ -153,22 +153,25 @@ public class GSEventDispatcher {
 	}
 	
 	private void setFocusedElement(GSIElement element) {
-		if (element != focusedElement) {
-			if (focusedElement != null) {
-				focusedElement.setFocused(false);
+		GSIElement oldFocusedElement = focusedElement;
+
+		if (element != oldFocusedElement) {
+			focusedElement = element;
+
+			if (oldFocusedElement != null) {
+				oldFocusedElement.setFocused(false);
 
 				GSFocusEvent event = GSFocusEvent.createFocusLostEvent();
-				invokeFocusEventListeners(focusedElement, event, GSIFocusEventListener::focusLost);
+				invokeFocusEventListeners(oldFocusedElement, event, GSIFocusEventListener::focusLost);
 			}
 			
-			if (element != null) {
+			// The focused element might have changed from the focus lost event
+			if (element != null && focusedElement == element) {
 				element.setFocused(true);
 
 				GSFocusEvent event = GSFocusEvent.createFocusGainedEvent();
 				invokeFocusEventListeners(element, event, GSIFocusEventListener::focusGained);
 			}
-			
-			focusedElement = element;
 		}
 	}
 	
@@ -319,6 +322,5 @@ public class GSEventDispatcher {
 			this.x = x;
 			this.y = y;
 		}
-		
 	}
 }
