@@ -159,8 +159,8 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollableElement
 				Text def = new TranslatableText("setting.default", hoveredElement.getFormattedDefault());
 				descLines = renderer.splitToLines(desc.append(" ").append(def).asFormattedString(), descTextWidth);
 				
-				int numLines = descLines.size();
-				int minimumDescHeight = numLines * renderer.getTextHeight() + (numLines - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
+				int lineCount = descLines.size();
+				int minimumDescHeight = lineCount * renderer.getTextHeight() + (lineCount - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
 				
 				targetDescHeight = Math.max(minimumDescHeight, hoveredElement.height);
 				startDescHeight = hoveredElement.height;

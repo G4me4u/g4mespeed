@@ -55,6 +55,31 @@ public class GSPanel implements GSIElement {
 	}
 	
 	@Override
+	public GSRectangle getBounds() {
+		return new GSRectangle(x, y, width, height);
+	}
+	
+	@Override
+	public int getX() {
+		return x;
+	}
+
+	@Override
+	public int getY() {
+		return y;
+	}
+
+	@Override
+	public int getWidth() {
+		return width;
+	}
+	
+	@Override
+	public int getHeight() {
+		return height;
+	}
+	
+	@Override
 	public void setBounds(int x, int y, int width, int height) {
 		if (width < 0 || height < 0)
 			throw new IllegalArgumentException("width and height must be non-negative!");
@@ -163,26 +188,6 @@ public class GSPanel implements GSIElement {
 		if (y < this.y || y >= this.y + height)
 			return false;
 		return true;
-	}
-	
-	@Override
-	public int getX() {
-		return x;
-	}
-
-	@Override
-	public int getY() {
-		return y;
-	}
-
-	@Override
-	public int getWidth() {
-		return width;
-	}
-	
-	@Override
-	public int getHeight() {
-		return height;
 	}
 	
 	@Override

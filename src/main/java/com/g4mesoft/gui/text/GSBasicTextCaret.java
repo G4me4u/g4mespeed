@@ -1,9 +1,9 @@
 package com.g4mesoft.gui.text;
 
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.g4mesoft.gui.GSRectangle;
 import com.g4mesoft.gui.event.GSEvent;
 import com.g4mesoft.gui.event.GSIKeyListener;
 import com.g4mesoft.gui.event.GSIMouseListener;
@@ -40,6 +40,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	private static final int DEFAULT_BLINK_RATE   = 500;
 	private static final int DEFAULT_CARET_WIDTH  = 1;
 	private static final int DEFAULT_CARET_INSETS = 0;
+	private static final int DEFAULT_CLICK_RATE   = 500;
 	
 	private static final int DEFAULT_CARET_COLOR = 0xFFFFFFFF;
 	
@@ -62,6 +63,10 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	private int blinkRate;
 	private int blinkTimer;
 	
+	private int clickRate;
+	private int clickCount;
+	private long lastClickTime;
+	
 	private int caretColor;
 	
 	public GSBasicTextCaret() {
@@ -72,8 +77,13 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		caretWidth = DEFAULT_CARET_WIDTH;
 		caretInsets = DEFAULT_CARET_INSETS;
 		
-		blinkRate = DEFAULT_BLINK_RATE;
 		lastFrame = -1L;
+		blinkRate = DEFAULT_BLINK_RATE;
+		blinkTimer = 0;
+		
+		clickRate = DEFAULT_CLICK_RATE;
+		clickCount = 0;
+		lastClickTime = -1L;
 		
 		caretColor = DEFAULT_CARET_COLOR;
 	}
@@ -200,8 +210,10 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	 * @param navX - the x-position of the navigation point
 	 * @param navY - the y-position of the navigation point
 	 * @param modifierFlags - the flags of the currently held modifiers.
+	 * 
+	 * @return True, if the point is inside the field on a valid location
 	 */
-	protected void navigateToPoint(int navX, int navY, int modifierFlags) {
+	protected boolean navigateToPoint(int navX, int navY, int modifierFlags) {
 		int x0 = textField.getBorderWidth();
 		int x1 = textField.getWidth() - textField.getBorderWidth();
 		
@@ -219,9 +231,13 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		if (navX >= x0 && navX < x1 && navY >= 0 && navY < textField.getHeight()) {
 			int navigationIndex = textField.viewToModel(navX, navY);
 			
-			if (navigationIndex != -1)
+			if (navigationIndex != -1) {
 				navigateToLocation(navigationIndex + indexOffset, modifierFlags);
+				return true;
+			}
 		}
+		
+		return false;
 	}
 	
 	@Override
@@ -249,7 +265,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	 * @param renderer - the renderer to paint the caret onto.
 	 */
 	protected void paintCaret(GSIRenderer2D renderer) {
-		Rectangle bounds = textField.modelToView(dot);
+		GSRectangle bounds = textField.modelToView(dot);
 		if (bounds != null) {
 			int mnx = textField.getBorderWidth();
 			int mxx = textField.getWidth() - textField.getBorderWidth() - caretWidth;
@@ -420,6 +436,19 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		
 		blinkTimer = 0;
 	}
+	
+	public int getClickRate() {
+		return clickRate;
+	}
+	
+	public void setClickRate(int clickRate) {
+		if (clickRate < 0)
+			throw new IllegalArgumentException("clickRate < 0");
+	
+		this.clickRate = clickRate;
+		
+		clickCount = 0;
+	}
 
 	/**
 	 * @return The width of the graphical caret.
@@ -477,7 +506,36 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	@Override
 	public void mousePressed(GSMouseEvent event) {
 		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
-			navigateToPoint(event.getX(), event.getY(), getModifierFlags(event.getModifiers()));
+			int oldSelectBegin = Math.min(dot, mark);
+			int oldSelectEnd   = Math.max(dot, mark);
+			
+			if (navigateToPoint(event.getX(), event.getY(), getModifierFlags(event.getModifiers()))) {
+				long now = System.currentTimeMillis();
+				
+				if (dot < oldSelectBegin || dot > oldSelectEnd || (now - lastClickTime) > (long)clickRate) {
+					// Either the user did not click the same selection or
+					// the click interval is too large. Reset click count.
+					clickCount = 0;
+				}
+
+				lastClickTime = now;
+				clickCount++;
+
+				int clickCountMod2 = clickCount & 0x1;
+				if (clickCountMod2 == 0 /*&& clickCount >= 2*/) {
+					// Increment dot by 1 to ensure we do not select multiple
+					// words (make sure the search does not overlap two words).
+					int nextDot = Math.min(dot + 1, textModel.getLength());
+					
+					// Double clicking selects current word
+					setSelection(textField.getLocationAfterWord(nextDot, true),
+					             textField.getLocationAfterWord(dot, false));
+				} else if (clickCountMod2 != 0 && clickCount >= 3) {
+					// Triple clicking selects all
+					setSelection(0, textModel.getLength());
+				}
+			}
+			
 			event.consume();
 		}
 	}

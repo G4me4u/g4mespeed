@@ -160,6 +160,31 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	}
 
 	@Override
+	public GSRectangle getBounds() {
+		return new GSRectangle(0, 0, width, height);
+	}
+	
+	@Override
+	public int getX() {
+		return 0;
+	}
+
+	@Override
+	public int getY() {
+		return 0;
+	}
+
+	@Override
+	public int getWidth() {
+		return width;
+	}
+
+	@Override
+	public int getHeight() {
+		return height;
+	}
+
+	@Override
 	public void setBounds(int x, int y, int width, int height) {
 		throw new IllegalStateException("Root panel can not have bounds set!");
 	}
@@ -236,26 +261,6 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	@Override
 	public boolean isInBounds(int x, int y) {
 		return (x >= 0 && y >= 0 && x < width && y < height);
-	}
-
-	@Override
-	public int getX() {
-		return 0;
-	}
-
-	@Override
-	public int getY() {
-		return 0;
-	}
-
-	@Override
-	public int getWidth() {
-		return width;
-	}
-
-	@Override
-	public int getHeight() {
-		return height;
 	}
 
 	@Override

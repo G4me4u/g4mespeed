@@ -41,10 +41,10 @@ public abstract interface GSIRenderer {
 	public void finish();
 	
 	default public int darkenColor(int color) {
-		int a = (color >> 24) & 0xFF;
-		int r = (color >> 16) & 0xFF;
-		int g = (color >>  8) & 0xFF;
-		int b = (color >>  0) & 0xFF;
+		int a = (color >>> 24) & 0xFF;
+		int r = (color >>> 16) & 0xFF;
+		int g = (color >>>  8) & 0xFF;
+		int b = (color >>>  0) & 0xFF;
 	
 		r = (int)(r * COLOR_DARKEN_FACTOR);
 		g = (int)(g * COLOR_DARKEN_FACTOR);
@@ -54,10 +54,10 @@ public abstract interface GSIRenderer {
 	}
 	
 	default public int brightenColor(int color) {
-		int a = (color >> 24) & 0xFF;
-		int r = (color >> 16) & 0xFF;
-		int g = (color >>  8) & 0xFF;
-		int b = (color >>  0) & 0xFF;
+		int a = (color >>> 24) & 0xFF;
+		int r = (color >>> 16) & 0xFF;
+		int g = (color >>>  8) & 0xFF;
+		int b = (color >>>  0) & 0xFF;
 	
 		int i = (int)(1.0f / (1.0f - COLOR_DARKEN_FACTOR));
 		if (r == 0 && g == 0 && b == 0) {

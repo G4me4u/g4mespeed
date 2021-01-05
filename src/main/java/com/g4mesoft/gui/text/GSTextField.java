@@ -1,12 +1,12 @@
 package com.g4mesoft.gui.text;
 
-import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.g4mesoft.gui.GSECursorType;
 import com.g4mesoft.gui.GSElementContext;
 import com.g4mesoft.gui.GSPanel;
+import com.g4mesoft.gui.GSRectangle;
 import com.g4mesoft.gui.event.GSEvent;
 import com.g4mesoft.gui.event.GSIKeyListener;
 import com.g4mesoft.gui.event.GSKeyEvent;
@@ -328,14 +328,14 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	protected void drawCaretSelection(GSIRenderer2D renderer, int selectStart, int selectEnd) {
 		int x0 = borderWidth;
 		if (selectStart >= clippedModelStart) {
-			Rectangle sBounds = modelToView(selectStart);
+			GSRectangle sBounds = modelToView(selectStart);
 			if (sBounds.x > x0)
 				x0 = sBounds.x;
 		}
 		
 		int x1 = width - borderWidth;
 		if (selectEnd <= clippedModelEnd) {
-			Rectangle eBounds = modelToView(selectEnd);
+			GSRectangle eBounds = modelToView(selectEnd);
 			if (eBounds.x < x1)
 				x1 = eBounds.x;
 		}
@@ -350,12 +350,12 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		}
 	}
 	
-	public Rectangle modelToView(int location) {
+	public GSRectangle modelToView(int location) {
 		// Make sure we're within view
 		if (location < clippedModelStart || location > clippedModelEnd)
 			return null;
 
-		Rectangle bounds = new Rectangle();
+		GSRectangle bounds = new GSRectangle();
 		bounds.x = clippedViewOffset + borderWidth + horizontalMargin;
 		bounds.y = borderWidth + verticalMargin;
 
@@ -418,7 +418,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		int caretLocation = getCaretLocation();
 		
 		if (!clippedModelInvalid) {
-			Rectangle caretBounds = modelToView(caretLocation);
+			GSRectangle caretBounds = modelToView(caretLocation);
 			if (caretBounds != null) {
 				oldCaretPointX = caretBounds.x;
 			} else {

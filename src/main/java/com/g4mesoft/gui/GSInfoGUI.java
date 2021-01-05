@@ -42,10 +42,10 @@ public class GSInfoGUI extends GSParentPanel {
 		Collection<GSExtensionInfo> serverInfoList = client.getServerExtensionInfoList().getAllInfo();
 		Collection<GSExtensionInfo> clientInfoList = G4mespeedMod.getExtensionInfoList().getAllInfo();
 		
-		int numLines = 3 + serverInfoList.size() + clientInfoList.size();
+		int lineCount = 3 + serverInfoList.size() + clientInfoList.size();
 		
 		int xc = width / 2;
-		int y = height / 2 - renderer.getLineHeight() * numLines / 2 - 10;
+		int y = height / 2 - renderer.getLineHeight() * lineCount / 2 - 10;
 		
 		renderer.drawCenteredText(SERVER_EXTENSIONS_TITLE, xc, y, TEXT_COLOR);
 		y += renderer.getLineHeight();

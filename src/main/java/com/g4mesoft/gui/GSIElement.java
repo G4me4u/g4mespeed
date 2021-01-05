@@ -11,6 +11,18 @@ import com.g4mesoft.renderer.GSIRenderer2D;
 
 public interface GSIElement extends GSIViewport {
 
+	public GSRectangle getBounds();
+	
+	public int getX();
+	
+	public int getY();
+	
+	@Override
+	public int getWidth();
+
+	@Override
+	public int getHeight();
+	
 	public void setBounds(int x, int y, int width, int height);
 
 	public void layout();
@@ -38,16 +50,6 @@ public interface GSIElement extends GSIViewport {
 	public GSIElement getChildAt(int x, int y);
 	
 	public boolean isInBounds(int x, int y);
-	
-	public int getX();
-	
-	public int getY();
-	
-	@Override
-	public int getWidth();
-
-	@Override
-	public int getHeight();
 	
 	public void addMouseEventListener(GSIMouseListener eventListener);
 
