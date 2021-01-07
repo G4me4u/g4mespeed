@@ -5,12 +5,15 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.gui.event.GSCompoundButtonStroke;
-import com.g4mesoft.gui.event.GSIButtonStroke;
-import com.g4mesoft.gui.event.GSIMouseListener;
-import com.g4mesoft.gui.event.GSKeyBindingButtonStroke;
-import com.g4mesoft.gui.event.GSMouseEvent;
 import com.g4mesoft.hotkey.GSKeyBinding;
+import com.g4mesoft.panel.GSClosableParentPanel;
+import com.g4mesoft.panel.GSPanel;
+import com.g4mesoft.panel.GSPanelContext;
+import com.g4mesoft.panel.event.GSCompoundButtonStroke;
+import com.g4mesoft.panel.event.GSIButtonStroke;
+import com.g4mesoft.panel.event.GSIMouseListener;
+import com.g4mesoft.panel.event.GSKeyBindingButtonStroke;
+import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.fabricmc.api.EnvType;
@@ -19,7 +22,7 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
 
 @Environment(EnvType.CLIENT)
-public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
+public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListener {
 
 	private static final int TAB_VERTICAL_PADDING = 5;
 	private static final int TAB_HORIZONTAL_PADDING = 5;
@@ -196,7 +199,7 @@ public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
 	}
 
 	private void playClickSound() {
-		GSElementContext.playSound(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+		GSPanelContext.playSound(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 	}
 	
 	@Override

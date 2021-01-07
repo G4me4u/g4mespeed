@@ -265,7 +265,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	
 	@Override
 	public float getTextWidth(Text text) {
-		return getTextWidth(text.asString());
+		return getTextWidth(text.asFormattedString());
 	}
 
 	@Override
