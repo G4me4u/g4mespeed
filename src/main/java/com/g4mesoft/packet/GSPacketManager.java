@@ -53,14 +53,14 @@ public class GSPacketManager {
 		return controller.encodeCustomPayload(GS_IDENTIFIER, buffer);
 	}
 	
-	public <T extends PacketListener> GSIPacket decodePacket(GSICustomPayloadHolder<T> customPayload,
+	public <T extends PacketListener> GSIPacket decodePacket(GSICustomPayloadPacket<T> customPayload,
 	                                                         GSExtensionInfoList extensionInfoList, 
 	                                                         T packetListener, ThreadExecutor<?> executor) {
 		
-		if (!GS_IDENTIFIER.equals(customPayload.getChannelGS()))
+		if (!GS_IDENTIFIER.equals(customPayload.getChannel0()))
 			return null;
 		
-		PacketByteBuf buffer = customPayload.getDataGS();
+		PacketByteBuf buffer = customPayload.getData0();
 
 		try {
 			GSIPacket packet = registryList.createNewPacket(buffer.readLong());

@@ -5,10 +5,10 @@ import net.minecraft.network.listener.PacketListener;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
-public interface GSICustomPayloadHolder<T extends PacketListener> extends Packet<T> {
+public interface GSICustomPayloadPacket<T extends PacketListener> extends Packet<T> {
 
-	public Identifier getChannelGS();
+	public Identifier getChannel0();
 
-	public PacketByteBuf getDataGS();
+	public PacketByteBuf getData0();
 	
 }
