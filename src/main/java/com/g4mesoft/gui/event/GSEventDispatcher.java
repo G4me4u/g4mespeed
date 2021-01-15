@@ -3,19 +3,12 @@ package com.g4mesoft.gui.event;
 import java.util.function.BiConsumer;
 
 import com.g4mesoft.gui.GSECursorType;
-import com.g4mesoft.gui.GSIElement;
 import com.g4mesoft.gui.GSElementContext;
+import com.g4mesoft.gui.GSIElement;
 import com.g4mesoft.gui.GSRootPanel;
 
 public class GSEventDispatcher {
 
-	private static final int BACKSPACE_CONTROL_CHARACTER = 0x08;
-	private static final int TAB_CONTROL_CHARACTER       = 0x09;
-	private static final int NEW_LINE_CONTROL_CHARACTER  = 0x0A;
-	private static final int CONTROL_Z_CONTROL_CHARACTER = 0x1A;
-	private static final int ESCAPE_CONTROL_CHARACTER    = 0x1B;
-	private static final int DELETE_CONTROL_CHARACTER    = 0x7F;
-	
 	private static final int TRANSLATE_TO_ROOT   =  1;
 	private static final int TRANSLATE_FROM_ROOT = -1;
 	
@@ -115,41 +108,15 @@ public class GSEventDispatcher {
 			GSKeyEvent event = GSKeyEvent.createKeyPressedEvent(keyCode, scanCode, modifiers);
 			distributeKeyEvent(focusedElement, event, GSIKeyListener::keyPressed);
 		}
-		
-		checkAndDispatchControlCharacter(keyCode, modifiers);
 	}
 	
-	private void checkAndDispatchControlCharacter(int key, int mods) {
-		switch (key) {
-		case GSKeyEvent.KEY_BACKSPACE:
-			keyTyped(BACKSPACE_CONTROL_CHARACTER, mods);
-			break;
-		case GSKeyEvent.KEY_TAB:
-			keyTyped(TAB_CONTROL_CHARACTER, mods);
-			break;
-		case GSKeyEvent.KEY_ENTER:
-			keyTyped(NEW_LINE_CONTROL_CHARACTER, mods);
-			break;
-		case GSKeyEvent.KEY_Z:
-			if ((mods & GSEvent.MODIFIER_CONTROL) != 0)
-				keyTyped(CONTROL_Z_CONTROL_CHARACTER, mods);
-			break;
-		case GSKeyEvent.KEY_ESCAPE:
-			keyTyped(ESCAPE_CONTROL_CHARACTER, mods);
-			break;
-		case GSKeyEvent.KEY_DELETE:
-			keyTyped(DELETE_CONTROL_CHARACTER, mods);
-			break;
-		}
-	}
-
 	public void keyRepeated(int keyCode, int scanCode, int modifiers) {
 		if (focusedElement != null) {
 			GSKeyEvent event = GSKeyEvent.createKeyRepeatedEvent(keyCode, scanCode, modifiers);
 			distributeKeyEvent(focusedElement, event, GSIKeyListener::keyPressed);
 		}
 	}
-
+	
 	public void keyReleased(int keyCode, int scanCode, int modifiers) {
 		if (focusedElement != null) {
 			GSKeyEvent event = GSKeyEvent.createKeyReleasedEvent(keyCode, scanCode, modifiers);
@@ -157,9 +124,9 @@ public class GSEventDispatcher {
 		}
 	}
 
-	public void keyTyped(int codePoint, int modifiers) {
+	public void keyTyped(int codePoint) {
 		if (focusedElement != null) {
-			GSKeyEvent event = GSKeyEvent.createKeyTypedEvent(codePoint, modifiers);
+			GSKeyEvent event = GSKeyEvent.createKeyTypedEvent(codePoint);
 			distributeKeyEvent(focusedElement, event, GSIKeyListener::keyTyped);
 		}
 	}

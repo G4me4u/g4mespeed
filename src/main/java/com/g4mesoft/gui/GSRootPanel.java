@@ -8,7 +8,6 @@ import org.lwjgl.opengl.GL11;
 import com.g4mesoft.access.GSIKeyboardAccess;
 import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.GSCoreOverride;
-import com.g4mesoft.gui.event.GSEvent;
 import com.g4mesoft.gui.event.GSEventDispatcher;
 import com.g4mesoft.gui.event.GSIFocusEventListener;
 import com.g4mesoft.gui.event.GSIKeyListener;
@@ -154,7 +153,7 @@ public final class GSRootPanel extends Screen implements GSIParentElement {
 	@Override
 	@GSCoreOverride
 	public boolean charTyped(char chr, int keyCode) {
-		GSElementContext.getEventDispatcher().keyTyped((int)chr, GSEvent.NO_MODIFIERS);
+		GSElementContext.getEventDispatcher().keyTyped((int)chr);
 		return true;
 	}
 
