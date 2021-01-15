@@ -39,7 +39,7 @@ public class GSWorldRendererMixin {
 	}
 	
 	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/render/WorldRenderer;renderChunkDebugInfo(Lnet/minecraft/client/render/Camera;)V"))
-	private void onRenderAlwaysOnTop(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
+	private void onRenderTransparentLast(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
 		Collection<GSIRenderable3D> renderables = GSControllerClient.getInstance().getRenderables();
 		
 		if (hasRenderPhase(renderables, GSERenderPhase.TRANSPARENT_LAST)) {
