@@ -1,4 +1,4 @@
-package com.g4mesoft.panel.legend;
+package com.g4mesoft.panel;
 
 public interface GSIActionListener {
 

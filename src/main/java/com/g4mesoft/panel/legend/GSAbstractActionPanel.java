@@ -1,5 +1,6 @@
 package com.g4mesoft.panel.legend;
 
+import com.g4mesoft.panel.GSIActionListener;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.event.GSIMouseListener;

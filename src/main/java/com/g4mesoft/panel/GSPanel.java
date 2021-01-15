@@ -13,6 +13,7 @@ import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSIMouseListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.panel.event.GSMouseEvent;
+import com.g4mesoft.panel.popup.GSDropdown;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 public class GSPanel implements GSIViewport {
@@ -53,9 +54,17 @@ public class GSPanel implements GSIViewport {
 		
 		cursor = GSECursorType.DEFAULT;
 	}
+
+	public void add(GSPanel panel) {
+		throw new UnsupportedOperationException("Not a parent panel");
+	}
 	
-	public GSRectangle getBounds() {
-		return new GSRectangle(x, y, width, height);
+	public void remove(GSPanel panel) {
+		throw new UnsupportedOperationException("Not a parent panel");
+	}
+
+	public void removeAll() {
+		throw new UnsupportedOperationException("Not a parent panel");
 	}
 	
 	public int getX() {
@@ -64,6 +73,10 @@ public class GSPanel implements GSIViewport {
 
 	public int getY() {
 		return y;
+	}
+	
+	public GSLocation getLocation() {
+		return new GSLocation(x, y);
 	}
 
 	@Override
@@ -74,6 +87,18 @@ public class GSPanel implements GSIViewport {
 	@Override
 	public int getHeight() {
 		return height;
+	}
+	
+	public GSDimension getSize() {
+		return new GSDimension(width, height);
+	}
+	
+	public GSRectangle getBounds() {
+		return new GSRectangle(x, y, width, height);
+	}
+	
+	public void setBounds(GSRectangle bounds) {
+		setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 	}
 	
 	public void setBounds(int x, int y, int width, int height) {
@@ -296,7 +321,11 @@ public class GSPanel implements GSIViewport {
 	}
 	
 	public GSDimension getMinimumSize() {
-		return (minimumSize != null) ? minimumSize : GSDimension.ZERO;
+		return (minimumSize != null) ? minimumSize : calculateMinimumSize();
+	}
+
+	protected GSDimension calculateMinimumSize() {
+		return GSDimension.ZERO;
 	}
 
 	public void setMinimumSize(GSDimension minimumSize) {
@@ -307,7 +336,11 @@ public class GSPanel implements GSIViewport {
 	}
 
 	public GSDimension getPreferredSize() {
-		return (preferredSize != null) ? preferredSize : GSDimension.MAX_VALUE;
+		return (preferredSize != null) ? preferredSize : calculatePreferredSize();
+	}
+	
+	protected GSDimension calculatePreferredSize() {
+		return GSDimension.MAX_VALUE;
 	}
 	
 	public void setPreferredSize(GSDimension preferredSize) {
@@ -378,6 +411,10 @@ public class GSPanel implements GSIViewport {
 
 	public String i18nTranslateFormatted(String key, Object... args) {
 		return GSPanelContext.i18nTranslateFormatted(key, args);
+	}
+	
+	public GSDropdown getRightClickMenu() {
+		return null;
 	}
 	
 	@Override

@@ -110,6 +110,10 @@ public final class GSPanelContext {
 		return getContext().getEventDispatcherImpl();
 	}
 	
+	public static GSRootPanel getRootPanel() {
+		return getContext().getRootPanelImpl();
+	}
+	
 	private void disposeImpl() {
 		// Destroy the standard cursors
 		for (Long cursorPtr : standardCursors.values())
@@ -228,6 +232,10 @@ public final class GSPanelContext {
 	
 	private GSEventDispatcher getEventDispatcherImpl() {
 		return eventDispatcher;
+	}
+	
+	private GSRootPanel getRootPanelImpl() {
+		return screen.getRootPanel();
 	}
 	
 	private static GSPanelContext getContext() {

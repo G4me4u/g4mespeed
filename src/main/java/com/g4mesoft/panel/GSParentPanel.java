@@ -8,7 +8,7 @@ import com.g4mesoft.renderer.GSIRenderer2D;
 
 public class GSParentPanel extends GSPanel {
 
-	private final List<GSPanel> children;
+	protected final List<GSPanel> children;
 	
 	private GSILayoutManager layoutManager;
 	private boolean minimumSizeSet;
@@ -37,6 +37,7 @@ public class GSParentPanel extends GSPanel {
 		}
 	}
 	
+	@Override
 	public void add(GSPanel panel) {
 		children.add(panel);
 
@@ -44,11 +45,13 @@ public class GSParentPanel extends GSPanel {
 		panel.setVisible(isVisible());
 	}
 	
+	@Override
 	public void remove(GSPanel panel) {
 		if (children.remove(panel))
 			onChildRemoved(panel);
 	}
 	
+	@Override
 	public void removeAll() {
 		while (!children.isEmpty())
 			onChildRemoved(children.remove(children.size() - 1));
@@ -88,7 +91,10 @@ public class GSParentPanel extends GSPanel {
 	
 	@Override
 	public GSPanel getChildAt(int x, int y) {
-		for (GSPanel child : children) {
+		// Traverse children in reverse direction to match
+		// the order that they are drawn (last on top).
+		for (int i = children.size() - 1; i >= 0; i--) {
+			GSPanel child = children.get(i);
 			if (child.isInBounds(x, y))
 				return child;
 		}

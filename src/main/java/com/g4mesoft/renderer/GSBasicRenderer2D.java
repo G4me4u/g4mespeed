@@ -270,7 +270,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 
 	@Override
 	public void drawText(Text text, int x, int y, int color, boolean shadowed) {
-		drawText(text.asFormattedString(), x, y, color);
+		drawText(text.asFormattedString(), x, y, color, shadowed);
 	}
 	
 	@Override

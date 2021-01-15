@@ -1,5 +1,6 @@
 package com.g4mesoft.panel.legend;
 
+import com.g4mesoft.panel.GSIActionListener;
 import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;

@@ -6,6 +6,8 @@ import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.GSRootPanel;
+import com.g4mesoft.panel.popup.GSDropdown;
+import com.g4mesoft.panel.popup.GSPopup;
 
 public class GSEventDispatcher {
 
@@ -88,6 +90,17 @@ public class GSEventDispatcher {
 			event = translateMouseEvent(focusedPanel, event, TRANSLATE_FROM_ROOT);
 			
 			distributeMouseEvent(focusedPanel, event, GSIMouseListener::mouseReleased);
+			
+			if (!event.isConsumed() && event.getButton() == GSMouseEvent.BUTTON_RIGHT) {
+				GSDropdown dropdown = focusedPanel.getRightClickMenu();
+				
+				if (dropdown != null) {
+					GSPopup popup = new GSPopup(dropdown);
+					// The location is relative to the root panel
+					popup.show(x, y);
+					event.consume();
+				}
+			}
 		}
 	}
 

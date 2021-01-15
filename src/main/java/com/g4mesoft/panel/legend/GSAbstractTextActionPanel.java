@@ -1,5 +1,6 @@
 package com.g4mesoft.panel.legend;
 
+import com.g4mesoft.panel.GSIActionListener;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.minecraft.text.LiteralText;

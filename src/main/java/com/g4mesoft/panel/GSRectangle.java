@@ -14,6 +14,18 @@ public class GSRectangle {
 	public GSRectangle(GSRectangle other) {
 		this(other.x, other.y, other.width, other.height);
 	}
+
+	public GSRectangle(GSLocation location, int width, int height) {
+		this(location.getX(), location.getY(), width, height);
+	}
+
+	public GSRectangle(int x, int y, GSDimension size) {
+		this(x, y, size.getWidth(), size.getHeight());
+	}
+
+	public GSRectangle(GSLocation location, GSDimension size) {
+		this(location.getX(), location.getY(), size.getWidth(), size.getHeight());
+	}
 	
 	public GSRectangle(int x, int y, int width, int height) {
 		this.x = x;
@@ -28,6 +40,14 @@ public class GSRectangle {
 
 	public int getY() {
 		return y;
+	}
+	
+	public GSLocation getLocation() {
+		return new GSLocation(x, y);
+	}
+
+	public void setLocation(GSLocation location) {
+		setLocation(location.getX(), location.getY());
 	}
 	
 	public void setLocation(int x, int y) {
@@ -114,6 +134,10 @@ public class GSRectangle {
 		}
 		
 		return true;
+	}
+	
+	public boolean contains(GSLocation location) {
+		return contains(location.getX(), location.getY());
 	}
 	
 	public boolean contains(int x, int y) {
