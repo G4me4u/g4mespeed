@@ -77,7 +77,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		serverSettings = new GSRemoteSettingManager(this);
 		keyManager = new GSKeyManager();
 		
-		renderables = new LinkedList<GSIRenderable3D>();
+		renderables = new LinkedList<>();
 	}
 
 	public void init(MinecraftClient minecraft) {
