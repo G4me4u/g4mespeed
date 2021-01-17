@@ -26,11 +26,10 @@ public interface GSIScrollable extends GSIViewport {
 	}
 	
 	default public int getScrollOffset(GSPanel parent) {
-		if (parent != null) {
-			GSPanel scrollablePanel = parent.getParent();
-			if (scrollablePanel instanceof GSScrollPanel)
-				return ((GSScrollPanel)scrollablePanel).getScrollOffset();
-		}
+		if (parent instanceof GSScrollPanel.GSScrollContentPanel)
+			parent = parent.getParent();
+		if (parent instanceof GSScrollPanel)
+			return ((GSScrollPanel)parent).getScrollOffset();
 		
 		return 0;
 	}

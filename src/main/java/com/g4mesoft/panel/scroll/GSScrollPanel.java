@@ -43,9 +43,12 @@ public class GSScrollPanel extends GSParentPanel {
 		return (int)scrollBar.getScrollOffset();
 	}
 	
-	private class GSScrollContentPanel extends GSParentPanel implements GSIScrollable {
+	class GSScrollContentPanel extends GSParentPanel implements GSIScrollable {
 		
 		private GSPanel content; 
+		
+		private GSScrollContentPanel() {
+		}
 		
 		public void setContent(GSPanel content) {
 			if (this.content != null)
