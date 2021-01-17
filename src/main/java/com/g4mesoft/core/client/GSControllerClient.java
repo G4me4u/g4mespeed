@@ -164,13 +164,12 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 	
 	public void onDisconnectServer() {
-		serverExtensionInfoList.clearInfo();
-
 		setNetworkHandler(null);
 
 		for (GSIModule module : modules)
 			module.onDisconnectServer();
 	
+		serverExtensionInfoList.clearInfo();
 		serverSettings.clearSettings();
 	}
 

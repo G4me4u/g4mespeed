@@ -198,6 +198,10 @@ public final class GSKeyEvent extends GSEvent {
 		if (keyCode == UNKNOWN_KEY)
 			return false;
 		
+		// Important confirmation keys (should never return true)
+		if (keyCode == KEY_ESCAPE || keyCode == KEY_ENTER)
+			return false;
+		
 		// Optimize the keys that fall into certain ranges.
 		if (keyCode >= KEY_0 && keyCode <= KEY_9)
 			return true;
@@ -230,12 +234,12 @@ public final class GSKeyEvent extends GSEvent {
 		case KEY_KP_SUBTRACT:
 		case KEY_KP_ADD:
 		case KEY_KP_EQUAL:
-
+		
 			return true;
 		default:
 			break;
 		}
-
+		
 		// Fallback to the GLFW GetKeyName function.
 		return (GLFW.glfwGetKeyName(keyCode, scanCode) != null);
 	}

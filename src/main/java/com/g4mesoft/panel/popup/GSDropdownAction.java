@@ -71,7 +71,7 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 		GSIRenderer2D renderer = GSPanelContext.getRenderer();
 
 		int w = 0;
-		// Icon size and margin (left most element)
+		// Icon size and margin (leftmost element)
 		w += ICON_SIZE + ICON_MARGIN;
 		// Add estimated title width
 		w += Math.round(renderer.getTextWidth(title));
@@ -88,7 +88,8 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
 			int mx = event.getX();
 			int my = event.getY();
-			
+			// Ensure mouse position is still inside the panel
+			// to allow the user to "cancel" actions.
 			if (mx >= 0 && my >= 0 && mx < width && my < height) {
 				dispatchActionPerformedEvent();
 				event.consume();

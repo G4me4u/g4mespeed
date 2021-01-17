@@ -47,7 +47,10 @@ public class GSWorldRendererMixin {
 			// depth mask disabled. Fix it here.
 			RenderSystem.depthMask(true);
 			RenderSystem.enableDepthTest();
-	
+
+			// Sometimes face culling is disabled
+			RenderSystem.enableCull();
+			
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();
 			RenderSystem.disableTexture();

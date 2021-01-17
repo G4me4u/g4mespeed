@@ -115,6 +115,9 @@ public final class GSPanelContext {
 	}
 	
 	private void disposeImpl() {
+		// If the screen is currently visible, hide it.
+		if (client.currentScreen == screen)
+			setContent(null);
 		// Destroy the standard cursors
 		for (Long cursorPtr : standardCursors.values())
 			GLFW.glfwDestroyCursor(cursorPtr.longValue());

@@ -54,6 +54,7 @@ public class GSPopup extends GSParentPanel {
 	
 		GSRootPanel rootPanel = GSPanelContext.getRootPanel();
 		rootPanel.add(this, GSRootPanel.POPUP_LAYER);
+		requestFocus();
 	}
 	
 	public void hide() {

@@ -12,7 +12,7 @@ public class GSDropdown extends GSParentPanel {
 	
 	@Override
 	public void add(GSPanel panel) {
-		// Illegal method call to add. Use GSDropdownMenu#addItem instead.
+		// Illegal method call to #add. Use #addItem instead.
 		throw new UnsupportedOperationException("Drop-down menus only support drop-down items.");
 	}
 	
