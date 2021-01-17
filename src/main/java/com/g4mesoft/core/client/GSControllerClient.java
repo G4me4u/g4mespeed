@@ -20,17 +20,17 @@ import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSIModuleManagerServer;
-import com.g4mesoft.gui.GSElementContext;
+import com.g4mesoft.gui.GSHotkeyGUI;
 import com.g4mesoft.gui.GSInfoGUI;
+import com.g4mesoft.gui.GSSettingsGUI;
 import com.g4mesoft.gui.GSTabbedGUI;
-import com.g4mesoft.gui.hotkey.GSHotkeyGUI;
-import com.g4mesoft.gui.scroll.GSScrollablePanel;
-import com.g4mesoft.gui.setting.GSSettingsGUI;
 import com.g4mesoft.hotkey.GSEKeyEventType;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
+import com.g4mesoft.panel.GSPanelContext;
+import com.g4mesoft.panel.scroll.GSScrollPanel;
 import com.g4mesoft.renderer.GSIRenderable3D;
 import com.g4mesoft.setting.GSRemoteSettingManager;
 
@@ -77,7 +77,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		serverSettings = new GSRemoteSettingManager(this);
 		keyManager = new GSKeyManager();
 		
-		renderables = new LinkedList<GSIRenderable3D>();
+		renderables = new LinkedList<>();
 	}
 
 	public void init(MinecraftClient minecraft) {
@@ -88,15 +88,15 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, (key, type) -> {
 			// Use lambda to ensure that tabbedGUI has been initialized.
 			if (type == GSEKeyEventType.PRESS && tabbedGUI != null)
-				GSElementContext.setContent(tabbedGUI);
+				GSPanelContext.setContent(tabbedGUI);
 		}, false);
 
-		GSElementContext.init(minecraft);
+		GSPanelContext.init(minecraft);
 		
 		tabbedGUI = new GSTabbedGUI();
-		tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSScrollablePanel(new GSSettingsGUI(settings)));
-		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSScrollablePanel(new GSSettingsGUI(serverSettings)));
-		tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSScrollablePanel(new GSHotkeyGUI(keyManager)));
+		tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSScrollPanel(new GSSettingsGUI(settings)));
+		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSScrollPanel(new GSSettingsGUI(serverSettings)));
+		tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSScrollPanel(new GSHotkeyGUI(keyManager)));
 		tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
 		
 		onStart();
@@ -164,20 +164,19 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 	
 	public void onDisconnectServer() {
-		serverExtensionInfoList.clearInfo();
-
 		setNetworkHandler(null);
 
 		for (GSIModule module : modules)
 			module.onDisconnectServer();
 	
+		serverExtensionInfoList.clearInfo();
 		serverSettings.clearSettings();
 	}
 
 	public void onClientClose() {
 		keyManager.saveKeys(getHotkeySettingsFile());
 
-		GSElementContext.dispose();
+		GSPanelContext.dispose();
 		
 		onStop();
 	}

@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.tps.GSTpsModule;
-import com.g4mesoft.packet.GSICustomPayloadHolder;
+import com.g4mesoft.packet.GSICustomPayloadPacket;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 
@@ -111,7 +111,7 @@ public class GSClientPlayNetworkHandlerMixin {
 		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
 		
 		@SuppressWarnings("unchecked")
-		GSICustomPayloadHolder<ClientPlayPacketListener> payload = (GSICustomPayloadHolder<ClientPlayPacketListener>)packet;
+		GSICustomPayloadPacket<ClientPlayPacketListener> payload = (GSICustomPayloadPacket<ClientPlayPacketListener>)packet;
 		
 		GSControllerClient controllerClient = GSControllerClient.getInstance();
 		GSIPacket gsPacket = packetManger.decodePacket(payload, controllerClient.getServerExtensionInfoList(), (ClientPlayNetworkHandler)(Object)this, this.client);

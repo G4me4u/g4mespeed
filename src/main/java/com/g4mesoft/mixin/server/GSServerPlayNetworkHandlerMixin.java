@@ -17,7 +17,7 @@ import com.g4mesoft.access.GSINetworkHandlerAccess;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.module.translation.GSTranslationModule;
-import com.g4mesoft.packet.GSICustomPayloadHolder;
+import com.g4mesoft.packet.GSICustomPayloadPacket;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 
@@ -39,7 +39,7 @@ public class GSServerPlayNetworkHandlerMixin implements GSINetworkHandlerAccess 
 		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
 		
 		@SuppressWarnings("unchecked")
-		GSICustomPayloadHolder<ServerPlayPacketListener> payload = (GSICustomPayloadHolder<ServerPlayPacketListener>)packet;
+		GSICustomPayloadPacket<ServerPlayPacketListener> payload = (GSICustomPayloadPacket<ServerPlayPacketListener>)packet;
 		
 		GSControllerServer controllerServer = GSControllerServer.getInstance();
 		GSIPacket gsPacket = packetManger.decodePacket(payload, extensionInfoList, (ServerPlayNetworkHandler)(Object)this, controllerServer.getServer());
