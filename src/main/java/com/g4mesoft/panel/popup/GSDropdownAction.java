@@ -1,6 +1,7 @@
 package com.g4mesoft.panel.popup;
 
 import com.g4mesoft.panel.GSDimension;
+import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.panel.GSIActionListener;
 import com.g4mesoft.panel.GSIcon;
 import com.g4mesoft.panel.GSPanelContext;
@@ -17,6 +18,8 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 	private final Text title;
 	private final GSIActionListener listener;
 	
+	private boolean enabled;
+	
 	public GSDropdownAction(Text text, GSIActionListener listener) {
 		this(null, text, listener);
 	}
@@ -26,6 +29,8 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 		this.title = title;
 		this.listener = listener;
 		
+		enabled = true;
+		
 		addMouseEventListener(this);
 	}
 
@@ -33,20 +38,16 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 	public void render(GSIRenderer2D renderer) {
 		super.render(renderer);
 
-		int backgroundColor = BACKGROUND_COLOR;
-		int textColor = TEXT_COLOR;
-		if (renderer.isMouseInside(0, 0, width, height)) {
-			backgroundColor = HOVERED_BACKGROUND_COLOR;
-			textColor = HOVERED_TEXT_COLOR;
-		}
-		
-		renderer.fillRect(0, 0, width, height, backgroundColor);
-
 		// Layout of an action is:
 		// -------------------------
 		// | I | TEXT          |   |
 		// -------------------------
 		
+		boolean hovered = renderer.isMouseInside(0, 0, width, height);
+		
+		int backgroundColor = (enabled && hovered) ? HOVERED_BACKGROUND_COLOR : BACKGROUND_COLOR;
+		renderer.fillRect(0, 0, width, height, backgroundColor);
+
 		if (icon != null) {
 			// Force allowed icon size to that predefined in GSDropdownItem
 			int iy = Math.max((height - ICON_SIZE) / 2, 0);
@@ -55,6 +56,7 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 	
 		// Center drawn text on y-axis
 		int ty = Math.max((height - renderer.getTextHeight() + 1) / 2, 0);
+		int textColor = enabled ? (hovered ? HOVERED_TEXT_COLOR : TEXT_COLOR) : DISABLED_TEXT_COLOR;
 		renderTitle(renderer, PADDING + ICON_SIZE + ICON_MARGIN, ty, textColor);
 	}
 	
@@ -85,16 +87,24 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 	
 	@Override
 	public void mouseReleased(GSMouseEvent event) {
-		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
+		if (enabled && event.getButton() == GSMouseEvent.BUTTON_LEFT) {
 			int mx = event.getX();
 			int my = event.getY();
 			// Ensure mouse position is still inside the panel
 			// to allow the user to "cancel" actions.
 			if (mx >= 0 && my >= 0 && mx < width && my < height) {
-				dispatchActionPerformedEvent();
+				performAction();
 				event.consume();
 			}
 		}
+	}
+	
+	private void performAction() {
+		dispatchActionPerformedEvent();
+
+		GSDropdown parent = getParentDropdown();
+		if (parent != null)
+			parent.onActionPerformed();
 	}
 	
 	protected void dispatchActionPerformedEvent() {
@@ -104,5 +114,18 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 	
 	public Text getText() {
 		return title;
+	}
+	
+	public boolean isEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+	
+	@Override
+	public GSECursorType getCursor() {
+		return isEnabled() ? GSECursorType.HAND : super.getCursor();
 	}
 }

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.lwjgl.opengl.GL11;
+
 import com.g4mesoft.access.GSIBufferBuilderAccess;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -108,9 +110,12 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	}
 
 	@Override
-	public void fillRectGradient(int x, int y, int width, int height,
-	                             float r0, float g0, float b0, float a0,
-	                             float r1, float g1, float b1, float a1) {
+	public void fillGradient(int x, int y, int width, int height,
+	                         float rtl, float gtl, float btl, float atl,
+	                         float rtr, float gtr, float btr, float atr,
+	                         float rbl, float gbl, float bbl, float abl,
+	                         float rbr, float gbr, float bbr, float abr,
+	                         boolean mirror) {
 		
 		if (building && buildingShape != QUADS)
 			throw new IllegalStateException("Building quads is required!");
@@ -124,10 +129,17 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		float x1 = x0 + width;
 		float y1 = y0 + height;
 
-		vert(x0, y1, DEFAULT_Z_OFFSET).color(r1, g1, b1, a1).next();
-		vert(x1, y1, DEFAULT_Z_OFFSET).color(r1, g1, b1, a1).next();
-		vert(x1, y0, DEFAULT_Z_OFFSET).color(r0, g0, b0, a0).next();
-		vert(x0, y0, DEFAULT_Z_OFFSET).color(r0, g0, b0, a0).next();
+		if (mirror) {
+			vert(x0, y0, DEFAULT_Z_OFFSET).color(rtl, gtl, btl, atl).next();
+			vert(x0, y1, DEFAULT_Z_OFFSET).color(rbl, gbl, bbl, abl).next();
+			vert(x1, y1, DEFAULT_Z_OFFSET).color(rbr, gbr, bbr, abr).next();
+			vert(x1, y0, DEFAULT_Z_OFFSET).color(rtr, gtr, btr, atr).next();
+		} else {
+			vert(x0, y1, DEFAULT_Z_OFFSET).color(rbl, gbl, bbl, abl).next();
+			vert(x1, y1, DEFAULT_Z_OFFSET).color(rbr, gbr, bbr, abr).next();
+			vert(x1, y0, DEFAULT_Z_OFFSET).color(rtr, gtr, btr, atr).next();
+			vert(x0, y0, DEFAULT_Z_OFFSET).color(rtl, gtl, btl, atl).next();
+		}
 
 		if (!wasBuilding)
 			finish();
@@ -259,6 +271,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		}
 
 		RenderSystem.disableTexture();
+		RenderSystem.shadeModel(GL11.GL_SMOOTH);
 		RenderSystem.enableBlend();
 		RenderSystem.disableAlphaTest();
 	}

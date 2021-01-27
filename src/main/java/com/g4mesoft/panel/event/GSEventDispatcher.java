@@ -70,29 +70,40 @@ public class GSEventDispatcher {
 		int x = convertMouseX(mouseX);
 		int y = convertMouseY(mouseY);
 		
-		if (button != GSMouseEvent.UNKNOWN_BUTTON)
-			setFocusedPanel(getTopPanelAt(x, y));
+		GSPanel panel = getTopPanelAt(x, y);
 		
-		if (focusedPanel != null) {
+		if (panel != null) {
+			if (button != GSMouseEvent.UNKNOWN_BUTTON) {
+				// Focus the top-most focusable ancestor of the panel
+				// that was clicked (or the panel itself if focusable).
+				setFocusedPanel(getTopFocusableAncestor(panel));
+			}
+
 			GSMouseEvent event = GSMouseEvent.createMousePressedEvent(x, y, button, modifiers);
-			event = translateMouseEvent(focusedPanel, event, TRANSLATE_FROM_ROOT);
+			event = translateMouseEvent(panel, event, TRANSLATE_FROM_ROOT);
 			
-			distributeMouseEvent(focusedPanel, event, GSIMouseListener::mousePressed);
+			distributeMouseEvent(panel, event, GSIMouseListener::mousePressed);
 		}
+	}
+	
+	private GSPanel getTopFocusableAncestor(GSPanel panel) {
+		while (panel != null && !panel.isFocusable())
+			panel = panel.getParent();
+		return panel;
 	}
 
 	public void mouseReleased(int button, float mouseX, float mouseY, int modifiers) {
-		if (focusedPanel != null) {
-			int x = convertMouseX(mouseX);
-			int y = convertMouseY(mouseY);
-			
-			GSMouseEvent event = GSMouseEvent.createMouseReleasedEvent(x, y, button, modifiers);
-			event = translateMouseEvent(focusedPanel, event, TRANSLATE_FROM_ROOT);
-			
-			distributeMouseEvent(focusedPanel, event, GSIMouseListener::mouseReleased);
+		int x = convertMouseX(mouseX);
+		int y = convertMouseY(mouseY);
+		
+		GSPanelResult result = getTopPanelResultAt(x, y);
+		
+		if (result.panel != null) {
+			GSMouseEvent event = GSMouseEvent.createMouseReleasedEvent(result.x, result.y, button, modifiers);
+			distributeMouseEvent(result.panel, event, GSIMouseListener::mouseReleased);
 			
 			if (!event.isConsumed() && event.getButton() == GSMouseEvent.BUTTON_RIGHT) {
-				GSDropdown dropdown = focusedPanel.getRightClickMenu();
+				GSDropdown dropdown = result.panel.getRightClickMenu();
 				
 				if (dropdown != null) {
 					GSPopup popup = new GSPopup(dropdown);
@@ -145,7 +156,7 @@ public class GSEventDispatcher {
 	}
 	
 	public void requestFocus(GSPanel panel) {
-		if (isChildOfRoot(panel))
+		if (panel.isFocusable() && isChildOfRoot(panel))
 			setFocusedPanel(panel);
 	}
 	

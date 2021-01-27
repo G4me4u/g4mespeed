@@ -1,7 +1,6 @@
 package com.g4mesoft.panel.popup;
 
 import com.g4mesoft.panel.GSDimension;
-import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 public class GSDropdownSeparator extends GSDropdownItem {
@@ -18,12 +17,5 @@ public class GSDropdownSeparator extends GSDropdownItem {
 	@Override
 	public GSDimension calculatePreferredSize() {
 		return new GSDimension(0, 2 * PADDING + 1);
-	}
-	
-	@Override
-	public GSECursorType getCursor() {
-		// Unlike other drop-down items the separator should use
-		// the system default cursor, since it has no functionality.
-		return GSECursorType.DEFAULT;
 	}
 }

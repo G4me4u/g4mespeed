@@ -33,6 +33,7 @@ public class GSPanel implements GSIViewport {
 	
 	private boolean passingEvents;
 	private boolean focused;
+	private boolean focusable;
 	
 	private Map<GSIButtonStroke, Runnable> buttonStrokes;
 	private GSIMouseListener buttonMouseListener;
@@ -51,6 +52,8 @@ public class GSPanel implements GSIViewport {
 		focusEventListeners = null;
 		
 		focused = false;
+		// All panels are focusable by default
+		focusable = true;
 		
 		cursor = GSECursorType.DEFAULT;
 	}
@@ -289,11 +292,19 @@ public class GSPanel implements GSIViewport {
 	}
 	
 	public boolean isFocused() {
-		return focused;
+		return focused && focusable;
 	}
 	
 	public void setFocused(boolean focused) {
 		this.focused = focused;
+	}
+	
+	public boolean isFocusable() {
+		return focusable;
+	}
+
+	public void setFocusable(boolean focusable) {
+		this.focusable = focusable;
 	}
 	
 	public void requestFocus() {

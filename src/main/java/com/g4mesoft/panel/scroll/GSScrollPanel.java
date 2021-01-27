@@ -11,6 +11,8 @@ public class GSScrollPanel extends GSParentPanel {
 
 	public GSScrollPanel() {
 		this(null);
+		
+		setFocusable(false);
 	}
 	
 	public GSScrollPanel(GSPanel content) {
@@ -48,6 +50,7 @@ public class GSScrollPanel extends GSParentPanel {
 		private GSPanel content; 
 		
 		private GSScrollContentPanel() {
+			setFocusable(false);
 		}
 		
 		public void setContent(GSPanel content) {
