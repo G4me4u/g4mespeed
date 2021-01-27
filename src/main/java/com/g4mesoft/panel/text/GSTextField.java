@@ -396,7 +396,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	}
 	
 	@Override
-	public GSDropdown getRightClickMenu() {
+	public GSDropdown getRightClickMenu(int x, int y) {
 		GSDropdown dropdown = new GSDropdown();
 		
 		GSDropdownAction cutAction, copyAction, pasteAction;

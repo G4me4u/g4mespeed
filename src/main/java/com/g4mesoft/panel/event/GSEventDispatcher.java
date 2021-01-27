@@ -103,7 +103,7 @@ public class GSEventDispatcher {
 			distributeMouseEvent(result.panel, event, GSIMouseListener::mouseReleased);
 			
 			if (!event.isConsumed() && event.getButton() == GSMouseEvent.BUTTON_RIGHT) {
-				GSDropdown dropdown = result.panel.getRightClickMenu();
+				GSDropdown dropdown = result.panel.getRightClickMenu(result.x, result.y);
 				
 				if (dropdown != null) {
 					GSPopup popup = new GSPopup(dropdown);
