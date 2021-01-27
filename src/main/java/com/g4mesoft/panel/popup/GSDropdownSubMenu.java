@@ -158,20 +158,15 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 	private GSLocation getPopupLocation() {
 		GSLocation location = getAbsoluteLocation(width, 0);
 		int x = location.getX();
-		int y = location.getY();
 		
-		GSDimension prefSize = popup.getPreferredSize();
+		GSDimension pref = popup.getPreferredSize();
 		GSPanel rootPanel = GSPanelContext.getRootPanel();
-		if (x + prefSize.getWidth() >= rootPanel.getWidth()) {
+		if (x + pref.getWidth() >= rootPanel.getWidth()) {
 			// Move pop-up to the left side
-			x = Math.max(x - width - prefSize.getWidth(), 0);
-		}
-		if (y + prefSize.getHeight() >= rootPanel.getHeight()) {
-			// Force pop-up to be above bottom
-			y = Math.max(rootPanel.getHeight() - prefSize.getHeight(), 0);
+			x = Math.max(x - width - pref.getWidth(), 0);
 		}
 		
-		return new GSLocation(x, y);
+		return new GSLocation(x, location.getY());
 	}
 
 	private void hideSubMenu() {

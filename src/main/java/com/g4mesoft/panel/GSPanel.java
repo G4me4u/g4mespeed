@@ -103,6 +103,10 @@ public class GSPanel implements GSIViewport {
 	public void setBounds(GSRectangle bounds) {
 		setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
 	}
+
+	public void setBounds(GSLocation location, GSDimension size) {
+		setBounds(location.getX(), location.getY(), size.getWidth(), size.getHeight());
+	}
 	
 	public void setBounds(int x, int y, int width, int height) {
 		if (width < 0 || height < 0)

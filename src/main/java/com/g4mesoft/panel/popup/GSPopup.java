@@ -61,12 +61,26 @@ public class GSPopup extends GSParentPanel {
 			return;
 		
 		GSDimension pref = getPreferredSize();
-		setBounds(x, y, pref.getWidth(), pref.getHeight());
+		setBounds(adjustLocation(x, y, pref), pref);
+		
 		super.add(content);
 	
 		GSRootPanel rootPanel = GSPanelContext.getRootPanel();
 		rootPanel.add(this, GSRootPanel.POPUP_LAYER);
 		content.requestFocus();
+	}
+	
+	private GSLocation adjustLocation(int x, int y, GSDimension size) {
+		GSRootPanel rootPanel = GSPanelContext.getRootPanel();
+		if (x + size.getWidth() >= rootPanel.getWidth()) {
+			// Force pop-up to be left of right
+			x = rootPanel.getWidth() - size.getWidth();
+		}
+		if (y + size.getHeight() >= rootPanel.getHeight()) {
+			// Force pop-up to be above bottom
+			y = rootPanel.getHeight() - size.getHeight();
+		}
+		return new GSLocation(x, y);
 	}
 	
 	public void hide() {
