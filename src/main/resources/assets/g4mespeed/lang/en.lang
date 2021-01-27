@@ -20,6 +20,13 @@ setting.button.set=Set
 setting.tps=Tickspeed
 setting.betterPistons=Better Pistons
 
+############ Panels ############
+
+panel.textfield.cut=Cut
+panel.textfield.copy=Copy
+panel.textfield.paste=Paste
+panel.textfield.selectall=Select All
+
 ############ Client Settings ############
 
 setting.tps.shiftPitch=Shift Sound Pitch
