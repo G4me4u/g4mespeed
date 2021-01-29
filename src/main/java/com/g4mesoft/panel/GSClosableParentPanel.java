@@ -38,6 +38,6 @@ public class GSClosableParentPanel extends GSParentPanel implements GSIClosable 
 	}
 	
 	protected void renderBackground(GSIRenderer2D renderer) {
-		renderer.fillRectGradient(0, 0, width, height, BACKGROUND_TOP_COLOR, BACKGROUND_BOTTOM_COLOR);
+		renderer.fillVGradient(0, 0, width, height, BACKGROUND_TOP_COLOR, BACKGROUND_BOTTOM_COLOR);
 	}
 }

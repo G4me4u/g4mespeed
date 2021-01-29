@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.g4mesoft.panel.dropdown.GSDropdown;
 import com.g4mesoft.panel.event.GSEvent;
 import com.g4mesoft.panel.event.GSIButtonStroke;
 import com.g4mesoft.panel.event.GSIFocusEventListener;
@@ -13,7 +14,6 @@ import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSIMouseListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.panel.event.GSMouseEvent;
-import com.g4mesoft.panel.popup.GSDropdown;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 public class GSPanel implements GSIViewport {
@@ -33,6 +33,9 @@ public class GSPanel implements GSIViewport {
 	
 	private boolean passingEvents;
 	private boolean focused;
+	private boolean focusable;
+	
+	private int popupCount;
 	
 	private Map<GSIButtonStroke, Runnable> buttonStrokes;
 	private GSIMouseListener buttonMouseListener;
@@ -51,6 +54,8 @@ public class GSPanel implements GSIViewport {
 		focusEventListeners = null;
 		
 		focused = false;
+		// All panels are focusable by default
+		focusable = true;
 		
 		cursor = GSECursorType.DEFAULT;
 	}
@@ -99,6 +104,10 @@ public class GSPanel implements GSIViewport {
 	
 	public void setBounds(GSRectangle bounds) {
 		setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+	}
+
+	public void setBounds(GSLocation location, GSDimension size) {
+		setBounds(location.getX(), location.getY(), size.getWidth(), size.getHeight());
 	}
 	
 	public void setBounds(int x, int y, int width, int height) {
@@ -289,11 +298,19 @@ public class GSPanel implements GSIViewport {
 	}
 	
 	public boolean isFocused() {
-		return focused;
+		return focused && focusable;
 	}
 	
 	public void setFocused(boolean focused) {
 		this.focused = focused;
+	}
+	
+	public boolean isFocusable() {
+		return focusable;
+	}
+
+	public void setFocusable(boolean focusable) {
+		this.focusable = focusable;
 	}
 	
 	public void requestFocus() {
@@ -303,6 +320,22 @@ public class GSPanel implements GSIViewport {
 	public void unfocus() {
 		if (isFocused())
 			GSPanelContext.unfocus(this);
+	}
+	
+	public boolean hasPopupVisible() {
+		return (popupCount != 0);
+	}
+	
+	/* Visible for GSPopup */
+	void incrementPopupCount() {
+		popupCount++;
+	}
+
+	/* Visible for GSPopup */
+	void decrementPopupCount() {
+		if (popupCount <= 0)
+			throw new IllegalStateException("Popup count must be non-negative");
+		popupCount--;
 	}
 	
 	public boolean isEditingText() {
@@ -413,7 +446,7 @@ public class GSPanel implements GSIViewport {
 		return GSPanelContext.i18nTranslateFormatted(key, args);
 	}
 	
-	public GSDropdown getRightClickMenu() {
+	public GSDropdown getRightClickMenu(int x, int y) {
 		return null;
 	}
 	

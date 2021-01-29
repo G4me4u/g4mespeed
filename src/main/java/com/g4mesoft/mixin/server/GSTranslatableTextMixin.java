@@ -49,6 +49,7 @@ public abstract class GSTranslatableTextMixin {
 			}
 			
 			lastTranslationTimestamp = timestamp;
+			this.translations.clear();
 			
 			try {
 				this.setTranslation(translationModule.getTranslation(key));
@@ -59,6 +60,7 @@ public abstract class GSTranslatableTextMixin {
 				
 				// Make sure we fallback to default
 				this.languageCache = null;
+				lastTranslationTimestamp = -1L;
 			}
 		}
 	}

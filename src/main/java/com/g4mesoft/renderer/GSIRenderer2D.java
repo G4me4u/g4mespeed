@@ -43,26 +43,96 @@ public interface GSIRenderer2D extends GSIRenderer {
 	}
 
 	default public void fillRect(int x, int y, int width, int height, float r, float g, float b, float a) {
-		fillRectGradient(x, y, width, height, r, g, b, a, r, g, b, a);
+		fillGradient(x, y, width, height, r, g, b, a, r, g, b, a, r, g, b, a, r, g, b, a, false);
 	}
+	
+	default public void fillHGradient(int x, int y, int width, int height, int leftColor, int rightColor) {
+		float al = ((leftColor >>> 24) & 0xFF) / 255.0f;
+		float rl = ((leftColor >>> 16) & 0xFF) / 255.0f;
+		float gl = ((leftColor >>>  8) & 0xFF) / 255.0f;
+		float bl = ((leftColor       ) & 0xFF) / 255.0f;
 		
-	default public void fillRectGradient(int x, int y, int width, int height, int topColor, int botColor) {
-		float a0 = ((topColor >>> 24) & 0xFF) / 255.0f;
-		float r0 = ((topColor >>> 16) & 0xFF) / 255.0f;
-		float g0 = ((topColor >>>  8) & 0xFF) / 255.0f;
-		float b0 = ((topColor       ) & 0xFF) / 255.0f;
-
-		float a1 = ((botColor >>> 24) & 0xFF) / 255.0f;
-		float r1 = ((botColor >>> 16) & 0xFF) / 255.0f;
-		float g1 = ((botColor >>>  8) & 0xFF) / 255.0f;
-		float b1 = ((botColor       ) & 0xFF) / 255.0f;
+		float ar = ((rightColor >>> 24) & 0xFF) / 255.0f;
+		float rr = ((rightColor >>> 16) & 0xFF) / 255.0f;
+		float gr = ((rightColor >>>  8) & 0xFF) / 255.0f;
+		float br = ((rightColor       ) & 0xFF) / 255.0f;
 		
-		fillRectGradient(x, y, width, height, r0, g0, b0, a0, r1, g1, b1, a1);
+		fillHGradient(x, y, width, height, rl, gl, bl, al, rr, gr, br, ar);
+	}
+	
+	default public void fillHGradient(int x, int y, int width, int height,
+	                                  float rl, float gl, float bl, float al,
+	                                  float rr, float gr, float br, float ar) {
+		
+		fillGradient(x, y, width, height, rl, gl, bl, al,
+		                                  rr, gr, br, ar,
+		                                  rl, gl, bl, al,
+		                                  rr, gr, br, ar,
+		                                  false);
 	}
 
-	public void fillRectGradient(int x, int y, int width, int height,
-	                             float r0, float g0, float b0, float a0,
-	                             float r1, float g1, float b1, float a1);
+	default public void fillVGradient(int x, int y, int width, int height, int topColor, int botColor) {
+		float at = ((topColor >>> 24) & 0xFF) / 255.0f;
+		float rt = ((topColor >>> 16) & 0xFF) / 255.0f;
+		float gt = ((topColor >>>  8) & 0xFF) / 255.0f;
+		float bt = ((topColor       ) & 0xFF) / 255.0f;
+
+		float ab = ((botColor >>> 24) & 0xFF) / 255.0f;
+		float rb = ((botColor >>> 16) & 0xFF) / 255.0f;
+		float gb = ((botColor >>>  8) & 0xFF) / 255.0f;
+		float bb = ((botColor       ) & 0xFF) / 255.0f;
+		
+		fillVGradient(x, y, width, height, rt, gt, bt, at, rb, gb, bb, ab);
+	}
+
+	default public void fillVGradient(int x, int y, int width, int height,
+	                                  float rt, float gt, float bt, float at,
+	                                  float rb, float gb, float bb, float ab) {
+		
+		fillGradient(x, y, width, height, rt, gt, bt, at, 
+		                                  rt, gt, bt, at,
+		                                  rb, gb, bb, ab,
+		                                  rb, gb, bb, ab,
+		                                  false);
+	}
+	
+	default void fillGradient(int x, int y, int width, int height,
+	                          int tlColor, int trColor, int blColor, int brColor,
+	                          boolean mirror) {
+		
+		float atl = ((tlColor >>> 24) & 0xFF) / 255.0f;
+		float rtl = ((tlColor >>> 16) & 0xFF) / 255.0f;
+		float gtl = ((tlColor >>>  8) & 0xFF) / 255.0f;
+		float btl = ((tlColor       ) & 0xFF) / 255.0f;
+
+		float atr = ((trColor >>> 24) & 0xFF) / 255.0f;
+		float rtr = ((trColor >>> 16) & 0xFF) / 255.0f;
+		float gtr = ((trColor >>>  8) & 0xFF) / 255.0f;
+		float btr = ((trColor       ) & 0xFF) / 255.0f;
+		
+		float abl = ((blColor >>> 24) & 0xFF) / 255.0f;
+		float rbl = ((blColor >>> 16) & 0xFF) / 255.0f;
+		float gbl = ((blColor >>>  8) & 0xFF) / 255.0f;
+		float bbl = ((blColor       ) & 0xFF) / 255.0f;
+
+		float abr = ((brColor >>> 24) & 0xFF) / 255.0f;
+		float rbr = ((brColor >>> 16) & 0xFF) / 255.0f;
+		float gbr = ((brColor >>>  8) & 0xFF) / 255.0f;
+		float bbr = ((brColor       ) & 0xFF) / 255.0f;
+		
+		fillGradient(x, y, width, height, rtl, gtl, btl, atl, 
+		                                  rtr, gtr, btr, atr,
+		                                  rbl, gbl, bbl, abl,
+		                                  rbr, gbr, bbr, abr,
+		                                  mirror);
+	}
+
+	public void fillGradient(int x, int y, int width, int height,
+	                         float rtl, float gtl, float btl, float atl,
+	                         float rtr, float gtr, float btr, float atr,
+	                         float rbl, float gbl, float bbl, float abl,
+	                         float rbr, float gbr, float bbr, float abr,
+	                         boolean mirror);
 
 	public void drawRect(int x, int y, int width, int height, int color);
 

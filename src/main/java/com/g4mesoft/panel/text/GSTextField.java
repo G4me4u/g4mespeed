@@ -7,6 +7,8 @@ import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.GSRectangle;
+import com.g4mesoft.panel.dropdown.GSDropdown;
+import com.g4mesoft.panel.dropdown.GSDropdownAction;
 import com.g4mesoft.panel.event.GSEvent;
 import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
@@ -14,6 +16,8 @@ import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 public class GSTextField extends GSPanel implements GSITextCaretListener, GSITextModelListener, 
                                                     GSIKeyListener {
@@ -37,6 +41,11 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 
 	private static final int BACKSPACE_CONTROL_CHARACTER = 0x08;
 	private static final int DELETE_CONTROL_CHARACTER    = 0x7F;
+	
+	private static final Text CUT_TEXT = new TranslatableText("panel.textfield.cut");
+	private static final Text COPY_TEXT = new TranslatableText("panel.textfield.copy");
+	private static final Text PASTE_TEXT = new TranslatableText("panel.textfield.paste");
+	private static final Text SELECT_ALL_TEXT = new TranslatableText("panel.textfield.selectall");
 	
 	private GSITextModel textModel;
 	private final List<GSIModelChangeListener> modelChangeListeners;
@@ -385,7 +394,28 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	public GSECursorType getCursor() {
 		return GSECursorType.IBEAM;
 	}
+	
+	@Override
+	public GSDropdown getRightClickMenu(int x, int y) {
+		GSDropdown dropdown = new GSDropdown();
+		
+		GSDropdownAction cutAction, copyAction, pasteAction;
+		dropdown.addItem(cutAction = new GSDropdownAction(CUT_TEXT, this::cutToClipboard));
+		dropdown.addItem(copyAction = new GSDropdownAction(COPY_TEXT, this::copyToClipboard));
+		dropdown.addItem(pasteAction = new GSDropdownAction(PASTE_TEXT, this::pasteFromClipboard));
+		dropdown.addSeperator();
+		dropdown.addItem(new GSDropdownAction(SELECT_ALL_TEXT, () -> {
+			caret.setCaretMark(0);
+			caret.setCaretDot(textModel.getLength());
+		}));
 
+		cutAction.setEnabled(caret.hasCaretSelection() && isEditable());
+		copyAction.setEnabled(caret.hasCaretSelection());
+		pasteAction.setEnabled(GSPanelContext.hasClipboardString() && isEditable());
+		
+		return dropdown;
+	}
+	
 	public int viewToModel(int x, int y) {
 		if (x < 0 || x >= width || y < 0 || y >= height)
 			return -1;

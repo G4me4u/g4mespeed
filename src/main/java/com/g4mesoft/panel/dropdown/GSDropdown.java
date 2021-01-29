@@ -1,19 +1,42 @@
-package com.g4mesoft.panel.popup;
+package com.g4mesoft.panel.dropdown;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.g4mesoft.panel.GSDimension;
+import com.g4mesoft.panel.GSIActionListener;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSParentPanel;
+import com.g4mesoft.panel.GSPopup;
+import com.g4mesoft.panel.event.GSFocusEvent;
+import com.g4mesoft.panel.event.GSIFocusEventListener;
+import com.g4mesoft.panel.event.GSIKeyListener;
+import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
-public class GSDropdown extends GSParentPanel {
+public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocusEventListener {
 
 	protected static final int BACKGROUND_COLOR = 0xFF252526;
 	protected static final int VERTICAL_PADDING = 4;
 	
+	private final List<GSIActionListener> actionListeners;
+	
+	public GSDropdown() {
+		actionListeners = new ArrayList<GSIActionListener>();
+		
+		addKeyEventListener(this);
+		addFocusEventListener(this);
+	}
+	
 	@Override
 	public void add(GSPanel panel) {
-		// Illegal method call to #add. Use #addItem instead.
-		throw new UnsupportedOperationException("Drop-down menus only support drop-down items.");
+		if (!(panel instanceof GSDropdownItem))
+			throw new IllegalArgumentException("Drop-down menus only support drop-down items.");
+		addItem((GSDropdownItem)panel);
+	}
+	
+	public void addSeperator() {
+		addItem(new GSDropdownSeparator());
 	}
 	
 	public void addItem(GSDropdownItem item) {
@@ -84,5 +107,49 @@ public class GSDropdown extends GSParentPanel {
 		}
 		
 		return new GSDimension(pw, ph + 2 * VERTICAL_PADDING);
+	}
+	
+	/* Visible for GSDropdownSubMenu */
+	void addActionListener(GSIActionListener listener) {
+		actionListeners.add(listener);
+	}
+
+	/* Visible for GSDropdownSubMenu */
+	void removeActionListener(GSIActionListener listener) {
+		actionListeners.remove(listener);
+	}
+	
+	/* Visible for GSDropdownAction */
+	void onActionPerformed() {
+		hide();
+	}
+	
+	private void hide() {
+		GSPanel parent = getParent();
+		if (parent instanceof GSPopup)
+			((GSPopup)parent).hide();
+
+		actionListeners.forEach(GSIActionListener::actionPerformed);
+	}
+
+	@Override
+	public void keyPressed(GSKeyEvent event) {
+		switch (event.getKeyCode()) {
+		case GSKeyEvent.KEY_ESCAPE:
+		case GSKeyEvent.KEY_ENTER:
+			hide();
+			event.consume();
+			break;
+		default:
+			break;
+		}
+	}
+	
+	@Override
+	public void focusLost(GSFocusEvent event) {
+		if (!hasPopupVisible()) {
+			hide();
+			event.consume();
+		}
 	}
 }

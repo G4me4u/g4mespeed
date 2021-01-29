@@ -5,9 +5,9 @@ import java.util.function.BiConsumer;
 import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
+import com.g4mesoft.panel.GSPopup;
 import com.g4mesoft.panel.GSRootPanel;
-import com.g4mesoft.panel.popup.GSDropdown;
-import com.g4mesoft.panel.popup.GSPopup;
+import com.g4mesoft.panel.dropdown.GSDropdown;
 
 public class GSEventDispatcher {
 
@@ -70,35 +70,45 @@ public class GSEventDispatcher {
 		int x = convertMouseX(mouseX);
 		int y = convertMouseY(mouseY);
 		
-		if (button != GSMouseEvent.UNKNOWN_BUTTON)
-			setFocusedPanel(getTopPanelAt(x, y));
+		GSPanel panel = getTopPanelAt(x, y);
 		
-		if (focusedPanel != null) {
+		if (panel != null) {
+			if (button != GSMouseEvent.UNKNOWN_BUTTON) {
+				// Focus the top-most focusable ancestor of the panel
+				// that was clicked (or the panel itself if focusable).
+				setFocusedPanel(getTopFocusableAncestor(panel));
+			}
+
 			GSMouseEvent event = GSMouseEvent.createMousePressedEvent(x, y, button, modifiers);
-			event = translateMouseEvent(focusedPanel, event, TRANSLATE_FROM_ROOT);
+			event = translateMouseEvent(panel, event, TRANSLATE_FROM_ROOT);
 			
-			distributeMouseEvent(focusedPanel, event, GSIMouseListener::mousePressed);
+			distributeMouseEvent(panel, event, GSIMouseListener::mousePressed);
 		}
+	}
+	
+	private GSPanel getTopFocusableAncestor(GSPanel panel) {
+		while (panel != null && !panel.isFocusable())
+			panel = panel.getParent();
+		return panel;
 	}
 
 	public void mouseReleased(int button, float mouseX, float mouseY, int modifiers) {
-		if (focusedPanel != null) {
-			int x = convertMouseX(mouseX);
-			int y = convertMouseY(mouseY);
-			
-			GSMouseEvent event = GSMouseEvent.createMouseReleasedEvent(x, y, button, modifiers);
-			event = translateMouseEvent(focusedPanel, event, TRANSLATE_FROM_ROOT);
-			
-			distributeMouseEvent(focusedPanel, event, GSIMouseListener::mouseReleased);
+		int x = convertMouseX(mouseX);
+		int y = convertMouseY(mouseY);
+		
+		GSPanelResult result = getTopPanelResultAt(x, y);
+		
+		if (result.panel != null) {
+			GSMouseEvent event = GSMouseEvent.createMouseReleasedEvent(result.x, result.y, button, modifiers);
+			distributeMouseEvent(result.panel, event, GSIMouseListener::mouseReleased);
 			
 			if (!event.isConsumed() && event.getButton() == GSMouseEvent.BUTTON_RIGHT) {
-				GSDropdown dropdown = focusedPanel.getRightClickMenu();
+				GSDropdown dropdown = result.panel.getRightClickMenu(result.x, result.y);
 				
 				if (dropdown != null) {
 					GSPopup popup = new GSPopup(dropdown);
 					// The location is relative to the root panel
-					popup.show(x, y);
-					event.consume();
+					popup.show(result.panel, x, y);
 				}
 			}
 		}
@@ -145,7 +155,7 @@ public class GSEventDispatcher {
 	}
 	
 	public void requestFocus(GSPanel panel) {
-		if (isChildOfRoot(panel))
+		if (panel.isFocusable() && isChildOfRoot(panel))
 			setFocusedPanel(panel);
 	}
 	
@@ -179,7 +189,7 @@ public class GSEventDispatcher {
 			}
 			
 			// The focused panel might have changed from the focus lost event
-			if (panel != null && focusedPanel == panel) {
+			if (panel != null && focusedPanel == panel && !panel.isFocused()) {
 				panel.setFocused(true);
 
 				GSFocusEvent event = GSFocusEvent.createFocusGainedEvent();
@@ -198,7 +208,7 @@ public class GSEventDispatcher {
 		
 		return event;
 	}
-
+	
 	private GSPanel getTopPanelAt(int x, int y) {
 		return getTopPanelResultAt(x, y).panel;
 	}

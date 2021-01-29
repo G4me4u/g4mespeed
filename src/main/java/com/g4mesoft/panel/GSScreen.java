@@ -67,8 +67,6 @@ final class GSScreen extends Screen {
 	@Override
 	@GSCoreOverride
 	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-		super.render(matrixStack, mouseX, mouseY, partialTicks);
-
 		RenderSystem.disableTexture();
 		RenderSystem.disableAlphaTest();
 		RenderSystem.shadeModel(GL11.GL_SMOOTH);
