@@ -70,6 +70,10 @@ public final class GSPanelContext {
 		getContext().setClipboardStringImpl(clipboard);
 	}
 	
+	public static boolean hasClipboardString() {
+		return getContext().hasClipboardStringImpl();
+	}
+	
 	public static boolean hasI18nTranslation(String key) {
 		return getContext().hasI18nTranslationImpl(key);
 	}
@@ -191,6 +195,10 @@ public final class GSPanelContext {
 
 	private void setClipboardStringImpl(String clipboard) {
 		client.keyboard.setClipboard(clipboard);
+	}
+	
+	private boolean hasClipboardStringImpl() {
+		return !getClipboardString().isEmpty();
 	}
 
 	private boolean hasI18nTranslationImpl(String key) {

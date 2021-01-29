@@ -411,7 +411,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 
 		cutAction.setEnabled(caret.hasCaretSelection() && isEditable());
 		copyAction.setEnabled(caret.hasCaretSelection());
-		pasteAction.setEnabled(isEditable());
+		pasteAction.setEnabled(GSPanelContext.hasClipboardString() && isEditable());
 		
 		return dropdown;
 	}
