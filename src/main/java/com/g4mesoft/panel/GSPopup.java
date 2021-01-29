@@ -1,11 +1,5 @@
-package com.g4mesoft.panel.popup;
+package com.g4mesoft.panel;
 
-import com.g4mesoft.panel.GSDimension;
-import com.g4mesoft.panel.GSLocation;
-import com.g4mesoft.panel.GSPanel;
-import com.g4mesoft.panel.GSPanelContext;
-import com.g4mesoft.panel.GSParentPanel;
-import com.g4mesoft.panel.GSRootPanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.minecraft.client.render.VertexFormats;
@@ -18,11 +12,29 @@ public class GSPopup extends GSParentPanel {
 	private static final int SHADOW_COLOR = 0x80000000;
 	
 	private final GSPanel content;
+	private GSPanel source;
 	
 	public GSPopup(GSPanel content) {
 		if (content == null)
 			throw new IllegalArgumentException("content is null");
 		this.content = content;
+		source = null;
+	}
+	
+	@Override
+	public void onAdded(GSPanel parent) {
+		super.onAdded(parent);
+
+		if (source != null)
+			source.incrementPopupCount();
+	}
+
+	@Override
+	public void onRemoved(GSPanel parent) {
+		super.onRemoved(parent);
+		
+		if (source != null)
+			source.decrementPopupCount();
 	}
 	
 	@Override
@@ -52,13 +64,15 @@ public class GSPopup extends GSParentPanel {
 		return content.getPreferredSize();
 	}
 
-	public void show(GSLocation location) {
-		show(location.getX(), location.getY());
+	public void show(GSPanel source, GSLocation location) {
+		show(source, location.getX(), location.getY());
 	}
 	
-	public void show(int x, int y) {
+	public void show(GSPanel source, int x, int y) {
 		if (getParent() != null)
 			return;
+		
+		this.source = source;
 		
 		GSDimension pref = getPreferredSize();
 		setBounds(adjustLocation(x, y, pref), pref);
@@ -87,7 +101,13 @@ public class GSPopup extends GSParentPanel {
 		GSPanel parent = getParent();
 		if (parent != null)
 			parent.remove(this);
+		
 		super.remove(content);
+
+		if (source != null) {
+			source.requestFocus();
+			source = null;
+		}
 	}
 	
 	@Override

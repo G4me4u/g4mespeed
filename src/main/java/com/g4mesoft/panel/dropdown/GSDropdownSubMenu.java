@@ -1,4 +1,4 @@
-package com.g4mesoft.panel.popup;
+package com.g4mesoft.panel.dropdown;
 
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSECursorType;
@@ -7,6 +7,7 @@ import com.g4mesoft.panel.GSIcon;
 import com.g4mesoft.panel.GSLocation;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
+import com.g4mesoft.panel.GSPopup;
 import com.g4mesoft.panel.GSRectangle;
 import com.g4mesoft.panel.event.GSIMouseListener;
 import com.g4mesoft.panel.event.GSMouseEvent;
@@ -143,15 +144,8 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 	}
 	
 	private void showSubMenu() {
-		GSDropdown parent = getParentDropdown();
-		if (parent != null) {
-			// When the new pop-up is shown, the parent
-			// drop-down will lose focus.
-			parent.setHideOnFocusLost(false);
-		}
-		
 		popup = new GSPopup(dropdown);
-		popup.show(getPopupLocation());
+		popup.show(getParent(), getPopupLocation());
 		dropdown.addActionListener(actionListener);
 	}
 	
@@ -173,14 +167,6 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 		dropdown.removeActionListener(actionListener);
 		popup.hide();
 		popup = null;
-		
-		GSDropdown parent = getParentDropdown();
-		if (parent != null) {
-			// Request focus on parent drop-down before
-			// setting hide on focus lost to true.
-			parent.requestFocus();
-			parent.setHideOnFocusLost(true);
-		}
 	}
 	
 	private GSLocation getAbsoluteLocation(int x, int y) {
@@ -219,9 +205,9 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 		
 		@Override
 		public void actionPerformed() {
-			GSDropdown parent = getParentDropdown();
-			if (parent != null)
-				parent.onActionPerformed();
+			GSPanel parent = getParent();
+			if (parent instanceof GSDropdown)
+				((GSDropdown)parent).onActionPerformed();
 		}
 	}
 }

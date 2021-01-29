@@ -5,9 +5,9 @@ import java.util.function.BiConsumer;
 import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
+import com.g4mesoft.panel.GSPopup;
 import com.g4mesoft.panel.GSRootPanel;
-import com.g4mesoft.panel.popup.GSDropdown;
-import com.g4mesoft.panel.popup.GSPopup;
+import com.g4mesoft.panel.dropdown.GSDropdown;
 
 public class GSEventDispatcher {
 
@@ -108,8 +108,7 @@ public class GSEventDispatcher {
 				if (dropdown != null) {
 					GSPopup popup = new GSPopup(dropdown);
 					// The location is relative to the root panel
-					popup.show(x, y);
-					event.consume();
+					popup.show(result.panel, x, y);
 				}
 			}
 		}
@@ -190,7 +189,7 @@ public class GSEventDispatcher {
 			}
 			
 			// The focused panel might have changed from the focus lost event
-			if (panel != null && focusedPanel == panel) {
+			if (panel != null && focusedPanel == panel && !panel.isFocused()) {
 				panel.setFocused(true);
 
 				GSFocusEvent event = GSFocusEvent.createFocusGainedEvent();
@@ -209,7 +208,7 @@ public class GSEventDispatcher {
 		
 		return event;
 	}
-
+	
 	private GSPanel getTopPanelAt(int x, int y) {
 		return getTopPanelResultAt(x, y).panel;
 	}

@@ -7,11 +7,11 @@ import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.GSRectangle;
+import com.g4mesoft.panel.dropdown.GSDropdown;
+import com.g4mesoft.panel.dropdown.GSDropdownAction;
 import com.g4mesoft.panel.event.GSEvent;
 import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
-import com.g4mesoft.panel.popup.GSDropdown;
-import com.g4mesoft.panel.popup.GSDropdownAction;
 import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.util.GSMathUtils;
 

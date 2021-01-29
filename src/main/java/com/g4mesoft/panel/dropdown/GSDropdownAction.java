@@ -1,9 +1,10 @@
-package com.g4mesoft.panel.popup;
+package com.g4mesoft.panel.dropdown;
 
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.panel.GSIActionListener;
 import com.g4mesoft.panel.GSIcon;
+import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.GSRectangle;
 import com.g4mesoft.panel.event.GSIMouseListener;
@@ -102,9 +103,9 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 	private void performAction() {
 		dispatchActionPerformedEvent();
 
-		GSDropdown parent = getParentDropdown();
-		if (parent != null)
-			parent.onActionPerformed();
+		GSPanel parent = getParent();
+		if (parent instanceof GSDropdown)
+			((GSDropdown)parent).onActionPerformed();
 	}
 	
 	protected void dispatchActionPerformedEvent() {

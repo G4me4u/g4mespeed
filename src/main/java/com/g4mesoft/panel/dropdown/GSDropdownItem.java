@@ -1,4 +1,4 @@
-package com.g4mesoft.panel.popup;
+package com.g4mesoft.panel.dropdown;
 
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSPanel;
@@ -24,10 +24,4 @@ public abstract class GSDropdownItem extends GSPanel {
 	@Override
 	public abstract GSDimension calculatePreferredSize();
 
-	protected GSDropdown getParentDropdown() {
-		GSPanel parent = getParent();
-		if (parent instanceof GSDropdown)
-			return (GSDropdown)parent;
-		return null;
-	}
 }

@@ -1,4 +1,4 @@
-package com.g4mesoft.panel.popup;
+package com.g4mesoft.panel.dropdown;
 
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.renderer.GSIRenderer2D;

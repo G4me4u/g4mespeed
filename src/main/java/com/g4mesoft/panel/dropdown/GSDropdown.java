@@ -1,4 +1,4 @@
-package com.g4mesoft.panel.popup;
+package com.g4mesoft.panel.dropdown;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +7,7 @@ import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSIActionListener;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSParentPanel;
+import com.g4mesoft.panel.GSPopup;
 import com.g4mesoft.panel.event.GSFocusEvent;
 import com.g4mesoft.panel.event.GSIFocusEventListener;
 import com.g4mesoft.panel.event.GSIKeyListener;
@@ -19,14 +20,10 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 	protected static final int VERTICAL_PADDING = 4;
 	
 	private final List<GSIActionListener> actionListeners;
-	private boolean hideOnFocusLost;
 	
 	public GSDropdown() {
 		actionListeners = new ArrayList<GSIActionListener>();
 		
-		// By default, close when losing focus
-		setHideOnFocusLost(true);
-
 		addKeyEventListener(this);
 		addFocusEventListener(this);
 	}
@@ -34,7 +31,7 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 	@Override
 	public void add(GSPanel panel) {
 		if (!(panel instanceof GSDropdownItem))
-			throw new UnsupportedOperationException("Drop-down menus only support drop-down items.");
+			throw new IllegalArgumentException("Drop-down menus only support drop-down items.");
 		addItem((GSDropdownItem)panel);
 	}
 	
@@ -112,15 +109,6 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 		return new GSDimension(pw, ph + 2 * VERTICAL_PADDING);
 	}
 	
-	private boolean isHideOnFocusLost() {
-		return hideOnFocusLost;
-	}
-	
-	/* Visible for GSDropdownSubMenu */
-	void setHideOnFocusLost(boolean hideOnFocusLost) {
-		this.hideOnFocusLost = hideOnFocusLost;
-	}
-
 	/* Visible for GSDropdownSubMenu */
 	void addActionListener(GSIActionListener listener) {
 		actionListeners.add(listener);
@@ -159,7 +147,7 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 	
 	@Override
 	public void focusLost(GSFocusEvent event) {
-		if (isHideOnFocusLost()) {
+		if (!hasPopupVisible()) {
 			hide();
 			event.consume();
 		}
