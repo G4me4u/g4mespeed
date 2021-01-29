@@ -24,8 +24,6 @@ public abstract class GSTranslatableTextMixin {
 	@Shadow @Final private String key;
 	@Shadow @Final protected List<Text> translations;
 	
-	private long lastTranslationTimestamp = -1L;
-	
 	@Shadow protected abstract void setTranslation(String translationString);
 	
 	@Inject(method = "updateTranslations", at = @At("HEAD"), cancellable = true)
@@ -40,12 +38,13 @@ public abstract class GSTranslatableTextMixin {
 		GSTranslationModule translationModule = threadController.getTranslationModule();
 		if (translationModule.hasTranslation(this.key)) {
 			long timestamp = translationModule.getTranslationTimestamp();
-			if (lastTranslationTimestamp == timestamp && !this.translations.isEmpty()) {
+			if (this.languageReloadTimestamp == timestamp && !this.translations.isEmpty()) {
 				ci.cancel();
 				return;
 			}
 			
-			lastTranslationTimestamp = timestamp;
+			this.languageReloadTimestamp = timestamp;
+			this.translations.clear();
 			
 			try {
 				this.setTranslation(translationModule.getTranslation(key));
