@@ -18,7 +18,9 @@ public class GSColoredIcon extends GSIcon {
 	public void render(GSIRenderer2D renderer, GSRectangle bounds) {
 		int w = Math.min(width, bounds.width);
 		int h = Math.min(height, bounds.height);
-		renderer.fillRect(bounds.x, bounds.y, w, h, color);
+		int x = bounds.x + (bounds.width - w + 1) / 2;
+		int y = bounds.y + (bounds.height - h + 1) / 2;
+		renderer.fillRect(x, y, w, h, color);
 	}
 
 	@Override
