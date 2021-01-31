@@ -96,19 +96,31 @@ public class GSEventDispatcher {
 		int x = convertMouseX(mouseX);
 		int y = convertMouseY(mouseY);
 		
-		GSPanelResult result = getTopPanelResultAt(x, y);
+		GSPanel hoveredPanel = getTopPanelAt(x, y);
+		GSPanel panel = isChildOf(hoveredPanel, focusedPanel) ? hoveredPanel : focusedPanel;
 		
-		if (result.panel != null) {
-			GSMouseEvent event = GSMouseEvent.createMouseReleasedEvent(result.x, result.y, button, modifiers);
-			distributeMouseEvent(result.panel, event, GSIMouseListener::mouseReleased);
+		if (panel != null) {
+			GSMouseEvent event = GSMouseEvent.createMouseReleasedEvent(x, y, button, modifiers);
+			translateMouseEvent(panel, event, TRANSLATE_FROM_ROOT);
+
+			int panelX = event.getX();
+			int panelY = event.getY();
 			
+			distributeMouseEvent(panel, event, GSIMouseListener::mouseReleased);
+
 			if (!event.isConsumed() && event.getButton() == GSMouseEvent.BUTTON_RIGHT) {
-				GSDropdown dropdown = result.panel.getRightClickMenu(result.x, result.y);
-				
-				if (dropdown != null) {
-					GSPopup popup = new GSPopup(dropdown);
-					// The location is relative to the root panel
-					popup.show(result.panel, x, y);
+				// Only create right click menu if the hovered panel is a 
+				// child of the focused panel (i.e. if panel = hoveredPanel).
+				if (panel == hoveredPanel) {
+					GSDropdown dropdown = new GSDropdown();
+					
+					panel.createRightClickMenu(dropdown, panelX, panelY);
+					
+					if (!dropdown.isEmpty()) {
+						GSPopup popup = new GSPopup(dropdown);
+						// The location is relative to the root panel
+						popup.show(panel, x, y);
+					}
 				}
 			}
 		}
@@ -155,7 +167,7 @@ public class GSEventDispatcher {
 	}
 	
 	public void requestFocus(GSPanel panel) {
-		if (panel.isFocusable() && isChildOfRoot(panel))
+		if (panel.isFocusable() && isChildOf(panel, rootPanel))
 			setFocusedPanel(panel);
 	}
 	
@@ -168,11 +180,10 @@ public class GSEventDispatcher {
 		return focusedPanel;
 	}
 	
-	private boolean isChildOfRoot(GSPanel panel) {
-		GSPanel parent;
-		while ((parent = panel.getParent()) != null)
-			panel = parent;
-		return (panel == rootPanel);
+	private boolean isChildOf(GSPanel child, GSPanel parent) {
+		while (child != null && child != parent)
+			child = child.getParent();
+		return (child == parent);
 	}
 	
 	private void setFocusedPanel(GSPanel panel) {
@@ -234,7 +245,7 @@ public class GSEventDispatcher {
 		if (dest == null)
 			throw new IllegalArgumentException("destination is null!");
 		
-		if (isChildOfRoot(dest)) {
+		if (isChildOf(dest, rootPanel)) {
 			if (source != null)
 				translateMouseEvent(source, event, TRANSLATE_TO_ROOT);
 	
@@ -267,7 +278,7 @@ public class GSEventDispatcher {
 		if (dest == null)
 			throw new IllegalArgumentException("destination is null!");
 
-		if (isChildOfRoot(dest)) {
+		if (isChildOf(dest, rootPanel)) {
 			switch (event.getType()) {
 			case GSKeyEvent.KEY_PRESSED_TYPE:
 			case GSKeyEvent.KEY_REPEATED_TYPE:

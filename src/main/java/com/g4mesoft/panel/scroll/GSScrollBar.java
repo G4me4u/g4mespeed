@@ -1,6 +1,8 @@
 package com.g4mesoft.panel.scroll;
 
 import com.g4mesoft.panel.GSPanel;
+import com.g4mesoft.panel.dropdown.GSDropdown;
+import com.g4mesoft.panel.dropdown.GSDropdownAction;
 import com.g4mesoft.panel.event.GSIMouseListener;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
@@ -8,6 +10,8 @@ import com.g4mesoft.renderer.GSTexture;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 
 public class GSScrollBar extends GSPanel implements GSIMouseListener {
@@ -28,6 +32,20 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	private static final int DEFAULT_BUTTON_WIDTH = 9;
 	private static final int DEFAULT_BUTTON_HEIGHT = 10;
 	private static final int DEFAULT_MINIMUM_NOB_SIZE = 10;
+	
+	private static final Text SCROLL_HERE_TEXT  = new TranslatableText("panel.scrollbar.scrollhere");
+	private static final Text TOP_TEXT          = new TranslatableText("panel.scrollbar.top");
+	private static final Text BOTTOM_TEXT       = new TranslatableText("panel.scrollbar.bottom");
+	private static final Text PAGE_UP_TEXT      = new TranslatableText("panel.scrollbar.pageup");
+	private static final Text PAGE_DOWN_TEXT    = new TranslatableText("panel.scrollbar.pagedown");
+	private static final Text SCROLL_UP_TEXT    = new TranslatableText("panel.scrollbar.scrollup");
+	private static final Text SCROLL_DOWN_TEXT  = new TranslatableText("panel.scrollbar.scrolldown");
+	private static final Text LEFT_EDGE_TEXT    = new TranslatableText("panel.scrollbar.leftedge");
+	private static final Text RIGHT_EDGE_TEXT   = new TranslatableText("panel.scrollbar.rightedge");
+	private static final Text PAGE_LEFT_TEXT    = new TranslatableText("panel.scrollbar.pageleft");
+	private static final Text PAGE_RIGHT_TEXT   = new TranslatableText("panel.scrollbar.pageright");
+	private static final Text SCROLL_LEFT_TEXT  = new TranslatableText("panel.scrollbar.scrollleft");
+	private static final Text SCROLL_RIGHT_TEXT = new TranslatableText("panel.scrollbar.scrollright");
 	
 	protected final GSIScrollable parent;
 	private final GSIScrollListener listener;
@@ -248,6 +266,35 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	}
 	
 	@Override
+	public void createRightClickMenu(GSDropdown dropdown, int x, int y) {
+		dropdown.addItemSeparator();
+		dropdown.addItem(new GSDropdownAction(SCROLL_HERE_TEXT, () -> {
+			setScrollOffset(getScrollDelta(isVertical() ? y : x) - getContentViewSize() * 0.5f);
+		}));
+		dropdown.addItemSeparator();
+		dropdown.addItem(new GSDropdownAction(vertical ? TOP_TEXT : LEFT_EDGE_TEXT, () -> {
+			setScrollOffset(0.0f);
+		}));
+		dropdown.addItem(new GSDropdownAction(vertical ? BOTTOM_TEXT : RIGHT_EDGE_TEXT, () -> {
+			setScrollOffset(getMaxScrollOffset());
+		}));
+		dropdown.addItemSeparator();
+		dropdown.addItem(new GSDropdownAction(vertical ? PAGE_UP_TEXT : PAGE_LEFT_TEXT, () -> {
+			onPageScroll(-1);
+		}));
+		dropdown.addItem(new GSDropdownAction(vertical ? PAGE_DOWN_TEXT : PAGE_RIGHT_TEXT, () -> {
+			onPageScroll(1);
+		}));
+		dropdown.addItemSeparator();
+		dropdown.addItem(new GSDropdownAction(vertical ? SCROLL_UP_TEXT : SCROLL_LEFT_TEXT, () -> {
+			onIncrementalScroll(-1);
+		}));
+		dropdown.addItem(new GSDropdownAction(vertical ? SCROLL_DOWN_TEXT : SCROLL_RIGHT_TEXT, () -> {
+			onIncrementalScroll(1);
+		}));
+	}
+	
+	@Override
 	public void mousePressed(GSMouseEvent event) {
 		if (enabled && event.getButton() == GSMouseEvent.BUTTON_LEFT) {
 			int mousePos = isVertical() ? event.getY() : event.getX();
@@ -273,6 +320,10 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 		setScrollOffset(scrollOffset + sign * scrollAmount);
 	}
 	
+	private void onPageScroll(int sign) {
+		setScrollOffset(scrollOffset + sign * getContentViewSize());
+	}
+	
 	protected float getIncrementalScroll(int sign) {
 		return isVertical() ? parent.getIncrementalScrollY(sign) : parent.getIncrementalScrollX(sign);
 	}
@@ -288,16 +339,17 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	@Override
 	public void mouseDragged(GSMouseEvent event) {
 		if (enabled && event.getButton() == GSMouseEvent.BUTTON_LEFT && scrollDragActive) {
-			float delta = isVertical() ? event.getDragY() : event.getDragX();
-
-			int compAreaSize = getKnobAreaSize() - getKnobSize();
-			if (compAreaSize > 0)
-				delta *= (float)getMaxScrollOffset() / compAreaSize;
-			
-			setScrollOffset(scrollOffset + delta);
-			
+			float drag = isVertical() ? event.getDragY() : event.getDragX();
+			setScrollOffset(scrollOffset + getScrollDelta(drag));
 			event.consume();
 		}
+	}
+	
+	private float getScrollDelta(float delta) {
+		int compAreaSize = getKnobAreaSize() - getKnobSize();
+		if (compAreaSize > 0)
+			delta *= (float)getMaxScrollOffset() / compAreaSize;
+		return delta;
 	}
 	
 	public void setScrollOffset(float scroll) {

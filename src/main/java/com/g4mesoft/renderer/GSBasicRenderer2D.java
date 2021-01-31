@@ -7,6 +7,7 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 import com.g4mesoft.access.GSIBufferBuilderAccess;
+import com.g4mesoft.util.GSMathUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.MinecraftClient;
@@ -39,11 +40,15 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	private GSTransform2D transform;
 	private final LinkedList<GSTransform2D> transformStack;
 	
+	private float opacity;
+	
 	public GSBasicRenderer2D(MinecraftClient client) {
 		this.client = client;
 		
 		transform = new GSTransform2D();
 		transformStack = new LinkedList<>();
+		
+		opacity = 1.0f;
 	}
 	
 	public void begin(BufferBuilder builder, MatrixStack matrixStack, int mouseX, int mouseY) {
@@ -119,6 +124,16 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	public GSClipRect popClip() {
 		return ((GSIBufferBuilderAccess)builder).popClip();
 	}
+	
+	@Override
+	public float getOpacity() {
+		return opacity;
+	}
+
+	@Override
+	public void setOpacity(float opacity) {
+		this.opacity = GSMathUtils.clamp(opacity, 0.0f, 1.0f);
+	}
 
 	@Override
 	public void fillGradient(int x, int y, int width, int height,
@@ -186,6 +201,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 			throw new IllegalStateException("Batches are not supported when drawing textures");
 		
 		RenderSystem.enableTexture();
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, opacity);
 		client.getTextureManager().bindTexture(texture.getTexture().getIdentifier());
 		
 		float x0 = (float)x;
@@ -200,6 +216,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		vert(x0, y0, DEFAULT_Z_OFFSET).tex(texture.getU0(), texture.getV0()).next();
 		finish();
 		
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		RenderSystem.disableTexture();
 	}
 
@@ -274,6 +291,9 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	public void drawText(String text, int x, int y, int color, boolean shadowed) {
 		if (building)
 			throw new IllegalStateException("Batches are not supported for drawing text");
+
+		int alpha = (int)((color >>> 24) * opacity);
+		color = (alpha << 24) | (color & 0x00FFFFFF);
 		
 		if (shadowed) {
 			client.textRenderer.drawWithShadow(matrixStack, text, x, y, color);
@@ -413,7 +433,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 
 	@Override
 	public GSBasicRenderer2D color(float r, float g, float b, float a) {
-		builder.color(r, g, b, a);
+		builder.color(r, g, b, a * opacity);
 		return this;
 	}
 
