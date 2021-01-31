@@ -31,6 +31,10 @@ public interface GSIRenderer2D extends GSIRenderer {
 	public void pushClip(GSClipRect clipRect);
 
 	public GSClipRect popClip();
+	
+	public float getOpacity();
+	
+	public void setOpacity(float opacity);
 
 	default public void fillRect(int x, int y, int width, int height, int color) {
 		float a = ((color >>> 24) & 0xFF) / 255.0f;
