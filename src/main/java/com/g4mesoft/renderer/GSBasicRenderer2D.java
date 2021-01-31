@@ -317,6 +317,9 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		if (building)
 			throw new IllegalStateException("Batches are not supported for drawing text");
 		
+		int alpha = (int)((color >>> 24) * opacity);
+		color = (alpha << 24) | (color & 0x00FFFFFF);
+		
 		if (shadowed) {
 			client.textRenderer.drawWithShadow(matrixStack, text, x, y, color);
 		} else {
