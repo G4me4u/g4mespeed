@@ -150,7 +150,7 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 	}
 	
 	private GSLocation getPopupLocation() {
-		GSLocation location = getAbsoluteLocation(width, 0);
+		GSLocation location = getAbsoluteLocation(width, -GSDropdown.VERTICAL_PADDING);
 		int x = location.getX();
 		
 		GSDimension pref = popup.getPreferredSize();
