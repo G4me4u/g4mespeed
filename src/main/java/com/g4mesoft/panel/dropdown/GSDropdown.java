@@ -35,8 +35,9 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 		addItem((GSDropdownItem)panel);
 	}
 	
-	public void addSeperator() {
-		addItem(new GSDropdownSeparator());
+	public void addItemSeparator() {
+		if (!isEmpty())
+			addItem(new GSDropdownSeparator());
 	}
 	
 	public void addItem(GSDropdownItem item) {
@@ -107,6 +108,10 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 		}
 		
 		return new GSDimension(pw, ph + 2 * VERTICAL_PADDING);
+	}
+	
+	public boolean isEmpty() {
+		return children.isEmpty();
 	}
 	
 	/* Visible for GSDropdownSubMenu */
