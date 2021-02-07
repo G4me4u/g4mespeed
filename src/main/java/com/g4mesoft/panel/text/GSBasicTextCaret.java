@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.g4mesoft.panel.GSRectangle;
 import com.g4mesoft.panel.event.GSEvent;
+import com.g4mesoft.panel.event.GSFocusEvent;
+import com.g4mesoft.panel.event.GSIFocusEventListener;
 import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSIMouseListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
@@ -35,7 +37,7 @@ import net.minecraft.client.gui.screen.Screen;
  * @author Christian
  */
 public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSIModelChangeListener,
-                                         GSIMouseListener, GSIKeyListener {
+                                         GSIMouseListener, GSIKeyListener, GSIFocusEventListener {
 
 	private static final int DEFAULT_BLINK_RATE   = 500;
 	private static final int DEFAULT_CARET_WIDTH  = 1;
@@ -100,6 +102,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		textField.addModelChangeListener(this);
 		textField.addMouseEventListener(this);
 		textField.addKeyEventListener(this);
+		textField.addFocusEventListener(this);
 		
 		lastFrame = -1L;
 		blinkTimer = 0;
@@ -122,6 +125,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		this.textField.removeModelChangeListener(this);
 		this.textField.removeMouseEventListener(this);
 		this.textField.removeKeyEventListener(this);
+		this.textField.removeFocusEventListener(this);
 		
 		this.textField = null;
 		
@@ -588,5 +592,11 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 			flags |= WORD_NAVIGATION_MODIFIER;
 		
 		return flags;
+	}
+	
+	@Override
+	public void focusGained(GSFocusEvent event) {
+		blinkTimer = 0;
+		event.consume();
 	}
 }
