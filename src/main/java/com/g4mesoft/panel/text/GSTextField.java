@@ -403,16 +403,22 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		dropdown.addItem(copyAction = new GSDropdownAction(COPY_TEXT, this::copyToClipboard));
 		dropdown.addItem(pasteAction = new GSDropdownAction(PASTE_TEXT, this::pasteFromClipboard));
 		dropdown.addItemSeparator();
-		dropdown.addItem(new GSDropdownAction(SELECT_ALL_TEXT, () -> {
-			caret.setCaretMark(0);
-			caret.setCaretDot(textModel.getLength());
-		}));
+		dropdown.addItem(new GSDropdownAction(SELECT_ALL_TEXT, this::selectAll));
 
 		cutAction.setEnabled(caret.hasCaretSelection() && isEditable());
 		copyAction.setEnabled(caret.hasCaretSelection());
 		pasteAction.setEnabled(GSPanelContext.hasClipboardString() && isEditable());
 		
 		super.createRightClickMenu(dropdown, x, y);
+	}
+	
+	public void selectAll() {
+		caret.setCaretMark(0);
+		caret.setCaretDot(textModel.getLength());
+	}
+	
+	public void unselect() {
+		caret.setCaretLocation(textModel.getLength());
 	}
 	
 	public int viewToModel(int x, int y) {
