@@ -383,15 +383,17 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 
 	@Override
 	public void textInserted(GSITextModel model, int offset, int count) {
-		int dot = this.dot;
-		int mark = this.mark;
+		if (textField.isFocused() || hasCaretSelection()) {
+			int dot = this.dot;
+			int mark = this.mark;
+			
+			if (offset <= dot)
+				dot += count;
+			if (offset <= mark)
+				mark += count;
 		
-		if (offset <= dot)
-			dot += count;
-		if (offset <= mark)
-			mark += count;
-	
-		setSelection(dot, mark);
+			setSelection(dot, mark);
+		}
 	}
 
 	@Override
@@ -597,6 +599,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	@Override
 	public void focusGained(GSFocusEvent event) {
 		blinkTimer = 0;
+		lastFrame = System.currentTimeMillis();
 		event.consume();
 	}
 }
