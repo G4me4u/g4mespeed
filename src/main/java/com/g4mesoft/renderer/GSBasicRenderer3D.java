@@ -1,42 +1,28 @@
 package com.g4mesoft.renderer;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3d;
 
 public class GSBasicRenderer3D implements GSIRenderer3D {
 
-	private final MinecraftClient client;
-	
 	private BufferBuilder builder;
 	private MatrixStack matrixStack;
 	
 	private boolean building;
 	private int buildingShape;
 	
-	public GSBasicRenderer3D(MinecraftClient client) {
-		this.client = client;
-	}
-	
 	public void begin(BufferBuilder builder, MatrixStack matrixStack) {
 		this.builder = builder;
 		this.matrixStack = matrixStack;
-	
-		matrixStack.push();
-		Vec3d pos = client.gameRenderer.getCamera().getPos();
-		matrixStack.translate(-pos.x, -pos.y, -pos.z);
 	}
 	
 	public void end() {
 		if (building)
 			throw new IllegalStateException("Renderer is still building");
-		
-		matrixStack.pop();
 
 		matrixStack = null;
 		builder = null;

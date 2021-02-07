@@ -2,9 +2,7 @@ package com.g4mesoft.mixin.client;
 
 import java.util.Collection;
 
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,13 +27,11 @@ import net.minecraft.client.util.math.MatrixStack;
 @Mixin(WorldRenderer.class)
 public class GSWorldRendererMixin {
 
-	@Shadow @Final private MinecraftClient client;
-	
 	private GSBasicRenderer3D renderer3d;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void onInit(MinecraftClient client, BufferBuilderStorage builderStorage, CallbackInfo ci) {
-		renderer3d = new GSBasicRenderer3D(client);
+		renderer3d = new GSBasicRenderer3D();
 	}
 	
 	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/render/WorldRenderer;renderChunkDebugInfo(Lnet/minecraft/client/render/Camera;)V"))
