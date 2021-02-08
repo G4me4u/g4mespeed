@@ -260,17 +260,28 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		if (!wasBuilding)
 			finish();
 	}
+
+	@Override
+	public int getTextAscent() {
+		return client.textRenderer.fontHeight - 2;
+	}
+
+	@Override
+	public int getTextDescent() {
+		return 1;
+	}
 	
 	@Override
 	public int getTextHeight() {
-		return client.textRenderer.fontHeight;
+		// Include shadows in the text height
+		return getTextAscent() + getTextDescent() + 1;
 	}
 
 	@Override
 	public int getLineHeight() {
-		return client.textRenderer.fontHeight + LINE_SPACING;
+		return getTextHeight() + LINE_SPACING;
 	}
-
+	
 	@Override
 	public float getTextWidth(String text) {
 		return client.textRenderer.getStringWidth(text);

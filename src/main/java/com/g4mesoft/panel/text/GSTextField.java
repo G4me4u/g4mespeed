@@ -324,7 +324,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			return;
 
 		int x = borderWidth + horizontalMargin + clippedViewOffset;
-		int y = (height - renderer.getTextHeight() + 1) / 2;
+		int y = (height - renderer.getTextAscent()) / 2;
 		
 		String text = clippedText;
 		if (clipLength != clippedText.length()) {
