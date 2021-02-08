@@ -36,7 +36,7 @@ public class GSWorldRendererMixin {
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void onInit(MinecraftClient client, BufferBuilderStorage builderStorage, CallbackInfo ci) {
-		renderer3d = new GSBasicRenderer3D(client);
+		renderer3d = new GSBasicRenderer3D();
 	}
 	
 	@Inject(method = "render", slice = @Slice(

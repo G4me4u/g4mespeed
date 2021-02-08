@@ -22,7 +22,7 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 	private final List<GSIActionListener> actionListeners;
 	
 	public GSDropdown() {
-		actionListeners = new ArrayList<GSIActionListener>();
+		actionListeners = new ArrayList<>();
 		
 		addKeyEventListener(this);
 		addFocusEventListener(this);

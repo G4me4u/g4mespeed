@@ -10,6 +10,8 @@ import com.g4mesoft.panel.GSRectangle;
 import com.g4mesoft.panel.dropdown.GSDropdown;
 import com.g4mesoft.panel.dropdown.GSDropdownAction;
 import com.g4mesoft.panel.event.GSEvent;
+import com.g4mesoft.panel.event.GSFocusEvent;
+import com.g4mesoft.panel.event.GSIFocusEventListener;
 import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
@@ -20,7 +22,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
 public class GSTextField extends GSPanel implements GSITextCaretListener, GSITextModelListener, 
-                                                    GSIKeyListener {
+                                                    GSIKeyListener, GSIFocusEventListener {
 
 	private static final int DEFAULT_BACKGROUND_COLOR = 0xFF000000;
 
@@ -114,6 +116,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		caret.addTextCaretListener(this);
 		
 		addKeyEventListener(this);
+		addFocusEventListener(this);
 	}
 	
 	public void setPreferredBounds(int x, int y) {
@@ -321,7 +324,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			return;
 
 		int x = borderWidth + horizontalMargin + clippedViewOffset;
-		int y = (height - renderer.getTextHeight() + 1) / 2;
+		int y = (height - renderer.getTextAscent()) / 2;
 		
 		String text = clippedText;
 		if (clipLength != clippedText.length()) {
@@ -403,16 +406,22 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		dropdown.addItem(copyAction = new GSDropdownAction(COPY_TEXT, this::copyToClipboard));
 		dropdown.addItem(pasteAction = new GSDropdownAction(PASTE_TEXT, this::pasteFromClipboard));
 		dropdown.addItemSeparator();
-		dropdown.addItem(new GSDropdownAction(SELECT_ALL_TEXT, () -> {
-			caret.setCaretMark(0);
-			caret.setCaretDot(textModel.getLength());
-		}));
+		dropdown.addItem(new GSDropdownAction(SELECT_ALL_TEXT, this::selectAll));
 
 		cutAction.setEnabled(caret.hasCaretSelection() && isEditable());
 		copyAction.setEnabled(caret.hasCaretSelection());
 		pasteAction.setEnabled(GSPanelContext.hasClipboardString() && isEditable());
 		
 		super.createRightClickMenu(dropdown, x, y);
+	}
+	
+	public void selectAll() {
+		caret.setCaretMark(0);
+		caret.setCaretDot(textModel.getLength());
+	}
+	
+	public void unselect() {
+		caret.setCaretLocation(isFocused() ? textModel.getLength() : 0);
 	}
 	
 	public int viewToModel(int x, int y) {
@@ -650,6 +659,18 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	private boolean isControlCharacter(char c) {
 		return (c < PRINTABLE_CHARACTERS_START || c == DELETE_CONTROL_CHARACTER);
+	}
+
+	@Override
+	public void focusGained(GSFocusEvent event) {
+		if (!caret.hasCaretSelection())
+			caret.setCaretLocation(textModel.getLength());
+	}
+	
+	@Override
+	public void focusLost(GSFocusEvent event) {
+		if (caret.hasCaretSelection())
+			caret.setCaretLocation(0);
 	}
 	
 	int getLocationAfterWord(int startLocation, boolean backward) {
