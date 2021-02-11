@@ -34,7 +34,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 
 	/* Number of steps for a full extension (visible / modifiable for mod compatibility) */
 	@GSCoreOverride
-	private static float numberOfSteps = 2.0f;
+	private float numberOfSteps = 2.0f;
 
 	public GSPistonBlockEntityMixin(BlockEntityType<?> blockEntityType_1) {
 		super(blockEntityType_1);
