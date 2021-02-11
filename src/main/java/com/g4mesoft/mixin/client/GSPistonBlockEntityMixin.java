@@ -25,19 +25,20 @@ import net.minecraft.util.math.Direction;
 @Mixin(PistonBlockEntity.class)
 public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GSISmoothPistonBlockEntityAccess {
 
-	public GSPistonBlockEntityMixin(BlockEntityType<?> blockEntityType_1) {
-		super(blockEntityType_1);
-	}
-
-	private static final float PISTON_STEPS = 2.0f;
-	private static final float INCREMENTER = 1.0f / PISTON_STEPS;
-	
-	private float actualLastProgress;
-	
 	@Shadow private Direction facing;
 	
 	@Shadow private float progress;
 	@Shadow private float lastProgress;
+
+	private float actualLastProgress;
+
+	/* Number of steps for a full extension (visible / modifiable for mod compatibility) */
+	@GSCoreOverride
+	private static float numberOfSteps = 2.0f;
+
+	public GSPistonBlockEntityMixin(BlockEntityType<?> blockEntityType_1) {
+		super(blockEntityType_1);
+	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
@@ -50,11 +51,11 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
 		switch (tpsModule.cPistonAnimationType.getValue()) {
 		case GSTpsModule.PISTON_ANIM_NO_PAUSE:
-			val = (this.progress * PISTON_STEPS + partialTicks) / (PISTON_STEPS + 1.0f);
+			val = (this.progress * numberOfSteps + partialTicks) / (numberOfSteps + 1.0f);
 			break;
 		case GSTpsModule.PISTON_ANIM_PAUSE_END:
 			// Will be clamped by the return statement.
-			val = (this.progress * PISTON_STEPS + partialTicks) / PISTON_STEPS;
+			val = (this.progress * numberOfSteps + partialTicks) / numberOfSteps;
 			break;
 		default:
 		case GSTpsModule.PISTON_ANIM_PAUSE_BEGINNING:
@@ -82,7 +83,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 
 	@Inject(method = "fromTag", at = @At("RETURN"))
 	public void onTagRead(CompoundTag tag, CallbackInfo ci) {
-		actualLastProgress = Math.max(0.0f, this.lastProgress - INCREMENTER);
+		actualLastProgress = Math.max(0.0f, this.lastProgress - 1.0f / numberOfSteps);
 	}
 	
 	@Inject(method = "tick", at = @At(value = "FIELD", target="Lnet/minecraft/block/entity/PistonBlockEntity;lastProgress:F", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
