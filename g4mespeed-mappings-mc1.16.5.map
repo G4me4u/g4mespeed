@@ -820,7 +820,7 @@ com.g4mesoft.mixin.client.GSPistonBlockEntityMixin -> com.g4mesoft.mixin.client.
     int field_26705 -> field_26705
     float actualLastProgress -> gsc_sc
     float numberOfSteps -> numberOfSteps
-    43:44:void <init>(net.minecraft.class_2591) -> <init>
+    39:44:void <init>(net.minecraft.class_2591) -> <init>
     49:69:float getSmoothProgress(float) -> gsc_rJ
     74:74:float getSmoothRenderOffsetX(net.minecraft.class_2669,float) -> gsc_rJ
     79:79:float getSmoothRenderOffsetY(net.minecraft.class_2669,float) -> gsc_hH
@@ -829,7 +829,6 @@ com.g4mesoft.mixin.client.GSPistonBlockEntityMixin -> com.g4mesoft.mixin.client.
     94:95:void onTickProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
     99:100:void onFinishProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
     106:119:double method_11006() -> method_11006
-    40:40:void <clinit>() -> <clinit>
 com.g4mesoft.mixin.client.GSPistonBlockEntityRendererMixin -> com.g4mesoft.mixin.client.GSPistonBlockEntityRendererMixin:
     15:15:void <init>() -> <init>
     19:19:float getPistonProgress(net.minecraft.class_2669,float) -> gsc_rJ
