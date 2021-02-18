@@ -29,8 +29,7 @@ public abstract class GSMinecraftClientMixin {
 	@Inject(method = "run", at = @At(value = "FIELD", target="Lnet/minecraft/client/MinecraftClient;thread:Ljava/lang/Thread;",
 			opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
 	public void onInit(CallbackInfo ci) {
-		GSControllerClient controllerClient = GSControllerClient.getInstance();
-		controllerClient.init((MinecraftClient)(Object)this);
+		GSControllerClient.getInstance().init((MinecraftClient)(Object)this);
 	}
 	
 	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))

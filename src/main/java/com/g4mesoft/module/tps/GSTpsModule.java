@@ -81,6 +81,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 
 	@Environment(EnvType.CLIENT)
 	private float serverTps = Float.NaN;
+	@Environment(EnvType.CLIENT)
+	private final GSServerTickTimer serverTimer = new GSServerTickTimer(this);
 
 	private GSIModuleManager manager;
 
@@ -487,7 +489,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 
 	@Environment(EnvType.CLIENT)
 	public void onServerSyncPacket(int packetInterval) {
-		GSRenderTickCounterAdjuster.getInstance().onServerTickSync(packetInterval);
+		serverTimer.onSyncPacket(packetInterval);
 		
 		// This is only for approximating the server tps
 		serverTpsMonitor.update(packetInterval);
@@ -498,5 +500,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		if (sBroadcastTps.getValue() && Float.isFinite(serverTps))
 			return serverTps;
 		return serverTpsMonitor.getAverageTps();
+	}
+
+	@Environment(EnvType.CLIENT)
+	public GSServerTickTimer getServerTimer() {
+		return serverTimer;
 	}
 }
