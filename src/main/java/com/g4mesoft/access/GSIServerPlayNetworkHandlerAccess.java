@@ -4,7 +4,7 @@ import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.core.GSVersion;
 
-public interface GSINetworkHandlerAccess {
+public interface GSIServerPlayNetworkHandlerAccess {
 
 	public boolean isExtensionInstalled(GSExtensionUID extensionUid);
 
@@ -21,5 +21,9 @@ public interface GSINetworkHandlerAccess {
 	public void setTranslationVersion(GSExtensionUID uid, int translationVersion);
 
 	public int getTranslationVersion(GSExtensionUID uid);
+	
+	public boolean isFixedMovement();
+	
+	public void setFixedMovement(boolean fixedMovement);
 	
 }

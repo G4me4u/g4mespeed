@@ -58,6 +58,9 @@ setting.tps.forceCarpetTickrate.desc=Forces the client to use the tickrate set b
 setting.tps.showTpsLabel=Show TPS Label
 setting.tps.showTpsLabel.desc=Displays a label with the current and target server tps in the top-left corner of the in-game hud. If the connected server is not a G4mespeed server the tps will be approximated.
 
+setting.tps.normalMovement=Fixed Movement Speed
+setting.tps.normalMovement.desc=Allows the player to move at a fixed 20 ticks per second without affecting server tick rate.
+
 setting.betterPistons.cullMovingBlocks=Cull Moving Blocks
 setting.betterPistons.cullMovingBlocks.desc=Culls the back-face of blocks that are pushed by pistons. This will mostly affect transparent moving blocks.
 

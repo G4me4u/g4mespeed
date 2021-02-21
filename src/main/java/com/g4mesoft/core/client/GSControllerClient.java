@@ -38,6 +38,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
@@ -258,6 +259,10 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	
 	public Collection<GSIRenderable3D> getRenderables() {
 		return Collections.unmodifiableCollection(renderables);
+	}
+	
+	public ClientPlayerEntity getPlayer() {
+		return (minecraft != null) ? minecraft.player : null;
 	}
 	
 	public GSKeyManager getKeyManager() {

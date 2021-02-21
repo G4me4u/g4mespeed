@@ -95,6 +95,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSIntegerSetting sTpsHotkeyFeedback;
 	public final GSBooleanSetting cShowTpsLabel;
 	public final GSBooleanSetting sBroadcastTps;
+	public final GSBooleanSetting cNormalMovement;
 
 	public final GSIntegerSetting cPistonAnimationType;
 	public final GSIntegerSetting cPistonRenderDistance;
@@ -121,7 +122,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		sTpsHotkeyFeedback = new GSIntegerSetting("hotkeyFeedback", HOTKEY_FEEDBACK_STATUS, 0, 2);
 		cShowTpsLabel = new GSBooleanSetting("showTpsLabel", false);
 		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
-
+		cNormalMovement = new GSBooleanSetting("normalMovement", false);
+		
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, -1, 32);
 		sBlockEventDistance = new GSIntegerSetting("blockEventDistance", 4, 0, 32);
@@ -157,6 +159,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
 			settings.registerSetting(TPS_CATEGORY, cForceCarpetTickrate);
 		settings.registerSetting(TPS_CATEGORY, cShowTpsLabel);
+		settings.registerSetting(TPS_CATEGORY, cNormalMovement);
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonAnimationType);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonRenderDistance);
@@ -236,6 +239,11 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			if (!GSMathUtils.equalsApproximate(carpetTickrate, tps))
 				setTps(carpetTickrate);
 		}
+	}
+	
+	@Override
+	public void onJoinG4mespeedServer(GSExtensionInfo coreInfo) {
+		sendFixedMovementPacket();
 	}
 	
 	public void onServerTps(float serverTps) {
@@ -472,6 +480,14 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
 		if (setting == cSyncTick)
 			cSyncTickAggression.setEnabledInGui(cSyncTick.getValue());
+		if (setting == cNormalMovement)
+			sendFixedMovementPacket();
+	}
+	
+	private void sendFixedMovementPacket() {
+		manager.runOnClient(clientManager -> {
+			clientManager.sendPacket(new GSPlayerFixedMovementPacket(cNormalMovement.getValue()));
+		});
 	}
 
 	@Override
@@ -505,5 +521,20 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Environment(EnvType.CLIENT)
 	public GSServerTickTimer getServerTimer() {
 		return serverTimer;
+	}
+	
+	@Environment(EnvType.CLIENT)
+	public boolean shouldCorrectMovement() {
+		if (cNormalMovement.getValue() && !GSMathUtils.equalsApproximate(tps, DEFAULT_TPS)) {
+			PlayerEntity player = MinecraftClient.getInstance().player;
+
+			if (player != null && !player.hasVehicle()) {
+				if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
+					return cForceCarpetTickrate.getValue();
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

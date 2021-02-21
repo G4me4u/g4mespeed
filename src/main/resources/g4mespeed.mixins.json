@@ -48,7 +48,9 @@
     
     "client.GSInGameHudMixin",
     
-    "client.GSWorldRendererMixin"
+    "client.GSWorldRendererMixin",
+    "client.GSGameRendererMixin",
+    "client.GSClientWorldMixin"
   ],
   "injectors": {
     "defaultRequire": 1
