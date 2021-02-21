@@ -40,7 +40,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 	@Shadow protected abstract boolean isHost();
 
 	@Inject(method = "tick", at = @At("HEAD"))
-	private void onTick() {
+	private void onTick(CallbackInfo ci) {
 		if (fixedMovement && floatingTicks > 70)
 			floatingTicks--;
 	}
