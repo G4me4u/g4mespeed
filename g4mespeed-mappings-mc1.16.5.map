@@ -993,7 +993,7 @@ com.g4mesoft.mixin.server.GSServerPlayNetworkHandlerMixin -> com.g4mesoft.mixin.
     boolean fixedMovement -> gsc_sc
     31:38:void <init>() -> <init>
     boolean method_19507() -> method_19507
-    44:46:void onTick() -> gsc_sc
+    44:46:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
     50:50:boolean onPlayerMoveFixedMovement(net.minecraft.class_3244) -> gsc_rJ
     55:66:void onCustomPayload(net.minecraft.class_2817,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
     70:70:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_rJ
