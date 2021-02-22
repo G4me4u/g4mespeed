@@ -904,13 +904,13 @@ com.g4mesoft.mixin.client.GSWorldRendererMixin -> com.g4mesoft.mixin.client.GSWo
     net.minecraft.class_310 field_4088 -> field_4088
     com.g4mesoft.core.client.GSControllerClient controller -> gsc_hH
     com.g4mesoft.renderer.GSBasicRenderer3D renderer3d -> gsc_rJ
-    34:34:void <init>() -> <init>
-    43:45:void onInit(net.minecraft.class_310,net.minecraft.class_4599,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    52:59:void onRenderTransparentLastFabulous(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    63:64:void onRenderTransparentLastDefault(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    67:98:void handleOnRenderTransparentLast(net.minecraft.class_4587) -> gsc_rJ
-    101:106:boolean hasRenderPhase(java.util.Collection,com.g4mesoft.renderer.GSERenderPhase) -> gsc_rJ
-    111:113:float onRenderEntityModifyDeltaTick(float,net.minecraft.class_1297) -> gsc_rJ
+    35:35:void <init>() -> <init>
+    44:46:void onInit(net.minecraft.class_310,net.minecraft.class_4599,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    53:60:void onRenderTransparentLastFabulous(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    64:65:void onRenderTransparentLastDefault(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    68:99:void handleOnRenderTransparentLast(net.minecraft.class_4587) -> gsc_rJ
+    102:107:boolean hasRenderPhase(java.util.Collection,com.g4mesoft.renderer.GSERenderPhase) -> gsc_rJ
+    113:115:float onRenderEntityModifyDeltaTick(net.minecraft.class_1297,double,double,double,float,net.minecraft.class_4587,net.minecraft.class_4597) -> gsc_rJ
 com.g4mesoft.mixin.server.GSClientConnectionMixin -> com.g4mesoft.mixin.server.GSClientConnectionMixin:
     14:14:void <init>() -> <init>
     20:20:void onExceptionCaught(io.netty.channel.ChannelHandlerContext,java.lang.Throwable,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
