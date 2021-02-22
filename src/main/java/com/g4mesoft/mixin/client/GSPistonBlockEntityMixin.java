@@ -16,7 +16,6 @@ import com.g4mesoft.util.GSMathUtils;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
@@ -30,8 +29,6 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	
 	@Shadow private float progress;
 	@Shadow private float lastProgress;
-	
-	@Shadow private int field_26705;
 
 	private float actualLastProgress;
 
@@ -46,7 +43,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@Override
 	@Environment(EnvType.CLIENT)
 	public float getSmoothProgress(float partialTicks) {
-		if ((isRemoved() || this.field_26705 != 0) && GSMathUtils.equalsApproximate(this.lastProgress, 1.0f))
+		if (isRemoved() && GSMathUtils.equalsApproximate(this.lastProgress, 1.0f))
 			return 1.0f;
 		
 		float val;
@@ -85,7 +82,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	}
 
 	@Inject(method = "fromTag", at = @At("RETURN"))
-	public void onFromTag(BlockState blockState, CompoundTag tag, CallbackInfo ci) {
+	public void onTagRead(CompoundTag tag, CallbackInfo ci) {
 		actualLastProgress = Math.max(0.0f, this.lastProgress - 1.0f / numberOfSteps);
 	}
 	
@@ -104,18 +101,18 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@Environment(EnvType.CLIENT)
 	public double getSquaredRenderDistance() {
 		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
-		int chunkDist = tpsModule.cPistonRenderDistance.getValue();
-		if (chunkDist == GSTpsModule.AUTOMATIC_PISTON_RENDER_DISTANCE) {
+		int dist = tpsModule.cPistonRenderDistance.getValue();
+		if (dist == GSTpsModule.AUTOMATIC_PISTON_RENDER_DISTANCE) {
 			if (tpsModule.sParanoidMode.getValue()) {
 				// When using paranoid mode there is no limit to where
 				// the piston block entities might occur. So we just
 				// render all of the ones within maximum view distance.
-				chunkDist = tpsModule.cPistonRenderDistance.getMaxValue();
+				dist = tpsModule.cPistonRenderDistance.getMaxValue();
 			} else {
-				chunkDist = tpsModule.sBlockEventDistance.getValue();
+				dist = tpsModule.sBlockEventDistance.getValue();
 			}
 		}
 		
-		return chunkDist * 16.0; // Distance is no longer squared.
+		return dist * dist * 256.0; // dist * dist * (16.0 * 16.0)
 	}
 }

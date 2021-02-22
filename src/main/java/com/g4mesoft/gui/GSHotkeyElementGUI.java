@@ -11,7 +11,7 @@ import com.g4mesoft.panel.legend.GSButtonPanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.util.InputUtil.Key;
+import net.minecraft.client.util.InputUtil.KeyCode;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -129,7 +129,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 		renderer.drawText(nameText, HOTKEY_PADDING, ty, FONT_COLOR);
 	}
 
-	private void setKeyCode(Key keyCode) {
+	private void setKeyCode(KeyCode keyCode) {
 		keyBinding.setKeyCode(keyCode);
 		updateButtons();
 	}
@@ -139,7 +139,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	}
 
 	public void unbindKeyCode() {
-		setKeyCode(InputUtil.UNKNOWN_KEY);
+		setKeyCode(InputUtil.UNKNOWN_KEYCODE);
 	}
 	
 	private void setModifying(boolean modifying) {
@@ -173,7 +173,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 			if (event.getKeyCode() == GSKeyEvent.KEY_ESCAPE) {
 				unbindKeyCode();
 			} else {
-				setKeyCode(InputUtil.fromKeyCode(event.getKeyCode(), event.getScanCode()));
+				setKeyCode(InputUtil.getKeyCode(event.getKeyCode(), event.getScanCode()));
 			}
 			
 			setModifying(false);

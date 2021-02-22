@@ -3,7 +3,7 @@ package com.g4mesoft.setting.decoder;
 import com.g4mesoft.setting.types.GSStringSetting;
 import com.g4mesoft.util.GSBufferUtil;
 
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.PacketByteBuf;
 
 public class GSStringSettingDecoder implements GSISettingDecoder<GSStringSetting> {
 

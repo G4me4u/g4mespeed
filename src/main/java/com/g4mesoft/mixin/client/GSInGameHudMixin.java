@@ -21,7 +21,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.util.math.MatrixStack;
 
 @Mixin(InGameHud.class)
 public abstract class GSInGameHudMixin extends DrawableHelper {
@@ -49,8 +48,8 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 	@Shadow public abstract TextRenderer getFontRenderer();
 
 	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE, 
-			target = "Lnet/minecraft/client/gui/hud/SubtitlesHud;render(Lnet/minecraft/client/util/math/MatrixStack;)V"))
-	public void render(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
+			target = "Lnet/minecraft/client/gui/hud/SubtitlesHud;render()V"))
+	public void render(float partialTicks, CallbackInfo ci) {
 		GSControllerClient controller = GSControllerClient.getInstance();
 		GSTpsModule tpsModule = controller.getTpsModule();
 		
@@ -68,13 +67,13 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 			
 			int lx0 = TPS_LABEL_MAGIN;
 			int ly0 = TPS_LABEL_MAGIN;
-			int lx1 = lx0 + font.getWidth(current + " " + targetText);
+			int lx1 = lx0 + font.getStringWidth(current + " " + targetText);
 			int ly1 = ly0 + font.fontHeight;
 			
-			fill(matrixStack, lx0 - 1, ly0 - 1, lx1, ly1, LABEL_BACKGROUND_COLOR);
+			fill(lx0 - 1, ly0 - 1, lx1, ly1, LABEL_BACKGROUND_COLOR);
 			
-			float tx = font.draw(matrixStack, current, lx0, ly0, getTpsLabelColor(averageTps, targetTps));
-			font.draw(matrixStack, targetText, tx + font.getWidth(" "), ly0, LABEL_TARGET_COLOR);
+			float tx = font.draw(current, lx0, ly0, getTpsLabelColor(averageTps, targetTps));
+			font.draw(targetText, tx + font.getCharWidth(' '), ly0, LABEL_TARGET_COLOR);
 		}
 	}
 	

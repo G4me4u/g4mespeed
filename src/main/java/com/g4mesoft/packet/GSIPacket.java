@@ -9,7 +9,7 @@ import com.g4mesoft.core.server.GSControllerServer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.PacketByteBuf;
 
 public interface GSIPacket {
 

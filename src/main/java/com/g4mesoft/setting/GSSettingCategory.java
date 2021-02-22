@@ -2,7 +2,7 @@ package com.g4mesoft.setting;
 
 import com.g4mesoft.util.GSBufferUtil;
 
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.PacketByteBuf;
 
 public final class GSSettingCategory {
 

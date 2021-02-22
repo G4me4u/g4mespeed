@@ -24,7 +24,7 @@ import com.g4mesoft.util.GSBufferUtil;
 import com.g4mesoft.util.GSFileUtils;
 
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.PacketByteBuf;
 
 public class GSSettingManager {
 

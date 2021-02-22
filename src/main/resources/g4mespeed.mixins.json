@@ -23,7 +23,7 @@
     
     "server.GSIThreadedAnvilChunkStorageAccess",
     "server.GSServerChunkManagerMixin",
-    "server.GSIBlockEventS2CPacketAccess"
+    "server.GSIBlockActionS2CPacketAccess"
   ],
   "client": [
     "client.GSMinecraftClientMixin",
@@ -35,16 +35,15 @@
     "client.GSMouseMixin",
     
     "client.GSRenderTickCounterMixin",
+    "client.GSIRenderTickCounterAccess",
     
     "client.GSClientPlayNetworkHandlerMixin",
-    
-    "client.GSIClientWorldAccess",
+    "client.GSIChunkDeltaRecordAccess",
     
     "client.GSPistonBlockEntityRendererMixin",
     "client.GSPistonBlockEntityMixin",
     
     "client.GSBufferBuilderMixin",
-    "client.GSIVertexFormatElementAccess",
     
     "client.GSInGameHudMixin",
     

@@ -1,7 +1,7 @@
 package com.g4mesoft.mixin.server;
 
+import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
-import java.util.function.Supplier;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -20,23 +20,24 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.profiler.Profiler;
-import net.minecraft.util.registry.RegistryKey;
-import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.ChunkManager;
+import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.level.LevelProperties;
 
 @Mixin(ServerWorld.class)
 public abstract class GSServerWorldMixin extends World {
 
-	protected GSServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryKey,
-			DimensionType dimensionType, Supplier<Profiler> supplier, boolean bl, boolean bl2, long l) {
-		super(properties, registryKey, dimensionType, supplier, bl, bl2, l);
+	protected GSServerWorldMixin(LevelProperties levelProperties, DimensionType dimensionType,
+			BiFunction<World, Dimension, ChunkManager> chunkManagerProvider, Profiler profiler, boolean isClient) {
+		super(levelProperties, dimensionType, chunkManagerProvider, profiler, isClient);
 	}
 
-	@ModifyArg(method = "processSyncedBlockEvents", allow = 1, index = 4, at = @At(value = "INVOKE", 
-			target = "Lnet/minecraft/server/PlayerManager;sendToAround(Lnet/minecraft/entity/player/PlayerEntity;DDDDLnet/minecraft/util/registry/RegistryKey;Lnet/minecraft/network/Packet;)V"))
-	public double blockEventDistance(PlayerEntity player, double x, double y, double z, double dist, RegistryKey<World> dimensionKey, Packet<?> packet) {
-		Block block = ((GSIBlockEventS2CPacketAccess)packet).getBlock2();
+	@ModifyArg(method = "sendBlockActions", allow = 1, index = 4, at = @At(value = "INVOKE", 
+			target = "Lnet/minecraft/server/PlayerManager;sendToAround(Lnet/minecraft/entity/player/PlayerEntity;DDDDLnet/minecraft/world/dimension/DimensionType;Lnet/minecraft/network/Packet;)V"))
+	public double blockEventDistance(PlayerEntity player, double x, double y, double z, double dist, DimensionType dimension, Packet<?> packet) {
+		Block block = ((GSIBlockActionS2CPacketAccess)packet).getBlock2();
 		
 		if (block == Blocks.PISTON || block == Blocks.STICKY_PISTON) {
 			GSTpsModule tpsModule = GSControllerServer.getInstance().getTpsModule();
@@ -47,7 +48,7 @@ public abstract class GSServerWorldMixin extends World {
 	}
 	
 	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.AFTER, 
-			target = "Lnet/minecraft/server/world/ServerWorld;processSyncedBlockEvents()V"))
+			target = "Lnet/minecraft/server/world/ServerWorld;sendBlockActions()V"))
 	public void onTickImmediateUpdates(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
 		if (GSControllerServer.getInstance().getTpsModule().sImmediateBlockBroadcast.getValue()) {
 			getProfiler().swap("chunkSource");

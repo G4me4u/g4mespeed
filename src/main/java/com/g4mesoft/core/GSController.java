@@ -15,7 +15,7 @@ import com.g4mesoft.setting.GSSettingManager;
 
 import net.minecraft.network.Packet;
 import net.minecraft.util.Identifier;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.PacketByteBuf;
 
 public abstract class GSController implements GSIModuleManager, GSIExtensionListener {
 

@@ -2,7 +2,7 @@ package com.g4mesoft.panel.event;
 
 import com.g4mesoft.hotkey.GSKeyBinding;
 
-import net.minecraft.client.util.InputUtil.Key;
+import net.minecraft.client.util.InputUtil.KeyCode;
 import net.minecraft.client.util.InputUtil.Type;
 
 public class GSKeyBindingButtonStroke implements GSIButtonStroke {
@@ -18,7 +18,7 @@ public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 	
 	@Override
 	public boolean isMatching(GSEvent event) {
-		Key keyCode = keyBinding.getKeyCode();
+		KeyCode keyCode = keyBinding.getKeyCode();
 		
 		switch (keyCode.getCategory()) {
 		case MOUSE:
@@ -46,9 +46,9 @@ public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 			return false;
 		}
 		
-		Key keyCode = keyBinding.getKeyCode();
+		KeyCode keyCode = keyBinding.getKeyCode();
 		
-		return (event.getButton() == keyCode.getCode());
+		return (event.getButton() == keyCode.getKeyCode());
 	}
 	
 	private boolean isKeyEventMatching(GSKeyEvent event) {
@@ -60,7 +60,7 @@ public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 			return false;
 		}
 		
-		Key keyCode = keyBinding.getKeyCode();
+		KeyCode keyCode = keyBinding.getKeyCode();
 		
 		if (keyCode.getCategory() == Type.SCANCODE) {
 			// Make sure the key event is actually an unknown key. This
@@ -68,9 +68,9 @@ public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 			if (event.getKeyCode() != GSKeyEvent.UNKNOWN_KEY)
 				return false;
 			
-			return (event.getScanCode() == keyCode.getCode());
+			return (event.getScanCode() == keyCode.getKeyCode());
 		}
 		
-		return (event.getKeyCode() == keyCode.getCode());
+		return (event.getKeyCode() == keyCode.getKeyCode());
 	}
 }

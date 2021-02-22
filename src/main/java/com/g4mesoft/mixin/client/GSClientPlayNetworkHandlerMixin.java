@@ -1,14 +1,12 @@
 package com.g4mesoft.mixin.client;
 
 import java.util.Iterator;
-import java.util.function.BiConsumer;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
@@ -35,6 +33,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
@@ -102,7 +101,7 @@ public class GSClientPlayNetworkHandlerMixin {
 			entity.move(MovementType.SELF, entity.getVelocity());
 			
 			// Entity has moved. Make sure its chunk is set correctly.
-			((GSIClientWorldAccess)world).invokeCheckEntityChunkPos(entity);
+			world.checkChunk(entity);
 		}
 	}
 
@@ -162,14 +161,14 @@ public class GSClientPlayNetworkHandlerMixin {
 			
 			BlockEntity blockEntity = world.getBlockEntity(blockPos);
 			if (blockEntity != null) {
-				blockEntity.fromTag(world.getBlockState(blockPos), tag);
+				blockEntity.fromTag(tag);
 			} else if (pistonType) {
 				// Make sure we're actually supposed to put
 				// a moving piston block entity in this location...
 				BlockState blockState = world.getBlockState(blockPos);
 				if (blockState.getBlock() == Blocks.MOVING_PISTON) {
 					blockEntity = new PistonBlockEntity();
-					blockEntity.fromTag(blockState, tag);
+					blockEntity.fromTag(tag);
 					world.setBlockEntity(blockPos, blockEntity);
 					
 					// Probably not needed but it's done in
@@ -193,7 +192,7 @@ public class GSClientPlayNetworkHandlerMixin {
 			if (packet.getBlockEntityType() == 0 && world.isChunkLoaded(pos)) {
 				BlockState blockState = world.getBlockState(pos);
 				
-				if (!blockState.isOf(Blocks.MOVING_PISTON)) {
+				if (blockState.getBlock() != Blocks.MOVING_PISTON) {
 					blockState = Blocks.MOVING_PISTON.getDefaultState();
 					world.setBlockStateWithoutNeighborUpdates(pos, blockState);
 				}
@@ -209,10 +208,10 @@ public class GSClientPlayNetworkHandlerMixin {
 					
 					if (blockEntity == null) {
 						blockEntity = new PistonBlockEntity();
-						blockEntity.fromTag(blockState, tag);
+						blockEntity.fromTag(tag);
 						world.setBlockEntity(pos, blockEntity);
 					} else {
-						blockEntity.fromTag(blockState, tag);
+						blockEntity.fromTag(tag);
 					}
 
 					blockEntity.resetBlock();
@@ -228,25 +227,32 @@ public class GSClientPlayNetworkHandlerMixin {
 	private void onOnBlockUpdate(BlockUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
 
-		if (tpsModule.sParanoidMode.getValue() && packet.getState().isOf(Blocks.MOVING_PISTON)) {
+		if (tpsModule.sParanoidMode.getValue() && packet.getState().getBlock() == Blocks.MOVING_PISTON) {
 			// In this case we will handle the block state when
 			// the block entity has been set in the above injection.
 			ci.cancel();
 		}
 	}
 	
-	@ModifyArg(method = "onChunkDeltaUpdate", index = 0, expect = 1, allow = 1, require = 0, at = @At(value = "INVOKE",
-			target = "Lnet/minecraft/network/packet/s2c/play/ChunkDeltaUpdateS2CPacket;visitUpdates(Ljava/util/function/BiConsumer;)V"))
-	private BiConsumer<BlockPos, BlockState> onOnChunkDeltaUpdateRedirect(BiConsumer<BlockPos, BlockState> handler) {
+	@Inject(method = "onChunkDeltaUpdate", at = @At(value = "INVOKE", shift = Shift.AFTER,
+			target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
+	private void onOnChunkDeltaUpdateRedirect(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
-		
+
 		if (tpsModule.sParanoidMode.getValue()) {
-			return (pos, state) -> {
-				if (!state.isOf(Blocks.MOVING_PISTON))
-					handler.accept(pos, state);
-			};
+			ChunkDeltaUpdateS2CPacket.ChunkDeltaRecord[] records = packet.getRecords();
+			
+			for (ChunkDeltaUpdateS2CPacket.ChunkDeltaRecord record : records) {
+				if (record.getState().getBlock() == Blocks.MOVING_PISTON) {
+					BlockState state = world.getBlockState(record.getBlockPos());
+					
+					if (state.getBlock() != Blocks.MOVING_PISTON) {
+						// By setting the block state to the state in the world, it
+						// is equivalent to ignoring the block change.
+						((GSIChunkDeltaRecordAccess)record).setBlockState(state);
+					}
+				}
+			}
 		}
-		
-		return handler;
 	}
 }

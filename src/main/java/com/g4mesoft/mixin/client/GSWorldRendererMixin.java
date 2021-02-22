@@ -2,13 +2,10 @@ package com.g4mesoft.mixin.client;
 
 import java.util.Collection;
 
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.core.client.GSControllerClient;
@@ -24,14 +21,12 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.math.Matrix4f;
 
 @Mixin(WorldRenderer.class)
 public class GSWorldRendererMixin {
 
-	@Shadow @Final private MinecraftClient client;
-	
 	private GSBasicRenderer3D renderer3d;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
@@ -39,26 +34,8 @@ public class GSWorldRendererMixin {
 		renderer3d = new GSBasicRenderer3D();
 	}
 	
-	@Inject(method = "render", slice = @Slice(
-			from = @At(value = "INVOKE", ordinal = 0, shift = Shift.BEFORE, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V"),
-			to = @At(value = "INVOKE", ordinal = 1, shift = Shift.AFTER, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V")), 
-			at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/gl/ShaderEffect;render(F)V"))
-	private void onRenderTransparentLastFabulous(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
-		if (MinecraftClient.isFabulousGraphicsOrBetter())
-			client.worldRenderer.getTranslucentFramebuffer().beginWrite(false);
-		
-		handleOnRenderTransparentLast(matrixStack);
-		
-		if (MinecraftClient.isFabulousGraphicsOrBetter())
-            client.getFramebuffer().beginWrite(false);
-	}
-	
-	@Inject(method = "render", at = @At(value = "INVOKE", ordinal = 1, shift = Shift.AFTER, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V"))
-	private void onRenderTransparentLastDefault(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
-		handleOnRenderTransparentLast(matrixStack);
-	}
-
-	private void handleOnRenderTransparentLast(MatrixStack matrixStack) {
+	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/render/WorldRenderer;renderChunkDebugInfo(Lnet/minecraft/client/render/Camera;)V"))
+	private void onRenderTransparentLast(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
 		Collection<GSIRenderable3D> renderables = GSControllerClient.getInstance().getRenderables();
 		
 		if (hasRenderPhase(renderables, GSERenderPhase.TRANSPARENT_LAST)) {

@@ -10,7 +10,6 @@ import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.server.GSControllerServer;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
@@ -46,7 +45,7 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 	}
 	
 	@Inject(method = "fromTag", at = @At("RETURN"))
-	private void onFromTag(BlockState state, CompoundTag tag, CallbackInfo ci) {
+	private void onFromTag(CompoundTag tag, CallbackInfo ci) {
 		ticked = !tag.contains("ticked") || tag.getBoolean("ticked");
 	}
 

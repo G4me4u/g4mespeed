@@ -22,8 +22,6 @@ import com.g4mesoft.util.GSMathUtils;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
@@ -48,7 +46,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	private boolean layoutChanged;
 	
 	private GSSettingElementGUI<?> hoveredElement;
-	private List<OrderedText> descLines;
+	private List<String> descLines;
 	private int startDescHeight;
 	private int targetDescHeight;
 
@@ -157,9 +155,9 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			if (hoveredElement != null) {
 				int descTextWidth = width - settingsWidth - DESC_LINE_MARGIN * 2;
 				
-				MutableText desc = new TranslatableText(hoveredElement.getSettingNameText().getKey() + ".desc");
+				Text desc = new TranslatableText(hoveredElement.getSettingNameText().getKey() + ".desc");
 				Text def = new TranslatableText("setting.default", hoveredElement.getFormattedDefault());
-				descLines = renderer.splitToLines(desc.append(" ").append(def), descTextWidth);
+				descLines = renderer.splitToLines(desc.append(" ").append(def).asFormattedString(), descTextWidth);
 				
 				int lineCount = descLines.size();
 				int minimumDescHeight = lineCount * renderer.getTextHeight() + (lineCount - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
@@ -198,7 +196,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			int alpha = GSMathUtils.clamp((int)(progress * 128.0f + 127.0f), 0, 255) << 24;
 			
 			int y = descY + DESC_LINE_MARGIN;
-			for (OrderedText line : descLines) {
+			for (String line : descLines) {
 				if (y + renderer.getTextHeight() > descY + descHeight)
 					break;
 				

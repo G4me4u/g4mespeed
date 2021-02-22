@@ -305,10 +305,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		case HOTKEY_FEEDBACK_DISABLED:
 			break;
 		case HOTKEY_FEEDBACK_STATUS:
-			player.sendMessage(feedbackText, true);
+			player.addChatMessage(feedbackText, true);
 			break;
 		case HOTKEY_FEEDBACK_CHAT:
-			player.sendMessage(feedbackText, false);
+			player.addChatMessage(feedbackText, false);
 			break;
 		default:
 			break;
@@ -465,7 +465,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	public boolean isPlayerAllowedTpsChange(PlayerEntity player) {
-		return player.hasPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);
+		return player.allowsPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);
 	}
 	
 	@Override

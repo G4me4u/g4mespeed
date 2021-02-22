@@ -12,7 +12,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.util.NarratorManager;
-import net.minecraft.client.util.math.MatrixStack;
 
 final class GSScreen extends Screen {
 
@@ -33,7 +32,7 @@ final class GSScreen extends Screen {
 	protected void init() {
 		super.init();
 	
-		client.keyboard.setRepeatEvents(true);
+		minecraft.keyboard.enableRepeatEvents(true);
 		rootPanel.setBounds(0, 0, width, height);
 		
 		setVisibleImpl(true);
@@ -44,7 +43,7 @@ final class GSScreen extends Screen {
 	public void removed() {
 		super.removed();
 
-		client.keyboard.setRepeatEvents(false);
+		minecraft.keyboard.enableRepeatEvents(false);
 
 		setVisibleImpl(false);
 	}
@@ -66,7 +65,7 @@ final class GSScreen extends Screen {
 	
 	@Override
 	@GSCoreOverride
-	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+	public void render(int mouseX, int mouseY, float partialTicks) {
 		RenderSystem.disableTexture();
 		RenderSystem.disableAlphaTest();
 		RenderSystem.shadeModel(GL11.GL_SMOOTH);
@@ -76,7 +75,7 @@ final class GSScreen extends Screen {
 		
 		GSIRenderer2D renderer = GSPanelContext.getRenderer();
 		
-		((GSBasicRenderer2D)renderer).begin(Tessellator.getInstance().getBuffer(), matrixStack, mouseX, mouseY);
+		((GSBasicRenderer2D)renderer).begin(Tessellator.getInstance().getBuffer(), mouseX, mouseY);
 		
 		rootPanel.preRender(renderer);
 		rootPanel.render(renderer);
@@ -99,7 +98,7 @@ final class GSScreen extends Screen {
 	@Override
 	@GSCoreOverride
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		int modifiers = ((GSIMouseAccess)client.mouse).getPreviousEventModifiers();
+		int modifiers = ((GSIMouseAccess)minecraft.mouse).getPreviousEventModifiers();
 		GSPanelContext.getEventDispatcher().mousePressed(button, (float)mouseX, (float)mouseY, modifiers);
 		return true;
 	}
@@ -107,7 +106,7 @@ final class GSScreen extends Screen {
 	@Override
 	@GSCoreOverride
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		int modifiers = ((GSIMouseAccess)client.mouse).getPreviousEventModifiers();
+		int modifiers = ((GSIMouseAccess)minecraft.mouse).getPreviousEventModifiers();
 		GSPanelContext.getEventDispatcher().mouseReleased(button, (float)mouseX, (float)mouseY, modifiers);
 		return true;
 	}
@@ -122,7 +121,7 @@ final class GSScreen extends Screen {
 	@Override
 	@GSCoreOverride
 	public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
-		float scrollX = (float)((GSIMouseAccess)client.mouse).getPreviousEventScrollX();
+		float scrollX = (float)((GSIMouseAccess)minecraft.mouse).getPreviousEventScrollX();
 		GSPanelContext.getEventDispatcher().mouseScroll((float)mouseX, (float)mouseY, scrollX, (float)scrollY);
 		return true;
 	}
@@ -130,7 +129,7 @@ final class GSScreen extends Screen {
 	@Override
 	@GSCoreOverride
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		if (((GSIKeyboardAccess)client.keyboard).isPreviousEventRepeating()) {
+		if (((GSIKeyboardAccess)minecraft.keyboard).isPreviousEventRepeating()) {
 			GSPanelContext.getEventDispatcher().keyRepeated(keyCode, scanCode, modifiers);
 		} else {
 			GSPanelContext.getEventDispatcher().keyPressed(keyCode, scanCode, modifiers);

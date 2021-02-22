@@ -6,7 +6,6 @@ import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
@@ -50,7 +49,7 @@ public class GSIntegerSettingElementGUI extends GSNumberSettingElementGUI<GSInte
 		}
 	}
 	
-	private MutableText getFormattedValue(int value) {
+	private Text getFormattedValue(int value) {
 		String valueText = String.format(Locale.ENGLISH, "%d", value);
 		String nameTranslationKey = nameText.getKey();
 		

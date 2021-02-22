@@ -13,6 +13,7 @@ import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.level.LevelGeneratorType;
 
 @Mixin(ServerChunkManager.class)
 public class GSServerChunkManagerMixin implements GSIServerChunkManagerAccess {
@@ -25,13 +26,9 @@ public class GSServerChunkManagerMixin implements GSIServerChunkManagerAccess {
 	public void flushAndSendChunkUpdates() {
 		world.getProfiler().push("chunks");
 		
-		if (!world.isDebugWorld()) {
+		if (world.getGeneratorType() != LevelGeneratorType.DEBUG_ALL_BLOCK_STATES) {
 			world.getProfiler().push("pollingChunks");
 			
-			// The vanilla implementation actually shuffles the chunks before
-			// processing them. This is to ensure that random ticks are being
-			// processed randomly. Since we don't process those here, we can
-			// broadcast without having to shuffle the chunk holders.
 			((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).invokeEntryIterator().forEach((chunkHolder) -> {
 				Optional<WorldChunk> optional = chunkHolder.getEntityTickingFuture().getNow(ChunkHolder.UNLOADED_WORLD_CHUNK).left();
 				if (optional.isPresent()) {

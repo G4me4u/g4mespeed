@@ -5,7 +5,7 @@ import java.io.IOException;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.util.GSBufferUtil;
 
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.PacketByteBuf;
 
 public class GSExtensionInfo {
 

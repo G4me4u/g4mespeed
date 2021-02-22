@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import org.lwjgl.opengl.GL11;
 
 import com.g4mesoft.access.GSIBufferBuilderAccess;
-import com.g4mesoft.mixin.client.GSIVertexFormatElementAccess;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.render.BufferBuilder;
@@ -132,7 +131,7 @@ public class GSClipAdjuster {
 		for (VertexFormatElement vertexElement : format.getElements()) {
 			if (vertexElement.getType() != VertexFormatElement.Type.PADDING) {
 				VertexFormatElement.Format vertexElementFormat = vertexElement.getFormat();
-				for (int i = 0; i < ((GSIVertexFormatElementAccess)vertexElement).getCount(); i++) {
+				for (int i = 0; i < vertexElement.getCount(); i++) {
 					float v0 = getVertexElement(buffer, i0, vertexElementFormat);
 					float v1 = getVertexElement(buffer, i1, vertexElementFormat);
 	

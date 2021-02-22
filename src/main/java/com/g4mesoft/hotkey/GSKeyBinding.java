@@ -1,8 +1,10 @@
 package com.g4mesoft.hotkey;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.util.InputUtil.Key;
+import net.minecraft.client.util.InputUtil.KeyCode;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 public class GSKeyBinding {
@@ -10,10 +12,10 @@ public class GSKeyBinding {
 	private final GSKeyManager manager;
 	private final String name;
 	private final String category;
-	private final Key defaultKeyCode;
+	private final KeyCode defaultKeyCode;
 	private final boolean allowDisabled;
 	
-	private Key keyCode;
+	private KeyCode keyCode;
 
 	private boolean keyState;
 	
@@ -89,7 +91,25 @@ public class GSKeyBinding {
 	}
 
 	public Text getLocalizedName() {
-		return keyCode.getLocalizedText();
+		String result = null;
+		
+		switch (keyCode.getCategory()) {
+		case KEYSYM:
+			result = InputUtil.getKeycodeName(keyCode.getKeyCode());
+			break;
+		case SCANCODE:
+			result = InputUtil.getScancodeName(keyCode.getKeyCode());
+			break;
+		case MOUSE:
+			result = I18n.hasTranslation(keyCode.getName()) ? I18n.translate(keyCode.getName()) :
+				I18n.translate(keyCode.getCategory().getName(), keyCode.getKeyCode() + 1);
+			break;
+		}
+		
+		if (result == null)
+			result = I18n.translate(keyCode.getName());
+	
+		return new LiteralText(result);
 	}
 
 	public boolean isPressed() {
@@ -120,22 +140,22 @@ public class GSKeyBinding {
 		return category;
 	}
 	
-	public Key getKeyCode() {
+	public KeyCode getKeyCode() {
 		return keyCode;
 	}
 
-	public void setKeyCode(Key keyCode) {
-		if (!allowDisabled && keyCode == InputUtil.UNKNOWN_KEY)
+	public void setKeyCode(KeyCode keyCode) {
+		if (!allowDisabled && keyCode == InputUtil.UNKNOWN_KEYCODE)
 			keyCode = defaultKeyCode;
 		
-		Key oldKeyCode = this.keyCode;
+		KeyCode oldKeyCode = this.keyCode;
 		this.keyCode = keyCode;
 		reset();
 		
 		manager.onKeyCodeChanged(this, oldKeyCode, keyCode);
 	}
 
-	public Key getDefaultKeyCode() {
+	public KeyCode getDefaultKeyCode() {
 		return defaultKeyCode;
 	}
 }

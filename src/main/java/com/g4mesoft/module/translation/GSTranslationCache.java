@@ -7,7 +7,7 @@ import java.util.Map;
 
 import com.g4mesoft.util.GSBufferUtil;
 
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.PacketByteBuf;
 
 public class GSTranslationCache {
 

@@ -2,7 +2,7 @@ package com.g4mesoft;
 
 import java.io.IOException;
 
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.PacketByteBuf;
 
 public final class GSExtensionUID {
 

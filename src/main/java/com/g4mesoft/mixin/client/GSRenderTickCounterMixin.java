@@ -8,7 +8,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.client.GSControllerClient;
@@ -22,12 +21,11 @@ import net.minecraft.client.render.RenderTickCounter;
 @Mixin(RenderTickCounter.class)
 public class GSRenderTickCounterMixin implements GSITickTimer {
 
+	@Shadow public int ticksThisFrame;
 	@Shadow public float tickDelta;
 	@Shadow public float lastFrameDuration;
 	@Shadow public long prevTimeMillis;
 	@Shadow @Final private float tickTime;
-	
-	private int ticksThisFrame;
 
 	private boolean firstUpdate;
 	private GSCarpetCompat carpetCompat;
@@ -41,7 +39,7 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 
 	@Inject(method = "beginRenderTick", at = @At(value = "FIELD", shift = Shift.AFTER, opcode = Opcodes.PUTFIELD,
 			target = "Lnet/minecraft/client/render/RenderTickCounter;lastFrameDuration:F"))
-	private void onModifyTickrate(long timeMillis, CallbackInfoReturnable<Boolean> cir) {
+	private void onModifyTickrate(long timeMillis, CallbackInfo ci) {
 		if (firstUpdate) {
 			init(prevTimeMillis);
 			firstUpdate = false;
@@ -59,17 +57,9 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 			this.lastFrameDuration = (timeMillis - this.prevTimeMillis) / millisPerTick;
 	}
 
-	@Inject(method = "beginRenderTick", at = @At(value = "FIELD", shift = Shift.BEFORE, opcode = Opcodes.GETFIELD,
-			target = "Lnet/minecraft/client/render/RenderTickCounter;tickDelta:F"))
-	private void onGetTicksThisFrame(long currentTimeMillis, CallbackInfoReturnable<Integer> cir) {
-		ticksThisFrame = (int)tickDelta;
-	}
-
-	@Inject(method = "beginRenderTick", cancellable = true, at = @At("RETURN"))
-	private void onBeginRenderTick(long timeMillis, CallbackInfoReturnable<Integer> cir) {
+	@Inject(method = "beginRenderTick", at = @At("RETURN"))
+	private void onBeginRenderTick(long timeMillis, CallbackInfo ci) {
 		update(timeMillis);
-		cir.setReturnValue(ticksThisFrame);
-		cir.cancel();
 	}
 
 	@Override

@@ -19,9 +19,8 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.TickDurationMonitor;
 import net.minecraft.util.Util;
-import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.profiler.DisableableProfiler;
 
 @Mixin(MinecraftServer.class)
 public abstract class GSMinecraftServerMixin implements GSITpsDependant {
@@ -32,11 +31,11 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	@Shadow @Final private static Logger LOGGER;
 	@Shadow private volatile boolean running;
 	@Shadow private long timeReference;
-	@Shadow private long lastTimeReference;
+	@Shadow private long field_4557;
 	@Shadow private boolean profilerStartQueued;
-	@Shadow private Profiler profiler;
+	@Shadow @Final private DisableableProfiler profiler;
 	@Shadow private volatile boolean loading;
-	@Shadow private boolean waitingForNextTick;
+	@Shadow private boolean field_19249;
 	@Shadow private long field_19248;
 
 	@Shadow protected abstract void tick(BooleanSupplier booleanSupplier);
@@ -44,10 +43,6 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	@Shadow protected abstract boolean shouldKeepTicking();
 
 	@Shadow protected abstract void method_16208();
-
-	@Shadow protected abstract void startMonitor(TickDurationMonitor tickDurationMonitor);
-	
-	@Shadow protected abstract void endMonitor(TickDurationMonitor tickDurationMonitor);
 
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {
@@ -71,7 +66,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		}
 	}
 
-	@Inject(method = "runServer", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
+	@Inject(method = "run", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
 			target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V"))
 	private void onInitialized(CallbackInfo ci) {
 		// Some mods might also modify the run loop...
@@ -86,7 +81,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	 * Ensure that we set require = 0. Some mods might change the overall structure of the mod. For 
 	 * example carpet modifies the loop and changes this.running to just be false.
 	 */
-	@Inject(method = "runServer", require = 0, allow = 1, at = @At(value = "FIELD", shift = Shift.BEFORE,
+	@Inject(method = "run", require = 0, allow = 1, at = @At(value = "FIELD", shift = Shift.BEFORE,
 			opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/server/MinecraftServer;running:Z"))
 	private void onModifiedRunLoop(CallbackInfo ci) {
 		while (this.running) {
@@ -94,31 +89,31 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			msAccum += msPerTick - msThisTick;
 
 			long msBehind = Util.getMeasuringTimeMs() - this.timeReference;
-			if (msBehind > 1000L + 20L * msPerTick && this.timeReference - this.lastTimeReference >= 10000L + 100L * msPerTick) {
+			if (msBehind > 1000L + 20L * msPerTick && this.timeReference - this.field_4557 >= 10000L + 100L * msPerTick) {
 				long ticksBehind = (long)(msBehind / msPerTick);
-				LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", msBehind, ticksBehind);
+				LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", msBehind,
+						ticksBehind);
 				this.timeReference += ticksBehind * msPerTick;
-				this.lastTimeReference = this.timeReference;
+				this.field_4557 = this.timeReference;
 
 				this.msAccum = msPerTick;
 			}
 
 			this.timeReference += msThisTick;
-			
-			TickDurationMonitor tickDurationMonitor_1 = TickDurationMonitor.create("Server");
-			this.startMonitor(tickDurationMonitor_1);
-			
+			if (this.profilerStartQueued) {
+				this.profilerStartQueued = false;
+				this.profiler.getController().enable();
+			}
+
 			this.profiler.startTick();
 			this.profiler.push("tick");
 			this.tick(this::shouldKeepTicking);
 			this.profiler.swap("nextTickWait");
-			this.waitingForNextTick = true;
+			this.field_19249 = true;
 			this.field_19248 = Math.max(Util.getMeasuringTimeMs() + msThisTick, this.timeReference);
 			this.method_16208();
 			this.profiler.pop();
 			this.profiler.endTick();
-			
-			this.endMonitor(tickDurationMonitor_1);
 			this.loading = true;
 		}
 	}

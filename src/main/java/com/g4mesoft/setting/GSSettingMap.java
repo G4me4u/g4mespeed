@@ -15,7 +15,7 @@ import com.google.common.base.Predicates;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.DecoderException;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.PacketByteBuf;
 
 public final class GSSettingMap {
 
