@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -25,6 +25,7 @@ import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
@@ -106,10 +107,11 @@ public class GSWorldRendererMixin {
 		return false;
 	}
 	
-	@ModifyVariable(method = "renderEntity", argsOnly = false, ordinal = 0, at = @At("HEAD"))
-	private float onRenderEntityModifyDeltaTick(float oldDeltaTick, Entity entity) {
+	@ModifyArg(method = "render", index = 4, at = @At(value = "INVOKE", 
+			target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
+	private float onRenderEntityModifyDeltaTick(Entity entity, double cameraX, double cameraY, double cameraZ, float deltaTick, MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
 		if (!client.isPaused() && controller.getTpsModule().shouldCorrectMovement() && entity == client.player)
 			return ((GSIMinecraftClientAccess)client).getFixedMovementTickDelta();
-		return oldDeltaTick;
+		return deltaTick;
 	}
 }
