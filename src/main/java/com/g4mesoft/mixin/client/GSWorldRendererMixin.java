@@ -108,7 +108,7 @@ public class GSWorldRendererMixin {
 	
 	@ModifyVariable(method = "renderEntity", argsOnly = false, ordinal = 0, at = @At("HEAD"))
 	private float onRenderEntityModifyDeltaTick(float oldDeltaTick, Entity entity) {
-		if (controller.getTpsModule().shouldCorrectMovement() && entity == client.player)
+		if (!client.isPaused() && controller.getTpsModule().shouldCorrectMovement() && entity == client.player)
 			return ((GSIMinecraftClientAccess)client).getFixedMovementTickDelta();
 		return oldDeltaTick;
 	}
