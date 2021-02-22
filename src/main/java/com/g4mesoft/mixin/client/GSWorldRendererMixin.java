@@ -2,12 +2,16 @@ package com.g4mesoft.mixin.client;
 
 import java.util.Collection;
 
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.g4mesoft.access.GSIMinecraftClientAccess;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.renderer.GSBasicRenderer3D;
 import com.g4mesoft.renderer.GSERenderPhase;
@@ -23,14 +27,19 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
 
 @Mixin(WorldRenderer.class)
 public class GSWorldRendererMixin {
 
+	@Shadow @Final private MinecraftClient client;
+	
+	private GSControllerClient controller;
 	private GSBasicRenderer3D renderer3d;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void onInit(MinecraftClient client, BufferBuilderStorage builderStorage, CallbackInfo ci) {
+		controller = GSControllerClient.getInstance();
 		renderer3d = new GSBasicRenderer3D();
 	}
 	
@@ -76,5 +85,12 @@ public class GSWorldRendererMixin {
 		}
 
 		return false;
+	}
+	
+	@ModifyVariable(method = "renderEntity", argsOnly = false, ordinal = 0, at = @At("HEAD"))
+	private float onRenderEntityModifyDeltaTick(float oldDeltaTick, Entity entity) {
+		if (controller.getTpsModule().shouldCorrectMovement() && entity == client.player)
+			return ((GSIMinecraftClientAccess)client).getFixedMovementTickDelta();
+		return oldDeltaTick;
 	}
 }

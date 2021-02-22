@@ -5,6 +5,7 @@ import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.module.tps.GSPlayerFixedMovementPacket;
 import com.g4mesoft.module.tps.GSServerSyncPacket;
 import com.g4mesoft.module.tps.GSServerTpsPacket;
 import com.g4mesoft.module.tps.GSTpsChangePacket;
@@ -48,6 +49,7 @@ public class GSCoreExtension implements GSIExtension {
 		registry.register( 9, GSTranslationVersionsPacket.class, GSTranslationVersionsPacket::new);
 		registry.register(10, GSConnectionPacket.class, GSConnectionPacket::new);
 		registry.register(11, GSServerTpsPacket.class, GSServerTpsPacket::new);
+		registry.register(12, GSPlayerFixedMovementPacket.class, GSPlayerFixedMovementPacket::new);
 	}
 
 	@Override

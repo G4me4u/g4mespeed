@@ -8,7 +8,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
-import com.g4mesoft.access.GSINetworkHandlerAccess;
+import com.g4mesoft.access.GSIServerPlayNetworkHandlerAccess;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSConnectionPacket;
@@ -85,22 +85,22 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	
 	@Override
 	public boolean isExtensionInstalled(ServerPlayerEntity player, GSExtensionUID extensionUid) {
-		return ((GSINetworkHandlerAccess)player.networkHandler).isExtensionInstalled(extensionUid);
+		return ((GSIServerPlayNetworkHandlerAccess)player.networkHandler).isExtensionInstalled(extensionUid);
 	}
 	
 	@Override
 	public boolean isExtensionInstalled(ServerPlayerEntity player, GSExtensionUID extensionUid, GSVersion minimumVersion) {
-		return ((GSINetworkHandlerAccess)player.networkHandler).isExtensionInstalled(extensionUid, minimumVersion);
+		return ((GSIServerPlayNetworkHandlerAccess)player.networkHandler).isExtensionInstalled(extensionUid, minimumVersion);
 	}
 
 	@Override
 	public GSExtensionInfo getExtensionInfo(ServerPlayerEntity player, GSExtensionUID extensionUid) {
-		return ((GSINetworkHandlerAccess)player.networkHandler).getExtensionInfo(extensionUid);
+		return ((GSIServerPlayNetworkHandlerAccess)player.networkHandler).getExtensionInfo(extensionUid);
 	}
 	
 	public void onG4mespeedClientJoined(ServerPlayerEntity player, GSExtensionInfo[] extensionInfo) {
-		((GSINetworkHandlerAccess)player.networkHandler).clearAllExtensionInfo();
-		((GSINetworkHandlerAccess)player.networkHandler).addAllExtensionInfo(extensionInfo);
+		((GSIServerPlayNetworkHandlerAccess)player.networkHandler).clearAllExtensionInfo();
+		((GSIServerPlayNetworkHandlerAccess)player.networkHandler).addAllExtensionInfo(extensionInfo);
 		
 		if (isExtensionInstalled(player, GSCoreExtension.UID)) {
 			GSExtensionInfo coreInfo = getExtensionInfo(player, GSCoreExtension.UID);
