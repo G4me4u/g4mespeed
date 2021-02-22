@@ -23,7 +23,7 @@ public class GSCoreExtension implements GSIExtension {
 	public static final String NAME        = "Core";
 	/* "CORE" in ASCII as HEX */
 	public static final GSExtensionUID UID = new GSExtensionUID(0x434F5245);
-	public static final GSVersion VERSION  = new GSVersion(1, 1, 1);
+	public static final GSVersion VERSION  = new GSVersion(1, 1, 2);
 	
 	public static final GSExtensionInfo INFO = new GSExtensionInfo(NAME, UID, VERSION);
 	public static final GSExtensionInfo INVALID_VERSION_INFO = new GSExtensionInfo(NAME, UID, GSVersion.INVALID);
