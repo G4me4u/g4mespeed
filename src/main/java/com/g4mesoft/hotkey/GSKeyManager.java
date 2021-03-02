@@ -38,6 +38,13 @@ public class GSKeyManager {
 		codeToKeys = new HashMap<>();
 	}
 
+	public void dispose() {
+		keySettings.clear();
+
+		keyBindings.clear();
+		codeToKeys.clear();
+	}
+	
 	public void loadKeys(File keySettingsFile) {
 		try (BufferedReader br = new BufferedReader(new FileReader(keySettingsFile))) {
 			String line;
