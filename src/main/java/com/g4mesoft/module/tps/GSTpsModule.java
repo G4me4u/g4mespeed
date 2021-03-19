@@ -13,6 +13,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
+import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.client.GSIModuleManagerClient;
 import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.core.compat.GSICarpetCompatTickrateListener;
@@ -24,7 +25,6 @@ import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.types.GSBooleanSetting;
-import com.g4mesoft.setting.types.GSFloatSetting;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 import com.g4mesoft.util.GSMathUtils;
 import com.mojang.brigadier.CommandDispatcher;
@@ -88,7 +88,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 
 	public final GSBooleanSetting cShiftPitch;
 	public final GSBooleanSetting cSyncTick;
-	public final GSFloatSetting cSyncTickAggression;
 	public final GSBooleanSetting cForceCarpetTickrate;
 	public final GSIntegerSetting sSyncPacketInterval;
 	public final GSIntegerSetting sTpsHotkeyMode;
@@ -115,7 +114,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 		cShiftPitch = new GSBooleanSetting("shiftPitch", true);
 		cSyncTick = new GSBooleanSetting("syncTick", true);
-		cSyncTickAggression = new GSFloatSetting("syncTickAggression", 0.05f, 0.0f, 1.0f, 0.05f);
 		cForceCarpetTickrate = new GSBooleanSetting("forceCarpetTickrate", true);
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
 		sTpsHotkeyMode = new GSIntegerSetting("hotkeyMode", HOTKEY_MODE_CREATIVE, 0, 2);
@@ -154,8 +152,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public void registerClientSettings(GSSettingManager settings) {
 		settings.registerSetting(TPS_CATEGORY, cShiftPitch);
 		settings.registerSetting(TPS_CATEGORY, cSyncTick);
-		settings.registerSetting(TPS_CATEGORY, cSyncTickAggression);
-		cSyncTickAggression.setEnabledInGui(cSyncTick.getValue());
 		if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
 			settings.registerSetting(TPS_CATEGORY, cForceCarpetTickrate);
 		settings.registerSetting(TPS_CATEGORY, cShowTpsLabel);
@@ -478,8 +474,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	@Override
 	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
-		if (setting == cSyncTick)
-			cSyncTickAggression.setEnabledInGui(cSyncTick.getValue());
 		if (setting == cNormalMovement)
 			sendFixedMovementPacket();
 	}
@@ -526,7 +520,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Environment(EnvType.CLIENT)
 	public boolean shouldCorrectMovement() {
 		if (cNormalMovement.getValue() && !GSMathUtils.equalsApproximate(tps, DEFAULT_TPS)) {
-			PlayerEntity player = MinecraftClient.getInstance().player;
+			PlayerEntity player = GSControllerClient.getInstance().getPlayer();
 
 			if (player != null && !player.hasVehicle()) {
 				if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())

@@ -12,6 +12,7 @@ public class GSServerTickTimer implements GSITickTimer {
 	private static final float EXTRA_SYNC_DELAY = 5.0f;
 	private static final float MIN_SYNC_DELAY = 10.0f;
 	private static final float SYNC_DELAY_EASING_FACTOR = 0.25f;
+	private static final float SYNC_AGGRESSION = 0.05f;
 	
 	private final GSTpsModule tpsModule;
 	
@@ -130,7 +131,7 @@ public class GSServerTickTimer implements GSITickTimer {
 			targetOffset--;
 		}
 		
-		syncTickDelta += targetOffset * tpsModule.cSyncTickAggression.getValue();
+		syncTickDelta += targetOffset * SYNC_AGGRESSION;
 		
 		if (syncTickDelta < 0.0f) {
 			if (syncTickCount > 0) {
