@@ -31,9 +31,7 @@ import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.scroll.GSScrollPanel;
-import com.g4mesoft.renderer.GSERenderPhase;
 import com.g4mesoft.renderer.GSIRenderable3D;
-import com.g4mesoft.renderer.GSIRenderer3D;
 import com.g4mesoft.setting.GSRemoteSettingManager;
 
 import net.fabricmc.api.EnvType;
@@ -45,7 +43,6 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 
 @Environment(EnvType.CLIENT)
 public class GSControllerClient extends GSController implements GSIModuleManagerClient {
@@ -103,20 +100,6 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 			tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSScrollPanel(new GSSettingsGUI(serverSettings)));
 			tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSScrollPanel(new GSHotkeyGUI(keyManager)));
 			tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
-			
-			addRenderable(new GSIRenderable3D() {
-				
-				@Override
-				public void render(GSIRenderer3D renderer3d) {
-					Vec3d cameraPos = minecraft.gameRenderer.getCamera().getPos();
-					renderer3d.fillCube(-(float)cameraPos.getX(), -(float)cameraPos.getY(), -(float)cameraPos.getZ(), 0x80FF00FF);
-				}
-				
-				@Override
-				public GSERenderPhase getRenderPhase() {
-					return GSERenderPhase.TRANSPARENT_LAST;
-				}
-			});
 			
 			onStart();
 		}
