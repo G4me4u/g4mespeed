@@ -43,18 +43,22 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 	private static final int LABEL_TARGET_COLOR     = 0xFFEEEEEE;
 	
 	private static final DecimalFormat LOW_PRECISION_TPS_FORMAT = new DecimalFormat("0.0", new DecimalFormatSymbols(Locale.ENGLISH));
-	
+
+	@Shadow private int scaledWidth;
+	@Shadow private int scaledHeight;
+
 	@Shadow @Final private MinecraftClient client;
 	
 	@Shadow public abstract TextRenderer getFontRenderer();
 
 	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE, 
 			target = "Lnet/minecraft/client/gui/hud/SubtitlesHud;render(Lnet/minecraft/client/util/math/MatrixStack;)V"))
-	public void render(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
+	public void onRender(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
 		GSControllerClient controller = GSControllerClient.getInstance();
 		GSTpsModule tpsModule = controller.getTpsModule();
 		
-		if (!client.options.debugEnabled && tpsModule.cShowTpsLabel.getValue()) {
+		int labelLocation = tpsModule.cTpsLabel.getValue();
+		if (!client.options.debugEnabled && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
 			TextRenderer font = getFontRenderer();
 			GSTranslationModule translationModule = controller.getTranslationModule();
 			
@@ -66,15 +70,28 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 			
 			String targetText = translationModule.getFormattedTranslation("play.info.tpsLabelTarget", target);
 			
-			int lx0 = TPS_LABEL_MAGIN;
-			int ly0 = TPS_LABEL_MAGIN;
-			int lx1 = lx0 + font.getWidth(current + " " + targetText);
-			int ly1 = ly0 + font.fontHeight;
+			int lx;
+			int ly = TPS_LABEL_MAGIN;
+			int lw = font.getWidth(current + " " + targetText);
+			int lh = font.fontHeight;
+
+			switch (labelLocation) {
+			case GSTpsModule.TPS_LABEL_TOP_CENTER:
+				lx = (scaledWidth - lw) / 2;
+				break;
+			case GSTpsModule.TPS_LABEL_TOP_RIGHT:
+				lx = scaledWidth - lw - TPS_LABEL_MAGIN;
+				break;
+			case GSTpsModule.TPS_LABEL_TOP_LEFT:
+			default:
+				lx = TPS_LABEL_MAGIN;
+				break;
+			}
 			
-			fill(matrixStack, lx0 - 1, ly0 - 1, lx1, ly1, LABEL_BACKGROUND_COLOR);
+			fill(matrixStack, lx - 1, ly - 1, lx + lw, ly + lh, LABEL_BACKGROUND_COLOR);
 			
-			float tx = font.draw(matrixStack, current, lx0, ly0, getTpsLabelColor(averageTps, targetTps));
-			font.draw(matrixStack, targetText, tx + font.getWidth(" "), ly0, LABEL_TARGET_COLOR);
+			float tx = font.draw(matrixStack, current, lx, ly, getTpsLabelColor(averageTps, targetTps));
+			font.draw(matrixStack, targetText, tx + font.getWidth(" "), ly, LABEL_TARGET_COLOR);
 		}
 	}
 	

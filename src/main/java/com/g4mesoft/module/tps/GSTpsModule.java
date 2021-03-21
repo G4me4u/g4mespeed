@@ -70,6 +70,11 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	private static final int HOTKEY_FEEDBACK_STATUS   = 1;
 	private static final int HOTKEY_FEEDBACK_CHAT     = 2;
 	
+	public static final int TPS_LABEL_DISABLED   = 0;
+	public static final int TPS_LABEL_TOP_LEFT   = 1;
+	public static final int TPS_LABEL_TOP_CENTER = 2;
+	public static final int TPS_LABEL_TOP_RIGHT  = 3;
+	
 	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##", new DecimalFormatSymbols(Locale.ENGLISH));
 	
 	private float tps;
@@ -92,9 +97,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSIntegerSetting sSyncPacketInterval;
 	public final GSIntegerSetting sTpsHotkeyMode;
 	public final GSIntegerSetting sTpsHotkeyFeedback;
-	public final GSBooleanSetting cShowTpsLabel;
-	public final GSBooleanSetting sBroadcastTps;
 	public final GSBooleanSetting cNormalMovement;
+	public final GSIntegerSetting cTpsLabel;
+	public final GSBooleanSetting sBroadcastTps;
 
 	public final GSIntegerSetting cPistonAnimationType;
 	public final GSIntegerSetting cPistonRenderDistance;
@@ -118,9 +123,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
 		sTpsHotkeyMode = new GSIntegerSetting("hotkeyMode", HOTKEY_MODE_CREATIVE, 0, 2);
 		sTpsHotkeyFeedback = new GSIntegerSetting("hotkeyFeedback", HOTKEY_FEEDBACK_STATUS, 0, 2);
-		cShowTpsLabel = new GSBooleanSetting("showTpsLabel", false);
-		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
 		cNormalMovement = new GSBooleanSetting("normalMovement", false);
+		cTpsLabel = new GSIntegerSetting("tpsLabel", TPS_LABEL_DISABLED, 0, 3);
+		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
 		
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, -1, 32);
@@ -155,7 +160,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
 			settings.registerSetting(TPS_CATEGORY, cForceCarpetTickrate);
 		settings.registerSetting(TPS_CATEGORY, cNormalMovement);
-		settings.registerSetting(TPS_CATEGORY, cShowTpsLabel);
+		settings.registerSetting(TPS_CATEGORY, cTpsLabel);
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonAnimationType);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonRenderDistance);

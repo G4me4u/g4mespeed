@@ -55,8 +55,12 @@ setting.tps.syncTickAggression.desc=The aggression of synchronization. A value o
 setting.tps.forceCarpetTickrate=Force Carpet Tickrate
 setting.tps.forceCarpetTickrate.desc=Forces the client to use the tickrate set by G4mespeed and the Carpet mod. This overrides functionality related to smoothClientAnimations in Carpet. If you wish to use Carpet's handling for tickrate on the client, disable this setting.
 
-setting.tps.showTpsLabel=Show TPS Label
-setting.tps.showTpsLabel.desc=Displays a label with the current and target server tps in the top-left corner of the in-game hud. If the connected server is not a G4mespeed server the tps will be approximated.
+setting.tps.tpsLabel=TPS Label
+setting.tps.tpsLabel.desc=Displays a label with the current and target server tps in the specified location of the in-game hud. If the connected server is not a G4mespeed server the tps will be approximated.
+setting.tps.tpsLabel.0=Hidden
+setting.tps.tpsLabel.1=Top left
+setting.tps.tpsLabel.2=Top center
+setting.tps.tpsLabel.3=Top right
 
 setting.tps.normalMovement=Fixed Movement Speed
 setting.tps.normalMovement.desc=Allows the player to move at a fixed 20 ticks per second without affecting server tick rate.
