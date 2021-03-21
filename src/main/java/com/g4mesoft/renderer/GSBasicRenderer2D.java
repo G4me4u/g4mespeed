@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.lwjgl.opengl.GL11;
-
 import com.g4mesoft.access.GSIBufferBuilderAccess;
 import com.g4mesoft.util.GSMathUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormat.DrawMode;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -35,7 +35,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	private int mouseY;
 	
 	private boolean building;
-	private int buildingShape;
+	private DrawMode buildingDrawMode;
 	
 	private GSTransform2D transform;
 	private final LinkedList<GSTransform2D> transformStack;
@@ -143,12 +143,12 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	                         float rbr, float gbr, float bbr, float abr,
 	                         boolean mirror) {
 		
-		if (building && buildingShape != QUADS)
+		if (building && buildingDrawMode != DrawMode.QUADS)
 			throw new IllegalStateException("Building quads is required!");
 		
 		boolean wasBuilding = building;
 		if (!wasBuilding)
-			build(QUADS, VertexFormats.POSITION_COLOR);
+			build(DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 		
 		float x0 = (float)x;
 		float y0 = (float)y;
@@ -173,12 +173,12 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	
 	@Override
 	public void drawRect(int x, int y, int width, int height, int color) {
-		if (building && buildingShape != QUADS)
+		if (building && buildingDrawMode != DrawMode.QUADS)
 			throw new IllegalStateException("Building quads is required!");
 		
 		boolean wasBuilding = building;
 		if (!wasBuilding)
-			build(QUADS, VertexFormats.POSITION_COLOR);
+			build(DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 		
 		drawHLine(x, x + width, y, color);
 		drawHLine(x, x + width, y + height - 1, color);
@@ -200,24 +200,25 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		if (building)
 			throw new IllegalStateException("Batches are not supported when drawing textures");
 		
+		build(DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+
+		RenderSystem.setShaderTexture(0, texture.getTexture().getIdentifier());
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, opacity);
 		RenderSystem.enableTexture();
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, opacity);
-		client.getTextureManager().bindTexture(texture.getTexture().getIdentifier());
 		
 		float x0 = (float)x;
 		float y0 = (float)y;
 		float x1 = x0 + texture.getRegionWidth();
 		float y1 = y0 + texture.getRegionHeight();
 		
-		build(QUADS, VertexFormats.POSITION_TEXTURE);
 		vert(x0, y1, DEFAULT_Z_OFFSET).tex(texture.getU0(), texture.getV1()).next();
 		vert(x1, y1, DEFAULT_Z_OFFSET).tex(texture.getU1(), texture.getV1()).next();
 		vert(x1, y0, DEFAULT_Z_OFFSET).tex(texture.getU1(), texture.getV0()).next();
 		vert(x0, y0, DEFAULT_Z_OFFSET).tex(texture.getU0(), texture.getV0()).next();
-		finish();
-		
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+
 		RenderSystem.disableTexture();
+
+		finish();
 	}
 
 	@Override
@@ -232,12 +233,12 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	
 	@Override
 	public void drawDottedVLine(int x, int y0, int y1, int length, int spacing, int color) {
-		if (building && buildingShape != QUADS)
+		if (building && buildingDrawMode != DrawMode.QUADS)
 			throw new IllegalStateException("Building quads is required!");
 		
 		boolean wasBuilding = building;
 		if (!wasBuilding)
-			build(QUADS, VertexFormats.POSITION_COLOR);
+			build(DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 		
 		int n = (y1 - y0) / (length + spacing);
 		
@@ -253,12 +254,12 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	
 	@Override
 	public void drawDottedHLine(int x0, int x1, int y, int length, int spacing, int color) {
-		if (building && buildingShape != QUADS)
+		if (building && buildingDrawMode != DrawMode.QUADS)
 			throw new IllegalStateException("Building quads is required!");
 		
 		boolean wasBuilding = building;
 		if (!wasBuilding)
-			build(QUADS, VertexFormats.POSITION_COLOR);
+			build(DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 		
 		int n = (x1 - x0) / (length + spacing);
 		
@@ -313,9 +314,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		}
 
 		RenderSystem.disableTexture();
-		RenderSystem.shadeModel(GL11.GL_SMOOTH);
 		RenderSystem.enableBlend();
-		RenderSystem.disableAlphaTest();
 	}
 	
 	@Override
@@ -339,7 +338,6 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		
 		RenderSystem.disableTexture();
 		RenderSystem.enableBlend();
-		RenderSystem.disableAlphaTest();
 	}
 	
 	@Override
@@ -429,13 +427,27 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	}
 	
 	@Override
-	public void build(int shape, VertexFormat format) {
+	public void build(DrawMode drawMode, VertexFormat format) {
 		if (building)
 			throw new IllegalStateException("Already building!");
 		
-		builder.begin(shape, format);
+		if (format == VertexFormats.POSITION) {
+			RenderSystem.setShader(GameRenderer::getPositionShader);
+		} else if (format == VertexFormats.POSITION_COLOR) {
+			RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		} else if (format == VertexFormats.POSITION_COLOR_TEXTURE) {
+			RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+		} else if (format == VertexFormats.POSITION_TEXTURE) {
+			RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		} else if (format == VertexFormats.POSITION_TEXTURE_COLOR) {
+			RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+		} else {
+			throw new IllegalArgumentException("Unsupported vertex format!");
+		}
 		
-		buildingShape = shape;
+		builder.begin(drawMode, format);
+		
+		buildingDrawMode = drawMode;
 		building = true;
 	}
 

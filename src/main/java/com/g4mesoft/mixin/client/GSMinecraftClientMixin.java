@@ -163,7 +163,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		if (!paused && world != null) {
 			gameRenderer.tick();
 
-			if (player != null && !player.hasVehicle() && !player.removed)
+			if (player != null && !player.hasVehicle() && !player.isRemoved())
 				world.tickEntity(world::tickEntity, player);
 		}
 	}

@@ -3,14 +3,13 @@ package com.g4mesoft.renderer;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
-import org.lwjgl.opengl.GL11;
-
 import com.g4mesoft.access.GSIBufferBuilderAccess;
 import com.g4mesoft.mixin.client.GSIVertexFormatElementAccess;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormat.DrawMode;
 import net.minecraft.client.render.VertexFormatElement;
 
 public class GSClipAdjuster {
@@ -33,7 +32,7 @@ public class GSClipAdjuster {
 	}
 	
 	public void clipPreviousShape(BufferBuilder builder) {
-		if (clipRectStack.isEmpty() || ((GSIBufferBuilderAccess)builder).getDrawMode() != GL11.GL_QUADS)
+		if (clipRectStack.isEmpty() || ((GSIBufferBuilderAccess)builder).getDrawMode() != DrawMode.QUADS)
 			return;
 		
 		int vertexStart = ((GSIBufferBuilderAccess)builder).getVertexCount() - 4;

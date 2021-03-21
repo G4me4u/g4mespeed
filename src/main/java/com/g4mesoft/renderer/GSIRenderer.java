@@ -1,21 +1,19 @@
 package com.g4mesoft.renderer;
 
-import org.lwjgl.opengl.GL11;
-
 import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormat.DrawMode;
 
 public abstract interface GSIRenderer {
 
-	public static final int LINES          = GL11.GL_LINES;
-	public static final int LINE_STRIP     = GL11.GL_LINE_STRIP;
-	public static final int TRIANGLES      = GL11.GL_TRIANGLES;
-	public static final int TRIANGLE_STRIP = GL11.GL_TRIANGLE_STRIP;
-	public static final int QUADS          = GL11.GL_QUADS;
-	public static final int QUAD_STRIP     = GL11.GL_QUAD_STRIP;
+	public static final DrawMode LINES          = DrawMode.LINES;
+	public static final DrawMode LINE_STRIP     = DrawMode.LINE_STRIP;
+	public static final DrawMode TRIANGLES      = DrawMode.TRIANGLES;
+	public static final DrawMode TRIANGLE_STRIP = DrawMode.TRIANGLE_STRIP;
+	public static final DrawMode QUADS          = DrawMode.QUADS;
 	
 	public static final float COLOR_DARKEN_FACTOR = 0.7f;
 	
-	public void build(int shape, VertexFormat format);
+	public void build(DrawMode drawMode, VertexFormat format);
 
 	public GSIRenderer vert(float x, float y, float z);
 	

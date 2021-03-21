@@ -1,8 +1,12 @@
 package com.g4mesoft.renderer;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+
 import net.minecraft.client.render.BufferBuilder;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormat.DrawMode;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Quaternion;
@@ -13,7 +17,7 @@ public class GSBasicRenderer3D implements GSIRenderer3D {
 	private MatrixStack matrixStack;
 	
 	private boolean building;
-	private int buildingShape;
+	private DrawMode buildingDrawMode;
 	
 	public void begin(BufferBuilder builder, MatrixStack matrixStack) {
 		this.builder = builder;
@@ -23,7 +27,7 @@ public class GSBasicRenderer3D implements GSIRenderer3D {
 	public void end() {
 		if (building)
 			throw new IllegalStateException("Renderer is still building");
-
+		
 		matrixStack = null;
 		builder = null;
 	}
@@ -58,12 +62,12 @@ public class GSBasicRenderer3D implements GSIRenderer3D {
 	                       float x1, float y1, float z1,
 	                       float r, float g, float b, float a) {
 		
-		if (building && buildingShape != QUADS)
+		if (building && buildingDrawMode != DrawMode.QUADS)
 			throw new IllegalStateException("Building quads is required!");
 		
 		boolean wasBuilding = building;
 		if (!wasBuilding)
-			build(QUADS, VertexFormats.POSITION_COLOR);
+			build(DrawMode.QUADS, VertexFormats.POSITION_COLOR);
 		
 		// Back Face
 		vert(x0, y0, z0).color(r, g, b, a).next();
@@ -110,12 +114,12 @@ public class GSBasicRenderer3D implements GSIRenderer3D {
 	                              float x1, float y1, float z1,
 	                              float r, float g, float b, float a) {
 		
-		if (building && buildingShape != LINES)
+		if (building && buildingDrawMode != DrawMode.LINES)
 			throw new IllegalStateException("Building lines is required!");
 		
 		boolean wasBuilding = building;
 		if (!wasBuilding)
-			build(LINES, VertexFormats.POSITION_COLOR);
+			build(DrawMode.LINES, VertexFormats.POSITION_COLOR);
 		
 		// Lines on X-axis
 		vert(x0, y0, z0).color(r, g, b, a).next();
@@ -152,13 +156,35 @@ public class GSBasicRenderer3D implements GSIRenderer3D {
 	}
 
 	@Override
-	public void build(int shape, VertexFormat format) {
+	public void build(DrawMode drawMode, VertexFormat format) {
 		if (building)
 			throw new IllegalStateException("Already building!");
 		
-		builder.begin(shape, format);
+		if (format == VertexFormats.POSITION) {
+			RenderSystem.setShader(GameRenderer::getPositionShader);
+		} else if (format == VertexFormats.POSITION_COLOR) {
+			RenderSystem.setShader(GameRenderer::getPositionColorShader);
+		} else if (format == VertexFormats.POSITION_COLOR_LIGHT) {
+			RenderSystem.setShader(GameRenderer::getPositionColorLightmapShader);
+		} else if (format == VertexFormats.POSITION_COLOR_TEXTURE) {
+			RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+		} else if (format == VertexFormats.POSITION_COLOR_TEXTURE_LIGHT) {
+			RenderSystem.setShader(GameRenderer::getPositionColorTexLightmapShader);
+		} else if (format == VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL) {
+			RenderSystem.setShader(GameRenderer::getBlockShader);
+		} else if (format == VertexFormats.POSITION_TEXTURE) {
+			RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		} else if (format == VertexFormats.POSITION_TEXTURE_COLOR) {
+			RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+		} else if (format == VertexFormats.POSITION_TEXTURE_COLOR_NORMAL) {
+			RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+		} else {
+			throw new IllegalArgumentException("Unsupported vertex format!");
+		}
 		
-		buildingShape = shape;
+		builder.begin(drawMode, format);
+		
+		buildingDrawMode = drawMode;
 		building = true;
 	}
 

@@ -20,8 +20,10 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.World;
 
 @Mixin(PistonBlockEntity.class)
 public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GSIPistonBlockEntityAccess {
@@ -39,10 +41,10 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@GSCoreOverride
 	private float numberOfSteps = 2.0f;
 
-	public GSPistonBlockEntityMixin(BlockEntityType<?> blockEntityType_1) {
-		super(blockEntityType_1);
+	public GSPistonBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
-
+	
 	@Override
 	@Environment(EnvType.CLIENT)
 	public float getSmoothProgress(float partialTicks) {
@@ -84,38 +86,18 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		return ((GSIPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
 	}
 
-	@Inject(method = "fromTag", at = @At("RETURN"))
-	public void onFromTag(BlockState blockState, CompoundTag tag, CallbackInfo ci) {
+	@Inject(method = "readNbt", at = @At("RETURN"))
+	public void onReadNbt(NbtCompound tag, CallbackInfo ci) {
 		actualLastProgress = Math.max(0.0f, this.lastProgress - 1.0f / numberOfSteps);
 	}
 	
 	@Inject(method = "tick", at = @At(value = "FIELD", target="Lnet/minecraft/block/entity/PistonBlockEntity;lastProgress:F", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
-	private void onTickProgressChanged(CallbackInfo ci) {
-		actualLastProgress = this.lastProgress;
+	private static void onTickProgressChanged(World world, BlockPos pos, BlockState state, PistonBlockEntity blockEntity, CallbackInfo ci) {
+		((GSPistonBlockEntityMixin)(Object)blockEntity).actualLastProgress = ((GSPistonBlockEntityMixin)(Object)blockEntity).lastProgress;
 	}
 
 	@Inject(method = "finish", at = @At(value = "FIELD", target="Lnet/minecraft/block/entity/PistonBlockEntity;lastProgress:F", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
 	private void onFinishProgressChanged(CallbackInfo ci) {
 		actualLastProgress = this.lastProgress;
-	}
-	
-	@Override
-	@GSCoreOverride
-	@Environment(EnvType.CLIENT)
-	public double getSquaredRenderDistance() {
-		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
-		int chunkDist = tpsModule.cPistonRenderDistance.getValue();
-		if (chunkDist == GSTpsModule.AUTOMATIC_PISTON_RENDER_DISTANCE) {
-			if (tpsModule.sParanoidMode.getValue()) {
-				// When using paranoid mode there is no limit to where
-				// the piston block entities might occur. So we just
-				// render all of the ones within maximum view distance.
-				chunkDist = tpsModule.cPistonRenderDistance.getMaxValue();
-			} else {
-				chunkDist = tpsModule.sBlockEventDistance.getValue();
-			}
-		}
-		
-		return chunkDist * 16.0; // Distance is no longer squared.
 	}
 }

@@ -52,11 +52,11 @@ public class GSWorldRendererMixin {
 	private void onRenderTransparentLastFabulous(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
 		if (MinecraftClient.isFabulousGraphicsOrBetter())
 			client.worldRenderer.getTranslucentFramebuffer().beginWrite(false);
-		
+
 		handleOnRenderTransparentLast(matrixStack);
-		
+
 		if (MinecraftClient.isFabulousGraphicsOrBetter())
-            client.getFramebuffer().beginWrite(false);
+			client.getFramebuffer().beginWrite(false);
 	}
 	
 	@Inject(method = "render", at = @At(value = "INVOKE", ordinal = 1, shift = Shift.AFTER, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V"))
@@ -80,9 +80,9 @@ public class GSWorldRendererMixin {
 			RenderSystem.defaultBlendFunc();
 			RenderSystem.disableTexture();
 			
-			// Fix model matrix
-			RenderSystem.pushMatrix();
-			RenderSystem.loadIdentity();
+			// View matrix is already uploaded to shader uniform
+			matrixStack.push();
+			matrixStack.loadIdentity();
 			
 			renderer3d.begin(Tessellator.getInstance().getBuffer(), matrixStack);
 			for (GSIRenderable3D renderable : renderables) {
@@ -90,8 +90,8 @@ public class GSWorldRendererMixin {
 					renderable.render(renderer3d);
 			}
 			renderer3d.end();
-	
-			RenderSystem.popMatrix();
+
+			matrixStack.pop();
 	
 			RenderSystem.enableTexture();
 			RenderSystem.disableBlend();

@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import com.g4mesoft.renderer.GSClipRect;
 
 import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormat.DrawMode;
 
 public interface GSIBufferBuilderAccess {
 
@@ -22,7 +23,7 @@ public interface GSIBufferBuilderAccess {
 	
 	public ByteBuffer getByteBuffer();
 
-	public int getDrawMode();
+	public DrawMode getDrawMode();
 
 	public VertexFormat getVertexFormat();
 

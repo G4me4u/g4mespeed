@@ -154,8 +154,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		settings.registerSetting(TPS_CATEGORY, cSyncTick);
 		if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
 			settings.registerSetting(TPS_CATEGORY, cForceCarpetTickrate);
-		settings.registerSetting(TPS_CATEGORY, cShowTpsLabel);
 		settings.registerSetting(TPS_CATEGORY, cNormalMovement);
+		settings.registerSetting(TPS_CATEGORY, cShowTpsLabel);
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonAnimationType);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonRenderDistance);

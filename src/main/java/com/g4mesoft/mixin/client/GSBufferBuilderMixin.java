@@ -14,12 +14,13 @@ import com.g4mesoft.renderer.GSClipRect;
 
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexFormat;
+import net.minecraft.client.render.VertexFormat.DrawMode;
 
 @Mixin(BufferBuilder.class)
 public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 
 	@Shadow private ByteBuffer buffer;
-	@Shadow private int drawMode;
+	@Shadow private DrawMode drawMode;
 	@Shadow private VertexFormat format;
 
 	@Shadow private boolean building;
@@ -75,7 +76,7 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	}
 
 	@Override
-	public int getDrawMode() {
+	public DrawMode getDrawMode() {
 		return drawMode;
 	}
 

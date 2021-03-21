@@ -16,8 +16,7 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.setting.GSISettingChangeListener;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
-
-import net.minecraft.client.options.GameOptions;
+import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.sound.Channel;
 import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.client.sound.SoundManager;

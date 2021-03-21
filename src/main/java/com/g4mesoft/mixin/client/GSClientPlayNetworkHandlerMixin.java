@@ -31,7 +31,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.entity.MovementType;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
@@ -97,12 +97,8 @@ public class GSClientPlayNetworkHandlerMixin {
 		if (entity instanceof FallingBlockEntity) {
 			// See #onOnEntitySpawn
 
-			entity.resetPosition(entity.getX(), entity.getY(), entity.getZ());
-			
+			entity.resetPosition();
 			entity.move(MovementType.SELF, entity.getVelocity());
-			
-			// Entity has moved. Make sure its chunk is set correctly.
-			((GSIClientWorldAccess)world).invokeCheckEntityChunkPos(entity);
 		}
 	}
 
@@ -133,14 +129,14 @@ public class GSClientPlayNetworkHandlerMixin {
 	}
 	
 	@Redirect(method = "onChunkData", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;hasNext()Z"))
-	private boolean replaceChunkDataBlockEntityLoop(Iterator<CompoundTag> itr) {
+	private boolean replaceChunkDataBlockEntityLoop(Iterator<NbtCompound> itr) {
 		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
 
 		// Note that Fabric Carpet changes parts of the loop, so we have
 		// to override the entirety of the look by redirecting the condition.
 		
 		while(itr.hasNext()) {
-			CompoundTag tag = itr.next();
+			NbtCompound tag = itr.next();
 			
 			BlockPos blockPos = new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
 			
@@ -162,19 +158,15 @@ public class GSClientPlayNetworkHandlerMixin {
 			
 			BlockEntity blockEntity = world.getBlockEntity(blockPos);
 			if (blockEntity != null) {
-				blockEntity.fromTag(world.getBlockState(blockPos), tag);
+				blockEntity.readNbt(tag);
 			} else if (pistonType) {
 				// Make sure we're actually supposed to put
 				// a moving piston block entity in this location...
 				BlockState blockState = world.getBlockState(blockPos);
 				if (blockState.getBlock() == Blocks.MOVING_PISTON) {
-					blockEntity = new PistonBlockEntity();
-					blockEntity.fromTag(blockState, tag);
-					world.setBlockEntity(blockPos, blockEntity);
-					
-					// Probably not needed but it's done in
-					// other places so let's keep the standard.
-					blockEntity.resetBlock();
+					blockEntity = new PistonBlockEntity(blockPos, blockState);
+					blockEntity.readNbt(tag);
+					world.addBlockEntity(blockEntity);
 				}
 			}
 		}
@@ -199,7 +191,7 @@ public class GSClientPlayNetworkHandlerMixin {
 				}
 
 				BlockEntity blockEntity = world.getBlockEntity(pos);
-				CompoundTag tag = packet.getCompoundTag();
+				NbtCompound tag = packet.getCompoundTag();
 
 				if ("minecraft:piston".equals(tag.getString("id"))) {
 					if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked")) {
@@ -208,14 +200,12 @@ public class GSClientPlayNetworkHandlerMixin {
 					}
 					
 					if (blockEntity == null) {
-						blockEntity = new PistonBlockEntity();
-						blockEntity.fromTag(blockState, tag);
-						world.setBlockEntity(pos, blockEntity);
+						blockEntity = new PistonBlockEntity(pos, blockState);
+						blockEntity.readNbt(tag);
+						world.addBlockEntity(blockEntity);
 					} else {
-						blockEntity.fromTag(blockState, tag);
+						blockEntity.readNbt(tag);
 					}
-
-					blockEntity.resetBlock();
 
 					// Cancel vanilla handling of the packet.
 					ci.cancel();

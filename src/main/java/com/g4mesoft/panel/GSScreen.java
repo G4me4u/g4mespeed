@@ -1,7 +1,5 @@
 package com.g4mesoft.panel;
 
-import org.lwjgl.opengl.GL11;
-
 import com.g4mesoft.access.GSIKeyboardAccess;
 import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.GSCoreOverride;
@@ -68,11 +66,8 @@ final class GSScreen extends Screen {
 	@GSCoreOverride
 	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		RenderSystem.disableTexture();
-		RenderSystem.disableAlphaTest();
-		RenderSystem.shadeModel(GL11.GL_SMOOTH);
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		
 		GSIRenderer2D renderer = GSPanelContext.getRenderer();
 		
@@ -85,8 +80,6 @@ final class GSScreen extends Screen {
 		((GSBasicRenderer2D)renderer).end();
 		
 		RenderSystem.disableBlend();
-		RenderSystem.shadeModel(GL11.GL_FLAT);
-		RenderSystem.enableAlphaTest();
 		RenderSystem.enableTexture();
 	}
 

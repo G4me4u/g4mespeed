@@ -36,7 +36,7 @@ public class GSKeyboardMixin implements GSIKeyboardAccess {
 	}
 
 	@Inject(method="onKey(JIIII)V", at = @At(value = "INVOKE", shift = At.Shift.AFTER, 
-			target = "Lnet/minecraft/client/options/KeyBinding;onKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;)V"))
+			target = "Lnet/minecraft/client/option/KeyBinding;onKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;)V"))
 	public void onKeyPressRepeat(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		switch (action) {
 		case GLFW.GLFW_PRESS:
