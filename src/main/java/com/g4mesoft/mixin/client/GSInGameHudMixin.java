@@ -80,7 +80,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 				lx = (scaledWidth - lw) / 2;
 				break;
 			case GSTpsModule.TPS_LABEL_TOP_RIGHT:
-				lx = scaledWidth - lw - TPS_LABEL_MAGIN;
+				lx = scaledWidth - lw - TPS_LABEL_MAGIN + 1;
 				break;
 			case GSTpsModule.TPS_LABEL_TOP_LEFT:
 			default:
