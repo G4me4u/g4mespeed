@@ -46,6 +46,7 @@
     "client.GSBufferBuilderMixin",
     
     "client.GSInGameHudMixin",
+    "client.GSBossBarHudMixin",
     
     "client.GSWorldRendererMixin",
     "client.GSGameRendererMixin",

@@ -299,7 +299,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			y += CATEGORY_TITLE_MARGIN_BOTTOM;
 
 			for (GSSettingElementGUI<?> element : settings) {
-				element.setBounds(x, y, width, element.getPreferredHeight());
+				element.setPreferredBounds(x, y, width);
 				y += element.height;
 			}
 			

@@ -82,25 +82,27 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 
 	public void init(MinecraftClient minecraft) {
-		this.minecraft = minecraft;
+		if (this.minecraft == null) {
+			this.minecraft = minecraft;
 
-		keyManager.loadKeys(getHotkeySettingsFile());
-
-		openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, (key, type) -> {
-			// Use lambda to ensure that tabbedGUI has been initialized.
-			if (type == GSEKeyEventType.PRESS && tabbedGUI != null)
-				GSPanelContext.setContent(tabbedGUI);
-		}, false);
-
-		GSPanelContext.init(minecraft);
-		
-		tabbedGUI = new GSTabbedGUI();
-		tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSScrollPanel(new GSSettingsGUI(settings)));
-		tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSScrollPanel(new GSSettingsGUI(serverSettings)));
-		tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSScrollPanel(new GSHotkeyGUI(keyManager)));
-		tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
-		
-		onStart();
+			keyManager.loadKeys(getHotkeySettingsFile());
+	
+			openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, (key, type) -> {
+				// Use lambda to ensure that tabbedGUI has been initialized.
+				if (type == GSEKeyEventType.PRESS && tabbedGUI != null)
+					GSPanelContext.setContent(tabbedGUI);
+			}, false);
+	
+			GSPanelContext.init(minecraft);
+			
+			tabbedGUI = new GSTabbedGUI();
+			tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSScrollPanel(new GSSettingsGUI(settings)));
+			tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSScrollPanel(new GSSettingsGUI(serverSettings)));
+			tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSScrollPanel(new GSHotkeyGUI(keyManager)));
+			tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
+			
+			onStart();
+		}
 	}
 	
 	@Override
@@ -175,11 +177,18 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 
 	public void onClientClose() {
-		keyManager.saveKeys(getHotkeySettingsFile());
+		if (minecraft != null) {
+			GSPanelContext.dispose();
 
-		GSPanelContext.dispose();
-		
-		onStop();
+			keyManager.saveKeys(getHotkeySettingsFile());
+			keyManager.dispose();
+
+			onStop();
+			
+			openGUIKey = null;
+			tabbedGUI = null;
+			minecraft = null;
+		}
 	}
 	
 	private File getHotkeySettingsFile() {
