@@ -42,6 +42,10 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 		add(resetButton);
 	}
 	
+	public void setPreferredBounds(int x, int y, int width) {
+		setBounds(x, y, width, getPreferredHeight());
+	}
+	
 	@Override
 	public void render(GSIRenderer2D renderer) {
 		if (renderer.isMouseInside(0, 0, width, height))
