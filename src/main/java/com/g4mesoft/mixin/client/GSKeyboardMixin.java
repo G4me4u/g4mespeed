@@ -10,6 +10,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSIKeyboardAccess;
 import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.hotkey.GSEKeyEventType;
+import com.g4mesoft.hotkey.GSKeyManager;
 
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
@@ -25,27 +27,30 @@ public class GSKeyboardMixin implements GSIKeyboardAccess {
 	public void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
 			prevEventRepeating = (action == GLFW.GLFW_REPEAT);
-			
+
+			GSKeyManager keyManager = GSControllerClient.getInstance().getKeyManager();
+
+			keyManager.clearEventQueue();
 			if (action == GLFW.GLFW_RELEASE) {
-				// Sometimes keys can get stuck. Make sure we do not
-				// get key ghosting. This usually happens if a key
-				// opens a GUI.
-				GSControllerClient.getInstance().getKeyManager().onKeyReleased(key, scancode, mods);
+				keyManager.onKeyReleased(key, scancode, mods);
+			} else if (action == GLFW.GLFW_PRESS) {
+				keyManager.onKeyPressed(key, scancode, mods);
 			}
 		}
 	}
 
-	@Inject(method="onKey(JIIII)V", at = @At(value = "INVOKE", shift = At.Shift.AFTER, 
+	
+	@Inject(method="onKey(JIIII)V", at = @At(value = "INVOKE", ordinal = 0, shift = At.Shift.AFTER, 
+			target = "Lnet/minecraft/client/options/KeyBinding;setKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;Z)V"))
+	public void onKeyReleased(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
+		GSControllerClient.getInstance().getKeyManager().dispatchEvents(GSEKeyEventType.RELEASE);
+	}
+
+	@Inject(method="onKey(JIIII)V", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
 			target = "Lnet/minecraft/client/options/KeyBinding;onKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;)V"))
 	public void onKeyPressRepeat(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
-		switch (action) {
-		case GLFW.GLFW_PRESS:
-			GSControllerClient.getInstance().getKeyManager().onKeyPressed(key, scancode, mods);
-			break;
-		case GLFW.GLFW_REPEAT:
-			GSControllerClient.getInstance().getKeyManager().onKeyRepeat(key, scancode, mods);
-			break;
-		}
+		if (action == GLFW.GLFW_PRESS)
+			GSControllerClient.getInstance().getKeyManager().dispatchEvents(GSEKeyEventType.PRESS);
 	}
 	
 	@Override

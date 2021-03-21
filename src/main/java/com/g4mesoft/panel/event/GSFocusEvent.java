@@ -5,8 +5,8 @@ public final class GSFocusEvent extends GSEvent {
 	public static final int FOCUS_GAINED_TYPE  = 300;
 	public static final int FOCUS_LOST_TYPE    = 301;
 	
-	public static final int FIRST_TYPE = 300;
-	public static final int LAST_TYPE  = 301;
+	public static final int FIRST_TYPE = FOCUS_GAINED_TYPE;
+	public static final int LAST_TYPE  = FOCUS_LOST_TYPE;
 	
 	private final int type;
 	

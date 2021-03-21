@@ -12,8 +12,8 @@ public final class GSMouseEvent extends GSEvent {
 	
 	public static final int MOUSE_SCROLLED_TYPE = 104;
 	
-	private static final int FIRST_EVENT_TYPE = MOUSE_MOVED_TYPE;
-	private static final int LAST_EVENT_TYPE  = MOUSE_SCROLLED_TYPE;
+	public static final int FIRST_TYPE = MOUSE_MOVED_TYPE;
+	public static final int LAST_TYPE  = MOUSE_SCROLLED_TYPE;
 	
 	public static final int UNKNOWN_BUTTON = -1;
 	
@@ -51,7 +51,7 @@ public final class GSMouseEvent extends GSEvent {
 	private final float extraY;
 	
 	public GSMouseEvent(int type, int x, int y, int button, int modifiers, float extraX, float extraY) {
-		if (type < FIRST_EVENT_TYPE || type > LAST_EVENT_TYPE)
+		if (type < FIRST_TYPE || type > LAST_TYPE)
 			type = UNKNOWN_TYPE;
 		if (button < FIRST_BUTTON || button > LAST_BUTTON)
 			button = UNKNOWN_BUTTON;
