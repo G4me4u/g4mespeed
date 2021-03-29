@@ -196,13 +196,6 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 
 	@Override
-	public void tick(boolean paused) {
-		super.tick(paused);
-		
-		keyManager.update();
-	}
-	
-	@Override
 	protected void addExtensionModules(GSIExtension extension) {
 		extension.addClientModules(this);
 	}

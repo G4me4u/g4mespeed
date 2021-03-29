@@ -2,8 +2,7 @@ package com.g4mesoft.panel.event;
 
 import com.g4mesoft.hotkey.GSKeyBinding;
 
-import net.minecraft.client.util.InputUtil.KeyCode;
-import net.minecraft.client.util.InputUtil.Type;
+import net.minecraft.client.util.InputUtil;
 
 public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 
@@ -18,20 +17,14 @@ public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 	
 	@Override
 	public boolean isMatching(GSEvent event) {
-		KeyCode keyCode = keyBinding.getKeyCode();
-		
-		switch (keyCode.getCategory()) {
-		case MOUSE:
-			if (event instanceof GSMouseEvent)
-				return isMouseEventMatching((GSMouseEvent)event);
-			return false;
-		case KEYSYM:
-		case SCANCODE:
-			if (event instanceof GSKeyEvent)
-				return isKeyEventMatching((GSKeyEvent)event);
-			return false;
-		default:
-			break;
+		return keyBinding.isPressed() && isEventMatching(event);
+	}
+
+	private boolean isEventMatching(GSEvent event) {
+		if (event instanceof GSMouseEvent) {
+			return isMouseEventMatching((GSMouseEvent)event);
+		} else if (event instanceof GSKeyEvent) {
+			return isKeyEventMatching((GSKeyEvent)event);
 		}
 		
 		return false;
@@ -46,9 +39,7 @@ public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 			return false;
 		}
 		
-		KeyCode keyCode = keyBinding.getKeyCode();
-		
-		return (event.getButton() == keyCode.getKeyCode());
+		return isKeyMatching(InputUtil.Type.MOUSE.createFromCode(event.getButton()));
 	}
 	
 	private boolean isKeyEventMatching(GSKeyEvent event) {
@@ -59,18 +50,12 @@ public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 			// Only support pressed, repeat and released events.
 			return false;
 		}
-		
-		KeyCode keyCode = keyBinding.getKeyCode();
-		
-		if (keyCode.getCategory() == Type.SCANCODE) {
-			// Make sure the key event is actually an unknown key. This
-			// ensures that we have to fall back to the scan code.
-			if (event.getKeyCode() != GSKeyEvent.UNKNOWN_KEY)
-				return false;
-			
-			return (event.getScanCode() == keyCode.getKeyCode());
-		}
-		
-		return (event.getKeyCode() == keyCode.getKeyCode());
+
+		return isKeyMatching(InputUtil.getKeyCode(event.getKeyCode(),
+		                                          event.getScanCode()));
+	}
+	
+	private boolean isKeyMatching(InputUtil.KeyCode key) {
+		return (keyBinding.getKeyCode().indexOf(key) != -1);
 	}
 }

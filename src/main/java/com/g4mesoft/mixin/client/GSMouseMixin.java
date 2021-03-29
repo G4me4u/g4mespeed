@@ -10,6 +10,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSIMouseAccess;
 import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.hotkey.GSEKeyEventType;
+import com.g4mesoft.hotkey.GSKeyManager;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
@@ -26,10 +28,14 @@ public class GSMouseMixin implements GSIMouseAccess {
 	public void onMouseEvent(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
 			prevEventModifiers = mods;
-			
+
+			GSKeyManager keyManager = GSControllerClient.getInstance().getKeyManager();
+
+			keyManager.clearEventQueue();
 			if (action == GLFW.GLFW_RELEASE) {
-				// Make sure we don't get ghosting.
-				GSControllerClient.getInstance().getKeyManager().onMouseReleased(button, mods);
+				keyManager.onMouseReleased(button, mods);
+			} else if (action == GLFW.GLFW_PRESS) {
+				keyManager.onMousePressed(button, mods);
 			}
 		}
 	}
@@ -37,8 +43,13 @@ public class GSMouseMixin implements GSIMouseAccess {
 	@Inject(method="onMouseButton(JIII)V", at = @At(value = "INVOKE", shift = At.Shift.AFTER, 
 			target = "Lnet/minecraft/client/options/KeyBinding;setKeyPressed(Lnet/minecraft/client/util/InputUtil$KeyCode;Z)V"))
 	public void onMouseEventHandled(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
-		if (action == GLFW.GLFW_PRESS)
-			GSControllerClient.getInstance().getKeyManager().onMousePressed(button, mods);
+		GSKeyManager keyManager = GSControllerClient.getInstance().getKeyManager();
+
+		if (action == GLFW.GLFW_RELEASE) {
+			keyManager.dispatchEvents(GSEKeyEventType.RELEASE);
+		} else if (action == GLFW.GLFW_PRESS) {
+			keyManager.dispatchEvents(GSEKeyEventType.PRESS);
+		}
 	}
 	
 	@Inject(method="onMouseScroll", at = @At(value = "HEAD"))

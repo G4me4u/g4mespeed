@@ -19,15 +19,15 @@ import com.g4mesoft.util.GSFileUtils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.util.InputUtil.KeyCode;
 
 @Environment(EnvType.CLIENT)
 public class GSKeyManager {
 	
-	private final Map<String, Map<String, KeyCode>> keySettings;
+	private final Map<String, Map<String, GSKeyCode>> keySettings;
 
 	private final List<GSKeyBinding> keyBindings;
-	private final Map<KeyCode, LinkedList<GSKeyBinding>> codeToKeys;
+	private final Map<InputUtil.KeyCode, LinkedList<GSKeyBinding>> codeToKeys;
+	private final LinkedList<GSKeyBinding> eventQueue;
 
 	private GSIKeyBindingRegisterListener registerListener;
 	
@@ -36,6 +36,7 @@ public class GSKeyManager {
 
 		keyBindings = new ArrayList<>();
 		codeToKeys = new HashMap<>();
+		eventQueue = new LinkedList<>();
 	}
 
 	public void dispose() {
@@ -48,19 +49,25 @@ public class GSKeyManager {
 	public void loadKeys(File keySettingsFile) {
 		try (BufferedReader br = new BufferedReader(new FileReader(keySettingsFile))) {
 			String line;
-			while ((line = br.readLine()) != null) {
+			outer: while ((line = br.readLine()) != null) {
 				String[] args = line.split(":");
 				if (args.length != 3)
+					continue outer;
+				
+				String[] keyArgs = args[2].split(",");
+				if (keyArgs.length == 0)
 					continue;
 				
-				KeyCode keyCode;
-				try {
-					keyCode = InputUtil.fromName(args[2]);
-				} catch (IllegalArgumentException e) {
-					continue;
+				InputUtil.KeyCode[] keys = new InputUtil.KeyCode[keyArgs.length];
+				for (int i = 0; i < keyArgs.length; i++) {
+					try {
+						keys[i] = InputUtil.fromName(keyArgs[i]);
+					} catch (IllegalArgumentException e) {
+						continue outer;
+					}
 				}
 				
-				setKeySetting(args[0], args[1], keyCode);
+				setKeySetting(args[0], args[1], GSKeyCode.fromKeys(keys));
 			}
 		} catch (IOException e) {
 		}
@@ -71,14 +78,19 @@ public class GSKeyManager {
 			GSFileUtils.ensureFileExists(keySettingsFile);
 			
 			try (BufferedWriter bw = new BufferedWriter(new FileWriter(keySettingsFile))) {
-				for (Map.Entry<String, Map<String, KeyCode>> categorySettings : keySettings.entrySet()) {
+				for (Map.Entry<String, Map<String, GSKeyCode>> categorySettings : keySettings.entrySet()) {
 					String category = categorySettings.getKey();
-					for (Map.Entry<String, KeyCode> setting : categorySettings.getValue().entrySet()) {
+					for (Map.Entry<String, GSKeyCode> setting : categorySettings.getValue().entrySet()) {
 						bw.write(category);
 						bw.write(':');
 						bw.write(setting.getKey());
 						bw.write(':');
-						bw.write(setting.getValue().getName());
+						GSKeyCode keyCode = setting.getValue();
+						for (int i = 0; i < keyCode.getKeyCount(); i++) {
+							if (i != 0)
+								bw.write(',');
+							bw.write(keyCode.get(i).getName());
+						}
 						bw.newLine();
 					}
 				}
@@ -87,29 +99,22 @@ public class GSKeyManager {
 		}
 	}
 	
-	private KeyCode getKeySetting(String category, String keyName) {
+	private GSKeyCode getKeySetting(String category, String keyName) {
 		synchronized (keySettings) {
-			Map<String, KeyCode> categorySettings = keySettings.get(category);
-			if (categorySettings == null)
-				return null;
-			return categorySettings.get(keyName);
+			Map<String, GSKeyCode> categorySettings = keySettings.get(category);
+			return (categorySettings == null) ? null : categorySettings.get(keyName);
 		}
 	}
 
-	private void setKeySetting(String category, String keyName, KeyCode keyCode) {
+	private void setKeySetting(String category, String keyName, GSKeyCode keyCode) {
 		synchronized (keySettings) {
-			Map<String, KeyCode> categorySettings = keySettings.get(category);
+			Map<String, GSKeyCode> categorySettings = keySettings.get(category);
 			if (categorySettings == null) {
 				categorySettings = new HashMap<>();
 				keySettings.put(category, categorySettings);
 			}
 			categorySettings.put(keyName, keyCode);
 		}
-	}
-	
-	public void update() {
-		for (GSKeyBinding keyBinding : keyBindings)
-			keyBinding.update();
 	}
 	
 	public <T> GSKeyBinding registerKey(String name, String category, int keyCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType) {
@@ -125,10 +130,14 @@ public class GSKeyManager {
 	}
 
 	public <T> GSKeyBinding registerKey(String name, String category, InputUtil.Type keyType, int keyCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType, boolean allowDisabled) {
+		return registerKey(name, category, GSKeyCode.fromType(keyType, keyCode), listenerData, listener, eventType, allowDisabled);
+	}
+
+	public <T> GSKeyBinding registerKey(String name, String category, GSKeyCode keyCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType, boolean allowDisabled) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener is null");
 		
-		return registerKey(name, category, keyType, keyCode, (key, type) -> {
+		return registerKey(name, category, keyCode, (key, type) -> {
 			if (type == eventType)
 				listener.accept(listenerData);
 		}, allowDisabled);
@@ -147,18 +156,30 @@ public class GSKeyManager {
 	}
 
 	public <T> GSKeyBinding registerKey(String name, String category, InputUtil.Type keyType, int keyCode, T listenerData, BiConsumer<T, GSEKeyEventType> listener, boolean allowDisabled) {
+		return registerKey(name, category, GSKeyCode.fromType(keyType, keyCode), listenerData, listener, allowDisabled);
+	}
+	
+	public <T> GSKeyBinding registerKey(String name, String category, GSKeyCode keyCode, T listenerData, BiConsumer<T, GSEKeyEventType> listener, boolean allowDisabled) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener is null");
 
-		return registerKey(name, category, keyType, keyCode, (key, type) -> listener.accept(listenerData, type), allowDisabled);
+		return registerKey(name, category, keyCode, (key, type) -> listener.accept(listenerData, type), allowDisabled);
 	}
 
 	public GSKeyBinding registerKey(String name, String category, int keyCode) {
+		return registerKey(name, category, GSKeyCode.fromType(InputUtil.Type.KEYSYM, keyCode));
+	}
+
+	public GSKeyBinding registerKey(String name, String category, GSKeyCode keyCode) {
 		return registerKey(name, category, keyCode, true);
 	}
 
 	public GSKeyBinding registerKey(String name, String category, int keyCode, boolean allowDisabled) {
-		return registerKey(name, category, InputUtil.Type.KEYSYM, keyCode, allowDisabled);
+		return registerKey(name, category, GSKeyCode.fromType(InputUtil.Type.KEYSYM, keyCode), allowDisabled);
+	}
+
+	public GSKeyBinding registerKey(String name, String category, GSKeyCode keyCode, boolean allowDisabled) {
+		return registerKey(name, category, keyCode, null, allowDisabled);
 	}
 
 	public GSKeyBinding registerKey(String name, String category, InputUtil.Type keyType, int keyCode) {
@@ -182,10 +203,14 @@ public class GSKeyManager {
 	}
 
 	public GSKeyBinding registerKey(String name, String category, InputUtil.Type keyType, int keyCode, GSIKeyBindingListener listener, boolean allowDisabled) {
+		return registerKey(name, category, GSKeyCode.fromType(keyType, keyCode), listener, allowDisabled);
+	}
+
+	public GSKeyBinding registerKey(String name, String category, GSKeyCode keyCode, GSIKeyBindingListener listener, boolean allowDisabled) {
 		if (name.contains(":") || category.contains(":"))
 			throw new IllegalArgumentException("Invalid name or category! It must not contains ':'!");
 		
-		GSKeyBinding keyBinding = new GSKeyBinding(this, name, category, keyType, keyCode, allowDisabled);
+		GSKeyBinding keyBinding = new GSKeyBinding(this, name, category, keyCode, allowDisabled);
 		keyBinding.setKeyListener(listener);
 		addKeyBinding(keyBinding);
 		
@@ -199,7 +224,7 @@ public class GSKeyManager {
 		keyBindings.add(keyBinding);
 		addKeyCodeMapping(keyBinding);
 		
-		KeyCode keyCodeSetting = getKeySetting(keyBinding.getCategory(), keyBinding.getName());
+		GSKeyCode keyCodeSetting = getKeySetting(keyBinding.getCategory(), keyBinding.getName());
 		if (keyCodeSetting != null) {
 			keyBinding.setKeyCode(keyCodeSetting);
 		} else {
@@ -211,23 +236,27 @@ public class GSKeyManager {
 		this.registerListener = registerListener;
 	}
 
-	private void handleKeyEvent(KeyCode keyCode, Consumer<GSKeyBinding> eventMethod) {
+	private void handleKeyEvent(InputUtil.KeyCode key, BiConsumer<GSKeyBinding, InputUtil.KeyCode> eventMethod) {
 		synchronized(codeToKeys) {
-			List<GSKeyBinding> keys = codeToKeys.get(keyCode);
-			if (keys != null) {
-				for (GSKeyBinding key : keys)
-					eventMethod.accept(key);
+			List<GSKeyBinding> keyBindings = codeToKeys.get(key);
+			if (keyBindings != null) {
+				for (GSKeyBinding keyBinding : keyBindings)
+					eventMethod.accept(keyBinding, key);
 			}
 		}
 	}
 	
-	protected void onKeyCodeChanged(GSKeyBinding keyBinding, KeyCode oldKeyCode, KeyCode keyCode) {
+	protected void onKeyCodeChanged(GSKeyBinding keyBinding, GSKeyCode oldKeyCode, GSKeyCode keyCode) {
 		synchronized(codeToKeys) {
-			List<GSKeyBinding> keysWithOldCode = codeToKeys.get(oldKeyCode);
-			if (keysWithOldCode != null) {
-				keysWithOldCode.remove(keyBinding);
-				if (keysWithOldCode.isEmpty())
-					codeToKeys.remove(oldKeyCode);
+			for (int i = 0; i < oldKeyCode.getKeyCount(); i++) {
+				InputUtil.KeyCode key = oldKeyCode.get(i);
+
+				List<GSKeyBinding> keysWithOldCode = codeToKeys.get(key);
+				if (keysWithOldCode != null) {
+					keysWithOldCode.remove(keyBinding);
+					if (keysWithOldCode.isEmpty())
+						codeToKeys.remove(key);
+				}
 			}
 		}
 		
@@ -238,12 +267,17 @@ public class GSKeyManager {
 	
 	private void addKeyCodeMapping(GSKeyBinding keyBinding) {
 		synchronized(codeToKeys) {
-			LinkedList<GSKeyBinding> keysWithCode = codeToKeys.get(keyBinding.getKeyCode());
-			if (keysWithCode == null) {
-				keysWithCode = new LinkedList<>();
-				codeToKeys.put(keyBinding.getKeyCode(), keysWithCode);
+			GSKeyCode keyCode = keyBinding.getKeyCode();
+			for (int i = 0; i < keyCode.getKeyCount(); i++) {
+				InputUtil.KeyCode key = keyCode.get(i);
+				
+				LinkedList<GSKeyBinding> keysWithCode = codeToKeys.get(key);
+				if (keysWithCode == null) {
+					keysWithCode = new LinkedList<>();
+					codeToKeys.put(key, keysWithCode);
+				}
+				keysWithCode.add(keyBinding);
 			}
-			keysWithCode.add(keyBinding);
 		}
 	}
 	
@@ -255,16 +289,26 @@ public class GSKeyManager {
 		handleKeyEvent(InputUtil.getKeyCode(key, scancode), GSKeyBinding::onKeyReleased);
 	}
 
-	public void onKeyRepeat(int key, int scancode, int mods) {
-		handleKeyEvent(InputUtil.getKeyCode(key, scancode), GSKeyBinding::onKeyRepeated);
-	}
-
 	public void onMousePressed(int button, int mods) {
 		handleKeyEvent(InputUtil.Type.MOUSE.createFromCode(button), GSKeyBinding::onKeyPressed);
 	}
 
 	public void onMouseReleased(int button, int mods) {
 		handleKeyEvent(InputUtil.Type.MOUSE.createFromCode(button), GSKeyBinding::onKeyReleased);
+	}
+	
+	public void clearEventQueue() {
+		eventQueue.clear();
+	}
+
+	public void scheduleEvent(GSKeyBinding keyBinding) {
+		eventQueue.add(keyBinding);
+	}
+	
+	public void dispatchEvents(GSEKeyEventType eventType) {
+		GSKeyBinding keyBinding;
+		while ((keyBinding = eventQueue.poll()) != null)
+			keyBinding.dispatchKeyEvent(eventType);
 	}
 	
 	public List<GSKeyBinding> getKeyBindings() {
