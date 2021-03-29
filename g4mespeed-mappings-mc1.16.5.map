@@ -229,24 +229,23 @@ com.g4mesoft.core.client.GSControllerClient -> core.s:
     170:177:void onDisconnectServer() -> gsc_Pt
     180:192:void onClientClose() -> gsc_PS
     195:195:java.io.File getHotkeySettingsFile() -> gsc_ew
-    200:203:void tick(boolean) -> gsc_rJ
-    207:208:void addExtensionModules(com.g4mesoft.GSIExtension) -> gsc_rJ
-    212:212:boolean isThreadOwner() -> gsc_Jn
-    217:217:net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> gsc_rJ
-    222:222:boolean isClient() -> gsc_AS
-    227:228:void runOnClient(java.util.function.Consumer) -> gsc_rJ
-    232:232:void runOnServer(java.util.function.Consumer) -> gsc_hH
-    236:236:boolean isInGame() -> gsc_bx
-    241:252:void sendPacket(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion) -> gsc_rJ
-    256:256:java.io.File getCacheFile() -> gsc_cT
-    261:262:void addRenderable(com.g4mesoft.renderer.GSIRenderable3D) -> gsc_rJ
-    266:267:void removeRenderable(com.g4mesoft.renderer.GSIRenderable3D) -> gsc_hH
-    270:270:java.util.Collection getRenderables() -> gsc_kZ
-    274:274:net.minecraft.class_746 getPlayer() -> gsc_kd
-    278:278:com.g4mesoft.hotkey.GSKeyManager getKeyManager() -> gsc_yN
-    282:282:com.g4mesoft.setting.GSRemoteSettingManager getServerSettings() -> gsc_pl
-    286:286:com.g4mesoft.hotkey.GSKeyBinding getOpenGUIKey() -> gsc_LG
-    290:290:com.g4mesoft.core.client.GSControllerClient getInstance() -> gsc_VL
+    200:201:void addExtensionModules(com.g4mesoft.GSIExtension) -> gsc_rJ
+    205:205:boolean isThreadOwner() -> gsc_Jn
+    210:210:net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> gsc_rJ
+    215:215:boolean isClient() -> gsc_AS
+    220:221:void runOnClient(java.util.function.Consumer) -> gsc_rJ
+    225:225:void runOnServer(java.util.function.Consumer) -> gsc_hH
+    229:229:boolean isInGame() -> gsc_bx
+    234:245:void sendPacket(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    249:249:java.io.File getCacheFile() -> gsc_cT
+    254:255:void addRenderable(com.g4mesoft.renderer.GSIRenderable3D) -> gsc_rJ
+    259:260:void removeRenderable(com.g4mesoft.renderer.GSIRenderable3D) -> gsc_hH
+    263:263:java.util.Collection getRenderables() -> gsc_kZ
+    267:267:net.minecraft.class_746 getPlayer() -> gsc_kd
+    271:271:com.g4mesoft.hotkey.GSKeyManager getKeyManager() -> gsc_yN
+    275:275:com.g4mesoft.setting.GSRemoteSettingManager getServerSettings() -> gsc_pl
+    279:279:com.g4mesoft.hotkey.GSKeyBinding getOpenGUIKey() -> gsc_LG
+    283:283:com.g4mesoft.core.client.GSControllerClient getInstance() -> gsc_VL
     92:94:void lambda$init$0(com.g4mesoft.hotkey.GSKeyBinding,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
     60:60:void <clinit>() -> <clinit>
 com.g4mesoft.core.client.GSIModuleManagerClient -> core.t:
@@ -397,28 +396,35 @@ com.g4mesoft.gui.GSHotkeyElementGUI -> core.D:
     com.g4mesoft.gui.GSHotkeyGUI hotkeyGui -> gsc_AS
     com.g4mesoft.hotkey.GSKeyBinding keyBinding -> gsc_cT
     net.minecraft.class_2561 nameText -> gsc_Yp
-    boolean modifyingKeyCode -> gsc_gn
     com.g4mesoft.panel.legend.GSButtonPanel modifyButton -> gsc_eh
     com.g4mesoft.panel.legend.GSButtonPanel resetButton -> gsc_Pt
-    44:62:void <init>(com.g4mesoft.gui.GSHotkeyGUI,com.g4mesoft.hotkey.GSKeyBinding) -> <init>
-    66:76:void onBoundsChanged() -> gsc_kd
-    80:84:void onAdded(com.g4mesoft.panel.GSPanel) -> a_
-    88:92:void onRemoved(com.g4mesoft.panel.GSPanel) -> gsc_hH
-    95:97:void updateButtons() -> gsc_UM
-    100:107:void updateResetButton() -> gsc_mg
-    110:119:void updateModifyButton() -> gsc_vm
-    123:130:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
-    133:135:void setKeyCode(net.minecraft.class_3675$class_306) -> gsc_rJ
-    138:139:void resetKeyCode() -> gsc_rJ
-    142:143:void unbindKeyCode() -> gsc_hH
-    146:159:void setModifying(boolean) -> gsc_UM
-    163:168:void mousePressed(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_rJ
-    172:182:void keyPressed(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_rJ
-    185:185:int getPreferredHeight() -> gsc_sc
-    189:189:int getPreferredWidth() -> gsc_bs
-    58:58:void lambda$new$1() -> gsc_Qo
-    51:56:void lambda$new$0(com.g4mesoft.gui.GSHotkeyGUI) -> gsc_rJ
-    32:33:void <clinit>() -> <clinit>
+    boolean modifyingKeyCode -> gsc_gn
+    java.util.Set pressedKeys -> gsc_PS
+    java.util.Set activeKeys -> gsc_bx
+    52:73:void <init>(com.g4mesoft.gui.GSHotkeyGUI,com.g4mesoft.hotkey.GSKeyBinding) -> <init>
+    77:87:void onBoundsChanged() -> gsc_kd
+    91:95:void onAdded(com.g4mesoft.panel.GSPanel) -> a_
+    99:103:void onRemoved(com.g4mesoft.panel.GSPanel) -> gsc_hH
+    106:108:void updateButtons() -> gsc_UM
+    111:118:void updateResetButton() -> gsc_mg
+    121:130:void updateModifyButton() -> gsc_vm
+    134:141:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
+    144:146:void setKeyCode(com.g4mesoft.hotkey.GSKeyCode) -> gsc_rJ
+    149:150:void resetKeyCode() -> gsc_rJ
+    153:154:void unbindKeyCode() -> gsc_hH
+    157:164:void startModifying() -> gsc_Jn
+    167:177:void stopModifying() -> gsc_AS
+    181:185:void mousePressed(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_rJ
+    189:193:void mouseReleased(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_hH
+    197:206:void keyPressed(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_rJ
+    210:214:void keyReleased(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_hH
+    217:219:void onKeyPressed(net.minecraft.class_3675$class_306) -> gsc_rJ
+    222:226:void onKeyReleased(net.minecraft.class_3675$class_306) -> gsc_hH
+    229:229:int getPreferredHeight() -> gsc_sc
+    233:233:int getPreferredWidth() -> gsc_bs
+    65:65:void lambda$new$1() -> gsc_Qo
+    59:64:void lambda$new$0(com.g4mesoft.gui.GSHotkeyGUI) -> gsc_rJ
+    37:38:void <clinit>() -> <clinit>
 com.g4mesoft.gui.GSHotkeyGUI -> core.E:
     int HOTKEY_MARGIN -> gsc_rJ
     int CATEGORY_MARGIN -> gsc_hH
@@ -657,75 +663,90 @@ com.g4mesoft.hotkey.GSKeyBinding -> core.be:
     com.g4mesoft.hotkey.GSKeyManager manager -> gsc_rJ
     java.lang.String name -> gsc_hH
     java.lang.String category -> gsc_sc
-    net.minecraft.class_3675$class_306 defaultKeyCode -> gsc_bs
+    com.g4mesoft.hotkey.GSKeyCode defaultKeyCode -> gsc_bs
     boolean allowDisabled -> gsc_UM
-    net.minecraft.class_3675$class_306 keyCode -> gsc_mg
-    boolean keyState -> gsc_vm
-    boolean wasPressed -> gsc_Qo
+    com.g4mesoft.hotkey.GSKeyCode keyCode -> gsc_mg
+    boolean[] keyStates -> gsc_vm
     boolean pressed -> gsc_Jn
-    int repeatCount -> gsc_AS
     com.g4mesoft.hotkey.GSIKeyBindingListener listener -> gsc_cT
-    26:36:void <init>(com.g4mesoft.hotkey.GSKeyManager,java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,boolean) -> <init>
-    39:42:void setKeyListener(com.g4mesoft.hotkey.GSIKeyBindingListener) -> gsc_rJ
-    45:47:void reset() -> gsc_rJ
-    50:58:void onKeyPressed() -> gsc_hH
-    61:62:void onKeyReleased() -> gsc_sc
-    65:78:void onStateChanged(boolean,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
-    81:82:void onKeyRepeated() -> gsc_bs
-    85:89:void update() -> gsc_UM
-    92:92:net.minecraft.class_2561 getLocalizedName() -> gsc_mg
-    96:96:boolean isPressed() -> gsc_vm
-    100:100:boolean wasPressed() -> gsc_Qo
-    104:104:boolean isClicking() -> gsc_Jn
-    108:108:boolean isReleaing() -> gsc_AS
-    112:112:int getRepeatCount() -> gsc_cT
-    116:116:java.lang.String getName() -> gsc_Yp
-    120:120:java.lang.String getCategory() -> gsc_gn
-    124:124:net.minecraft.class_3675$class_306 getKeyCode() -> gsc_eh
-    128:136:void setKeyCode(net.minecraft.class_3675$class_306) -> gsc_rJ
-    139:139:net.minecraft.class_3675$class_306 getDefaultKeyCode() -> gsc_Pt
-    74:74:void lambda$onStateChanged$0(com.g4mesoft.hotkey.GSIKeyBindingListener,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
+    21:33:void <init>(com.g4mesoft.hotkey.GSKeyManager,java.lang.String,java.lang.String,com.g4mesoft.hotkey.GSKeyCode,boolean) -> <init>
+    36:39:void setKeyListener(com.g4mesoft.hotkey.GSIKeyBindingListener) -> gsc_rJ
+    42:45:void reset() -> gsc_rJ
+    48:56:void onKeyPressed(net.minecraft.class_3675$class_306) -> gsc_rJ
+    59:65:void onKeyReleased(net.minecraft.class_3675$class_306) -> gsc_hH
+    68:73:void onKeyStateChanged(boolean) -> gsc_rJ
+    77:86:void dispatchKeyEvent(com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
+    89:89:java.lang.String getName() -> gsc_Yp
+    93:93:java.lang.String getCategory() -> gsc_gn
+    97:97:com.g4mesoft.hotkey.GSKeyCode getDefaultKeyCode() -> gsc_hH
+    101:101:com.g4mesoft.hotkey.GSKeyCode getKeyCode() -> gsc_sc
+    105:114:void setKeyCode(com.g4mesoft.hotkey.GSKeyCode) -> gsc_rJ
+    117:117:net.minecraft.class_2561 getLocalizedName() -> gsc_mg
+    121:121:boolean isPressed() -> gsc_vm
+    83:83:void lambda$dispatchKeyEvent$0(com.g4mesoft.hotkey.GSIKeyBindingListener,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
+com.g4mesoft.hotkey.GSKeyCode -> core.aD:
+    com.g4mesoft.hotkey.GSKeyCode UNKNOWN_KEY -> gsc_rJ
+    net.minecraft.class_3675$class_306[] keys -> gsc_hH
+    16:18:void <init>(net.minecraft.class_3675$class_306[]) -> <init>
+    21:21:net.minecraft.class_3675$class_306 get(int) -> gsc_rJ
+    25:30:int indexOf(net.minecraft.class_3675$class_306) -> gsc_rJ
+    34:34:int getKeyCount() -> gsc_rJ
+    38:44:net.minecraft.class_2561 getLocalizedText() -> gsc_hH
+    49:49:int hashCode() -> hashCode
+    54:58:boolean equals(java.lang.Object) -> equals
+    62:62:com.g4mesoft.hotkey.GSKeyCode fromType(net.minecraft.class_3675$class_307,int) -> gsc_rJ
+    66:66:com.g4mesoft.hotkey.GSKeyCode fromKeyCode(int,int) -> gsc_rJ
+    70:70:com.g4mesoft.hotkey.GSKeyCode fromKey(net.minecraft.class_3675$class_306) -> gsc_hH
+    74:78:com.g4mesoft.hotkey.GSKeyCode fromKeys(net.minecraft.class_3675$class_306[]) -> gsc_rJ
+    12:12:void <clinit>() -> <clinit>
 com.g4mesoft.hotkey.GSKeyManager -> core.bf:
     java.util.Map keySettings -> gsc_rJ
     java.util.List keyBindings -> gsc_hH
     java.util.Map codeToKeys -> gsc_sc
+    java.util.LinkedList eventQueue -> gsc_UM
     com.g4mesoft.hotkey.GSIKeyBindingRegisterListener registerListener -> gsc_bs
-    34:39:void <init>() -> <init>
-    42:46:void dispose() -> gsc_sc
-    49:67:void loadKeys(java.io.File) -> gsc_rJ
-    71:88:void saveKeys(java.io.File) -> gsc_hH
-    91:94:net.minecraft.class_3675$class_306 getKeySetting(java.lang.String,java.lang.String) -> gsc_rJ
-    98:107:void setKeySetting(java.lang.String,java.lang.String,net.minecraft.class_3675$class_306) -> gsc_rJ
-    110:112:void update() -> gsc_rJ
-    115:115:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,java.lang.Object,java.util.function.Consumer,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
-    119:119:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,java.lang.Object,java.util.function.Consumer,com.g4mesoft.hotkey.GSEKeyEventType,boolean) -> gsc_rJ
-    123:123:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,java.lang.Object,java.util.function.Consumer,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
-    127:130:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,java.lang.Object,java.util.function.Consumer,com.g4mesoft.hotkey.GSEKeyEventType,boolean) -> gsc_rJ
-    137:137:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,java.lang.Object,java.util.function.BiConsumer) -> gsc_rJ
-    141:141:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,java.lang.Object,java.util.function.BiConsumer,boolean) -> gsc_rJ
-    145:145:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,java.lang.Object,java.util.function.BiConsumer) -> gsc_rJ
-    149:152:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,java.lang.Object,java.util.function.BiConsumer,boolean) -> gsc_rJ
-    156:156:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int) -> gsc_rJ
-    160:160:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,boolean) -> gsc_rJ
-    164:164:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int) -> gsc_rJ
-    168:168:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,boolean) -> gsc_rJ
-    172:172:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,com.g4mesoft.hotkey.GSIKeyBindingListener) -> gsc_rJ
-    176:176:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,com.g4mesoft.hotkey.GSIKeyBindingListener,boolean) -> gsc_rJ
-    180:180:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,com.g4mesoft.hotkey.GSIKeyBindingListener) -> gsc_rJ
-    184:194:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,com.g4mesoft.hotkey.GSIKeyBindingListener,boolean) -> gsc_rJ
-    198:207:void addKeyBinding(com.g4mesoft.hotkey.GSKeyBinding) -> gsc_rJ
-    210:211:void setKeyRegisterListener(com.g4mesoft.hotkey.GSIKeyBindingRegisterListener) -> gsc_rJ
-    214:221:void handleKeyEvent(net.minecraft.class_3675$class_306,java.util.function.Consumer) -> gsc_rJ
-    224:236:void onKeyCodeChanged(com.g4mesoft.hotkey.GSKeyBinding,net.minecraft.class_3675$class_306,net.minecraft.class_3675$class_306) -> gsc_rJ
-    239:247:void addKeyCodeMapping(com.g4mesoft.hotkey.GSKeyBinding) -> gsc_hH
-    250:251:void onKeyPressed(int,int,int) -> gsc_rJ
-    254:255:void onKeyReleased(int,int,int) -> gsc_hH
-    258:259:void onKeyRepeat(int,int,int) -> gsc_sc
-    262:263:void onMousePressed(int,int) -> gsc_rJ
-    266:267:void onMouseReleased(int,int) -> gsc_hH
-    270:270:java.util.List getKeyBindings() -> gsc_hH
-    152:152:void lambda$registerKey$1(java.util.function.BiConsumer,java.lang.Object,com.g4mesoft.hotkey.GSKeyBinding,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
-    131:133:void lambda$registerKey$0(com.g4mesoft.hotkey.GSEKeyEventType,java.util.function.Consumer,java.lang.Object,com.g4mesoft.hotkey.GSKeyBinding,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
+    34:40:void <init>() -> <init>
+    43:47:void dispose() -> gsc_sc
+    50:74:void loadKeys(java.io.File) -> gsc_rJ
+    78:100:void saveKeys(java.io.File) -> gsc_hH
+    103:106:com.g4mesoft.hotkey.GSKeyCode getKeySetting(java.lang.String,java.lang.String) -> gsc_rJ
+    110:119:void setKeySetting(java.lang.String,java.lang.String,com.g4mesoft.hotkey.GSKeyCode) -> gsc_hH
+    122:122:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,java.lang.Object,java.util.function.Consumer,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
+    126:126:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,java.lang.Object,java.util.function.Consumer,com.g4mesoft.hotkey.GSEKeyEventType,boolean) -> gsc_rJ
+    130:130:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,java.lang.Object,java.util.function.Consumer,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
+    134:134:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,java.lang.Object,java.util.function.Consumer,com.g4mesoft.hotkey.GSEKeyEventType,boolean) -> gsc_rJ
+    138:141:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,com.g4mesoft.hotkey.GSKeyCode,java.lang.Object,java.util.function.Consumer,com.g4mesoft.hotkey.GSEKeyEventType,boolean) -> gsc_rJ
+    148:148:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,java.lang.Object,java.util.function.BiConsumer) -> gsc_rJ
+    152:152:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,java.lang.Object,java.util.function.BiConsumer,boolean) -> gsc_rJ
+    156:156:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,java.lang.Object,java.util.function.BiConsumer) -> gsc_rJ
+    160:160:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,java.lang.Object,java.util.function.BiConsumer,boolean) -> gsc_rJ
+    164:167:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,com.g4mesoft.hotkey.GSKeyCode,java.lang.Object,java.util.function.BiConsumer,boolean) -> gsc_rJ
+    171:171:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int) -> gsc_rJ
+    175:175:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,com.g4mesoft.hotkey.GSKeyCode) -> gsc_rJ
+    179:179:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,boolean) -> gsc_rJ
+    183:183:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,com.g4mesoft.hotkey.GSKeyCode,boolean) -> gsc_rJ
+    187:187:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int) -> gsc_rJ
+    191:191:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,boolean) -> gsc_rJ
+    195:195:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,com.g4mesoft.hotkey.GSIKeyBindingListener) -> gsc_rJ
+    199:199:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,int,com.g4mesoft.hotkey.GSIKeyBindingListener,boolean) -> gsc_rJ
+    203:203:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,com.g4mesoft.hotkey.GSIKeyBindingListener) -> gsc_rJ
+    207:207:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,net.minecraft.class_3675$class_307,int,com.g4mesoft.hotkey.GSIKeyBindingListener,boolean) -> gsc_rJ
+    211:221:com.g4mesoft.hotkey.GSKeyBinding registerKey(java.lang.String,java.lang.String,com.g4mesoft.hotkey.GSKeyCode,com.g4mesoft.hotkey.GSIKeyBindingListener,boolean) -> gsc_rJ
+    225:234:void addKeyBinding(com.g4mesoft.hotkey.GSKeyBinding) -> gsc_rJ
+    237:238:void setKeyRegisterListener(com.g4mesoft.hotkey.GSIKeyBindingRegisterListener) -> gsc_rJ
+    241:248:void handleKeyEvent(net.minecraft.class_3675$class_306,java.util.function.BiConsumer) -> gsc_rJ
+    251:267:void onKeyCodeChanged(com.g4mesoft.hotkey.GSKeyBinding,com.g4mesoft.hotkey.GSKeyCode,com.g4mesoft.hotkey.GSKeyCode) -> gsc_rJ
+    270:283:void addKeyCodeMapping(com.g4mesoft.hotkey.GSKeyBinding) -> gsc_hH
+    286:287:void onKeyPressed(int,int,int) -> gsc_rJ
+    290:291:void onKeyReleased(int,int,int) -> gsc_hH
+    294:295:void onMousePressed(int,int) -> gsc_rJ
+    298:299:void onMouseReleased(int,int) -> gsc_hH
+    302:303:void clearEventQueue() -> gsc_rJ
+    306:307:void scheduleEvent(com.g4mesoft.hotkey.GSKeyBinding) -> gsc_sc
+    311:313:void dispatchEvents(com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
+    316:316:java.util.List getKeyBindings() -> gsc_hH
+    167:167:void lambda$registerKey$1(java.util.function.BiConsumer,java.lang.Object,com.g4mesoft.hotkey.GSKeyBinding,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
+    142:144:void lambda$registerKey$0(com.g4mesoft.hotkey.GSEKeyEventType,java.util.function.Consumer,java.lang.Object,com.g4mesoft.hotkey.GSKeyBinding,com.g4mesoft.hotkey.GSEKeyEventType) -> gsc_rJ
 com.g4mesoft.mixin.client.GSBossBarHudMixin -> com.g4mesoft.mixin.client.GSBossBarHudMixin:
     net.minecraft.class_310 field_2058 -> field_2058
     18:18:void <init>() -> <init>
@@ -816,10 +837,11 @@ com.g4mesoft.mixin.client.GSIntegratedServerMixin -> com.g4mesoft.mixin.client.G
 com.g4mesoft.mixin.client.GSKeyboardMixin -> com.g4mesoft.mixin.client.GSKeyboardMixin:
     net.minecraft.class_310 field_1678 -> field_1678
     boolean prevEventRepeating -> gsc_rJ
-    18:18:void <init>() -> <init>
-    26:36:void onKeyEvent(long,int,int,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    41:49:void onKeyPressRepeat(long,int,int,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    53:53:boolean isPreviousEventRepeating() -> gsc_rJ
+    20:20:void <init>() -> <init>
+    28:40:void onKeyEvent(long,int,int,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    46:47:void onKeyReleased(long,int,int,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
+    52:54:void onKeyPressRepeat(long,int,int,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    58:58:boolean isPreviousEventRepeating() -> gsc_rJ
 com.g4mesoft.mixin.client.GSMinecraftClientMixin -> com.g4mesoft.mixin.client.GSMinecraftClientMixin:
     net.minecraft.class_317 field_1728 -> field_1728
     net.minecraft.class_1144 field_1727 -> field_1727
@@ -857,12 +879,12 @@ com.g4mesoft.mixin.client.GSMouseMixin -> com.g4mesoft.mixin.client.GSMouseMixin
     net.minecraft.class_310 field_1779 -> field_1779
     int prevEventModifiers -> gsc_rJ
     float prevEventScrollX -> gsc_hH
-    18:18:void <init>() -> <init>
-    27:35:void onMouseEvent(long,int,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    40:42:void onMouseEventHandled(long,int,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    46:50:void onOnMouseScroll(long,double,double,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    54:54:int getPreviousEventModifiers() -> gsc_rJ
-    59:59:double getPreviousEventScrollX() -> gsc_hH
+    20:20:void <init>() -> <init>
+    29:41:void onMouseEvent(long,int,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    46:53:void onMouseEventHandled(long,int,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    57:61:void onOnMouseScroll(long,double,double,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    65:65:int getPreviousEventModifiers() -> gsc_rJ
+    70:70:double getPreviousEventScrollX() -> gsc_hH
 com.g4mesoft.mixin.client.GSPistonBlockEntityMixin -> com.g4mesoft.mixin.client.GSPistonBlockEntityMixin:
     net.minecraft.class_2350 field_12201 -> field_12201
     float field_12207 -> field_12207
@@ -1911,13 +1933,12 @@ com.g4mesoft.panel.event.GSIMouseListener -> core.aB:
     18:18:void mouseScrolled(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_UM
 com.g4mesoft.panel.event.GSKeyBindingButtonStroke -> core.aC:
     com.g4mesoft.hotkey.GSKeyBinding keyBinding -> gsc_rJ
-    12:17:void <init>(com.g4mesoft.hotkey.GSKeyBinding) -> <init>
-    21:37:boolean isMatching(com.g4mesoft.panel.event.GSEvent) -> gsc_rJ
-    41:51:boolean isMouseEventMatching(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_rJ
-    55:74:boolean isKeyEventMatching(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_rJ
-com.g4mesoft.panel.event.GSKeyBindingButtonStroke$1 -> core.aD:
-    int[] $SwitchMap$net$minecraft$client$util$InputUtil$Type -> gsc_rJ
-    23:23:void <clinit>() -> <clinit>
+    11:16:void <init>(com.g4mesoft.hotkey.GSKeyBinding) -> <init>
+    20:20:boolean isMatching(com.g4mesoft.panel.event.GSEvent) -> gsc_rJ
+    24:30:boolean isEventMatching(com.g4mesoft.panel.event.GSEvent) -> gsc_hH
+    34:42:boolean isMouseEventMatching(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_rJ
+    46:55:boolean isKeyEventMatching(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_rJ
+    59:59:boolean isKeyMatching(net.minecraft.class_3675$class_306) -> gsc_rJ
 com.g4mesoft.panel.event.GSKeyButtonStroke -> core.aE:
     int keyCode -> gsc_rJ
     int modifiers -> gsc_hH
@@ -2084,8 +2105,8 @@ com.g4mesoft.panel.event.GSMouseEvent -> core.aH:
     int MOUSE_PRESSED_TYPE -> gsc_Yp
     int MOUSE_RELEASED_TYPE -> gsc_gn
     int MOUSE_SCROLLED_TYPE -> gsc_eh
-    int FIRST_EVENT_TYPE -> gsc_PX
-    int LAST_EVENT_TYPE -> gsc_Nt
+    int FIRST_TYPE -> gsc_PX
+    int LAST_TYPE -> gsc_Nt
     int UNKNOWN_BUTTON -> gsc_Pt
     int BUTTON_1 -> gsc_PS
     int BUTTON_2 -> gsc_bx
