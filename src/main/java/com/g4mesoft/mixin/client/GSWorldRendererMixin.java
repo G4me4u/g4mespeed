@@ -2,6 +2,7 @@ package com.g4mesoft.mixin.client;
 
 import java.util.Collection;
 
+import org.lwjgl.opengl.GL11;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -78,6 +79,7 @@ public class GSWorldRendererMixin {
 			
 			RenderSystem.enableBlend();
 			RenderSystem.defaultBlendFunc();
+			RenderSystem.shadeModel(GL11.GL_SMOOTH);
 			RenderSystem.disableTexture();
 			
 			// Fix model matrix
