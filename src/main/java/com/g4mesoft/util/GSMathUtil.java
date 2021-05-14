@@ -1,6 +1,6 @@
 package com.g4mesoft.util;
 
-public final class GSMathUtils {
+public final class GSMathUtil {
 
 	public static final float  EPSILON_F = 1.0e-5f;
 	public static final double EPSILON_D = 1.0e-5;

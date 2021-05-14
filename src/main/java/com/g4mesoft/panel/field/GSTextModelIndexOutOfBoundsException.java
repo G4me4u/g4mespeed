@@ -1,4 +1,4 @@
-package com.g4mesoft.panel.text;
+package com.g4mesoft.panel.field;
 
 public class GSTextModelIndexOutOfBoundsException extends IndexOutOfBoundsException {
 	private static final long serialVersionUID = -8048127724794232190L;

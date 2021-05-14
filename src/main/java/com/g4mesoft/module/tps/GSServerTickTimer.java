@@ -3,7 +3,7 @@ package com.g4mesoft.module.tps;
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.core.compat.GSCarpetCompat;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.util.Util;
 
@@ -109,7 +109,7 @@ public class GSServerTickTimer implements GSITickTimer {
 		if (!syncReceived)
 			return false;
 		
-		return GSMathUtils.equalsApproximate(tpsModule.getTps(), DEFAULT_TICKS_PER_SECOND);
+		return GSMathUtil.equalsApproximate(tpsModule.getTps(), DEFAULT_TICKS_PER_SECOND);
 	}
 
 	private void adjustTickDelta(GSITickTimer timer) {

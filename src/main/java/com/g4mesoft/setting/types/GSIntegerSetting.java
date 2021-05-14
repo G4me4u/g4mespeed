@@ -1,7 +1,7 @@
 package com.g4mesoft.setting.types;
 
 import com.g4mesoft.setting.GSSetting;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 
 public class GSIntegerSetting extends GSSetting<Integer> {
 
@@ -66,7 +66,7 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 				value = (deviation < 0) ? (value - interval) : (value + interval);
 		}
 		
-		return GSMathUtils.clamp(value, minValue, maxValue);
+		return GSMathUtil.clamp(value, minValue, maxValue);
 	}
 
 	@Override

@@ -1,8 +1,9 @@
-package com.g4mesoft.panel.text;
+package com.g4mesoft.panel.field;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.g4mesoft.panel.GSIModelListener;
 import com.g4mesoft.panel.GSRectangle;
 import com.g4mesoft.panel.event.GSEvent;
 import com.g4mesoft.panel.event.GSFocusEvent;
@@ -12,7 +13,7 @@ import com.g4mesoft.panel.event.GSIMouseListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.client.gui.screen.Screen;
 
@@ -36,7 +37,7 @@ import net.minecraft.client.gui.screen.Screen;
  * 
  * @author Christian
  */
-public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSIModelChangeListener,
+public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSIModelListener,
                                          GSIMouseListener, GSIKeyListener, GSIFocusEventListener {
 
 	private static final int DEFAULT_BLINK_RATE   = 500;
@@ -99,7 +100,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		
 		installTextModel(textField.getTextModel());
 
-		textField.addModelChangeListener(this);
+		textField.addModelListener(this);
 		textField.addMouseEventListener(this);
 		textField.addKeyEventListener(this);
 		textField.addFocusEventListener(this);
@@ -122,7 +123,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		if (this.textField == null)
 			throw new IllegalStateException("Caret not bound!");
 	
-		this.textField.removeModelChangeListener(this);
+		this.textField.removeModelListener(this);
 		this.textField.removeMouseEventListener(this);
 		this.textField.removeKeyEventListener(this);
 		this.textField.removeFocusEventListener(this);
@@ -274,7 +275,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 			int mnx = textField.getBorderWidth();
 			int mxx = textField.getWidth() - textField.getBorderWidth() - caretWidth;
 			
-			int x = GSMathUtils.clamp(bounds.x, mnx, mxx);
+			int x = GSMathUtil.clamp(bounds.x, mnx, mxx);
 			int y = bounds.y + caretInsets;
 			int h = bounds.height - caretInsets * 2;
 
@@ -549,7 +550,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	@Override
 	public void mouseDragged(GSMouseEvent event) {
 		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
-			int y = GSMathUtils.clamp(event.getY(), 0, textField.getHeight() - 1);
+			int y = GSMathUtil.clamp(event.getY(), 0, textField.getHeight() - 1);
 			navigateToPoint(event.getX(), y, SELECTION_MODIFIER);
 			event.consume();
 		}

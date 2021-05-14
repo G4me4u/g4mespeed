@@ -4,6 +4,8 @@ public interface GSITextureRegion {
 
 	public GSTexture getTexture();
 	
+	public GSITextureRegion getRegion(int rx, int ry, int rw, int rh);
+	
 	public int getRegionWidth();
 	
 	public int getRegionHeight();

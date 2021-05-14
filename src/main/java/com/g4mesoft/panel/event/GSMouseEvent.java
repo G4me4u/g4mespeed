@@ -2,6 +2,8 @@ package com.g4mesoft.panel.event;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.g4mesoft.panel.GSLocation;
+
 public final class GSMouseEvent extends GSEvent {
 
 	public static final int MOUSE_MOVED_TYPE    = 100;
@@ -87,6 +89,15 @@ public final class GSMouseEvent extends GSEvent {
 
 	void setY(int y) {
 		this.y = y;
+	}
+	
+	public GSLocation getLocation() {
+		return new GSLocation(x, y);
+	}
+
+	void setLocation(GSLocation location) {
+		setX(location.getX());
+		setY(location.getY());
 	}
 	
 	public int getButton() {

@@ -3,7 +3,7 @@ package com.g4mesoft.util;
 import java.io.File;
 import java.io.IOException;
 
-public class GSFileUtils {
+public class GSFileUtil {
 
 	public static void ensureDirectoryExists(File dir) throws IOException {
 		if (dir != null && !dir.exists())

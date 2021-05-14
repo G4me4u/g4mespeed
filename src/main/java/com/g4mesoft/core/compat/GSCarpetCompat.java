@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.module.tps.GSTpsModule;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 
 public final class GSCarpetCompat {
 
@@ -147,7 +147,7 @@ public final class GSCarpetCompat {
 	}
 	
 	public void notifyTickrateChange(float tickrate) {
-		if (carpetTickrateListener != null && !GSMathUtils.equalsApproximate(getCarpetTickrate(), tickrate)) {
+		if (carpetTickrateListener != null && !GSMathUtil.equalsApproximate(getCarpetTickrate(), tickrate)) {
 			carpetTickrateListener.accept(G4MESPEED_INTERFACE_NAME, Float.valueOf(tickrate));
 			
 			// Assume the tickrate was set correctly.

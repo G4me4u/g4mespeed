@@ -1,9 +1,13 @@
-package com.g4mesoft.panel.text;
+package com.g4mesoft.panel.field;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSECursorType;
+import com.g4mesoft.panel.GSETextAlignment;
+import com.g4mesoft.panel.GSIActionListener;
+import com.g4mesoft.panel.GSIModelListener;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.GSRectangle;
@@ -15,7 +19,7 @@ import com.g4mesoft.panel.event.GSIFocusEventListener;
 import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -50,7 +54,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	private static final Text SELECT_ALL_TEXT = new TranslatableText("panel.textfield.selectall");
 	
 	private GSITextModel textModel;
-	private final List<GSIModelChangeListener> modelChangeListeners;
+	private final List<GSIModelListener> modelListeners;
+	private final List<GSIActionListener> actionListeners;
 
 	private int backgroundColor;
 	
@@ -90,7 +95,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			textModel = new GSSingleLineTextModel();
 		}
 		
-		modelChangeListeners = new ArrayList<>();
+		modelListeners = new ArrayList<>();
+		actionListeners = new ArrayList<>();
 		
 		backgroundColor = DEFAULT_BACKGROUND_COLOR;
 		
@@ -119,24 +125,6 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		addFocusEventListener(this);
 	}
 	
-	public void setPreferredBounds(int x, int y) {
-		GSIRenderer2D renderer = GSPanelContext.getRenderer();
-		
-		int textWidth = (int)Math.ceil(renderer.getTextWidth(getText()));
-		int prefWidth = textWidth + (borderWidth + horizontalMargin) * 2;
-		
-		setPreferredBounds(x, y, prefWidth);
-	}
-
-	public void setPreferredBounds(int x, int y, int width) {
-		GSIRenderer2D renderer = GSPanelContext.getRenderer();
-
-		int textHeight = renderer.getTextHeight();
-		int prefHeight = textHeight + (borderWidth + verticalMargin + VERTICAL_PADDING) * 2;
-		
-		super.setBounds(x, y, width, prefHeight);
-	}
-
 	@Override
 	public void onBoundsChanged() {
 		super.onBoundsChanged();
@@ -182,7 +170,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	}
 	
 	private void reconstructClippedModel() {
-		int caretLocation = GSMathUtils.clamp(getCaretLocation(), 0, textModel.getLength());
+		int caretLocation = GSMathUtil.clamp(getCaretLocation(), 0, textModel.getLength());
 
 		int margin = borderWidth + horizontalMargin;
 		int width = this.width - margin * 2;
@@ -193,7 +181,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		} else if (caretLocation >= clippedModelEnd) {
 			caretX = width;
 		} else {
-			caretX = GSMathUtils.clamp(oldCaretPointX - margin, 0, width);
+			caretX = GSMathUtil.clamp(oldCaretPointX - margin, 0, width);
 		}
 		
 		clippedModelStart = caretLocation;
@@ -424,6 +412,21 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		caret.setCaretLocation(isFocused() ? textModel.getLength() : 0);
 	}
 	
+	@Override
+	protected GSDimension calculatePreferredSize() {
+		GSIRenderer2D renderer = GSPanelContext.getRenderer();
+		
+		// Base bounds of text
+		int w = (int)Math.ceil(renderer.getTextWidth(getText()));
+		int h = renderer.getTextHeight();
+		
+		// Add borders, margin, and padding
+		w += (borderWidth + horizontalMargin) * 2;
+		h += (borderWidth + verticalMargin + VERTICAL_PADDING) * 2;
+	
+		return new GSDimension(w, h);
+	}
+	
 	public int viewToModel(int x, int y) {
 		if (x < 0 || x >= width || y < 0 || y >= height)
 			return -1;
@@ -491,11 +494,13 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	@Override
 	public void textInserted(GSITextModel model, int offset, int count) {
 		clippedModelInvalid = true;
+		dispatchActionEvent();
 	}
 
 	@Override
 	public void textRemoved(GSITextModel model, int offset, int count) {
 		clippedModelInvalid = true;
+		dispatchActionEvent();
 	}
 	
 	@Override
@@ -632,9 +637,12 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	}
 
 	protected void insertTypedChar(int offset, char c, int modifiers) {
+		int previousLength = textModel.getLength();
 		textModel.insertChar(offset, c);
 		
-		moveCaretPointX(textModel.getText(offset, 1), 1);
+		// Ensure that the character was inserted.
+		if (previousLength + 1 == textModel.getLength())
+			moveCaretPointX(textModel.getText(offset, 1), 1);
 	}
 	
 	protected final void removeTextRange(int startOffset, int endOffset) {
@@ -669,7 +677,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	@Override
 	public void focusLost(GSFocusEvent event) {
-		if (caret.hasCaretSelection())
+		if (!hasPopupVisible() && caret.hasCaretSelection())
 			caret.setCaretLocation(0);
 	}
 	
@@ -748,12 +756,12 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		return null;
 	}
 	
-	public void addModelChangeListener(GSIModelChangeListener changeListener) {
-		modelChangeListeners.add(changeListener);
+	public void addModelListener(GSIModelListener listener) {
+		modelListeners.add(listener);
 	}
 
-	public void removeModelChangeListener(GSIModelChangeListener changeListener) {
-		modelChangeListeners.remove(changeListener);
+	public void removeModelListener(GSIModelListener listener) {
+		modelListeners.remove(listener);
 	}
 	
 	public void setTextModel(GSITextModel textModel) {
@@ -764,15 +772,27 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		this.textModel = textModel;
 		textModel.addTextModelListener(this);
 		
-		invokeModelChangeEvent();
+		invokeModelChangedEvent();
 	}
 	
-	private void invokeModelChangeEvent() {
-		modelChangeListeners.forEach(GSIModelChangeListener::modelChanged);
+	private void invokeModelChangedEvent() {
+		modelListeners.forEach(GSIModelListener::modelChanged);
 	}
 	
 	public GSITextModel getTextModel() {
 		return textModel;
+	}
+	
+	public void addActionListener(GSIActionListener listener) {
+		actionListeners.add(listener);
+	}
+
+	public void removeActionListener(GSIActionListener listener) {
+		actionListeners.remove(listener);
+	}
+
+	private void dispatchActionEvent() {
+		actionListeners.forEach(GSIActionListener::actionPerformed);
 	}
 	
 	public void setText(String text) {

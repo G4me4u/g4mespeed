@@ -11,8 +11,8 @@ public class GSPopup extends GSParentPanel {
 	private static final int SHADOW_OFFSET_Y = 2;
 	private static final int SHADOW_COLOR = 0x80000000;
 	
-	private final GSPanel content;
-	private GSPanel source;
+	protected final GSPanel content;
+	protected GSPanel source;
 	
 	public GSPopup(GSPanel content) {
 		if (content == null)
@@ -51,7 +51,11 @@ public class GSPopup extends GSParentPanel {
 	protected void onBoundsChanged() {
 		super.onBoundsChanged();
 
-		content.setBounds(0, 0, width, height);
+		layoutContent(0, 0, width, height);
+	}
+	
+	protected void layoutContent(int x, int y, int width, int height) {
+		content.setBounds(x, y, width, height);
 	}
 	
 	@Override
@@ -65,14 +69,29 @@ public class GSPopup extends GSParentPanel {
 	}
 
 	public void show(GSPanel source, GSLocation location) {
-		show(source, location.getX(), location.getY());
+		show(source, location, false);
 	}
-	
+
+	public void show(GSPanel source, GSLocation location, boolean relative) {
+		show(source, location.getX(), location.getY(), relative);
+	}
+
 	public void show(GSPanel source, int x, int y) {
+		show(source, x, y, false);
+	}
+
+	public void show(GSPanel source, int x, int y, boolean relative) {
 		if (getParent() != null)
 			return;
 		
 		this.source = source;
+		
+		if (relative && source != null) {
+			GSLocation viewLocation = GSPanelUtil.getViewLocation(source);
+			
+			x += viewLocation.getX();
+			y += viewLocation.getY();
+		}
 		
 		GSDimension pref = getPreferredSize();
 		setBounds(adjustLocation(x, y, pref), pref);
@@ -114,10 +133,14 @@ public class GSPopup extends GSParentPanel {
 	public void render(GSIRenderer2D renderer) {
 		renderShadow(renderer);
 	
+		// Fix issues with text rendering (depth enabled)
+		renderer.pushMatrix();
+		renderer.translateDepth(0.1f);
 		super.render(renderer);
+		renderer.popMatrix();
 	}
 	
-	private void renderShadow(GSIRenderer2D renderer) {
+	protected void renderShadow(GSIRenderer2D renderer) {
 		renderer.pushMatrix();
 		// Translate to top-left of shadow
 		renderer.translate(SHADOW_OFFSET_X - SHADOW_WIDTH,

@@ -185,7 +185,7 @@ public class GSPanel implements GSIViewport {
 	
 	public void preRender(GSIRenderer2D renderer) {
 		renderer.pushMatrix();
-		renderer.translate(x, y);
+		renderer.translate(getViewOffsetX(), getViewOffsetY());
 	}
 	
 	public void render(GSIRenderer2D renderer) {
@@ -273,11 +273,11 @@ public class GSPanel implements GSIViewport {
 		return Collections.unmodifiableList(focusEventListeners);
 	}
 	
-	public int getEventOffsetX() {
+	public int getViewOffsetX() {
 		return x;
 	}
 
-	public int getEventOffsetY() {
+	public int getViewOffsetY() {
 		return y;
 	}
 

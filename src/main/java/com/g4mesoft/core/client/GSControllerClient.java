@@ -87,11 +87,11 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 
 			keyManager.loadKeys(getHotkeySettingsFile());
 	
-			openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, (key, type) -> {
+			openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, () -> {
 				// Use lambda to ensure that tabbedGUI has been initialized.
-				if (type == GSEKeyEventType.PRESS && tabbedGUI != null)
+				if (tabbedGUI != null)
 					GSPanelContext.setContent(tabbedGUI);
-			}, false);
+			}, GSEKeyEventType.PRESS, false);
 	
 			GSPanelContext.init(minecraft);
 			
@@ -273,6 +273,10 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	
 	public GSRemoteSettingManager getServerSettings() {
 		return serverSettings;
+	}
+	
+	public GSTabbedGUI getTabbedGUI() {
+		return tabbedGUI;
 	}
 	
 	public GSKeyBinding getOpenGUIKey() {

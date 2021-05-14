@@ -27,6 +27,8 @@ public interface GSIRenderer2D extends GSIRenderer {
 	
 	public void translate(int x, int y);
 	
+	public void translateDepth(float z);
+	
 	public void pushClip(int x, int y, int width, int height);
 	
 	public void pushClip(GSClipRect clipRect);
@@ -140,7 +142,7 @@ public interface GSIRenderer2D extends GSIRenderer {
 
 	public void drawRect(int x, int y, int width, int height, int color);
 
-	public void drawTexture(GSTexture texture, int x, int y, int width, int height, int sx, int sy);
+	public void drawTexture(GSITextureRegion texture, int x, int y, int width, int height, int sx, int sy);
 	
 	public void drawTexture(GSITextureRegion texture, int x, int y);
 
@@ -212,14 +214,18 @@ public interface GSIRenderer2D extends GSIRenderer {
 
 	public void drawText(OrderedText text, int x, int y, int color, boolean shadowed);
 	
-	default public String trimString(String str, int availableWidth) {
-		return trimString(str, availableWidth, DEFAULT_ELLIPSIS);
+	default public String trimString(String text, int availableWidth) {
+		return trimString(text, availableWidth, DEFAULT_ELLIPSIS);
 	}
 
 	public String trimString(String text, int availableWidth, String ellipsis);
 
 	public List<String> splitToLines(String text, int availableWidth);
 
+	default public OrderedText trimString(Text text, int availableWidth) {
+		return trimString(text, availableWidth, DEFAULT_ELLIPSIS);
+	}
+	
 	public OrderedText trimString(Text text, int availableWidth, String ellipsis);
 	
 	public List<OrderedText> splitToLines(Text text, int availableWidth);

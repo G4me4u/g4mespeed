@@ -1,8 +1,8 @@
 package com.g4mesoft.gui;
 
+import com.g4mesoft.panel.field.GSTextField;
 import com.g4mesoft.panel.legend.GSButtonPanel;
 import com.g4mesoft.panel.legend.GSSliderPanel;
-import com.g4mesoft.panel.text.GSTextField;
 import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;

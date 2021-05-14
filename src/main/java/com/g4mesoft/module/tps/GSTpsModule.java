@@ -26,7 +26,7 @@ import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.types.GSBooleanSetting;
 import com.g4mesoft.setting.types.GSIntegerSetting;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.fabricmc.api.EnvType;
@@ -237,7 +237,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			// With older versions of carpet we have to poll the current tps
 			// manually since we don't receive an event directly when it changes.
 			float carpetTickrate = carpetCompat.getCarpetTickrate();
-			if (!GSMathUtils.equalsApproximate(carpetTickrate, tps))
+			if (!GSMathUtil.equalsApproximate(carpetTickrate, tps))
 				setTps(carpetTickrate);
 		}
 	}
@@ -290,7 +290,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				float oldTps = tps;
 				performHotkeyAction(type, sneaking);
 				
-				if (!GSMathUtils.equalsApproximate(oldTps, tps)) {
+				if (!GSMathUtil.equalsApproximate(oldTps, tps)) {
 					// Assume that the player changed the tps successfully.
 					manager.runOnServer((serverManager) -> {
 						Text name = player.getDisplayName();
@@ -427,9 +427,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	public void setTps(float tps) {
-		tps = GSMathUtils.clamp(tps, MIN_TPS, MAX_TPS);
+		tps = GSMathUtil.clamp(tps, MIN_TPS, MAX_TPS);
 		
-		if (!GSMathUtils.equalsApproximate(tps, this.tps)) {
+		if (!GSMathUtil.equalsApproximate(tps, this.tps)) {
 			float oldTps = this.tps;
 			this.tps = tps;
 			
@@ -462,15 +462,14 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	public boolean isGameModeAllowingHotkeys(PlayerEntity player) {
 		switch (sTpsHotkeyMode.getValue()) {
-		case HOTKEY_MODE_DISABLED:
-			return false;
 		case HOTKEY_MODE_CREATIVE:
 			return (player.isCreative() || player.isSpectator());
 		case HOTKEY_MODE_ALL:
 			return true;
+		case HOTKEY_MODE_DISABLED:
+		default:
+			return false;
 		}
-		
-		return false;
 	}
 	
 	public boolean isPlayerAllowedTpsChange(PlayerEntity player) {
@@ -524,7 +523,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	@Environment(EnvType.CLIENT)
 	public boolean shouldCorrectMovement() {
-		if (cNormalMovement.getValue() && !GSMathUtils.equalsApproximate(tps, DEFAULT_TPS)) {
+		if (cNormalMovement.getValue() && !GSMathUtil.equalsApproximate(tps, DEFAULT_TPS)) {
 			PlayerEntity player = GSControllerClient.getInstance().getPlayer();
 
 			if (player != null && !player.hasVehicle()) {

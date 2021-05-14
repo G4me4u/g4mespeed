@@ -7,20 +7,19 @@ import com.g4mesoft.panel.GSIcon;
 import com.g4mesoft.panel.GSLocation;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
+import com.g4mesoft.panel.GSPanelUtil;
 import com.g4mesoft.panel.GSPopup;
 import com.g4mesoft.panel.GSRectangle;
 import com.g4mesoft.panel.event.GSIMouseListener;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
-import com.g4mesoft.renderer.GSTexture;
+import com.g4mesoft.renderer.GSITextureRegion;
 
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
 public class GSDropdownSubMenu extends GSDropdownItem {
 
-	private static final Identifier ARROW_TEXTURE_IDENTIFIER = new Identifier("g4mespeed/textures/rightarrow.png");
-	private static final GSTexture ARROW_TEXTURE = new GSTexture(ARROW_TEXTURE_IDENTIFIER, 30, 10);
+	private static final GSITextureRegion ARROW_TEXTURE = GSPanelContext.getTexture(30, 42, 30, 20);
 	
 	private final GSIcon icon;
 	private final Text title;
@@ -150,8 +149,9 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 	}
 	
 	private GSLocation getPopupLocation() {
-		GSLocation location = getAbsoluteLocation(width, -GSDropdown.VERTICAL_PADDING);
-		int x = location.getX();
+		GSLocation viewLocation = GSPanelUtil.getViewLocation(this);
+		int x = viewLocation.getX() + width;
+		int y = viewLocation.getY() - GSDropdown.VERTICAL_PADDING;
 		
 		GSDimension pref = popup.getPreferredSize();
 		GSPanel rootPanel = GSPanelContext.getRootPanel();
@@ -160,24 +160,13 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 			x = Math.max(x - width - pref.getWidth(), 0);
 		}
 		
-		return new GSLocation(x, location.getY());
+		return new GSLocation(x, y);
 	}
 
 	private void hideSubMenu() {
 		dropdown.removeActionListener(actionListener);
 		popup.hide();
 		popup = null;
-	}
-	
-	private GSLocation getAbsoluteLocation(int x, int y) {
-		GSPanel panel = this;
-		while (panel != null) {
-			x += panel.getX();
-			y += panel.getY();
-			panel = panel.getParent();
-		}
-		
-		return new GSLocation(x, y);
 	}
 	
 	@Override

@@ -1,4 +1,4 @@
-package com.g4mesoft.panel.text;
+package com.g4mesoft.panel.field;
 
 import com.g4mesoft.renderer.GSIRenderer2D;
 

@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.module.translation.GSTranslationModule;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -102,9 +102,9 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 		float gs = Math.max(0.0f, (frac - GREEN_START) / (GREEN_END - GREEN_START));
 		float bs = Math.max(0.0f, (frac - BLUE_START ) / (BLUE_END  - BLUE_START ));
 
-		int r = GSMathUtils.clamp((int)(rs * LABEL_COLOR_DIFF) + LABEL_COLOR_MIN, 0, 0xFF);
-		int g = GSMathUtils.clamp((int)(gs * LABEL_COLOR_DIFF) + LABEL_COLOR_MIN, 0, 0xFF);
-		int b = GSMathUtils.clamp((int)(bs * LABEL_COLOR_DIFF) + LABEL_COLOR_MIN, 0, 0xFF);
+		int r = GSMathUtil.clamp((int)(rs * LABEL_COLOR_DIFF) + LABEL_COLOR_MIN, 0, 0xFF);
+		int g = GSMathUtil.clamp((int)(gs * LABEL_COLOR_DIFF) + LABEL_COLOR_MIN, 0, 0xFF);
+		int b = GSMathUtil.clamp((int)(bs * LABEL_COLOR_DIFF) + LABEL_COLOR_MIN, 0, 0xFF);
 		
 		return (0xFF << 24) | (r << 16) | (g << 8) | b;
 	}

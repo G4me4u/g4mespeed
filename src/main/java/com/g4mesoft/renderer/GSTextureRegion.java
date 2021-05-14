@@ -4,6 +4,8 @@ public class GSTextureRegion implements GSITextureRegion {
 
 	private final GSTexture texture;
 
+	private final int rx;
+	private final int ry;
 	private final int rw;
 	private final int rh;
 
@@ -15,6 +17,8 @@ public class GSTextureRegion implements GSITextureRegion {
 	public GSTextureRegion(GSTexture texture, int rx, int ry, int rw, int rh) {
 		this.texture = texture;
 		
+		this.rx = rx;
+		this.ry = ry;
 		this.rw = rw;
 		this.rh = rh;
 
@@ -27,6 +31,11 @@ public class GSTextureRegion implements GSITextureRegion {
 	@Override
 	public GSTexture getTexture() {
 		return texture;
+	}
+
+	@Override
+	public GSITextureRegion getRegion(int rx, int ry, int rw, int rh) {
+		return new GSTextureRegion(texture, this.rx + rx, this.ry + ry, rw, rh);
 	}
 
 	@Override

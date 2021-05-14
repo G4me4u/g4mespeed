@@ -21,7 +21,7 @@ import com.g4mesoft.setting.decoder.GSIntegerSettingDecoder;
 import com.g4mesoft.setting.decoder.GSStringSettingDecoder;
 import com.g4mesoft.setting.types.GSUnknownSetting;
 import com.g4mesoft.util.GSBufferUtil;
-import com.g4mesoft.util.GSFileUtils;
+import com.g4mesoft.util.GSFileUtil;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketByteBuf;
@@ -105,7 +105,7 @@ public class GSSettingManager {
 	
 	public void saveSettings(File settingsFile) {
 		try {
-			GSFileUtils.ensureFileExists(settingsFile);
+			GSFileUtil.ensureFileExists(settingsFile);
 			
 			try (FileOutputStream os = new FileOutputStream(settingsFile)) {
 				writeSettings(os);

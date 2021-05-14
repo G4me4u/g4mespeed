@@ -27,6 +27,8 @@ public class GSTpsHotkeyPacket implements GSIPacket {
 	@Override
 	public void read(PacketByteBuf buf) throws IOException {
 		type = GSETpsHotkeyType.fromIndex((int)buf.readByte());
+		if (type == null)
+			throw new IOException("Invalid hotkey type");
 		sneaking = buf.readBoolean();
 	}
 

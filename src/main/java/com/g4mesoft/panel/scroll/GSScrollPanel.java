@@ -1,5 +1,6 @@
 package com.g4mesoft.panel.scroll;
 
+import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
@@ -30,8 +31,10 @@ public class GSScrollPanel extends GSParentPanel {
 	public void onBoundsChanged() {
 		super.onBoundsChanged();
 		
-		scrollBar.initVerticalRight(width, 0, height);
-		contentPanel.setBounds(0, 0, Math.max(0, width - scrollBar.getWidth()), height);
+		int sw = scrollBar.getPreferredSize().getWidth();
+		
+		scrollBar.setBounds(Math.max(0, width - sw), 0, sw, height);
+		contentPanel.setBounds(0, 0, scrollBar.getX(), height);
 		
 		// Re-validate the scroll offset.
 		scrollBar.setScrollOffset(scrollBar.getScrollOffset());
@@ -43,6 +46,20 @@ public class GSScrollPanel extends GSParentPanel {
 	
 	public int getScrollOffset() {
 		return (int)scrollBar.getScrollOffset();
+	}
+	
+	@Override
+	protected GSDimension calculatePreferredSize() {
+		GSDimension cps = contentPanel.getPreferredSize();
+		GSDimension sps = scrollBar.getPreferredSize();
+		
+		int w = cps.getWidth() + sps.getWidth();
+	
+		// Handle overflow
+		if (w < 0)
+			w = Integer.MAX_VALUE;
+	
+		return new GSDimension(w, cps.getHeight());
 	}
 	
 	class GSScrollContentPanel extends GSParentPanel implements GSIScrollable {
@@ -75,20 +92,19 @@ public class GSScrollPanel extends GSParentPanel {
 		
 		@Override
 		public void preRender(GSIRenderer2D renderer) {
-			renderer.pushMatrix();
 			renderer.pushClip(x, y, width, height);
-			renderer.translate(x, y - getScrollOffset(getParent()));
+			super.preRender(renderer);
 		}
 		
 		@Override
 		public void postRender(GSIRenderer2D renderer) {
+			super.postRender(renderer);
 			renderer.popClip();
-			renderer.popMatrix();
 		}
 		
 		@Override
-		public int getEventOffsetY() {
-			return super.getEventOffsetY() - getScrollOffset(getParent());
+		public int getViewOffsetY() {
+			return super.getViewOffsetY() - getScrollOffset(getParent());
 		}
 
 		@Override
@@ -102,6 +118,16 @@ public class GSScrollPanel extends GSParentPanel {
 			}
 			
 			return null;
+		}
+		
+		@Override
+		protected GSDimension calculatePreferredSize() {
+			return content.getPreferredSize();
+		}
+
+		@Override
+		protected GSDimension calculateMinimumSize() {
+			return content.getMinimumSize();
 		}
 		
 		@Override

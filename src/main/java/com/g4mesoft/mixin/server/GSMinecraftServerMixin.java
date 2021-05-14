@@ -16,7 +16,7 @@ import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.TickDurationMonitor;
@@ -65,7 +65,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			// new milliseconds per tick. This ensures that the
 			// next tick will be very close to the client tick.
 			long delta = dt * millisNextTick / millisPrevTick;
-			timeReference = now + GSMathUtils.clamp(delta, 0L, millisNextTick);
+			timeReference = now + GSMathUtil.clamp(delta, 0L, millisNextTick);
 		} else {
 			timeReference = now + millisNextTick;
 		}

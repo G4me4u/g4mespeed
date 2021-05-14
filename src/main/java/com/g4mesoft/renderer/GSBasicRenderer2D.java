@@ -7,7 +7,7 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 import com.g4mesoft.access.GSIBufferBuilderAccess;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.MinecraftClient;
@@ -106,6 +106,11 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		onTransformChanged();
 	}
 	
+	@Override
+	public void translateDepth(float z) {
+		matrixStack.translate(0.0f, 0.0f, z);
+	}
+	
 	private void onTransformChanged() {
 		((GSIBufferBuilderAccess)builder).setClipOffset(transform.offsetX, transform.offsetY);
 	}
@@ -132,7 +137,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 
 	@Override
 	public void setOpacity(float opacity) {
-		this.opacity = GSMathUtils.clamp(opacity, 0.0f, 1.0f);
+		this.opacity = GSMathUtil.clamp(opacity, 0.0f, 1.0f);
 	}
 
 	@Override
@@ -191,7 +196,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	}
 
 	@Override
-	public void drawTexture(GSTexture texture, int x, int y, int width, int height, int sx, int sy) {
+	public void drawTexture(GSITextureRegion texture, int x, int y, int width, int height, int sx, int sy) {
 		drawTexture(texture.getRegion(sx, sy, width, height), x, y);
 	}
 
@@ -338,6 +343,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		}
 		
 		RenderSystem.disableTexture();
+		RenderSystem.shadeModel(GL11.GL_SMOOTH);
 		RenderSystem.enableBlend();
 		RenderSystem.disableAlphaTest();
 	}

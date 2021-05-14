@@ -1,7 +1,7 @@
 package com.g4mesoft.module.tps;
 
 import com.g4mesoft.core.server.GSControllerServer;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
@@ -37,7 +37,7 @@ public final class GSTpsCommand {
 		
 		float fn = (float)((Math.log(tps / GSTpsModule.DEFAULT_TPS)) / Math.log(2.0) * 12.0);
 		int n = Math.round(fn);
-		if (n % 12 != 0 && GSMathUtils.equalsApproximate(fn, n, 1E-4f)) {
+		if (n % 12 != 0 && GSMathUtil.equalsApproximate(fn, n, 1E-4f)) {
 			int o = n / 12;
 			n %= 12;
 			
