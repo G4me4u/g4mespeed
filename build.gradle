@@ -1,14 +1,14 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
     dependencies {
-		classpath "net.sf.proguard:proguard-gradle:6.2.2"
+		classpath "com.guardsquare:proguard-gradle:7.1.0-beta5"
     }
 }
 
 plugins {
-	id 'fabric-loom' version '0.6-SNAPSHOT'
+	id 'fabric-loom' version '0.8-SNAPSHOT'
 }
 
 repositories {
@@ -17,15 +17,15 @@ repositories {
     }
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_16
+targetCompatibility = JavaVersion.VERSION_16
 
 archivesBaseName = project.archives_base_name
 version = project.mod_version + "-mc" + project.minecraft_version
 group = project.maven_group
 
 dependencies {
-	//to change the versions see the gradle.properties file
+	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -41,29 +41,20 @@ dependencies {
 processResources {
 	inputs.property "version", project.version
 
-	from(sourceSets.main.resources.srcDirs) {
-		include "fabric.mod.json"
-		expand "version": project.mod_version
-	}
-
-	from(sourceSets.main.resources.srcDirs) {
-		exclude "fabric.mod.json"
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
 	}
 }
 
-// ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
-// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-tasks.withType(JavaCompile) {
-	options.encoding = "UTF-8"
-}
+tasks.withType(JavaCompile).configureEach {
+	// ensure that the encoding is set to UTF-8, no matter what the system default is
+	// this fixes some edge cases with special characters not displaying correctly
+	// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+	// If Javadoc is generated, this must be specified in that task too.
+	it.options.encoding = "UTF-8"
 
-// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-// if it is present.
-// If you remove this task, sources will not be generated.
-task sourcesJar(type: Jar, dependsOn: classes) {
-	classifier = "sources"
-	from sourceSets.main.allSource
+	// Minecraft 1.17 (21w19a) upwards uses Java 16.
+	it.options.release = 16
 }
 
 def outputJarName = jar.archiveName.with { it.take(it.lastIndexOf(".")) }
@@ -75,6 +66,17 @@ task obfuscateJar(type: proguard.gradle.ProGuardTask) {
 
 	injars "./build/libs/${jar.archiveName}"
 	outjars "./build/libs/${obfuscatedFileName}"
+	
+	// Automatically handle the Java version of this build.
+	if (System.getProperty('java.version').startsWith('1.')) {
+		// Before Java 9, the runtime classes were packaged in a single jar file.
+		libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
+	} else {
+		// As of Java 9, the runtime classes are packaged in modular jmod files.
+		libraryjars "${System.getProperty('java.home')}/jmods/java.base.jmod", jarfilter: '!**.jar', filter: '!module-info.class'
+		libraryjars "${System.getProperty('java.home')}/jmods/java.sql.jmod", jarfilter: '!**.jar', filter: '!module-info.class'
+		//libraryjars "${System.getProperty('java.home')}/jmods/....."
+	}
 	
 	obfuscationdictionary "member_obfuscation_dictionary.txt"
 	

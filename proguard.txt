@@ -1,9 +1,6 @@
 # Keep filenames and line numbers
 -keepattributes SourceFile, LineNumberTable, *Annotation*
 
-# Include java runtime classes
--libraryjars  <java.home>/lib/rt.jar
-
 # Libraries and external jars
 -dontwarn net.fabricmc.**
 -dontwarn org.spongepowered.**

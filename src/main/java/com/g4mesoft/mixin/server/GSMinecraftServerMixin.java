@@ -2,14 +2,14 @@ package com.g4mesoft.mixin.server;
 
 import java.util.function.BooleanSupplier;
 
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.core.server.GSControllerServer;
@@ -19,36 +19,18 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.util.GSMathUtils;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.TickDurationMonitor;
 import net.minecraft.util.Util;
-import net.minecraft.util.profiler.Profiler;
 
 @Mixin(MinecraftServer.class)
 public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
 	private float msAccum = 0.0f;
 	private float msPerTick = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
+
+	private long msThisTick;
 	
-	@Shadow @Final private static Logger LOGGER;
-	@Shadow private volatile boolean running;
 	@Shadow private long timeReference;
-	@Shadow private long lastTimeReference;
-	@Shadow private boolean profilerStartQueued;
-	@Shadow private Profiler profiler;
-	@Shadow private volatile boolean loading;
-	@Shadow private boolean waitingForNextTick;
-	@Shadow private long nextTickTimestamp;
-
-	@Shadow protected abstract void tick(BooleanSupplier booleanSupplier);
-
-	@Shadow protected abstract boolean shouldKeepTicking();
-
-	@Shadow protected abstract void method_16208();
-
-	@Shadow protected abstract void startMonitor(TickDurationMonitor tickDurationMonitor);
 	
-	@Shadow protected abstract void endMonitor(TickDurationMonitor tickDurationMonitor);
-
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {
 		long millisPrevTick = (long)msAccum;
@@ -82,45 +64,31 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		controllerServer.getTpsModule().addTpsListener(this);
 	}
 
-	/*
-	 * Ensure that we set require = 0. Some mods might change the overall structure of the mod. For 
-	 * example carpet modifies the loop and changes this.running to just be false.
-	 */
-	@Inject(method = "runServer", require = 0, allow = 1, at = @At(value = "FIELD", shift = Shift.BEFORE,
-			opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/server/MinecraftServer;running:Z"))
-	private void onModifiedRunLoop(CallbackInfo ci) {
-		while (this.running) {
-			long msThisTick = (long)msAccum;
-			msAccum += msPerTick - msThisTick;
+	@Inject(method = "runServer", at = @At(value = "INVOKE", shift = Shift.BEFORE,
+			target = "Lnet/minecraft/util/Util;getMeasuringTimeMs()J"))
+	private void onRunServerLoopBeginning(CallbackInfo ci) {
+		msThisTick = (long)msAccum;
+		msAccum += msPerTick - msThisTick;
+	}
 
-			long msBehind = Util.getMeasuringTimeMs() - this.timeReference;
-			if (msBehind > 1000L + 20L * msPerTick && this.timeReference - this.lastTimeReference >= 10000L + 100L * msPerTick) {
-				long ticksBehind = (long)(msBehind / msPerTick);
-				LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", msBehind, ticksBehind);
-				this.timeReference += ticksBehind * msPerTick;
-				this.lastTimeReference = this.timeReference;
+	@ModifyConstant(method = "runServer", constant = @Constant(longValue = 50L))
+	private long onRunServerModify50(long prevMsThisTick) {
+		return msThisTick;
+	}
+	
+	@ModifyConstant(method = "runServer", constant = @Constant(longValue = 2000L))
+	private long onRunServerModify2000(long prevMsThisTick) {
+		return (long)(1000L + 20L * msPerTick);
+	}
 
-				this.msAccum = msPerTick;
-			}
-
-			this.timeReference += msThisTick;
-			
-			TickDurationMonitor tickDurationMonitor_1 = TickDurationMonitor.create("Server");
-			this.startMonitor(tickDurationMonitor_1);
-			
-			this.profiler.startTick();
-			this.profiler.push("tick");
-			this.tick(this::shouldKeepTicking);
-			this.profiler.swap("nextTickWait");
-			this.waitingForNextTick = true;
-			this.nextTickTimestamp = Math.max(Util.getMeasuringTimeMs() + msThisTick, this.timeReference);
-			this.method_16208();
-			this.profiler.pop();
-			this.profiler.endTick();
-			
-			this.endMonitor(tickDurationMonitor_1);
-			this.loading = true;
-		}
+	@ModifyConstant(method = "runServer", constant = @Constant(longValue = 15000L))
+	private long onRunServerModify15000(long prevMsThisTick) {
+		return (long)(10000L + 100L * msPerTick);
+	}
+	
+	@Inject(method = "runServer", at = @At(value = "FIELD", target="Lnet/minecraft/server/MinecraftServer;lastTimeReference:J", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
+	private void onRunServerAfterOverloaded(CallbackInfo ci) {
+		this.msAccum = msPerTick;
 	}
 	
 	@Inject(method = "tick", at = @At("HEAD"))

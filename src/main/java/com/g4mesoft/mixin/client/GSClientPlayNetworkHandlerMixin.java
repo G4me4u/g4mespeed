@@ -53,7 +53,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void onInit(CallbackInfo ci) {
-		GSControllerClient.getInstance().setNetworkHandler((ClientPlayNetworkHandler)(Object) this);
+		GSControllerClient.getInstance().setNetworkHandler((ClientPlayNetworkHandler)(Object)this);
 	}
 	
 	@Inject(method = "onGameJoin", at = @At("RETURN"))
@@ -191,7 +191,7 @@ public class GSClientPlayNetworkHandlerMixin {
 				}
 
 				BlockEntity blockEntity = world.getBlockEntity(pos);
-				NbtCompound tag = packet.getCompoundTag();
+				NbtCompound tag = packet.getNbt();
 
 				if ("minecraft:piston".equals(tag.getString("id"))) {
 					if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked")) {
