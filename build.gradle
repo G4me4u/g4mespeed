@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
     dependencies {
 		classpath "com.guardsquare:proguard-gradle:7.1.0-beta5"
