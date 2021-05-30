@@ -21,6 +21,7 @@ import com.g4mesoft.renderer.GSIRenderable3D;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.GameRenderer;
@@ -112,8 +113,11 @@ public class GSWorldRendererMixin {
 	@ModifyArg(method = "render", index = 4, at = @At(value = "INVOKE", 
 			target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
 	private float onRenderEntityModifyDeltaTick(Entity entity, double cameraX, double cameraY, double cameraZ, float deltaTick, MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
-		if (!client.isPaused() && controller.getTpsModule().shouldCorrectMovement() && entity == client.player)
-			return ((GSIMinecraftClientAccess)client).getFixedMovementTickDelta();
+		if (!client.isPaused() && (entity instanceof AbstractClientPlayerEntity)) {
+			if (controller.getTpsModule().isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
+				return ((GSIMinecraftClientAccess)client).getFixedMovementTickDelta();
+		}
+
 		return deltaTick;
 	}
 }

@@ -11,6 +11,7 @@ import org.lwjgl.glfw.GLFW;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
+import com.g4mesoft.access.GSIAbstractClientPlayerEntityAccess;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.client.GSControllerClient;
@@ -32,6 +33,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -223,8 +225,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				
 				// Note that the interval may be less than zero in case of the
 				// first tick or in case of overflow / underflow.
-				long sererTpsInterval = now - lastServerTpsTime;
-				if (sererTpsInterval < 0L || sererTpsInterval > SERVER_TPS_INTERVAL) {
+				long serverTpsInterval = now - lastServerTpsTime;
+				if (serverTpsInterval < 0L || serverTpsInterval > SERVER_TPS_INTERVAL) {
 					float averageTps = serverTpsMonitor.getAverageTps();
 					managerServer.sendPacketToAll(new GSServerTpsPacket(averageTps));
 					lastServerTpsTime = now;
@@ -500,6 +502,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public float getTps() {
 		return tps;
 	}
+	
+	public boolean isDefaultTps() {
+		return GSMathUtil.equalsApproximate(tps, DEFAULT_TPS);
+	}
 
 	@Environment(EnvType.CLIENT)
 	public void onServerSyncPacket(int packetInterval) {
@@ -522,15 +528,36 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	@Environment(EnvType.CLIENT)
-	public boolean shouldCorrectMovement() {
-		if (cNormalMovement.getValue() && !GSMathUtil.equalsApproximate(tps, DEFAULT_TPS)) {
+	public boolean isMainPlayerFixedMovement() {
+		if (cNormalMovement.getValue() && !isDefaultTps()) {
 			PlayerEntity player = GSControllerClient.getInstance().getPlayer();
 
+			// Do not enable fixed movement if player has a vehicle.
 			if (player != null && !player.hasVehicle()) {
+				// Carpet allows clients to have different tps than the server,
+				// do not enable fixed movement if carpet is in this mode.
 				if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
 					return cForceCarpetTickrate.getValue();
 				return true;
 			}
+		}
+		
+		return false;
+	}
+
+	@Environment(EnvType.CLIENT)
+	public boolean isPlayerFixedMovement(AbstractClientPlayerEntity player) {
+		// Only enable fixed movement if tps is different from default.
+		if (!isDefaultTps()) {
+			GSControllerClient controller = GSControllerClient.getInstance();
+		
+			// Check if is is the main player.
+			if (player == controller.getPlayer())
+				return isMainPlayerFixedMovement();
+		
+			if (!controller.isG4mespeedServer())
+				return GSMathUtil.equalsApproximate(getServerTps(), DEFAULT_TPS);
+			return ((GSIAbstractClientPlayerEntityAccess)player).isFixedMovement();
 		}
 		
 		return false;

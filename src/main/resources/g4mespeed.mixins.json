@@ -21,7 +21,9 @@
     "server.GSPistonBlockEntityMixin",
     "server.GSPistonBlockMixin",
     
-    "server.GSIThreadedAnvilChunkStorageAccess",
+    "server.GSThreadedAnvilChunkStorageMixin",
+    "server.GSIThreadedAnvilChunkStorageEntityTrackerAccess",
+    "server.GSEntityTrackerEntryMixin",
     "server.GSServerChunkManagerMixin",
     "server.GSIBlockEventS2CPacketAccess"
   ],
@@ -51,7 +53,8 @@
     
     "client.GSWorldRendererMixin",
     "client.GSGameRendererMixin",
-    "client.GSClientWorldMixin"
+    "client.GSClientWorldMixin",
+    "client.GSAbstractClientPlayerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

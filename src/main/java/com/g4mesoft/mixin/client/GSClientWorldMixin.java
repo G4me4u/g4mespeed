@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.core.client.GSControllerClient;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 
@@ -32,9 +33,9 @@ public class GSClientWorldMixin {
 	
 	@Inject(method = "tickEntity", cancellable = true, at = @At("HEAD"))
 	public void onTickEntity(Entity entity, CallbackInfo ci) {
-		if (tickingEntities && entity == client.player && 
-				GSControllerClient.getInstance().getTpsModule().shouldCorrectMovement()) {
-			ci.cancel();
+		if (tickingEntities && (entity instanceof AbstractClientPlayerEntity)) {
+			if (GSControllerClient.getInstance().getTpsModule().isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
+				ci.cancel();
 		}
 	}
 }

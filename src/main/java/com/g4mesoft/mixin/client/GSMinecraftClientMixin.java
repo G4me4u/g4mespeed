@@ -23,6 +23,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.render.GameRenderer;
@@ -87,7 +88,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Inject(method = "tick", at = @At(value = "FIELD", shift = Shift.AFTER, 
 			opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/MinecraftClient;itemUseCooldown:I"))
 	public void onTickAfterItemUseCooldownDecrement(CallbackInfo ci) {
-		if (tpsModule.shouldCorrectMovement()) {
+		if (tpsModule.isMainPlayerFixedMovement()) {
 			// Fix item cool-down by incrementing it.
 			itemUseCooldown++;
 		}
@@ -96,7 +97,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Inject(method = "tick", at = @At(value = "FIELD", shift = Shift.AFTER, 
 			opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/MinecraftClient;attackCooldown:I"))
 	public void onTickAfterAttackCooldownDecrement(CallbackInfo ci) {
-		if (tpsModule.shouldCorrectMovement()) {
+		if (tpsModule.isMainPlayerFixedMovement()) {
 			// Fix attack cool-down by incrementing it.
 			attackCooldown++;
 		}
@@ -105,28 +106,28 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;tick()V"))
 	public void onTickRedirectInteractionManagerTick(InGameHud inGameHud) {
 		// Tick is handled elsewhere when correcting movement.
-		if (!tpsModule.shouldCorrectMovement())
+		if (!tpsModule.isMainPlayerFixedMovement())
 			inGameHud.tick();
 	}
 
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;tick()V"))
 	public void onTickRedirectInteractionManagerTick(ClientPlayerInteractionManager interactionManager) {
 		// Tick is handled elsewhere when correcting movement.
-		if (!tpsModule.shouldCorrectMovement())
+		if (!tpsModule.isMainPlayerFixedMovement())
 			interactionManager.tick();
 	}
 	
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;handleInputEvents()V"))
 	public void onTickRedirectHandleInputEvents(MinecraftClient ignore) {
 		// Events are handled elsewhere when correcting movement.
-		if (!tpsModule.shouldCorrectMovement())
+		if (!tpsModule.isMainPlayerFixedMovement())
 			handleInputEvents();
 	}
 
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;tick()V"))
 	public void onTickRedirectGameRendererTick(GameRenderer gameRenderer) {
 		// Tick is handled elsewhere when correcting movement.
-		if (!tpsModule.shouldCorrectMovement())
+		if (!tpsModule.isMainPlayerFixedMovement())
 			gameRenderer.tick();
 	}
 	
@@ -135,11 +136,12 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	public void onTickAndShouldTick(boolean tick, CallbackInfo ci) {
 		playerTimer.update(Util.getMeasuringTimeMs());
 
-		if (tpsModule.shouldCorrectMovement()) {
-			int tickCount = Math.min(playerTimer.getTickCount(), 10);
-			for (int i = 0; i < tickCount; i++) {
+		int tickCount = Math.min(playerTimer.getTickCount(), 10);
+		for (int i = 0; i < tickCount; i++) {
+			if (tpsModule.isMainPlayerFixedMovement())
 				onTickCorrection();
-			}
+			if (!paused && world != null)
+				tickFixedMovementPlayers();
 		}
 	}
 	
@@ -168,9 +170,18 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		}
 	}
 	
+	private void tickFixedMovementPlayers() {
+		if (!tpsModule.isDefaultTps()) {
+			for (AbstractClientPlayerEntity entity : world.getPlayers()) {
+				if (entity != player && !entity.hasVehicle() && !entity.removed && tpsModule.isPlayerFixedMovement(entity))
+					world.tickEntity(world::tickEntity, entity);
+			}
+		}
+	}
+	
 	@ModifyArg(method = "render", index = 0, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;render(FJZ)V"))
 	public float onModifyGameRenderTickDelta(float oldTickDelta) {
-		if (!paused && tpsModule.shouldCorrectMovement())
+		if (!paused && tpsModule.isMainPlayerFixedMovement())
 			return playerTimer.getTickDelta();
 		return oldTickDelta;
 	}
