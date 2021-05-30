@@ -669,6 +669,7 @@ com.g4mesoft.hotkey.GSEKeyEventType -> core.bb:
     3:3:com.g4mesoft.hotkey.GSEKeyEventType[] values() -> values
     3:3:com.g4mesoft.hotkey.GSEKeyEventType valueOf(java.lang.String) -> valueOf
     3:3:void <init>(java.lang.String,int) -> <init>
+    3:3:com.g4mesoft.hotkey.GSEKeyEventType[] $values() -> gsc_rJ
     3:5:void <clinit>() -> <clinit>
 com.g4mesoft.hotkey.GSIKeyBindingListener -> core.bc:
     void onKeyStateChanged(com.g4mesoft.hotkey.GSKeyBinding,com.g4mesoft.hotkey.GSEKeyEventType) -> onKeyStateChanged
@@ -812,8 +813,9 @@ com.g4mesoft.mixin.client.GSClientWorldMixin -> com.g4mesoft.mixin.client.GSClie
     36:40:void onTickEntity(net.minecraft.class_1297,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
 com.g4mesoft.mixin.client.GSGameRendererMixin -> com.g4mesoft.mixin.client.GSGameRendererMixin:
     net.minecraft.class_310 field_4015 -> field_4015
-    13:13:void <init>() -> <init>
-    20:20:float modifyTickDelta(float) -> gsc_rJ
+    19:19:void <init>() -> <init>
+    26:32:float modifyCameraUpdateTickDelta(net.minecraft.class_1922,net.minecraft.class_1297,boolean,boolean,float) -> gsc_rJ
+    38:38:float modifyWorldRenderTickDelta(float) -> gsc_rJ
 com.g4mesoft.mixin.client.GSIClientWorldAccess -> com.g4mesoft.mixin.client.GSIClientWorldAccess:
     void invokeCheckEntityChunkPos(net.minecraft.class_1297) -> gsc_rJ
 com.g4mesoft.mixin.client.GSIVertexFormatElementAccess -> com.g4mesoft.mixin.client.GSIVertexFormatElementAccess:
@@ -985,10 +987,9 @@ com.g4mesoft.mixin.server.GSEntityTrackerEntryMixin -> com.g4mesoft.mixin.server
     boolean lastFixedMovement -> gsc_hH
     28:35:void <init>() -> <init>
     39:50:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    55:59:void onStartTracking(net.minecraft.class_3222,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    62:62:boolean isPlayer() -> gsc_hH
-    67:67:boolean isFixedMovement() -> gsc_rJ
-    72:73:void setFixedMovement(boolean) -> gsc_rJ
+    55:61:void onStartTracking(net.minecraft.class_3222,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    65:65:boolean isFixedMovement() -> gsc_rJ
+    70:71:void setFixedMovement(boolean) -> gsc_rJ
 com.g4mesoft.mixin.server.GSIBlockEventS2CPacketAccess -> com.g4mesoft.mixin.server.GSIBlockEventS2CPacketAccess:
     net.minecraft.class_2248 getBlock2() -> gsc_rJ
 com.g4mesoft.mixin.server.GSIThreadedAnvilChunkStorageEntityTrackerAccess -> com.g4mesoft.mixin.server.GSIThreadedAnvilChunkStorageEntityTrackerAccess:
@@ -1052,25 +1053,24 @@ com.g4mesoft.mixin.server.GSServerPlayNetworkHandlerMixin -> com.g4mesoft.mixin.
     com.g4mesoft.GSExtensionInfoList extensionInfoList -> gsc_rJ
     java.util.Map translationVersions -> gsc_hH
     boolean fixedMovement -> gsc_sc
-    com.g4mesoft.module.tps.GSTpsMonitor movementTickMonitor -> gsc_bs
     boolean trackerFixedMovement -> gsc_UM
-    38:48:void <init>() -> <init>
+    35:44:void <init>() -> <init>
     boolean method_19507() -> method_19507
-    54:56:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    60:60:boolean onPlayerMoveFixedMovement(net.minecraft.class_3244) -> gsc_rJ
-    66:83:void onPlayerMove(net.minecraft.class_2828,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    88:90:void onPlayerMoveUpdateCameraPosition(net.minecraft.class_2828,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    95:106:void onCustomPayload(net.minecraft.class_2817,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    110:110:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_rJ
-    115:115:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_rJ
-    120:120:com.g4mesoft.GSExtensionInfo getExtensionInfo(com.g4mesoft.GSExtensionUID) -> gsc_hH
-    125:126:void clearAllExtensionInfo() -> gsc_rJ
-    130:131:void addAllExtensionInfo(com.g4mesoft.GSExtensionInfo[]) -> gsc_rJ
-    135:136:void addExtensionInfo(com.g4mesoft.GSExtensionInfo) -> gsc_rJ
-    140:141:void setTranslationVersion(com.g4mesoft.GSExtensionUID,int) -> gsc_rJ
-    145:145:int getTranslationVersion(com.g4mesoft.GSExtensionUID) -> gsc_sc
-    150:150:boolean isFixedMovement() -> gsc_hH
-    155:156:void setFixedMovement(boolean) -> gsc_rJ
+    50:52:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    56:56:boolean onPlayerMoveFixedMovement(net.minecraft.class_3244) -> gsc_rJ
+    62:72:void onPlayerMove(net.minecraft.class_2828,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    77:79:void onPlayerMoveUpdateCameraPosition(net.minecraft.class_2828,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    84:95:void onCustomPayload(net.minecraft.class_2817,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    99:99:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_rJ
+    104:104:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    109:109:com.g4mesoft.GSExtensionInfo getExtensionInfo(com.g4mesoft.GSExtensionUID) -> gsc_hH
+    114:115:void clearAllExtensionInfo() -> gsc_rJ
+    119:120:void addAllExtensionInfo(com.g4mesoft.GSExtensionInfo[]) -> gsc_rJ
+    124:125:void addExtensionInfo(com.g4mesoft.GSExtensionInfo) -> gsc_rJ
+    129:130:void setTranslationVersion(com.g4mesoft.GSExtensionUID,int) -> gsc_rJ
+    134:134:int getTranslationVersion(com.g4mesoft.GSExtensionUID) -> gsc_sc
+    139:139:boolean isFixedMovement() -> gsc_hH
+    144:145:void setFixedMovement(boolean) -> gsc_rJ
 com.g4mesoft.mixin.server.GSServerWorldMixin -> com.g4mesoft.mixin.server.GSServerWorldMixin:
     33:34:void <init>(net.minecraft.class_5269,net.minecraft.class_5321,net.minecraft.class_2874,java.util.function.Supplier,boolean,boolean,long) -> <init>
     39:46:double blockEventDistance(net.minecraft.class_1657,double,double,double,double,net.minecraft.class_5321,net.minecraft.class_2596) -> gsc_rJ
@@ -1119,6 +1119,7 @@ com.g4mesoft.module.tps.GSETpsHotkeyType -> core.bg:
     26:28:void <init>(java.lang.String,int,int) -> <init>
     31:33:com.g4mesoft.module.tps.GSETpsHotkeyType fromIndex(int) -> gsc_rJ
     37:37:int getIndex() -> gsc_rJ
+    3:3:com.g4mesoft.module.tps.GSETpsHotkeyType[] $values() -> gsc_hH
     3:22:void <clinit>() -> <clinit>
 com.g4mesoft.module.tps.GSITickTimer -> core.bi:
     float MILLIS_PER_SECOND -> gsc_rJ
@@ -1301,8 +1302,8 @@ com.g4mesoft.module.tps.GSTpsModule -> core.bo:
     512:516:void onServerSyncPacket(int) -> gsc_rJ
     520:522:float getServerTps() -> gsc_vm
     527:527:com.g4mesoft.module.tps.GSServerTickTimer getServerTimer() -> gsc_Jn
-    532:542:boolean shouldCorrectMovement() -> gsc_AS
-    547:557:boolean isFixedMovement(net.minecraft.class_742) -> gsc_rJ
+    532:545:boolean isMainPlayerFixedMovement() -> gsc_AS
+    551:563:boolean isPlayerFixedMovement(net.minecraft.class_742) -> gsc_rJ
     489:490:void lambda$sendFixedMovementPacket$4(com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_rJ
     444:457:void lambda$setTps$3(com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_rJ
     405:405:void lambda$onG4mespeedClientJoin$2(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_rJ
@@ -1390,7 +1391,7 @@ com.g4mesoft.module.translation.GSTranslationModule -> core.bv:
     289:290:java.lang.String getFormattedTranslation(java.lang.String,java.lang.Object[]) -> gsc_rJ
     294:294:boolean hasTranslation(java.lang.String) -> gsc_hH
     134:145:void lambda$sendMissingTranslations$4(com.g4mesoft.module.translation.GSTranslationCacheList,int,com.g4mesoft.GSExtensionUID,net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_rJ
-    135:135:int lambda$null$3(com.g4mesoft.module.translation.GSTranslationCache,com.g4mesoft.module.translation.GSTranslationCache) -> gsc_rJ
+    135:135:int lambda$sendMissingTranslations$3(com.g4mesoft.module.translation.GSTranslationCache,com.g4mesoft.module.translation.GSTranslationCache) -> gsc_rJ
     117:117:void lambda$onJoinG4mespeedServer$2(com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_rJ
     80:94:void lambda$onClose$1(com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_hH
     63:70:void lambda$init$0(com.g4mesoft.core.GSIModuleManager,com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_rJ
@@ -1418,7 +1419,7 @@ com.g4mesoft.packet.GSPacketManager -> core.bz:
     27:32:void <init>() -> <init>
     35:35:com.g4mesoft.GSExtensionUID getPacketExtensionUniqueId(com.g4mesoft.packet.GSIPacket) -> gsc_rJ
     39:53:net.minecraft.class_2596 encodePacket(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSController) -> gsc_rJ
-    60:85:com.g4mesoft.packet.GSIPacket decodePacket(com.g4mesoft.packet.GSICustomPayloadPacket,com.g4mesoft.GSExtensionInfoList,net.minecraft.class_2547,net.minecraft.class_1255) -> gsc_rJ
+    60:86:com.g4mesoft.packet.GSIPacket decodePacket(com.g4mesoft.packet.GSICustomPayloadPacket,com.g4mesoft.GSExtensionInfoList,net.minecraft.class_2547,net.minecraft.class_1255) -> gsc_rJ
     90:93:void registerPackets(com.g4mesoft.GSIExtension) -> gsc_rJ
     23:23:void <clinit>() -> <clinit>
 com.g4mesoft.packet.GSPacketRegistryList -> core.bA:
@@ -1544,6 +1545,7 @@ com.g4mesoft.panel.GSECursorType -> core.S:
     3:3:com.g4mesoft.panel.GSECursorType[] values() -> values
     3:3:com.g4mesoft.panel.GSECursorType valueOf(java.lang.String) -> valueOf
     3:3:void <init>(java.lang.String,int) -> <init>
+    3:3:com.g4mesoft.panel.GSECursorType[] $values() -> gsc_rJ
     3:5:void <clinit>() -> <clinit>
 com.g4mesoft.panel.GSEIconAlignment -> core.aX:
     com.g4mesoft.panel.GSEIconAlignment LEFT -> gsc_rJ
@@ -1552,6 +1554,7 @@ com.g4mesoft.panel.GSEIconAlignment -> core.aX:
     6:6:com.g4mesoft.panel.GSEIconAlignment[] values() -> values
     6:6:com.g4mesoft.panel.GSEIconAlignment valueOf(java.lang.String) -> valueOf
     6:6:void <init>(java.lang.String,int) -> <init>
+    6:6:com.g4mesoft.panel.GSEIconAlignment[] $values() -> gsc_rJ
     6:9:void <clinit>() -> <clinit>
 com.g4mesoft.panel.GSETextAlignment -> core.aY:
     com.g4mesoft.panel.GSETextAlignment CENTER -> gsc_rJ
@@ -1561,6 +1564,7 @@ com.g4mesoft.panel.GSETextAlignment -> core.aY:
     6:6:com.g4mesoft.panel.GSETextAlignment[] values() -> values
     6:6:com.g4mesoft.panel.GSETextAlignment valueOf(java.lang.String) -> valueOf
     6:6:void <init>(java.lang.String,int) -> <init>
+    6:6:com.g4mesoft.panel.GSETextAlignment[] $values() -> gsc_rJ
     6:10:void <clinit>() -> <clinit>
 com.g4mesoft.panel.GSIActionListener -> core.T:
     void actionPerformed() -> actionPerformed
@@ -2757,6 +2761,7 @@ com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType -> core.cO:
     933:933:com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType[] values() -> values
     933:933:com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType valueOf(java.lang.String) -> valueOf
     933:933:void <init>(java.lang.String,int) -> <init>
+    933:933:com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType[] $values() -> gsc_rJ
     933:935:void <clinit>() -> <clinit>
 com.g4mesoft.panel.field.GSTextLabel -> core.cP:
     int DEFAULT_BACKGROUND_COLOR -> gsc_rJ
@@ -3073,8 +3078,8 @@ com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D -> core.cp:
     481:481:void access$000(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_rJ
     481:481:int access$100(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_hH
     481:481:int access$200(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_sc
-    481:481:int access$102(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D,int) -> gsc_rJ
-    481:481:int access$202(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D,int) -> gsc_hH
+    481:481:int access$112(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D,int) -> gsc_rJ
+    481:481:int access$212(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D,int) -> gsc_hH
 com.g4mesoft.renderer.GSBasicRenderer3D -> core.cc:
     net.minecraft.class_287 builder -> gsc_Qo
     net.minecraft.class_4587 matrixStack -> gsc_Jn
@@ -3133,6 +3138,7 @@ com.g4mesoft.renderer.GSERenderPhase -> core.cd:
     3:3:com.g4mesoft.renderer.GSERenderPhase[] values() -> values
     3:3:com.g4mesoft.renderer.GSERenderPhase valueOf(java.lang.String) -> valueOf
     3:3:void <init>(java.lang.String,int) -> <init>
+    3:3:com.g4mesoft.renderer.GSERenderPhase[] $values() -> gsc_rJ
     3:5:void <clinit>() -> <clinit>
 com.g4mesoft.renderer.GSIRenderable3D -> core.ce:
     void render(com.g4mesoft.renderer.GSIRenderer3D) -> gsc_rJ
@@ -3359,6 +3365,7 @@ com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType -> core.bJ:
     97:99:void <init>(java.lang.String,int,int) -> <init>
     102:111:com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType fromIndex(int) -> gsc_rJ
     115:115:int getIndex() -> gsc_rJ
+    90:90:com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType[] $values() -> gsc_hH
     90:93:void <clinit>() -> <clinit>
 com.g4mesoft.setting.GSSettingManager -> core.bK:
     java.lang.String UNKNOWN_SETTING_TYPE -> gsc_rJ
@@ -3559,7 +3566,7 @@ com.g4mesoft.util.GSColorUtil -> core.cS:
     32:36:double[] rgb2xyz(int,int,int) -> gsc_rJ
     44:45:double toSRGB(double) -> gsc_rJ
     50:56:double[] xyz2lab(double,double,double) -> gsc_rJ
-    60:60:double labForward(double) -> gsc_hH
+    60:61:double labForward(double) -> gsc_hH
     65:66:double[] rgb2lab(int,int,int) -> gsc_hH
     71:74:double getColorDifferenceCIE76(double,double,double,double,double,double) -> gsc_rJ
     78:79:boolean isRGBSimilar(int,int) -> gsc_rJ
