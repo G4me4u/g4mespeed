@@ -1,5 +1,11 @@
 package com.g4mesoft.module.tps;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -79,6 +85,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##", new DecimalFormatSymbols(Locale.ENGLISH));
 	
+	private static final String TPS_CACHE_FILE_NAME = "tps_cache.txt";
+	
 	private float tps;
 	private final List<GSITpsDependant> listeners;
 
@@ -102,6 +110,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSBooleanSetting cNormalMovement;
 	public final GSIntegerSetting cTpsLabel;
 	public final GSBooleanSetting sBroadcastTps;
+	public final GSBooleanSetting sRestoreTickrate;
 
 	public final GSIntegerSetting cPistonAnimationType;
 	public final GSIntegerSetting cPistonRenderDistance;
@@ -128,6 +137,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cNormalMovement = new GSBooleanSetting("normalMovement", false);
 		cTpsLabel = new GSIntegerSetting("tpsLabel", TPS_LABEL_DISABLED, 0, 3);
 		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
+		sRestoreTickrate = new GSBooleanSetting("restoreTickrate", false);
 		
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, -1, 32);
@@ -144,6 +154,16 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		serverTpsMonitor.reset();
 		
 		G4mespeedMod.getInstance().getCarpetCompat().addCarpetTickrateListener(this);
+		
+		manager.runOnServer(managerServer -> {
+			if (sRestoreTickrate.getValue()) {
+				try {
+					setTps(readTps(getTpsCacheFile()));
+				} catch (IOException e) {
+					G4mespeedMod.GS_LOGGER.warn("Unable to read tps from cache.");
+				}
+			}
+		});
 	}
 
 	@Override
@@ -152,6 +172,16 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		
 		G4mespeedMod.getInstance().getCarpetCompat().removeCarpetTickrateListener(this);
 
+		manager.runOnServer(serverManager -> {
+			if (sRestoreTickrate.getValue()) {
+				try {
+					writeTps(tps, getTpsCacheFile());
+				} catch (IOException e) {
+					G4mespeedMod.GS_LOGGER.warn("Unable to write tps to cache.");
+				}
+			}
+		});
+		
 		manager = null;
 	}
 	
@@ -194,6 +224,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		settings.registerSetting(TPS_CATEGORY, sBroadcastTps);
 		settings.registerSetting(TPS_CATEGORY, sTpsHotkeyMode);
 		settings.registerSetting(TPS_CATEGORY, sTpsHotkeyFeedback);
+		settings.registerSetting(TPS_CATEGORY, sRestoreTickrate);
+
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sBlockEventDistance);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sParanoidMode);
@@ -507,6 +539,28 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		return GSMathUtil.equalsApproximate(tps, DEFAULT_TPS);
 	}
 
+	private float readTps(File file) throws IOException {
+		try (BufferedReader br = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
+			String line;
+			if ((line = br.readLine()) != null)
+				return Float.parseFloat(line);
+
+			throw new IOException("Tps file is empty");
+		} catch (NumberFormatException e) {
+			throw new IOException("Invalid tps format", e);
+		}
+	}
+
+	private void writeTps(float tps, File file) throws IOException {
+		try (BufferedWriter bw = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8)) {
+			bw.write(Float.toString(tps));
+		}
+	}
+	
+	private File getTpsCacheFile() {
+		return new File(manager.getCacheFile(), TPS_CACHE_FILE_NAME);
+	}
+	
 	@Environment(EnvType.CLIENT)
 	public void onServerSyncPacket(int packetInterval) {
 		serverTimer.onSyncPacket(packetInterval);
