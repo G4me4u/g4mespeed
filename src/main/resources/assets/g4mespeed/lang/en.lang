@@ -130,9 +130,6 @@ setting.tps.hotkeyMode.2=All
 setting.tps.broadcastTps=Broadcast TPS
 setting.tps.broadcastTps.desc=Broadcasts the server tps every two seconds to allow players to accurately monitor server performance.
 
-setting.tps.restoreTickrate=Restore Tickrate
-setting.tps.restoreTickrate.desc=Restores the tickrate from the previous session after the server has restarted.
-
 setting.betterPistons.blockEventDistance=Block Event Distance
 setting.betterPistons.blockEventDistance.1=1 chunk
 setting.betterPistons.blockEventDistance.x=%s chunks
@@ -157,3 +154,9 @@ setting.tps.hotkeyFeedback.desc=Specifies where the feedback from tps hotkeys wi
 setting.tps.hotkeyFeedback.0=Disabled
 setting.tps.hotkeyFeedback.1=Info bar
 setting.tps.hotkeyFeedback.2=Chat
+
+# Translation version 6 (v1.1.5)
+:6
+
+setting.tps.restoreTickrate=Restore Tickrate
+setting.tps.restoreTickrate.desc=Restores the tickrate from the previous session after the server has restarted.
