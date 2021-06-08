@@ -13,11 +13,7 @@ public class GSTexture implements GSITextureRegion {
 		this.width = width;
 		this.height = height;
 	}
-	
-	public GSITextureRegion getRegion(int rx, int ry, int rw, int rh) {
-		return new GSTextureRegion(this, rx, ry, rw, rh);
-	}
-	
+
 	public Identifier getIdentifier() {
 		return identifier;
 	}
@@ -33,6 +29,11 @@ public class GSTexture implements GSITextureRegion {
 	@Override
 	public GSTexture getTexture() {
 		return this;
+	}
+	
+	@Override
+	public GSITextureRegion getRegion(int rx, int ry, int rw, int rh) {
+		return new GSTextureRegion(this, rx, ry, rw, rh);
 	}
 	
 	@Override

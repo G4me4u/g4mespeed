@@ -12,7 +12,7 @@ import com.g4mesoft.access.GSIPistonBlockEntityAccess;
 import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.client.GSControllerClient;
 import com.g4mesoft.module.tps.GSTpsModule;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -48,7 +48,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@Override
 	@Environment(EnvType.CLIENT)
 	public float getSmoothProgress(float partialTicks) {
-		if ((isRemoved() || this.field_26705 != 0) && GSMathUtils.equalsApproximate(this.lastProgress, 1.0f))
+		if ((isRemoved() || this.field_26705 != 0) && GSMathUtil.equalsApproximate(this.lastProgress, 1.0f))
 			return 1.0f;
 		
 		float val;

@@ -18,7 +18,7 @@ import com.g4mesoft.setting.GSSettingMap;
 import com.g4mesoft.setting.types.GSBooleanSetting;
 import com.g4mesoft.setting.types.GSFloatSetting;
 import com.g4mesoft.setting.types.GSIntegerSetting;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -190,12 +190,12 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 		int descX = settingsWidth;
 		
 		int scrollOffset = getScrollOffset(getParent());
-		int descY = GSMathUtils.clamp(hoveredElement.y, scrollOffset, height + scrollOffset - descHeight);
+		int descY = GSMathUtil.clamp(hoveredElement.y, scrollOffset, height + scrollOffset - descHeight);
 		
 		if (descWidth > 0 && descHeight > 0 && targetDescHeight != 0) {
 			renderer.fillRect(descX, descY, descWidth, descHeight, DESC_BACKGROUND_COLOR);
 			
-			int alpha = GSMathUtils.clamp((int)(progress * 128.0f + 127.0f), 0, 255) << 24;
+			int alpha = GSMathUtil.clamp((int)(progress * 128.0f + 127.0f), 0, 255) << 24;
 			
 			int y = descY + DESC_LINE_MARGIN;
 			for (OrderedText line : descLines) {

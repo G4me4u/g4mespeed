@@ -1,23 +1,23 @@
 package com.g4mesoft.panel.scroll;
 
+import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSPanel;
+import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.dropdown.GSDropdown;
 import com.g4mesoft.panel.dropdown.GSDropdownAction;
 import com.g4mesoft.panel.event.GSIMouseListener;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
-import com.g4mesoft.renderer.GSTexture;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.renderer.GSITextureRegion;
+import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
 
 public class GSScrollBar extends GSPanel implements GSIMouseListener {
 
-	private static final Identifier TEXTURE_IDENTIFIER = new Identifier("g4mespeed/textures/scroll_bar.png");
-	private static final GSTexture SCROLL_BUTTON_TEXTURE = new GSTexture(TEXTURE_IDENTIFIER, 30, 40);
+	private static final GSITextureRegion SCROLL_BUTTON_TEXTURE = GSPanelContext.getTexture(0, 32, 30, 40);
 	
 	private static final int KNOB_AREA_COLOR = 0xFF7F7F7F;
 	private static final int DISABLED_KNOB_AREA_COLOR = 0xFF595959;
@@ -74,33 +74,13 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 		parentScrollHandler = new GSParentScrollHandler();
 
 		// Vertical by default
-		vertical = true;
+		setVertical(true);
 		
 		enabled = true;
 		
 		addMouseEventListener(this);
 	}
 
-	public void initVerticalLeft(int xl, int yt, int height) {
-		setBounds(xl, yt, getPreferredScrollBarWidth(), height);
-		
-		vertical = true;
-	}
-
-	public void initVerticalRight(int xr, int yt, int height) {
-		initVerticalLeft(xr - getPreferredScrollBarWidth(), yt, height);
-	}
-	
-	public void initHorizontalTop(int xl, int yt, int width) {
-		setBounds(xl, yt, width, getPreferredScrollBarWidth());
-
-		vertical = false;
-	}
-
-	public void initHorizontalBottom(int xl, int yb, int width) {
-		initHorizontalTop(xl, yb - getPreferredScrollBarWidth(), width);
-	}
-	
 	@Override
 	public void onBoundsChanged() {
 		super.onBoundsChanged();
@@ -193,7 +173,7 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 		}
 	}
 	
-	protected GSTexture getScrollButtonTexture() {
+	protected GSITextureRegion getScrollButtonTexture() {
 		return SCROLL_BUTTON_TEXTURE;
 	}
 	
@@ -257,10 +237,6 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 		return DEFAULT_MINIMUM_NOB_SIZE;
 	}
 
-	public int getPreferredScrollBarWidth() {
-		return DEFAULT_SCROLL_BAR_WIDTH;
-	}
-	
 	public float getDefaultScrollAmount() {
 		return DEFAULT_SCROLL_AMOUNT;
 	}
@@ -272,26 +248,33 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 			setScrollOffset(getScrollDelta(isVertical() ? y : x) - getContentViewSize() * 0.5f);
 		}));
 		dropdown.addItemSeparator();
-		dropdown.addItem(new GSDropdownAction(vertical ? TOP_TEXT : LEFT_EDGE_TEXT, () -> {
+		dropdown.addItem(new GSDropdownAction(isVertical() ? TOP_TEXT : LEFT_EDGE_TEXT, () -> {
 			setScrollOffset(0.0f);
 		}));
-		dropdown.addItem(new GSDropdownAction(vertical ? BOTTOM_TEXT : RIGHT_EDGE_TEXT, () -> {
+		dropdown.addItem(new GSDropdownAction(isVertical() ? BOTTOM_TEXT : RIGHT_EDGE_TEXT, () -> {
 			setScrollOffset(getMaxScrollOffset());
 		}));
 		dropdown.addItemSeparator();
-		dropdown.addItem(new GSDropdownAction(vertical ? PAGE_UP_TEXT : PAGE_LEFT_TEXT, () -> {
+		dropdown.addItem(new GSDropdownAction(isVertical() ? PAGE_UP_TEXT : PAGE_LEFT_TEXT, () -> {
 			onPageScroll(-1);
 		}));
-		dropdown.addItem(new GSDropdownAction(vertical ? PAGE_DOWN_TEXT : PAGE_RIGHT_TEXT, () -> {
+		dropdown.addItem(new GSDropdownAction(isVertical() ? PAGE_DOWN_TEXT : PAGE_RIGHT_TEXT, () -> {
 			onPageScroll(1);
 		}));
 		dropdown.addItemSeparator();
-		dropdown.addItem(new GSDropdownAction(vertical ? SCROLL_UP_TEXT : SCROLL_LEFT_TEXT, () -> {
+		dropdown.addItem(new GSDropdownAction(isVertical() ? SCROLL_UP_TEXT : SCROLL_LEFT_TEXT, () -> {
 			onIncrementalScroll(-1);
 		}));
-		dropdown.addItem(new GSDropdownAction(vertical ? SCROLL_DOWN_TEXT : SCROLL_RIGHT_TEXT, () -> {
+		dropdown.addItem(new GSDropdownAction(isVertical() ? SCROLL_DOWN_TEXT : SCROLL_RIGHT_TEXT, () -> {
 			onIncrementalScroll(1);
 		}));
+	}
+	
+	@Override
+	protected GSDimension calculatePreferredSize() {
+		int w = Math.max(DEFAULT_SCROLL_BAR_WIDTH, getButtonWidth());
+		int h = getMinimumNobSize() + getButtonHeight() * 2;
+		return isVertical() ? new GSDimension(w, h) : new GSDimension(h, w);
 	}
 	
 	@Override
@@ -356,7 +339,7 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 		if (listener != null)
 			listener.preScrollChanged(scroll);
 		
-		scrollOffset = GSMathUtils.clamp(scroll, 0.0f, getMaxScrollOffset());
+		scrollOffset = GSMathUtil.clamp(scroll, 0.0f, getMaxScrollOffset());
 		
 		if (listener != null)
 			listener.scrollChanged(scrollOffset);
@@ -368,6 +351,16 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	
 	public boolean isVertical() {
 		return vertical;
+	}
+	
+	public void setVertical(boolean vertical) {
+		if (vertical != this.vertical) {
+			this.vertical = vertical;
+			
+			GSPanel parent = getParent();
+			if (parent != null)
+				parent.requestLayout();
+		}
 	}
 	
 	public float getScrollOffset() {

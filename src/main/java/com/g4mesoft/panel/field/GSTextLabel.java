@@ -1,5 +1,7 @@
-package com.g4mesoft.panel.text;
+package com.g4mesoft.panel.field;
 
+import com.g4mesoft.panel.GSDimension;
+import com.g4mesoft.panel.GSETextAlignment;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.renderer.GSIRenderer2D;
@@ -37,16 +39,6 @@ public class GSTextLabel extends GSPanel {
 		textAlignment = GSETextAlignment.LEFT;;
 	}
 	
-	public void setPreferredBounds(int x, int y) {
-		GSIRenderer2D renderer = GSPanelContext.getRenderer();
-		setPreferredBounds(x, y, renderer.getLineHeight());
-	}
-
-	public void setPreferredBounds(int x, int y, int height) {
-		GSIRenderer2D renderer = GSPanelContext.getRenderer();
-		super.setBounds(x, y, (int)Math.ceil(renderer.getTextWidth(getText())), height);
-	}
-
 	@Override
 	public void render(GSIRenderer2D renderer) {
 		super.render(renderer);
@@ -72,8 +64,18 @@ public class GSTextLabel extends GSPanel {
 			break;
 		}
 		
-		int ty = (height - renderer.getTextHeight()) / 2;
+		int ty = (height - renderer.getTextAscent()) / 2;
 		renderer.drawText(text, tx, ty, textColor);
+	}
+	
+	@Override
+	protected GSDimension calculatePreferredSize() {
+		GSIRenderer2D renderer = GSPanelContext.getRenderer();
+		
+		int w = (int)Math.ceil(renderer.getTextWidth(getText()));
+		int h = renderer.getLineHeight();
+		
+		return new GSDimension(w, h);
 	}
 	
 	public void setText(String text) {

@@ -13,12 +13,17 @@ import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSBasicRenderer2D;
 import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.renderer.GSITextureRegion;
+import com.g4mesoft.renderer.GSTexture;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.SoundInstance;
+import net.minecraft.util.Identifier;
 
 public final class GSPanelContext {
 
+	private static final Identifier UI_TEXTURE_IDENTIFIER = new Identifier("g4mespeed/textures/ui.png");
+	
 	private static GSPanelContext instance;
 	
 	private final MinecraftClient client;
@@ -27,6 +32,7 @@ public final class GSPanelContext {
 	private final GSScreen screen;
 	private final GSEventDispatcher eventDispatcher;
 
+	private final GSTexture sheetTexture;
 	private final Map<Integer, Long> standardCursors;
 	
 	private GSPanelContext(MinecraftClient client) {
@@ -37,6 +43,7 @@ public final class GSPanelContext {
 		screen = new GSScreen();
 		eventDispatcher = new GSEventDispatcher(screen.getRootPanel());
 
+		sheetTexture = new GSTexture(UI_TEXTURE_IDENTIFIER, 512, 512);
 		standardCursors = new HashMap<>();
 	}
 
@@ -116,6 +123,14 @@ public final class GSPanelContext {
 	
 	public static GSRootPanel getRootPanel() {
 		return getContext().getRootPanelImpl();
+	}
+	
+	public static GSITextureRegion getTexture(int rx, int ry, int rw, int rh) {
+		return getContext().getTextureImpl(rx, ry, rw, rh);
+	}
+
+	public static GSIcon getIcon(int rx, int ry, int rw, int rh) {
+		return getContext().getIconImpl(rx, ry, rw, rh);
 	}
 	
 	private void disposeImpl() {
@@ -247,6 +262,14 @@ public final class GSPanelContext {
 	
 	private GSRootPanel getRootPanelImpl() {
 		return screen.getRootPanel();
+	}
+	
+	private GSITextureRegion getTextureImpl(int rx, int ry, int rw, int rh) {
+		return sheetTexture.getRegion(rx, ry, rw, rh);
+	}
+
+	private GSIcon getIconImpl(int rx, int ry, int rw, int rh) {
+		return new GSTexturedIcon(getTexture(rx, ry, rw, rh));
 	}
 	
 	private static GSPanelContext getContext() {

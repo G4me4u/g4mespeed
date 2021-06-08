@@ -1,6 +1,11 @@
 package com.g4mesoft.gui;
 
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import com.g4mesoft.hotkey.GSKeyBinding;
+import com.g4mesoft.hotkey.GSKeyCode;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.panel.event.GSIKeyListener;
@@ -23,7 +28,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	private static final int HOTKEY_PADDING = 2;
 	private static final int MAX_NAME_WIDTH = 128;
 	
-	private static final int MODIFY_BUTTON_WIDTH = 96;
+	private static final int MODIFY_BUTTON_WIDTH = 160;
 	private static final int RESET_BUTTON_WIDTH = 48;
 	
 	private static final int FONT_COLOR = 0xFFFFFFFF;
@@ -37,9 +42,12 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	
 	private final Text nameText;
 
-	private boolean modifyingKeyCode;
 	private final GSButtonPanel modifyButton;
 	private final GSButtonPanel resetButton;
+
+	private boolean modifyingKeyCode;
+	private final Set<InputUtil.Key> pressedKeys;
+	private final Set<InputUtil.Key> activeKeys;
 	
 	public GSHotkeyElementGUI(GSHotkeyGUI hotkeyGui, GSKeyBinding keyBinding) {
 		this.hotkeyGui = hotkeyGui;
@@ -49,16 +57,19 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	
 		resetButton = new GSButtonPanel(RESET_TEXT, () -> {
 			if (modifyingKeyCode) {
-				setModifying(false);
+				stopModifying();
 			} else if (hotkeyGui.getChangingElement() == null) {
 				resetKeyCode();
 			}
 		});
-		
-		modifyButton = new GSButtonPanel("", () -> setModifying(true));
+		modifyButton = new GSButtonPanel("", () -> startModifying());
 		
 		add(resetButton);
 		add(modifyButton);
+
+		modifyingKeyCode = false;
+		pressedKeys = new LinkedHashSet<>();
+		activeKeys = new HashSet<>();
 	}
 
 	@Override
@@ -110,7 +121,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 		Text keyName = keyBinding.getLocalizedName();
 		
 		if (modifyingKeyCode) {
-			keyName = keyName.copy().formatted(Formatting.YELLOW);
+			keyName = keyName.shallowCopy().formatted(Formatting.YELLOW);
 
 			modifyButton.setText(new LiteralText("> ").append(keyName).append(" <"));
 		} else {
@@ -129,7 +140,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 		renderer.drawText(nameText, HOTKEY_PADDING, ty, FONT_COLOR);
 	}
 
-	private void setKeyCode(Key keyCode) {
+	private void setKeyCode(GSKeyCode keyCode) {
 		keyBinding.setKeyCode(keyCode);
 		updateButtons();
 	}
@@ -139,30 +150,44 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	}
 
 	public void unbindKeyCode() {
-		setKeyCode(InputUtil.UNKNOWN_KEY);
+		setKeyCode(GSKeyCode.UNKNOWN_KEY);
 	}
 	
-	private void setModifying(boolean modifying) {
-		GSHotkeyElementGUI changingElement = hotkeyGui.getChangingElement();
-		
-		if (modifying && changingElement == null) {
+	private void startModifying() {
+		if (hotkeyGui.getChangingElement() == null) {
 			modifyingKeyCode = true;
 			hotkeyGui.setChangingElement(this);
-			updateButtons();
-		} else if (!modifying && changingElement == this) {
-			modifyingKeyCode = false;
-			hotkeyGui.setChangingElement(null);
 			updateButtons();
 		}
 
 		modifyButton.setPassingEvents(modifyingKeyCode);
 	}
+	
+	private void stopModifying() {
+		modifyingKeyCode = false;
+		pressedKeys.clear();
+		activeKeys.clear();
+
+		modifyButton.setPassingEvents(false);
+
+		if (hotkeyGui.getChangingElement() == this) {
+			hotkeyGui.setChangingElement(null);
+			updateButtons();
+		}
+	}
 
 	@Override
 	public void mousePressed(GSMouseEvent event) {
 		if (modifyingKeyCode) {
-			setKeyCode(InputUtil.Type.MOUSE.createFromCode(event.getButton()));
-			setModifying(false);
+			onKeyPressed(InputUtil.Type.MOUSE.createFromCode(event.getButton()));
+			event.consume();
+		}
+	}
+	
+	@Override
+	public void mouseReleased(GSMouseEvent event) {
+		if (modifyingKeyCode) {
+			onKeyReleased(InputUtil.Type.MOUSE.createFromCode(event.getButton()));
 			event.consume();
 		}
 	}
@@ -172,12 +197,31 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 		if (modifyingKeyCode) {
 			if (event.getKeyCode() == GSKeyEvent.KEY_ESCAPE) {
 				unbindKeyCode();
+				stopModifying();
 			} else {
-				setKeyCode(InputUtil.fromKeyCode(event.getKeyCode(), event.getScanCode()));
+				onKeyPressed(InputUtil.fromKeyCode(event.getKeyCode(), event.getScanCode()));
 			}
-			
-			setModifying(false);
 			event.consume();
+		}
+	}
+
+	@Override
+	public void keyReleased(GSKeyEvent event) {
+		if (modifyingKeyCode) {
+			onKeyReleased(InputUtil.fromKeyCode(event.getKeyCode(), event.getScanCode()));
+			event.consume();
+		}
+	}
+	
+	private void onKeyPressed(Key key) {
+		pressedKeys.add(key);
+		activeKeys.add(key);
+	}
+
+	private void onKeyReleased(Key key) {
+		if (activeKeys.remove(key) && activeKeys.isEmpty() && !pressedKeys.isEmpty()) {
+			setKeyCode(GSKeyCode.fromKeys(pressedKeys.toArray(new InputUtil.Key[0])));
+			stopModifying();
 		}
 	}
 	

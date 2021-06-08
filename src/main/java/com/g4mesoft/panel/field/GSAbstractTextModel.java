@@ -1,4 +1,4 @@
-package com.g4mesoft.panel.text;
+package com.g4mesoft.panel.field;
 
 import java.util.ArrayList;
 import java.util.List;

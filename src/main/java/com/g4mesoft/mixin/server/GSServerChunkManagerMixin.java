@@ -7,7 +7,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.g4mesoft.access.GSIServerChunkManagerAccess;
+import com.g4mesoft.access.GSIThreadedAnvilChunkStorageAccess;
 
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
@@ -22,6 +24,16 @@ public class GSServerChunkManagerMixin implements GSIServerChunkManagerAccess {
 	@Shadow @Final public ThreadedAnvilChunkStorage threadedAnvilChunkStorage;
 
 	@Override
+	public void tickPlayerTracker(ServerPlayerEntity player) {
+		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).tickPlayerTracker(player);
+	}
+	
+	@Override
+	public void setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement) {
+		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).setTrackerFixedMovement(player, trackerFixedMovement);
+	}
+	
+	@Override
 	public void flushAndSendChunkUpdates() {
 		world.getProfiler().push("chunks");
 		
@@ -32,7 +44,7 @@ public class GSServerChunkManagerMixin implements GSIServerChunkManagerAccess {
 			// processing them. This is to ensure that random ticks are being
 			// processed randomly. Since we don't process those here, we can
 			// broadcast without having to shuffle the chunk holders.
-			((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).invokeEntryIterator().forEach((chunkHolder) -> {
+			((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).getEntryIterator0().forEach((chunkHolder) -> {
 				Optional<WorldChunk> optional = chunkHolder.getEntityTickingFuture().getNow(ChunkHolder.UNLOADED_WORLD_CHUNK).left();
 				if (optional.isPresent()) {
 					world.getProfiler().push("broadcast");

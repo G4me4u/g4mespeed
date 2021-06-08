@@ -21,43 +21,35 @@ public class GSPacketRegistryList {
 	}
 
 	public GSExtensionUID getPacketExtensionUID(Class<? extends GSIPacket> packetClazz) {
-		GSExtensionUID extensionUid = uidCache.get(packetClazz);
-		if (extensionUid != null)
-			return extensionUid;
+		return uidCache.computeIfAbsent(packetClazz, k -> {
+			for (Map.Entry<GSExtensionUID, GSSupplierRegistry<Integer, GSIPacket>> entry : uidToRegistry.entrySet()) {
+				GSSupplierRegistry<Integer, GSIPacket> registry = entry.getValue();
 	
-		for (Map.Entry<GSExtensionUID, GSSupplierRegistry<Integer, GSIPacket>> entry : uidToRegistry.entrySet()) {
-			GSSupplierRegistry<Integer, GSIPacket> registry = entry.getValue();
-
-			if (registry.containsElement(packetClazz)) {
-				extensionUid = entry.getKey();
-				uidCache.put(packetClazz, extensionUid);
-				return extensionUid;
+				if (registry.containsElement(packetClazz))
+					return entry.getKey();
 			}
-		}
-		
-		return null;
+			
+			return null;
+		});
 	}
 	
 	public long getPacketId(Class<? extends GSIPacket> packetClazz) {
-		Long cache = idCache.get(packetClazz);
-		if (cache != null)
-			return cache.longValue();
-	
-		GSExtensionUID extensionUid = getPacketExtensionUID(packetClazz);
-
-		if (extensionUid != null) {
-			GSSupplierRegistry<Integer, GSIPacket> registry = uidToRegistry.get(extensionUid);
+		Long packetId = idCache.computeIfAbsent(packetClazz, k -> {
+			GSExtensionUID extensionUid = getPacketExtensionUID(k);
 			
-			int uid = extensionUid.getValue();
-			int id = registry.getIdentifier(packetClazz);
-
-			long value = ((long)uid << 32L) | (long)id;
-			idCache.put(packetClazz, Long.valueOf(value));
-
-			return value;
-		}
+			if (extensionUid != null) {
+				GSSupplierRegistry<Integer, GSIPacket> registry = uidToRegistry.get(extensionUid);
+				
+				int uid = extensionUid.getValue();
+				int id = registry.getIdentifier(k);
+				
+				return Long.valueOf(((long)uid << 32L) | (long)id);
+			}
+			
+			return null;
+		});
 		
-		return -1L;
+		return (packetId == null) ? -1L : packetId.longValue();
 	}
 	
 	public GSIPacket createNewPacket(long packetId) {

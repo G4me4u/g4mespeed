@@ -1,7 +1,7 @@
 package com.g4mesoft.setting.types;
 
 import com.g4mesoft.setting.GSSetting;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 
 public class GSFloatSetting extends GSSetting<Float> {
 
@@ -58,7 +58,7 @@ public class GSFloatSetting extends GSSetting<Float> {
 	}
 	
 	private float adjustValue(float value) {
-		if (!GSMathUtils.equalsApproximate(interval * 0.5f, 0.0f)) {
+		if (!GSMathUtil.equalsApproximate(interval * 0.5f, 0.0f)) {
 			float deviation = value % interval;
 
 			value -= deviation;
@@ -66,12 +66,12 @@ public class GSFloatSetting extends GSSetting<Float> {
 				value = (deviation < 0.0f) ? (value - interval) : (value + interval);
 		}
 		
-		return GSMathUtils.clamp(value, minValue, maxValue);
+		return GSMathUtil.clamp(value, minValue, maxValue);
 	}
 	
 	@Override
 	public boolean isDefaultValue() {
-		return GSMathUtils.equalsApproximate(defaultValue.floatValue(), value);
+		return GSMathUtil.equalsApproximate(defaultValue.floatValue(), value);
 	}
 
 	@Override

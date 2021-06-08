@@ -6,6 +6,7 @@ import java.util.Map;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -14,7 +15,9 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionInfoList;
 import com.g4mesoft.GSExtensionUID;
+import com.g4mesoft.access.GSIServerChunkManagerAccess;
 import com.g4mesoft.access.GSIServerPlayNetworkHandlerAccess;
+import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSControllerServer;
 import com.g4mesoft.module.translation.GSTranslationModule;
@@ -24,6 +27,7 @@ import com.g4mesoft.packet.GSPacketManager;
 
 import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -37,6 +41,8 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 	private final Map<GSExtensionUID, Integer> translationVersions = new HashMap<>();
 	private boolean fixedMovement = false;
 	
+	private boolean trackerFixedMovement = false;
+	
 	@Shadow protected abstract boolean isHost();
 
 	@Inject(method = "tick", at = @At("HEAD"))
@@ -49,6 +55,29 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 	private boolean onPlayerMoveFixedMovement(ServerPlayNetworkHandler serverPlayNetworkHandler) {
 		return isHost() || fixedMovement;
 	}
+	
+	@Inject(method = "onPlayerMove", at = @At(value = "INVOKE", shift = Shift.AFTER,
+			target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"))
+	private void onPlayerMove(PlayerMoveC2SPacket packet, CallbackInfo ci) {
+		boolean trackerFixedMovement = false;
+		// Only send movement packets if the server is not running 20 ticks per second.
+		if (!GSControllerServer.getInstance().getTpsModule().isDefaultTps()) {
+			// G4mespeed is not installed, assume that the player is moving with 20 ticks per second.
+			trackerFixedMovement = fixedMovement || !isExtensionInstalled(GSCoreExtension.UID);
+		}
+		
+		this.trackerFixedMovement = trackerFixedMovement;
+		
+		((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).setTrackerFixedMovement(player, trackerFixedMovement);
+	}
+
+	@Inject(method = "onPlayerMove", at = @At(value = "INVOKE", shift = Shift.AFTER,
+			target = "Lnet/minecraft/server/network/ServerPlayerEntity;increaseTravelMotionStats(DDD)V"))
+	private void onPlayerMoveUpdateCameraPosition(PlayerMoveC2SPacket packet, CallbackInfo ci) {
+		if (trackerFixedMovement)
+			((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).tickPlayerTracker(player);
+	}
+
 	
 	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
 	private void onCustomPayload(CustomPayloadC2SPacket packet, CallbackInfo ci) {

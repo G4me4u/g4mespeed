@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 import com.g4mesoft.access.GSIBufferBuilderAccess;
 import com.g4mesoft.mixin.client.GSIVertexFormatElementAccess;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.VertexFormat;
@@ -89,7 +89,7 @@ public class GSClipAdjuster {
 		// of the corners tli and bri.
 		int bri = (bli + 1) & 0x3;
 		int tli;
-		if (GSMathUtils.equalsApproximate(x0, clipXBuffer[bri])) {
+		if (GSMathUtil.equalsApproximate(x0, clipXBuffer[bri])) {
 			tli = bri;
 			bri = (bli - 1) & 0x3;
 		} else {
@@ -97,10 +97,10 @@ public class GSClipAdjuster {
 		}
 		
 		// Verify that the quad is actually aligned with the x and y axis.
-		if (!GSMathUtils.equalsApproximate(x0, clipXBuffer[tli]) ||
-		    !GSMathUtils.equalsApproximate(x1, clipXBuffer[bri]) ||
-		    !GSMathUtils.equalsApproximate(y0, clipYBuffer[bri]) ||
-		    !GSMathUtils.equalsApproximate(y1, clipYBuffer[tli])) {
+		if (!GSMathUtil.equalsApproximate(x0, clipXBuffer[tli]) ||
+		    !GSMathUtil.equalsApproximate(x1, clipXBuffer[bri]) ||
+		    !GSMathUtil.equalsApproximate(y0, clipYBuffer[bri]) ||
+		    !GSMathUtil.equalsApproximate(y1, clipYBuffer[tli])) {
 			
 			return;
 		}

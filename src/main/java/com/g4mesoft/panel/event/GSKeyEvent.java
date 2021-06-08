@@ -9,8 +9,8 @@ public final class GSKeyEvent extends GSEvent {
 	public static final int KEY_RELEASED_TYPE = 202;
 	public static final int KEY_TYPED_TYPE    = 203;
 	
-	public static final int FIRST_TYPE = 200;
-	public static final int LAST_TYPE  = 203;
+	public static final int FIRST_TYPE = KEY_PRESSED_TYPE;
+	public static final int LAST_TYPE  = KEY_TYPED_TYPE;
 	
 	public static final int UNKNOWN_KEY = GLFW.GLFW_KEY_UNKNOWN;
 	public static final int UNKNOWN_CODE_POINT = '\0'; /* NULL char */

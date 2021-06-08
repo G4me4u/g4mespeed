@@ -4,7 +4,7 @@ import com.g4mesoft.panel.GSIActionListener;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.renderer.GSTexture;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -72,6 +72,6 @@ public class GSSliderPanel extends GSAbstractTextActionPanel {
 	}
 	
 	public void setValue(float value) {
-		this.value = GSMathUtils.clamp(value, 0.0f, 1.0f);
+		this.value = GSMathUtil.clamp(value, 0.0f, 1.0f);
 	}
 }

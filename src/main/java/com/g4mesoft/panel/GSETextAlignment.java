@@ -1,4 +1,4 @@
-package com.g4mesoft.panel.text;
+package com.g4mesoft.panel;
 
 /**
  * @author Christian

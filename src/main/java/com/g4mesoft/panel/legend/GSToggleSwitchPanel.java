@@ -1,17 +1,15 @@
 package com.g4mesoft.panel.legend;
 
 import com.g4mesoft.panel.GSIActionListener;
+import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
-import com.g4mesoft.renderer.GSTexture;
-
-import net.minecraft.util.Identifier;
+import com.g4mesoft.renderer.GSITextureRegion;
 
 public class GSToggleSwitchPanel extends GSAbstractActionPanel implements GSIKeyListener {
 
-	private static final Identifier TEXTURE_IDENTIFIER = new Identifier("g4mespeed/textures/switch.png");
-	private static final GSTexture SWITCH_TEXTURE = new GSTexture(TEXTURE_IDENTIFIER, 90, 32);
+	private static final GSITextureRegion SWITCH_TEXTURE = GSPanelContext.getTexture(0, 0, 90, 32);
 
 	public static final int SWITCH_WIDTH = 30;
 	public static final int SWITCH_HEIGHT = 16;

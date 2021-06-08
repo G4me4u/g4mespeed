@@ -7,6 +7,9 @@ public final class GSVersion {
 	public static final GSVersion INVALID = new GSVersion(-1, -1, -1);
 	public static final GSVersion MINIMUM_VERSION = new GSVersion(0, 0, 0);
 
+	private static final String RELEASE_FORMAT = "%d.%d.%d";
+	private static final String BETA_FORMAT    = "%d.%d.%d-beta";
+	
 	private final int majorVersion;
 	private final int minorVersion;
 	private final int updateVersion;
@@ -34,8 +37,11 @@ public final class GSVersion {
 	}
 	
 	public String getVersionString() {
-		if (versionStringCache == null)
-			versionStringCache = String.format("%d.%d.%d", majorVersion, minorVersion, updateVersion);
+		if (versionStringCache == null) {
+			String format = (majorVersion != 0) ? RELEASE_FORMAT : BETA_FORMAT;
+			versionStringCache = String.format(format, majorVersion, minorVersion, updateVersion);
+		}
+		
 		return versionStringCache;
 	}
 	

@@ -1,4 +1,4 @@
-package com.g4mesoft.panel.text;
+package com.g4mesoft.panel.field;
 
 /**
  * A single-line text-model used for storing and handling model data in simple
@@ -113,7 +113,7 @@ public class GSSingleLineTextModel extends GSAbstractTextModel {
 	/**
 	 * Returns true, if the given character should be discarded by this model.
 	 * The default characters which are discarded are described in the class
-	 * {@link com.g4mesoft.panel.text.GSSingleLineTextModel doc}.
+	 * {@link com.g4mesoft.panel.field.GSSingleLineTextModel doc}.
 	 * 
 	 * @param c - the character that should be checked.
 	 * 

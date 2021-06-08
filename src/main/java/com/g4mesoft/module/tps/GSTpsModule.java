@@ -1,5 +1,11 @@
 package com.g4mesoft.module.tps;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -11,6 +17,7 @@ import org.lwjgl.glfw.GLFW;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
+import com.g4mesoft.access.GSIAbstractClientPlayerEntityAccess;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.client.GSControllerClient;
@@ -26,12 +33,13 @@ import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.types.GSBooleanSetting;
 import com.g4mesoft.setting.types.GSIntegerSetting;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.util.GSMathUtil;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -77,6 +85,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##", new DecimalFormatSymbols(Locale.ENGLISH));
 	
+	private static final String TPS_CACHE_FILE_NAME = "tps_cache.txt";
+	
 	private float tps;
 	private final List<GSITpsDependant> listeners;
 
@@ -100,6 +110,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSBooleanSetting cNormalMovement;
 	public final GSIntegerSetting cTpsLabel;
 	public final GSBooleanSetting sBroadcastTps;
+	public final GSBooleanSetting sRestoreTickrate;
 
 	public final GSIntegerSetting cPistonAnimationType;
 	public final GSIntegerSetting cPistonRenderDistance;
@@ -126,6 +137,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cNormalMovement = new GSBooleanSetting("normalMovement", false);
 		cTpsLabel = new GSIntegerSetting("tpsLabel", TPS_LABEL_DISABLED, 0, 3);
 		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
+		sRestoreTickrate = new GSBooleanSetting("restoreTickrate", false);
 		
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, -1, 32);
@@ -142,6 +154,16 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		serverTpsMonitor.reset();
 		
 		G4mespeedMod.getInstance().getCarpetCompat().addCarpetTickrateListener(this);
+		
+		manager.runOnServer(managerServer -> {
+			if (sRestoreTickrate.getValue()) {
+				try {
+					setTps(readTps(getTpsCacheFile()));
+				} catch (IOException e) {
+					G4mespeedMod.GS_LOGGER.warn("Unable to read tps from cache.");
+				}
+			}
+		});
 	}
 
 	@Override
@@ -150,6 +172,16 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		
 		G4mespeedMod.getInstance().getCarpetCompat().removeCarpetTickrateListener(this);
 
+		manager.runOnServer(serverManager -> {
+			if (sRestoreTickrate.getValue()) {
+				try {
+					writeTps(tps, getTpsCacheFile());
+				} catch (IOException e) {
+					G4mespeedMod.GS_LOGGER.warn("Unable to write tps to cache.");
+				}
+			}
+		});
+		
 		manager = null;
 	}
 	
@@ -192,6 +224,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		settings.registerSetting(TPS_CATEGORY, sBroadcastTps);
 		settings.registerSetting(TPS_CATEGORY, sTpsHotkeyMode);
 		settings.registerSetting(TPS_CATEGORY, sTpsHotkeyFeedback);
+		settings.registerSetting(TPS_CATEGORY, sRestoreTickrate);
+
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sBlockEventDistance);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sParanoidMode);
@@ -223,8 +257,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				
 				// Note that the interval may be less than zero in case of the
 				// first tick or in case of overflow / underflow.
-				long sererTpsInterval = now - lastServerTpsTime;
-				if (sererTpsInterval < 0L || sererTpsInterval > SERVER_TPS_INTERVAL) {
+				long serverTpsInterval = now - lastServerTpsTime;
+				if (serverTpsInterval < 0L || serverTpsInterval > SERVER_TPS_INTERVAL) {
 					float averageTps = serverTpsMonitor.getAverageTps();
 					managerServer.sendPacketToAll(new GSServerTpsPacket(averageTps));
 					lastServerTpsTime = now;
@@ -237,7 +271,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			// With older versions of carpet we have to poll the current tps
 			// manually since we don't receive an event directly when it changes.
 			float carpetTickrate = carpetCompat.getCarpetTickrate();
-			if (!GSMathUtils.equalsApproximate(carpetTickrate, tps))
+			if (!GSMathUtil.equalsApproximate(carpetTickrate, tps))
 				setTps(carpetTickrate);
 		}
 	}
@@ -290,7 +324,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				float oldTps = tps;
 				performHotkeyAction(type, sneaking);
 				
-				if (!GSMathUtils.equalsApproximate(oldTps, tps)) {
+				if (!GSMathUtil.equalsApproximate(oldTps, tps)) {
 					// Assume that the player changed the tps successfully.
 					manager.runOnServer((serverManager) -> {
 						Text name = player.getDisplayName();
@@ -427,9 +461,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	public void setTps(float tps) {
-		tps = GSMathUtils.clamp(tps, MIN_TPS, MAX_TPS);
+		tps = GSMathUtil.clamp(tps, MIN_TPS, MAX_TPS);
 		
-		if (!GSMathUtils.equalsApproximate(tps, this.tps)) {
+		if (!GSMathUtil.equalsApproximate(tps, this.tps)) {
 			float oldTps = this.tps;
 			this.tps = tps;
 			
@@ -462,15 +496,14 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	public boolean isGameModeAllowingHotkeys(PlayerEntity player) {
 		switch (sTpsHotkeyMode.getValue()) {
-		case HOTKEY_MODE_DISABLED:
-			return false;
 		case HOTKEY_MODE_CREATIVE:
 			return (player.isCreative() || player.isSpectator());
 		case HOTKEY_MODE_ALL:
 			return true;
+		case HOTKEY_MODE_DISABLED:
+		default:
+			return false;
 		}
-		
-		return false;
 	}
 	
 	public boolean isPlayerAllowedTpsChange(PlayerEntity player) {
@@ -501,7 +534,33 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public float getTps() {
 		return tps;
 	}
+	
+	public boolean isDefaultTps() {
+		return GSMathUtil.equalsApproximate(tps, DEFAULT_TPS);
+	}
 
+	private float readTps(File file) throws IOException {
+		try (BufferedReader br = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
+			String line;
+			if ((line = br.readLine()) != null)
+				return Float.parseFloat(line);
+
+			throw new IOException("Tps file is empty");
+		} catch (NumberFormatException e) {
+			throw new IOException("Invalid tps format", e);
+		}
+	}
+
+	private void writeTps(float tps, File file) throws IOException {
+		try (BufferedWriter bw = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8)) {
+			bw.write(Float.toString(tps));
+		}
+	}
+	
+	private File getTpsCacheFile() {
+		return new File(manager.getCacheFile(), TPS_CACHE_FILE_NAME);
+	}
+	
 	@Environment(EnvType.CLIENT)
 	public void onServerSyncPacket(int packetInterval) {
 		serverTimer.onSyncPacket(packetInterval);
@@ -523,15 +582,36 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	@Environment(EnvType.CLIENT)
-	public boolean shouldCorrectMovement() {
-		if (cNormalMovement.getValue() && !GSMathUtils.equalsApproximate(tps, DEFAULT_TPS)) {
+	public boolean isMainPlayerFixedMovement() {
+		if (cNormalMovement.getValue() && !isDefaultTps()) {
 			PlayerEntity player = GSControllerClient.getInstance().getPlayer();
 
+			// Do not enable fixed movement if player has a vehicle.
 			if (player != null && !player.hasVehicle()) {
+				// Carpet allows clients to have different tps than the server,
+				// do not enable fixed movement if carpet is in this mode.
 				if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
 					return cForceCarpetTickrate.getValue();
 				return true;
 			}
+		}
+		
+		return false;
+	}
+
+	@Environment(EnvType.CLIENT)
+	public boolean isPlayerFixedMovement(AbstractClientPlayerEntity player) {
+		// Only enable fixed movement if tps is different from default.
+		if (!isDefaultTps()) {
+			GSControllerClient controller = GSControllerClient.getInstance();
+		
+			// Check if is is the main player.
+			if (player == controller.getPlayer())
+				return isMainPlayerFixedMovement();
+		
+			if (!controller.isG4mespeedServer())
+				return GSMathUtil.equalsApproximate(getServerTps(), DEFAULT_TPS);
+			return ((GSIAbstractClientPlayerEntityAccess)player).isFixedMovement();
 		}
 		
 		return false;
