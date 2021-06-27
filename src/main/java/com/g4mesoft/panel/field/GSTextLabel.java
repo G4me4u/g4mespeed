@@ -1,9 +1,11 @@
 package com.g4mesoft.panel.field;
 
 import com.g4mesoft.panel.GSDimension;
+import com.g4mesoft.panel.GSEIconAlignment;
 import com.g4mesoft.panel.GSETextAlignment;
+import com.g4mesoft.panel.GSIcon;
 import com.g4mesoft.panel.GSPanel;
-import com.g4mesoft.panel.GSPanelContext;
+import com.g4mesoft.panel.GSPanelUtil;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.minecraft.text.LiteralText;
@@ -12,85 +14,101 @@ import net.minecraft.text.Text;
 public class GSTextLabel extends GSPanel {
 
 	private static final int DEFAULT_BACKGROUND_COLOR = 0x00000000;
-	private static final int DEFAULT_TEXT_COLOR       = 0xFFE0E0E0;
+	private static final int DEFAULT_TEXT_COLOR = 0xFFE0E0E0;
+	private static final int DEFAULT_ICON_SPACING = 2;
 	
+	private GSIcon icon;
 	private Text text;
 
-	private int backgroundColor;
-	private int textColor;
+	private GSEIconAlignment iconAlignment;
 	private GSETextAlignment textAlignment;
 	
-	public GSTextLabel() {
-		this("");
+	private int backgroundColor;
+	private int textColor;
+	private int iconSpacing;
+	
+	public GSTextLabel(String text) {
+		this(null, text);
 	}
 
-	public GSTextLabel(String text) {
-		this(new LiteralText(text));
+	public GSTextLabel(GSIcon icon, String text) {
+		this(icon, new LiteralText(text));
 	}
 
 	public GSTextLabel(Text text) {
-		if (text == null)
-			throw new IllegalArgumentException("text is null");
-		
+		this(null, text);
+	}
+
+	public GSTextLabel(GSIcon icon) {
+		this(icon, (Text)null);
+	}
+	
+	public GSTextLabel(GSIcon icon, Text text) {
+		this.icon = icon;
 		this.text = text;
+		
+		iconAlignment = GSEIconAlignment.LEFT;
+		textAlignment = GSETextAlignment.CENTER;
 		
 		backgroundColor = DEFAULT_BACKGROUND_COLOR;
 		textColor = DEFAULT_TEXT_COLOR;
-		textAlignment = GSETextAlignment.LEFT;;
+		iconSpacing = DEFAULT_ICON_SPACING;
 	}
 	
 	@Override
 	public void render(GSIRenderer2D renderer) {
 		super.render(renderer);
 
-		drawBackground(renderer);
-		drawForeground(renderer);
-	}
-	
-	private void drawBackground(GSIRenderer2D renderer) {
 		if (((backgroundColor >>> 24) & 0xFF) != 0x00)
 			renderer.fillRect(0, 0, width, height, backgroundColor);
-	}
 
-	private void drawForeground(GSIRenderer2D renderer) {
-		int tx = 0;
-		switch (textAlignment) {
-		case RIGHT:
-			tx += width - renderer.getTextWidth(text);
-		case CENTER:
-			tx += (width - renderer.getTextWidth(text)) / 2;
-		case LEFT:
-		default:
-			break;
-		}
-		
-		int ty = (height - renderer.getTextAscent()) / 2;
-		renderer.drawText(text, tx, ty, textColor);
+		GSPanelUtil.drawLabel(renderer, icon, iconSpacing, text,
+				textColor, true, iconAlignment, textAlignment, x, y, width, height);
 	}
 	
 	@Override
 	protected GSDimension calculatePreferredSize() {
-		GSIRenderer2D renderer = GSPanelContext.getRenderer();
-		
-		int w = (int)Math.ceil(renderer.getTextWidth(getText()));
-		int h = renderer.getLineHeight();
-		
-		return new GSDimension(w, h);
+		return GSPanelUtil.labelPreferredSize(icon, text, DEFAULT_ICON_SPACING);
+	}
+
+	public GSIcon getIcon() {
+		return icon;
 	}
 	
+	public void setIcon(GSIcon icon) {
+		this.icon = icon;
+	}
+	
+	public Text getText() {
+		return text;
+	}
+
 	public void setText(String text) {
 		setText(new LiteralText(text));
 	}
 	
 	public void setText(Text text) {
-		if (text == null)
-			throw new IllegalArgumentException("text is null");
-		
 		this.text = text;
 	}
 
-	public Text getText() {
-		return text;
+	public GSEIconAlignment getIconAlignment() {
+		return iconAlignment;
+	}
+	
+	public void setIconAlignment(GSEIconAlignment iconAlignment) {
+		if (iconAlignment == null)
+			throw new IllegalArgumentException("iconAlignment is null");
+		this.iconAlignment = iconAlignment;
+	}
+
+	public GSETextAlignment getTextAlignment() {
+		return textAlignment;
+	}
+	
+	public void setTextAlignment(GSETextAlignment textAlignment) {
+		if (textAlignment == null)
+			throw new IllegalArgumentException("textAlignment is null");
+		this.textAlignment = textAlignment;
 	}
 	
 	public int getBackgroundColor() {
@@ -100,7 +118,7 @@ public class GSTextLabel extends GSPanel {
 	public void setBackgroundColor(int backgroundColor) {
 		this.backgroundColor = backgroundColor;
 	}
-	
+
 	public int getTextColor() {
 		return textColor;
 	}
@@ -109,14 +127,11 @@ public class GSTextLabel extends GSPanel {
 		this.textColor = textColor;
 	}
 
-	public GSETextAlignment getTextAlignment() {
-		return textAlignment;
+	public int getIconSpacing() {
+		return iconSpacing;
 	}
-
-	public void setTextAlignment(GSETextAlignment textAlignment) {
-		if (textAlignment == null)
-			throw new IllegalArgumentException("textAlignment is null!");
-		
-		this.textAlignment = textAlignment;
+	
+	public void setIconSpacing(int iconSpacing) {
+		this.iconSpacing = iconSpacing;
 	}
 }

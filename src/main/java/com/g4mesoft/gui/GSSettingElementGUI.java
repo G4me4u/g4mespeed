@@ -59,9 +59,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	}
 	
 	@Override
-	public void onBoundsChanged() {
-		super.onBoundsChanged();
-		
+	public void layout() {
 		int x = width - CONTENT_PADDING - RESET_BUTTON_WIDTH;
 		int y = (getSettingHeight() - RESET_BUTTON_HEIGHT) / 2;
 		resetButton.setBounds(x, y, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT);

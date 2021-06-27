@@ -37,9 +37,7 @@ public class GSColorWheel extends GSPanel implements GSIMouseListener {
 	}
 	
 	@Override
-	protected void onBoundsChanged() {
-		super.onBoundsChanged();
-
+	protected void layout() {
 		wheelX = width  / 2;
 		wheelY = height / 2;
 		

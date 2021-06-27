@@ -91,9 +91,7 @@ public class GSColorPickerField extends GSParentPanel {
 	}
 	
 	@Override
-	protected void onBoundsChanged() {
-		super.onBoundsChanged();
-
+	public void layout() {
 		int h = height - 2 * borderWidth;
 		int w = width - 2 * borderWidth;
 		

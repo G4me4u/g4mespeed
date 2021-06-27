@@ -73,9 +73,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	}
 
 	@Override
-	public void onBoundsChanged() {
-		super.onBoundsChanged();
-
+	public void layout() {
 		int by = HOTKEY_PADDING;
 		int rbx = width - RESET_BUTTON_WIDTH - HOTKEY_PADDING;
 		int mbx = rbx - MODIFY_BUTTON_WIDTH - HOTKEY_PADDING;

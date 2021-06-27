@@ -41,7 +41,6 @@ public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListen
 
 	private int tabHeight;
 	private List<GSTabEntry> tabs;
-	private boolean tabsChanged;
 
 	private int selectedTabIndex;
 
@@ -56,19 +55,14 @@ public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListen
 		addMouseEventListener(this);
 	}
 
-	@Override
-	public void onBoundsChanged() {
-		super.onBoundsChanged();
-		
-		tabsChanged = true;
-	}
-	
 	public void addTab(String title, GSPanel tabContent) {
 		tabs.add(new GSTabEntry(title, tabContent));
-		tabsChanged = true;
 
 		if (selectedTabIndex == -1)
 			setSelectedTabIndex(0);
+		
+		if (isVisible())
+			requestLayout();
 	}
 
 	public void setSelectedTabIndex(int index) {
@@ -88,7 +82,9 @@ public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListen
 		return (index != -1) ? tabs.get(index).getTabContent() : null;
 	}
 
-	private void layoutTabs(GSIRenderer2D renderer) {
+	public void layout() {
+		GSIRenderer2D renderer = GSPanelContext.getRenderer();
+
 		tabHeight = renderer.getTextHeight() + TAB_VERTICAL_PADDING * 2;
 
 		for (GSTabEntry tab : tabs) {
@@ -151,15 +147,10 @@ public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListen
 			tab.setX(tabOffsetX);
 			tabOffsetX += tab.getWidth();
 		}
-
-		tabsChanged = false;
 	}
 	
 	@Override
 	public void render(GSIRenderer2D renderer) {
-		if (tabsChanged)
-			layoutTabs(renderer);
-		
 		renderBackground(renderer);
 		
 		super.render(renderer);

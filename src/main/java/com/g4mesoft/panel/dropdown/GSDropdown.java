@@ -47,18 +47,12 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 			// Generally it is a bad idea to modify the menu
 			// when it is visible. In case it is required, we
 			// have to update the menu layout.
-			layoutMenuItems();
+			requestLayout();
 		}
 	}
 	
 	@Override
-	protected void onBoundsChanged() {
-		super.onBoundsChanged();
-
-		layoutMenuItems();
-	}
-	
-	private void layoutMenuItems() {
+	public void layout() {
 		int y = VERTICAL_PADDING;
 		
 		for (GSPanel child : getChildren()) {
@@ -72,7 +66,7 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 			y += h;
 		}
 	}
-
+	
 	@Override
 	public void render(GSIRenderer2D renderer) {
 		renderer.fillRect(0, 0, width, height, BACKGROUND_COLOR);

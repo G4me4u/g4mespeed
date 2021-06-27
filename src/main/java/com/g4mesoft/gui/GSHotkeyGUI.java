@@ -36,7 +36,6 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 	private final GSButtonPanel unbindAllButton;
 	
 	private int contentHeight;
-	private boolean needsRelayout;
 	
 	private GSHotkeyElementGUI changingElement;
 	
@@ -60,7 +59,8 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 		keyManager.setKeyRegisterListener(this);
 	}
 
-	private void layoutHotkeys() {
+	@Override
+	public void layout() {
 		int w = 0;
 		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values()) {
 			int prefWidth = hotkeyCategory.getPreferredWidth();
@@ -89,19 +89,7 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 	}
 	
 	@Override
-	public void onBoundsChanged() {
-		super.onBoundsChanged();
-	
-		needsRelayout = true;
-	}
-	
-	@Override
 	public void render(GSIRenderer2D renderer) {
-		if (needsRelayout) {
-			layoutHotkeys();
-			needsRelayout = false;
-		}
-		
 		super.render(renderer);
 		
 		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values())
@@ -121,7 +109,9 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 		}
 		
 		category.addKeyBinding(keyBinding);
-		needsRelayout = true;
+
+		if (isVisible())
+			requestLayout();
 	}
 
 	@Override
