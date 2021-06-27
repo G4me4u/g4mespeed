@@ -48,14 +48,8 @@ public class GSPopup extends GSParentPanel {
 	}
 	
 	@Override
-	protected void onBoundsChanged() {
-		super.onBoundsChanged();
-
-		layoutContent(0, 0, width, height);
-	}
-	
-	protected void layoutContent(int x, int y, int width, int height) {
-		content.setBounds(x, y, width, height);
+	protected void layout() {
+		content.setBounds(0, 0, width, height);
 	}
 	
 	@Override

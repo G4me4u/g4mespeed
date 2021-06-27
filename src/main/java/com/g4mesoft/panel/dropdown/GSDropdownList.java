@@ -45,13 +45,6 @@ public class GSDropdownList<T> extends GSParentPanel {
 	}
 	
 	@Override
-	protected void onBoundsChanged() {
-		super.onBoundsChanged();
-
-		requestLayout();
-	}
-	
-	@Override
 	public void layout() {
 		int buttonWidth = Math.min(width, button.getPreferredSize().getWidth());
 		button.setBounds(width - buttonWidth, 0, buttonWidth, height);

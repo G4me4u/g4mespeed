@@ -22,7 +22,7 @@ public class GSParentPanel extends GSPanel {
 	}
 	
 	@Override
-	public void layout() {
+	protected void layout() {
 		if (layoutManager != null)
 			layoutManager.layoutChildren(this);
 	}

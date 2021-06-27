@@ -41,9 +41,7 @@ public class GSColorPicker extends GSParentPanel {
 	}
 	
 	@Override
-	protected void onBoundsChanged() {
-		super.onBoundsChanged();
-
+	protected void layout() {
 		int bsw = brightnessSlider.getPreferredSize().getWidth();
 		int bsh = Math.max(0, height - 2 * SLIDER_MARGIN);
 		int bsx = width - bsw - SLIDER_MARGIN;

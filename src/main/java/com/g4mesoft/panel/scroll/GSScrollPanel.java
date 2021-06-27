@@ -28,9 +28,7 @@ public class GSScrollPanel extends GSParentPanel {
 	}
 	
 	@Override
-	public void onBoundsChanged() {
-		super.onBoundsChanged();
-		
+	public void layout() {
 		int sw = scrollBar.getPreferredSize().getWidth();
 		
 		scrollBar.setBounds(Math.max(0, width - sw), 0, sw, height);
@@ -83,9 +81,7 @@ public class GSScrollPanel extends GSParentPanel {
 		}
 		
 		@Override
-		protected void onBoundsChanged() {
-			super.onBoundsChanged();
-
+		public void layout() {
 			if (content != null)
 				content.setBounds(0, 0, width, height);
 		}

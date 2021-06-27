@@ -45,7 +45,6 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	private final Map<GSSettingCategory, GSSettingCategoryElement> settingCategories;
 	private int settingsWidth;
 	private int contentHeight;
-	private boolean layoutChanged;
 	
 	private GSSettingElementGUI<?> hoveredElement;
 	private List<OrderedText> descLines;
@@ -76,7 +75,8 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			
 			categoryElement.addSetting(setting);
 			
-			layoutChanged = true;
+			if (isVisible())
+				requestLayout();
 		}
 	}
 	
@@ -102,10 +102,12 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 				settingCategories.remove(category);
 		}
 
-		layoutChanged = true;
+		if (isVisible())
+			requestLayout();
 	}
 
-	private void layoutSettingElements() {
+	@Override
+	public void layout() {
 		settingsWidth = width / 2;
 		for (GSSettingCategoryElement element : settingCategories.values()) {
 			int minElementWidth = element.getMinimumWidth();
@@ -133,11 +135,6 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	
 	@Override
 	public void render(GSIRenderer2D renderer) {
-		if (layoutChanged) {
-			layoutSettingElements();
-			layoutChanged = false;
-		}
-		
 		int mouseX = renderer.getMouseX();
 		int mouseY = renderer.getMouseY();
 		
@@ -209,12 +206,6 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 		}
 	}
 
-	@Override
-	public void onBoundsChanged() {
-		super.onBoundsChanged();
-		layoutChanged = true;
-	}
-	
 	@Override
 	public int getContentWidth() {
 		return width;

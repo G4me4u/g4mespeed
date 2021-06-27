@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.g4mesoft.panel.GSDimension;
+import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.panel.GSEIconAlignment;
 import com.g4mesoft.panel.GSETextAlignment;
 import com.g4mesoft.panel.GSIActionListener;
@@ -172,6 +173,11 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 				txtClr, enabled, iconAlignment, textAlignment, x, y, w, h);
 	}
 
+	@Override
+	public GSECursorType getCursor() {
+		return isEnabled() ? super.getCursor() : GSECursorType.DEFAULT;
+	}
+	
 	@Override
 	public GSDimension calculatePreferredSize() {
 		GSDimension labelSize = GSPanelUtil.labelPreferredSize(icon, text, iconSpacing);

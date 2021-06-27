@@ -19,12 +19,12 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 
 	private static final GSITextureRegion SCROLL_BUTTON_TEXTURE = GSPanelContext.getTexture(0, 32, 30, 40);
 	
-	private static final int KNOB_AREA_COLOR = 0xFF7F7F7F;
-	private static final int DISABLED_KNOB_AREA_COLOR = 0xFF595959;
-
-	private static final int KNOB_COLOR = 0xFFC6C6C6;
-	private static final int HOVERED_KNOB_COLOR = 0xFFFFFFFF;
-	private static final int DISABLED_KNOB_COLOR = 0xFF7F7F7F;
+	private static final int KNOB_AREA_COLOR = 0xFF171717;
+	private static final int DISABLED_KNOB_AREA_COLOR = 0xFF000000;
+	
+	private static final int KNOB_COLOR = 0xFF4D4D4D;
+	private static final int HOVERED_KNOB_COLOR = 0xFF7A7A7A;
+	private static final int DISABLED_KNOB_COLOR = 0xFF2B2A2B;
 	
 	private static final float DEFAULT_SCROLL_AMOUNT = 20.0f;
 	

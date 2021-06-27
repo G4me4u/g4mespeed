@@ -193,7 +193,10 @@ public class GSClipAdjuster {
 	}
 	
 	public void pushClip(GSClipRect clipRect) {
-		clipRectStack.push(clipRect.offset(clipOffsetX, clipOffsetY));
+		clipRect = clipRect.offset(clipOffsetX, clipOffsetY);
+		if (!clipRectStack.isEmpty())
+			clipRect = clipRectStack.peek().intersection(clipRect);
+		clipRectStack.push(clipRect);
 	}
 
 	public GSClipRect popClip() {

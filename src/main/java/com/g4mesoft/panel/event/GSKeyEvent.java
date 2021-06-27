@@ -186,6 +186,10 @@ public final class GSKeyEvent extends GSEvent {
 	public boolean isModifierHeld(int modifier) {
 		return (modifiers & modifier) == modifier;
 	}
+
+	public boolean isAnyModifierHeld(int modifier) {
+		return (modifiers & modifier) != NO_MODIFIERS;
+	}
 	
 	public boolean isRepeating() {
 		return (type == KEY_REPEATED_TYPE);

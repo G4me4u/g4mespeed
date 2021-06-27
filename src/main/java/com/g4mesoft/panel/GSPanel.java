@@ -121,13 +121,14 @@ public class GSPanel implements GSIViewport {
 			this.height = height;
 		
 			onBoundsChanged();
+			requestLayout();
 		}
 	}
 
 	protected void onBoundsChanged() {
 	}
 
-	public void layout() {
+	protected void layout() {
 	}
 	
 	public boolean isAdded() {

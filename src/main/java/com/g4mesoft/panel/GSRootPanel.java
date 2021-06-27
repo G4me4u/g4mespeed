@@ -22,10 +22,9 @@ public final class GSRootPanel extends GSParentPanel {
 	}
 	
 	@Override
-	protected void onBoundsChanged() {
-		super.onBoundsChanged();
-
-		updateContentBounds();
+	protected void layout() {
+		if (content != null)
+			content.setBounds(0, 0, width, height);
 	}
 	
 	@Override
@@ -62,9 +61,8 @@ public final class GSRootPanel extends GSParentPanel {
 		content = panel;
 		
 		if (panel != null) {
-			updateContentBounds();
-			
 			add(panel, DEFAULT_LAYER);
+			layout();
 			
 			GSEventDispatcher eventDispatcher = GSPanelContext.getEventDispatcher();
 			
@@ -76,10 +74,5 @@ public final class GSRootPanel extends GSParentPanel {
 		} else {
 			requestFocus();
 		}
-	}
-	
-	private void updateContentBounds() {
-		if (content != null)
-			content.setBounds(0, 0, width, height);
 	}
 }
