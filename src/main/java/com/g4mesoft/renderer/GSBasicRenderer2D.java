@@ -221,9 +221,10 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		vert(x1, y0, DEFAULT_Z_OFFSET).tex(texture.getU1(), texture.getV0()).next();
 		vert(x0, y0, DEFAULT_Z_OFFSET).tex(texture.getU0(), texture.getV0()).next();
 
-		RenderSystem.disableTexture();
-
 		finish();
+
+		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.disableTexture();
 	}
 
 	@Override
