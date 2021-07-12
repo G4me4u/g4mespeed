@@ -21,6 +21,8 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 	
 	private final List<GSIActionListener> actionListeners;
 	
+	private boolean separateNextItem;
+	
 	public GSDropdown() {
 		actionListeners = new ArrayList<>();
 		
@@ -35,12 +37,20 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 		addItem((GSDropdownItem)panel);
 	}
 	
-	public void addItemSeparator() {
-		if (!isEmpty())
-			addItem(new GSDropdownSeparator());
+	public void addItem(GSDropdownItem item) {
+		if (separateNextItem) {
+			separateNextItem = false;
+			addItem0(new GSDropdownSeparator());
+		}
+		
+		addItem0(item);
+	}
+
+	public void separate() {
+		separateNextItem |= !isEmpty();
 	}
 	
-	public void addItem(GSDropdownItem item) {
+	private void addItem0(GSDropdownItem item) {
 		super.add(item);
 		
 		if (isVisible()) {
@@ -50,7 +60,7 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 			requestLayout();
 		}
 	}
-	
+
 	@Override
 	public void layout() {
 		int y = VERTICAL_PADDING;

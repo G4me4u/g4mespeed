@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.GSIEntityTrackerEntryAccess;
 import com.g4mesoft.core.GSVersion;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSServerPlayerFixedMovementPacket;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
@@ -44,7 +44,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 				// Encode packet to a vanilla packet. This is required for sending to all nearby
 				// players. Note that vanilla players will not react to the packet.
 				GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
-				receiver.accept(packetManager.encodePacket(packet, GSControllerServer.getInstance()));
+				receiver.accept(packetManager.encodePacket(packet, GSServerController.getInstance()));
 			}
 		}
 	}
@@ -56,7 +56,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 			GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getEntityId(), fixedMovement);
 			// Note that player might be tracking the entity after just joining
 			// in which case the extension versions will not yet have been sent.
-			GSControllerServer.getInstance().sendPacket(packet, player, GSVersion.INVALID);
+			GSServerController.getInstance().sendPacket(packet, player, GSVersion.INVALID);
 		}
 	}
 	

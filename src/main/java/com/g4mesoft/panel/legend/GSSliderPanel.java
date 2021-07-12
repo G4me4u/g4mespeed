@@ -51,7 +51,7 @@ public class GSSliderPanel extends GSAbstractTextActionPanel {
 	public void mouseDragged(GSMouseEvent event) {
 		super.mouseDragged(event);
 		
-		if (isEnabled() && !event.isConsumed()) {
+		if (isEnabled() && !event.isConsumed() && event.getButton() == GSMouseEvent.BUTTON_LEFT) {
 			onClicked(event.getX(), event.getY());
 			event.consume();
 		}

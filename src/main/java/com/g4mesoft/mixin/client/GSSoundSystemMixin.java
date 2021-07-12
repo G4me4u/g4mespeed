@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.setting.GSISettingChangeListener;
@@ -34,7 +34,7 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 	
 	@Inject(method = "<init>", at = @At("RETURN"))
 	public void onInit(SoundManager soundManager, GameOptions options, ResourceManager resourceManager, CallbackInfo ci) {
-		GSControllerClient client = GSControllerClient.getInstance();
+		GSClientController client = GSClientController.getInstance();
 		tpsModule = client.getTpsModule();
 		
 		tpsModule.addTpsListener(this);

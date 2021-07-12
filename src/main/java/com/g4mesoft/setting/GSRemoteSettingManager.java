@@ -3,19 +3,19 @@ package com.g4mesoft.setting;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.setting.GSSettingChangePacket.GSESettingChangeType;
 
 public class GSRemoteSettingManager extends GSSettingManager {
 
-	private final GSControllerClient controllerClient;
+	private final GSClientController controllerClient;
 	
 	private final Map<GSSettingCategory, GSSettingMap> shadowSettings;
 	private boolean remoteSettingChanging;
 
 	private boolean allowedSettingChange;
 	
-	public GSRemoteSettingManager(GSControllerClient controllerClient) {
+	public GSRemoteSettingManager(GSClientController controllerClient) {
 		this.controllerClient = controllerClient;
 	
 		shadowSettings = new HashMap<>();

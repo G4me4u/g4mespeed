@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 
-import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.client.MinecraftClient;
@@ -24,7 +24,7 @@ public class GSGameRendererMixin {
 			target = "Lnet/minecraft/client/render/Camera;update(Lnet/minecraft/world/BlockView;Lnet/minecraft/entity/Entity;ZZF)V"))
 	private float modifyCameraUpdateTickDelta(BlockView blockView, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float oldTickDelta) {
 		if (focusedEntity instanceof AbstractClientPlayerEntity) {
-			GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+			GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 			if (tpsModule.isPlayerFixedMovement(((AbstractClientPlayerEntity)focusedEntity)))
 				return oldTickDelta;
 		}

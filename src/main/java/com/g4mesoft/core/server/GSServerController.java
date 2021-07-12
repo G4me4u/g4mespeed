@@ -2,6 +2,7 @@ package com.g4mesoft.core.server;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import com.g4mesoft.G4mespeedMod;
@@ -14,7 +15,7 @@ import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSConnectionPacket;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSVersion;
-import com.g4mesoft.core.client.GSIModuleManagerClient;
+import com.g4mesoft.core.client.GSIClientModuleManager;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 import com.g4mesoft.setting.GSISettingChangeListener;
@@ -35,17 +36,17 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
-public class GSControllerServer extends GSController implements GSIModuleManagerServer, GSISettingChangeListener {
+public class GSServerController extends GSController implements GSIServerModuleManager, GSISettingChangeListener {
 
 	public static final int OP_PERMISSION_LEVEL = 2;
 
-	private static final GSControllerServer instance = new GSControllerServer();
+	private static final GSServerController instance = new GSServerController();
 	
 	private CommandDispatcher<ServerCommandSource> dispatcher;
 	
 	private MinecraftServer server;
 
-	public GSControllerServer() {
+	public GSServerController() {
 		server = null;
 		
 		settings.addChangeListener(this);
@@ -53,6 +54,9 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	
 	@Override
 	public void addModule(GSIModule module) {
+		if (!module.isServerSide())
+			throw new IllegalArgumentException("Not a server module.");
+		
 		module.registerServerSettings(settings);
 		
 		if (dispatcher != null)
@@ -154,11 +158,11 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 	}
 
 	@Override
-	public void runOnClient(Consumer<GSIModuleManagerClient> consumer) {
+	public void runOnClient(Consumer<GSIClientModuleManager> consumer) {
 	}
 
 	@Override
-	public void runOnServer(Consumer<GSIModuleManagerServer> consumer) {
+	public void runOnServer(Consumer<GSIServerModuleManager> consumer) {
 		consumer.accept(this);
 	}
 	
@@ -199,6 +203,11 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 				}
 			}
 		}
+	}
+	
+	@Override
+	public ServerPlayerEntity getPlayer(UUID playerUUID) {
+		return server.getPlayerManager().getPlayer(playerUUID);
 	}
 	
 	@Override
@@ -249,7 +258,7 @@ public class GSControllerServer extends GSController implements GSIModuleManager
 		return server;
 	}
 
-	public static GSControllerServer getInstance() {
+	public static GSServerController getInstance() {
 		return instance;
 	}
 }

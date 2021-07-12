@@ -6,7 +6,7 @@ import java.util.Map;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryUtil;
 
-import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.panel.event.GSEventDispatcher;
 import com.g4mesoft.panel.event.GSKeyEvent;
@@ -229,7 +229,7 @@ public final class GSPanelContext {
 	}
 	
 	private GSTranslationModule getTranslationModule() {
-		return GSControllerClient.getInstance().getTranslationModule();
+		return GSClientController.getInstance().getTranslationModule();
 	}
 	
 	private GSIRenderer2D getRendererImpl() {

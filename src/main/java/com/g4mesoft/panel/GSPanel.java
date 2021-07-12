@@ -447,7 +447,7 @@ public class GSPanel implements GSIViewport {
 		return GSPanelContext.i18nTranslateFormatted(key, args);
 	}
 	
-	public void createRightClickMenu(GSDropdown dropdown, int x, int y) {
+	public void populateRightClickMenu(GSDropdown dropdown, int x, int y) {
 	}
 	
 	@Override

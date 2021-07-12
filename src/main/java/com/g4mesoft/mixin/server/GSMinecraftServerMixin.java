@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
@@ -77,7 +77,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		// Some mods might also modify the run loop...
 		// in this case just make sure that the init
 		// method was called *before* those loops.
-		GSControllerServer controllerServer = GSControllerServer.getInstance();
+		GSServerController controllerServer = GSServerController.getInstance();
 		controllerServer.init((MinecraftServer)(Object)this);
 		controllerServer.getTpsModule().addTpsListener(this);
 	}
@@ -127,11 +127,11 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	private void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
 		GSDebug.onServerTick();
 		
-		GSControllerServer.getInstance().tick(false);
+		GSServerController.getInstance().tick(false);
 	}
 	
 	@Inject(method = "shutdown", at = @At("RETURN"))
 	public void onShutdown(CallbackInfo ci) {
-		GSControllerServer.getInstance().onServerShutdown();
+		GSServerController.getInstance().onServerShutdown();
 	}
 }

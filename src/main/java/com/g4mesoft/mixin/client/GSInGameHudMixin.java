@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.util.GSMathUtil;
@@ -54,7 +54,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE, 
 			target = "Lnet/minecraft/client/gui/hud/SubtitlesHud;render(Lnet/minecraft/client/util/math/MatrixStack;)V"))
 	public void onRender(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
-		GSControllerClient controller = GSControllerClient.getInstance();
+		GSClientController controller = GSClientController.getInstance();
 		GSTpsModule tpsModule = controller.getTpsModule();
 		
 		int labelLocation = tpsModule.cTpsLabel.getValue();

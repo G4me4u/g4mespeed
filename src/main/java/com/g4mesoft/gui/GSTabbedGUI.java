@@ -4,15 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.hotkey.GSKeyBinding;
-import com.g4mesoft.panel.GSClosableParentPanel;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
-import com.g4mesoft.panel.event.GSCompoundButtonStroke;
-import com.g4mesoft.panel.event.GSIButtonStroke;
+import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.panel.event.GSIMouseListener;
-import com.g4mesoft.panel.event.GSKeyBindingButtonStroke;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
@@ -22,8 +17,11 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
 
 @Environment(EnvType.CLIENT)
-public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListener {
-
+public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
+	
+	private static final int BACKGROUND_TOP_COLOR    = 0xC0101010;
+	private static final int BACKGROUND_BOTTOM_COLOR = 0xD0101010;
+	
 	private static final int TAB_VERTICAL_PADDING = 5;
 	private static final int TAB_HORIZONTAL_PADDING = 5;
 
@@ -47,10 +45,6 @@ public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListen
 	public GSTabbedGUI() {
 		tabs = new ArrayList<>();
 		selectedTabIndex = -1;
-		
-		GSKeyBinding guiKeyBinding = GSControllerClient.getInstance().getOpenGUIKey();
-		GSIButtonStroke guiButton = new GSKeyBindingButtonStroke(guiKeyBinding);
-		setCloseButton(new GSCompoundButtonStroke(getCloseButton(), guiButton));
 		
 		addMouseEventListener(this);
 	}
@@ -156,6 +150,10 @@ public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListen
 		super.render(renderer);
 		
 		renderTabs(renderer);
+	}
+	
+	protected void renderBackground(GSIRenderer2D renderer) {
+		renderer.fillVGradient(0, 0, width, height, BACKGROUND_TOP_COLOR, BACKGROUND_BOTTOM_COLOR);
 	}
 
 	private void renderTabs(GSIRenderer2D renderer) {

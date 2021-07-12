@@ -59,7 +59,7 @@ public class GSEventDispatcher {
 	}
 
 	public void mouseDragged(int button, float mouseX, float mouseY, float dragX, float dragY) {
-		if (button == GSMouseEvent.BUTTON_LEFT && draggedPanel != null && draggedPanel.isVisible()) {
+		if (draggedPanel != null && draggedPanel.isVisible()) {
 			int x = convertMouseX(mouseX);
 			int y = convertMouseY(mouseY);
 			
@@ -126,13 +126,23 @@ public class GSEventDispatcher {
 	private void showRightClickMenu(GSPanel panel, int x, int y) {
 		GSDropdown dropdown = new GSDropdown();
 		
-		panel.createRightClickMenu(dropdown, x, y);
+		populateRightClickMenu(dropdown, panel, x, y);
 		
 		if (!dropdown.isEmpty()) {
 			GSPopup popup = new GSPopup(dropdown);
 			// The location is relative to the root panel
 			popup.show(panel, x, y, true);
 		}
+	}
+	
+	private void populateRightClickMenu(GSDropdown dropdown, GSPanel panel, int x, int y) {
+		do {
+			panel.populateRightClickMenu(dropdown, x, y);
+			dropdown.separate();
+			x += panel.getViewOffsetX();
+			y += panel.getViewOffsetY();
+			panel = panel.getParent();
+		} while (panel != null);
 	}
 
 	public void mouseScroll(float mouseX, float mouseY, float scrollX, float scrollY) {

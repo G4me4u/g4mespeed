@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSIPistonBlockEntityAccess;
 import com.g4mesoft.core.GSCoreOverride;
-import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.util.GSMathUtil;
 
@@ -51,7 +51,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		
 		float val;
 		
-		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		switch (tpsModule.cPistonAnimationType.getValue()) {
 		case GSTpsModule.PISTON_ANIM_NO_PAUSE:
 			val = (this.progress * numberOfSteps + partialTicks) / (numberOfSteps + 1.0f);
@@ -103,7 +103,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@GSCoreOverride
 	@Environment(EnvType.CLIENT)
 	public double getSquaredRenderDistance() {
-		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		int chunkDist = tpsModule.cPistonRenderDistance.getValue();
 		if (chunkDist == GSTpsModule.AUTOMATIC_PISTON_RENDER_DISTANCE) {
 			if (tpsModule.sParanoidMode.getValue()) {

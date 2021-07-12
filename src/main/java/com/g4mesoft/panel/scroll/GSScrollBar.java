@@ -242,26 +242,25 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	}
 	
 	@Override
-	public void createRightClickMenu(GSDropdown dropdown, int x, int y) {
-		dropdown.addItemSeparator();
+	public void populateRightClickMenu(GSDropdown dropdown, int x, int y) {
 		dropdown.addItem(new GSDropdownAction(SCROLL_HERE_TEXT, () -> {
 			setScrollOffset(getScrollDelta(isVertical() ? y : x) - getContentViewSize() * 0.5f);
 		}));
-		dropdown.addItemSeparator();
+		dropdown.separate();
 		dropdown.addItem(new GSDropdownAction(isVertical() ? TOP_TEXT : LEFT_EDGE_TEXT, () -> {
 			setScrollOffset(0.0f);
 		}));
 		dropdown.addItem(new GSDropdownAction(isVertical() ? BOTTOM_TEXT : RIGHT_EDGE_TEXT, () -> {
 			setScrollOffset(getMaxScrollOffset());
 		}));
-		dropdown.addItemSeparator();
+		dropdown.separate();
 		dropdown.addItem(new GSDropdownAction(isVertical() ? PAGE_UP_TEXT : PAGE_LEFT_TEXT, () -> {
 			onPageScroll(-1);
 		}));
 		dropdown.addItem(new GSDropdownAction(isVertical() ? PAGE_DOWN_TEXT : PAGE_RIGHT_TEXT, () -> {
 			onPageScroll(1);
 		}));
-		dropdown.addItemSeparator();
+		dropdown.separate();
 		dropdown.addItem(new GSDropdownAction(isVertical() ? SCROLL_UP_TEXT : SCROLL_LEFT_TEXT, () -> {
 			onIncrementalScroll(-1);
 		}));
@@ -321,7 +320,7 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	
 	@Override
 	public void mouseDragged(GSMouseEvent event) {
-		if (enabled && event.getButton() == GSMouseEvent.BUTTON_LEFT && scrollDragActive) {
+		if (enabled && scrollDragActive && event.getButton() == GSMouseEvent.BUTTON_LEFT) {
 			float drag = isVertical() ? event.getDragY() : event.getDragX();
 			setScrollOffset(scrollOffset + getScrollDelta(drag));
 			event.consume();

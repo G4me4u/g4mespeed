@@ -3,8 +3,8 @@ package com.g4mesoft.core;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSPlayerFixedMovementPacket;
 import com.g4mesoft.module.tps.GSServerPlayerFixedMovementPacket;
 import com.g4mesoft.module.tps.GSServerSyncPacket;
@@ -55,11 +55,11 @@ public class GSCoreExtension implements GSIExtension {
 	}
 
 	@Override
-	public void addClientModules(GSControllerClient controller) {
+	public void addClientModules(GSClientController controller) {
 	}
 
 	@Override
-	public void addServerModules(GSControllerServer controller) {
+	public void addServerModules(GSServerController controller) {
 	}
 
 	@Override
