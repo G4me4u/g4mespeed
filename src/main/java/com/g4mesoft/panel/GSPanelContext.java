@@ -154,10 +154,10 @@ public final class GSPanelContext {
 		
 		if (content != null) {
 			if (client.currentScreen != screen)
-				client.openScreen(screen);
+				client.setScreen(screen);
 		} else {
 			if (client.currentScreen != null)
-				client.openScreen(null);
+				client.setScreen(null);
 		}
 	}
 

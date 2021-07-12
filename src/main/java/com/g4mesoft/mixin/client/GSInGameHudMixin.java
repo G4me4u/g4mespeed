@@ -49,7 +49,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 
 	@Shadow @Final private MinecraftClient client;
 	
-	@Shadow public abstract TextRenderer getFontRenderer();
+	@Shadow public abstract TextRenderer getTextRenderer();
 
 	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE, 
 			target = "Lnet/minecraft/client/gui/hud/SubtitlesHud;render(Lnet/minecraft/client/util/math/MatrixStack;)V"))
@@ -59,7 +59,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 		
 		int labelLocation = tpsModule.cTpsLabel.getValue();
 		if (!client.options.debugEnabled && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
-			TextRenderer font = getFontRenderer();
+			TextRenderer font = getTextRenderer();
 			GSTranslationModule translationModule = controller.getTranslationModule();
 			
 			float averageTps = tpsModule.getServerTps();
