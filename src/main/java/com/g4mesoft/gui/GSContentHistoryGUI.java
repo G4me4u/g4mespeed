@@ -12,13 +12,13 @@ import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.panel.event.GSMouseButtonStroke;
 import com.g4mesoft.panel.event.GSMouseEvent;
 
-public class GSMainGUI extends GSClosableParentPanel {
+public class GSContentHistoryGUI extends GSClosableParentPanel {
 
 	private final LinkedList<GSPanel> contentHistory;
 	
 	private GSPanel content;
 	
-	public GSMainGUI(GSPanel primaryContent, GSIButtonStroke backButton) {
+	public GSContentHistoryGUI(GSPanel primaryContent, GSIButtonStroke backButton) {
 		contentHistory = new LinkedList<>();
 		
 		setContentNoHistory(primaryContent);

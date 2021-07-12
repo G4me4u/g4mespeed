@@ -22,7 +22,7 @@ import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSIServerModuleManager;
 import com.g4mesoft.gui.GSHotkeyGUI;
 import com.g4mesoft.gui.GSInfoGUI;
-import com.g4mesoft.gui.GSMainGUI;
+import com.g4mesoft.gui.GSContentHistoryGUI;
 import com.g4mesoft.gui.GSSettingsGUI;
 import com.g4mesoft.gui.GSTabbedGUI;
 import com.g4mesoft.hotkey.GSEKeyEventType;
@@ -71,7 +71,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 
 	private GSKeyBinding openGUIKey;
 	private GSTabbedGUI tabbedGUI;
-	private GSMainGUI mainGUI;
+	private GSContentHistoryGUI contentHistoryGUI;
 	
 	private List<GSIRenderable3D> renderables;
 	
@@ -91,9 +91,9 @@ public class GSClientController extends GSController implements GSIClientModuleM
 			keyManager.loadKeys(getHotkeySettingsFile());
 	
 			openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, () -> {
-				// Use lambda to ensure that mainGUI has been initialized.
-				if (mainGUI != null)
-					GSPanelContext.setContent(mainGUI);
+				// Use lambda to ensure that contentHistoryGUI has been initialized.
+				if (contentHistoryGUI != null)
+					GSPanelContext.setContent(contentHistoryGUI);
 			}, GSEKeyEventType.PRESS, false);
 	
 			GSPanelContext.init(minecraft);
@@ -104,7 +104,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 			tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSScrollPanel(new GSHotkeyGUI(keyManager)));
 			tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
 			
-			mainGUI = new GSMainGUI(tabbedGUI, new GSKeyBindingButtonStroke(openGUIKey));
+			contentHistoryGUI = new GSContentHistoryGUI(tabbedGUI, new GSKeyBindingButtonStroke(openGUIKey));
 			
 			onStart();
 		}
@@ -180,7 +180,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 		for (GSIModule module : modules)
 			module.onDisconnectServer();
 
-		mainGUI.clearHistory();
+		contentHistoryGUI.clearHistory();
 	
 		serverExtensionInfoList.clearInfo();
 		serverSettings.clearSettings();
@@ -289,8 +289,8 @@ public class GSClientController extends GSController implements GSIClientModuleM
 		return tabbedGUI;
 	}
 	
-	public GSMainGUI getMainGUI() {
-		return mainGUI;
+	public GSContentHistoryGUI getPrimaryGUI() {
+		return contentHistoryGUI;
 	}
 	
 	public GSKeyBinding getOpenGUIKey() {
