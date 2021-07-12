@@ -39,8 +39,10 @@ public class GSMainGUI extends GSClosableParentPanel {
 	}
 
 	public void clearHistory() {
-		setContentNoHistory(contentHistory.getFirst());
-		contentHistory.clear();
+		if (!contentHistory.isEmpty()) {
+			setContentNoHistory(contentHistory.getFirst());
+			contentHistory.clear();
+		}
 	}
 	
 	public void back() {
