@@ -4,8 +4,8 @@ import java.io.IOException;
 
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionInfoList;
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;
 
 import net.fabricmc.api.EnvType;
@@ -40,13 +40,13 @@ public class GSConnectionPacket implements GSIPacket {
 	}
 
 	@Override
-	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
+	public void handleOnServer(GSServerController controller, ServerPlayerEntity player) {
 		controller.onG4mespeedClientJoined(player, extensionInfo);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void handleOnClient(GSControllerClient controller) {
+	public void handleOnClient(GSClientController controller) {
 		controller.onJoinG4mespeedServer(extensionInfo);
 	}
 }

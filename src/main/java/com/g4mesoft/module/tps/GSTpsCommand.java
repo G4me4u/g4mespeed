@@ -1,6 +1,6 @@
 package com.g4mesoft.module.tps;
 
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.util.GSMathUtil;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
@@ -19,7 +19,7 @@ public final class GSTpsCommand {
 	
 	public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
 		LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager.literal("tps").requires(context -> {
-			return context.hasPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);
+			return context.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL);
 		});
 		
 		builder.executes(context -> informCurrentTps(context.getSource()));
@@ -32,7 +32,7 @@ public final class GSTpsCommand {
 	}
 	
 	private static int informCurrentTps(ServerCommandSource source) {
-		float tps = GSControllerServer.getInstance().getTpsModule().getTps();
+		float tps = GSServerController.getInstance().getTpsModule().getTps();
 		String tpsFormatted = GSTpsModule.TPS_FORMAT.format(tps);
 		
 		float fn = (float)((Math.log(tps / GSTpsModule.DEFAULT_TPS)) / Math.log(2.0) * 12.0);
@@ -65,7 +65,7 @@ public final class GSTpsCommand {
 	}
 	
 	private static int setCurrentTps(ServerCommandSource source, float newTps) throws CommandSyntaxException {
-		GSControllerServer.getInstance().getTpsModule().setTps(newTps);
+		GSServerController.getInstance().getTpsModule().setTps(newTps);
 		
 		source.sendFeedback(new TranslatableText("command.tps.set", newTps), true);
 		

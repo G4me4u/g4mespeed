@@ -19,9 +19,10 @@ import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSVersion;
-import com.g4mesoft.core.server.GSIModuleManagerServer;
+import com.g4mesoft.core.server.GSIServerModuleManager;
 import com.g4mesoft.gui.GSHotkeyGUI;
 import com.g4mesoft.gui.GSInfoGUI;
+import com.g4mesoft.gui.GSMainGUI;
 import com.g4mesoft.gui.GSSettingsGUI;
 import com.g4mesoft.gui.GSTabbedGUI;
 import com.g4mesoft.hotkey.GSEKeyEventType;
@@ -30,6 +31,7 @@ import com.g4mesoft.hotkey.GSKeyManager;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 import com.g4mesoft.panel.GSPanelContext;
+import com.g4mesoft.panel.event.GSKeyBindingButtonStroke;
 import com.g4mesoft.panel.scroll.GSScrollPanel;
 import com.g4mesoft.renderer.GSIRenderable3D;
 import com.g4mesoft.setting.GSRemoteSettingManager;
@@ -45,7 +47,7 @@ import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class GSControllerClient extends GSController implements GSIModuleManagerClient {
+public class GSClientController extends GSController implements GSIClientModuleManager {
 
 	private static final String CLIENT_SETTINGS_GUI_TITLE = "gui.tab.clientSettings";
 	private static final String SERVER_SETTINGS_GUI_TITLE = "gui.tab.serverSettings";
@@ -57,7 +59,7 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	
 	private static final String HOTKEY_SETTINGS_FILE_NAME = "hotkeys.cfg";
 	
-	private static final GSControllerClient instance = new GSControllerClient();
+	private static final GSClientController instance = new GSClientController();
 	
 	private MinecraftClient minecraft;
 	private ClientPlayNetworkHandler networkHandler;
@@ -69,10 +71,11 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 
 	private GSKeyBinding openGUIKey;
 	private GSTabbedGUI tabbedGUI;
+	private GSMainGUI mainGUI;
 	
 	private List<GSIRenderable3D> renderables;
 	
-	public GSControllerClient() {
+	public GSClientController() {
 		serverExtensionInfoList = new GSExtensionInfoList();
 		
 		serverSettings = new GSRemoteSettingManager(this);
@@ -88,9 +91,9 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 			keyManager.loadKeys(getHotkeySettingsFile());
 	
 			openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, () -> {
-				// Use lambda to ensure that tabbedGUI has been initialized.
-				if (tabbedGUI != null)
-					GSPanelContext.setContent(tabbedGUI);
+				// Use lambda to ensure that mainGUI has been initialized.
+				if (mainGUI != null)
+					GSPanelContext.setContent(mainGUI);
 			}, GSEKeyEventType.PRESS, false);
 	
 			GSPanelContext.init(minecraft);
@@ -101,12 +104,17 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 			tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSScrollPanel(new GSHotkeyGUI(keyManager)));
 			tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
 			
+			mainGUI = new GSMainGUI(tabbedGUI, new GSKeyBindingButtonStroke(openGUIKey));
+			
 			onStart();
 		}
 	}
 	
 	@Override
 	public void addModule(GSIModule module) {
+		if (!module.isClientSide())
+			throw new IllegalArgumentException("Not a client module.");
+		
 		module.registerClientSettings(settings);
 		module.registerHotkeys(keyManager);
 		
@@ -171,6 +179,8 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 
 		for (GSIModule module : modules)
 			module.onDisconnectServer();
+
+		mainGUI.clearHistory();
 	
 		serverExtensionInfoList.clearInfo();
 		serverSettings.clearSettings();
@@ -216,12 +226,12 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 	}
 
 	@Override
-	public void runOnClient(Consumer<GSIModuleManagerClient> consumer) {
+	public void runOnClient(Consumer<GSIClientModuleManager> consumer) {
 		consumer.accept(this);
 	}
 
 	@Override
-	public void runOnServer(Consumer<GSIModuleManagerServer> consumer) {
+	public void runOnServer(Consumer<GSIServerModuleManager> consumer) {
 	}
 	
 	@Override
@@ -279,11 +289,15 @@ public class GSControllerClient extends GSController implements GSIModuleManager
 		return tabbedGUI;
 	}
 	
+	public GSMainGUI getMainGUI() {
+		return mainGUI;
+	}
+	
 	public GSKeyBinding getOpenGUIKey() {
 		return openGUIKey;
 	}
 
-	public static GSControllerClient getInstance() {
+	public static GSClientController getInstance() {
 		return instance;
 	}
 }

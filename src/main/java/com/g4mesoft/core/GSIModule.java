@@ -49,4 +49,11 @@ public interface GSIModule {
 
 	default public void onPlayerPermissionChanged(ServerPlayerEntity player) { }
 
+	default public boolean isClientSide() {
+		return true;
+	}
+
+	default public boolean isServerSide() {
+		return true;
+	}
 }

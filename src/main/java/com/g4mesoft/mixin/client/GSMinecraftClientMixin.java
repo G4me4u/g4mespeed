@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSIMinecraftClientAccess;
-import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSBasicTickTimer;
 import com.g4mesoft.module.tps.GSITickTimer;
@@ -48,7 +48,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Shadow public Overlay overlay;
 	@Shadow @Final public InGameHud inGameHud;
 
-	private GSControllerClient controller;
+	private GSClientController controller;
 	private GSTpsModule tpsModule;
 	
 	private final GSITickTimer playerTimer = new GSBasicTickTimer(GSITickTimer.DEFAULT_MILLIS_PER_TICK);
@@ -60,7 +60,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Inject(method = "run", at = @At(value = "FIELD", target="Lnet/minecraft/client/MinecraftClient;thread:Ljava/lang/Thread;",
 			opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
 	public void onInit(CallbackInfo ci) {
-		controller = GSControllerClient.getInstance();
+		controller = GSClientController.getInstance();
 		controller.init((MinecraftClient)(Object)this);
 		tpsModule = controller.getTpsModule();
 	}

@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.g4mesoft.GSExtensionUID;
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;
 
 import net.fabricmc.api.EnvType;
@@ -51,12 +51,12 @@ public class GSTranslationVersionsPacket implements GSIPacket {
 	}
 
 	@Override
-	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
+	public void handleOnServer(GSServerController controller, ServerPlayerEntity player) {
 		controller.getTranslationModule().onTranslationVersionsReceived(player, uidToVersion);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void handleOnClient(GSControllerClient controller) {
+	public void handleOnClient(GSClientController controller) {
 	}
 }

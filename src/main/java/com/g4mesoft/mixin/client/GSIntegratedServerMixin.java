@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.server.GSServerController;
 
 import net.minecraft.server.integrated.IntegratedServer;
 
@@ -23,7 +23,7 @@ public class GSIntegratedServerMixin {
 			// At this point the client is paused and the tick method of
 			// MinecraftServer was not called. Hence we have to call the
 			// method ourselves to ensure that the modules receive the tick.
-			GSControllerServer.getInstance().tick(true);
+			GSServerController.getInstance().tick(true);
 		}
 	}
 }

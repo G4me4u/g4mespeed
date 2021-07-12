@@ -8,7 +8,7 @@ import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.renderer.GSIRenderable3D;
 
-public interface GSIModuleManagerClient extends GSIModuleManager {
+public interface GSIClientModuleManager extends GSIModuleManager {
 
 	public boolean isServerExtensionInstalled(GSExtensionUID extensionUid);
 

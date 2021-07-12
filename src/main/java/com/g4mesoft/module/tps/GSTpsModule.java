@@ -20,11 +20,11 @@ import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.access.GSIAbstractClientPlayerEntityAccess;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.core.client.GSIModuleManagerClient;
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.client.GSIClientModuleManager;
 import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.core.compat.GSICarpetCompatTickrateListener;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.hotkey.GSEKeyEventType;
 import com.g4mesoft.hotkey.GSKeyManager;
 import com.g4mesoft.setting.GSISettingChangeListener;
@@ -287,11 +287,11 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	private void onClientHotkey(GSETpsHotkeyType hotkeyType) {
-		manager.runOnClient(new Consumer<GSIModuleManagerClient>() {
+		manager.runOnClient(new Consumer<GSIClientModuleManager>() {
 			
 			@Override
 			@Environment(EnvType.CLIENT)
-			public void accept(GSIModuleManagerClient managerClient) {
+			public void accept(GSIClientModuleManager managerClient) {
 				MinecraftClient client = MinecraftClient.getInstance();
 				boolean sneaking = client.options.keySneak.isPressed();
 				
@@ -507,7 +507,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	public boolean isPlayerAllowedTpsChange(PlayerEntity player) {
-		return player.hasPermissionLevel(GSControllerServer.OP_PERMISSION_LEVEL);
+		return player.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL);
 	}
 	
 	@Override
@@ -584,7 +584,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Environment(EnvType.CLIENT)
 	public boolean isMainPlayerFixedMovement() {
 		if (cNormalMovement.getValue() && !isDefaultTps()) {
-			PlayerEntity player = GSControllerClient.getInstance().getPlayer();
+			PlayerEntity player = GSClientController.getInstance().getPlayer();
 
 			// Do not enable fixed movement if player has a vehicle.
 			if (player != null && !player.hasVehicle()) {
@@ -603,7 +603,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public boolean isPlayerFixedMovement(AbstractClientPlayerEntity player) {
 		// Only enable fixed movement if tps is different from default.
 		if (!isDefaultTps()) {
-			GSControllerClient controller = GSControllerClient.getInstance();
+			GSClientController controller = GSClientController.getInstance();
 		
 			// Check if is is the main player.
 			if (player == controller.getPlayer())

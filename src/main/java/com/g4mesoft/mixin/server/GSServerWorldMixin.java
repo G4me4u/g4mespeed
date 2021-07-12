@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSIServerChunkManagerAccess;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.block.Block;
@@ -39,7 +39,7 @@ public abstract class GSServerWorldMixin extends World {
 		Block block = ((GSIBlockEventS2CPacketAccess)packet).getBlock2();
 		
 		if (block == Blocks.PISTON || block == Blocks.STICKY_PISTON) {
-			GSTpsModule tpsModule = GSControllerServer.getInstance().getTpsModule();
+			GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
 			dist = tpsModule.sBlockEventDistance.getValue() * 16.0;
 		}
 		
@@ -49,7 +49,7 @@ public abstract class GSServerWorldMixin extends World {
 	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.AFTER, 
 			target = "Lnet/minecraft/server/world/ServerWorld;processSyncedBlockEvents()V"))
 	public void onTickImmediateUpdates(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-		if (GSControllerServer.getInstance().getTpsModule().sImmediateBlockBroadcast.getValue()) {
+		if (GSServerController.getInstance().getTpsModule().sImmediateBlockBroadcast.getValue()) {
 			getProfiler().swap("chunkSource");
 			((GSIServerChunkManagerAccess) getChunkManager()).flushAndSendChunkUpdates();
 		}

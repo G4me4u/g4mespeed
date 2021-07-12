@@ -2,8 +2,8 @@ package com.g4mesoft.setting;
 
 import java.io.IOException;
 
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.setting.decoder.GSISettingDecoder;
 import com.g4mesoft.util.GSBufferUtil;
@@ -58,7 +58,7 @@ public class GSSettingChangePacket implements GSIPacket {
 	}
 
 	@Override
-	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
+	public void handleOnServer(GSServerController controller, ServerPlayerEntity player) {
 		if (type != GSESettingChangeType.SETTING_CHANGED)
 			return;
 		
@@ -71,7 +71,7 @@ public class GSSettingChangePacket implements GSIPacket {
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void handleOnClient(GSControllerClient controller) {
+	public void handleOnClient(GSClientController controller) {
 		GSRemoteSettingManager remoteSettings = controller.getServerSettings();
 		
 		switch (type) {

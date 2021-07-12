@@ -387,20 +387,17 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	}
 	
 	@Override
-	public void createRightClickMenu(GSDropdown dropdown, int x, int y) {
-		dropdown.addItemSeparator();
+	public void populateRightClickMenu(GSDropdown dropdown, int x, int y) {
 		GSDropdownAction cutAction, copyAction, pasteAction;
 		dropdown.addItem(cutAction = new GSDropdownAction(CUT_TEXT, this::cutToClipboard));
 		dropdown.addItem(copyAction = new GSDropdownAction(COPY_TEXT, this::copyToClipboard));
 		dropdown.addItem(pasteAction = new GSDropdownAction(PASTE_TEXT, this::pasteFromClipboard));
-		dropdown.addItemSeparator();
+		dropdown.separate();
 		dropdown.addItem(new GSDropdownAction(SELECT_ALL_TEXT, this::selectAll));
 
 		cutAction.setEnabled(caret.hasCaretSelection() && isEditable());
 		copyAction.setEnabled(caret.hasCaretSelection());
 		pasteAction.setEnabled(GSPanelContext.hasClipboardString() && isEditable());
-		
-		super.createRightClickMenu(dropdown, x, y);
 	}
 	
 	public void selectAll() {

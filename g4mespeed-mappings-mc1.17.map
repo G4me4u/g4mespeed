@@ -59,8 +59,8 @@ com.g4mesoft.GSExtensionUID -> core.c:
 com.g4mesoft.GSIExtension -> core.d:
     void init() -> gsc_rJ
     void registerPackets(com.g4mesoft.registry.GSSupplierRegistry) -> gsc_rJ
-    void addClientModules(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
-    void addServerModules(com.g4mesoft.core.server.GSControllerServer) -> gsc_rJ
+    void addClientModules(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
+    void addServerModules(com.g4mesoft.core.server.GSServerController) -> gsc_rJ
     java.lang.String getTranslationPath() -> gsc_hH
     com.g4mesoft.GSExtensionInfo getInfo() -> gsc_sc
 com.g4mesoft.GSIExtensionListener -> core.e:
@@ -119,8 +119,8 @@ com.g4mesoft.core.GSConnectionPacket -> core.m:
     23:26:void <init>(com.g4mesoft.GSExtensionInfoList) -> <init>
     30:33:void read(net.minecraft.class_2540) -> gsc_rJ
     37:40:void write(net.minecraft.class_2540) -> gsc_hH
-    44:45:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    50:51:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    44:45:void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    50:51:void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
 com.g4mesoft.core.GSController -> core.n:
     java.lang.String SETTINGS_PATH -> gsc_vm
     java.lang.String CACHE_DIR_NAME -> gsc_rJ
@@ -158,8 +158,8 @@ com.g4mesoft.core.GSCoreExtension -> core.o:
     22:22:void <init>() -> <init>
     36:36:void init() -> gsc_rJ
     40:55:void registerPackets(com.g4mesoft.registry.GSSupplierRegistry) -> gsc_rJ
-    59:59:void addClientModules(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
-    63:63:void addServerModules(com.g4mesoft.core.server.GSControllerServer) -> gsc_rJ
+    59:59:void addClientModules(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
+    63:63:void addServerModules(com.g4mesoft.core.server.GSServerController) -> gsc_rJ
     67:67:java.lang.String getTranslationPath() -> gsc_hH
     72:72:com.g4mesoft.GSExtensionInfo getInfo() -> gsc_sc
     26:30:void <clinit>() -> <clinit>
@@ -212,7 +212,7 @@ com.g4mesoft.core.GSVersion -> core.r:
     106:108:boolean equals(java.lang.Object) -> equals
     113:113:java.lang.String toString() -> toString
     7:8:void <clinit>() -> <clinit>
-com.g4mesoft.core.client.GSControllerClient -> core.s:
+com.g4mesoft.core.client.GSClientController -> core.s:
     java.lang.String CLIENT_SETTINGS_GUI_TITLE -> gsc_vm
     java.lang.String SERVER_SETTINGS_GUI_TITLE -> gsc_Qo
     java.lang.String HOTKEY_GUI_TITLE -> gsc_Jn
@@ -220,7 +220,7 @@ com.g4mesoft.core.client.GSControllerClient -> core.s:
     java.lang.String GS_KEY_CATEGORY -> gsc_cT
     java.lang.String GUI_KEY_NAME -> gsc_Yp
     java.lang.String HOTKEY_SETTINGS_FILE_NAME -> gsc_gn
-    com.g4mesoft.core.client.GSControllerClient instance -> gsc_eh
+    com.g4mesoft.core.client.GSClientController instance -> gsc_eh
     net.minecraft.class_310 minecraft -> gsc_Pt
     net.minecraft.class_634 networkHandler -> gsc_PS
     com.g4mesoft.GSExtensionInfoList serverExtensionInfoList -> gsc_bx
@@ -260,10 +260,10 @@ com.g4mesoft.core.client.GSControllerClient -> core.s:
     275:275:com.g4mesoft.setting.GSRemoteSettingManager getServerSettings() -> gsc_pl
     279:279:com.g4mesoft.gui.GSTabbedGUI getTabbedGUI() -> gsc_EE
     283:283:com.g4mesoft.hotkey.GSKeyBinding getOpenGUIKey() -> gsc_LG
-    287:287:com.g4mesoft.core.client.GSControllerClient getInstance() -> gsc_VL
+    287:287:com.g4mesoft.core.client.GSClientController getInstance() -> gsc_VL
     92:94:void lambda$init$0() -> gsc_qi
     60:60:void <clinit>() -> <clinit>
-com.g4mesoft.core.client.GSIModuleManagerClient -> core.t:
+com.g4mesoft.core.client.GSIClientModuleManager -> core.t:
     boolean isServerExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_rJ
     boolean isServerExtensionInstalled(com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_rJ
     com.g4mesoft.GSExtensionInfo getServerExtensionInfo(com.g4mesoft.GSExtensionUID) -> gsc_hH
@@ -306,9 +306,9 @@ com.g4mesoft.core.compat.GSCarpetCompat$GSOutdatedCarpetTickrateListener -> core
     170:170:void accept(java.lang.Object,java.lang.Object) -> accept
 com.g4mesoft.core.compat.GSICarpetCompatTickrateListener -> core.w:
     void onCarpetTickrateChanged(float) -> gsc_rJ
-com.g4mesoft.core.server.GSControllerServer -> core.x:
+com.g4mesoft.core.server.GSServerController -> core.x:
     int OP_PERMISSION_LEVEL -> gsc_vm
-    com.g4mesoft.core.server.GSControllerServer instance -> gsc_Qo
+    com.g4mesoft.core.server.GSServerController instance -> gsc_Qo
     com.mojang.brigadier.CommandDispatcher dispatcher -> gsc_Jn
     net.minecraft.server.MinecraftServer server -> gsc_AS
     48:52:void <init>() -> <init>
@@ -341,9 +341,9 @@ com.g4mesoft.core.server.GSControllerServer -> core.x:
     241:241:boolean isAllowedSettingChange(net.minecraft.class_3222) -> gsc_bs
     245:246:void sendSettingPermissionPacket(net.minecraft.class_3222) -> gsc_UM
     249:249:net.minecraft.server.MinecraftServer getServer() -> gsc_eh
-    253:253:com.g4mesoft.core.server.GSControllerServer getInstance() -> gsc_Pt
+    253:253:com.g4mesoft.core.server.GSServerController getInstance() -> gsc_Pt
     42:42:void <clinit>() -> <clinit>
-com.g4mesoft.core.server.GSIModuleManagerServer -> core.y:
+com.g4mesoft.core.server.GSIServerModuleManager -> core.y:
     boolean isExtensionInstalled(net.minecraft.class_3222,com.g4mesoft.GSExtensionUID) -> gsc_rJ
     boolean isExtensionInstalled(net.minecraft.class_3222,com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_rJ
     com.g4mesoft.GSExtensionInfo getExtensionInfo(net.minecraft.class_3222,com.g4mesoft.GSExtensionUID) -> gsc_hH
@@ -490,8 +490,8 @@ com.g4mesoft.gui.GSInfoGUI -> core.I:
     net.minecraft.class_2561 CLIENT_EXTENSIONS_TITLE -> gsc_hH
     net.minecraft.class_2561 INVALID_VERSION_TEXT -> gsc_sc
     java.lang.String EXTENSION_NAME_TRANSLATION_KEY -> gsc_bs
-    com.g4mesoft.core.client.GSControllerClient client -> gsc_PS
-    35:37:void <init>(com.g4mesoft.core.client.GSControllerClient) -> <init>
+    com.g4mesoft.core.client.GSClientController client -> gsc_PS
+    35:37:void <init>(com.g4mesoft.core.client.GSClientController) -> <init>
     41:67:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
     73:99:void drawExtensionInfo(com.g4mesoft.renderer.GSIRenderer2D,com.g4mesoft.GSExtensionInfo,int,int) -> gsc_rJ
     28:30:void <clinit>() -> <clinit>
@@ -857,7 +857,7 @@ com.g4mesoft.mixin.client.GSMinecraftClientMixin -> com.g4mesoft.mixin.client.GS
     net.minecraft.class_437 field_1755 -> field_1755
     net.minecraft.class_4071 field_18175 -> field_18175
     net.minecraft.class_329 field_1705 -> field_1705
-    com.g4mesoft.core.client.GSControllerClient controller -> gsc_rJ
+    com.g4mesoft.core.client.GSClientController controller -> gsc_rJ
     com.g4mesoft.module.tps.GSTpsModule tpsModule -> gsc_hH
     com.g4mesoft.module.tps.GSITickTimer playerTimer -> gsc_sc
     36:54:void <init>() -> <init>
@@ -942,7 +942,7 @@ com.g4mesoft.mixin.client.GSSoundSystemMixin -> com.g4mesoft.mixin.client.GSSoun
     59:59:void lambda$updatePitch$0(float,net.minecraft.class_4224) -> gsc_rJ
 com.g4mesoft.mixin.client.GSWorldRendererMixin -> com.g4mesoft.mixin.client.GSWorldRendererMixin:
     net.minecraft.class_310 field_4088 -> field_4088
-    com.g4mesoft.core.client.GSControllerClient controller -> gsc_hH
+    com.g4mesoft.core.client.GSClientController controller -> gsc_hH
     com.g4mesoft.renderer.GSBasicRenderer3D renderer3d -> gsc_rJ
     36:36:void <init>() -> <init>
     45:47:void onInit(net.minecraft.class_310,net.minecraft.class_4599,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
@@ -1122,8 +1122,8 @@ com.g4mesoft.module.tps.GSPlayerFixedMovementPacket -> core.cD:
     20:22:void <init>(boolean) -> <init>
     26:27:void read(net.minecraft.class_2540) -> gsc_rJ
     31:32:void write(net.minecraft.class_2540) -> gsc_hH
-    36:37:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    41:41:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    36:37:void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    41:41:void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
 com.g4mesoft.module.tps.GSServerPlayerFixedMovementPacket -> core.aT:
     int entityId -> gsc_rJ
     boolean fixedMovement -> gsc_hH
@@ -1131,16 +1131,16 @@ com.g4mesoft.module.tps.GSServerPlayerFixedMovementPacket -> core.aT:
     24:27:void <init>(int,boolean) -> <init>
     31:33:void read(net.minecraft.class_2540) -> gsc_rJ
     37:39:void write(net.minecraft.class_2540) -> gsc_hH
-    43:43:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    47:53:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    43:43:void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    47:53:void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
 com.g4mesoft.module.tps.GSServerSyncPacket -> core.bj:
     int packetInterval -> gsc_rJ
     18:19:void <init>() -> <init>
     21:23:void <init>(int) -> <init>
     27:28:void read(net.minecraft.class_2540) -> gsc_rJ
     32:33:void write(net.minecraft.class_2540) -> gsc_hH
-    37:37:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    42:43:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    37:37:void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    42:43:void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
     47:47:boolean shouldForceMainThread() -> gsc_rJ
 com.g4mesoft.module.tps.GSServerTickTimer -> core.cB:
     float EXTRA_SYNC_DELAY -> gsc_bs
@@ -1176,16 +1176,16 @@ com.g4mesoft.module.tps.GSServerTpsPacket -> core.bk:
     19:21:void <init>(float) -> <init>
     25:26:void read(net.minecraft.class_2540) -> gsc_rJ
     30:31:void write(net.minecraft.class_2540) -> gsc_hH
-    35:35:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    39:40:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    35:35:void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    39:40:void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
 com.g4mesoft.module.tps.GSTpsChangePacket -> core.bl:
     float requestedTps -> gsc_rJ
     18:19:void <init>() -> <init>
     21:23:void <init>(float) -> <init>
     27:28:void read(net.minecraft.class_2540) -> gsc_rJ
     32:33:void write(net.minecraft.class_2540) -> gsc_hH
-    37:40:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    45:46:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    37:40:void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    45:46:void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
 com.g4mesoft.module.tps.GSTpsCommand -> core.bm:
     17:18:void <init>() -> <init>
     21:32:void registerCommand(com.mojang.brigadier.CommandDispatcher) -> gsc_rJ
@@ -1202,8 +1202,8 @@ com.g4mesoft.module.tps.GSTpsHotkeyPacket -> core.bn:
     22:25:void <init>(com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> <init>
     29:33:void read(net.minecraft.class_2540) -> gsc_rJ
     37:39:void write(net.minecraft.class_2540) -> gsc_hH
-    43:44:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    49:50:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    43:44:void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    49:50:void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
 com.g4mesoft.module.tps.GSTpsModule -> core.bo:
     float DEFAULT_TPS -> gsc_rJ
     float MIN_TPS -> gsc_hH
@@ -1291,19 +1291,19 @@ com.g4mesoft.module.tps.GSTpsModule -> core.bo:
     581:581:com.g4mesoft.module.tps.GSServerTickTimer getServerTimer() -> gsc_Jn
     586:599:boolean isMainPlayerFixedMovement() -> gsc_Yp
     605:617:boolean isPlayerFixedMovement(net.minecraft.class_742) -> gsc_rJ
-    521:522:void lambda$sendFixedMovementPacket$6(com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_rJ
-    476:489:void lambda$setTps$5(com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_rJ
-    437:437:void lambda$onG4mespeedClientJoin$4(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_rJ
-    330:338:void lambda$onPlayerHotkey$3(net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_hH
-    243:267:void lambda$tick$2(boolean,com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_rJ
-    176:183:void lambda$onClose$1(com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_hH
-    159:166:void lambda$init$0(com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_sc
+    521:522:void lambda$sendFixedMovementPacket$6(com.g4mesoft.core.client.GSIClientModuleManager) -> gsc_rJ
+    476:489:void lambda$setTps$5(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
+    437:437:void lambda$onG4mespeedClientJoin$4(net.minecraft.class_3222,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
+    330:338:void lambda$onPlayerHotkey$3(net.minecraft.class_3222,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_hH
+    243:267:void lambda$tick$2(boolean,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
+    176:183:void lambda$onClose$1(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_hH
+    159:166:void lambda$init$0(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_sc
     60:86:void <clinit>() -> <clinit>
 com.g4mesoft.module.tps.GSTpsModule$1 -> core.bp:
     com.g4mesoft.module.tps.GSETpsHotkeyType val$hotkeyType -> gsc_rJ
     com.g4mesoft.module.tps.GSTpsModule this$0 -> gsc_hH
     290:290:void <init>(com.g4mesoft.module.tps.GSTpsModule,com.g4mesoft.module.tps.GSETpsHotkeyType) -> <init>
-    295:317:void accept(com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_rJ
+    295:317:void accept(com.g4mesoft.core.client.GSIClientModuleManager) -> gsc_rJ
     290:290:void accept(java.lang.Object) -> accept
 com.g4mesoft.module.tps.GSTpsModule$2 -> core.bq:
     int[] $SwitchMap$com$g4mesoft$module$tps$GSETpsHotkeyType -> gsc_rJ
@@ -1348,8 +1348,8 @@ com.g4mesoft.module.translation.GSTranslationCachePacket -> core.bu:
     23:26:void <init>(com.g4mesoft.GSExtensionUID,com.g4mesoft.module.translation.GSTranslationCache) -> <init>
     30:32:void read(net.minecraft.class_2540) -> gsc_rJ
     36:38:void write(net.minecraft.class_2540) -> gsc_hH
-    42:42:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    47:48:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    42:42:void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    47:48:void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
     52:52:boolean shouldForceMainThread() -> gsc_rJ
 com.g4mesoft.module.translation.GSTranslationModule -> core.bv:
     java.lang.String CACHED_TRANSLATION_FILENAME -> gsc_hH
@@ -1378,19 +1378,19 @@ com.g4mesoft.module.translation.GSTranslationModule -> core.bv:
     284:285:java.lang.String getTranslation(java.lang.String) -> gsc_rJ
     289:290:java.lang.String getFormattedTranslation(java.lang.String,java.lang.Object[]) -> gsc_rJ
     294:294:boolean hasTranslation(java.lang.String) -> gsc_hH
-    134:145:void lambda$sendMissingTranslations$4(com.g4mesoft.module.translation.GSTranslationCacheList,int,com.g4mesoft.GSExtensionUID,net.minecraft.class_3222,com.g4mesoft.core.server.GSIModuleManagerServer) -> gsc_rJ
+    134:145:void lambda$sendMissingTranslations$4(com.g4mesoft.module.translation.GSTranslationCacheList,int,com.g4mesoft.GSExtensionUID,net.minecraft.class_3222,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
     135:135:int lambda$sendMissingTranslations$3(com.g4mesoft.module.translation.GSTranslationCache,com.g4mesoft.module.translation.GSTranslationCache) -> gsc_rJ
-    117:117:void lambda$onJoinG4mespeedServer$2(com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_rJ
-    80:94:void lambda$onClose$1(com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_hH
-    63:70:void lambda$init$0(com.g4mesoft.core.GSIModuleManager,com.g4mesoft.core.client.GSIModuleManagerClient) -> gsc_rJ
+    117:117:void lambda$onJoinG4mespeedServer$2(com.g4mesoft.core.client.GSIClientModuleManager) -> gsc_rJ
+    80:94:void lambda$onClose$1(com.g4mesoft.core.client.GSIClientModuleManager) -> gsc_hH
+    63:70:void lambda$init$0(com.g4mesoft.core.GSIModuleManager,com.g4mesoft.core.client.GSIClientModuleManager) -> gsc_rJ
 com.g4mesoft.module.translation.GSTranslationVersionsPacket -> core.bw:
     java.util.Map uidToVersion -> gsc_rJ
     21:22:void <init>() -> <init>
     24:29:void <init>(java.util.Map) -> <init>
     33:41:void read(net.minecraft.class_2540) -> gsc_rJ
     45:51:void write(net.minecraft.class_2540) -> gsc_hH
-    55:56:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    61:61:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    55:56:void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    61:61:void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
 com.g4mesoft.packet.GSICustomPayloadPacket -> core.M:
     net.minecraft.class_2960 getChannel0() -> gsc_rJ
     net.minecraft.class_2540 getData0() -> gsc_hH
@@ -1398,8 +1398,8 @@ com.g4mesoft.packet.GSIPacket -> core.by:
     void read(net.minecraft.class_2540) -> gsc_rJ
     19:20:void read(net.minecraft.class_2540,com.g4mesoft.GSExtensionInfo) -> gsc_rJ
     void write(net.minecraft.class_2540) -> gsc_hH
-    void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
     30:30:boolean shouldForceMainThread() -> gsc_rJ
 com.g4mesoft.packet.GSPacketManager -> core.bz:
     net.minecraft.class_2960 GS_IDENTIFIER -> gsc_rJ
@@ -3254,11 +3254,11 @@ com.g4mesoft.setting.GSISettingChangeListener -> core.bC:
     7:7:void onSettingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_hH
     9:9:void onSettingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_sc
 com.g4mesoft.setting.GSRemoteSettingManager -> core.bD:
-    com.g4mesoft.core.client.GSControllerClient controllerClient -> gsc_sc
+    com.g4mesoft.core.client.GSClientController controllerClient -> gsc_sc
     java.util.Map shadowSettings -> gsc_bs
     boolean remoteSettingChanging -> gsc_UM
     boolean allowedSettingChange -> gsc_mg
-    18:25:void <init>(com.g4mesoft.core.client.GSControllerClient) -> <init>
+    18:25:void <init>(com.g4mesoft.core.client.GSClientController) -> <init>
     29:30:void registerSetting(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_rJ
     33:42:void registerShadowSetting(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_hH
     45:46:com.g4mesoft.setting.GSSetting getShadowSetting(com.g4mesoft.setting.GSSettingCategory,java.lang.String) -> gsc_rJ
@@ -3278,8 +3278,8 @@ com.g4mesoft.setting.GSServerSettingMapPacket -> core.bE:
     21:23:void <init>(com.g4mesoft.setting.GSSettingMap) -> <init>
     27:29:void read(net.minecraft.class_2540) -> gsc_rJ
     33:35:void write(net.minecraft.class_2540) -> gsc_hH
-    39:39:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    44:45:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    39:39:void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    44:45:void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
 com.g4mesoft.setting.GSSetting -> core.bF:
     java.lang.String name -> gsc_rJ
     java.lang.Object defaultValue -> gsc_hH
@@ -3320,8 +3320,8 @@ com.g4mesoft.setting.GSSettingChangePacket -> core.bH:
     25:29:void <init>(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting,com.g4mesoft.setting.GSSettingChangePacket$GSESettingChangeType) -> <init>
     33:42:void read(net.minecraft.class_2540) -> gsc_rJ
     48:58:void write(net.minecraft.class_2540) -> gsc_hH
-    62:70:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    75:88:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    62:70:void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    75:88:void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
 com.g4mesoft.setting.GSSettingChangePacket$1 -> core.bI:
     int[] $SwitchMap$com$g4mesoft$setting$GSSettingChangePacket$GSESettingChangeType -> gsc_rJ
     77:77:void <clinit>() -> <clinit>
@@ -3390,8 +3390,8 @@ com.g4mesoft.setting.GSSettingPermissionPacket -> core.bM:
     21:23:void <init>(boolean) -> <init>
     27:28:void read(net.minecraft.class_2540) -> gsc_rJ
     32:33:void write(net.minecraft.class_2540) -> gsc_hH
-    37:37:void handleOnServer(com.g4mesoft.core.server.GSControllerServer,net.minecraft.class_3222) -> gsc_rJ
-    42:43:void handleOnClient(com.g4mesoft.core.client.GSControllerClient) -> gsc_rJ
+    37:37:void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    42:43:void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
 com.g4mesoft.setting.decoder.GSBooleanSettingDecoder -> core.bN:
     java.lang.String BOOLEAN_TYPE_STRING -> gsc_rJ
     7:7:void <init>() -> <init>

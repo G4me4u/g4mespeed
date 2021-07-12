@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.packet.GSICustomPayloadPacket;
 import com.g4mesoft.packet.GSIPacket;
@@ -53,12 +53,12 @@ public class GSClientPlayNetworkHandlerMixin {
 	
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void onInit(CallbackInfo ci) {
-		GSControllerClient.getInstance().setNetworkHandler((ClientPlayNetworkHandler)(Object)this);
+		GSClientController.getInstance().setNetworkHandler((ClientPlayNetworkHandler)(Object)this);
 	}
 	
 	@Inject(method = "onGameJoin", at = @At("RETURN"))
 	private void onOnGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
-		GSControllerClient.getInstance().onJoinServer();
+		GSClientController.getInstance().onJoinServer();
 	}
 	
 	@Inject(method = "onEntitySpawn", at = @At(value = "INVOKE", shift = Shift.AFTER, 
@@ -109,7 +109,7 @@ public class GSClientPlayNetworkHandlerMixin {
 		@SuppressWarnings("unchecked")
 		GSICustomPayloadPacket<ClientPlayPacketListener> payload = (GSICustomPayloadPacket<ClientPlayPacketListener>)packet;
 		
-		GSControllerClient controllerClient = GSControllerClient.getInstance();
+		GSClientController controllerClient = GSClientController.getInstance();
 		GSIPacket gsPacket = packetManger.decodePacket(payload, controllerClient.getServerExtensionInfoList(), (ClientPlayNetworkHandler)(Object)this, this.client);
 		if (gsPacket != null) {
 			gsPacket.handleOnClient(controllerClient);
@@ -120,7 +120,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Inject(method = "onWorldTimeUpdate", at = @At("HEAD"))
 	private void onWorldTimeSync(WorldTimeUpdateS2CPacket worldTimePacket, CallbackInfo ci) {
 		// Handled by GSServerSyncPacket
-		GSControllerClient controller = GSControllerClient.getInstance();
+		GSClientController controller = GSClientController.getInstance();
 		if (controller.isG4mespeedServer())
 			return;
 		
@@ -130,7 +130,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	
 	@Redirect(method = "onChunkData", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;hasNext()Z"))
 	private boolean replaceChunkDataBlockEntityLoop(Iterator<NbtCompound> itr) {
-		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 
 		// Note that Fabric Carpet changes parts of the loop, so we have
 		// to override the entirety of the look by redirecting the condition.
@@ -177,7 +177,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Inject(method = "onBlockEntityUpdate", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
 		target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
 	private void onOnBlockEntityUpdate(BlockEntityUpdateS2CPacket packet, CallbackInfo ci) {
-		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		
 		if (tpsModule.sParanoidMode.getValue()) {
 			BlockPos pos = packet.getPos();
@@ -216,7 +216,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	
 	@Inject(method = "onBlockUpdate", cancellable = true, at = @At("HEAD"))
 	private void onOnBlockUpdate(BlockUpdateS2CPacket packet, CallbackInfo ci) {
-		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 
 		if (tpsModule.sParanoidMode.getValue() && packet.getState().isOf(Blocks.MOVING_PISTON)) {
 			// In this case we will handle the block state when
@@ -228,7 +228,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	@ModifyArg(method = "onChunkDeltaUpdate", index = 0, expect = 1, allow = 1, require = 0, at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/network/packet/s2c/play/ChunkDeltaUpdateS2CPacket;visitUpdates(Ljava/util/function/BiConsumer;)V"))
 	private BiConsumer<BlockPos, BlockState> onOnChunkDeltaUpdateRedirect(BiConsumer<BlockPos, BlockState> handler) {
-		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		
 		if (tpsModule.sParanoidMode.getValue()) {
 			return (pos, state) -> {

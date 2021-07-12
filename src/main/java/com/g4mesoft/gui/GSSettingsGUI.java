@@ -45,6 +45,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	private final Map<GSSettingCategory, GSSettingCategoryElement> settingCategories;
 	private int settingsWidth;
 	private int contentHeight;
+	private boolean layoutChanged;
 	
 	private GSSettingElementGUI<?> hoveredElement;
 	private List<OrderedText> descLines;
@@ -75,8 +76,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			
 			categoryElement.addSetting(setting);
 			
-			if (isVisible())
-				requestLayout();
+			layoutChanged = true;
 		}
 	}
 	
@@ -102,8 +102,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 				settingCategories.remove(category);
 		}
 
-		if (isVisible())
-			requestLayout();
+		layoutChanged = true;
 	}
 
 	@Override
@@ -131,6 +130,16 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 		
 		for (GSSettingCategoryElement element : settingCategories.values())
 			element.tick();
+	}
+	
+	@Override
+	public void preRender(GSIRenderer2D renderer) {
+		if (layoutChanged) {
+			requestLayout();
+			layoutChanged = false;
+		}
+		
+		super.preRender(renderer);
 	}
 	
 	@Override

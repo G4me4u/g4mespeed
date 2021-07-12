@@ -1,6 +1,7 @@
 package com.g4mesoft.core.server;
 
 import java.util.Collection;
+import java.util.UUID;
 
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
@@ -10,7 +11,7 @@ import com.g4mesoft.packet.GSIPacket;
 
 import net.minecraft.server.network.ServerPlayerEntity;
 
-public interface GSIModuleManagerServer extends GSIModuleManager {
+public interface GSIServerModuleManager extends GSIModuleManager {
 
 	public boolean isExtensionInstalled(ServerPlayerEntity player, GSExtensionUID extensionUid);
 
@@ -36,6 +37,8 @@ public interface GSIModuleManagerServer extends GSIModuleManager {
 	
 	public void sendPacketToAllExcept(GSIPacket packet, GSVersion minExtensionVersion, ServerPlayerEntity player);
 
+	public ServerPlayerEntity getPlayer(UUID playerUUID);
+	
 	public Collection<ServerPlayerEntity> getAllPlayers();
 	
 }

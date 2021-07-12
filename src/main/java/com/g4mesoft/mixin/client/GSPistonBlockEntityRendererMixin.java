@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.g4mesoft.access.GSIPistonBlockEntityAccess;
-import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.block.entity.PistonBlockEntity;
@@ -30,7 +30,7 @@ public class GSPistonBlockEntityRendererMixin {
 	
 	@Inject(method = "getRenderDistance", cancellable = true, at = @At("HEAD"))
 	private void onGetRenderDistance(CallbackInfoReturnable<Integer> cir) {
-		GSTpsModule tpsModule = GSControllerClient.getInstance().getTpsModule();
+		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		int chunkDist = tpsModule.cPistonRenderDistance.getValue();
 		if (chunkDist == GSTpsModule.AUTOMATIC_PISTON_RENDER_DISTANCE) {
 			if (tpsModule.sParanoidMode.getValue()) {

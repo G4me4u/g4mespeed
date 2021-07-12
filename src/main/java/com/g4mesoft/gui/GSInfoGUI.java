@@ -6,7 +6,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionInfoList;
 import com.g4mesoft.core.GSVersion;
-import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
@@ -30,9 +30,9 @@ public class GSInfoGUI extends GSParentPanel {
 	private static final Text INVALID_VERSION_TEXT    = new TranslatableText("gui.info.invalidVersion");
 	private static final String EXTENSION_NAME_TRANSLATION_KEY = "gui.info.extensionName";
 	
-	private final GSControllerClient client;
+	private final GSClientController client;
 	
-	public GSInfoGUI(GSControllerClient client) {
+	public GSInfoGUI(GSClientController client) {
 		this.client = client;
 	}
 	

@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.module.tps.GSITickTimer;
 import com.g4mesoft.module.tps.GSServerTickTimer;
@@ -49,7 +49,7 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 		
 		float millisPerTick = getMillisPerTick();
 		
-		if (GSControllerClient.getInstance().isG4mespeedServer()) {
+		if (GSClientController.getInstance().isG4mespeedServer()) {
 			serverTimer.setMillisPerTick(millisPerTick);
 		} else {
 			serverTimer.setMillisPerTick(DEFAULT_MILLIS_PER_TICK);
@@ -75,7 +75,7 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	@Override
 	public void init(long initialTimeMillis) {
 		carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
-		tpsModule = GSControllerClient.getInstance().getTpsModule();
+		tpsModule = GSClientController.getInstance().getTpsModule();
 		serverTimer = tpsModule.getServerTimer();
 		
 		serverTimer.init(initialTimeMillis);

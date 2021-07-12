@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.core.GSController;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.translation.GSTranslationModule;
 
 import net.minecraft.text.Text;
@@ -36,7 +36,7 @@ public abstract class GSTranslatableTextMixin {
 		// If we don't know which controller we are
 		// dealing with, fallback to server controller
 		if (threadController == null)
-			threadController = GSControllerServer.getInstance();
+			threadController = GSServerController.getInstance();
 	
 		GSTranslationModule translationModule = threadController.getTranslationModule();
 		if (translationModule.hasTranslation(this.key)) {

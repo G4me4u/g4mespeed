@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSIMinecraftClientAccess;
-import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.renderer.GSBasicRenderer3D;
 import com.g4mesoft.renderer.GSERenderPhase;
 import com.g4mesoft.renderer.GSIRenderable3D;
@@ -37,12 +37,12 @@ public class GSWorldRendererMixin {
 
 	@Shadow @Final private MinecraftClient client;
 	
-	private GSControllerClient controller;
+	private GSClientController controller;
 	private GSBasicRenderer3D renderer3d;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void onInit(MinecraftClient client, BufferBuilderStorage builderStorage, CallbackInfo ci) {
-		controller = GSControllerClient.getInstance();
+		controller = GSClientController.getInstance();
 		renderer3d = new GSBasicRenderer3D();
 	}
 	

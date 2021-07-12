@@ -19,7 +19,7 @@ import com.g4mesoft.access.GSIServerChunkManagerAccess;
 import com.g4mesoft.access.GSIServerPlayNetworkHandlerAccess;
 import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSVersion;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.packet.GSICustomPayloadPacket;
 import com.g4mesoft.packet.GSIPacket;
@@ -61,7 +61,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 	private void onPlayerMove(PlayerMoveC2SPacket packet, CallbackInfo ci) {
 		boolean trackerFixedMovement = false;
 		// Only send movement packets if the server is not running 20 ticks per second.
-		if (!GSControllerServer.getInstance().getTpsModule().isDefaultTps()) {
+		if (!GSServerController.getInstance().getTpsModule().isDefaultTps()) {
 			// G4mespeed is not installed, assume that the player is moving with 20 ticks per second.
 			trackerFixedMovement = fixedMovement || !isExtensionInstalled(GSCoreExtension.UID);
 		}
@@ -86,7 +86,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		@SuppressWarnings("unchecked")
 		GSICustomPayloadPacket<ServerPlayPacketListener> payload = (GSICustomPayloadPacket<ServerPlayPacketListener>)packet;
 		
-		GSControllerServer controllerServer = GSControllerServer.getInstance();
+		GSServerController controllerServer = GSServerController.getInstance();
 		GSIPacket gsPacket = packetManger.decodePacket(payload, extensionInfoList, (ServerPlayNetworkHandler)(Object)this, controllerServer.getServer());
 		if (gsPacket != null) {
 			gsPacket.handleOnServer(controllerServer, player);

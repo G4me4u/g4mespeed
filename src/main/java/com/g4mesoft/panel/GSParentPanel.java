@@ -30,10 +30,10 @@ public class GSParentPanel extends GSPanel {
 	@Override
 	public void setVisible(boolean visible) {
 		if (visible != isVisible()) {
-			super.setVisible(visible);
-		
 			for (GSPanel panel : children)
 				panel.setVisible(visible);
+
+			super.setVisible(visible);
 		}
 	}
 	

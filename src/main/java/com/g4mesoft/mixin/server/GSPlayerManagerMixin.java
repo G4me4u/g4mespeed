@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.server.GSServerController;
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.network.ClientConnection;
@@ -22,12 +22,12 @@ public abstract class GSPlayerManagerMixin {
 	
 	@Inject(method = "onPlayerConnect", at = @At("RETURN"))
 	public void onPlayerJoin(ClientConnection clientConnection, ServerPlayerEntity player, CallbackInfo ci) {
-		GSControllerServer.getInstance().onPlayerJoin(player);
+		GSServerController.getInstance().onPlayerJoin(player);
 	}
 
 	@Inject(method = "remove", at = @At("HEAD"))
 	public void onPlayerLeave(ServerPlayerEntity player, CallbackInfo ci) {
-		GSControllerServer.getInstance().onPlayerLeave(player);
+		GSServerController.getInstance().onPlayerLeave(player);
 	}
 
 	@Inject(method = "addToOperators", at = @At("RETURN"))
@@ -46,6 +46,6 @@ public abstract class GSPlayerManagerMixin {
 		// inject the same method.
 		ServerPlayerEntity player = this.getPlayer(gameProfile.getId());
 		if (player != null)
-			GSControllerServer.getInstance().onPlayerPermissionChanged(player);
+			GSServerController.getInstance().onPlayerPermissionChanged(player);
 	}
 }

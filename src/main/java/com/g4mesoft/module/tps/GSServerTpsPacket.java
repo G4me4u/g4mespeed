@@ -2,8 +2,8 @@ package com.g4mesoft.module.tps;
 
 import java.io.IOException;
 
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;
 
 import net.minecraft.network.PacketByteBuf;
@@ -31,11 +31,11 @@ public class GSServerTpsPacket implements GSIPacket {
 	}
 
 	@Override
-	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
+	public void handleOnServer(GSServerController controller, ServerPlayerEntity player) {
 	}
 
 	@Override
-	public void handleOnClient(GSControllerClient controller) {
+	public void handleOnClient(GSClientController controller) {
 		controller.getTpsModule().onServerTps(serverTps);
 	}
 }
