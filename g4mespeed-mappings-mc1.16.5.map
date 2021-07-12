@@ -230,7 +230,7 @@ com.g4mesoft.core.client.GSClientController -> core.s:
     com.g4mesoft.hotkey.GSKeyManager keyManager -> gsc_pl
     com.g4mesoft.hotkey.GSKeyBinding openGUIKey -> gsc_LG
     com.g4mesoft.gui.GSTabbedGUI tabbedGUI -> gsc_VL
-    com.g4mesoft.gui.GSMainGUI mainGUI -> gsc_kZ
+    com.g4mesoft.gui.GSContentHistoryGUI contentHistoryGUI -> gsc_kZ
     java.util.List renderables -> gsc_ew
     78:85:void <init>() -> <init>
     88:111:void init(net.minecraft.class_310) -> gsc_rJ
@@ -262,7 +262,7 @@ com.g4mesoft.core.client.GSClientController -> core.s:
     281:281:com.g4mesoft.hotkey.GSKeyManager getKeyManager() -> gsc_yN
     285:285:com.g4mesoft.setting.GSRemoteSettingManager getServerSettings() -> gsc_pl
     289:289:com.g4mesoft.gui.GSTabbedGUI getTabbedGUI() -> gsc_EE
-    293:293:com.g4mesoft.gui.GSMainGUI getMainGUI() -> gsc_PX
+    293:293:com.g4mesoft.gui.GSContentHistoryGUI getPrimaryGUI() -> gsc_PX
     297:297:com.g4mesoft.hotkey.GSKeyBinding getOpenGUIKey() -> gsc_LG
     301:301:com.g4mesoft.core.client.GSClientController getInstance() -> gsc_VL
     95:97:void lambda$init$0() -> gsc_qi
@@ -415,6 +415,16 @@ com.g4mesoft.gui.GSBooleanSettingElementGUI -> core.B:
     64:68:void onSettingChanged() -> gsc_bs
     72:72:net.minecraft.class_2561 getFormattedDefault() -> gsc_UM
     14:19:void <clinit>() -> <clinit>
+com.g4mesoft.gui.GSContentHistoryGUI -> core.da:
+    java.util.LinkedList contentHistory -> gsc_rJ
+    com.g4mesoft.panel.GSPanel content -> gsc_hH
+    21:32:void <init>(com.g4mesoft.panel.GSPanel,com.g4mesoft.panel.event.GSIButtonStroke) -> <init>
+    36:39:void layout() -> gsc_pl
+    42:46:void clearHistory() -> gsc_sc
+    49:54:void back() -> gsc_bs
+    57:57:com.g4mesoft.panel.GSPanel getContent() -> gsc_UM
+    61:63:void setContent(com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    66:73:void setContentNoHistory(com.g4mesoft.panel.GSPanel) -> gsc_mg
 com.g4mesoft.gui.GSFloatSettingElementGUI -> core.C:
     float MAX_DEF_INTERVAL_FOR_SLIDER -> gsc_PS
     java.text.DecimalFormat FORMATTER -> gsc_bx
@@ -531,16 +541,6 @@ com.g4mesoft.gui.GSIntegerSettingElementGUI -> core.G:
     45:51:void updateFieldValue() -> gsc_mg
     54:63:net.minecraft.class_5250 getFormattedValue(int) -> gsc_rJ
     68:68:net.minecraft.class_2561 getFormattedDefault() -> gsc_UM
-com.g4mesoft.gui.GSMainGUI -> core.da:
-    java.util.LinkedList contentHistory -> gsc_rJ
-    com.g4mesoft.panel.GSPanel content -> gsc_hH
-    21:32:void <init>(com.g4mesoft.panel.GSPanel,com.g4mesoft.panel.event.GSIButtonStroke) -> <init>
-    36:39:void layout() -> gsc_pl
-    42:44:void clearHistory() -> gsc_sc
-    47:52:void back() -> gsc_bs
-    55:55:com.g4mesoft.panel.GSPanel getContent() -> gsc_UM
-    59:61:void setContent(com.g4mesoft.panel.GSPanel) -> gsc_rJ
-    64:71:void setContentNoHistory(com.g4mesoft.panel.GSPanel) -> gsc_mg
 com.g4mesoft.gui.GSNumberSettingElementGUI -> core.H:
     int SETTING_HEIGHT -> gsc_PS
     int TEXT_FIELD_HEIGHT -> gsc_bx
