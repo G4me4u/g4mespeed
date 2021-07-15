@@ -7,6 +7,8 @@ import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
 
+import com.g4mesoft.core.GSCoreOverride;
+
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketByteBuf;
 
@@ -56,12 +58,14 @@ public class GSFileUtil {
 		}
 	}
 	
+	@GSCoreOverride
 	public static interface GSFileDecoder<E> {
 		
 		public E decode(PacketByteBuf buf) throws Exception;
 		
 	}
 
+	@GSCoreOverride
 	public static interface GSFileEncoder<E> {
 		
 		public void encode(PacketByteBuf buf, E element) throws Exception;

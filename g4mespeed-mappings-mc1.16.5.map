@@ -3646,11 +3646,11 @@ com.g4mesoft.util.GSColorUtil -> core.cS:
     236:236:java.lang.String rgba2str(int) -> gsc_Qo
     240:246:int str2rgba(java.lang.String) -> gsc_rJ
 com.g4mesoft.util.GSFileUtil -> core.cT:
-    13:13:void <init>() -> <init>
-    16:18:void ensureDirectoryExists(java.io.File) -> gsc_rJ
-    21:25:void ensureFileExists(java.io.File) -> gsc_hH
-    30:39:java.lang.Object readFile(java.io.File,com.g4mesoft.util.GSFileUtil$GSFileDecoder) -> gsc_rJ
-    43:57:void writeFile(java.io.File,java.lang.Object,com.g4mesoft.util.GSFileUtil$GSFileEncoder) -> gsc_rJ
+    15:15:void <init>() -> <init>
+    18:20:void ensureDirectoryExists(java.io.File) -> gsc_rJ
+    23:27:void ensureFileExists(java.io.File) -> gsc_hH
+    32:41:java.lang.Object readFile(java.io.File,com.g4mesoft.util.GSFileUtil$GSFileDecoder) -> gsc_rJ
+    45:59:void writeFile(java.io.File,java.lang.Object,com.g4mesoft.util.GSFileUtil$GSFileEncoder) -> gsc_rJ
 com.g4mesoft.util.GSFileUtil$GSFileDecoder -> core.db:
     java.lang.Object decode(net.minecraft.class_2540) -> gsc_rJ
 com.g4mesoft.util.GSFileUtil$GSFileEncoder -> core.dc:
