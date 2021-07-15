@@ -3609,9 +3609,11 @@ com.g4mesoft.util.GSColorUtil -> core.cT:
     236:236:java.lang.String rgba2str(int) -> gsc_Qo
     240:246:int str2rgba(java.lang.String) -> gsc_rJ
 com.g4mesoft.util.GSFileUtil -> core.cU:
-    6:6:void <init>() -> <init>
-    9:11:void ensureDirectoryExists(java.io.File) -> gsc_rJ
-    14:18:void ensureFileExists(java.io.File) -> gsc_hH
+    15:15:void <init>() -> <init>
+    18:20:void ensureDirectoryExists(java.io.File) -> gsc_rJ
+    23:27:void ensureFileExists(java.io.File) -> gsc_hH
+    32:41:java.lang.Object readFile(java.io.File,java.util.function.Function) -> gsc_rJ
+    45:59:void writeFile(java.io.File,java.lang.Object,java.util.function.BiConsumer) -> gsc_rJ
 com.g4mesoft.util.GSMathUtil -> core.cV:
     float EPSILON_F -> gsc_rJ
     double EPSILON_D -> gsc_hH
