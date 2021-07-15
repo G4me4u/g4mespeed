@@ -35,7 +35,7 @@ public class GSFileUtil {
 			element = decodeFunc.apply(buffer);
 			buffer.release();
 		} catch (Throwable throwable) {
-			throw new IOException("Unable to read sequence", throwable);
+			throw new IOException("Unable to read file", throwable);
 		}
 		
 		return element;
@@ -54,7 +54,7 @@ public class GSFileUtil {
 			}
 			buffer.release();
 		} catch (Throwable throwable) {
-			throw new IOException("Unable to write composition", throwable);
+			throw new IOException("Unable to write file", throwable);
 		}
 	}
 }
