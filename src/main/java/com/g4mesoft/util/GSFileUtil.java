@@ -58,16 +58,16 @@ public class GSFileUtil {
 		}
 	}
 	
-	@GSCoreOverride
 	public static interface GSFileDecoder<E> {
 		
+		@GSCoreOverride
 		public E decode(PacketByteBuf buf) throws Exception;
 		
 	}
 
-	@GSCoreOverride
 	public static interface GSFileEncoder<E> {
 		
+		@GSCoreOverride
 		public void encode(PacketByteBuf buf, E element) throws Exception;
 		
 	}
