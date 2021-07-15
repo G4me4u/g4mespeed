@@ -3609,15 +3609,15 @@ com.g4mesoft.util.GSColorUtil -> core.cT:
     236:236:java.lang.String rgba2str(int) -> gsc_Qo
     240:246:int str2rgba(java.lang.String) -> gsc_rJ
 com.g4mesoft.util.GSFileUtil -> core.cU:
-    13:13:void <init>() -> <init>
-    16:18:void ensureDirectoryExists(java.io.File) -> gsc_rJ
-    21:25:void ensureFileExists(java.io.File) -> gsc_hH
-    30:39:java.lang.Object readFile(java.io.File,com.g4mesoft.util.GSFileUtil$GSFileDecoder) -> gsc_rJ
-    43:57:void writeFile(java.io.File,java.lang.Object,com.g4mesoft.util.GSFileUtil$GSFileEncoder) -> gsc_rJ
+    15:15:void <init>() -> <init>
+    18:20:void ensureDirectoryExists(java.io.File) -> gsc_rJ
+    23:27:void ensureFileExists(java.io.File) -> gsc_hH
+    32:41:java.lang.Object readFile(java.io.File,com.g4mesoft.util.GSFileUtil$GSFileDecoder) -> gsc_rJ
+    45:59:void writeFile(java.io.File,java.lang.Object,com.g4mesoft.util.GSFileUtil$GSFileEncoder) -> gsc_rJ
 com.g4mesoft.util.GSFileUtil$GSFileDecoder -> core.cY:
-    java.lang.Object decode(net.minecraft.class_2540) -> gsc_rJ
+    java.lang.Object decode(net.minecraft.class_2540) -> decode
 com.g4mesoft.util.GSFileUtil$GSFileEncoder -> core.cZ:
-    void encode(net.minecraft.class_2540,java.lang.Object) -> gsc_rJ
+    void encode(net.minecraft.class_2540,java.lang.Object) -> encode
 com.g4mesoft.util.GSMathUtil -> core.cV:
     float EPSILON_F -> gsc_rJ
     double EPSILON_D -> gsc_hH
