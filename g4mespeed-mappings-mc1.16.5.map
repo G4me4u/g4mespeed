@@ -3652,9 +3652,9 @@ com.g4mesoft.util.GSFileUtil -> core.cT:
     32:41:java.lang.Object readFile(java.io.File,com.g4mesoft.util.GSFileUtil$GSFileDecoder) -> gsc_rJ
     45:59:void writeFile(java.io.File,java.lang.Object,com.g4mesoft.util.GSFileUtil$GSFileEncoder) -> gsc_rJ
 com.g4mesoft.util.GSFileUtil$GSFileDecoder -> core.db:
-    java.lang.Object decode(net.minecraft.class_2540) -> gsc_rJ
+    java.lang.Object decode(net.minecraft.class_2540) -> decode
 com.g4mesoft.util.GSFileUtil$GSFileEncoder -> core.dc:
-    void encode(net.minecraft.class_2540,java.lang.Object) -> gsc_rJ
+    void encode(net.minecraft.class_2540,java.lang.Object) -> encode
 com.g4mesoft.util.GSMathUtil -> core.cU:
     float EPSILON_F -> gsc_rJ
     double EPSILON_D -> gsc_hH
