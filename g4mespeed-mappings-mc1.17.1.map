@@ -2881,7 +2881,7 @@ com.g4mesoft.panel.legend.GSToggleSwitchPanel -> core.aM:
     12:12:void <clinit>() -> <clinit>
 com.g4mesoft.panel.scroll.GSIScrollListener -> core.aN:
     6:6:void preScrollChanged(float) -> gsc_rJ
-    void scrollChanged(float) -> gsc_hH
+    void scrollChanged(float) -> scrollChanged
 com.g4mesoft.panel.scroll.GSIScrollable -> core.aO:
     int getContentWidth() -> gsc_rJ
     int getContentHeight() -> gsc_hH
