@@ -54,8 +54,7 @@
     "client.GSWorldRendererMixin",
     "client.GSGameRendererMixin",
     "client.GSClientWorldMixin",
-    "client.GSAbstractClientPlayerEntityMixin",
-    "client.GSIEntityAccess"
+    "client.GSAbstractClientPlayerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
