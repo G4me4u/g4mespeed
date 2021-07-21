@@ -1,24 +1,31 @@
 package com.g4mesoft.mixin.server;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.g4mesoft.access.GSIServerChunkManagerAccess;
 import com.g4mesoft.core.server.GSServerController;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.world.World;
 
 @Mixin(FallingBlockEntity.class)
 public abstract class GSFallingBlockEntityMixin extends Entity {
+
+	@Shadow public abstract BlockState getBlockState();
 
 	public GSFallingBlockEntityMixin(EntityType<?> type, World world) {
 		super(type, world);
@@ -31,16 +38,50 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 			((GSIServerChunkManagerAccess)world.getChunkManager()).updateBlockImmdiately(getBlockPos());
 	}
 	
-	@Inject(method = "tick", at = @At("RETURN"))
-	private void onTickReturn(CallbackInfo ci) {
-		if (!world.isClient && GSServerController.getInstance().getTpsModule().sPrettySand.getValue())
+	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.BEFORE,
+			target = "Lnet/minecraft/entity/FallingBlockEntity;discard()V"))
+	private void onTickBeforeRemove(CallbackInfo ci) {
+		if (!world.isClient && !isRemoved() && GSServerController.getInstance().getTpsModule().sPrettySand.getValue())
 			((GSIServerChunkManagerAccess)world.getChunkManager()).tickEntityTracker(this);
 	}
-
+	
+	@Inject(method = "tick", at = @At(value = "RETURN"))
+	private void onTickReturn(CallbackInfo ci) {
+		if (!world.isClient && !isRemoved() && GSServerController.getInstance().getTpsModule().sPrettySand.getValue()) {
+			// Note that this will only be called if we did not remove the entity,
+			// which is always done if the above invocation has executed.
+			((GSIServerChunkManagerAccess)world.getChunkManager()).tickEntityTracker(this);
+		}
+	}
+	
 	@Redirect(method = "tick", expect = 1, require = 1, allow = 1, at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage;sendToOtherNearbyPlayers(Lnet/minecraft/entity/Entity;Lnet/minecraft/network/Packet;)V"))
 	private void redirectSendToOtherNearbyPlayers(ThreadedAnvilChunkStorage chunkStorage, Entity entity, Packet<?> packet) {
 		if (world.isClient || !GSServerController.getInstance().getTpsModule().sPrettySand.getValue())
 			chunkStorage.sendToOtherNearbyPlayers(entity, packet);
+	}
+	
+	@Inject(method = "createSpawnPacket", cancellable = true, at = @At("HEAD"))
+	private void onCreateSpawnPacket(CallbackInfoReturnable<Packet<?>> cir) {
+		if (!world.isClient && GSServerController.getInstance().getTpsModule().sPrettySand.getValue()) {
+			// Calculate offset applied to position (falling block entity is not 1.0 tall)
+			double yOffs = (double)((1.0F - getHeight()) / 2.0F);
+			
+			// The 1.17 client will offset the position by yOffs, but we
+			// can negate it by removing it twice (server + client offset).
+			cir.setReturnValue(new EntitySpawnS2CPacket(
+					getId(), getUuid(),
+					getX(), getY() - 2.0 * yOffs, getZ(), getPitch(), getYaw(),
+					getType(),
+					Block.getRawIdFromState(getBlockState()), 
+					getVelocity()));
+			cir.cancel();
+		}
+	}
+	
+	@Inject(method = "onSpawnPacket", at = @At(value = "INVOKE", shift = Shift.AFTER,
+			target = "Lnet/minecraft/entity/FallingBlockEntity;setFallingBlockPos(Lnet/minecraft/util/math/BlockPos;)V"))
+	public void onOnSpawnPacket(EntitySpawnS2CPacket packet, CallbackInfo ci) {
+		resetPosition();
 	}
 }

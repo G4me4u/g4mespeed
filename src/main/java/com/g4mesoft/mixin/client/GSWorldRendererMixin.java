@@ -2,6 +2,7 @@ package com.g4mesoft.mixin.client;
 
 import java.util.Collection;
 
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -9,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -30,6 +32,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.Matrix4f;
 
 @Mixin(WorldRenderer.class)
@@ -117,5 +120,16 @@ public class GSWorldRendererMixin {
 		}
 
 		return deltaTick;
+	}
+	
+	@Redirect(method = "render", allow = 1, require = 1, expect = 1,
+			at = @At(value = "FIELD", target="Lnet/minecraft/entity/Entity;age:I", opcode = Opcodes.GETFIELD))
+	private int onRenderGetEntityAge(Entity entity) {
+		if (controller.getTpsModule().sPrettySand.getValue() && entity.getType() == EntityType.FALLING_BLOCK) {
+			// We do not want the render positions to be modified when
+			// using pretty sand (already done by position packets).
+			return (entity.age == 0) ? -1 : entity.age;
+		}
+		return entity.age;
 	}
 }

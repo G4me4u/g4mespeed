@@ -33,9 +33,18 @@ public abstract class GSServerWorldMixin extends World {
 		super(properties, registryKey, dimensionType, supplier, bl, bl2, l);
 	}
 
+	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.AFTER, 
+			target = "Lnet/minecraft/server/world/ServerWorld;processSyncedBlockEvents()V"))
+	private void onTickImmediateUpdates(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+		if (GSServerController.getInstance().getTpsModule().sImmediateBlockBroadcast.getValue()) {
+			getProfiler().swap("chunkSource");
+			((GSIServerChunkManagerAccess) getChunkManager()).flushAndSendChunkUpdates();
+		}
+	}
+	
 	@ModifyArg(method = "processSyncedBlockEvents", allow = 1, index = 4, at = @At(value = "INVOKE", 
 			target = "Lnet/minecraft/server/PlayerManager;sendToAround(Lnet/minecraft/entity/player/PlayerEntity;DDDDLnet/minecraft/util/registry/RegistryKey;Lnet/minecraft/network/Packet;)V"))
-	public double blockEventDistance(PlayerEntity player, double x, double y, double z, double dist, RegistryKey<World> dimensionKey, Packet<?> packet) {
+	private double blockEventDistance(PlayerEntity player, double x, double y, double z, double dist, RegistryKey<World> dimensionKey, Packet<?> packet) {
 		Block block = ((GSIBlockEventS2CPacketAccess)packet).getBlock2();
 		
 		if (block == Blocks.PISTON || block == Blocks.STICKY_PISTON) {
@@ -44,14 +53,5 @@ public abstract class GSServerWorldMixin extends World {
 		}
 		
 		return dist;
-	}
-	
-	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.AFTER, 
-			target = "Lnet/minecraft/server/world/ServerWorld;processSyncedBlockEvents()V"))
-	public void onTickImmediateUpdates(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-		if (GSServerController.getInstance().getTpsModule().sImmediateBlockBroadcast.getValue()) {
-			getProfiler().swap("chunkSource");
-			((GSIServerChunkManagerAccess) getChunkManager()).flushAndSendChunkUpdates();
-		}
 	}
 }
