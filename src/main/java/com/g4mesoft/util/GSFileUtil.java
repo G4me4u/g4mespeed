@@ -29,13 +29,16 @@ public class GSFileUtil {
 	public static <E> E readFile(File file, GSFileDecoder<E> decoder) throws IOException {
 		E element;
 		
+		PacketByteBuf buffer = null;
 		try (FileInputStream fis = new FileInputStream(file)) {
 			byte[] data = IOUtils.toByteArray(fis);
-			PacketByteBuf buffer = new PacketByteBuf(Unpooled.wrappedBuffer(data));
+			buffer = new PacketByteBuf(Unpooled.wrappedBuffer(data));
 			element = decoder.decode(buffer);
-			buffer.release();
 		} catch (Throwable throwable) {
 			throw new IOException("Unable to read file", throwable);
+		} finally {
+			if (buffer != null)
+				buffer.release();
 		}
 		
 		return element;
@@ -44,17 +47,20 @@ public class GSFileUtil {
 	public static <E> void writeFile(File file, E element, GSFileEncoder<E> encoder) throws IOException {
 		GSFileUtil.ensureFileExists(file);
 		
+		PacketByteBuf buffer = null;
 		try (FileOutputStream fos = new FileOutputStream(file)) {
-			PacketByteBuf buffer = new PacketByteBuf(Unpooled.buffer());
+			buffer = new PacketByteBuf(Unpooled.buffer());
 			encoder.encode(buffer, element);
 			if (buffer.hasArray()) {
 				fos.write(buffer.array(), buffer.arrayOffset(), buffer.writerIndex());
 			} else {
 				fos.getChannel().write(buffer.nioBuffer());
 			}
-			buffer.release();
 		} catch (Throwable throwable) {
 			throw new IOException("Unable to write file", throwable);
+		} finally {
+			if (buffer != null)
+				buffer.release();
 		}
 	}
 	
