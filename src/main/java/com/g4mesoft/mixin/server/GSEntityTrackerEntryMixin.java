@@ -18,23 +18,25 @@ import com.g4mesoft.module.tps.GSServerPlayerFixedMovementPacket;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
+import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.math.Vec3d;
 
 @Mixin(EntityTrackerEntry.class)
 public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 
+	private static final double FALLING_BLOCK_GRAVITY = -0.04;
+	
 	@Shadow @Final private Entity entity;
 	@Shadow @Final private Consumer<Packet<?>> receiver;
 	@Shadow private int trackingTick;
 	@Shadow private boolean lastOnGround;
-	@Shadow private long lastX;
-	@Shadow private long lastY;
-	@Shadow private long lastZ;
+	@Shadow private Vec3d velocity;
 	
 	private boolean fixedMovement = false;
 	private boolean lastFixedMovement = false;
@@ -55,9 +57,20 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 		
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
 		if (tpsModule.sPrettySand.getValue() && entity.getType() == EntityType.FALLING_BLOCK) {
-			// Set dirty flag. This will update the position, rotation,
-			// and velocity of the falling block every tick.
-			entity.velocityDirty = true;
+			Vec3d currentVelocity = entity.getVelocity();
+			double dvx = currentVelocity.getX() - velocity.getX();
+			double dvy = currentVelocity.getY() - velocity.getY();
+			double dvz = currentVelocity.getZ() - velocity.getZ();
+			
+			if (trackingTick == 0 ||
+			    !GSMathUtil.equalsApproximate(dvx, 0.0) ||
+			    !GSMathUtil.equalsApproximate(dvy, FALLING_BLOCK_GRAVITY) ||
+			    !GSMathUtil.equalsApproximate(dvz, 0.0)) {
+				
+				// Set dirty flag. This will update the position, rotation,
+				// and velocity of the falling block immediately.
+				entity.velocityDirty = true;
+			}
 
 			if (trackingTick == 0) {
 				// Force position and velocity to be sent in their entirety
