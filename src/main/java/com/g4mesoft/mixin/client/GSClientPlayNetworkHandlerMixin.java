@@ -11,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.client.GSClientController;
@@ -27,18 +26,11 @@ import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.entity.MovementType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityVelocityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
@@ -61,47 +53,6 @@ public class GSClientPlayNetworkHandlerMixin {
 		GSClientController.getInstance().onJoinServer();
 	}
 	
-	@Inject(method = "onEntitySpawn", at = @At(value = "INVOKE", shift = Shift.AFTER, 
-			target = "Lnet/minecraft/client/world/ClientWorld;addEntity(ILnet/minecraft/entity/Entity;)V"))
-	private void onOnEntitySpawn(EntitySpawnS2CPacket packet, CallbackInfo ci) {
-		if (packet.getEntityTypeId() == EntityType.FALLING_BLOCK) {
-			// Do not rely on locals for the entity, as they might not be
-			// consistent with other mods loaded, such as the Fabric API.
-			Entity entity = world.getEntityById(packet.getId());
-			
-			if (entity instanceof FallingBlockEntity) {
-				// Falling block entities have an issue where they are ticked
-				// one tick later on the client than on the server. This causes
-				// the falling blocks to jump at the end of the animation.
-
-				try {
-					world.tickEntity(entity);
-				} catch (Exception ignore) {
-					// If some exception was thrown, ignore it.
-				}
-			}
-		}
-	}
-
-	@Inject(method = "onVelocityUpdate", locals = LocalCapture.CAPTURE_FAILHARD, at = @At("RETURN"))
-	private void onOnVelocityUpdate(EntityVelocityUpdateS2CPacket packet, CallbackInfo ci, Entity entity) {
-		if (entity instanceof FallingBlockEntity) {
-			// See #onOnEntitySpawn
-			
-			entity.setVelocity(entity.getVelocity().add(0.0, -0.04, 0.0));
-		}
-	}
-
-	@Inject(method = "onEntityPosition", locals = LocalCapture.CAPTURE_FAILHARD, at = @At("RETURN"))
-	private void onOnEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci, Entity entity) {
-		if (entity instanceof FallingBlockEntity) {
-			// See #onOnEntitySpawn
-
-			entity.resetPosition();
-			entity.move(MovementType.SELF, entity.getVelocity());
-		}
-	}
-	
 	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
 	private void onCustomPayload(CustomPayloadS2CPacket packet, CallbackInfo ci) {
 		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
@@ -119,12 +70,9 @@ public class GSClientPlayNetworkHandlerMixin {
 
 	@Inject(method = "onWorldTimeUpdate", at = @At("HEAD"))
 	private void onWorldTimeSync(WorldTimeUpdateS2CPacket worldTimePacket, CallbackInfo ci) {
-		// Handled by GSServerSyncPacket
+		// Check if handled by GSServerSyncPacket (gs server)
 		GSClientController controller = GSClientController.getInstance();
-		if (controller.isG4mespeedServer())
-			return;
-		
-		if (!this.client.isOnThread())
+		if (!controller.isG4mespeedServer() && !this.client.isOnThread())
 			controller.getTpsModule().onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
 	}
 	
@@ -133,7 +81,7 @@ public class GSClientPlayNetworkHandlerMixin {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 
 		// Note that Fabric Carpet changes parts of the loop, so we have
-		// to override the entirety of the look by redirecting the condition.
+		// to override the entirety of the loop by redirecting the condition.
 		
 		while(itr.hasNext()) {
 			NbtCompound tag = itr.next();

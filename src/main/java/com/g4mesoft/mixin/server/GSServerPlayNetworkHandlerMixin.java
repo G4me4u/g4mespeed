@@ -75,7 +75,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 			target = "Lnet/minecraft/server/network/ServerPlayerEntity;increaseTravelMotionStats(DDD)V"))
 	private void onPlayerMoveUpdateCameraPosition(PlayerMoveC2SPacket packet, CallbackInfo ci) {
 		if (trackerFixedMovement)
-			((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).tickPlayerTracker(player);
+			((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).tickEntityTracker(player);
 	}
 
 	

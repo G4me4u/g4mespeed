@@ -160,3 +160,9 @@ setting.tps.hotkeyFeedback.2=Chat
 
 setting.tps.restoreTickrate=Restore Tickrate
 setting.tps.restoreTickrate.desc=Restores the tickrate from the previous session after the server has restarted.
+
+# Translation version 7 (v1.2.0)
+:7
+
+setting.tps.prettySand=Pretty Sand
+setting.tps.prettySand.desc=Significantly improves the look of falling block entities. Falling blocks will begin falling in the same tick that they were placed and touch the ground smoothly before being removed. Likewise, immediate velocity changes are sent more frequently.

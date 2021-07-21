@@ -111,6 +111,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSIntegerSetting cTpsLabel;
 	public final GSBooleanSetting sBroadcastTps;
 	public final GSBooleanSetting sRestoreTickrate;
+	public final GSBooleanSetting sPrettySand;
 
 	public final GSIntegerSetting cPistonAnimationType;
 	public final GSIntegerSetting cPistonRenderDistance;
@@ -138,6 +139,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cTpsLabel = new GSIntegerSetting("tpsLabel", TPS_LABEL_DISABLED, 0, 3);
 		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
 		sRestoreTickrate = new GSBooleanSetting("restoreTickrate", false);
+		sPrettySand = new GSBooleanSetting("prettySand", false);
 		
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, -1, 32);
@@ -225,7 +227,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		settings.registerSetting(TPS_CATEGORY, sTpsHotkeyMode);
 		settings.registerSetting(TPS_CATEGORY, sTpsHotkeyFeedback);
 		settings.registerSetting(TPS_CATEGORY, sRestoreTickrate);
-
+		settings.registerSetting(TPS_CATEGORY, sPrettySand);
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sBlockEventDistance);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, sParanoidMode);
