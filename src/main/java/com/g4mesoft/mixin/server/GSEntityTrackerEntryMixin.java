@@ -30,7 +30,8 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 
 	@Shadow @Final private Entity entity;
 	@Shadow @Final private Consumer<Packet<?>> receiver;
-
+	@Shadow private int trackingTick;
+	
 	private boolean fixedMovement = false;
 	private boolean lastFixedMovement = false;
 	
@@ -49,7 +50,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 		}
 		
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.getValue() && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (tpsModule.sPrettySand.getValue() && trackingTick > 0 && entity.getType() == EntityType.FALLING_BLOCK) {
 			// Set dirty flag. This will update the position, rotation,
 			// and velocity of the falling block every tick.
 			entity.velocityDirty = true;
