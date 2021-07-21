@@ -25,7 +25,9 @@
     "server.GSIThreadedAnvilChunkStorageEntityTrackerAccess",
     "server.GSEntityTrackerEntryMixin",
     "server.GSServerChunkManagerMixin",
-    "server.GSIBlockEventS2CPacketAccess"
+    "server.GSIBlockEventS2CPacketAccess",
+    "server.GSChunkHolderMixin",
+    "server.GSFallingBlockEntityMixin"
   ],
   "client": [
     "client.GSMinecraftClientMixin",
@@ -54,7 +56,8 @@
     "client.GSWorldRendererMixin",
     "client.GSGameRendererMixin",
     "client.GSClientWorldMixin",
-    "client.GSAbstractClientPlayerEntityMixin"
+    "client.GSAbstractClientPlayerEntityMixin",
+    "client.GSIEntityAccess"
   ],
   "injectors": {
     "defaultRequire": 1

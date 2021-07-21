@@ -6,26 +6,32 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+import com.g4mesoft.access.GSIChunkHolderAccess;
 import com.g4mesoft.access.GSIServerChunkManagerAccess;
 import com.g4mesoft.access.GSIThreadedAnvilChunkStorageAccess;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.WorldChunk;
 
 @Mixin(ServerChunkManager.class)
-public class GSServerChunkManagerMixin implements GSIServerChunkManagerAccess {
+public abstract class GSServerChunkManagerMixin implements GSIServerChunkManagerAccess {
 
 	@Shadow @Final public ServerWorld world;
 	
 	@Shadow @Final public ThreadedAnvilChunkStorage threadedAnvilChunkStorage;
 
+	@Shadow protected abstract ChunkHolder getChunkHolder(long chunkId);
+	
 	@Override
-	public void tickPlayerTracker(ServerPlayerEntity player) {
-		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).tickPlayerTracker(player);
+	public void tickEntityTracker(Entity entity) {
+		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).tickEntityTracker(entity);
 	}
 	
 	@Override
@@ -57,5 +63,14 @@ public class GSServerChunkManagerMixin implements GSIServerChunkManagerAccess {
 		}
 		
 		world.getProfiler().pop();
+	}
+	
+	@Override
+	public void updateBlockImmdiately(BlockPos pos) {
+	      int chunkX = pos.getX() >> 4;
+	      int chunkZ = pos.getZ() >> 4;
+	      ChunkHolder chunkHolder = getChunkHolder(ChunkPos.toLong(chunkX, chunkZ));
+	      if (chunkHolder != null)
+	    	  ((GSIChunkHolderAccess)chunkHolder).updateBlockImmediately(world, pos);
 	}
 }

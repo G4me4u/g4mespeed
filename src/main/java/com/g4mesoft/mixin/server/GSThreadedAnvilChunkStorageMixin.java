@@ -8,6 +8,7 @@ import com.g4mesoft.access.GSIEntityTrackerEntryAccess;
 import com.g4mesoft.access.GSIThreadedAnvilChunkStorageAccess;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import net.minecraft.entity.Entity;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
@@ -21,8 +22,8 @@ public abstract class GSThreadedAnvilChunkStorageMixin implements GSIThreadedAnv
 	@Shadow protected abstract Iterable<ChunkHolder> entryIterator();
 	
 	@Override
-	public void tickPlayerTracker(ServerPlayerEntity player) {
-		Object tracker = entityTrackers.get(player.getEntityId());
+	public void tickEntityTracker(Entity entity) {
+		Object tracker = entityTrackers.get(entity.getEntityId());
 		if (tracker != null)
 			((GSIThreadedAnvilChunkStorageEntityTrackerAccess)tracker).getEntry().tick();
 	}

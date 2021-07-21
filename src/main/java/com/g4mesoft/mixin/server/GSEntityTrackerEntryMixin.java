@@ -15,11 +15,12 @@ import com.g4mesoft.access.GSIEntityTrackerEntryAccess;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSServerPlayerFixedMovementPacket;
+import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -30,7 +31,6 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	@Shadow @Final private Entity entity;
 	@Shadow @Final private Consumer<Packet<?>> receiver;
 
-	
 	private boolean fixedMovement = false;
 	private boolean lastFixedMovement = false;
 	
@@ -39,7 +39,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 		if (fixedMovement != lastFixedMovement) {
 			lastFixedMovement = fixedMovement;
 
-			if (entity instanceof PlayerEntity) {
+			if (entity.getType() == EntityType.PLAYER) {
 				GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getEntityId(), fixedMovement);
 				// Encode packet to a vanilla packet. This is required for sending to all nearby
 				// players. Note that vanilla players will not react to the packet.
@@ -47,12 +47,19 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 				receiver.accept(packetManager.encodePacket(packet, GSServerController.getInstance()));
 			}
 		}
+		
+		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
+		if (tpsModule.sPrettySand.getValue() && entity.getType() == EntityType.FALLING_BLOCK) {
+			// Set dirty flag. This will update the position, rotation,
+			// and velocity of the falling block every tick.
+			entity.velocityDirty = true;
+		}
 	}
 	
 	@Inject(method = "startTracking", at = @At(value = "INVOKE", shift = Shift.AFTER,
 			target = "Lnet/minecraft/server/network/EntityTrackerEntry;sendPackets(Ljava/util/function/Consumer;)V"))
 	private void onStartTracking(ServerPlayerEntity player, CallbackInfo ci) {
-		if (entity instanceof PlayerEntity) {
+		if (entity.getType() == EntityType.PLAYER) {
 			GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getEntityId(), fixedMovement);
 			// Note that player might be tracking the entity after just joining
 			// in which case the extension versions will not yet have been sent.
