@@ -22,6 +22,7 @@ import com.g4mesoft.packet.GSPacketManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.network.Packet;
+import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -31,6 +32,10 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	@Shadow @Final private Entity entity;
 	@Shadow @Final private Consumer<Packet<?>> receiver;
 	@Shadow private int trackingTick;
+	@Shadow private boolean lastOnGround;
+	@Shadow private long lastX;
+	@Shadow private long lastY;
+	@Shadow private long lastZ;
 	
 	private boolean fixedMovement = false;
 	private boolean lastFixedMovement = false;
@@ -50,10 +55,18 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 		}
 		
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.getValue() && trackingTick > 0 && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (tpsModule.sPrettySand.getValue() && entity.getType() == EntityType.FALLING_BLOCK) {
 			// Set dirty flag. This will update the position, rotation,
 			// and velocity of the falling block every tick.
 			entity.velocityDirty = true;
+
+			if (trackingTick == 0) {
+				// Force position and velocity to be sent in their entirety
+				lastOnGround = !entity.isOnGround();
+				trackingTick = 1;
+			}
+			
+			System.out.println("Tracker: " + entity.getY() + " : " + EntityS2CPacket.decodePacketCoordinates(lastX, lastY, lastZ));
 		}
 	}
 	
