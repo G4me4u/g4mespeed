@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.GSIEntityTrackerEntryAccess;
+import com.g4mesoft.access.GSIServerWorldAccess;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSServerPlayerFixedMovementPacket;
@@ -24,10 +25,12 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 
 @Mixin(EntityTrackerEntry.class)
 public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 
+	@Shadow @Final private ServerWorld world;
 	@Shadow @Final private Entity entity;
 	@Shadow @Final private Consumer<Packet<?>> receiver;
 	@Shadow private int trackingTick;
@@ -75,6 +78,17 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 			// Note that player might be tracking the entity after just joining
 			// in which case the extension versions will not yet have been sent.
 			GSServerController.getInstance().sendPacket(packet, player, GSVersion.INVALID);
+		}
+	}
+	
+	@Inject(method = "stopTracking", require = 1, allow = 1, expect = 1, cancellable = true, at = @At(value = "INVOKE", shift = Shift.BEFORE,
+			target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"))
+	private void onStopTracking(ServerPlayerEntity player, CallbackInfo ci) {
+		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
+		if (tpsModule.sPrettySand.getValue() && entity.getType() == EntityType.FALLING_BLOCK) {
+			// Schedule the destroy update in the next tick
+			((GSIServerWorldAccess)world).scheduleDestroyEntityPacket(player, entity.getId());
+			ci.cancel();
 		}
 	}
 	
