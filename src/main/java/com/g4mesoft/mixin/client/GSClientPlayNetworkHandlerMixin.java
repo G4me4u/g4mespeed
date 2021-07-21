@@ -26,15 +26,11 @@ import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
@@ -52,31 +48,6 @@ public class GSClientPlayNetworkHandlerMixin {
 		GSClientController.getInstance().setNetworkHandler((ClientPlayNetworkHandler)(Object) this);
 	}
 	
-	@Inject(method = "onEntitySpawn", at = @At("RETURN"))
-	public void onOnEntitySpawn(EntitySpawnS2CPacket packet, CallbackInfo ci) {
-		Entity entity = world.getEntityById(packet.getId());
-		if (entity != null) {
-			System.out.println("Packet Spawn: " + packet.getY() + " : " + entity.getY());
-		}
-	}
-	
-	@Inject(method = "onEntityPosition", at = @At("RETURN"))
-	public void onEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci) {
-		Entity entity = world.getEntityById(packet.getId());
-		if (entity != null) {
-			System.out.println("Packet Position: " + packet.getY() + " : " + entity.getY());
-		}
-	}
-	
-	@Inject(method = "onEntityUpdate", at = @At("RETURN"))
-	public void onOnEntityUpdate(EntityS2CPacket packet, CallbackInfo ci) {
-		Entity entity = packet.getEntity(world);
-		if (entity != null) {
-			System.out.println("Packet Update: " + packet.isPositionChanged() + " : " + entity.getY());
-		}
-	}
-
-
 	@Inject(method = "onGameJoin", at = @At("RETURN"))
 	private void onOnGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
 		GSClientController.getInstance().onJoinServer();

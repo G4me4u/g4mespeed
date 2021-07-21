@@ -22,7 +22,6 @@ import com.g4mesoft.packet.GSPacketManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.network.Packet;
-import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -65,8 +64,6 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 				lastOnGround = !entity.isOnGround();
 				trackingTick = 1;
 			}
-			
-			System.out.println("Tracker: " + entity.getY() + " : " + EntityS2CPacket.decodePacketCoordinates(lastX, lastY, lastZ));
 		}
 	}
 	
