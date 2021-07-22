@@ -76,9 +76,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 					// Set dirty flag. This will update the position, rotation,
 					// and velocity of the falling block immediately.
 					entity.velocityDirty = true;
-				}
-	
-				if (fallingBlockTrackingTick == 0) {
+					
 					// Force position and velocity to be sent in their entirety
 					lastOnGround = !entity.isOnGround();
 					trackingTick = Math.max(1, trackingTick);
