@@ -3,7 +3,9 @@ package com.g4mesoft.mixin.server;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -14,10 +16,14 @@ import com.g4mesoft.access.GSIServerChunkManagerAccess;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.Packet;
+import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
@@ -28,11 +34,29 @@ import net.minecraft.world.dimension.DimensionType;
 @Mixin(ServerWorld.class)
 public abstract class GSServerWorldMixin extends World {
 
+	@Shadow @Final private Int2ObjectMap<Entity> entitiesById;
+	
 	protected GSServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryKey,
 			DimensionType dimensionType, Supplier<Profiler> supplier, boolean bl, boolean bl2, long l) {
 		super(properties, registryKey, dimensionType, supplier, bl, bl2, l);
 	}
 
+	@Inject(method = "tick", at = @At("RETURN"))
+	private void onTickReturn(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+		if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue()) {
+			ServerChunkManager chunkManager = (ServerChunkManager)getChunkManager();
+			
+			for (Entity entity : entitiesById.values()) {
+				if (!entity.removed && entity.getType() == EntityType.FALLING_BLOCK) {
+					// Note that this will only be called if we did not remove the entity,
+					// which is always done if the above invocation has executed.
+					((GSIServerChunkManagerAccess)chunkManager).setTrackerTickedFromFallingBlock(entity, true);
+					((GSIServerChunkManagerAccess)chunkManager).tickEntityTracker(entity);
+				}
+			}
+		}
+	}
+	
 	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.AFTER, 
 			target = "Lnet/minecraft/server/world/ServerWorld;processSyncedBlockEvents()V"))
 	private void onTickImmediateUpdates(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
