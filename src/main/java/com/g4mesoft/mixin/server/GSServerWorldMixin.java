@@ -48,8 +48,6 @@ public abstract class GSServerWorldMixin extends World {
 			
 			for (Entity entity : entitiesById.values()) {
 				if (!entity.removed && entity.getType() == EntityType.FALLING_BLOCK) {
-					// Note that this will only be called if we did not remove the entity,
-					// which is always done if the above invocation has executed.
 					((GSIServerChunkManagerAccess)chunkManager).setTrackerTickedFromFallingBlock(entity, true);
 					((GSIServerChunkManagerAccess)chunkManager).tickEntityTracker(entity);
 				}
