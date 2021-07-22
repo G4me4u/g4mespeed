@@ -44,6 +44,16 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 			((GSIServerChunkManagerAccess)world.getChunkManager()).tickEntityTracker(this);
 		}
 	}
+
+	@Inject(method = "tick", at = @At(value = "RETURN"))
+	private void onTickReturn(CallbackInfo ci) {
+		if (!world.isClient && !removed && GSServerController.getInstance().getTpsModule().sPrettySand.getValue()) {
+			// Note that this will only be called if we did not remove the entity,
+			// which is always done if the above invocation has executed.
+			((GSIServerChunkManagerAccess)world.getChunkManager()).setTrackerTickedFromFallingBlock(this, true);
+			((GSIServerChunkManagerAccess)world.getChunkManager()).tickEntityTracker(this);
+		}
+	}
 	
 	@Inject(method = "createSpawnPacket", cancellable = true, at = @At("HEAD"))
 	private void onCreateSpawnPacket(CallbackInfoReturnable<Packet<?>> cir) {
