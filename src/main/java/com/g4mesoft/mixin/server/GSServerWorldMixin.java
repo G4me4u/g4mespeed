@@ -51,7 +51,7 @@ public abstract class GSServerWorldMixin extends World implements GSIServerWorld
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	public void onTickHead(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-		if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue()) {
+		if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			Deque<GSFallingBlockInfo> tmpQueue = cachedDestroyFallingBlockQueue;
 			cachedDestroyFallingBlockQueue = destroyFallingBlockQueue;
 			destroyFallingBlockQueue = tmpQueue;
@@ -69,7 +69,7 @@ public abstract class GSServerWorldMixin extends World implements GSIServerWorld
 	
 	@Inject(method = "tick", at = @At("RETURN"))
 	private void onTickReturn(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-		if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue()) {
+	if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			GSFallingBlockInfo info;
 			while ((info = cachedDestroyFallingBlockQueue.poll()) != null) {
 				ServerPlayerEntity player = info.getPlayer();
@@ -112,7 +112,7 @@ public abstract class GSServerWorldMixin extends World implements GSIServerWorld
 	
 	@Override
 	public void scheduleDestroyFallingBlock(GSFallingBlockInfo fallingBlockInfo) {
-		if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue())
+		if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED)
 			destroyFallingBlockQueue.add(fallingBlockInfo);
 	}
 }

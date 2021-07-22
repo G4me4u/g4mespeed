@@ -66,7 +66,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 		}
 		
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.getValue() && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
 			if (tickedFromFallingBlock) {
 				Vec3d currentVelocity = entity.getVelocity();
 				double dvx = currentVelocity.getX() - lastFallingBlockVelocity.getX() * FALLING_BLOCK_FRICTION;
@@ -74,7 +74,8 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 				double dvz = currentVelocity.getZ() - lastFallingBlockVelocity.getZ() * FALLING_BLOCK_FRICTION;
 				lastFallingBlockVelocity = currentVelocity;
 				
-				if (fallingBlockTrackingTick == 0 ||
+				if (tpsModule.sPrettySand.getValue() == GSTpsModule.PRETTY_SAND_FIDELITY ||
+				    fallingBlockTrackingTick == 0 ||
 				    !GSMathUtil.equalsApproximate(dvx, 0.0) ||
 				    !GSMathUtil.equalsApproximate(dvy, FALLING_BLOCK_GRAVITY * FALLING_BLOCK_FRICTION) ||
 				    !GSMathUtil.equalsApproximate(dvz, 0.0)) {
@@ -112,7 +113,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 			target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"))
 	private void onStopTracking(ServerPlayerEntity player, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.getValue() && entity instanceof FallingBlockEntity) {
+		if (tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED && entity instanceof FallingBlockEntity) {
 			// Schedule the destroy update in the next tick
 			FallingBlockEntity fallingBlockEntity = (FallingBlockEntity)entity;
 			BlockPos blockPos = fallingBlockEntity.getBlockPos();

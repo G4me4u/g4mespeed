@@ -165,4 +165,7 @@ setting.tps.restoreTickrate.desc=Restores the tickrate from the previous session
 :7
 
 setting.tps.prettySand=Pretty Sand
-setting.tps.prettySand.desc=Significantly improves the look of falling block entities. Falling blocks will begin falling in the same tick that they were placed and touch the ground smoothly before being removed. Likewise, immediate velocity changes are sent more frequently.
+setting.tps.prettySand.0=Disabled
+setting.tps.prettySand.1=Performance
+setting.tps.prettySand.2=Fidelity
+setting.tps.prettySand.desc=Improves the look of falling block entities. Performance achieves this with minimal packets sent over the network, but clients might become desynchronized. Proper synchronization is solved with Fidelity, but it significantly increases network usage.
