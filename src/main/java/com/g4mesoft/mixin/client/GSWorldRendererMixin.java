@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSIMinecraftClientAccess;
 import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.renderer.GSBasicRenderer3D;
 import com.g4mesoft.renderer.GSERenderPhase;
 import com.g4mesoft.renderer.GSIRenderable3D;
@@ -42,11 +43,13 @@ public class GSWorldRendererMixin {
 	@Shadow @Final private MinecraftClient client;
 	
 	private GSClientController controller;
+	private GSTpsModule tpsModule;
 	private GSBasicRenderer3D renderer3d;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void onInit(MinecraftClient client, BufferBuilderStorage builderStorage, CallbackInfo ci) {
 		controller = GSClientController.getInstance();
+		tpsModule = controller.getTpsModule();
 		renderer3d = new GSBasicRenderer3D();
 	}
 	
@@ -117,7 +120,7 @@ public class GSWorldRendererMixin {
 			target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
 	private float onRenderEntityModifyDeltaTick(Entity entity, double cameraX, double cameraY, double cameraZ, float deltaTick, MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
 		if (!client.isPaused() && (entity instanceof AbstractClientPlayerEntity)) {
-			if (controller.getTpsModule().isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
+			if (tpsModule.isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
 				return ((GSIMinecraftClientAccess)client).getFixedMovementTickDelta();
 		}
 
@@ -127,7 +130,7 @@ public class GSWorldRendererMixin {
 	@Redirect(method = "render", allow = 1, require = 1, expect = 1,
 			at = @At(value = "FIELD", target="Lnet/minecraft/entity/Entity;age:I", opcode = Opcodes.GETFIELD))
 	private int onRenderGetEntityAge(Entity entity) {
-		if (controller.getTpsModule().sPrettySand.getValue() && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
 			// We do not want the render positions to be modified when
 			// using pretty sand (already done by position packets).
 			return (entity.age == 0) ? -1 : entity.age;

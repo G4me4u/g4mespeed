@@ -83,6 +83,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public static final int TPS_LABEL_TOP_CENTER = 2;
 	public static final int TPS_LABEL_TOP_RIGHT  = 3;
 	
+	public static final int PRETTY_SAND_DISABLED    = 0;
+	public static final int PRETTY_SAND_PERFORMANCE = 1;
+	public static final int PRETTY_SAND_FIDELITY    = 2;
+	
 	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##", new DecimalFormatSymbols(Locale.ENGLISH));
 	
 	private static final String TPS_CACHE_FILE_NAME = "tps_cache.txt";
@@ -111,7 +115,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSIntegerSetting cTpsLabel;
 	public final GSBooleanSetting sBroadcastTps;
 	public final GSBooleanSetting sRestoreTickrate;
-	public final GSBooleanSetting sPrettySand;
+	public final GSIntegerSetting sPrettySand;
 
 	public final GSIntegerSetting cPistonAnimationType;
 	public final GSIntegerSetting cPistonRenderDistance;
@@ -139,7 +143,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cTpsLabel = new GSIntegerSetting("tpsLabel", TPS_LABEL_DISABLED, 0, 3);
 		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
 		sRestoreTickrate = new GSBooleanSetting("restoreTickrate", false);
-		sPrettySand = new GSBooleanSetting("prettySand", false);
+		sPrettySand = new GSIntegerSetting("prettySand", PRETTY_SAND_DISABLED, 0, 2);
 		
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, -1, 32);

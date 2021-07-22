@@ -43,7 +43,7 @@ public abstract class GSServerWorldMixin extends World {
 
 	@Inject(method = "tick", at = @At("RETURN"))
 	private void onTickReturn(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-		if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue()) {
+		if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			ServerChunkManager chunkManager = (ServerChunkManager)getChunkManager();
 			
 			for (Entity entity : entitiesById.values()) {
