@@ -15,6 +15,7 @@ import com.g4mesoft.access.GSIEntityTrackerEntryAccess;
 import com.g4mesoft.access.GSIServerWorldAccess;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSServerController;
+import com.g4mesoft.module.tps.GSFallingBlockInfo;
 import com.g4mesoft.module.tps.GSServerPlayerFixedMovementPacket;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.packet.GSIPacket;
@@ -23,10 +24,12 @@ import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 @Mixin(EntityTrackerEntry.class)
@@ -111,9 +114,12 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 			target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"))
 	private void onStopTracking(ServerPlayerEntity player, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.getValue() && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (tpsModule.sPrettySand.getValue() && entity instanceof FallingBlockEntity) {
 			// Schedule the destroy update in the next tick
-			((GSIServerWorldAccess)world).scheduleDestroyEntityPacket(player, entity.getId());
+			FallingBlockEntity fallingBlockEntity = (FallingBlockEntity)entity;
+			BlockPos blockPos = fallingBlockEntity.getBlockPos();
+			int entityId = fallingBlockEntity.getId();
+			((GSIServerWorldAccess)world).scheduleDestroyFallingBlock(new GSFallingBlockInfo(player, blockPos, entityId));
 			ci.cancel();
 		}
 	}

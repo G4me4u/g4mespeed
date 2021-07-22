@@ -1,9 +1,9 @@
 package com.g4mesoft.access;
 
-import net.minecraft.server.network.ServerPlayerEntity;
+import com.g4mesoft.module.tps.GSFallingBlockInfo;
 
 public interface GSIServerWorldAccess {
 
-	public void scheduleDestroyEntityPacket(ServerPlayerEntity player, int entityId);
+	public void scheduleDestroyFallingBlock(GSFallingBlockInfo fallingBlockInfo);
 
 }

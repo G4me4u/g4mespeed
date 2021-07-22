@@ -115,7 +115,7 @@ com.g4mesoft.access.GSIServerPlayNetworkHandlerAccess -> core.l:
     boolean isFixedMovement() -> gsc_hH
     void setFixedMovement(boolean) -> gsc_rJ
 com.g4mesoft.access.GSIServerWorldAccess -> core.db:
-    void scheduleDestroyEntityPacket(net.minecraft.class_3222,int) -> gsc_rJ
+    void scheduleDestroyFallingBlock(com.g4mesoft.module.tps.GSFallingBlockInfo) -> gsc_rJ
 com.g4mesoft.access.GSIThreadedAnvilChunkStorageAccess -> core.aD:
     void tickEntityTracker(net.minecraft.class_1297) -> gsc_rJ
     void setTrackerFixedMovement(net.minecraft.class_3222,boolean) -> gsc_rJ
@@ -1037,13 +1037,13 @@ com.g4mesoft.mixin.server.GSEntityTrackerEntryMixin -> com.g4mesoft.mixin.server
     boolean tickedFromFallingBlock -> gsc_UM
     int fallingBlockTrackingTick -> gsc_mg
     net.minecraft.class_243 lastFallingBlockVelocity -> gsc_vm
-    33:49:void <init>() -> <init>
-    53:97:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    102:108:void onStartTracking(net.minecraft.class_3222,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    113:119:void onStopTracking(net.minecraft.class_3222,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    123:123:boolean isFixedMovement() -> gsc_rJ
-    128:129:void setFixedMovement(boolean) -> gsc_rJ
-    133:134:void setTickedFromFallingBlock(boolean) -> gsc_hH
+    36:52:void <init>() -> <init>
+    56:100:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    105:111:void onStartTracking(net.minecraft.class_3222,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    116:125:void onStopTracking(net.minecraft.class_3222,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    129:129:boolean isFixedMovement() -> gsc_rJ
+    134:135:void setFixedMovement(boolean) -> gsc_rJ
+    139:140:void setTickedFromFallingBlock(boolean) -> gsc_hH
 com.g4mesoft.mixin.server.GSFallingBlockEntityMixin -> com.g4mesoft.mixin.server.GSFallingBlockEntityMixin:
     net.minecraft.class_2680 method_6962() -> method_6962
     31:32:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
@@ -1130,14 +1130,15 @@ com.g4mesoft.mixin.server.GSServerPlayNetworkHandlerMixin -> com.g4mesoft.mixin.
     139:139:boolean isFixedMovement() -> gsc_hH
     144:145:void setFixedMovement(boolean) -> gsc_rJ
 com.g4mesoft.mixin.server.GSServerWorldMixin -> com.g4mesoft.mixin.server.GSServerWorldMixin:
-    java.util.Deque scheduledDestroyPackets -> gsc_rJ
-    37:42:void <init>(net.minecraft.class_5269,net.minecraft.class_5321,net.minecraft.class_2874,java.util.function.Supplier,boolean,boolean,long) -> <init>
-    50:51:void onTickAfterChunkManagerTick(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    56:60:void onTickImmediateUpdates(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    65:72:double blockEventDistance(net.minecraft.class_1657,double,double,double,double,net.minecraft.class_5321,net.minecraft.class_2596) -> gsc_rJ
-    77:82:void sendScheduledDestroyPackets() -> gsc_rJ
-    86:87:void scheduleDestroyEntityPacket(net.minecraft.class_3222,int) -> gsc_rJ
-    34:34:net.minecraft.class_2791 method_8392(int,int) -> gsc_rJ
+    java.util.Deque destroyFallingBlockQueue -> gsc_rJ
+    java.util.Deque cachedDestroyFallingBlockQueue -> gsc_hH
+    38:44:void <init>(net.minecraft.class_5269,net.minecraft.class_5321,net.minecraft.class_2874,java.util.function.Supplier,boolean,boolean,long) -> <init>
+    48:58:void onTickHead(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    63:68:void onTickReturn(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
+    73:77:void onTickImmediateUpdates(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    82:89:double blockEventDistance(net.minecraft.class_1657,double,double,double,double,net.minecraft.class_5321,net.minecraft.class_2596) -> gsc_rJ
+    94:95:void scheduleDestroyFallingBlock(com.g4mesoft.module.tps.GSFallingBlockInfo) -> gsc_rJ
+    35:35:net.minecraft.class_2791 method_8392(int,int) -> gsc_rJ
 com.g4mesoft.mixin.server.GSThreadedAnvilChunkStorageMixin -> com.g4mesoft.mixin.server.GSThreadedAnvilChunkStorageMixin:
     it.unimi.dsi.fastutil.ints.Int2ObjectMap field_18242 -> field_18242
     18:18:void <init>() -> <init>
@@ -1184,6 +1185,14 @@ com.g4mesoft.module.tps.GSETpsHotkeyType -> core.bg:
     37:37:int getIndex() -> gsc_rJ
     3:3:com.g4mesoft.module.tps.GSETpsHotkeyType[] $values() -> gsc_hH
     3:22:void <clinit>() -> <clinit>
+com.g4mesoft.module.tps.GSFallingBlockInfo -> core.dc:
+    net.minecraft.class_3222 player -> gsc_rJ
+    net.minecraft.class_2338 blockPos -> gsc_hH
+    int entityId -> gsc_sc
+    12:16:void <init>(net.minecraft.class_3222,net.minecraft.class_2338,int) -> <init>
+    19:19:net.minecraft.class_3222 getPlayer() -> gsc_rJ
+    23:23:net.minecraft.class_2338 getBlockPos() -> gsc_hH
+    27:27:int getEntityId() -> gsc_sc
 com.g4mesoft.module.tps.GSITickTimer -> core.bi:
     float MILLIS_PER_SECOND -> gsc_rJ
     float DEFAULT_MILLIS_PER_TICK -> gsc_hH

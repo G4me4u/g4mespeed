@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.access.GSIServerChunkManagerAccess;
 import com.g4mesoft.access.GSIServerWorldAccess;
 import com.g4mesoft.core.server.GSServerController;
+import com.g4mesoft.module.tps.GSFallingBlockInfo;
 import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.block.Block;
@@ -23,8 +24,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Pair;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.MutableWorldProperties;
@@ -34,20 +35,36 @@ import net.minecraft.world.dimension.DimensionType;
 @Mixin(ServerWorld.class)
 public abstract class GSServerWorldMixin extends World implements GSIServerWorldAccess {
 
-	private final Deque<Pair<ServerPlayerEntity, Integer>> scheduledDestroyPackets = new LinkedList<>();
+	private Deque<GSFallingBlockInfo> destroyFallingBlockQueue = new LinkedList<>();
+	private Deque<GSFallingBlockInfo> cachedDestroyFallingBlockQueue = new LinkedList<>();
 	
 	protected GSServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryKey,
 			DimensionType dimensionType, Supplier<Profiler> supplier, boolean bl, boolean bl2, long l) {
 		super(properties, registryKey, dimensionType, supplier, bl, bl2, l);
 	}
 
-	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.AFTER, 
-			target = "Lnet/minecraft/server/world/ServerChunkManager;tick(Ljava/util/function/BooleanSupplier;)V"))
-	public void onTickAfterChunkManagerTick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-		// Send destroy packets after ticking the server chunk manager.
-		// This will make sure that falling blocks do not flicker when
-		// being removed, since the has already been placed.
-		sendScheduledDestroyPackets();
+	@Inject(method = "tick", at = @At("HEAD"))
+	public void onTickHead(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+		Deque<GSFallingBlockInfo> tmpQueue = cachedDestroyFallingBlockQueue;
+		cachedDestroyFallingBlockQueue = destroyFallingBlockQueue;
+		destroyFallingBlockQueue = tmpQueue;
+		
+		ServerChunkManager chunkManager = (ServerChunkManager)getChunkManager();
+		for (GSFallingBlockInfo info : cachedDestroyFallingBlockQueue) {
+			ServerPlayerEntity player = info.getPlayer();
+			if (!player.isRemoved() && player.networkHandler != null)
+				((GSIServerChunkManagerAccess)chunkManager).updateBlockImmdiately(info.getBlockPos());
+		}
+	}
+	
+	@Inject(method = "tick", at = @At(value = "RETURN"))
+	public void onTickReturn(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+		GSFallingBlockInfo info;
+		while ((info = cachedDestroyFallingBlockQueue.poll()) != null) {
+			ServerPlayerEntity player = info.getPlayer();
+			if (!player.isRemoved() && player.networkHandler != null)
+				player.networkHandler.sendPacket(new EntitiesDestroyS2CPacket(new int[] { info.getEntityId() }));
+		}
 	}
 	
 	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.AFTER, 
@@ -72,17 +89,8 @@ public abstract class GSServerWorldMixin extends World implements GSIServerWorld
 		return dist;
 	}
 	
-	private void sendScheduledDestroyPackets() {
-		Pair<ServerPlayerEntity, Integer> pair;
-		while ((pair = scheduledDestroyPackets.poll()) != null) {
-			ServerPlayerEntity player = pair.getLeft();
-			if (!player.isRemoved() && player.networkHandler != null)
-				player.networkHandler.sendPacket(new EntitiesDestroyS2CPacket(new int[] { pair.getRight() }));
-		}
-	}
-
 	@Override
-	public void scheduleDestroyEntityPacket(ServerPlayerEntity player, int entityId) {
-		scheduledDestroyPackets.add(new Pair<>(player, entityId));
+	public void scheduleDestroyFallingBlock(GSFallingBlockInfo fallingBlockInfo) {
+		destroyFallingBlockQueue.add(fallingBlockInfo);
 	}
 }
