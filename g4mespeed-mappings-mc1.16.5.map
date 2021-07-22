@@ -1039,11 +1039,11 @@ com.g4mesoft.mixin.server.GSEntityTrackerEntryMixin -> com.g4mesoft.mixin.server
     int fallingBlockTrackingTick -> gsc_mg
     net.minecraft.class_243 lastFallingBlockVelocity -> gsc_vm
     31:46:void <init>() -> <init>
-    50:94:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    99:105:void onStartTracking(net.minecraft.class_3222,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    109:109:boolean isFixedMovement() -> gsc_rJ
-    114:115:void setFixedMovement(boolean) -> gsc_rJ
-    119:120:void setTickedFromFallingBlock(boolean) -> gsc_hH
+    50:92:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    97:103:void onStartTracking(net.minecraft.class_3222,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    107:107:boolean isFixedMovement() -> gsc_rJ
+    112:113:void setFixedMovement(boolean) -> gsc_rJ
+    117:118:void setTickedFromFallingBlock(boolean) -> gsc_hH
 com.g4mesoft.mixin.server.GSFallingBlockEntityMixin -> com.g4mesoft.mixin.server.GSFallingBlockEntityMixin:
     net.minecraft.class_2680 method_6962() -> method_6962
     29:30:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
