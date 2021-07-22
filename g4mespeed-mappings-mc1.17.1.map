@@ -1049,10 +1049,9 @@ com.g4mesoft.mixin.server.GSFallingBlockEntityMixin -> com.g4mesoft.mixin.server
     31:32:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
     37:39:void onTickRemoveBlock(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
     44:48:void onTickBeforeRemove(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    52:58:void onTickReturn(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
-    63:65:void redirectSendToOtherNearbyPlayers(net.minecraft.class_3898,net.minecraft.class_1297,net.minecraft.class_2596) -> gsc_rJ
-    69:83:void onCreateSpawnPacket(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
-    88:89:void onOnSpawnPacket(net.minecraft.class_2604,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    53:55:void redirectSendToOtherNearbyPlayers(net.minecraft.class_3898,net.minecraft.class_1297,net.minecraft.class_2596) -> gsc_rJ
+    59:73:void onCreateSpawnPacket(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
+    78:79:void onOnSpawnPacket(net.minecraft.class_2604,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
 com.g4mesoft.mixin.server.GSIBlockEventS2CPacketAccess -> com.g4mesoft.mixin.server.GSIBlockEventS2CPacketAccess:
     net.minecraft.class_2248 getBlock2() -> gsc_rJ
 com.g4mesoft.mixin.server.GSIThreadedAnvilChunkStorageEntityTrackerAccess -> com.g4mesoft.mixin.server.GSIThreadedAnvilChunkStorageEntityTrackerAccess:
@@ -1130,15 +1129,17 @@ com.g4mesoft.mixin.server.GSServerPlayNetworkHandlerMixin -> com.g4mesoft.mixin.
     139:139:boolean isFixedMovement() -> gsc_hH
     144:145:void setFixedMovement(boolean) -> gsc_rJ
 com.g4mesoft.mixin.server.GSServerWorldMixin -> com.g4mesoft.mixin.server.GSServerWorldMixin:
+    net.minecraft.class_5574 field_26934 -> field_26934
     java.util.Deque destroyFallingBlockQueue -> gsc_rJ
     java.util.Deque cachedDestroyFallingBlockQueue -> gsc_hH
-    38:44:void <init>(net.minecraft.class_5269,net.minecraft.class_5321,net.minecraft.class_2874,java.util.function.Supplier,boolean,boolean,long) -> <init>
-    48:58:void onTickHead(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    63:68:void onTickReturn(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
-    73:77:void onTickImmediateUpdates(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    82:89:double blockEventDistance(net.minecraft.class_1657,double,double,double,double,net.minecraft.class_5321,net.minecraft.class_2596) -> gsc_rJ
-    94:95:void scheduleDestroyFallingBlock(com.g4mesoft.module.tps.GSFallingBlockInfo) -> gsc_rJ
-    35:35:net.minecraft.class_2791 method_8392(int,int) -> gsc_rJ
+    44:50:void <init>(net.minecraft.class_5269,net.minecraft.class_5321,net.minecraft.class_2874,java.util.function.Supplier,boolean,boolean,long) -> <init>
+    54:68:void onTickHead(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    72:89:void onTickReturn(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
+    94:98:void onTickImmediateUpdates(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    103:110:double blockEventDistance(net.minecraft.class_1657,double,double,double,double,net.minecraft.class_5321,net.minecraft.class_2596) -> gsc_rJ
+    115:117:void scheduleDestroyFallingBlock(com.g4mesoft.module.tps.GSFallingBlockInfo) -> gsc_rJ
+    39:39:net.minecraft.class_2791 method_8392(int,int) -> gsc_rJ
+    83:87:void lambda$onTickReturn$0(net.minecraft.class_3215,net.minecraft.class_1297) -> gsc_rJ
 com.g4mesoft.mixin.server.GSThreadedAnvilChunkStorageMixin -> com.g4mesoft.mixin.server.GSThreadedAnvilChunkStorageMixin:
     it.unimi.dsi.fastutil.ints.Int2ObjectMap field_18242 -> field_18242
     18:18:void <init>() -> <init>
