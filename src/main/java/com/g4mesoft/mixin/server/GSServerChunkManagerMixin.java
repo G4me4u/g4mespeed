@@ -40,6 +40,11 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 	}
 	
 	@Override
+	public void setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock) {
+		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).setTrackerTickedFromFallingBlock(entity, tickedFromFallingBlock);
+	}
+	
+	@Override
 	public void flushAndSendChunkUpdates() {
 		world.getProfiler().push("chunks");
 		

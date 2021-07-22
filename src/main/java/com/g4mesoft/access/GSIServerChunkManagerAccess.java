@@ -9,9 +9,11 @@ public interface GSIServerChunkManagerAccess {
 	public void tickEntityTracker(Entity entity);
 	
 	public void setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement);
+
+	public void setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock);
 	
 	public void flushAndSendChunkUpdates();
 	
 	public void updateBlockImmdiately(BlockPos pos);
-	
+
 }

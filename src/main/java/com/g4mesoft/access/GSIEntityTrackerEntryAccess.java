@@ -6,4 +6,6 @@ public interface GSIEntityTrackerEntryAccess {
 
 	public void setFixedMovement(boolean fixedMovement);
 
+	public void setTickedFromFallingBlock(boolean tickedFromFallingBlock);
+	
 }

@@ -36,6 +36,15 @@ public abstract class GSThreadedAnvilChunkStorageMixin implements GSIThreadedAnv
 			((GSIEntityTrackerEntryAccess)entry).setFixedMovement(trackerFixedMovement);
 		}
 	}
+
+	@Override
+	public void setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock) {
+		Object tracker = entityTrackers.get(entity.getId());
+		if (tracker != null) {
+			EntityTrackerEntry entry = ((GSIThreadedAnvilChunkStorageEntityTrackerAccess)tracker).getEntry();
+			((GSIEntityTrackerEntryAccess)entry).setTickedFromFallingBlock(tickedFromFallingBlock);
+		}
+	}
 	
 	@Override
 	public Iterable<ChunkHolder> getEntryIterator0() {

@@ -41,8 +41,10 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.BEFORE,
 			target = "Lnet/minecraft/entity/FallingBlockEntity;discard()V"))
 	private void onTickBeforeRemove(CallbackInfo ci) {
-		if (!world.isClient && !isRemoved() && GSServerController.getInstance().getTpsModule().sPrettySand.getValue())
+		if (!world.isClient && !isRemoved() && GSServerController.getInstance().getTpsModule().sPrettySand.getValue()) {
+			((GSIServerChunkManagerAccess)world.getChunkManager()).setTrackerTickedFromFallingBlock(this, true);
 			((GSIServerChunkManagerAccess)world.getChunkManager()).tickEntityTracker(this);
+		}
 	}
 	
 	@Inject(method = "tick", at = @At(value = "RETURN"))
@@ -50,6 +52,7 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 		if (!world.isClient && !isRemoved() && GSServerController.getInstance().getTpsModule().sPrettySand.getValue()) {
 			// Note that this will only be called if we did not remove the entity,
 			// which is always done if the above invocation has executed.
+			((GSIServerChunkManagerAccess)world.getChunkManager()).setTrackerTickedFromFallingBlock(this, true);
 			((GSIServerChunkManagerAccess)world.getChunkManager()).tickEntityTracker(this);
 		}
 	}
