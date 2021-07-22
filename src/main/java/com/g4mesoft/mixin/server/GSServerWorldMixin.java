@@ -5,7 +5,9 @@ import java.util.LinkedList;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -20,6 +22,7 @@ import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitiesDestroyS2CPacket;
@@ -28,12 +31,15 @@ import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.EntityList;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 @Mixin(ServerWorld.class)
 public abstract class GSServerWorldMixin extends World implements GSIServerWorldAccess {
+
+	@Shadow @Final EntityList entityList;
 
 	private Deque<GSFallingBlockInfo> destroyFallingBlockQueue = new LinkedList<>();
 	private Deque<GSFallingBlockInfo> cachedDestroyFallingBlockQueue = new LinkedList<>();
@@ -45,25 +51,40 @@ public abstract class GSServerWorldMixin extends World implements GSIServerWorld
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	public void onTickHead(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-		Deque<GSFallingBlockInfo> tmpQueue = cachedDestroyFallingBlockQueue;
-		cachedDestroyFallingBlockQueue = destroyFallingBlockQueue;
-		destroyFallingBlockQueue = tmpQueue;
-		
-		ServerChunkManager chunkManager = (ServerChunkManager)getChunkManager();
-		for (GSFallingBlockInfo info : cachedDestroyFallingBlockQueue) {
-			ServerPlayerEntity player = info.getPlayer();
-			if (!player.isRemoved() && player.networkHandler != null)
-				((GSIServerChunkManagerAccess)chunkManager).updateBlockImmdiately(info.getBlockPos());
+		if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue()) {
+			Deque<GSFallingBlockInfo> tmpQueue = cachedDestroyFallingBlockQueue;
+			cachedDestroyFallingBlockQueue = destroyFallingBlockQueue;
+			destroyFallingBlockQueue = tmpQueue;
+			
+			ServerChunkManager chunkManager = (ServerChunkManager)getChunkManager();
+			for (GSFallingBlockInfo info : cachedDestroyFallingBlockQueue) {
+				ServerPlayerEntity player = info.getPlayer();
+				if (!player.isRemoved() && player.networkHandler != null)
+					((GSIServerChunkManagerAccess)chunkManager).updateBlockImmdiately(info.getBlockPos());
+			}
+		} else {
+			destroyFallingBlockQueue.clear();
 		}
 	}
 	
-	@Inject(method = "tick", at = @At(value = "RETURN"))
-	public void onTickReturn(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-		GSFallingBlockInfo info;
-		while ((info = cachedDestroyFallingBlockQueue.poll()) != null) {
-			ServerPlayerEntity player = info.getPlayer();
-			if (!player.isRemoved() && player.networkHandler != null)
-				player.networkHandler.sendPacket(new EntitiesDestroyS2CPacket(new int[] { info.getEntityId() }));
+	@Inject(method = "tick", at = @At("RETURN"))
+	private void onTickReturn(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+		if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue()) {
+			GSFallingBlockInfo info;
+			while ((info = cachedDestroyFallingBlockQueue.poll()) != null) {
+				ServerPlayerEntity player = info.getPlayer();
+				if (!player.isRemoved() && player.networkHandler != null)
+					player.networkHandler.sendPacket(new EntitiesDestroyS2CPacket(new int[] { info.getEntityId() }));
+			}
+			
+			ServerChunkManager chunkManager = (ServerChunkManager)getChunkManager();
+			
+			entityList.forEach((entity) -> {
+				if (!entity.isRemoved() && entity.getType() == EntityType.FALLING_BLOCK) {
+					((GSIServerChunkManagerAccess)chunkManager).setTrackerTickedFromFallingBlock(entity, true);
+					((GSIServerChunkManagerAccess)chunkManager).tickEntityTracker(entity);
+				}
+			});
 		}
 	}
 	
@@ -91,6 +112,7 @@ public abstract class GSServerWorldMixin extends World implements GSIServerWorld
 	
 	@Override
 	public void scheduleDestroyFallingBlock(GSFallingBlockInfo fallingBlockInfo) {
-		destroyFallingBlockQueue.add(fallingBlockInfo);
+		if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue())
+			destroyFallingBlockQueue.add(fallingBlockInfo);
 	}
 }
