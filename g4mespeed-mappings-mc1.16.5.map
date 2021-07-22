@@ -87,6 +87,7 @@ com.g4mesoft.access.GSIChunkHolderAccess -> core.dd:
 com.g4mesoft.access.GSIEntityTrackerEntryAccess -> core.cW:
     boolean isFixedMovement() -> gsc_rJ
     void setFixedMovement(boolean) -> gsc_rJ
+    void setTickedFromFallingBlock(boolean) -> gsc_hH
 com.g4mesoft.access.GSIKeyboardAccess -> core.g:
     boolean isPreviousEventRepeating() -> gsc_rJ
 com.g4mesoft.access.GSIMinecraftClientAccess -> core.cC:
@@ -99,6 +100,7 @@ com.g4mesoft.access.GSIPistonBlockEntityAccess -> core.i:
 com.g4mesoft.access.GSIServerChunkManagerAccess -> core.k:
     void tickEntityTracker(net.minecraft.class_1297) -> gsc_rJ
     void setTrackerFixedMovement(net.minecraft.class_3222,boolean) -> gsc_rJ
+    void setTrackerTickedFromFallingBlock(net.minecraft.class_1297,boolean) -> gsc_rJ
     void flushAndSendChunkUpdates() -> gsc_rJ
     void updateBlockImmdiately(net.minecraft.class_2338) -> gsc_rJ
 com.g4mesoft.access.GSIServerPlayNetworkHandlerAccess -> core.l:
@@ -115,6 +117,7 @@ com.g4mesoft.access.GSIServerPlayNetworkHandlerAccess -> core.l:
 com.g4mesoft.access.GSIThreadedAnvilChunkStorageAccess -> core.cX:
     void tickEntityTracker(net.minecraft.class_1297) -> gsc_rJ
     void setTrackerFixedMovement(net.minecraft.class_3222,boolean) -> gsc_rJ
+    void setTrackerTickedFromFallingBlock(net.minecraft.class_1297,boolean) -> gsc_rJ
     java.lang.Iterable getEntryIterator0() -> gsc_rJ
 com.g4mesoft.core.GSConnectionPacket -> core.m:
     com.g4mesoft.GSExtensionInfo[] extensionInfo -> gsc_rJ
@@ -1023,27 +1026,31 @@ com.g4mesoft.mixin.server.GSCustomPayloadS2CPacketMixin -> com.g4mesoft.mixin.se
     21:21:net.minecraft.class_2960 getChannel0() -> gsc_rJ
     26:26:net.minecraft.class_2540 getData0() -> gsc_hH
 com.g4mesoft.mixin.server.GSEntityTrackerEntryMixin -> com.g4mesoft.mixin.server.GSEntityTrackerEntryMixin:
+    double FALLING_BLOCK_GRAVITY -> gsc_sc
+    double FALLING_BLOCK_FRICTION -> gsc_bs
     net.minecraft.class_1297 field_14049 -> field_14049
     java.util.function.Consumer field_18259 -> field_18259
     int field_14040 -> field_14040
     boolean field_14036 -> field_14036
-    long field_14050 -> field_14050
-    long field_14035 -> field_14035
-    long field_14048 -> field_14048
+    net.minecraft.class_243 field_18278 -> field_18278
     boolean fixedMovement -> gsc_rJ
     boolean lastFixedMovement -> gsc_hH
-    29:40:void <init>() -> <init>
-    44:68:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    73:79:void onStartTracking(net.minecraft.class_3222,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    83:83:boolean isFixedMovement() -> gsc_rJ
-    88:89:void setFixedMovement(boolean) -> gsc_rJ
+    boolean tickedFromFallingBlock -> gsc_UM
+    int fallingBlockTrackingTick -> gsc_mg
+    net.minecraft.class_243 lastFallingBlockVelocity -> gsc_vm
+    31:46:void <init>() -> <init>
+    50:94:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    99:105:void onStartTracking(net.minecraft.class_3222,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    109:109:boolean isFixedMovement() -> gsc_rJ
+    114:115:void setFixedMovement(boolean) -> gsc_rJ
+    119:120:void setTickedFromFallingBlock(boolean) -> gsc_hH
 com.g4mesoft.mixin.server.GSFallingBlockEntityMixin -> com.g4mesoft.mixin.server.GSFallingBlockEntityMixin:
     net.minecraft.class_2680 method_6962() -> method_6962
     29:30:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
     35:37:void onTickRemoveBlock(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    42:44:void onTickBeforeRemove(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
-    48:53:void onTickReturn(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    57:69:void onCreateSpawnPacket(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
+    42:46:void onTickBeforeRemove(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
+    50:56:void onTickReturn(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    60:72:void onCreateSpawnPacket(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
 com.g4mesoft.mixin.server.GSIBlockEventS2CPacketAccess -> com.g4mesoft.mixin.server.GSIBlockEventS2CPacketAccess:
     net.minecraft.class_2248 getBlock2() -> gsc_rJ
 com.g4mesoft.mixin.server.GSIThreadedAnvilChunkStorageEntityTrackerAccess -> com.g4mesoft.mixin.server.GSIThreadedAnvilChunkStorageEntityTrackerAccess:
@@ -1100,9 +1107,10 @@ com.g4mesoft.mixin.server.GSServerChunkManagerMixin -> com.g4mesoft.mixin.server
     net.minecraft.class_3193 method_14131(long) -> method_14131
     34:35:void tickEntityTracker(net.minecraft.class_1297) -> gsc_rJ
     39:40:void setTrackerFixedMovement(net.minecraft.class_3222,boolean) -> gsc_rJ
-    44:66:void flushAndSendChunkUpdates() -> gsc_rJ
-    70:75:void updateBlockImmdiately(net.minecraft.class_2338) -> gsc_rJ
-    54:60:void lambda$flushAndSendChunkUpdates$0(net.minecraft.class_3193) -> gsc_rJ
+    44:45:void setTrackerTickedFromFallingBlock(net.minecraft.class_1297,boolean) -> gsc_rJ
+    49:71:void flushAndSendChunkUpdates() -> gsc_rJ
+    75:80:void updateBlockImmdiately(net.minecraft.class_2338) -> gsc_rJ
+    59:65:void lambda$flushAndSendChunkUpdates$0(net.minecraft.class_3193) -> gsc_rJ
 com.g4mesoft.mixin.server.GSServerPlayNetworkHandlerMixin -> com.g4mesoft.mixin.server.GSServerPlayNetworkHandlerMixin:
     net.minecraft.class_3222 field_14140 -> field_14140
     int field_14138 -> field_14138
@@ -1138,7 +1146,8 @@ com.g4mesoft.mixin.server.GSThreadedAnvilChunkStorageMixin -> com.g4mesoft.mixin
     java.lang.Iterable method_17264() -> method_17264
     26:29:void tickEntityTracker(net.minecraft.class_1297) -> gsc_rJ
     33:38:void setTrackerFixedMovement(net.minecraft.class_3222,boolean) -> gsc_rJ
-    42:42:java.lang.Iterable getEntryIterator0() -> gsc_rJ
+    42:47:void setTrackerTickedFromFallingBlock(net.minecraft.class_1297,boolean) -> gsc_rJ
+    51:51:java.lang.Iterable getEntryIterator0() -> gsc_rJ
 com.g4mesoft.mixin.server.GSTranslatableTextMixin -> com.g4mesoft.mixin.server.GSTranslatableTextMixin:
     net.minecraft.class_2477 field_25317 -> field_25317
     java.lang.String field_11876 -> field_11876
