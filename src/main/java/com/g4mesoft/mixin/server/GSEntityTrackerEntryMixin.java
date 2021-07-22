@@ -30,7 +30,8 @@ import net.minecraft.util.math.Vec3d;
 @Mixin(EntityTrackerEntry.class)
 public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 
-	private static final double FALLING_BLOCK_GRAVITY = -0.04;
+	private static final double FALLING_BLOCK_GRAVITY  = -0.04;
+	private static final double FALLING_BLOCK_FRICTION =  0.98;
 	
 	@Shadow @Final private Entity entity;
 	@Shadow @Final private Consumer<Packet<?>> receiver;
@@ -40,8 +41,11 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	
 	private boolean fixedMovement = false;
 	private boolean lastFixedMovement = false;
+	private boolean tickedFromFallingBlock = false;
+	private int fallingBlockTrackingTick = 0;
+	private Vec3d lastFallingBlockVelocity = Vec3d.ZERO;
 	
-	@Inject(method = "tick", at = @At("HEAD"))
+	@Inject(method = "tick", cancellable = true, at = @At("HEAD"))
 	private void onTick(CallbackInfo ci) {
 		if (fixedMovement != lastFixedMovement) {
 			lastFixedMovement = fixedMovement;
@@ -57,25 +61,34 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 		
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
 		if (tpsModule.sPrettySand.getValue() && entity.getType() == EntityType.FALLING_BLOCK) {
-			Vec3d currentVelocity = entity.getVelocity();
-			double dvx = currentVelocity.getX() - velocity.getX();
-			double dvy = currentVelocity.getY() - velocity.getY();
-			double dvz = currentVelocity.getZ() - velocity.getZ();
-			
-			if (trackingTick == 0 ||
-			    !GSMathUtil.equalsApproximate(dvx, 0.0) ||
-			    !GSMathUtil.equalsApproximate(dvy, FALLING_BLOCK_GRAVITY) ||
-			    !GSMathUtil.equalsApproximate(dvz, 0.0)) {
+			if (tickedFromFallingBlock) {
+				Vec3d currentVelocity = entity.getVelocity();
+				double dvx = currentVelocity.getX() - lastFallingBlockVelocity.getX() * FALLING_BLOCK_FRICTION;
+				double dvy = currentVelocity.getY() - lastFallingBlockVelocity.getY() * FALLING_BLOCK_FRICTION;
+				double dvz = currentVelocity.getZ() - lastFallingBlockVelocity.getZ() * FALLING_BLOCK_FRICTION;
+				lastFallingBlockVelocity = currentVelocity;
 				
-				// Set dirty flag. This will update the position, rotation,
-				// and velocity of the falling block immediately.
-				entity.velocityDirty = true;
-			}
-
-			if (trackingTick == 0) {
-				// Force position and velocity to be sent in their entirety
-				lastOnGround = !entity.isOnGround();
-				trackingTick = 1;
+				if (fallingBlockTrackingTick == 0 ||
+				    !GSMathUtil.equalsApproximate(dvx, 0.0) ||
+				    !GSMathUtil.equalsApproximate(dvy, FALLING_BLOCK_GRAVITY * FALLING_BLOCK_FRICTION) ||
+				    !GSMathUtil.equalsApproximate(dvz, 0.0)) {
+					
+					// Set dirty flag. This will update the position, rotation,
+					// and velocity of the falling block immediately.
+					entity.velocityDirty = true;
+				}
+	
+				if (fallingBlockTrackingTick == 0) {
+					// Force position and velocity to be sent in their entirety
+					lastOnGround = !entity.isOnGround();
+					trackingTick = Math.max(1, trackingTick);
+				}
+	
+				fallingBlockTrackingTick++;
+				tickedFromFallingBlock = false;
+			} else {
+				ci.cancel();
+				// return;
 			}
 		}
 	}
@@ -99,5 +112,10 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	@Override
 	public void setFixedMovement(boolean fixedMovement) {
 		this.fixedMovement = fixedMovement;
+	}
+
+	@Override
+	public void setTickedFromFallingBlock(boolean tickedFromFallingBlock) {
+		this.tickedFromFallingBlock = tickedFromFallingBlock;
 	}
 }

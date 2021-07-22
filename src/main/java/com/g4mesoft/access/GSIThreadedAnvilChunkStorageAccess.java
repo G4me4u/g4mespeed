@@ -9,6 +9,8 @@ public interface GSIThreadedAnvilChunkStorageAccess {
 	public void tickEntityTracker(Entity entity);
 	
 	public void setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement);
+
+	public void setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock);
 	
 	public Iterable<ChunkHolder> getEntryIterator0();
 	
