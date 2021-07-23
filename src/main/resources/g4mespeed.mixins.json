@@ -27,7 +27,8 @@
     "server.GSServerChunkManagerMixin",
     "server.GSIBlockEventS2CPacketAccess",
     "server.GSChunkHolderMixin",
-    "server.GSFallingBlockEntityMixin"
+    "server.GSFallingBlockEntityMixin",
+    "server.GSServerPlayerEntityMixin"
   ],
   "client": [
     "client.GSMinecraftClientMixin",

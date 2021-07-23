@@ -12,10 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.GSIEntityTrackerEntryAccess;
-import com.g4mesoft.access.GSIServerWorldAccess;
+import com.g4mesoft.access.GSIServerPlayerEntity;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSServerController;
-import com.g4mesoft.module.tps.GSFallingBlockInfo;
 import com.g4mesoft.module.tps.GSServerPlayerFixedMovementPacket;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.packet.GSIPacket;
@@ -24,12 +23,10 @@ import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.network.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 @Mixin(EntityTrackerEntry.class)
@@ -106,6 +103,8 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 			// Note that player might be tracking the entity after just joining
 			// in which case the extension versions will not yet have been sent.
 			GSServerController.getInstance().sendPacket(packet, player, GSVersion.INVALID);
+		} else if (entity.getType() == EntityType.FALLING_BLOCK) {
+			((GSIServerPlayerEntity)player).onStartTrackingFallingSand(entity);
 		}
 	}
 	
@@ -113,15 +112,11 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 			target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"))
 	private void onStopTracking(ServerPlayerEntity player, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED && entity instanceof FallingBlockEntity) {
-			// Schedule the destroy update in the next tick
-			FallingBlockEntity fallingBlockEntity = (FallingBlockEntity)entity;
-			BlockPos blockPos = fallingBlockEntity.getBlockPos();
-			int entityId = fallingBlockEntity.getId();
-			((GSIServerWorldAccess)world).scheduleDestroyFallingBlock(new GSFallingBlockInfo(player, blockPos, entityId));
+		if (tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
+			((GSIServerPlayerEntity)player).onStopTrackingFallingSand(entity);
 			ci.cancel();
 		}
-	}
+	}	
 	
 	@Override
 	public boolean isFixedMovement() {
