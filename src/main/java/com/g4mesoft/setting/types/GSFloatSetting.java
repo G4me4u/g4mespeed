@@ -8,8 +8,8 @@ public class GSFloatSetting extends GSSetting<Float> {
 	private float value;
 	
 	private final float minValue;
-	private final float interval;
 	private final float maxValue;
+	private final float interval;
 
 	public GSFloatSetting(String name, float defaultValue) {
 		this(name, defaultValue, true);
@@ -35,8 +35,8 @@ public class GSFloatSetting extends GSSetting<Float> {
 		super(name, defaultValue, visibleInGui);
 
 		this.minValue = minValue;
-		this.interval = interval;
 		this.maxValue = maxValue;
+		this.interval = interval;
 		
 		this.value = adjustValue(defaultValue);
 	}
@@ -78,17 +78,35 @@ public class GSFloatSetting extends GSSetting<Float> {
 	public boolean isSameType(GSSetting<?> other) {
 		return other instanceof GSFloatSetting;
 	}
+
+	@Override
+	public boolean isSameSetting(GSSetting<?> other) {
+		if (other instanceof GSFloatSetting) {
+			GSFloatSetting floatSetting = (GSFloatSetting)other;
+			if (!GSMathUtil.equalsApproximate(defaultValue, floatSetting.getDefaultValue()))
+				return false;
+			if (!GSMathUtil.equalsApproximate(minValue, floatSetting.getMinValue()))
+				return false;
+			if (!GSMathUtil.equalsApproximate(maxValue, floatSetting.getMaxValue()))
+				return false;
+			if (!GSMathUtil.equalsApproximate(interval, floatSetting.getInterval()))
+				return false;
+			return true;
+		}
+		
+		return false;
+	}
 	
 	public float getMinValue() {
 		return minValue;
 	}
 	
-	public float getInterval() {
-		return interval;
-	}
-
 	public float getMaxValue() {
 		return maxValue;
+	}
+
+	public float getInterval() {
+		return interval;
 	}
 
 	@Override

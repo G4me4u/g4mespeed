@@ -79,6 +79,24 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 		return other instanceof GSIntegerSetting;
 	}
 	
+	@Override
+	public boolean isSameSetting(GSSetting<?> other) {
+		if (other instanceof GSIntegerSetting) {
+			GSIntegerSetting integerSetting = (GSIntegerSetting)other;
+			if (defaultValue != integerSetting.getDefaultValue())
+				return false;
+			if (minValue != integerSetting.getMinValue())
+				return false;
+			if (maxValue != integerSetting.getMaxValue())
+				return false;
+			if (interval != integerSetting.getInterval())
+				return false;
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public int getMinValue() {
 		return minValue;
 	}

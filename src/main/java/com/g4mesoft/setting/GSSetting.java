@@ -1,5 +1,7 @@
 package com.g4mesoft.setting;
 
+import java.util.Objects;
+
 public abstract class GSSetting<T> {
 
 	protected final String name;
@@ -45,6 +47,10 @@ public abstract class GSSetting<T> {
 
 	public abstract boolean isSameType(GSSetting<?> other);
 
+	public boolean isSameSetting(GSSetting<?> other) {
+		return isSameType(other) && Objects.equals(defaultValue, other.getDefaultValue());
+	}
+	
 	public abstract GSSetting<T> copySetting();
 
 	public void reset() {
