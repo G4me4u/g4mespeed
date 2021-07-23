@@ -55,16 +55,25 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		switch (tpsModule.cPistonAnimationType.getValue()) {
-		case GSTpsModule.PISTON_ANIM_NO_PAUSE:
-			val = (this.progress * numberOfSteps + partialTicks) / (numberOfSteps + 1.0f);
-			break;
+		default:
 		case GSTpsModule.PISTON_ANIM_PAUSE_END:
 			// Will be clamped by the return statement.
 			val = (this.progress * numberOfSteps + partialTicks) / numberOfSteps;
 			break;
-		default:
+		case GSTpsModule.PISTON_ANIM_PAUSE_MIDDLE:
+			if (this.progress < 0.5f - GSMathUtil.EPSILON_F) {
+				val = (this.progress * numberOfSteps + partialTicks) / numberOfSteps;
+			} else if (this.progress > 0.5f + GSMathUtil.EPSILON_F) {
+				val = (this.progress * numberOfSteps - 1.0f + partialTicks) / numberOfSteps;
+			} else {
+				val = 0.5f;
+			}
+			break;
 		case GSTpsModule.PISTON_ANIM_PAUSE_BEGINNING:
 			val = actualLastProgress + (this.progress - actualLastProgress) * partialTicks;
+			break;
+		case GSTpsModule.PISTON_ANIM_NO_PAUSE:
+			val = (this.progress * numberOfSteps + partialTicks) / (numberOfSteps + 1.0f);
 			break;
 		}
 		

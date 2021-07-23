@@ -70,9 +70,10 @@ setting.betterPistons.cullMovingBlocks.desc=Culls the back-face of blocks that a
 
 setting.betterPistons.pistonAnimationType=Piston Animation Type
 setting.betterPistons.pistonAnimationType.0=Pause at end
-setting.betterPistons.pistonAnimationType.1=Pause at beginning
-setting.betterPistons.pistonAnimationType.2=No pause
-setting.betterPistons.pistonAnimationType.desc=Specifies whether to have a pause in the piston animation and if it should be at the beginning or end.
+setting.betterPistons.pistonAnimationType.1=Pause at middle
+setting.betterPistons.pistonAnimationType.2=Pause at beginning
+setting.betterPistons.pistonAnimationType.3=No pause
+setting.betterPistons.pistonAnimationType.desc=Specifies whether to have a pause in the piston animation and if it should be at the beginning, middle, or end.
 
 setting.betterPistons.pistonRenderDistance=Piston Render Distance
 setting.betterPistons.pistonRenderDistance.desc=Render distance of blocks moved by pistons. Since this has no effect if it is greater than the block event distance on the server the option can be set to Automatic to use this distance instead.

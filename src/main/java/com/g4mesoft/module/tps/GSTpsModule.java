@@ -65,8 +65,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public static final String KEY_CATEGORY = "tps";
 	
 	public static final int PISTON_ANIM_PAUSE_END = 0;
-	public static final int PISTON_ANIM_PAUSE_BEGINNING = 1;
-	public static final int PISTON_ANIM_NO_PAUSE = 2;
+	public static final int PISTON_ANIM_PAUSE_MIDDLE = 1;
+	public static final int PISTON_ANIM_PAUSE_BEGINNING = 2;
+	public static final int PISTON_ANIM_NO_PAUSE = 3;
 	
 	public static final int AUTOMATIC_PISTON_RENDER_DISTANCE = -1;
 	
@@ -145,7 +146,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		sRestoreTickrate = new GSBooleanSetting("restoreTickrate", false);
 		sPrettySand = new GSIntegerSetting("prettySand", PRETTY_SAND_DISABLED, 0, 2);
 		
-		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 2);
+		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 3);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, -1, 32);
 		sBlockEventDistance = new GSIntegerSetting("blockEventDistance", 4, 0, 32);
 		sParanoidMode = new GSBooleanSetting("paranoidMode", false);

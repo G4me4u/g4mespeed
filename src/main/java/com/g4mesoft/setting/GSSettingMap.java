@@ -58,7 +58,7 @@ public final class GSSettingMap {
 	}
 	
 	private void setValueFromLoadedSetting(GSSetting<?> setting, GSSetting<?> loadedSetting) {
-		if (setting.getDefaultValue().equals(loadedSetting.getDefaultValue())) {
+		if (setting.isSameSetting(loadedSetting)) {
 			setting.setValueIfSameType(loadedSetting);
 		} else {
 			setting.reset();
