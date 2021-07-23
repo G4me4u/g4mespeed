@@ -5,11 +5,11 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.g4mesoft.access.GSIServerChunkManagerAccess;
+import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
@@ -49,14 +49,13 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 		}
 	}
 	
-	/* This is not a super important redirect, so set require = 0 in case other mods redirect it. */
-	@Redirect(method = "tick", require = 0, at = @At(value = "INVOKE", 
-	          target = "Lnet/minecraft/entity/FallingBlockEntity;move(Lnet/minecraft/entity/MovementType;Lnet/minecraft/util/math/Vec3d;)V"))
-	private void redirectMove(FallingBlockEntity entity, MovementType type, Vec3d movement) {
+	@GSCoreOverride
+	@Override
+	public void move(MovementType movementType, Vec3d movement) {
 		if (!world.isClient || GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_FIDELITY) {
 			// Do not move on the client if the server has pretty sand in fidelity
 			// mode. (the positions are sent from the server every tick).
-			entity.move(type, movement);
+			super.move(movementType, movement);
 		}
 	}
 	

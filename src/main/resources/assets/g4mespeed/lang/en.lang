@@ -168,4 +168,4 @@ setting.tps.prettySand=Pretty Sand
 setting.tps.prettySand.0=Disabled
 setting.tps.prettySand.1=Performance
 setting.tps.prettySand.2=Fidelity
-setting.tps.prettySand.desc=Improves the look of falling block entities. Performance achieves this with minimal packets sent over the network, but clients might become desynchronized. Proper synchronization is solved with Fidelity, but it significantly increases network usage.
+setting.tps.prettySand.desc=Improves the look of falling block entities. Performance achieves this with minimal packets sent over the network, but clients might become desynchronized. Proper synchronization is solved with Fidelity, but it significantly increases network usage and is therefore not recommended for general use.
