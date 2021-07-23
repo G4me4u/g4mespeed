@@ -945,14 +945,14 @@ com.g4mesoft.mixin.client.GSPistonBlockEntityMixin -> com.g4mesoft.mixin.client.
     float actualLastProgress -> gsc_sc
     float numberOfSteps -> numberOfSteps
     39:44:void <init>(net.minecraft.class_2591) -> <init>
-    49:69:float getSmoothProgress(float) -> gsc_rJ
-    74:74:float getSmoothRenderOffsetX(net.minecraft.class_2669,float) -> gsc_rJ
-    79:79:float getSmoothRenderOffsetY(net.minecraft.class_2669,float) -> gsc_hH
-    84:84:float getSmoothRenderOffsetZ(net.minecraft.class_2669,float) -> gsc_sc
-    89:90:void onFromTag(net.minecraft.class_2680,net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    94:95:void onTickProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    99:100:void onFinishProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    106:119:double method_11006() -> method_11006
+    49:78:float getSmoothProgress(float) -> gsc_rJ
+    83:83:float getSmoothRenderOffsetX(net.minecraft.class_2669,float) -> gsc_rJ
+    88:88:float getSmoothRenderOffsetY(net.minecraft.class_2669,float) -> gsc_hH
+    93:93:float getSmoothRenderOffsetZ(net.minecraft.class_2669,float) -> gsc_sc
+    98:99:void onFromTag(net.minecraft.class_2680,net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    103:104:void onTickProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    108:109:void onFinishProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    115:128:double method_11006() -> method_11006
 com.g4mesoft.mixin.client.GSPistonBlockEntityRendererMixin -> com.g4mesoft.mixin.client.GSPistonBlockEntityRendererMixin:
     15:15:void <init>() -> <init>
     19:19:float getPistonProgress(net.minecraft.class_2669,float) -> gsc_rJ
@@ -1302,6 +1302,7 @@ com.g4mesoft.module.tps.GSTpsModule -> core.bo:
     com.g4mesoft.setting.GSSettingCategory BETTER_PISTONS_CATEGORY -> gsc_mg
     java.lang.String KEY_CATEGORY -> gsc_vm
     int PISTON_ANIM_PAUSE_END -> gsc_Qo
+    int PISTON_ANIM_PAUSE_MIDDLE -> gsc_oa
     int PISTON_ANIM_PAUSE_BEGINNING -> gsc_Jn
     int PISTON_ANIM_NO_PAUSE -> gsc_AS
     int AUTOMATIC_PISTON_RENDER_DISTANCE -> gsc_cT
@@ -1344,61 +1345,61 @@ com.g4mesoft.module.tps.GSTpsModule -> core.bo:
     com.g4mesoft.setting.types.GSIntegerSetting sBlockEventDistance -> gsc_kZ
     com.g4mesoft.setting.types.GSBooleanSetting sParanoidMode -> gsc_kd
     com.g4mesoft.setting.types.GSBooleanSetting sImmediateBlockBroadcast -> gsc_EE
-    101:153:void <init>() -> <init>
-    157:173:void init(com.g4mesoft.core.GSIModuleManager) -> gsc_rJ
-    177:192:void onClose() -> gsc_rJ
-    196:207:void registerClientSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_rJ
-    211:225:void registerHotkeys(com.g4mesoft.hotkey.GSKeyManager) -> gsc_rJ
-    229:239:void registerServerSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_hH
-    243:244:void registerCommands(com.mojang.brigadier.CommandDispatcher) -> gsc_rJ
-    248:283:void tick(boolean) -> gsc_rJ
-    287:288:void onJoinG4mespeedServer(com.g4mesoft.GSExtensionInfo) -> gsc_rJ
-    291:293:void onServerTps(float) -> gsc_hH
-    296:325:void onClientHotkey(com.g4mesoft.module.tps.GSETpsHotkeyType) -> gsc_rJ
-    328:350:void onPlayerHotkey(net.minecraft.class_3222,com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> gsc_rJ
-    353:365:void sendHotkeyFeedback(net.minecraft.class_3222,net.minecraft.class_2561) -> gsc_rJ
-    368:432:void performHotkeyAction(com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> gsc_rJ
-    436:439:void onDisconnectServer() -> gsc_sc
-    443:444:void onG4mespeedClientJoin(net.minecraft.class_3222,com.g4mesoft.GSExtensionInfo) -> gsc_rJ
-    447:451:void addTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> gsc_rJ
-    454:457:void removeTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> gsc_hH
-    460:463:void clearTpsListeners() -> gsc_Qo
-    466:467:void resetTps() -> gsc_bs
-    470:501:void setTps(float) -> gsc_sc
-    504:511:boolean isGameModeAllowingHotkeys(net.minecraft.class_1657) -> gsc_rJ
-    516:516:boolean isPlayerAllowedTpsChange(net.minecraft.class_1657) -> gsc_hH
-    521:523:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_rJ
-    526:529:void sendFixedMovementPacket() -> gsc_cT
-    533:534:void onCarpetTickrateChanged(float) -> gsc_rJ
-    537:537:float getMsPerTick() -> gsc_UM
-    541:541:float getTps() -> gsc_mg
-    545:545:boolean isDefaultTps() -> gsc_Yp
-    549:556:float readTps(java.io.File) -> gsc_rJ
-    561:564:void writeTps(float,java.io.File) -> gsc_rJ
-    567:567:java.io.File getTpsCacheFile() -> gsc_gn
-    572:576:void onServerSyncPacket(int) -> gsc_rJ
-    580:582:float getServerTps() -> gsc_vm
-    587:587:com.g4mesoft.module.tps.GSServerTickTimer getServerTimer() -> gsc_Jn
-    592:605:boolean isMainPlayerFixedMovement() -> gsc_AS
-    611:623:boolean isPlayerFixedMovement(net.minecraft.class_742) -> gsc_rJ
-    527:528:void lambda$sendFixedMovementPacket$6(com.g4mesoft.core.client.GSIClientModuleManager) -> gsc_rJ
-    482:495:void lambda$setTps$5(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
-    443:443:void lambda$onG4mespeedClientJoin$4(net.minecraft.class_3222,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
-    336:344:void lambda$onPlayerHotkey$3(net.minecraft.class_3222,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_hH
-    249:273:void lambda$tick$2(boolean,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
-    182:189:void lambda$onClose$1(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_hH
-    165:172:void lambda$init$0(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_sc
+    102:154:void <init>() -> <init>
+    158:174:void init(com.g4mesoft.core.GSIModuleManager) -> gsc_rJ
+    178:193:void onClose() -> gsc_rJ
+    197:208:void registerClientSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_rJ
+    212:226:void registerHotkeys(com.g4mesoft.hotkey.GSKeyManager) -> gsc_rJ
+    230:240:void registerServerSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_hH
+    244:245:void registerCommands(com.mojang.brigadier.CommandDispatcher) -> gsc_rJ
+    249:284:void tick(boolean) -> gsc_rJ
+    288:289:void onJoinG4mespeedServer(com.g4mesoft.GSExtensionInfo) -> gsc_rJ
+    292:294:void onServerTps(float) -> gsc_hH
+    297:326:void onClientHotkey(com.g4mesoft.module.tps.GSETpsHotkeyType) -> gsc_rJ
+    329:351:void onPlayerHotkey(net.minecraft.class_3222,com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> gsc_rJ
+    354:366:void sendHotkeyFeedback(net.minecraft.class_3222,net.minecraft.class_2561) -> gsc_rJ
+    369:433:void performHotkeyAction(com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> gsc_rJ
+    437:440:void onDisconnectServer() -> gsc_sc
+    444:445:void onG4mespeedClientJoin(net.minecraft.class_3222,com.g4mesoft.GSExtensionInfo) -> gsc_rJ
+    448:452:void addTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> gsc_rJ
+    455:458:void removeTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> gsc_hH
+    461:464:void clearTpsListeners() -> gsc_Qo
+    467:468:void resetTps() -> gsc_bs
+    471:502:void setTps(float) -> gsc_sc
+    505:512:boolean isGameModeAllowingHotkeys(net.minecraft.class_1657) -> gsc_rJ
+    517:517:boolean isPlayerAllowedTpsChange(net.minecraft.class_1657) -> gsc_hH
+    522:524:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_rJ
+    527:530:void sendFixedMovementPacket() -> gsc_cT
+    534:535:void onCarpetTickrateChanged(float) -> gsc_rJ
+    538:538:float getMsPerTick() -> gsc_UM
+    542:542:float getTps() -> gsc_mg
+    546:546:boolean isDefaultTps() -> gsc_Yp
+    550:557:float readTps(java.io.File) -> gsc_rJ
+    562:565:void writeTps(float,java.io.File) -> gsc_rJ
+    568:568:java.io.File getTpsCacheFile() -> gsc_gn
+    573:577:void onServerSyncPacket(int) -> gsc_rJ
+    581:583:float getServerTps() -> gsc_vm
+    588:588:com.g4mesoft.module.tps.GSServerTickTimer getServerTimer() -> gsc_Jn
+    593:606:boolean isMainPlayerFixedMovement() -> gsc_AS
+    612:624:boolean isPlayerFixedMovement(net.minecraft.class_742) -> gsc_rJ
+    528:529:void lambda$sendFixedMovementPacket$6(com.g4mesoft.core.client.GSIClientModuleManager) -> gsc_rJ
+    483:496:void lambda$setTps$5(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
+    444:444:void lambda$onG4mespeedClientJoin$4(net.minecraft.class_3222,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
+    337:345:void lambda$onPlayerHotkey$3(net.minecraft.class_3222,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_hH
+    250:274:void lambda$tick$2(boolean,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
+    183:190:void lambda$onClose$1(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_hH
+    166:173:void lambda$init$0(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_sc
     50:50:float access$000(com.g4mesoft.module.tps.GSTpsModule) -> gsc_rJ
-    60:90:void <clinit>() -> <clinit>
+    60:91:void <clinit>() -> <clinit>
 com.g4mesoft.module.tps.GSTpsModule$1 -> core.bp:
     com.g4mesoft.module.tps.GSETpsHotkeyType val$hotkeyType -> gsc_rJ
     com.g4mesoft.module.tps.GSTpsModule this$0 -> gsc_hH
-    296:296:void <init>(com.g4mesoft.module.tps.GSTpsModule,com.g4mesoft.module.tps.GSETpsHotkeyType) -> <init>
-    301:323:void accept(com.g4mesoft.core.client.GSIClientModuleManager) -> gsc_rJ
-    296:296:void accept(java.lang.Object) -> accept
+    297:297:void <init>(com.g4mesoft.module.tps.GSTpsModule,com.g4mesoft.module.tps.GSETpsHotkeyType) -> <init>
+    302:324:void accept(com.g4mesoft.core.client.GSIClientModuleManager) -> gsc_rJ
+    297:297:void accept(java.lang.Object) -> accept
 com.g4mesoft.module.tps.GSTpsModule$2 -> core.bq:
     int[] $SwitchMap$com$g4mesoft$module$tps$GSETpsHotkeyType -> gsc_rJ
-    401:401:void <clinit>() -> <clinit>
+    402:402:void <clinit>() -> <clinit>
 com.g4mesoft.module.tps.GSTpsMonitor -> core.br:
     long MILLIS_PER_SECOND -> gsc_rJ
     int DEFAULT_MAX_HISTORY_SIZE -> gsc_hH
@@ -3402,23 +3403,24 @@ com.g4mesoft.setting.GSSetting -> core.bF:
     com.g4mesoft.setting.GSSettingMap settingOwner -> gsc_bs
     boolean active -> gsc_UM
     boolean enabledInGui -> gsc_mg
-    14:23:void <init>(java.lang.String,java.lang.Object,boolean) -> <init>
-    26:26:java.lang.String getName() -> gsc_rJ
-    30:33:void setSettingOwner(com.g4mesoft.setting.GSSettingMap) -> gsc_rJ
-    36:38:void notifyOwnerChange() -> gsc_hH
+    16:25:void <init>(java.lang.String,java.lang.Object,boolean) -> <init>
+    28:28:java.lang.String getName() -> gsc_rJ
+    32:35:void setSettingOwner(com.g4mesoft.setting.GSSettingMap) -> gsc_rJ
+    38:40:void notifyOwnerChange() -> gsc_hH
     java.lang.Object getValue() -> gsc_sc
     com.g4mesoft.setting.GSSetting setValue(java.lang.Object) -> gsc_rJ
     boolean isDefaultValue() -> gsc_bs
     boolean isSameType(com.g4mesoft.setting.GSSetting) -> gsc_rJ
+    51:51:boolean isSameSetting(com.g4mesoft.setting.GSSetting) -> gsc_sc
     com.g4mesoft.setting.GSSetting copySetting() -> gsc_UM
-    51:52:void reset() -> gsc_mg
-    55:60:void setValueIfSameType(com.g4mesoft.setting.GSSetting) -> gsc_hH
-    63:63:java.lang.Object getDefaultValue() -> gsc_vm
-    67:68:void setActive(boolean) -> gsc_rJ
-    71:71:boolean isActive() -> gsc_Qo
-    75:75:boolean isVisibleInGUI() -> gsc_Jn
-    79:83:com.g4mesoft.setting.GSSetting setEnabledInGui(boolean) -> gsc_hH
-    87:87:boolean isEnabledInGui() -> gsc_AS
+    57:58:void reset() -> gsc_mg
+    61:66:void setValueIfSameType(com.g4mesoft.setting.GSSetting) -> gsc_hH
+    69:69:java.lang.Object getDefaultValue() -> gsc_vm
+    73:74:void setActive(boolean) -> gsc_rJ
+    77:77:boolean isActive() -> gsc_Qo
+    81:81:boolean isVisibleInGUI() -> gsc_Jn
+    85:89:com.g4mesoft.setting.GSSetting setEnabledInGui(boolean) -> gsc_hH
+    93:93:boolean isEnabledInGui() -> gsc_AS
 com.g4mesoft.setting.GSSettingCategory -> core.bG:
     java.lang.String name -> gsc_rJ
     11:13:void <init>(java.lang.String) -> <init>
@@ -3562,8 +3564,8 @@ com.g4mesoft.setting.types.GSBooleanSetting -> core.bS:
 com.g4mesoft.setting.types.GSFloatSetting -> core.bT:
     float value -> gsc_bs
     float minValue -> gsc_UM
-    float interval -> gsc_mg
     float maxValue -> gsc_vm
+    float interval -> gsc_mg
     15:16:void <init>(java.lang.String,float) -> <init>
     19:20:void <init>(java.lang.String,float,boolean) -> <init>
     23:24:void <init>(java.lang.String,float,float,float) -> <init>
@@ -3575,10 +3577,11 @@ com.g4mesoft.setting.types.GSFloatSetting -> core.bT:
     61:69:float adjustValue(float) -> gsc_rJ
     74:74:boolean isDefaultValue() -> gsc_bs
     79:79:boolean isSameType(com.g4mesoft.setting.GSSetting) -> gsc_rJ
-    83:83:float getMinValue() -> gsc_Yp
-    87:87:float getInterval() -> gsc_gn
-    91:91:float getMaxValue() -> gsc_eh
-    96:96:com.g4mesoft.setting.GSSetting copySetting() -> gsc_UM
+    84:97:boolean isSameSetting(com.g4mesoft.setting.GSSetting) -> gsc_sc
+    101:101:float getMinValue() -> gsc_Yp
+    105:105:float getMaxValue() -> gsc_eh
+    109:109:float getInterval() -> gsc_gn
+    114:114:com.g4mesoft.setting.GSSetting copySetting() -> gsc_UM
     6:6:com.g4mesoft.setting.GSSetting setValue(java.lang.Object) -> gsc_rJ
     6:6:java.lang.Object getValue() -> gsc_sc
 com.g4mesoft.setting.types.GSIntegerSetting -> core.bU:
@@ -3597,10 +3600,11 @@ com.g4mesoft.setting.types.GSIntegerSetting -> core.bU:
     61:69:int adjustValue(int) -> gsc_rJ
     74:74:boolean isDefaultValue() -> gsc_bs
     79:79:boolean isSameType(com.g4mesoft.setting.GSSetting) -> gsc_rJ
-    83:83:int getMinValue() -> gsc_Yp
-    87:87:int getMaxValue() -> gsc_gn
-    91:91:int getInterval() -> gsc_eh
-    96:96:com.g4mesoft.setting.GSSetting copySetting() -> gsc_UM
+    84:97:boolean isSameSetting(com.g4mesoft.setting.GSSetting) -> gsc_sc
+    101:101:int getMinValue() -> gsc_Yp
+    105:105:int getMaxValue() -> gsc_gn
+    109:109:int getInterval() -> gsc_eh
+    114:114:com.g4mesoft.setting.GSSetting copySetting() -> gsc_UM
     6:6:com.g4mesoft.setting.GSSetting setValue(java.lang.Object) -> gsc_rJ
     6:6:java.lang.Object getValue() -> gsc_sc
 com.g4mesoft.setting.types.GSStringSetting -> core.bV:
