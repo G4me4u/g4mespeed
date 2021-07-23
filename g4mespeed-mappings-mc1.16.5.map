@@ -992,15 +992,16 @@ com.g4mesoft.mixin.client.GSSoundSystemMixin -> com.g4mesoft.mixin.client.GSSoun
 com.g4mesoft.mixin.client.GSWorldRendererMixin -> com.g4mesoft.mixin.client.GSWorldRendererMixin:
     net.minecraft.class_310 field_4088 -> field_4088
     com.g4mesoft.core.client.GSClientController controller -> gsc_hH
+    com.g4mesoft.module.tps.GSTpsModule tpsModule -> gsc_sc
     com.g4mesoft.renderer.GSBasicRenderer3D renderer3d -> gsc_rJ
-    40:40:void <init>() -> <init>
-    49:51:void onInit(net.minecraft.class_310,net.minecraft.class_4599,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    58:65:void onRenderTransparentLastFabulous(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    69:70:void onRenderTransparentLastDefault(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    73:105:void handleOnRenderTransparentLast(net.minecraft.class_4587) -> gsc_rJ
-    108:113:boolean hasRenderPhase(java.util.Collection,com.g4mesoft.renderer.GSERenderPhase) -> gsc_rJ
-    119:124:float onRenderEntityModifyDeltaTick(net.minecraft.class_1297,double,double,double,float,net.minecraft.class_4587,net.minecraft.class_4597) -> gsc_rJ
-    130:135:int onRenderGetEntityAge(net.minecraft.class_1297) -> gsc_rJ
+    41:41:void <init>() -> <init>
+    51:54:void onInit(net.minecraft.class_310,net.minecraft.class_4599,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    61:68:void onRenderTransparentLastFabulous(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    72:73:void onRenderTransparentLastDefault(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    76:108:void handleOnRenderTransparentLast(net.minecraft.class_4587) -> gsc_rJ
+    111:116:boolean hasRenderPhase(java.util.Collection,com.g4mesoft.renderer.GSERenderPhase) -> gsc_rJ
+    122:127:float onRenderEntityModifyDeltaTick(net.minecraft.class_1297,double,double,double,float,net.minecraft.class_4587,net.minecraft.class_4597) -> gsc_rJ
+    133:138:int onRenderGetEntityAge(net.minecraft.class_1297) -> gsc_rJ
 com.g4mesoft.mixin.server.GSChunkHolderMixin -> com.g4mesoft.mixin.server.GSChunkHolderMixin:
     16:16:void <init>() -> <init>
     void method_13992(net.minecraft.class_2596,boolean) -> method_13992
@@ -1039,17 +1040,18 @@ com.g4mesoft.mixin.server.GSEntityTrackerEntryMixin -> com.g4mesoft.mixin.server
     int fallingBlockTrackingTick -> gsc_mg
     net.minecraft.class_243 lastFallingBlockVelocity -> gsc_vm
     31:46:void <init>() -> <init>
-    50:92:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    97:103:void onStartTracking(net.minecraft.class_3222,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    107:107:boolean isFixedMovement() -> gsc_rJ
-    112:113:void setFixedMovement(boolean) -> gsc_rJ
-    117:118:void setTickedFromFallingBlock(boolean) -> gsc_hH
+    50:93:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    98:104:void onStartTracking(net.minecraft.class_3222,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    108:108:boolean isFixedMovement() -> gsc_rJ
+    113:114:void setFixedMovement(boolean) -> gsc_rJ
+    118:119:void setTickedFromFallingBlock(boolean) -> gsc_hH
 com.g4mesoft.mixin.server.GSFallingBlockEntityMixin -> com.g4mesoft.mixin.server.GSFallingBlockEntityMixin:
     net.minecraft.class_2680 method_6962() -> method_6962
-    29:30:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
-    35:37:void onTickRemoveBlock(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    42:46:void onTickBeforeRemove(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
-    50:62:void onCreateSpawnPacket(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
+    33:34:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
+    39:41:void onTickRemoveBlock(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    46:50:void onTickBeforeRemove(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
+    55:60:void method_5784(net.minecraft.class_1313,net.minecraft.class_243) -> method_5784
+    64:76:void onCreateSpawnPacket(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
 com.g4mesoft.mixin.server.GSIBlockEventS2CPacketAccess -> com.g4mesoft.mixin.server.GSIBlockEventS2CPacketAccess:
     net.minecraft.class_2248 getBlock2() -> gsc_rJ
 com.g4mesoft.mixin.server.GSIThreadedAnvilChunkStorageEntityTrackerAccess -> com.g4mesoft.mixin.server.GSIThreadedAnvilChunkStorageEntityTrackerAccess:
@@ -1313,6 +1315,9 @@ com.g4mesoft.module.tps.GSTpsModule -> core.bo:
     int TPS_LABEL_TOP_LEFT -> gsc_pl
     int TPS_LABEL_TOP_CENTER -> gsc_cD
     int TPS_LABEL_TOP_RIGHT -> gsc_qO
+    int PRETTY_SAND_DISABLED -> gsc_Fq
+    int PRETTY_SAND_PERFORMANCE -> gsc_vw
+    int PRETTY_SAND_FIDELITY -> gsc_Tk
     java.text.DecimalFormat TPS_FORMAT -> gsc_Yp
     java.lang.String TPS_CACHE_FILE_NAME -> gsc_fV
     float tps -> gsc_BO
@@ -1333,67 +1338,67 @@ com.g4mesoft.module.tps.GSTpsModule -> core.bo:
     com.g4mesoft.setting.types.GSIntegerSetting cTpsLabel -> gsc_jX
     com.g4mesoft.setting.types.GSBooleanSetting sBroadcastTps -> gsc_LG
     com.g4mesoft.setting.types.GSBooleanSetting sRestoreTickrate -> gsc_Ln
-    com.g4mesoft.setting.types.GSBooleanSetting sPrettySand -> gsc_Fq
+    com.g4mesoft.setting.types.GSIntegerSetting sPrettySand -> gsc_hr
     com.g4mesoft.setting.types.GSIntegerSetting cPistonAnimationType -> gsc_VL
     com.g4mesoft.setting.types.GSIntegerSetting cPistonRenderDistance -> gsc_ew
     com.g4mesoft.setting.types.GSIntegerSetting sBlockEventDistance -> gsc_kZ
     com.g4mesoft.setting.types.GSBooleanSetting sParanoidMode -> gsc_kd
     com.g4mesoft.setting.types.GSBooleanSetting sImmediateBlockBroadcast -> gsc_EE
-    97:149:void <init>() -> <init>
-    153:169:void init(com.g4mesoft.core.GSIModuleManager) -> gsc_rJ
-    173:188:void onClose() -> gsc_rJ
-    192:203:void registerClientSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_rJ
-    207:221:void registerHotkeys(com.g4mesoft.hotkey.GSKeyManager) -> gsc_rJ
-    225:235:void registerServerSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_hH
-    239:240:void registerCommands(com.mojang.brigadier.CommandDispatcher) -> gsc_rJ
-    244:279:void tick(boolean) -> gsc_rJ
-    283:284:void onJoinG4mespeedServer(com.g4mesoft.GSExtensionInfo) -> gsc_rJ
-    287:289:void onServerTps(float) -> gsc_hH
-    292:321:void onClientHotkey(com.g4mesoft.module.tps.GSETpsHotkeyType) -> gsc_rJ
-    324:346:void onPlayerHotkey(net.minecraft.class_3222,com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> gsc_rJ
-    349:361:void sendHotkeyFeedback(net.minecraft.class_3222,net.minecraft.class_2561) -> gsc_rJ
-    364:428:void performHotkeyAction(com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> gsc_rJ
-    432:435:void onDisconnectServer() -> gsc_sc
-    439:440:void onG4mespeedClientJoin(net.minecraft.class_3222,com.g4mesoft.GSExtensionInfo) -> gsc_rJ
-    443:447:void addTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> gsc_rJ
-    450:453:void removeTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> gsc_hH
-    456:459:void clearTpsListeners() -> gsc_Qo
-    462:463:void resetTps() -> gsc_bs
-    466:497:void setTps(float) -> gsc_sc
-    500:507:boolean isGameModeAllowingHotkeys(net.minecraft.class_1657) -> gsc_rJ
-    512:512:boolean isPlayerAllowedTpsChange(net.minecraft.class_1657) -> gsc_hH
-    517:519:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_rJ
-    522:525:void sendFixedMovementPacket() -> gsc_cT
-    529:530:void onCarpetTickrateChanged(float) -> gsc_rJ
-    533:533:float getMsPerTick() -> gsc_UM
-    537:537:float getTps() -> gsc_mg
-    541:541:boolean isDefaultTps() -> gsc_Yp
-    545:552:float readTps(java.io.File) -> gsc_rJ
-    557:560:void writeTps(float,java.io.File) -> gsc_rJ
-    563:563:java.io.File getTpsCacheFile() -> gsc_gn
-    568:572:void onServerSyncPacket(int) -> gsc_rJ
-    576:578:float getServerTps() -> gsc_vm
-    583:583:com.g4mesoft.module.tps.GSServerTickTimer getServerTimer() -> gsc_Jn
-    588:601:boolean isMainPlayerFixedMovement() -> gsc_AS
-    607:619:boolean isPlayerFixedMovement(net.minecraft.class_742) -> gsc_rJ
-    523:524:void lambda$sendFixedMovementPacket$6(com.g4mesoft.core.client.GSIClientModuleManager) -> gsc_rJ
-    478:491:void lambda$setTps$5(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
-    439:439:void lambda$onG4mespeedClientJoin$4(net.minecraft.class_3222,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
-    332:340:void lambda$onPlayerHotkey$3(net.minecraft.class_3222,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_hH
-    245:269:void lambda$tick$2(boolean,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
-    178:185:void lambda$onClose$1(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_hH
-    161:168:void lambda$init$0(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_sc
+    101:153:void <init>() -> <init>
+    157:173:void init(com.g4mesoft.core.GSIModuleManager) -> gsc_rJ
+    177:192:void onClose() -> gsc_rJ
+    196:207:void registerClientSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_rJ
+    211:225:void registerHotkeys(com.g4mesoft.hotkey.GSKeyManager) -> gsc_rJ
+    229:239:void registerServerSettings(com.g4mesoft.setting.GSSettingManager) -> gsc_hH
+    243:244:void registerCommands(com.mojang.brigadier.CommandDispatcher) -> gsc_rJ
+    248:283:void tick(boolean) -> gsc_rJ
+    287:288:void onJoinG4mespeedServer(com.g4mesoft.GSExtensionInfo) -> gsc_rJ
+    291:293:void onServerTps(float) -> gsc_hH
+    296:325:void onClientHotkey(com.g4mesoft.module.tps.GSETpsHotkeyType) -> gsc_rJ
+    328:350:void onPlayerHotkey(net.minecraft.class_3222,com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> gsc_rJ
+    353:365:void sendHotkeyFeedback(net.minecraft.class_3222,net.minecraft.class_2561) -> gsc_rJ
+    368:432:void performHotkeyAction(com.g4mesoft.module.tps.GSETpsHotkeyType,boolean) -> gsc_rJ
+    436:439:void onDisconnectServer() -> gsc_sc
+    443:444:void onG4mespeedClientJoin(net.minecraft.class_3222,com.g4mesoft.GSExtensionInfo) -> gsc_rJ
+    447:451:void addTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> gsc_rJ
+    454:457:void removeTpsListener(com.g4mesoft.module.tps.GSITpsDependant) -> gsc_hH
+    460:463:void clearTpsListeners() -> gsc_Qo
+    466:467:void resetTps() -> gsc_bs
+    470:501:void setTps(float) -> gsc_sc
+    504:511:boolean isGameModeAllowingHotkeys(net.minecraft.class_1657) -> gsc_rJ
+    516:516:boolean isPlayerAllowedTpsChange(net.minecraft.class_1657) -> gsc_hH
+    521:523:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_rJ
+    526:529:void sendFixedMovementPacket() -> gsc_cT
+    533:534:void onCarpetTickrateChanged(float) -> gsc_rJ
+    537:537:float getMsPerTick() -> gsc_UM
+    541:541:float getTps() -> gsc_mg
+    545:545:boolean isDefaultTps() -> gsc_Yp
+    549:556:float readTps(java.io.File) -> gsc_rJ
+    561:564:void writeTps(float,java.io.File) -> gsc_rJ
+    567:567:java.io.File getTpsCacheFile() -> gsc_gn
+    572:576:void onServerSyncPacket(int) -> gsc_rJ
+    580:582:float getServerTps() -> gsc_vm
+    587:587:com.g4mesoft.module.tps.GSServerTickTimer getServerTimer() -> gsc_Jn
+    592:605:boolean isMainPlayerFixedMovement() -> gsc_AS
+    611:623:boolean isPlayerFixedMovement(net.minecraft.class_742) -> gsc_rJ
+    527:528:void lambda$sendFixedMovementPacket$6(com.g4mesoft.core.client.GSIClientModuleManager) -> gsc_rJ
+    482:495:void lambda$setTps$5(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
+    443:443:void lambda$onG4mespeedClientJoin$4(net.minecraft.class_3222,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
+    336:344:void lambda$onPlayerHotkey$3(net.minecraft.class_3222,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_hH
+    249:273:void lambda$tick$2(boolean,com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_rJ
+    182:189:void lambda$onClose$1(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_hH
+    165:172:void lambda$init$0(com.g4mesoft.core.server.GSIServerModuleManager) -> gsc_sc
     50:50:float access$000(com.g4mesoft.module.tps.GSTpsModule) -> gsc_rJ
-    60:86:void <clinit>() -> <clinit>
+    60:90:void <clinit>() -> <clinit>
 com.g4mesoft.module.tps.GSTpsModule$1 -> core.bp:
     com.g4mesoft.module.tps.GSETpsHotkeyType val$hotkeyType -> gsc_rJ
     com.g4mesoft.module.tps.GSTpsModule this$0 -> gsc_hH
-    292:292:void <init>(com.g4mesoft.module.tps.GSTpsModule,com.g4mesoft.module.tps.GSETpsHotkeyType) -> <init>
-    297:319:void accept(com.g4mesoft.core.client.GSIClientModuleManager) -> gsc_rJ
-    292:292:void accept(java.lang.Object) -> accept
+    296:296:void <init>(com.g4mesoft.module.tps.GSTpsModule,com.g4mesoft.module.tps.GSETpsHotkeyType) -> <init>
+    301:323:void accept(com.g4mesoft.core.client.GSIClientModuleManager) -> gsc_rJ
+    296:296:void accept(java.lang.Object) -> accept
 com.g4mesoft.module.tps.GSTpsModule$2 -> core.bq:
     int[] $SwitchMap$com$g4mesoft$module$tps$GSETpsHotkeyType -> gsc_rJ
-    397:397:void <clinit>() -> <clinit>
+    401:401:void <clinit>() -> <clinit>
 com.g4mesoft.module.tps.GSTpsMonitor -> core.br:
     long MILLIS_PER_SECOND -> gsc_rJ
     int DEFAULT_MAX_HISTORY_SIZE -> gsc_hH
