@@ -247,30 +247,30 @@ com.g4mesoft.core.client.GSClientController -> core.s:
     145:145:com.g4mesoft.GSExtensionInfo getServerExtensionInfo(com.g4mesoft.GSExtensionUID) -> gsc_hH
     150:150:com.g4mesoft.GSExtensionInfoList getServerExtensionInfoList() -> gsc_Yp
     155:155:boolean isG4mespeedServer() -> gsc_gn
-    159:163:void onJoinServer() -> gsc_eh
-    166:177:void onJoinG4mespeedServer(com.g4mesoft.GSExtensionInfo[]) -> gsc_rJ
-    180:191:void onDisconnectServer() -> gsc_Pt
-    194:206:void onClientClose() -> gsc_PS
-    209:209:java.io.File getHotkeySettingsFile() -> gsc_ew
-    214:215:void addExtensionModules(com.g4mesoft.GSIExtension) -> gsc_rJ
-    219:219:boolean isThreadOwner() -> gsc_Jn
-    224:224:net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> gsc_rJ
-    229:229:boolean isClient() -> gsc_AS
-    234:235:void runOnClient(java.util.function.Consumer) -> gsc_rJ
-    239:239:void runOnServer(java.util.function.Consumer) -> gsc_hH
-    243:243:boolean isInGame() -> gsc_bx
-    248:259:void sendPacket(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion) -> gsc_rJ
-    263:263:java.io.File getCacheFile() -> gsc_cT
-    268:269:void addRenderable(com.g4mesoft.renderer.GSIRenderable3D) -> gsc_rJ
-    273:274:void removeRenderable(com.g4mesoft.renderer.GSIRenderable3D) -> gsc_hH
-    277:277:java.util.Collection getRenderables() -> gsc_kZ
-    281:281:net.minecraft.class_746 getPlayer() -> gsc_kd
-    285:285:com.g4mesoft.hotkey.GSKeyManager getKeyManager() -> gsc_yN
-    289:289:com.g4mesoft.setting.GSRemoteSettingManager getServerSettings() -> gsc_pl
-    293:293:com.g4mesoft.gui.GSTabbedGUI getTabbedGUI() -> gsc_EE
-    297:297:com.g4mesoft.gui.GSContentHistoryGUI getPrimaryGUI() -> gsc_PX
-    301:301:com.g4mesoft.hotkey.GSKeyBinding getOpenGUIKey() -> gsc_LG
-    305:305:com.g4mesoft.core.client.GSClientController getInstance() -> gsc_VL
+    159:161:void onJoinServer() -> gsc_eh
+    164:175:void onJoinG4mespeedServer(com.g4mesoft.GSExtensionInfo[]) -> gsc_rJ
+    178:187:void onDisconnectServer() -> gsc_Pt
+    190:202:void onClientClose() -> gsc_PS
+    205:205:java.io.File getHotkeySettingsFile() -> gsc_ew
+    210:211:void addExtensionModules(com.g4mesoft.GSIExtension) -> gsc_rJ
+    215:215:boolean isThreadOwner() -> gsc_Jn
+    220:220:net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> gsc_rJ
+    225:225:boolean isClient() -> gsc_AS
+    230:231:void runOnClient(java.util.function.Consumer) -> gsc_rJ
+    235:235:void runOnServer(java.util.function.Consumer) -> gsc_hH
+    239:239:boolean isInGame() -> gsc_bx
+    244:255:void sendPacket(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    259:259:java.io.File getCacheFile() -> gsc_cT
+    264:265:void addRenderable(com.g4mesoft.renderer.GSIRenderable3D) -> gsc_rJ
+    269:270:void removeRenderable(com.g4mesoft.renderer.GSIRenderable3D) -> gsc_hH
+    273:273:java.util.Collection getRenderables() -> gsc_kZ
+    277:277:net.minecraft.class_746 getPlayer() -> gsc_kd
+    281:281:com.g4mesoft.hotkey.GSKeyManager getKeyManager() -> gsc_yN
+    285:285:com.g4mesoft.setting.GSRemoteSettingManager getServerSettings() -> gsc_pl
+    289:289:com.g4mesoft.gui.GSTabbedGUI getTabbedGUI() -> gsc_EE
+    293:293:com.g4mesoft.gui.GSContentHistoryGUI getPrimaryGUI() -> gsc_PX
+    297:297:com.g4mesoft.hotkey.GSKeyBinding getOpenGUIKey() -> gsc_LG
+    301:301:com.g4mesoft.core.client.GSClientController getInstance() -> gsc_VL
     95:97:void lambda$init$0() -> gsc_qi
     62:62:void <clinit>() -> <clinit>
 com.g4mesoft.core.client.GSIClientModule -> core.cQ:
@@ -851,8 +851,9 @@ com.g4mesoft.mixin.client.GSClientWorldMixin -> com.g4mesoft.mixin.client.GSClie
     31:32:void onTickEntitiesReturn(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
     36:40:void onTickEntity(net.minecraft.class_1297,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
 com.g4mesoft.mixin.client.GSFallingBlockEntityMixin -> com.g4mesoft.mixin.client.GSFallingBlockEntityMixin:
-    20:21:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
-    26:31:void method_5784(net.minecraft.class_1313,net.minecraft.class_243) -> method_5784
+    23:24:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
+    29:35:boolean redirectTickRemoveBlock(net.minecraft.class_1937,net.minecraft.class_2338,boolean) -> gsc_rJ
+    41:46:void method_5784(net.minecraft.class_1313,net.minecraft.class_243) -> method_5784
 com.g4mesoft.mixin.client.GSGameRendererMixin -> com.g4mesoft.mixin.client.GSGameRendererMixin:
     net.minecraft.class_310 field_4015 -> field_4015
     19:19:void <init>() -> <init>
