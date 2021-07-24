@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.g4mesoft.access.GSIServerChunkManagerAccess;
-import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
@@ -19,11 +18,9 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.entity.MovementType;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 @Mixin(FallingBlockEntity.class)
@@ -48,16 +45,6 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 		if (!world.isClient && !isRemoved() && GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			((GSIServerChunkManagerAccess)world.getChunkManager()).setTrackerTickedFromFallingBlock(this, true);
 			((GSIServerChunkManagerAccess)world.getChunkManager()).tickEntityTracker(this);
-		}
-	}
-	
-	@GSCoreOverride
-	@Override
-	public void move(MovementType movementType, Vec3d movement) {
-		if (!world.isClient || GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_FIDELITY) {
-			// Do not move on the client if the server has pretty sand in fidelity
-			// mode. (the positions are sent from the server every tick).
-			super.move(movementType, movement);
 		}
 	}
 	
