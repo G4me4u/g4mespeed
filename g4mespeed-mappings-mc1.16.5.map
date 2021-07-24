@@ -850,6 +850,9 @@ com.g4mesoft.mixin.client.GSClientWorldMixin -> com.g4mesoft.mixin.client.GSClie
     26:27:void onTickEntitiesHead(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
     31:32:void onTickEntitiesReturn(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
     36:40:void onTickEntity(net.minecraft.class_1297,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+com.g4mesoft.mixin.client.GSFallingBlockEntityMixin -> com.g4mesoft.mixin.client.GSFallingBlockEntityMixin:
+    20:21:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
+    26:31:void method_5784(net.minecraft.class_1313,net.minecraft.class_243) -> method_5784
 com.g4mesoft.mixin.client.GSGameRendererMixin -> com.g4mesoft.mixin.client.GSGameRendererMixin:
     net.minecraft.class_310 field_4015 -> field_4015
     19:19:void <init>() -> <init>
@@ -1047,11 +1050,10 @@ com.g4mesoft.mixin.server.GSEntityTrackerEntryMixin -> com.g4mesoft.mixin.server
     118:119:void setTickedFromFallingBlock(boolean) -> gsc_hH
 com.g4mesoft.mixin.server.GSFallingBlockEntityMixin -> com.g4mesoft.mixin.server.GSFallingBlockEntityMixin:
     net.minecraft.class_2680 method_6962() -> method_6962
-    33:34:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
-    39:41:void onTickRemoveBlock(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    46:50:void onTickBeforeRemove(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
-    55:60:void method_5784(net.minecraft.class_1313,net.minecraft.class_243) -> method_5784
-    64:76:void onCreateSpawnPacket(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
+    30:31:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
+    36:38:void onTickRemoveBlock(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    43:47:void onTickBeforeRemove(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
+    51:63:void onCreateSpawnPacket(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
 com.g4mesoft.mixin.server.GSIBlockEventS2CPacketAccess -> com.g4mesoft.mixin.server.GSIBlockEventS2CPacketAccess:
     net.minecraft.class_2248 getBlock2() -> gsc_rJ
 com.g4mesoft.mixin.server.GSIThreadedAnvilChunkStorageEntityTrackerAccess -> com.g4mesoft.mixin.server.GSIThreadedAnvilChunkStorageEntityTrackerAccess:
