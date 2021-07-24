@@ -72,6 +72,7 @@ public final class GSSettingMap {
 			if (owner != null)
 				owner.settingRemoved(category, setting);
 		}
+		settings.clear();
 	}
 	
 	public GSSetting<?> removeSetting(String name) {
@@ -79,6 +80,11 @@ public final class GSSettingMap {
 		if (currentSetting != null)
 			owner.settingRemoved(category, currentSetting);
 		return currentSetting;
+	}
+	
+	public void resetSettings() {
+		for (GSSetting<?> setting : settings.values())
+			setting.reset();
 	}
 	
 	public Collection<GSSetting<?>> getSettings() {

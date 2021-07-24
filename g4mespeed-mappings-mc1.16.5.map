@@ -247,30 +247,30 @@ com.g4mesoft.core.client.GSClientController -> core.s:
     145:145:com.g4mesoft.GSExtensionInfo getServerExtensionInfo(com.g4mesoft.GSExtensionUID) -> gsc_hH
     150:150:com.g4mesoft.GSExtensionInfoList getServerExtensionInfoList() -> gsc_Yp
     155:155:boolean isG4mespeedServer() -> gsc_gn
-    159:161:void onJoinServer() -> gsc_eh
-    164:175:void onJoinG4mespeedServer(com.g4mesoft.GSExtensionInfo[]) -> gsc_rJ
-    178:187:void onDisconnectServer() -> gsc_Pt
-    190:202:void onClientClose() -> gsc_PS
-    205:205:java.io.File getHotkeySettingsFile() -> gsc_ew
-    210:211:void addExtensionModules(com.g4mesoft.GSIExtension) -> gsc_rJ
-    215:215:boolean isThreadOwner() -> gsc_Jn
-    220:220:net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> gsc_rJ
-    225:225:boolean isClient() -> gsc_AS
-    230:231:void runOnClient(java.util.function.Consumer) -> gsc_rJ
-    235:235:void runOnServer(java.util.function.Consumer) -> gsc_hH
-    239:239:boolean isInGame() -> gsc_bx
-    244:255:void sendPacket(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion) -> gsc_rJ
-    259:259:java.io.File getCacheFile() -> gsc_cT
-    264:265:void addRenderable(com.g4mesoft.renderer.GSIRenderable3D) -> gsc_rJ
-    269:270:void removeRenderable(com.g4mesoft.renderer.GSIRenderable3D) -> gsc_hH
-    273:273:java.util.Collection getRenderables() -> gsc_kZ
-    277:277:net.minecraft.class_746 getPlayer() -> gsc_kd
-    281:281:com.g4mesoft.hotkey.GSKeyManager getKeyManager() -> gsc_yN
-    285:285:com.g4mesoft.setting.GSRemoteSettingManager getServerSettings() -> gsc_pl
-    289:289:com.g4mesoft.gui.GSTabbedGUI getTabbedGUI() -> gsc_EE
-    293:293:com.g4mesoft.gui.GSContentHistoryGUI getPrimaryGUI() -> gsc_PX
-    297:297:com.g4mesoft.hotkey.GSKeyBinding getOpenGUIKey() -> gsc_LG
-    301:301:com.g4mesoft.core.client.GSClientController getInstance() -> gsc_VL
+    159:163:void onJoinServer() -> gsc_eh
+    166:177:void onJoinG4mespeedServer(com.g4mesoft.GSExtensionInfo[]) -> gsc_rJ
+    180:191:void onDisconnectServer() -> gsc_Pt
+    194:206:void onClientClose() -> gsc_PS
+    209:209:java.io.File getHotkeySettingsFile() -> gsc_ew
+    214:215:void addExtensionModules(com.g4mesoft.GSIExtension) -> gsc_rJ
+    219:219:boolean isThreadOwner() -> gsc_Jn
+    224:224:net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> gsc_rJ
+    229:229:boolean isClient() -> gsc_AS
+    234:235:void runOnClient(java.util.function.Consumer) -> gsc_rJ
+    239:239:void runOnServer(java.util.function.Consumer) -> gsc_hH
+    243:243:boolean isInGame() -> gsc_bx
+    248:259:void sendPacket(com.g4mesoft.packet.GSIPacket,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    263:263:java.io.File getCacheFile() -> gsc_cT
+    268:269:void addRenderable(com.g4mesoft.renderer.GSIRenderable3D) -> gsc_rJ
+    273:274:void removeRenderable(com.g4mesoft.renderer.GSIRenderable3D) -> gsc_hH
+    277:277:java.util.Collection getRenderables() -> gsc_kZ
+    281:281:net.minecraft.class_746 getPlayer() -> gsc_kd
+    285:285:com.g4mesoft.hotkey.GSKeyManager getKeyManager() -> gsc_yN
+    289:289:com.g4mesoft.setting.GSRemoteSettingManager getServerSettings() -> gsc_pl
+    293:293:com.g4mesoft.gui.GSTabbedGUI getTabbedGUI() -> gsc_EE
+    297:297:com.g4mesoft.gui.GSContentHistoryGUI getPrimaryGUI() -> gsc_PX
+    301:301:com.g4mesoft.hotkey.GSKeyBinding getOpenGUIKey() -> gsc_LG
+    305:305:com.g4mesoft.core.client.GSClientController getInstance() -> gsc_VL
     95:97:void lambda$init$0() -> gsc_qi
     62:62:void <clinit>() -> <clinit>
 com.g4mesoft.core.client.GSIClientModule -> core.cQ:
@@ -3379,15 +3379,16 @@ com.g4mesoft.setting.GSRemoteSettingManager -> core.bD:
     33:42:void registerShadowSetting(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_hH
     45:46:com.g4mesoft.setting.GSSetting getShadowSetting(com.g4mesoft.setting.GSSettingCategory,java.lang.String) -> gsc_rJ
     50:53:void updateShadowValue(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_Jn
-    57:63:void settingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_sc
-    67:70:void settingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_bs
-    74:79:void settingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_UM
-    82:87:void onRemoteSettingMapReceived(com.g4mesoft.setting.GSSettingMap) -> gsc_rJ
-    90:97:void onRemoteSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_mg
-    100:101:void onRemoteSettingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_vm
-    104:105:void onRemoteSettingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_Qo
-    108:116:void setAllowedSettingChange(boolean) -> gsc_rJ
-    119:119:boolean isAllowedSettingChange() -> gsc_rJ
+    56:58:void resetRemoteSettings() -> gsc_bs
+    62:68:void settingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_sc
+    72:75:void settingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_bs
+    79:84:void settingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_UM
+    87:92:void onRemoteSettingMapReceived(com.g4mesoft.setting.GSSettingMap) -> gsc_rJ
+    95:102:void onRemoteSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_mg
+    105:106:void onRemoteSettingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_vm
+    109:110:void onRemoteSettingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_Qo
+    113:121:void setAllowedSettingChange(boolean) -> gsc_rJ
+    124:124:boolean isAllowedSettingChange() -> gsc_rJ
 com.g4mesoft.setting.GSServerSettingMapPacket -> core.bE:
     com.g4mesoft.setting.GSSettingMap settingMap -> gsc_rJ
     18:19:void <init>() -> <init>
@@ -3479,11 +3480,12 @@ com.g4mesoft.setting.GSSettingManager -> core.bK:
     189:189:java.util.Collection getSettings() -> gsc_hH
     193:193:boolean hasCategory(com.g4mesoft.setting.GSSettingCategory) -> gsc_rJ
     197:200:void clearSettings() -> gsc_sc
-    203:205:void settingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_sc
-    208:210:void settingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_bs
-    213:215:void settingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_UM
-    218:219:void addChangeListener(com.g4mesoft.setting.GSISettingChangeListener) -> gsc_rJ
-    222:223:void removeChangeListener(com.g4mesoft.setting.GSISettingChangeListener) -> gsc_hH
+    203:205:void resetSettings() -> gsc_UM
+    208:210:void settingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_sc
+    213:215:void settingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_bs
+    218:220:void settingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_UM
+    223:224:void addChangeListener(com.g4mesoft.setting.GSISettingChangeListener) -> gsc_rJ
+    227:228:void removeChangeListener(com.g4mesoft.setting.GSISettingChangeListener) -> gsc_hH
     42:46:void <clinit>() -> <clinit>
 com.g4mesoft.setting.GSSettingMap -> core.bL:
     com.g4mesoft.setting.GSSettingCategory category -> gsc_rJ
@@ -3493,14 +3495,15 @@ com.g4mesoft.setting.GSSettingMap -> core.bL:
     35:35:com.g4mesoft.setting.GSSetting getSetting(java.lang.String) -> gsc_rJ
     39:58:void registerSetting(com.g4mesoft.setting.GSSetting) -> gsc_rJ
     61:66:void setValueFromLoadedSetting(com.g4mesoft.setting.GSSetting,com.g4mesoft.setting.GSSetting) -> gsc_rJ
-    69:75:void clearSettings() -> gsc_rJ
-    78:81:com.g4mesoft.setting.GSSetting removeSetting(java.lang.String) -> gsc_hH
-    85:85:java.util.Collection getSettings() -> gsc_hH
-    89:91:void settingChanged(com.g4mesoft.setting.GSSetting) -> gsc_hH
-    94:94:com.g4mesoft.setting.GSSettingCategory getCategory() -> gsc_sc
-    98:142:void readSettings(net.minecraft.class_2540) -> gsc_rJ
-    145:146:void writeSettings(net.minecraft.class_2540) -> gsc_hH
-    150:186:void writeSettings(net.minecraft.class_2540,java.util.function.Predicate) -> gsc_rJ
+    69:76:void clearSettings() -> gsc_rJ
+    79:82:com.g4mesoft.setting.GSSetting removeSetting(java.lang.String) -> gsc_hH
+    86:88:void resetSettings() -> gsc_bs
+    91:91:java.util.Collection getSettings() -> gsc_hH
+    95:97:void settingChanged(com.g4mesoft.setting.GSSetting) -> gsc_hH
+    100:100:com.g4mesoft.setting.GSSettingCategory getCategory() -> gsc_sc
+    104:148:void readSettings(net.minecraft.class_2540) -> gsc_rJ
+    151:152:void writeSettings(net.minecraft.class_2540) -> gsc_hH
+    156:192:void writeSettings(net.minecraft.class_2540,java.util.function.Predicate) -> gsc_rJ
 com.g4mesoft.setting.GSSettingPermissionPacket -> core.bM:
     boolean allowedSettingChange -> gsc_rJ
     18:19:void <init>() -> <init>

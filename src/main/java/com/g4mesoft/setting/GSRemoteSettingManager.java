@@ -52,6 +52,11 @@ public class GSRemoteSettingManager extends GSSettingManager {
 			shadowSetting.setValueIfSameType(setting);
 	}
 	
+	public void resetRemoteSettings() {
+		for (GSSettingMap settingMap : settings.values())
+			settingMap.resetSettings();
+	}
+	
 	@Override
 	void settingChanged(GSSettingCategory category, GSSetting<?> setting) {
 		super.settingChanged(category, setting);

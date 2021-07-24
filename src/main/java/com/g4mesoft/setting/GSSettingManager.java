@@ -199,6 +199,11 @@ public class GSSettingManager {
 		settings.clear();
 	}
 	
+	public void resetSettings() {
+		for (GSSettingMap settingMap : settings.values())
+			settingMap.resetSettings();
+	}
+	
 	void settingChanged(GSSettingCategory category, GSSetting<?> setting) {
 		for (GSISettingChangeListener listener : listeners)
 			listener.onSettingChanged(category, setting);

@@ -56,7 +56,9 @@
     "client.GSWorldRendererMixin",
     "client.GSGameRendererMixin",
     "client.GSClientWorldMixin",
-    "client.GSAbstractClientPlayerEntityMixin"
+    "client.GSAbstractClientPlayerEntityMixin",
+    
+    "client.GSFallingBlockEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
