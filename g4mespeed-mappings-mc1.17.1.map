@@ -852,6 +852,10 @@ com.g4mesoft.mixin.client.GSClientWorldMixin -> com.g4mesoft.mixin.client.GSClie
     26:27:void onTickEntitiesHead(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
     31:32:void onTickEntitiesReturn(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
     36:40:void onTickEntity(net.minecraft.class_1297,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+com.g4mesoft.mixin.client.GSFallingBlockEntityMixin -> com.g4mesoft.mixin.client.GSFallingBlockEntityMixin:
+    23:24:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
+    29:35:boolean redirectTickRemoveBlock(net.minecraft.class_1937,net.minecraft.class_2338,boolean) -> gsc_rJ
+    41:46:void method_5784(net.minecraft.class_1313,net.minecraft.class_243) -> method_5784
 com.g4mesoft.mixin.client.GSGameRendererMixin -> com.g4mesoft.mixin.client.GSGameRendererMixin:
     net.minecraft.class_310 field_4015 -> field_4015
     19:19:void <init>() -> <init>
@@ -1049,13 +1053,12 @@ com.g4mesoft.mixin.server.GSEntityTrackerEntryMixin -> com.g4mesoft.mixin.server
     133:134:void setTickedFromFallingBlock(boolean) -> gsc_hH
 com.g4mesoft.mixin.server.GSFallingBlockEntityMixin -> com.g4mesoft.mixin.server.GSFallingBlockEntityMixin:
     net.minecraft.class_2680 method_6962() -> method_6962
-    35:36:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
-    41:43:void onTickRemoveBlock(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    48:52:void onTickBeforeRemove(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    57:62:void method_5784(net.minecraft.class_1313,net.minecraft.class_243) -> method_5784
-    67:69:void redirectSendToOtherNearbyPlayers(net.minecraft.class_3898,net.minecraft.class_1297,net.minecraft.class_2596) -> gsc_rJ
-    73:87:void onCreateSpawnPacket(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
-    92:94:void onOnSpawnPacket(net.minecraft.class_2604,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    32:33:void <init>(net.minecraft.class_1299,net.minecraft.class_1937) -> <init>
+    38:40:void onTickRemoveBlock(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    45:49:void onTickBeforeRemove(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    54:56:void redirectSendToOtherNearbyPlayers(net.minecraft.class_3898,net.minecraft.class_1297,net.minecraft.class_2596) -> gsc_rJ
+    60:74:void onCreateSpawnPacket(org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
+    79:81:void onOnSpawnPacket(net.minecraft.class_2604,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
 com.g4mesoft.mixin.server.GSIBlockEventS2CPacketAccess -> com.g4mesoft.mixin.server.GSIBlockEventS2CPacketAccess:
     net.minecraft.class_2248 getBlock2() -> gsc_rJ
 com.g4mesoft.mixin.server.GSIThreadedAnvilChunkStorageEntityTrackerAccess -> com.g4mesoft.mixin.server.GSIThreadedAnvilChunkStorageEntityTrackerAccess:
@@ -3368,15 +3371,16 @@ com.g4mesoft.setting.GSRemoteSettingManager -> core.bD:
     33:42:void registerShadowSetting(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_hH
     45:46:com.g4mesoft.setting.GSSetting getShadowSetting(com.g4mesoft.setting.GSSettingCategory,java.lang.String) -> gsc_rJ
     50:53:void updateShadowValue(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_Jn
-    57:63:void settingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_sc
-    67:70:void settingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_bs
-    74:79:void settingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_UM
-    82:87:void onRemoteSettingMapReceived(com.g4mesoft.setting.GSSettingMap) -> gsc_rJ
-    90:97:void onRemoteSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_mg
-    100:101:void onRemoteSettingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_vm
-    104:105:void onRemoteSettingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_Qo
-    108:116:void setAllowedSettingChange(boolean) -> gsc_rJ
-    119:119:boolean isAllowedSettingChange() -> gsc_rJ
+    56:58:void resetRemoteSettings() -> gsc_bs
+    62:68:void settingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_sc
+    72:75:void settingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_bs
+    79:84:void settingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_UM
+    87:92:void onRemoteSettingMapReceived(com.g4mesoft.setting.GSSettingMap) -> gsc_rJ
+    95:102:void onRemoteSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_mg
+    105:106:void onRemoteSettingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_vm
+    109:110:void onRemoteSettingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_Qo
+    113:121:void setAllowedSettingChange(boolean) -> gsc_rJ
+    124:124:boolean isAllowedSettingChange() -> gsc_rJ
 com.g4mesoft.setting.GSServerSettingMapPacket -> core.bE:
     com.g4mesoft.setting.GSSettingMap settingMap -> gsc_rJ
     18:19:void <init>() -> <init>
@@ -3468,11 +3472,12 @@ com.g4mesoft.setting.GSSettingManager -> core.bK:
     189:189:java.util.Collection getSettings() -> gsc_hH
     193:193:boolean hasCategory(com.g4mesoft.setting.GSSettingCategory) -> gsc_rJ
     197:200:void clearSettings() -> gsc_sc
-    203:205:void settingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_sc
-    208:210:void settingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_bs
-    213:215:void settingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_UM
-    218:219:void addChangeListener(com.g4mesoft.setting.GSISettingChangeListener) -> gsc_rJ
-    222:223:void removeChangeListener(com.g4mesoft.setting.GSISettingChangeListener) -> gsc_hH
+    203:205:void resetSettings() -> gsc_UM
+    208:210:void settingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_sc
+    213:215:void settingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_bs
+    218:220:void settingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_UM
+    223:224:void addChangeListener(com.g4mesoft.setting.GSISettingChangeListener) -> gsc_rJ
+    227:228:void removeChangeListener(com.g4mesoft.setting.GSISettingChangeListener) -> gsc_hH
     42:46:void <clinit>() -> <clinit>
 com.g4mesoft.setting.GSSettingMap -> core.bL:
     com.g4mesoft.setting.GSSettingCategory category -> gsc_rJ
@@ -3482,14 +3487,15 @@ com.g4mesoft.setting.GSSettingMap -> core.bL:
     35:35:com.g4mesoft.setting.GSSetting getSetting(java.lang.String) -> gsc_rJ
     39:58:void registerSetting(com.g4mesoft.setting.GSSetting) -> gsc_rJ
     61:66:void setValueFromLoadedSetting(com.g4mesoft.setting.GSSetting,com.g4mesoft.setting.GSSetting) -> gsc_rJ
-    69:75:void clearSettings() -> gsc_rJ
-    78:81:com.g4mesoft.setting.GSSetting removeSetting(java.lang.String) -> gsc_hH
-    85:85:java.util.Collection getSettings() -> gsc_hH
-    89:91:void settingChanged(com.g4mesoft.setting.GSSetting) -> gsc_hH
-    94:94:com.g4mesoft.setting.GSSettingCategory getCategory() -> gsc_sc
-    98:142:void readSettings(net.minecraft.class_2540) -> gsc_rJ
-    145:146:void writeSettings(net.minecraft.class_2540) -> gsc_hH
-    150:186:void writeSettings(net.minecraft.class_2540,java.util.function.Predicate) -> gsc_rJ
+    69:76:void clearSettings() -> gsc_rJ
+    79:82:com.g4mesoft.setting.GSSetting removeSetting(java.lang.String) -> gsc_hH
+    86:88:void resetSettings() -> gsc_bs
+    91:91:java.util.Collection getSettings() -> gsc_hH
+    95:97:void settingChanged(com.g4mesoft.setting.GSSetting) -> gsc_hH
+    100:100:com.g4mesoft.setting.GSSettingCategory getCategory() -> gsc_sc
+    104:148:void readSettings(net.minecraft.class_2540) -> gsc_rJ
+    151:152:void writeSettings(net.minecraft.class_2540) -> gsc_hH
+    156:192:void writeSettings(net.minecraft.class_2540,java.util.function.Predicate) -> gsc_rJ
 com.g4mesoft.setting.GSSettingPermissionPacket -> core.bM:
     boolean allowedSettingChange -> gsc_rJ
     18:19:void <init>() -> <init>
