@@ -102,7 +102,7 @@ com.g4mesoft.access.GSIServerChunkManagerAccess -> core.k:
     void setTrackerFixedMovement(net.minecraft.class_3222,boolean) -> gsc_rJ
     void setTrackerTickedFromFallingBlock(net.minecraft.class_1297,boolean) -> gsc_rJ
     void flushAndSendChunkUpdates() -> gsc_rJ
-    void updateBlockImmdiately(net.minecraft.class_2338) -> gsc_rJ
+    void updateBlockImmediately(net.minecraft.class_2338) -> gsc_rJ
 com.g4mesoft.access.GSIServerPlayNetworkHandlerAccess -> core.l:
     boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_rJ
     boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_rJ
@@ -1113,7 +1113,7 @@ com.g4mesoft.mixin.server.GSServerChunkManagerMixin -> com.g4mesoft.mixin.server
     39:40:void setTrackerFixedMovement(net.minecraft.class_3222,boolean) -> gsc_rJ
     44:45:void setTrackerTickedFromFallingBlock(net.minecraft.class_1297,boolean) -> gsc_rJ
     49:71:void flushAndSendChunkUpdates() -> gsc_rJ
-    75:80:void updateBlockImmdiately(net.minecraft.class_2338) -> gsc_rJ
+    75:80:void updateBlockImmediately(net.minecraft.class_2338) -> gsc_rJ
     59:65:void lambda$flushAndSendChunkUpdates$0(net.minecraft.class_3193) -> gsc_rJ
 com.g4mesoft.mixin.server.GSServerPlayNetworkHandlerMixin -> com.g4mesoft.mixin.server.GSServerPlayNetworkHandlerMixin:
     net.minecraft.class_3222 field_14140 -> field_14140

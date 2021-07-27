@@ -2,20 +2,21 @@ package com.g4mesoft.mixin.server;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.g4mesoft.access.GSIServerChunkManagerAccess;
 import com.g4mesoft.core.GSController;
-import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.server.GSServerController;
+import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 
 @Mixin(PistonBlockEntity.class)
 public class GSPistonBlockEntityMixin extends BlockEntity {
@@ -26,20 +27,16 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 		super(type);
 	}
 
-	@Override
-	@GSCoreOverride
-	public BlockEntityUpdateS2CPacket toUpdatePacket() {
-		if (GSServerController.getInstance().getTpsModule().sParanoidMode.getValue())
-			return new BlockEntityUpdateS2CPacket(pos, 0, toInitialChunkDataTag());
-		return null;
+	@Inject(method = "finish", at = @At(value = "INVOKE", shift = Shift.AFTER,
+	        target = "Lnet/minecraft/world/World;setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;I)Z"))
+	private void onFinishReturn(CallbackInfo ci) {
+		if (!world.isClient) {
+			GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
+			if (tpsModule.sParanoidMode.getValue() && !tpsModule.sImmediateBlockBroadcast.getValue())
+				((GSIServerChunkManagerAccess)world.getChunkManager()).updateBlockImmediately(pos);
+		}
 	}
 	
-	@Override
-	@GSCoreOverride
-	public CompoundTag toInitialChunkDataTag() {
-		return toTag(new CompoundTag());
-	}
-
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void onTick(CallbackInfo ci) {
 		ticked = true;
