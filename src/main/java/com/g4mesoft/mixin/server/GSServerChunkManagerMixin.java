@@ -11,6 +11,7 @@ import com.g4mesoft.access.GSIServerChunkManagerAccess;
 import com.g4mesoft.access.GSIThreadedAnvilChunkStorageAccess;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;
@@ -69,13 +70,29 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 		
 		world.getProfiler().pop();
 	}
+
+	@Override
+	public void updateBlockImmediately(BlockPos pos) {
+		ChunkHolder chunkHolder = getChunkHolderAt(pos);
+		if (chunkHolder != null)
+			((GSIChunkHolderAccess)chunkHolder).updateBlockImmediately(world, pos);
+	}
+
+	@Override
+	public void updateBlockEntityImmediately(BlockPos pos) {
+		ChunkHolder chunkHolder = getChunkHolderAt(pos);
+		if (chunkHolder != null)
+			((GSIChunkHolderAccess)chunkHolder).updateBlockEntityImmediately(world, pos);
+	}
 	
 	@Override
-	public void updateBlockImmdiately(BlockPos pos) {
-	      int chunkX = pos.getX() >> 4;
-	      int chunkZ = pos.getZ() >> 4;
-	      ChunkHolder chunkHolder = getChunkHolder(ChunkPos.toLong(chunkX, chunkZ));
-	      if (chunkHolder != null)
-	    	  ((GSIChunkHolderAccess)chunkHolder).updateBlockImmediately(world, pos);
+	public void sendToNearbyPlayers(BlockPos pos, Packet<?> packet) {
+		ChunkHolder chunkHolder = getChunkHolderAt(pos);
+		if (chunkHolder != null)
+			((GSIChunkHolderAccess)chunkHolder).sendToNearbyPlayers0(packet);
+	}
+	
+	private ChunkHolder getChunkHolderAt(BlockPos pos) {
+		return getChunkHolder(ChunkPos.toLong(pos.getX() >> 4, pos.getZ() >> 4));
 	}
 }

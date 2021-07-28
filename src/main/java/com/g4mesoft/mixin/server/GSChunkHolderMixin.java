@@ -22,6 +22,16 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	@Override
 	public void updateBlockImmediately(World world, BlockPos pos) {
         sendPacketToPlayersWatching(new BlockUpdateS2CPacket(world, pos.toImmutable()), false);
-        tryUpdateBlockEntityAt(world, pos, world.getBlockState(pos));
+        updateBlockEntityImmediately(world, pos);
+	}
+	
+	@Override
+	public void updateBlockEntityImmediately(World world, BlockPos pos) {
+		tryUpdateBlockEntityAt(world, pos, world.getBlockState(pos));
+	}
+	
+	@Override
+	public void sendToNearbyPlayers0(Packet<?> packet) {
+		sendPacketToPlayersWatching(packet, false);
 	}
 }

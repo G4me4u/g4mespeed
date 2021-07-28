@@ -1,26 +1,29 @@
 package com.g4mesoft.mixin.client;
 
 import java.util.Iterator;
-import java.util.function.BiConsumer;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.access.GSIWorldRendererAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.packet.GSICustomPayloadPacket;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.FallingBlock;
+import net.minecraft.block.PistonBlock;
+import net.minecraft.block.PistonExtensionBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.client.MinecraftClient;
@@ -29,7 +32,9 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.BlockEventS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
@@ -135,17 +140,16 @@ public class GSClientPlayNetworkHandlerMixin {
 				
 				if (!blockState.isOf(Blocks.MOVING_PISTON)) {
 					blockState = Blocks.MOVING_PISTON.getDefaultState();
-					world.setBlockStateWithoutNeighborUpdates(pos, blockState);
+					world.setBlockState(pos, blockState, 3 | 8 | 64 /* NOTIFY_ALL | REDRAW_ON_MAIN_THREAD | MOVED */);
 				}
 
 				BlockEntity blockEntity = world.getBlockEntity(pos);
 				NbtCompound tag = packet.getNbt();
 
 				if ("minecraft:piston".equals(tag.getString("id"))) {
-					if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked")) {
-						// See above redirect method.
-						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
-					}
+					// The piston block entity has never ticked at the time of receiving the initial
+					// placement packet by paranoid mode. See above redirect method.
+					//tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
 					
 					if (blockEntity == null) {
 						blockEntity = new PistonBlockEntity(pos, blockState);
@@ -161,30 +165,41 @@ public class GSClientPlayNetworkHandlerMixin {
 			}
 		}
 	}
-	
-	@Inject(method = "onBlockUpdate", cancellable = true, at = @At("HEAD"))
-	private void onOnBlockUpdate(BlockUpdateS2CPacket packet, CallbackInfo ci) {
-		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 
-		if (tpsModule.sParanoidMode.getValue() && packet.getState().isOf(Blocks.MOVING_PISTON)) {
-			// In this case we will handle the block state when
-			// the block entity has been set in the above injection.
-			ci.cancel();
-		}
-	}
-	
-	@ModifyArg(method = "onChunkDeltaUpdate", index = 0, expect = 1, allow = 1, require = 0, at = @At(value = "INVOKE",
-			target = "Lnet/minecraft/network/packet/s2c/play/ChunkDeltaUpdateS2CPacket;visitUpdates(Ljava/util/function/BiConsumer;)V"))
-	private BiConsumer<BlockPos, BlockState> onOnChunkDeltaUpdateRedirect(BiConsumer<BlockPos, BlockState> handler) {
+	@Inject(method = "onBlockEvent", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
+			target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
+	private void onOnBlockEvent(BlockEventS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		
 		if (tpsModule.sParanoidMode.getValue()) {
-			return (pos, state) -> {
-				if (!state.isOf(Blocks.MOVING_PISTON))
-					handler.accept(pos, state);
-			};
+			Class<? extends Block> clazz = packet.getBlock().getClass();
+			
+			if (clazz.equals(PistonBlock.class) || clazz.equals(PistonExtensionBlock.class)) {
+				// The block event has already been handled on the server
+				// NOTE: Piston extension blocks do not have block events
+				//       in vanilla, however, in Redstone Tweaks they do.
+				ci.cancel();
+			}
 		}
-		
-		return handler;
+	}
+	
+	@Inject(method = "onBlockUpdate", at = @At("RETURN"))
+	private void onOnBlockUpdateReturn(BlockUpdateS2CPacket packet, CallbackInfo ci) {
+		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
+		if (tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED)
+			scheduleRenderUpdateForFallingBlock(packet.getPos(), packet.getState());
+	}
+	
+	@Inject(method = "onChunkDeltaUpdate", at = @At(value = "INVOKE", shift = Shift.AFTER,
+			target = "Lnet/minecraft/network/packet/s2c/play/ChunkDeltaUpdateS2CPacket;visitUpdates(Ljava/util/function/BiConsumer;)V"))
+	private void onOnChunkDeltaUpdateReturn(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
+		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
+		if (tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED)
+			packet.visitUpdates(this::scheduleRenderUpdateForFallingBlock);
+	}
+	
+	private void scheduleRenderUpdateForFallingBlock(BlockPos pos, BlockState state) {
+		if (state.getBlock() instanceof FallingBlock)
+			((GSIWorldRendererAccess)client.worldRenderer).scheduleBlockUpdate0(pos, true);
 	}
 }

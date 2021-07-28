@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.GSIMinecraftClientAccess;
+import com.g4mesoft.access.GSIWorldRendererAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.renderer.GSBasicRenderer3D;
@@ -34,12 +35,15 @@ import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Matrix4f;
 
 @Mixin(WorldRenderer.class)
-public class GSWorldRendererMixin {
+public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 
 	@Shadow @Final private MinecraftClient client;
+	
+	@Shadow protected abstract void scheduleSectionRender(BlockPos pos, boolean important);
 	
 	private GSClientController controller;
 	private GSTpsModule tpsModule;
@@ -134,5 +138,10 @@ public class GSWorldRendererMixin {
 			return (entity.age == 0) ? -1 : entity.age;
 		}
 		return entity.age;
+	}
+	
+	@Override
+	public void scheduleBlockUpdate0(BlockPos pos, boolean important) {
+		scheduleSectionRender(pos, important);
 	}
 }

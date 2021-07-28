@@ -1,6 +1,7 @@
 package com.g4mesoft.access;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 
@@ -14,6 +15,10 @@ public interface GSIServerChunkManagerAccess {
 	
 	public void flushAndSendChunkUpdates();
 	
-	public void updateBlockImmdiately(BlockPos pos);
+	public void updateBlockImmediately(BlockPos pos);
+
+	public void updateBlockEntityImmediately(BlockPos pos);
+
+	public void sendToNearbyPlayers(BlockPos pos, Packet<?> packet);
 
 }

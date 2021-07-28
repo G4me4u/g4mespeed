@@ -36,7 +36,7 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 			target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
 	private void onTickRemoveBlock(CallbackInfo ci) {
 		if (!world.isClient && GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED)
-			((GSIServerChunkManagerAccess)world.getChunkManager()).updateBlockImmdiately(getBlockPos());
+			((GSIServerChunkManagerAccess)world.getChunkManager()).updateBlockImmediately(getBlockPos());
 	}
 	
 	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.BEFORE,
