@@ -84,6 +84,8 @@ com.g4mesoft.access.GSIBufferBuilderAccess -> core.f:
     void setElementOffset(int) -> gsc_hH
 com.g4mesoft.access.GSIChunkHolderAccess -> core.da:
     void updateBlockImmediately(net.minecraft.class_1937,net.minecraft.class_2338) -> gsc_rJ
+    void updateBlockEntityImmediately(net.minecraft.class_1937,net.minecraft.class_2338) -> gsc_hH
+    void sendToNearbyPlayers0(net.minecraft.class_2596) -> gsc_rJ
 com.g4mesoft.access.GSIEntityTrackerEntryAccess -> core.av:
     boolean isFixedMovement() -> gsc_rJ
     void setFixedMovement(boolean) -> gsc_rJ
@@ -103,6 +105,8 @@ com.g4mesoft.access.GSIServerChunkManagerAccess -> core.k:
     void setTrackerTickedFromFallingBlock(net.minecraft.class_1297,boolean) -> gsc_rJ
     void flushAndSendChunkUpdates() -> gsc_rJ
     void updateBlockImmediately(net.minecraft.class_2338) -> gsc_rJ
+    void updateBlockEntityImmediately(net.minecraft.class_2338) -> gsc_hH
+    void sendToNearbyPlayers(net.minecraft.class_2338,net.minecraft.class_2596) -> gsc_rJ
 com.g4mesoft.access.GSIServerPlayNetworkHandlerAccess -> core.l:
     boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_rJ
     boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_rJ
@@ -123,6 +127,8 @@ com.g4mesoft.access.GSIThreadedAnvilChunkStorageAccess -> core.aD:
     void setTrackerFixedMovement(net.minecraft.class_3222,boolean) -> gsc_rJ
     void setTrackerTickedFromFallingBlock(net.minecraft.class_1297,boolean) -> gsc_rJ
     java.lang.Iterable getEntryIterator0() -> gsc_rJ
+com.g4mesoft.access.GSIWorldRendererAccess -> core.dd:
+    void scheduleBlockUpdate0(net.minecraft.class_2338,boolean) -> gsc_rJ
 com.g4mesoft.core.GSConnectionPacket -> core.m:
     com.g4mesoft.GSExtensionInfo[] extensionInfo -> gsc_rJ
     20:21:void <init>() -> <init>
@@ -835,16 +841,17 @@ com.g4mesoft.mixin.client.GSClientPlayNetworkHandlerMixin -> com.g4mesoft.mixin.
     int WORLD_TIME_UPDATE_INTERVAL -> gsc_rJ
     net.minecraft.class_310 field_3690 -> field_3690
     net.minecraft.class_638 field_3699 -> field_3699
-    39:39:void <init>() -> <init>
-    48:49:void onInit(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    53:54:void onOnGameJoin(net.minecraft.class_2678,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    58:69:void onCustomPayload(net.minecraft.class_2658,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    74:77:void onWorldTimeSync(net.minecraft.class_2761,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    81:122:boolean replaceChunkDataBlockEntityLoop(java.util.Iterator) -> gsc_rJ
-    128:163:void onOnBlockEntityUpdate(net.minecraft.class_2622,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    167:174:void onOnBlockUpdate(net.minecraft.class_2626,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    179:188:java.util.function.BiConsumer onOnChunkDeltaUpdateRedirect(java.util.function.BiConsumer) -> gsc_rJ
-    183:185:void lambda$onOnChunkDeltaUpdateRedirect$0(java.util.function.BiConsumer,net.minecraft.class_2338,net.minecraft.class_2680) -> gsc_rJ
+    44:44:void <init>() -> <init>
+    53:54:void onInit(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    58:59:void onOnGameJoin(net.minecraft.class_2678,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    63:74:void onCustomPayload(net.minecraft.class_2658,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    79:82:void onWorldTimeSync(net.minecraft.class_2761,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    86:127:boolean replaceChunkDataBlockEntityLoop(java.util.Iterator) -> gsc_rJ
+    133:167:void onOnBlockEntityUpdate(net.minecraft.class_2622,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    172:184:void onOnBlockEvent(net.minecraft.class_2623,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    188:191:void onOnBlockUpdateReturn(net.minecraft.class_2626,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    196:199:void onOnChunkDeltaUpdateReturn(net.minecraft.class_2637,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    202:204:void scheduleRenderUpdateForFallingBlock(net.minecraft.class_2338,net.minecraft.class_2680) -> gsc_rJ
 com.g4mesoft.mixin.client.GSClientWorldMixin -> com.g4mesoft.mixin.client.GSClientWorldMixin:
     net.minecraft.class_310 field_3729 -> field_3729
     boolean tickingEntities -> gsc_rJ
@@ -998,19 +1005,23 @@ com.g4mesoft.mixin.client.GSWorldRendererMixin -> com.g4mesoft.mixin.client.GSWo
     com.g4mesoft.core.client.GSClientController controller -> gsc_hH
     com.g4mesoft.module.tps.GSTpsModule tpsModule -> gsc_sc
     com.g4mesoft.renderer.GSBasicRenderer3D renderer3d -> gsc_rJ
-    40:40:void <init>() -> <init>
-    50:53:void onInit(net.minecraft.class_310,net.minecraft.class_4599,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    60:67:void onRenderTransparentLastFabulous(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    71:72:void onRenderTransparentLastDefault(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    75:106:void handleOnRenderTransparentLast(net.minecraft.class_4587) -> gsc_rJ
-    109:114:boolean hasRenderPhase(java.util.Collection,com.g4mesoft.renderer.GSERenderPhase) -> gsc_rJ
-    120:125:float onRenderEntityModifyDeltaTick(net.minecraft.class_1297,double,double,double,float,net.minecraft.class_4587,net.minecraft.class_4597) -> gsc_rJ
-    131:136:int onRenderGetEntityAge(net.minecraft.class_1297) -> gsc_rJ
+    42:42:void <init>() -> <init>
+    void method_16037(net.minecraft.class_2338,boolean) -> method_16037
+    54:57:void onInit(net.minecraft.class_310,net.minecraft.class_4599,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    64:71:void onRenderTransparentLastFabulous(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    75:76:void onRenderTransparentLastDefault(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    79:110:void handleOnRenderTransparentLast(net.minecraft.class_4587) -> gsc_rJ
+    113:118:boolean hasRenderPhase(java.util.Collection,com.g4mesoft.renderer.GSERenderPhase) -> gsc_rJ
+    124:129:float onRenderEntityModifyDeltaTick(net.minecraft.class_1297,double,double,double,float,net.minecraft.class_4587,net.minecraft.class_4597) -> gsc_rJ
+    135:140:int onRenderGetEntityAge(net.minecraft.class_1297) -> gsc_rJ
+    145:146:void scheduleBlockUpdate0(net.minecraft.class_2338,boolean) -> gsc_rJ
 com.g4mesoft.mixin.server.GSChunkHolderMixin -> com.g4mesoft.mixin.server.GSChunkHolderMixin:
     16:16:void <init>() -> <init>
     void method_13992(net.minecraft.class_2596,boolean) -> method_13992
     void method_30311(net.minecraft.class_1937,net.minecraft.class_2338,net.minecraft.class_2680) -> method_30311
     24:26:void updateBlockImmediately(net.minecraft.class_1937,net.minecraft.class_2338) -> gsc_rJ
+    30:31:void updateBlockEntityImmediately(net.minecraft.class_1937,net.minecraft.class_2338) -> gsc_hH
+    35:36:void sendToNearbyPlayers0(net.minecraft.class_2596) -> gsc_rJ
 com.g4mesoft.mixin.server.GSClientConnectionMixin -> com.g4mesoft.mixin.server.GSClientConnectionMixin:
     14:14:void <init>() -> <init>
     20:20:void onExceptionCaught(io.netty.channel.ChannelHandlerContext,java.lang.Throwable,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
@@ -1080,18 +1091,21 @@ com.g4mesoft.mixin.server.GSMinecraftServerMixin -> com.g4mesoft.mixin.server.GS
     103:104:void onShutdown(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
 com.g4mesoft.mixin.server.GSPistonBlockEntityMixin -> com.g4mesoft.mixin.server.GSPistonBlockEntityMixin:
     boolean ticked -> gsc_rJ
-    28:29:void <init>(net.minecraft.class_2591,net.minecraft.class_2338,net.minecraft.class_2680) -> <init>
-    34:36:net.minecraft.class_2622 method_16886() -> method_16886
-    42:42:net.minecraft.class_2487 method_16887() -> method_16887
-    47:48:void onTick(net.minecraft.class_1937,net.minecraft.class_2338,net.minecraft.class_2680,net.minecraft.class_2669,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    52:53:void onReadNbt(net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    57:60:void onWriteNbt(net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
+    29:30:void <init>(net.minecraft.class_2591,net.minecraft.class_2338,net.minecraft.class_2680) -> <init>
+    35:40:void onFinishReturn(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    44:45:void onTick(net.minecraft.class_1937,net.minecraft.class_2338,net.minecraft.class_2680,net.minecraft.class_2669,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    49:50:void onReadNbt(net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    54:57:void onWriteNbt(net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
 com.g4mesoft.mixin.server.GSPistonBlockMixin -> com.g4mesoft.mixin.server.GSPistonBlockMixin:
-    14:14:void <init>() -> <init>
-    20:20:int modifySetPistonBaseFlags(int) -> gsc_rJ
-    26:26:int modifySetAirBlockFlags(int) -> gsc_hH
-    34:34:int modifySetMovingBlockFlags(int) -> gsc_sc
-    38:41:int modifyParanoidModeFlags(int) -> gsc_bs
+    31:31:void <init>() -> <init>
+    39:40:void onOnSyncedBlockEventBaseChanged(net.minecraft.class_2680,net.minecraft.class_1937,net.minecraft.class_2338,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
+    45:46:void onOnSyncedBlockEventHeadChanged(net.minecraft.class_2680,net.minecraft.class_1937,net.minecraft.class_2338,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_hH
+    51:52:void onOnSyncedBlockEventBlockEntityChanged(net.minecraft.class_2680,net.minecraft.class_1937,net.minecraft.class_2338,int,int,org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_sc
+    57:58:void onMoveBlockEntityChanged0(net.minecraft.class_1937,net.minecraft.class_2338,net.minecraft.class_2350,boolean,org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable,net.minecraft.class_2338,net.minecraft.class_2674,java.util.Map,java.util.List,java.util.List,java.util.List,net.minecraft.class_2680[],net.minecraft.class_2350,int,int,net.minecraft.class_2338) -> gsc_rJ
+    63:64:void onMoveBlockEntityChanged1(net.minecraft.class_1937,net.minecraft.class_2338,net.minecraft.class_2350,boolean,org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable,net.minecraft.class_2338) -> gsc_rJ
+    69:79:void onMoveAfterRemovingLoop(net.minecraft.class_1937,net.minecraft.class_2338,net.minecraft.class_2350,boolean,org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable,net.minecraft.class_2338,net.minecraft.class_2674,java.util.Map,java.util.List,java.util.List,java.util.List) -> gsc_rJ
+    82:87:void onBlockChanged(net.minecraft.class_1937,net.minecraft.class_2338) -> gsc_rJ
+    90:98:void onBlockEntityChanged(net.minecraft.class_1937,net.minecraft.class_2338) -> gsc_hH
 com.g4mesoft.mixin.server.GSPlayerManagerMixin -> com.g4mesoft.mixin.server.GSPlayerManagerMixin:
     19:19:void <init>() -> <init>
     net.minecraft.class_3222 method_14602(java.util.UUID) -> method_14602
@@ -1103,14 +1117,17 @@ com.g4mesoft.mixin.server.GSPlayerManagerMixin -> com.g4mesoft.mixin.server.GSPl
 com.g4mesoft.mixin.server.GSServerChunkManagerMixin -> com.g4mesoft.mixin.server.GSServerChunkManagerMixin:
     net.minecraft.class_3218 field_13945 -> field_13945
     net.minecraft.class_3898 field_17254 -> field_17254
-    24:24:void <init>() -> <init>
+    25:25:void <init>() -> <init>
     net.minecraft.class_3193 method_14131(long) -> method_14131
-    34:35:void tickEntityTracker(net.minecraft.class_1297) -> gsc_rJ
-    39:40:void setTrackerFixedMovement(net.minecraft.class_3222,boolean) -> gsc_rJ
-    44:45:void setTrackerTickedFromFallingBlock(net.minecraft.class_1297,boolean) -> gsc_rJ
-    49:71:void flushAndSendChunkUpdates() -> gsc_rJ
-    75:80:void updateBlockImmediately(net.minecraft.class_2338) -> gsc_rJ
-    59:65:void lambda$flushAndSendChunkUpdates$0(net.minecraft.class_3193) -> gsc_rJ
+    35:36:void tickEntityTracker(net.minecraft.class_1297) -> gsc_rJ
+    40:41:void setTrackerFixedMovement(net.minecraft.class_3222,boolean) -> gsc_rJ
+    45:46:void setTrackerTickedFromFallingBlock(net.minecraft.class_1297,boolean) -> gsc_rJ
+    50:72:void flushAndSendChunkUpdates() -> gsc_rJ
+    76:79:void updateBlockImmediately(net.minecraft.class_2338) -> gsc_rJ
+    83:86:void updateBlockEntityImmediately(net.minecraft.class_2338) -> gsc_hH
+    90:93:void sendToNearbyPlayers(net.minecraft.class_2338,net.minecraft.class_2596) -> gsc_rJ
+    96:96:net.minecraft.class_3193 getChunkHolderAt(net.minecraft.class_2338) -> gsc_sc
+    60:66:void lambda$flushAndSendChunkUpdates$0(net.minecraft.class_3193) -> gsc_rJ
 com.g4mesoft.mixin.server.GSServerPlayNetworkHandlerMixin -> com.g4mesoft.mixin.server.GSServerPlayNetworkHandlerMixin:
     net.minecraft.class_3222 field_14140 -> field_14140
     int field_14138 -> field_14138
