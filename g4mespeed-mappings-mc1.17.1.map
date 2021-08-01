@@ -1078,17 +1078,22 @@ com.g4mesoft.mixin.server.GSMinecraftServerMixin -> com.g4mesoft.mixin.server.GS
     float msAccum -> gsc_rJ
     float msPerTick -> gsc_hH
     long msThisTick -> gsc_sc
+    long ticksBehind -> gsc_bs
     long field_4571 -> field_4571
-    25:28:void <init>() -> <init>
-    36:54:void tpsChanged(float,float) -> gsc_rJ
-    62:65:void onInitialized(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    70:72:void onRunServerLoopBeginning(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
-    76:76:long onRunServerModify50(long) -> gsc_rJ
-    81:81:long onRunServerModify2000(long) -> gsc_hH
-    86:86:long onRunServerModify15000(long) -> gsc_sc
-    91:92:void onRunServerAfterOverloaded(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_bs
-    96:99:void onTick(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    103:104:void onShutdown(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    27:30:void <init>() -> <init>
+    39:57:void tpsChanged(float,float) -> gsc_rJ
+    65:68:void onInitialized(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    73:75:void onRunServerLoopBeginning(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
+    79:87:long onRunServerModify50_0(long) -> gsc_rJ
+    94:94:java.lang.Object modifyRunServerWarnTicksBehind(java.lang.Object) -> gsc_rJ
+    100:105:void onRunServerAfterWarn(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_UM
+    110:110:long onRunServerModify50_1(long) -> gsc_bs
+    116:116:long onRunServerModify50DebugSetup(long) -> gsc_UM
+    121:121:long onRunServerModify2000(long) -> gsc_hH
+    126:126:long onRunServerModify15000(long) -> gsc_sc
+    131:132:void onRunServerAfterOverloaded(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_bs
+    136:139:void onTick(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    143:144:void onShutdown(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
 com.g4mesoft.mixin.server.GSPistonBlockEntityMixin -> com.g4mesoft.mixin.server.GSPistonBlockEntityMixin:
     boolean ticked -> gsc_rJ
     29:30:void <init>(net.minecraft.class_2591,net.minecraft.class_2338,net.minecraft.class_2680) -> <init>
