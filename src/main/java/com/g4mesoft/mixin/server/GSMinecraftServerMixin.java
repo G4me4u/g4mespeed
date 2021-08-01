@@ -95,10 +95,17 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
 			long msBehind = Util.getMeasuringTimeMs() - this.timeReference;
 			if (msBehind > 1000L + 20L * msPerTick && this.timeReference - this.lastTimeReference >= 10000L + 100L * msPerTick) {
-				long ticksBehind = (long)(msBehind / msPerTick);
-				LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", msBehind, ticksBehind);
-				this.timeReference += ticksBehind * msPerTick;
-				this.lastTimeReference = this.timeReference;
+				// Handle cases where msPerTick is near zero (or actually zero)
+				if (GSMathUtil.equalsApproximate(msPerTick, 0.0f)) {
+					LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or infinite ticks behind", msBehind);
+					this.timeReference += msBehind;
+					this.lastTimeReference = this.timeReference;
+				} else {
+					long ticksBehind = (long)(msBehind / msPerTick);
+					LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", msBehind, ticksBehind);
+					this.timeReference += ticksBehind * msPerTick;
+					this.lastTimeReference = this.timeReference;
+				}
 
 				this.msAccum = msPerTick;
 			}
