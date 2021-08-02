@@ -140,26 +140,28 @@ com.g4mesoft.core.GSController -> core.n:
     java.util.Set INSTANCES -> gsc_Qo
     com.g4mesoft.setting.GSSettingManager settings -> gsc_sc
     java.util.List modules -> gsc_bs
+    java.util.Map clazzToModule -> gsc_kd
     com.g4mesoft.module.tps.GSTpsModule tpsModule -> gsc_UM
     com.g4mesoft.module.translation.GSTranslationModule translationModule -> gsc_mg
-    36:43:void <init>() -> <init>
-    46:53:void onStart() -> gsc_rJ
-    56:67:void onStop() -> gsc_hH
-    70:74:void initModules() -> gsc_sc
-    78:80:void addModule(com.g4mesoft.core.GSIModule) -> gsc_rJ
-    83:85:void tick(boolean) -> gsc_rJ
-    88:88:com.g4mesoft.module.tps.GSTpsModule getTpsModule() -> gsc_bs
-    92:92:com.g4mesoft.module.translation.GSTranslationModule getTranslationModule() -> gsc_UM
-    97:97:java.util.List getModules() -> gsc_mg
-    102:102:com.g4mesoft.setting.GSSettingManager getSettingManager() -> gsc_vm
-    106:106:java.io.File getSettingsFile() -> gsc_Yp
-    110:114:com.g4mesoft.core.GSController getInstanceOnThread() -> gsc_Qo
-    119:120:void extensionAdded(com.g4mesoft.GSIExtension) -> extensionAdded
+    39:47:void <init>() -> <init>
+    50:57:void onStart() -> gsc_rJ
+    60:71:void onStop() -> gsc_hH
+    74:78:void initModules() -> gsc_sc
+    82:88:void addModule(com.g4mesoft.core.GSIModule) -> gsc_rJ
+    91:93:void tick(boolean) -> gsc_rJ
+    96:96:com.g4mesoft.module.tps.GSTpsModule getTpsModule() -> gsc_bs
+    100:100:com.g4mesoft.module.translation.GSTranslationModule getTranslationModule() -> gsc_UM
+    106:107:com.g4mesoft.core.GSIModule getModule(java.lang.Class) -> gsc_rJ
+    112:112:java.util.List getModules() -> gsc_mg
+    117:117:com.g4mesoft.setting.GSSettingManager getSettingManager() -> gsc_vm
+    121:121:java.io.File getSettingsFile() -> gsc_Yp
+    125:129:com.g4mesoft.core.GSController getInstanceOnThread() -> gsc_Qo
+    134:135:void extensionAdded(com.g4mesoft.GSIExtension) -> extensionAdded
     void addExtensionModules(com.g4mesoft.GSIExtension) -> gsc_rJ
     boolean isThreadOwner() -> gsc_Jn
     net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> gsc_rJ
     boolean isClient() -> gsc_AS
-    27:27:void <clinit>() -> <clinit>
+    29:29:void <clinit>() -> <clinit>
 com.g4mesoft.core.GSCoreExtension -> core.o:
     java.lang.String NAME -> gsc_rJ
     com.g4mesoft.GSExtensionUID UID -> gsc_hH
@@ -196,6 +198,7 @@ com.g4mesoft.core.GSIModule -> core.p:
     57:57:boolean isServerSide() -> gsc_Pt
 com.g4mesoft.core.GSIModuleManager -> core.q:
     void addModule(com.g4mesoft.core.GSIModule) -> gsc_rJ
+    com.g4mesoft.core.GSIModule getModule(java.lang.Class) -> gsc_rJ
     java.util.List getModules() -> gsc_mg
     void runOnClient(java.util.function.Consumer) -> gsc_rJ
     void runOnServer(java.util.function.Consumer) -> gsc_hH
@@ -433,10 +436,11 @@ com.g4mesoft.gui.GSContentHistoryGUI -> core.da:
     21:32:void <init>(com.g4mesoft.panel.GSPanel,com.g4mesoft.panel.event.GSIButtonStroke) -> <init>
     36:39:void layout() -> gsc_pl
     42:46:void clearHistory() -> gsc_sc
-    49:54:void back() -> gsc_bs
-    57:57:com.g4mesoft.panel.GSPanel getContent() -> gsc_UM
-    61:63:void setContent(com.g4mesoft.panel.GSPanel) -> gsc_rJ
-    66:73:void setContentNoHistory(com.g4mesoft.panel.GSPanel) -> gsc_mg
+    49:54:void removeHistory(com.g4mesoft.panel.GSPanel) -> gsc_vm
+    57:62:void back() -> gsc_bs
+    65:65:com.g4mesoft.panel.GSPanel getContent() -> gsc_UM
+    69:71:void setContent(com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    74:81:void setContentNoHistory(com.g4mesoft.panel.GSPanel) -> gsc_mg
 com.g4mesoft.gui.GSFloatSettingElementGUI -> core.C:
     float MAX_DEF_INTERVAL_FOR_SLIDER -> gsc_PS
     java.text.DecimalFormat FORMATTER -> gsc_bx
@@ -1090,9 +1094,9 @@ com.g4mesoft.mixin.server.GSMinecraftServerMixin -> com.g4mesoft.mixin.server.GS
     void method_24490(net.minecraft.class_4758) -> method_24490
     54:72:void tpsChanged(float,float) -> gsc_rJ
     80:83:void onInitialized(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    92:124:void onModifiedRunLoop(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
-    128:131:void onTick(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    135:136:void onShutdown(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    92:131:void onModifiedRunLoop(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
+    135:138:void onTick(java.util.function.BooleanSupplier,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    142:143:void onShutdown(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
 com.g4mesoft.mixin.server.GSPistonBlockEntityMixin -> com.g4mesoft.mixin.server.GSPistonBlockEntityMixin:
     boolean ticked -> gsc_rJ
     27:28:void <init>(net.minecraft.class_2591) -> <init>
