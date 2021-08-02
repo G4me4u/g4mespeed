@@ -45,6 +45,14 @@ public class GSContentHistoryGUI extends GSClosableParentPanel {
 		}
 	}
 	
+	public void removeHistory(GSPanel content) {
+		if (content == this.content) {
+			back();
+		} else if (!contentHistory.isEmpty() && content != contentHistory.getFirst()) {
+			contentHistory.removeLastOccurrence(content);
+		}
+	}
+	
 	public void back() {
 		if (!contentHistory.isEmpty()) {
 			setContentNoHistory(contentHistory.removeLast());
