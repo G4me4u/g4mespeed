@@ -112,7 +112,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	
 	@ModifyConstant(method = "runServer", constant = @Constant(longValue = 50L), slice = @Slice(from = @At(value = "FIELD",
 			shift = Shift.AFTER, opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/server/MinecraftServer;needsDebugSetup:Z")))
-	private long onRunServerModify50DebugSetup(long prevMsThisTick) {
+	private long onRunServerModify50AfterDebugSetup(long prevMsThisTick) {
 		return msThisTick;
 	}
 	
