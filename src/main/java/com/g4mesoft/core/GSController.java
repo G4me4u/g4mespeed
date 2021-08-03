@@ -66,6 +66,7 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 		settings.clearSettings();
 		
 		modules.clear();
+		clazzToModule.clear();
 
 		G4mespeedMod.removeExtensionListener(this);
 	}
