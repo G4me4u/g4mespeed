@@ -145,18 +145,18 @@ com.g4mesoft.core.GSController -> core.n:
     com.g4mesoft.module.translation.GSTranslationModule translationModule -> gsc_mg
     39:47:void <init>() -> <init>
     50:57:void onStart() -> gsc_rJ
-    60:71:void onStop() -> gsc_hH
-    74:78:void initModules() -> gsc_sc
-    82:88:void addModule(com.g4mesoft.core.GSIModule) -> gsc_rJ
-    91:93:void tick(boolean) -> gsc_rJ
-    96:96:com.g4mesoft.module.tps.GSTpsModule getTpsModule() -> gsc_bs
-    100:100:com.g4mesoft.module.translation.GSTranslationModule getTranslationModule() -> gsc_UM
-    106:107:com.g4mesoft.core.GSIModule getModule(java.lang.Class) -> gsc_rJ
-    112:112:java.util.List getModules() -> gsc_mg
-    117:117:com.g4mesoft.setting.GSSettingManager getSettingManager() -> gsc_vm
-    121:121:java.io.File getSettingsFile() -> gsc_Yp
-    125:129:com.g4mesoft.core.GSController getInstanceOnThread() -> gsc_Qo
-    134:135:void extensionAdded(com.g4mesoft.GSIExtension) -> extensionAdded
+    60:72:void onStop() -> gsc_hH
+    75:79:void initModules() -> gsc_sc
+    83:89:void addModule(com.g4mesoft.core.GSIModule) -> gsc_rJ
+    92:94:void tick(boolean) -> gsc_rJ
+    97:97:com.g4mesoft.module.tps.GSTpsModule getTpsModule() -> gsc_bs
+    101:101:com.g4mesoft.module.translation.GSTranslationModule getTranslationModule() -> gsc_UM
+    107:108:com.g4mesoft.core.GSIModule getModule(java.lang.Class) -> gsc_rJ
+    113:113:java.util.List getModules() -> gsc_mg
+    118:118:com.g4mesoft.setting.GSSettingManager getSettingManager() -> gsc_vm
+    122:122:java.io.File getSettingsFile() -> gsc_Yp
+    126:130:com.g4mesoft.core.GSController getInstanceOnThread() -> gsc_Qo
+    135:136:void extensionAdded(com.g4mesoft.GSIExtension) -> extensionAdded
     void addExtensionModules(com.g4mesoft.GSIExtension) -> gsc_rJ
     boolean isThreadOwner() -> gsc_Jn
     net.minecraft.class_2596 encodeCustomPayload(net.minecraft.class_2960,net.minecraft.class_2540) -> gsc_rJ
