@@ -11,6 +11,8 @@ import com.g4mesoft.setting.GSSettingManager;
 public interface GSIModuleManager {
 
 	public void addModule(GSIModule module);
+
+	public <M extends GSIModule> M getModule(Class<M> moduleClazz);
 	
 	public List<GSIModule> getModules();
 

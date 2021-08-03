@@ -3,7 +3,9 @@ package com.g4mesoft.core;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.g4mesoft.G4mespeedMod;
@@ -14,8 +16,8 @@ import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSSettingManager;
 
 import net.minecraft.network.Packet;
-import net.minecraft.util.Identifier;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.util.Identifier;
 
 public abstract class GSController implements GSIModuleManager, GSIExtensionListener {
 
@@ -29,6 +31,7 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 	protected final GSSettingManager settings;
 	
 	protected final List<GSIModule> modules;
+	protected final Map<Class<? extends GSIModule>, GSIModule> clazzToModule;
 	
 	protected final GSTpsModule tpsModule;
 	protected final GSTranslationModule translationModule;
@@ -37,6 +40,7 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 		settings = new GSSettingManager();
 		
 		modules = new ArrayList<>();
+		clazzToModule = new IdentityHashMap<>();
 		
 		tpsModule = new GSTpsModule();
 		translationModule = new GSTranslationModule();
@@ -62,6 +66,7 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 		settings.clearSettings();
 		
 		modules.clear();
+		clazzToModule.clear();
 
 		G4mespeedMod.removeExtensionListener(this);
 	}
@@ -75,6 +80,10 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 	
 	@Override
 	public void addModule(GSIModule module) {
+		Class<? extends GSIModule> clazz = module.getClass();
+		if (clazzToModule.put(clazz, module) != null)
+			throw new IllegalStateException("Module of class " + clazz.getName() + " already exists");
+		
 		modules.add(module);
 		module.init(this);
 	}
@@ -90,6 +99,13 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 	
 	public GSTranslationModule getTranslationModule() {
 		return translationModule;
+	}
+	
+	@Override
+	public <M extends GSIModule> M getModule(Class<M> moduleClazz) {
+		@SuppressWarnings("unchecked")
+		M module = (M)clazzToModule.get(moduleClazz);
+		return module;
 	}
 	
 	@Override
