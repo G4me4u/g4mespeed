@@ -86,6 +86,13 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 	}
 	
 	@Override
+	public void markBlockEntityUpdate(BlockPos pos) {
+		ChunkHolder chunkHolder = getChunkHolderAt(pos);
+		if (chunkHolder != null)
+			((GSIChunkHolderAccess)chunkHolder).markBlockEntityUpdate(pos);
+	}
+	
+	@Override
 	public void sendToNearbyPlayers(BlockPos pos, Packet<?> packet) {
 		ChunkHolder chunkHolder = getChunkHolderAt(pos);
 		if (chunkHolder != null)

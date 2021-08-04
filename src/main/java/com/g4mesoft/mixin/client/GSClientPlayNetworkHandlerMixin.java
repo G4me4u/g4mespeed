@@ -22,8 +22,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FallingBlock;
-import net.minecraft.block.PistonBlock;
-import net.minecraft.block.PistonExtensionBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.client.MinecraftClient;
@@ -32,7 +30,6 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.BlockEventS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
@@ -136,20 +133,20 @@ public class GSClientPlayNetworkHandlerMixin {
 			BlockPos pos = packet.getPos();
 			
 			if (packet.getBlockEntityType() == 0 && world.isChunkLoaded(pos)) {
-				BlockState blockState = world.getBlockState(pos);
-				
-				if (!blockState.isOf(Blocks.MOVING_PISTON)) {
-					blockState = Blocks.MOVING_PISTON.getDefaultState();
-					world.setBlockState(pos, blockState, 3 | 8 | 64 /* NOTIFY_ALL | REDRAW_ON_MAIN_THREAD | MOVED */);
-				}
-
-				BlockEntity blockEntity = world.getBlockEntity(pos);
 				NbtCompound tag = packet.getNbt();
 
 				if ("minecraft:piston".equals(tag.getString("id"))) {
-					// The piston block entity has never ticked at the time of receiving the initial
-					// placement packet by paranoid mode. See above redirect method.
-					//tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
+					BlockState blockState = world.getBlockState(pos);
+					BlockEntity blockEntity = world.getBlockEntity(pos);
+					
+					if (!blockState.isOf(Blocks.MOVING_PISTON)) {
+						blockState = Blocks.MOVING_PISTON.getDefaultState();
+						world.setBlockState(pos, blockState, Block.NO_REDRAW | Block.MOVED);
+					}
+					
+					// See above redirect method.
+					if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked"))
+						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
 					
 					if (blockEntity == null) {
 						blockEntity = new PistonBlockEntity(pos, blockState);
@@ -166,23 +163,6 @@ public class GSClientPlayNetworkHandlerMixin {
 		}
 	}
 
-	@Inject(method = "onBlockEvent", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
-			target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
-	private void onOnBlockEvent(BlockEventS2CPacket packet, CallbackInfo ci) {
-		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		
-		if (tpsModule.sParanoidMode.getValue()) {
-			Class<? extends Block> clazz = packet.getBlock().getClass();
-			
-			if (clazz.equals(PistonBlock.class) || clazz.equals(PistonExtensionBlock.class)) {
-				// The block event has already been handled on the server
-				// NOTE: Piston extension blocks do not have block events
-				//       in vanilla, however, in Redstone Tweaks they do.
-				ci.cancel();
-			}
-		}
-	}
-	
 	@Inject(method = "onBlockUpdate", at = @At("RETURN"))
 	private void onOnBlockUpdateReturn(BlockUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
