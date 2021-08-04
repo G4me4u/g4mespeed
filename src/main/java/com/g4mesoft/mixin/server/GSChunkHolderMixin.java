@@ -99,15 +99,17 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 				BlockPos pos = sectionPos.unpackBlockPos(coord);
 				BlockEntity blockEntity = chunk.getBlockEntity(pos);
 
-				Packet<?> packet;
-				if (blockEntity instanceof PistonBlockEntity) {
-					packet = new BlockEntityUpdateS2CPacket(pos, 0, blockEntity.writeNbt(new NbtCompound()));
-				} else {
-					packet = blockEntity.toUpdatePacket();
+				if (blockEntity != null) {
+					Packet<?> packet;
+					if (blockEntity instanceof PistonBlockEntity) {
+						NbtCompound tag = blockEntity.writeNbt(new NbtCompound());
+						sendPacketToPlayersWatching(new BlockEntityUpdateS2CPacket(pos, 0, tag), false);
+					} else {
+						packet = blockEntity.toUpdatePacket();
+						if (packet != null)
+							sendPacketToPlayersWatching(packet, false);
+					}
 				}
-				
-				if (packet != null)
-					sendPacketToPlayersWatching(packet, false);
 			}
 
 			blockEntityUpdatesBySection[sectionIndex] = null;
