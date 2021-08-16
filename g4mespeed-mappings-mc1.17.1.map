@@ -100,6 +100,7 @@ com.g4mesoft.access.GSIMouseAccess -> core.h:
     double getPreviousEventScrollX() -> gsc_hH
 com.g4mesoft.access.GSIPistonBlockEntityAccess -> core.i:
     float getSmoothProgress(float) -> gsc_rJ
+    float getOffsetForProgress(float,float,float) -> gsc_rJ
 com.g4mesoft.access.GSIServerChunkManagerAccess -> core.k:
     void tickEntityTracker(net.minecraft.class_1297) -> gsc_rJ
     void setTrackerFixedMovement(net.minecraft.class_3222,boolean) -> gsc_rJ
@@ -961,13 +962,14 @@ com.g4mesoft.mixin.client.GSPistonBlockEntityMixin -> com.g4mesoft.mixin.client.
     float actualLastProgress -> gsc_sc
     float numberOfSteps -> numberOfSteps
     41:46:void <init>(net.minecraft.class_2591,net.minecraft.class_2338,net.minecraft.class_2680) -> <init>
-    51:80:float getSmoothProgress(float) -> gsc_rJ
-    85:85:float getSmoothRenderOffsetX(net.minecraft.class_2669,float) -> gsc_rJ
-    90:90:float getSmoothRenderOffsetY(net.minecraft.class_2669,float) -> gsc_hH
-    95:95:float getSmoothRenderOffsetZ(net.minecraft.class_2669,float) -> gsc_sc
-    100:101:void onReadNbt(net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    105:106:void onTickProgressChanged(net.minecraft.class_1937,net.minecraft.class_2338,net.minecraft.class_2680,net.minecraft.class_2669,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    110:111:void onFinishProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    51:51:float getSmoothProgress(float) -> gsc_rJ
+    57:86:float getOffsetForProgress(float,float,float) -> gsc_rJ
+    91:91:float getSmoothRenderOffsetX(net.minecraft.class_2669,float) -> gsc_rJ
+    96:96:float getSmoothRenderOffsetY(net.minecraft.class_2669,float) -> gsc_hH
+    101:101:float getSmoothRenderOffsetZ(net.minecraft.class_2669,float) -> gsc_sc
+    106:107:void onReadNbt(net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    111:112:void onTickProgressChanged(net.minecraft.class_1937,net.minecraft.class_2338,net.minecraft.class_2680,net.minecraft.class_2669,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    116:117:void onFinishProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
 com.g4mesoft.mixin.client.GSPistonBlockEntityRendererMixin -> com.g4mesoft.mixin.client.GSPistonBlockEntityRendererMixin:
     19:19:void <init>() -> <init>
     23:23:float getPistonProgress(net.minecraft.class_2669,float) -> gsc_rJ
