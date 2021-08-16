@@ -48,7 +48,13 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@Override
 	@Environment(EnvType.CLIENT)
 	public float getSmoothProgress(float partialTicks) {
-		if ((isRemoved() || this.field_26705 != 0) && GSMathUtil.equalsApproximate(this.lastProgress, 1.0f))
+		return getOffsetForProgress(progress, actualLastProgress, partialTicks);
+	}
+	
+	@Override
+	@Environment(EnvType.CLIENT)
+	public float getOffsetForProgress(float progress, float lastProgress, float partialTicks) {
+		if ((isRemoved() || this.field_26705 != 0) && GSMathUtil.equalsApproximate(lastProgress, 1.0f))
 			return 1.0f;
 		
 		float val;
@@ -58,22 +64,22 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		default:
 		case GSTpsModule.PISTON_ANIM_PAUSE_END:
 			// Will be clamped by the return statement.
-			val = (this.progress * numberOfSteps + partialTicks) / numberOfSteps;
+			val = (progress * numberOfSteps + partialTicks) / numberOfSteps;
 			break;
 		case GSTpsModule.PISTON_ANIM_PAUSE_MIDDLE:
-			if (this.progress < 0.5f - GSMathUtil.EPSILON_F) {
-				val = (this.progress * numberOfSteps + partialTicks) / numberOfSteps;
-			} else if (this.progress > 0.5f + GSMathUtil.EPSILON_F) {
-				val = (this.progress * numberOfSteps - 1.0f + partialTicks) / numberOfSteps;
+			if (progress < 0.5f - GSMathUtil.EPSILON_F) {
+				val = (progress * numberOfSteps + partialTicks) / numberOfSteps;
+			} else if (progress > 0.5f + GSMathUtil.EPSILON_F) {
+				val = (progress * numberOfSteps - 1.0f + partialTicks) / numberOfSteps;
 			} else {
 				val = 0.5f;
 			}
 			break;
 		case GSTpsModule.PISTON_ANIM_PAUSE_BEGINNING:
-			val = actualLastProgress + (this.progress - actualLastProgress) * partialTicks;
+			val = lastProgress + (progress - lastProgress) * partialTicks;
 			break;
 		case GSTpsModule.PISTON_ANIM_NO_PAUSE:
-			val = (this.progress * numberOfSteps + partialTicks) / (numberOfSteps + 1.0f);
+			val = (progress * numberOfSteps + partialTicks) / (numberOfSteps + 1.0f);
 			break;
 		}
 		
