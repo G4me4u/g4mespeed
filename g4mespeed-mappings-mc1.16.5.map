@@ -984,8 +984,8 @@ com.g4mesoft.mixin.client.GSPistonBlockEntityMixin -> com.g4mesoft.mixin.client.
     net.minecraft.class_2680 field_12204 -> field_12204
     int field_26705 -> field_26705
     float actualLastProgress -> gsc_sc
-    float nextProgress -> gsc_rJ
-    boolean wasAdded -> gsc_hH
+    float nextProgress -> gsc_bs
+    boolean wasAdded -> gsc_UM
     float numberOfSteps -> numberOfSteps
     void method_11503(float) -> method_11503
     void method_23674(float) -> method_23674
