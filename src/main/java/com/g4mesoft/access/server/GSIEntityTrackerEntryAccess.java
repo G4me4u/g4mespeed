@@ -1,4 +1,4 @@
-package com.g4mesoft.access;
+package com.g4mesoft.access.server;
 
 public interface GSIEntityTrackerEntryAccess {
 

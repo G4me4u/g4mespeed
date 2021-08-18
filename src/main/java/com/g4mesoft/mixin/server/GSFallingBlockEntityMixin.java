@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.g4mesoft.access.GSIServerChunkManagerAccess;
+import com.g4mesoft.access.server.GSIServerChunkManagerAccess;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSTpsModule;
 

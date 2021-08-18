@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.access.GSIMinecraftClientAccess;
+import com.g4mesoft.access.client.GSIMinecraftClientAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSBasicTickTimer;

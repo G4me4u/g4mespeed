@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.g4mesoft.access.GSIBufferBuilderAccess;
+import com.g4mesoft.access.client.GSIBufferBuilderAccess;
 import com.g4mesoft.util.GSMathUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 

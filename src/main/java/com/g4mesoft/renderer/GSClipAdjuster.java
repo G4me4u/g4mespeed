@@ -3,7 +3,7 @@ package com.g4mesoft.renderer;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
-import com.g4mesoft.access.GSIBufferBuilderAccess;
+import com.g4mesoft.access.client.GSIBufferBuilderAccess;
 import com.g4mesoft.mixin.client.GSIVertexFormatElementAccess;
 import com.g4mesoft.util.GSMathUtil;
 

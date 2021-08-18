@@ -6,9 +6,9 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.g4mesoft.access.GSIChunkHolderAccess;
-import com.g4mesoft.access.GSIServerChunkManagerAccess;
-import com.g4mesoft.access.GSIThreadedAnvilChunkStorageAccess;
+import com.g4mesoft.access.server.GSIChunkHolderAccess;
+import com.g4mesoft.access.server.GSIServerChunkManagerAccess;
+import com.g4mesoft.access.server.GSIThreadedAnvilChunkStorageAccess;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.network.Packet;

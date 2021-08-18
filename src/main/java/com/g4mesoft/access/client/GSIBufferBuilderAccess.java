@@ -1,4 +1,4 @@
-package com.g4mesoft.access;
+package com.g4mesoft.access.client;
 
 import java.nio.ByteBuffer;
 

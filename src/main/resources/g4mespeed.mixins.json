@@ -57,7 +57,11 @@
     "client.GSClientWorldMixin",
     "client.GSAbstractClientPlayerEntityMixin",
     
-    "client.GSFallingBlockEntityMixin"
+    "client.GSFallingBlockEntityMixin",
+    
+    "client.GSWorldChunkMixin",
+    "client.GSEntityMixin",
+    "client.GSIWorldAccess"
   ],
   "injectors": {
     "defaultRequire": 1

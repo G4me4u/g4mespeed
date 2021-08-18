@@ -1,7 +1,7 @@
 package com.g4mesoft.panel;
 
-import com.g4mesoft.access.GSIKeyboardAccess;
-import com.g4mesoft.access.GSIMouseAccess;
+import com.g4mesoft.access.client.GSIKeyboardAccess;
+import com.g4mesoft.access.client.GSIMouseAccess;
 import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.renderer.GSBasicRenderer2D;
 import com.g4mesoft.renderer.GSIRenderer2D;

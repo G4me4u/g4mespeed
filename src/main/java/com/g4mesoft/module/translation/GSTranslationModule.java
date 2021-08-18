@@ -26,7 +26,7 @@ import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.GSIExtensionListener;
-import com.g4mesoft.access.GSIServerPlayNetworkHandlerAccess;
+import com.g4mesoft.access.server.GSIServerPlayNetworkHandlerAccess;
 import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
