@@ -48,11 +48,12 @@ import net.minecraft.util.math.BlockPos;
 @Mixin(ClientPlayNetworkHandler.class)
 public class GSClientPlayNetworkHandlerMixin {
 
-	private static final int WORLD_TIME_UPDATE_INTERVAL = 20;
-	
 	@Shadow @Final private ClientConnection connection;
 	@Shadow private MinecraftClient client;
 	@Shadow private ClientWorld world;
+
+	private static final int WORLD_TIME_UPDATE_INTERVAL = 20;
+	private static final double IGNORE_TELEPORT_MAX_DISTANCE = 1.0; /* Must be > 0.51 */
 	
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void onInit(CallbackInfo ci) {
@@ -63,8 +64,6 @@ public class GSClientPlayNetworkHandlerMixin {
 	private void onOnGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
 		GSClientController.getInstance().onJoinServer();
 	}
-	
-	private static final double IGNORE_TELEPORT_MAX_DISTANCE = 1.0; /* Must be > 0.51 */
 	
 	@Inject(method = "onEntityPosition", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
 	        target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
