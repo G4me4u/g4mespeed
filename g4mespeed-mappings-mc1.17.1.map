@@ -853,25 +853,25 @@ com.g4mesoft.mixin.client.GSBufferBuilderMixin -> com.g4mesoft.mixin.client.GSBu
     100:101:void setVertexCount(int) -> gsc_rJ
     105:106:void setElementOffset(int) -> gsc_hH
 com.g4mesoft.mixin.client.GSClientPlayNetworkHandlerMixin -> com.g4mesoft.mixin.client.GSClientPlayNetworkHandlerMixin:
-    int WORLD_TIME_UPDATE_INTERVAL -> gsc_rJ
     net.minecraft.class_2535 field_3689 -> field_3689
     net.minecraft.class_310 field_3690 -> field_3690
     net.minecraft.class_638 field_3699 -> field_3699
+    int WORLD_TIME_UPDATE_INTERVAL -> gsc_rJ
     double IGNORE_TELEPORT_MAX_DISTANCE -> gsc_hH
     50:50:void <init>() -> <init>
-    60:61:void onInit(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    65:66:void onOnGameJoin(net.minecraft.class_2678,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    73:82:void onOnEntityPosition(net.minecraft.class_2777,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    87:108:void onOnEntityUpdate(net.minecraft.class_2684,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    113:140:void onOnPlayerPositionLook(net.minecraft.class_2708,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    143:143:boolean isRecentlyMovedByPiston(net.minecraft.class_1297) -> gsc_rJ
-    148:159:void onCustomPayload(net.minecraft.class_2658,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    164:167:void onWorldTimeSync(net.minecraft.class_2761,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    171:212:boolean replaceChunkDataBlockEntityLoop(java.util.Iterator) -> gsc_rJ
-    218:252:void onOnBlockEntityUpdate(net.minecraft.class_2622,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    256:259:void onOnBlockUpdateReturn(net.minecraft.class_2626,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    264:267:void onOnChunkDeltaUpdateReturn(net.minecraft.class_2637,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    270:272:void scheduleRenderUpdateForFallingBlock(net.minecraft.class_2338,net.minecraft.class_2680) -> gsc_rJ
+    61:62:void onInit(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    66:67:void onOnGameJoin(net.minecraft.class_2678,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    72:81:void onOnEntityPosition(net.minecraft.class_2777,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    86:107:void onOnEntityUpdate(net.minecraft.class_2684,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    112:139:void onOnPlayerPositionLook(net.minecraft.class_2708,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    142:142:boolean isRecentlyMovedByPiston(net.minecraft.class_1297) -> gsc_rJ
+    147:158:void onCustomPayload(net.minecraft.class_2658,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    163:166:void onWorldTimeSync(net.minecraft.class_2761,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    170:211:boolean replaceChunkDataBlockEntityLoop(java.util.Iterator) -> gsc_rJ
+    217:251:void onOnBlockEntityUpdate(net.minecraft.class_2622,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    255:258:void onOnBlockUpdateReturn(net.minecraft.class_2626,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    263:266:void onOnChunkDeltaUpdateReturn(net.minecraft.class_2637,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    269:271:void scheduleRenderUpdateForFallingBlock(net.minecraft.class_2338,net.minecraft.class_2680) -> gsc_rJ
 com.g4mesoft.mixin.client.GSClientWorldMixin -> com.g4mesoft.mixin.client.GSClientWorldMixin:
     net.minecraft.class_310 field_3729 -> field_3729
     boolean tickingEntities -> gsc_rJ
