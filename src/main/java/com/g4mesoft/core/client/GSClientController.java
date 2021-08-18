@@ -20,9 +20,9 @@ import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSIServerModuleManager;
+import com.g4mesoft.gui.GSContentHistoryGUI;
 import com.g4mesoft.gui.GSHotkeyGUI;
 import com.g4mesoft.gui.GSInfoGUI;
-import com.g4mesoft.gui.GSContentHistoryGUI;
 import com.g4mesoft.gui.GSSettingsGUI;
 import com.g4mesoft.gui.GSTabbedGUI;
 import com.g4mesoft.hotkey.GSEKeyEventType;
@@ -275,6 +275,10 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	
 	public ClientPlayerEntity getPlayer() {
 		return (minecraft != null) ? minecraft.player : null;
+	}
+	
+	public MinecraftClient getClient() {
+		return minecraft;
 	}
 	
 	public GSKeyManager getKeyManager() {

@@ -76,7 +76,7 @@ setting.betterPistons.pistonAnimationType.3=No pause
 setting.betterPistons.pistonAnimationType.desc=Specifies whether to have a pause in the piston animation and if it should be at the beginning, middle, or end.
 
 setting.betterPistons.correctPistonPushing=Corrected Entity Pushing
-setting.betterPistons.correctPistonPushing.desc=Visually corrects movement of entities being pushed by pistons in accordance to piston animation type. There might be temporary dsynchronization when an entity is pushed by zero-ticked pistons. These minor synchronization issues can be solved by setting Block Event Distance to zero and enabling Paranoid Mode and Immediate Block Broadcast.
+setting.betterPistons.correctPistonPushing.desc=Visually corrects movement of entities being pushed by pistons in accordance to piston animation type.
 
 setting.betterPistons.pistonRenderDistance=Piston Render Distance
 setting.betterPistons.pistonRenderDistance.desc=Render distance of blocks moved by pistons. Since this has no effect if it is greater than the block event distance on the server the option can be set to Automatic to use this distance instead.

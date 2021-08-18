@@ -8,4 +8,6 @@ public interface GSIPistonBlockEntityAccess {
 	
 	public void onAdded();
 
+	public void handleScheduledUpdate();
+	
 }

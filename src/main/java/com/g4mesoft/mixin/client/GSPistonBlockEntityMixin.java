@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import com.g4mesoft.access.client.GSIEntityAccess;
+import com.g4mesoft.access.client.GSIMinecraftClientAccess;
 import com.g4mesoft.access.client.GSIPistonBlockEntityAccess;
 import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.client.GSClientController;
@@ -62,7 +63,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	
 	private float nextProgress = 0.0f;
 	private boolean wasAdded = false;
-
+	
 	/* Number of steps for a full extension (visible / modifiable for mod compatibility) */
 	@GSCoreOverride
 	private float numberOfSteps = 2.0f;
@@ -166,9 +167,9 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		return progress;
 	}
 
-	@Redirect(method = "getCollisionShape", at = @At(value = "FIELD", ordinal = 2, opcode = Opcodes.GETFIELD,
+	@Redirect(method = { "getHeadBlockState", "getCollisionShape" }, at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
 	          target = "Lnet/minecraft/block/entity/PistonBlockEntity;progress:F"))
-	private float onGetCollisionShapeRedirectProgress(PistonBlockEntity blockEntity) {
+	private float onGetCollisionShapeAndHeadStateRedirectProgress(PistonBlockEntity blockEntity) {
 		if (shouldCorrectPushEntities())
 			return ((GSIPistonBlockEntityAccess)this).getSmoothProgress(1.0f);
 		return progress;
@@ -177,17 +178,25 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@Override
 	public void onAdded() {
 		if (!wasAdded) {
-			if (isPushCorrectionEnabled()) {
-				double deltaProgress = getDeltaProgress(0.0);
-				if (GSMathUtil.equalsApproximate(deltaProgress, 0.0)) {
-					// pushedBlock = Slime or animation type = Pause at Beginning.
-					markEntitiesMovedByPiston(Math.min(1.0f / numberOfSteps, 1.0f));
-				} else {
-					pushEntities(0.0f);
-					method_23674(0.0f);
-				}
+			if (world.isClient && isPushCorrectionEnabled()) {
+				GSClientController controller = GSClientController.getInstance();
+				((GSIMinecraftClientAccess)controller.getClient()).schedulePistonBlockEntityUpdate(pos);
 			}
 			wasAdded = true;
+		}
+	}
+	
+	@Override
+	public void handleScheduledUpdate() {
+		if (isPushCorrectionEnabled()) {
+			double deltaProgress = getDeltaProgress(0.0);
+			if (GSMathUtil.equalsApproximate(deltaProgress, 0.0)) {
+				// pushedBlock = Slime or animation type = Pause at Beginning.
+				markEntitiesMovedByPiston(Math.min(1.0f / numberOfSteps, 1.0f));
+			} else {
+				pushEntities(0.0f);
+				method_23674(0.0f);
+			}
 		}
 	}
 	

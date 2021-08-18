@@ -11,6 +11,9 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.server.GSIChunkHolderAccess;
+import com.g4mesoft.core.GSVersion;
+import com.g4mesoft.core.server.GSServerController;
+import com.g4mesoft.module.tps.GSFlushingBlockEntityUpdatesPacket;
 
 import it.unimi.dsi.fastutil.shorts.ShortArraySet;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
@@ -44,6 +47,8 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	
 	@Shadow public abstract WorldChunk getWorldChunk();
 	
+	private static final GSVersion CORRECTED_PUSHING_VERSION = new GSVersion(1, 2, 2);
+	
 	private int loopSectionIndex;
 	private ShortSet[] blockEntityUpdatesBySection;
 	private boolean pendingBlockEntityUpdates;
@@ -60,10 +65,12 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	private void onFlushUpdates(WorldChunk chunk, CallbackInfo ci) {
 		loopSectionIndex = 0;
 		
-		if (!pendingBlockUpdates && skyLightUpdateBits == 0 && blockLightUpdateBits == 0) {
+		if (pendingBlockEntityUpdates) {
+			GSServerController.getInstance().sendPacketToAll(new GSFlushingBlockEntityUpdatesPacket(true), CORRECTED_PUSHING_VERSION);
+
 			// Only gets executed if there are no normal block or light
 			// updates that are marked for updates (where loops do not run).
-			if (pendingBlockEntityUpdates) {
+			if (!pendingBlockUpdates && skyLightUpdateBits == 0 && blockLightUpdateBits == 0) {
 				for (int s = 0; s < blockEntityUpdatesBySection.length; s++)
 					sendBlockEntityUpdates(chunk, s);
 			}
@@ -82,7 +89,10 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	
 	@Inject(method = "flushUpdates", at = @At("RETURN"))
 	private void onFlushUpdatesReturn(CallbackInfo ci) {
-		pendingBlockEntityUpdates = false;
+		if (pendingBlockEntityUpdates) {
+			GSServerController.getInstance().sendPacketToAll(new GSFlushingBlockEntityUpdatesPacket(false), CORRECTED_PUSHING_VERSION);
+			pendingBlockEntityUpdates = false;
+		}
 	}
 	
 	private void sendBlockEntityUpdates(WorldChunk chunk, int sectionIndex) {
