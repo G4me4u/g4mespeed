@@ -4,8 +4,8 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-import com.g4mesoft.access.GSIEntityTrackerEntryAccess;
-import com.g4mesoft.access.GSIThreadedAnvilChunkStorageAccess;
+import com.g4mesoft.access.server.GSIEntityTrackerEntryAccess;
+import com.g4mesoft.access.server.GSIThreadedAnvilChunkStorageAccess;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.entity.Entity;

@@ -1,4 +1,4 @@
-package com.g4mesoft.access;
+package com.g4mesoft.access.server;
 
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;

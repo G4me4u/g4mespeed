@@ -1,4 +1,4 @@
-package com.g4mesoft.access;
+package com.g4mesoft.access.client;
 
 public interface GSIPistonBlockEntityAccess {
 
@@ -6,4 +6,6 @@ public interface GSIPistonBlockEntityAccess {
 
 	public float getOffsetForProgress(float progress, float lastProgress, float partialTicks);
 	
+	public void onAdded();
+
 }

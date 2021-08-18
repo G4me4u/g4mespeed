@@ -1,4 +1,4 @@
-package com.g4mesoft.access;
+package com.g4mesoft.access.server;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;

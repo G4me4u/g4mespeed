@@ -17,7 +17,7 @@ import org.lwjgl.glfw.GLFW;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
-import com.g4mesoft.access.GSIAbstractClientPlayerEntityAccess;
+import com.g4mesoft.access.client.GSIAbstractClientPlayerEntityAccess;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.client.GSClientController;
@@ -119,6 +119,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSIntegerSetting sPrettySand;
 
 	public final GSIntegerSetting cPistonAnimationType;
+	public final GSBooleanSetting cCorrectPistonPushing;
 	public final GSIntegerSetting cPistonRenderDistance;
 	public final GSIntegerSetting sBlockEventDistance;
 	public final GSBooleanSetting sParanoidMode;
@@ -144,9 +145,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		cTpsLabel = new GSIntegerSetting("tpsLabel", TPS_LABEL_DISABLED, 0, 3);
 		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
 		sRestoreTickrate = new GSBooleanSetting("restoreTickrate", false);
-		sPrettySand = new GSIntegerSetting("prettySand", PRETTY_SAND_DISABLED, 0, 2);
+		sPrettySand = new GSIntegerSetting("prettySand", PRETTY_SAND_PERFORMANCE, 0, 2);
 		
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 3);
+		cCorrectPistonPushing = new GSBooleanSetting("correctPistonPushing", false);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, -1, 32);
 		sBlockEventDistance = new GSIntegerSetting("blockEventDistance", 4, 0, 32);
 		sParanoidMode = new GSBooleanSetting("paranoidMode", false);
@@ -202,6 +204,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		settings.registerSetting(TPS_CATEGORY, cTpsLabel);
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonAnimationType);
+		settings.registerSetting(BETTER_PISTONS_CATEGORY, cCorrectPistonPushing);
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonRenderDistance);
 		
 		settings.addChangeListener(this);

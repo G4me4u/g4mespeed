@@ -9,7 +9,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
-import com.g4mesoft.access.GSIServerPlayNetworkHandlerAccess;
+import com.g4mesoft.access.server.GSIServerPlayNetworkHandlerAccess;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSConnectionPacket;

@@ -2,6 +2,7 @@ package com.g4mesoft.mixin.client;
 
 import java.util.Iterator;
 
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,7 +12,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.access.GSIWorldRendererAccess;
+import com.g4mesoft.access.client.GSIEntityAccess;
+import com.g4mesoft.access.client.GSIWorldRendererAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.packet.GSICustomPayloadPacket;
@@ -26,13 +28,20 @@ import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.ClientConnection;
 import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
 
@@ -41,6 +50,7 @@ public class GSClientPlayNetworkHandlerMixin {
 
 	private static final int WORLD_TIME_UPDATE_INTERVAL = 20;
 	
+	@Shadow @Final private ClientConnection connection;
 	@Shadow private MinecraftClient client;
 	@Shadow private ClientWorld world;
 	
@@ -52,6 +62,84 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Inject(method = "onGameJoin", at = @At("RETURN"))
 	private void onOnGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
 		GSClientController.getInstance().onJoinServer();
+	}
+	
+	private static final double IGNORE_TELEPORT_MAX_DISTANCE = 1.0; /* Must be > 0.51 */
+	
+	@Inject(method = "onEntityPosition", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
+	        target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
+	private void onOnEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci) {
+		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.getValue()) {
+			Entity entity = world.getEntityById(packet.getId());
+			if (entity != null && isRecentlyMovedByPiston(entity)) {
+				// Update the tracked position such that the entity position
+				// does not get out of sync later.
+				entity.updateTrackedPosition(packet.getX(), packet.getY(), packet.getZ());
+				ci.cancel();
+			}
+		}
+	}
+	
+	@Inject(method = "onEntityUpdate", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
+	        target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
+	private void onOnEntityUpdate(EntityS2CPacket packet, CallbackInfo ci) {
+		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.getValue()) {
+			Entity entity = packet.getEntity(world);
+			if (entity != null && isRecentlyMovedByPiston(entity)) {
+				if (!entity.isLogicalSideForUpdatingMovement()) {
+					if (packet.isPositionChanged()) {
+						// See comment above.
+						entity.updateTrackedPosition(packet.calculateDeltaPosition(entity.getTrackedPosition()));
+					}
+					
+					if (packet.hasRotation()) {
+						// Do not ignore rotation changes.
+						float yaw   = (float)(packet.getYaw()   * 360) / 256.0f;
+						float pitch = (float)(packet.getPitch() * 360) / 256.0f;
+						entity.updateTrackedPositionAndAngles(entity.getX(), entity.getY(), entity.getZ(), yaw, pitch, 3, false);
+					}
+					
+					entity.setOnGround(packet.isOnGround());
+				}
+				ci.cancel();
+			}
+		}
+	}
+	
+	@Inject(method = "onPlayerPositionLook", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
+	        target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
+	public void onOnPlayerPositionLook(PlayerPositionLookS2CPacket packet, CallbackInfo ci) {
+		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.getValue()) {
+			// The server will inherently detect that the player moved in an incorrect way, if the
+			// player was moved by a piston. In this case we ignore the update and send confirmation.
+			// The confirmation is important, since we do not want the server to teleport the player
+			// 20 ticks after it has been ignored.
+			PlayerEntity player = client.player;
+			
+			if (isRecentlyMovedByPiston(player)) {
+				// Note: there might be a few issues with an actual teleport, if the player was just moved
+				//       by a piston. But this should hopefully be solved by a simple distance check.
+				boolean isDeltaX = packet.getFlags().contains(PlayerPositionLookS2CPacket.Flag.X);
+				boolean isDeltaY = packet.getFlags().contains(PlayerPositionLookS2CPacket.Flag.Y);
+				boolean isDeltaZ = packet.getFlags().contains(PlayerPositionLookS2CPacket.Flag.Z);
+				
+				double dx = isDeltaX ? packet.getX() : (packet.getX() - player.getX());
+				double dy = isDeltaY ? packet.getY() : (packet.getY() - player.getY());
+				double dz = isDeltaZ ? packet.getZ() : (packet.getZ() - player.getZ());
+				
+				if (Math.abs(dx) < IGNORE_TELEPORT_MAX_DISTANCE &&
+				    Math.abs(dy) < IGNORE_TELEPORT_MAX_DISTANCE &&
+				    Math.abs(dz) < IGNORE_TELEPORT_MAX_DISTANCE) {
+					
+					connection.send(new TeleportConfirmC2SPacket(packet.getTeleportId()));
+					ci.cancel();
+				}
+			}
+		}
+	}
+	
+	private boolean isRecentlyMovedByPiston(Entity entity) {
+		return (((GSIEntityAccess)entity).isMovedByPiston() || ((GSIEntityAccess)entity).wasMovedByPiston());
 	}
 	
 	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)

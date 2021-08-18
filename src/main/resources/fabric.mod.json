@@ -27,5 +27,11 @@
 
   "depends": {
   	"minecraft": "1.16.x"
+  },
+  
+  "custom": {
+    "lithium:options": {
+      "mixin.block.moving_block_shapes": false
+    }
   }
 }

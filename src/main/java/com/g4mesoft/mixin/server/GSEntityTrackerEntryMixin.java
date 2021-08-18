@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.access.GSIEntityTrackerEntryAccess;
+import com.g4mesoft.access.server.GSIEntityTrackerEntryAccess;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSServerPlayerFixedMovementPacket;

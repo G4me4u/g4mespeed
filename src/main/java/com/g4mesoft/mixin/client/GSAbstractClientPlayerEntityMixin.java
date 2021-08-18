@@ -2,7 +2,7 @@ package com.g4mesoft.mixin.client;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.g4mesoft.access.GSIAbstractClientPlayerEntityAccess;
+import com.g4mesoft.access.client.GSIAbstractClientPlayerEntityAccess;
 
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 

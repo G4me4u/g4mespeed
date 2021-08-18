@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import com.g4mesoft.access.GSIPistonBlockEntityAccess;
+import com.g4mesoft.access.client.GSIPistonBlockEntityAccess;
 
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.client.render.block.entity.PistonBlockEntityRenderer;

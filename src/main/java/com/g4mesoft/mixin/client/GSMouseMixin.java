@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.access.GSIMouseAccess;
+import com.g4mesoft.access.client.GSIMouseAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.hotkey.GSEKeyEventType;
 import com.g4mesoft.hotkey.GSKeyManager;

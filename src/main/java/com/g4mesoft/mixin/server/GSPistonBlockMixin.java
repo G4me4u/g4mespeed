@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import com.g4mesoft.access.GSIServerChunkManagerAccess;
+import com.g4mesoft.access.server.GSIServerChunkManagerAccess;
 import com.g4mesoft.core.server.GSServerController;
 
 import net.minecraft.block.BlockState;

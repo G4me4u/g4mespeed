@@ -5,7 +5,7 @@ import java.util.LinkedList;
 
 import org.lwjgl.opengl.GL11;
 
-import com.g4mesoft.access.GSIBufferBuilderAccess;
+import com.g4mesoft.access.client.GSIBufferBuilderAccess;
 import com.g4mesoft.mixin.client.GSIVertexFormatElementAccess;
 import com.g4mesoft.util.GSMathUtil;
 

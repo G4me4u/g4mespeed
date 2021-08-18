@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.lwjgl.opengl.GL11;
 
-import com.g4mesoft.access.GSIBufferBuilderAccess;
+import com.g4mesoft.access.client.GSIBufferBuilderAccess;
 import com.g4mesoft.util.GSMathUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 
