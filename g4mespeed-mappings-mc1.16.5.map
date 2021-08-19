@@ -66,8 +66,8 @@ com.g4mesoft.GSIExtension -> core.d:
 com.g4mesoft.GSIExtensionListener -> core.e:
     void extensionAdded(com.g4mesoft.GSIExtension) -> extensionAdded
 com.g4mesoft.access.client.GSIAbstractClientPlayerEntityAccess -> core.f:
-    boolean isFixedMovement() -> gsc_rJ
-    void setFixedMovement(boolean) -> gsc_rJ
+    boolean isFixedMovement() -> gsc_sc
+    void setFixedMovement(boolean) -> gsc_sc
 com.g4mesoft.access.client.GSIBufferBuilderAccess -> core.g:
     void pushClip(float,float,float,float) -> gsc_rJ
     void pushClip(com.g4mesoft.renderer.GSClipRect) -> gsc_rJ
@@ -820,8 +820,8 @@ com.g4mesoft.hotkey.GSKeyManager -> core.bf:
 com.g4mesoft.mixin.client.GSAbstractClientPlayerEntityMixin -> com.g4mesoft.mixin.client.GSAbstractClientPlayerEntityMixin:
     boolean fixedMovement -> gsc_rJ
     10:10:void <init>() -> <init>
-    16:16:boolean isFixedMovement() -> gsc_rJ
-    21:22:void setFixedMovement(boolean) -> gsc_rJ
+    16:16:boolean isFixedMovement() -> gsc_sc
+    21:22:void setFixedMovement(boolean) -> gsc_sc
 com.g4mesoft.mixin.client.GSBossBarHudMixin -> com.g4mesoft.mixin.client.GSBossBarHudMixin:
     net.minecraft.class_310 field_2058 -> field_2058
     18:18:void <init>() -> <init>
@@ -1136,8 +1136,8 @@ com.g4mesoft.mixin.server.GSEntityTrackerEntryMixin -> com.g4mesoft.mixin.server
     31:46:void <init>() -> <init>
     50:93:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
     98:104:void onStartTracking(net.minecraft.class_3222,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    108:108:boolean isFixedMovement() -> gsc_rJ
-    113:114:void setFixedMovement(boolean) -> gsc_rJ
+    108:108:boolean isFixedMovement() -> gsc_sc
+    113:114:void setFixedMovement(boolean) -> gsc_sc
     118:119:void setTickedFromFallingBlock(boolean) -> gsc_hH
 com.g4mesoft.mixin.server.GSFallingBlockEntityMixin -> com.g4mesoft.mixin.server.GSFallingBlockEntityMixin:
     net.minecraft.class_2680 method_6962() -> method_6962
