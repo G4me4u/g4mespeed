@@ -108,8 +108,8 @@ com.g4mesoft.access.server.GSIChunkHolderAccess -> core.cW:
     void markBlockEntityUpdate(net.minecraft.class_2338) -> gsc_rJ
     void sendToNearbyPlayers0(net.minecraft.class_2596) -> gsc_rJ
 com.g4mesoft.access.server.GSIEntityTrackerEntryAccess -> core.cX:
-    boolean isFixedMovement() -> gsc_rJ
-    void setFixedMovement(boolean) -> gsc_rJ
+    boolean isFixedMovement() -> gsc_sc
+    void setFixedMovement(boolean) -> gsc_sc
     void setTickedFromFallingBlock(boolean) -> gsc_hH
 com.g4mesoft.access.server.GSIServerChunkManagerAccess -> core.dd:
     void tickEntityTracker(net.minecraft.class_1297) -> gsc_rJ
@@ -883,7 +883,7 @@ com.g4mesoft.mixin.client.GSEntityMixin -> com.g4mesoft.mixin.client.GSEntityMix
     boolean movedByPiston -> gsc_hH
     17:20:void <init>() -> <init>
     25:26:void onMoveBeforeAdjustMovementForPiston(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    30:32:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    30:32:void onResetPosition(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
     36:44:long onAdjustMovementForPistonWorldGetTime(net.minecraft.class_1937) -> gsc_rJ
     49:49:boolean wasMovedByPiston() -> gsc_rJ
     54:54:boolean isMovedByPiston() -> gsc_hH
