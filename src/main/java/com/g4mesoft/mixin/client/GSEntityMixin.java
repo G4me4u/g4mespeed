@@ -25,8 +25,8 @@ public class GSEntityMixin implements GSIEntityAccess {
 		movedByPiston = true;
 	}
 
-	@Inject(method = "tick", at = @At("HEAD"))
-	private void onTick(CallbackInfo ci) {
+	@Inject(method = "resetPosition", at = @At("HEAD"))
+	private void onResetPosition(CallbackInfo ci) {
 		wasMovedByPiston = movedByPiston;
 		movedByPiston = false;
 	}
