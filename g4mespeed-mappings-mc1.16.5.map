@@ -89,6 +89,8 @@ com.g4mesoft.access.client.GSIEntityAccess -> core.h:
 com.g4mesoft.access.client.GSIKeyboardAccess -> core.i:
     boolean isPreviousEventRepeating() -> gsc_rJ
 com.g4mesoft.access.client.GSIMinecraftClientAccess -> core.k:
+    void setFlushingBlockEntityUpdates(boolean) -> gsc_rJ
+    void schedulePistonBlockEntityUpdate(net.minecraft.class_2338) -> gsc_rJ
     float getFixedMovementTickDelta() -> gsc_hH
 com.g4mesoft.access.client.GSIMouseAccess -> core.l:
     int getPreviousEventModifiers() -> gsc_rJ
@@ -97,6 +99,7 @@ com.g4mesoft.access.client.GSIPistonBlockEntityAccess -> core.cC:
     float getSmoothProgress(float) -> gsc_rJ
     float getOffsetForProgress(float,float,float) -> gsc_rJ
     void onAdded() -> gsc_rJ
+    void handleScheduledUpdate() -> gsc_bs
 com.g4mesoft.access.client.GSIWorldRendererAccess -> core.cV:
     void scheduleBlockUpdate0(net.minecraft.class_2338,boolean) -> gsc_rJ
 com.g4mesoft.access.server.GSIChunkHolderAccess -> core.cW:
@@ -177,14 +180,14 @@ com.g4mesoft.core.GSCoreExtension -> core.o:
     com.g4mesoft.GSExtensionInfo INFO -> gsc_bs
     com.g4mesoft.GSExtensionInfo INVALID_VERSION_INFO -> gsc_UM
     java.lang.String TRANSLATION_PATH -> gsc_mg
-    22:22:void <init>() -> <init>
-    36:36:void init() -> gsc_rJ
-    40:55:void registerPackets(com.g4mesoft.registry.GSSupplierRegistry) -> gsc_rJ
-    59:59:void addClientModules(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
-    63:63:void addServerModules(com.g4mesoft.core.server.GSServerController) -> gsc_rJ
-    67:67:java.lang.String getTranslationPath() -> gsc_hH
-    72:72:com.g4mesoft.GSExtensionInfo getInfo() -> gsc_sc
-    26:30:void <clinit>() -> <clinit>
+    23:23:void <init>() -> <init>
+    37:37:void init() -> gsc_rJ
+    41:58:void registerPackets(com.g4mesoft.registry.GSSupplierRegistry) -> gsc_rJ
+    62:62:void addClientModules(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
+    66:66:void addServerModules(com.g4mesoft.core.server.GSServerController) -> gsc_rJ
+    70:70:java.lang.String getTranslationPath() -> gsc_hH
+    75:75:com.g4mesoft.GSExtensionInfo getInfo() -> gsc_sc
+    27:31:void <clinit>() -> <clinit>
 com.g4mesoft.core.GSCoreOverride -> com.g4mesoft.core.GSCoreOverride:
 com.g4mesoft.core.GSIModule -> core.p:
     void init(com.g4mesoft.core.GSIModuleManager) -> gsc_rJ
@@ -282,12 +285,13 @@ com.g4mesoft.core.client.GSClientController -> core.s:
     269:270:void removeRenderable(com.g4mesoft.renderer.GSIRenderable3D) -> gsc_hH
     273:273:java.util.Collection getRenderables() -> gsc_kZ
     277:277:net.minecraft.class_746 getPlayer() -> gsc_kd
-    281:281:com.g4mesoft.hotkey.GSKeyManager getKeyManager() -> gsc_yN
-    285:285:com.g4mesoft.setting.GSRemoteSettingManager getServerSettings() -> gsc_pl
-    289:289:com.g4mesoft.gui.GSTabbedGUI getTabbedGUI() -> gsc_EE
-    293:293:com.g4mesoft.gui.GSContentHistoryGUI getPrimaryGUI() -> gsc_PX
-    297:297:com.g4mesoft.hotkey.GSKeyBinding getOpenGUIKey() -> gsc_LG
-    301:301:com.g4mesoft.core.client.GSClientController getInstance() -> gsc_VL
+    281:281:net.minecraft.class_310 getClient() -> gsc_Nt
+    285:285:com.g4mesoft.hotkey.GSKeyManager getKeyManager() -> gsc_yN
+    289:289:com.g4mesoft.setting.GSRemoteSettingManager getServerSettings() -> gsc_pl
+    293:293:com.g4mesoft.gui.GSTabbedGUI getTabbedGUI() -> gsc_EE
+    297:297:com.g4mesoft.gui.GSContentHistoryGUI getPrimaryGUI() -> gsc_PX
+    301:301:com.g4mesoft.hotkey.GSKeyBinding getOpenGUIKey() -> gsc_LG
+    305:305:com.g4mesoft.core.client.GSClientController getInstance() -> gsc_VL
     95:97:void lambda$init$0() -> gsc_qi
     62:62:void <clinit>() -> <clinit>
 com.g4mesoft.core.client.GSIClientModule -> core.cQ:
@@ -949,24 +953,30 @@ com.g4mesoft.mixin.client.GSMinecraftClientMixin -> com.g4mesoft.mixin.client.GS
     com.g4mesoft.core.client.GSClientController controller -> gsc_rJ
     com.g4mesoft.module.tps.GSTpsModule tpsModule -> gsc_hH
     com.g4mesoft.module.tps.GSITickTimer playerTimer -> gsc_sc
-    36:54:void <init>() -> <init>
+    boolean flushingUpdates -> gsc_bs
+    boolean forceScheduledPistonBlockEntityUpdates -> gsc_UM
+    java.util.Set scheduledPistonBlockEntityUpdates -> gsc_mg
+    43:65:void <init>() -> <init>
     boolean method_1493() -> method_1493
     void method_1508() -> method_1508
-    63:66:void onInit(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    72:74:void onDisconnect(net.minecraft.class_437,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    78:79:void onClientClose(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    83:86:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
-    91:95:void onTickAfterItemUseCooldownDecrement(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_bs
-    100:104:void onTickAfterAttackCooldownDecrement(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_UM
-    109:111:void onTickRedirectInteractionManagerTick(net.minecraft.class_329) -> gsc_rJ
-    116:118:void onTickRedirectInteractionManagerTick(net.minecraft.class_636) -> gsc_rJ
-    123:125:void onTickRedirectHandleInputEvents(net.minecraft.class_310) -> gsc_rJ
-    130:132:void onTickRedirectGameRendererTick(net.minecraft.class_757) -> gsc_rJ
-    137:146:void onTickAndShouldTick(boolean,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    149:171:void onTickCorrection() -> gsc_rJ
-    174:180:void tickFixedMovementPlayers() -> gsc_sc
-    184:186:float onModifyGameRenderTickDelta(float) -> gsc_rJ
-    191:191:float getFixedMovementTickDelta() -> gsc_hH
+    74:77:void onInit(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    83:85:void onDisconnect(net.minecraft.class_437,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    89:90:void onClientClose(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    94:102:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
+    107:111:void onTickAfterItemUseCooldownDecrement(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_bs
+    116:120:void onTickAfterAttackCooldownDecrement(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_UM
+    125:127:void onTickRedirectInteractionManagerTick(net.minecraft.class_329) -> gsc_rJ
+    132:134:void onTickRedirectInteractionManagerTick(net.minecraft.class_636) -> gsc_rJ
+    139:141:void onTickRedirectHandleInputEvents(net.minecraft.class_310) -> gsc_rJ
+    146:148:void onTickRedirectGameRendererTick(net.minecraft.class_757) -> gsc_rJ
+    153:168:void onRenderBeforeTickLoop(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_mg
+    171:181:void performScheduledPistonBlockEntityUpdates() -> gsc_bs
+    184:206:void onTickCorrection() -> gsc_rJ
+    209:215:void tickFixedMovementPlayers() -> gsc_sc
+    219:221:float onModifyGameRenderTickDelta(float) -> gsc_rJ
+    226:230:void setFlushingBlockEntityUpdates(boolean) -> gsc_rJ
+    234:235:void schedulePistonBlockEntityUpdate(net.minecraft.class_2338) -> gsc_rJ
+    239:239:float getFixedMovementTickDelta() -> gsc_hH
 com.g4mesoft.mixin.client.GSMouseMixin -> com.g4mesoft.mixin.client.GSMouseMixin:
     net.minecraft.class_310 field_1779 -> field_1779
     int prevEventModifiers -> gsc_rJ
@@ -992,26 +1002,27 @@ com.g4mesoft.mixin.client.GSPistonBlockEntityMixin -> com.g4mesoft.mixin.client.
     net.minecraft.class_2680 method_11496() -> method_11496
     net.minecraft.class_238 method_11500(net.minecraft.class_238) -> method_11500
     net.minecraft.class_2350 method_11506() -> method_11506
-    63:72:void <init>(net.minecraft.class_2591) -> <init>
-    77:77:float getSmoothProgress(float) -> gsc_rJ
-    83:112:float getOffsetForProgress(float,float,float) -> gsc_rJ
-    117:117:float getSmoothRenderOffsetX(net.minecraft.class_2669,float) -> gsc_rJ
-    122:122:float getSmoothRenderOffsetY(net.minecraft.class_2669,float) -> gsc_hH
-    127:127:float getSmoothRenderOffsetZ(net.minecraft.class_2669,float) -> gsc_sc
-    132:133:void onMoveEntitiesHead(float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    138:138:double onPushEntitiesModifyDeltaProgress(double) -> gsc_rJ
-    144:145:void onPushEntitiesAfterEntitySetVelocity(float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo,net.minecraft.class_2350,double,net.minecraft.class_265,net.minecraft.class_238,java.util.List,java.util.List,boolean,java.util.Iterator,net.minecraft.class_1297) -> gsc_rJ
-    150:150:double onMethod_23674ModifyDeltaProgress(double) -> gsc_hH
-    154:158:double getDeltaProgress(double) -> gsc_sc
-    164:166:float onOffsetBoxRedirectProgress(net.minecraft.class_2669) -> gsc_rJ
-    172:174:float onGetCollisionShapeRedirectProgress(net.minecraft.class_2669) -> gsc_hH
-    179:192:void onAdded() -> gsc_rJ
-    195:215:void markEntitiesMovedByPiston(float) -> gsc_hH
-    218:218:boolean shouldCorrectPushEntities() -> gsc_hH
-    222:222:boolean isPushCorrectionEnabled() -> gsc_sc
-    227:228:void onFromTag(net.minecraft.class_2680,net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    232:233:void onTickAndFinishProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    239:252:double method_11006() -> method_11006
+    64:73:void <init>(net.minecraft.class_2591) -> <init>
+    78:78:float getSmoothProgress(float) -> gsc_rJ
+    84:113:float getOffsetForProgress(float,float,float) -> gsc_rJ
+    118:118:float getSmoothRenderOffsetX(net.minecraft.class_2669,float) -> gsc_rJ
+    123:123:float getSmoothRenderOffsetY(net.minecraft.class_2669,float) -> gsc_hH
+    128:128:float getSmoothRenderOffsetZ(net.minecraft.class_2669,float) -> gsc_sc
+    133:134:void onMoveEntitiesHead(float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    139:139:double onPushEntitiesModifyDeltaProgress(double) -> gsc_rJ
+    145:146:void onPushEntitiesAfterEntitySetVelocity(float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo,net.minecraft.class_2350,double,net.minecraft.class_265,net.minecraft.class_238,java.util.List,java.util.List,boolean,java.util.Iterator,net.minecraft.class_1297) -> gsc_rJ
+    151:151:double onMethod_23674ModifyDeltaProgress(double) -> gsc_hH
+    155:159:double getDeltaProgress(double) -> gsc_sc
+    165:167:float onOffsetBoxRedirectProgress(net.minecraft.class_2669) -> gsc_rJ
+    173:175:float onGetCollisionShapeAndHeadStateRedirectProgress(net.minecraft.class_2669) -> gsc_hH
+    180:187:void onAdded() -> gsc_rJ
+    191:201:void handleScheduledUpdate() -> gsc_bs
+    204:224:void markEntitiesMovedByPiston(float) -> gsc_hH
+    227:227:boolean shouldCorrectPushEntities() -> gsc_hH
+    231:231:boolean isPushCorrectionEnabled() -> gsc_sc
+    236:237:void onFromTag(net.minecraft.class_2680,net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    241:242:void onTickAndFinishProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    248:261:double method_11006() -> method_11006
 com.g4mesoft.mixin.client.GSPistonBlockEntityRendererMixin -> com.g4mesoft.mixin.client.GSPistonBlockEntityRendererMixin:
     15:15:void <init>() -> <init>
     19:19:float getPistonProgress(net.minecraft.class_2669,float) -> gsc_rJ
@@ -1072,22 +1083,24 @@ com.g4mesoft.mixin.server.GSChunkHolderMixin -> com.g4mesoft.mixin.server.GSChun
     boolean field_25803 -> field_25803
     int field_13871 -> field_13871
     int field_13870 -> field_13870
+    com.g4mesoft.core.GSVersion CORRECTED_PUSHING_VERSION -> gsc_bs
     int loopSectionIndex -> gsc_rJ
     it.unimi.dsi.fastutil.shorts.ShortSet[] blockEntityUpdatesBySection -> gsc_hH
     boolean pendingBlockEntityUpdates -> gsc_sc
-    33:33:void <init>() -> <init>
+    36:36:void <init>() -> <init>
     void method_13992(net.minecraft.class_2596,boolean) -> method_13992
     void method_30311(net.minecraft.class_1937,net.minecraft.class_2338,net.minecraft.class_2680) -> method_30311
     net.minecraft.class_2818 method_16144() -> method_16144
-    55:57:void onInit(net.minecraft.class_1923,int,net.minecraft.class_3568,net.minecraft.class_3193$class_3896,net.minecraft.class_3193$class_3897,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    61:71:void onFlushUpdates(net.minecraft.class_2818,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    79:81:void onFlushUpdatesBlockUpdateLoop(net.minecraft.class_2818,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    85:86:void onFlushUpdatesReturn(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    89:113:void sendBlockEntityUpdates(net.minecraft.class_2818,int) -> gsc_rJ
-    117:119:void updateBlockImmediately(net.minecraft.class_1937,net.minecraft.class_2338) -> gsc_rJ
-    123:124:void updateBlockEntityImmediately(net.minecraft.class_1937,net.minecraft.class_2338) -> gsc_hH
-    128:138:void markBlockEntityUpdate(net.minecraft.class_2338) -> gsc_rJ
-    142:143:void sendToNearbyPlayers0(net.minecraft.class_2596) -> gsc_rJ
+    60:62:void onInit(net.minecraft.class_1923,int,net.minecraft.class_3568,net.minecraft.class_3193$class_3896,net.minecraft.class_3193$class_3897,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    66:78:void onFlushUpdates(net.minecraft.class_2818,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    86:88:void onFlushUpdatesBlockUpdateLoop(net.minecraft.class_2818,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    92:96:void onFlushUpdatesReturn(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    99:123:void sendBlockEntityUpdates(net.minecraft.class_2818,int) -> gsc_rJ
+    127:129:void updateBlockImmediately(net.minecraft.class_1937,net.minecraft.class_2338) -> gsc_rJ
+    133:134:void updateBlockEntityImmediately(net.minecraft.class_1937,net.minecraft.class_2338) -> gsc_hH
+    138:148:void markBlockEntityUpdate(net.minecraft.class_2338) -> gsc_rJ
+    152:153:void sendToNearbyPlayers0(net.minecraft.class_2596) -> gsc_rJ
+    50:50:void <clinit>() -> <clinit>
 com.g4mesoft.mixin.server.GSClientConnectionMixin -> com.g4mesoft.mixin.server.GSClientConnectionMixin:
     14:14:void <init>() -> <init>
     20:20:void onExceptionCaught(io.netty.channel.ChannelHandlerContext,java.lang.Throwable,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
@@ -1271,6 +1284,14 @@ com.g4mesoft.module.tps.GSETpsHotkeyType -> core.bg:
     37:37:int getIndex() -> gsc_rJ
     3:3:com.g4mesoft.module.tps.GSETpsHotkeyType[] $values() -> gsc_hH
     3:22:void <clinit>() -> <clinit>
+com.g4mesoft.module.tps.GSFlushingBlockEntityUpdatesPacket -> core.dg:
+    boolean flushingUpdates -> gsc_rJ
+    18:19:void <init>() -> <init>
+    21:23:void <init>(boolean) -> <init>
+    27:28:void read(net.minecraft.class_2540) -> gsc_rJ
+    32:33:void write(net.minecraft.class_2540) -> gsc_hH
+    37:37:void handleOnServer(com.g4mesoft.core.server.GSServerController,net.minecraft.class_3222) -> gsc_rJ
+    41:42:void handleOnClient(com.g4mesoft.core.client.GSClientController) -> gsc_rJ
 com.g4mesoft.module.tps.GSITickTimer -> core.bi:
     float MILLIS_PER_SECOND -> gsc_rJ
     float DEFAULT_MILLIS_PER_TICK -> gsc_hH
