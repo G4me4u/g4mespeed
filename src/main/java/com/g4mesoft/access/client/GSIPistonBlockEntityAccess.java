@@ -8,10 +8,12 @@ public interface GSIPistonBlockEntityAccess {
 	
 	public void onAdded();
 
+	public void handleScheduledUpdate();
+
 	public float getProgress();
 
 	public float getNextProgress();
 
 	public void setNextProgress(float nextProgress);
-
+	
 }

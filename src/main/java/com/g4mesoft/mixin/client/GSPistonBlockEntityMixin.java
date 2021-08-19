@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import com.g4mesoft.access.client.GSIEntityAccess;
+import com.g4mesoft.access.client.GSIMinecraftClientAccess;
 import com.g4mesoft.access.client.GSIPistonBlockEntityAccess;
 import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.client.GSClientController;
@@ -64,7 +65,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	
 	private float nextProgress = 0.0f;
 	private boolean wasAdded = false;
-
+	
 	/* Number of steps for a full extension (visible / modifiable for mod compatibility) */
 	@GSCoreOverride
 	private float numberOfSteps = 2.0f;
@@ -175,7 +176,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		return ((GSIPistonBlockEntityAccess)blockEntity).getProgress();
 	}
 
-	@Redirect(method = "getCollisionShape", at = @At(value = "FIELD", ordinal = 2, opcode = Opcodes.GETFIELD,
+	@Redirect(method = { "getHeadBlockState", "getCollisionShape" }, at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
 	          target = "Lnet/minecraft/block/entity/PistonBlockEntity;progress:F"))
 	private float onGetCollisionShapeRedirectProgress(PistonBlockEntity blockEntity) {
 		if (shouldCorrectPushEntities(blockEntity))
@@ -186,17 +187,25 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@Override
 	public void onAdded() {
 		if (!wasAdded) {
-			if (isPushCorrectionEnabled((PistonBlockEntity)(Object)this)) {
-				double deltaProgress = getDeltaProgress(0.0, (PistonBlockEntity)(Object)this);
-				if (GSMathUtil.equalsApproximate(deltaProgress, 0.0)) {
-					// pushedBlock = Slime or animation type = Pause at Beginning.
-					markEntitiesMovedByPiston(Math.min(1.0f / numberOfSteps, 1.0f));
-				} else {
-					pushEntities(world, pos, 0.0f, (PistonBlockEntity)(Object)this);
-					moveEntitiesInHoneyBlock(world, pos, 0.0f, (PistonBlockEntity)(Object)this);
-				}
+			if (world.isClient && isPushCorrectionEnabled((PistonBlockEntity)(Object)this)) {
+				GSClientController controller = GSClientController.getInstance();
+				((GSIMinecraftClientAccess)controller.getClient()).schedulePistonBlockEntityUpdate(pos);
 			}
 			wasAdded = true;
+		}
+	}
+	
+	@Override
+	public void handleScheduledUpdate() {
+		if (isPushCorrectionEnabled((PistonBlockEntity)(Object)this)) {
+			double deltaProgress = getDeltaProgress(0.0, (PistonBlockEntity)(Object)this);
+			if (GSMathUtil.equalsApproximate(deltaProgress, 0.0)) {
+				// pushedBlock = Slime or animation type = Pause at Beginning.
+				markEntitiesMovedByPiston(Math.min(1.0f / numberOfSteps, 1.0f));
+			} else {
+				pushEntities(world, pos, 0.0f, (PistonBlockEntity)(Object)this);
+				moveEntitiesInHoneyBlock(world, pos, 0.0f, (PistonBlockEntity)(Object)this);
+			}
 		}
 	}
 	

@@ -1,5 +1,8 @@
 package com.g4mesoft.mixin.client;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,12 +16,15 @@ import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.access.client.GSIMinecraftClientAccess;
+import com.g4mesoft.access.client.GSIPistonBlockEntityAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSBasicTickTimer;
 import com.g4mesoft.module.tps.GSITickTimer;
 import com.g4mesoft.module.tps.GSTpsModule;
 
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.Overlay;
@@ -31,6 +37,7 @@ import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Util;
+import net.minecraft.util.math.BlockPos;
 
 @Mixin(MinecraftClient.class)
 public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess {
@@ -52,6 +59,10 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	private GSTpsModule tpsModule;
 	
 	private final GSITickTimer playerTimer = new GSBasicTickTimer(GSITickTimer.DEFAULT_MILLIS_PER_TICK);
+
+	private boolean flushingUpdates = false;
+	private boolean forceScheduledPistonBlockEntityUpdates = false;
+	private final Set<BlockPos> scheduledPistonBlockEntityUpdates = new LinkedHashSet<>();
 	
 	@Shadow protected abstract boolean isPaused();
 	
@@ -83,6 +94,11 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		GSDebug.onClientTick();
 		
 		controller.tick(isPaused());
+		
+		if (flushingUpdates) {
+			// Server is very slow. Perform scheduled updates anyway.
+			forceScheduledPistonBlockEntityUpdates = true;
+		}
 	}
 	
 	@Inject(method = "tick", at = @At(value = "FIELD", shift = Shift.AFTER, 
@@ -133,7 +149,13 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	
 	@Inject(method = "render", slice = @Slice(from = @At(value = "CONSTANT", args = "stringValue=tick")), 
 			at = @At(value = "INVOKE", ordinal = 0, shift = Shift.AFTER, target = "Lnet/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V"))
-	public void onTickAndShouldTick(boolean tick, CallbackInfo ci) {
+	public void onRenderBeforeTickLoop(CallbackInfo ci) {
+		if (!flushingUpdates || forceScheduledPistonBlockEntityUpdates) {
+			// Perform piston block entity updates after runTasks()
+			performScheduledPistonBlockEntityUpdates();
+			forceScheduledPistonBlockEntityUpdates = false;
+		}
+
 		playerTimer.update(Util.getMeasuringTimeMs());
 
 		int tickCount = Math.min(playerTimer.getTickCount(), 10);
@@ -142,6 +164,19 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 				onTickCorrection();
 			if (!paused && world != null)
 				tickFixedMovementPlayers();
+		}
+	}
+	
+	private void performScheduledPistonBlockEntityUpdates() {
+		if (!scheduledPistonBlockEntityUpdates.isEmpty()) {
+			BlockPos[] positions = scheduledPistonBlockEntityUpdates.toArray(new BlockPos[0]);
+			scheduledPistonBlockEntityUpdates.clear();
+		
+			for (BlockPos blockPos : positions) {
+				BlockEntity blockEntity = world.getBlockEntity(blockPos);
+				if (blockEntity instanceof PistonBlockEntity)
+					((GSIPistonBlockEntityAccess)blockEntity).handleScheduledUpdate();
+			}
 		}
 	}
 	
@@ -184,6 +219,19 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		if (!paused && tpsModule.isMainPlayerFixedMovement())
 			return playerTimer.getTickDelta();
 		return oldTickDelta;
+	}
+	
+	@Override
+	public void setFlushingBlockEntityUpdates(boolean flushingUpdates) {
+		this.flushingUpdates = flushingUpdates;
+
+		if (!flushingUpdates)
+			forceScheduledPistonBlockEntityUpdates = true;
+	}
+	
+	@Override
+	public void schedulePistonBlockEntityUpdate(BlockPos blockPos) {
+		scheduledPistonBlockEntityUpdates.add(blockPos);
 	}
 	
 	@Override
