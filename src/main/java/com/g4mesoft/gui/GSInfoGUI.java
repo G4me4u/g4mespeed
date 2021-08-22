@@ -48,22 +48,23 @@ public class GSInfoGUI extends GSParentPanel {
 		int xc = width / 2;
 		int y = height / 2 - renderer.getLineHeight() * lineCount / 2 - 10;
 		
-		renderer.drawCenteredText(SERVER_EXTENSIONS_TITLE, xc, y, TEXT_COLOR);
+		if (client.isConnectedToServer()) {
+			y = drawExtensionList(renderer, xc, y, SERVER_EXTENSIONS_TITLE, serverInfoList);
+			y += renderer.getLineHeight();
+		}
+		y = drawExtensionList(renderer, xc, y, CLIENT_EXTENSIONS_TITLE, clientInfoList);
+	}
+	
+	private int drawExtensionList(GSIRenderer2D renderer, int xc, int y, Text title, Collection<GSExtensionInfo> infoList) {
+		renderer.drawCenteredText(title, xc, y, TEXT_COLOR);
 		y += renderer.getLineHeight();
 
-		for (GSExtensionInfo info : serverInfoList) {
+		for (GSExtensionInfo info : infoList) {
 			drawExtensionInfo(renderer, info, xc, y);
 			y += renderer.getLineHeight();
 		}
-
-		y += renderer.getLineHeight();
-		renderer.drawCenteredText(CLIENT_EXTENSIONS_TITLE, xc, y, TEXT_COLOR);
-		y += renderer.getLineHeight();
-
-		for (GSExtensionInfo info : clientInfoList) {
-			drawExtensionInfo(renderer, info, xc, y);
-			y += renderer.getLineHeight();
-		}
+		
+		return y;
 	}
 	
 	private void drawExtensionInfo(GSIRenderer2D renderer, GSExtensionInfo info, int xc, int y) {

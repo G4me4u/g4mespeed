@@ -19,6 +19,9 @@
   "entrypoints": {
     "main": [
       "com.g4mesoft.G4mespeedMod"
+    ],
+    "modmenu": [
+      "com.g4mesoft.modmenu.GSModMenuApi"
     ]
   },
   "mixins": [
@@ -32,6 +35,11 @@
   "custom": {
     "lithium:options": {
       "mixin.block.moving_block_shapes": false
+    },
+    "modmenu": {
+      "links": {
+        "g4mespeed.modmenu.discord": "https://discord.gg/5yCsMbC"
+      }
     }
   }
 }

@@ -37,12 +37,20 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 	private static final int SELECTED_BACKGROUND_COLOR = 0xAAAAAAAA;
 	private static final int HOVERED_BACKGROUND_COLOR = 0xAAEDEDFF;
 
+	private final boolean showBackground;
+	
 	private int tabHeight;
 	private List<GSTabEntry> tabs;
 
 	private int selectedTabIndex;
 
 	public GSTabbedGUI() {
+		this(true);
+	}
+
+	public GSTabbedGUI(boolean showBackground) {
+		this.showBackground = showBackground;
+		
 		tabs = new ArrayList<>();
 		selectedTabIndex = -1;
 		
@@ -76,6 +84,10 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 		return (index != -1) ? tabs.get(index).getTabContent() : null;
 	}
 
+	public GSPanel getSelectedTabContent() {
+		return getTabContent(selectedTabIndex);
+	}
+	
 	public void layout() {
 		GSIRenderer2D renderer = GSPanelContext.getRenderer();
 
@@ -145,7 +157,8 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 	
 	@Override
 	public void render(GSIRenderer2D renderer) {
-		renderBackground(renderer);
+		if (showBackground)
+			renderBackground(renderer);
 		
 		super.render(renderer);
 		

@@ -143,8 +143,12 @@ public interface GSIRenderer2D extends GSIRenderer {
 	public void drawRect(int x, int y, int width, int height, int color);
 
 	public void drawTexture(GSITextureRegion texture, int x, int y, int width, int height, int sx, int sy);
+
+	public void drawTexture(GSITextureRegion texture, int x, int y, int width, int height, int sx, int sy, float r, float g, float b);
 	
 	public void drawTexture(GSITextureRegion texture, int x, int y);
+
+	public void drawTexture(GSITextureRegion texture, int x, int y, float r, float g, float b);
 
 	public void drawVLine(int x, int y0, int y1, int color);
 	

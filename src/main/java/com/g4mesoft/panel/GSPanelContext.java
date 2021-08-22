@@ -17,6 +17,7 @@ import com.g4mesoft.renderer.GSITextureRegion;
 import com.g4mesoft.renderer.GSTexture;
 
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.util.Identifier;
 
@@ -63,6 +64,10 @@ public final class GSPanelContext {
 	
 	public static void setContent(GSPanel content) {
 		getContext().setContentImpl(content);
+	}
+
+	public static void openContent(GSPanel content) {
+		getContext().openContentImpl(content);
 	}
 
 	public static void setCursor(GSECursorType cursor) {
@@ -124,6 +129,10 @@ public final class GSPanelContext {
 	public static GSRootPanel getRootPanel() {
 		return getContext().getRootPanelImpl();
 	}
+
+	public static Screen getScreen() {
+		return getContext().getScreenImpl();
+	}
 	
 	public static GSITextureRegion getTexture(int rx, int ry, int rw, int rh) {
 		return getContext().getTextureImpl(rx, ry, rw, rh);
@@ -136,7 +145,7 @@ public final class GSPanelContext {
 	private void disposeImpl() {
 		// If the screen is currently visible, hide it.
 		if (client.currentScreen == screen)
-			setContent(null);
+			openContent(null);
 		// Destroy the standard cursors
 		for (Long cursorPtr : standardCursors.values())
 			GLFW.glfwDestroyCursor(cursorPtr.longValue());
@@ -151,6 +160,10 @@ public final class GSPanelContext {
 		rootPanel.setContent(content);
 		if (content == null)
 			rootPanel.removeAll();
+	}
+	
+	private void openContentImpl(GSPanel content) {
+		setContentImpl(content);
 		
 		if (content != null) {
 			if (client.currentScreen != screen)
@@ -160,7 +173,7 @@ public final class GSPanelContext {
 				client.setScreen(null);
 		}
 	}
-
+	
 	private void setCursorImpl(GSECursorType cursor) {
 		if (cursor == null)
 			throw new IllegalArgumentException("cursor is null!");
@@ -262,6 +275,10 @@ public final class GSPanelContext {
 	
 	private GSRootPanel getRootPanelImpl() {
 		return screen.getRootPanel();
+	}
+
+	public Screen getScreenImpl() {
+		return screen;
 	}
 	
 	private GSITextureRegion getTextureImpl(int rx, int ry, int rw, int rh) {

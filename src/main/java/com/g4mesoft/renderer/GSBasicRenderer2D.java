@@ -197,18 +197,28 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 
 	@Override
 	public void drawTexture(GSITextureRegion texture, int x, int y, int width, int height, int sx, int sy) {
-		drawTexture(texture.getRegion(sx, sy, width, height), x, y);
+		drawTexture(texture, x, y, width, height, sx, sy, 1.0f, 1.0f, 1.0f);
+	}
+
+	@Override
+	public void drawTexture(GSITextureRegion texture, int x, int y, int width, int height, int sx, int sy, float r, float g, float b) {
+		drawTexture(texture.getRegion(sx, sy, width, height), x, y, r, g, b);
 	}
 
 	@Override
 	public void drawTexture(GSITextureRegion texture, int x, int y) {
+		drawTexture(texture, x, y, 1.0f, 1.0f, 1.0f);
+	}
+
+	@Override
+	public void drawTexture(GSITextureRegion texture, int x, int y, float r, float g, float b) {
 		if (building)
 			throw new IllegalStateException("Batches are not supported when drawing textures");
 		
 		build(DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
 
 		RenderSystem.setShaderTexture(0, texture.getTexture().getIdentifier());
-		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, opacity);
+		RenderSystem.setShaderColor(r, g, b, opacity);
 		RenderSystem.enableTexture();
 		
 		float x0 = (float)x;

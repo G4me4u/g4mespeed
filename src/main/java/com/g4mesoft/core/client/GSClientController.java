@@ -49,10 +49,10 @@ import net.minecraft.util.Identifier;
 @Environment(EnvType.CLIENT)
 public class GSClientController extends GSController implements GSIClientModuleManager {
 
-	private static final String CLIENT_SETTINGS_GUI_TITLE = "gui.tab.clientSettings";
+	public static final String CLIENT_SETTINGS_GUI_TITLE = "gui.tab.clientSettings";
 	private static final String SERVER_SETTINGS_GUI_TITLE = "gui.tab.serverSettings";
-	private static final String HOTKEY_GUI_TITLE          = "gui.tab.hotkeys";
-	private static final String G4MESPEED_INFO_GUI_TITLE  = "gui.tab.info";
+	public static final String HOTKEY_GUI_TITLE          = "gui.tab.hotkeys";
+	public static final String G4MESPEED_INFO_GUI_TITLE  = "gui.tab.info";
 	
 	private static final String GS_KEY_CATEGORY = "gs";
 	private static final String GUI_KEY_NAME    = "opengui";
@@ -62,6 +62,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	private static final GSClientController instance = new GSClientController();
 	
 	private MinecraftClient minecraft;
+	private boolean connectedToServer;
 	private ClientPlayNetworkHandler networkHandler;
 
 	private final GSExtensionInfoList serverExtensionInfoList;
@@ -93,7 +94,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 			openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, () -> {
 				// Use lambda to ensure that contentHistoryGUI has been initialized.
 				if (contentHistoryGUI != null)
-					GSPanelContext.setContent(contentHistoryGUI);
+					GSPanelContext.openContent(contentHistoryGUI);
 			}, GSEKeyEventType.PRESS, false);
 	
 			GSPanelContext.init(minecraft);
@@ -155,7 +156,13 @@ public class GSClientController extends GSController implements GSIClientModuleM
 		return isServerExtensionInstalled(GSCoreExtension.UID);
 	}
 	
+	public boolean isConnectedToServer() {
+		return connectedToServer;
+	}
+	
 	public void onJoinServer() {
+		connectedToServer = true;
+		
 		for (GSIModule module : modules)
 			module.onJoinServer();
 	}
@@ -175,6 +182,8 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	}
 	
 	public void onDisconnectServer() {
+		connectedToServer = false;
+		
 		setNetworkHandler(null);
 
 		for (GSIModule module : modules)
