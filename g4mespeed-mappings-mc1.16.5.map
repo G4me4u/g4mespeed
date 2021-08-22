@@ -3273,29 +3273,29 @@ com.g4mesoft.renderer.GSBasicRenderer2D -> core.co:
     200:201:void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int,int,int,int,int) -> gsc_rJ
     205:206:void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int,int,int,int,int,float,float,float) -> gsc_rJ
     210:211:void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int) -> gsc_rJ
-    215:235:void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int,float,float,float) -> gsc_rJ
-    239:240:void drawVLine(int,int,int,int) -> gsc_hH
-    244:245:void drawHLine(int,int,int,int) -> gsc_sc
-    249:266:void drawDottedVLine(int,int,int,int,int,int) -> gsc_rJ
-    270:287:void drawDottedHLine(int,int,int,int,int,int) -> gsc_hH
-    291:291:int getTextAscent() -> gsc_eh
-    296:296:int getTextDescent() -> gsc_Pt
-    302:302:int getTextHeight() -> gsc_Jn
-    307:307:int getLineHeight() -> gsc_AS
-    312:312:float getTextWidth(java.lang.String) -> gsc_rJ
-    317:333:void drawText(java.lang.String,int,int,int,boolean) -> gsc_rJ
-    337:337:float getTextWidth(net.minecraft.class_5481) -> gsc_rJ
-    342:358:void drawText(net.minecraft.class_5481,int,int,int,boolean) -> gsc_rJ
-    362:386:java.lang.String trimString(java.lang.String,int,java.lang.String) -> gsc_rJ
-    391:425:java.util.List splitToLines(java.lang.String,int) -> gsc_rJ
-    430:438:net.minecraft.class_5481 trimString(net.minecraft.class_2561,int,java.lang.String) -> gsc_rJ
-    443:443:java.util.List splitToLines(net.minecraft.class_2561,int) -> gsc_rJ
-    448:455:void build(int,net.minecraft.class_293) -> gsc_rJ
-    459:460:com.g4mesoft.renderer.GSBasicRenderer2D vert(float,float,float) -> gsc_rJ
-    465:466:com.g4mesoft.renderer.GSBasicRenderer2D color(float,float,float,float) -> gsc_rJ
-    471:472:com.g4mesoft.renderer.GSBasicRenderer2D tex(float,float) -> gsc_rJ
-    477:478:com.g4mesoft.renderer.GSBasicRenderer2D next() -> gsc_cT
-    483:488:void finish() -> gsc_UM
+    215:236:void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int,float,float,float) -> gsc_rJ
+    240:241:void drawVLine(int,int,int,int) -> gsc_hH
+    245:246:void drawHLine(int,int,int,int) -> gsc_sc
+    250:267:void drawDottedVLine(int,int,int,int,int,int) -> gsc_rJ
+    271:288:void drawDottedHLine(int,int,int,int,int,int) -> gsc_hH
+    292:292:int getTextAscent() -> gsc_eh
+    297:297:int getTextDescent() -> gsc_Pt
+    303:303:int getTextHeight() -> gsc_Jn
+    308:308:int getLineHeight() -> gsc_AS
+    313:313:float getTextWidth(java.lang.String) -> gsc_rJ
+    318:334:void drawText(java.lang.String,int,int,int,boolean) -> gsc_rJ
+    338:338:float getTextWidth(net.minecraft.class_5481) -> gsc_rJ
+    343:359:void drawText(net.minecraft.class_5481,int,int,int,boolean) -> gsc_rJ
+    363:387:java.lang.String trimString(java.lang.String,int,java.lang.String) -> gsc_rJ
+    392:426:java.util.List splitToLines(java.lang.String,int) -> gsc_rJ
+    431:439:net.minecraft.class_5481 trimString(net.minecraft.class_2561,int,java.lang.String) -> gsc_rJ
+    444:444:java.util.List splitToLines(net.minecraft.class_2561,int) -> gsc_rJ
+    449:456:void build(int,net.minecraft.class_293) -> gsc_rJ
+    460:461:com.g4mesoft.renderer.GSBasicRenderer2D vert(float,float,float) -> gsc_rJ
+    466:467:com.g4mesoft.renderer.GSBasicRenderer2D color(float,float,float,float) -> gsc_rJ
+    472:473:com.g4mesoft.renderer.GSBasicRenderer2D tex(float,float) -> gsc_rJ
+    478:479:com.g4mesoft.renderer.GSBasicRenderer2D next() -> gsc_cT
+    484:489:void finish() -> gsc_UM
     25:25:com.g4mesoft.renderer.GSIRenderer next() -> gsc_Yp
     25:25:com.g4mesoft.renderer.GSIRenderer tex(float,float) -> gsc_hH
     25:25:com.g4mesoft.renderer.GSIRenderer color(float,float,float,float) -> gsc_hH
@@ -3304,14 +3304,14 @@ com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D -> core.cp:
     int offsetX -> gsc_hH
     int offsetY -> gsc_sc
     com.g4mesoft.renderer.GSBasicRenderer2D this$0 -> gsc_rJ
-    495:497:void <init>(com.g4mesoft.renderer.GSBasicRenderer2D) -> <init>
-    499:502:void <init>(com.g4mesoft.renderer.GSBasicRenderer2D,com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> <init>
-    505:506:void reset() -> gsc_rJ
-    490:490:void access$000(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_rJ
-    490:490:int access$100(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_hH
-    490:490:int access$200(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_sc
-    490:490:int access$112(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D,int) -> gsc_rJ
-    490:490:int access$212(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D,int) -> gsc_hH
+    496:498:void <init>(com.g4mesoft.renderer.GSBasicRenderer2D) -> <init>
+    500:503:void <init>(com.g4mesoft.renderer.GSBasicRenderer2D,com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> <init>
+    506:507:void reset() -> gsc_rJ
+    491:491:void access$000(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_rJ
+    491:491:int access$100(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_hH
+    491:491:int access$200(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_sc
+    491:491:int access$112(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D,int) -> gsc_rJ
+    491:491:int access$212(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D,int) -> gsc_hH
 com.g4mesoft.renderer.GSBasicRenderer3D -> core.cc:
     net.minecraft.class_287 builder -> gsc_Qo
     net.minecraft.class_4587 matrixStack -> gsc_Jn
