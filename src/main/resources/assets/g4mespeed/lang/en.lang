@@ -1,6 +1,12 @@
 # Translation version 0
 :0
 
+############ ModMenu Translations ############
+
+g4mespeed.modmenu.discord=Join G4mespeed Discord!
+g4mespeed.modmenu.done=Done
+g4mespeed.modmenu.title=G4mespeed Config
+
 ############ GUI Elements ############
 
 gui.tab.clientSettings=Client Settings

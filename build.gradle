@@ -1,7 +1,8 @@
 buildscript {
     repositories {
-        mavenCentral()
+		mavenCentral()
     }
+    
     dependencies {
 		classpath "com.guardsquare:proguard-gradle:7.1.0-beta5"
     }
@@ -14,6 +15,10 @@ plugins {
 repositories {
     flatDir {
         dirs "./compat-mods"
+    }
+    maven {
+        name = 'TerraformersMC'
+        url = 'https://maven.terraformersmc.com/'
     }
 }
 
@@ -29,6 +34,9 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+    // ModMenu integration
+	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 
 	// Test mod compatibility in dev environment.
 	//modImplementation ":sodium-fabric:mc1.16.1:0.1.0"

@@ -197,16 +197,26 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 
 	@Override
 	public void drawTexture(GSITextureRegion texture, int x, int y, int width, int height, int sx, int sy) {
-		drawTexture(texture.getRegion(sx, sy, width, height), x, y);
+		drawTexture(texture, x, y, width, height, sx, sy, 1.0f, 1.0f, 1.0f);
+	}
+
+	@Override
+	public void drawTexture(GSITextureRegion texture, int x, int y, int width, int height, int sx, int sy, float r, float g, float b) {
+		drawTexture(texture.getRegion(sx, sy, width, height), x, y, r, g, b);
 	}
 
 	@Override
 	public void drawTexture(GSITextureRegion texture, int x, int y) {
+		drawTexture(texture, x, y, 1.0f, 1.0f, 1.0f);
+	}
+
+	@Override
+	public void drawTexture(GSITextureRegion texture, int x, int y, float r, float g, float b) {
 		if (building)
 			throw new IllegalStateException("Batches are not supported when drawing textures");
 		
 		RenderSystem.enableTexture();
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, opacity);
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		client.getTextureManager().bindTexture(texture.getTexture().getIdentifier());
 		
 		float x0 = (float)x;
@@ -214,14 +224,13 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		float x1 = x0 + texture.getRegionWidth();
 		float y1 = y0 + texture.getRegionHeight();
 		
-		build(QUADS, VertexFormats.POSITION_TEXTURE);
-		vert(x0, y1, DEFAULT_Z_OFFSET).tex(texture.getU0(), texture.getV1()).next();
-		vert(x1, y1, DEFAULT_Z_OFFSET).tex(texture.getU1(), texture.getV1()).next();
-		vert(x1, y0, DEFAULT_Z_OFFSET).tex(texture.getU1(), texture.getV0()).next();
-		vert(x0, y0, DEFAULT_Z_OFFSET).tex(texture.getU0(), texture.getV0()).next();
+		build(QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+		vert(x0, y1, DEFAULT_Z_OFFSET).tex(texture.getU0(), texture.getV1()).color(r, g, b, opacity).next();
+		vert(x1, y1, DEFAULT_Z_OFFSET).tex(texture.getU1(), texture.getV1()).color(r, g, b, opacity).next();
+		vert(x1, y0, DEFAULT_Z_OFFSET).tex(texture.getU1(), texture.getV0()).color(r, g, b, opacity).next();
+		vert(x0, y0, DEFAULT_Z_OFFSET).tex(texture.getU0(), texture.getV0()).color(r, g, b, opacity).next();
 		finish();
 		
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		RenderSystem.disableTexture();
 	}
 

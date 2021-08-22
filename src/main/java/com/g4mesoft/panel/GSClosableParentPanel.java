@@ -30,6 +30,6 @@ public class GSClosableParentPanel extends GSParentPanel implements GSIClosable 
 	
 	@Override
 	public void close() {
-		GSPanelContext.setContent(null);
+		GSPanelContext.openContent(null);
 	}
 }
