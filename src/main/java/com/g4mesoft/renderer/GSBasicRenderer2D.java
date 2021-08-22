@@ -216,7 +216,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 			throw new IllegalStateException("Batches are not supported when drawing textures");
 		
 		RenderSystem.enableTexture();
-		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
+		RenderSystem.color4f(r, g, b, opacity);
 		client.getTextureManager().bindTexture(texture.getTexture().getIdentifier());
 		
 		float x0 = (float)x;
@@ -224,13 +224,14 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		float x1 = x0 + texture.getRegionWidth();
 		float y1 = y0 + texture.getRegionHeight();
 		
-		build(QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-		vert(x0, y1, DEFAULT_Z_OFFSET).tex(texture.getU0(), texture.getV1()).color(r, g, b, opacity).next();
-		vert(x1, y1, DEFAULT_Z_OFFSET).tex(texture.getU1(), texture.getV1()).color(r, g, b, opacity).next();
-		vert(x1, y0, DEFAULT_Z_OFFSET).tex(texture.getU1(), texture.getV0()).color(r, g, b, opacity).next();
-		vert(x0, y0, DEFAULT_Z_OFFSET).tex(texture.getU0(), texture.getV0()).color(r, g, b, opacity).next();
+		build(QUADS, VertexFormats.POSITION_TEXTURE);
+		vert(x0, y1, DEFAULT_Z_OFFSET).tex(texture.getU0(), texture.getV1()).next();
+		vert(x1, y1, DEFAULT_Z_OFFSET).tex(texture.getU1(), texture.getV1()).next();
+		vert(x1, y0, DEFAULT_Z_OFFSET).tex(texture.getU1(), texture.getV0()).next();
+		vert(x0, y0, DEFAULT_Z_OFFSET).tex(texture.getU0(), texture.getV0()).next();
 		finish();
 		
+		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		RenderSystem.disableTexture();
 	}
 
