@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -41,6 +42,7 @@ public class GSPistonBlockMixin {
 		markBlockEntityForUpdate(world, blockPos);
 	}
 	
+	@Unique
 	private void markBlockEntityForUpdate(World world, BlockPos pos) {
 		if (!world.isClient && GSServerController.getInstance().getTpsModule().sParanoidMode.getValue())
 			((GSIServerChunkManagerAccess)world.getChunkManager()).markBlockEntityUpdate(pos);

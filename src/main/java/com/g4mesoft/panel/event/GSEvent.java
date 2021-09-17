@@ -2,6 +2,8 @@ package com.g4mesoft.panel.event;
 
 import org.lwjgl.glfw.GLFW;
 
+import com.g4mesoft.panel.GSPanel;
+
 public abstract class GSEvent {
 	
 	public static final int UNKNOWN_TYPE = 0;
@@ -19,14 +21,27 @@ public abstract class GSEvent {
 	                                        MODIFIER_ALT       | MODIFIER_SUPER |
 	                                        MODIFIER_CAPS_LOCK | MODIFIER_NUM_LOCK;
 	
+	private GSPanel panel;
+	
 	private boolean consumed;
 	
 	public GSEvent() {
+		panel = null;
+	
 		consumed = false;
 	}
 	
 	public abstract int getType();
-
+	
+	/* Visible for GSEventDispatcher */
+	void setPanel(GSPanel panel) {
+		this.panel = panel;
+	}
+	
+	public GSPanel getPanel() {
+		return panel;
+	}
+	
 	public void consume() {
 		consumed = true;
 	}

@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 
 import com.g4mesoft.access.server.GSIChunkHolderAccess;
 import com.g4mesoft.access.server.GSIServerChunkManagerAccess;
@@ -99,6 +100,7 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 			((GSIChunkHolderAccess)chunkHolder).sendToNearbyPlayers0(packet);
 	}
 	
+	@Unique
 	private ChunkHolder getChunkHolderAt(BlockPos pos) {
 		return getChunkHolder(ChunkPos.toLong(pos.getX() >> 4, pos.getZ() >> 4));
 	}

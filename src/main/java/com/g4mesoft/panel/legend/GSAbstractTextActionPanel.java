@@ -31,7 +31,7 @@ public abstract class GSAbstractTextActionPanel extends GSAbstractActionPanel {
 	protected abstract void renderBackground(GSIRenderer2D renderer, boolean hovered);
 
 	protected void renderForeground(GSIRenderer2D renderer, boolean hovered) {
-		int color = enabled ? TEXT_COLOR : DISABLED_TEXT_COLOR;
+		int color = isEnabled() ? TEXT_COLOR : DISABLED_TEXT_COLOR;
 		
 		int tx = width / 2;
 		int ty = (height - renderer.getTextHeight() + 1) / 2;

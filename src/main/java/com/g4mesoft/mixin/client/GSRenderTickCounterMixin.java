@@ -4,6 +4,7 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -27,15 +28,20 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	@Shadow public long prevTimeMillis;
 	@Shadow @Final private float tickTime;
 	
+	@Unique
 	private int ticksThisFrame;
-
+	
+	@Unique
 	private boolean firstUpdate;
+	@Unique
 	private GSCarpetCompat carpetCompat;
+	@Unique
 	private GSTpsModule tpsModule;
+	@Unique
 	private GSServerTickTimer serverTimer;
 	
 	@Inject(method = "<init>", at = @At("RETURN"))
-	public void onInit(float ticksPerSecond, long initialTimeMillis, CallbackInfo ci) {
+	private void onInit(float ticksPerSecond, long initialTimeMillis, CallbackInfo ci) {
 		firstUpdate = true;
 	}
 

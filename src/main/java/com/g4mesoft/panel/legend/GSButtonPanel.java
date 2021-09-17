@@ -34,7 +34,7 @@ public class GSButtonPanel extends GSAbstractTextActionPanel implements GSIKeyLi
 	@Override
 	protected void renderBackground(GSIRenderer2D renderer, boolean hovered) {
 		// Taken from AbstractButtonWidget#renderButton
-		int sy = enabled ? (hovered ? 86 : 66) : 46;
+		int sy = isEnabled() ? (hovered ? 86 : 66) : 46;
 
 		renderer.drawTexture(BUTTON_TEXTURE, 0, 0, width / 2, height, 0, sy);
 		renderer.drawTexture(BUTTON_TEXTURE, width / 2, 0, width / 2, height, 200 - width / 2, sy);

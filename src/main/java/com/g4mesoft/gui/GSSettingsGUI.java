@@ -6,7 +6,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSPanelContext;
+import com.g4mesoft.panel.GSPanelUtil;
 import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.panel.scroll.GSIScrollable;
 import com.g4mesoft.renderer.GSIRenderer2D;
@@ -44,8 +46,6 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	
 	private final Map<GSSettingCategory, GSSettingCategoryElement> settingCategories;
 	private int settingsWidth;
-	private int contentHeight;
-	private boolean layoutChanged;
 	
 	private GSSettingElementGUI<?> hoveredElement;
 	private List<OrderedText> descLines;
@@ -75,8 +75,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			}
 			
 			categoryElement.addSetting(setting);
-			
-			layoutChanged = true;
+			invalidate();
 		}
 	}
 	
@@ -102,14 +101,14 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 				settingCategories.remove(category);
 		}
 
-		layoutChanged = true;
+		invalidate();
 	}
 
 	@Override
 	public void layout() {
 		settingsWidth = width / 2;
 		for (GSSettingCategoryElement element : settingCategories.values()) {
-			int minElementWidth = element.getMinimumWidth();
+			int minElementWidth = element.getPreferredWidth();
 			if (minElementWidth > settingsWidth)
 				settingsWidth = minElementWidth;
 		}
@@ -120,26 +119,6 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			y = element.layoutElements(0, y, settingsWidth);
 			y += SETTING_CATEGORY_MARGIN;
 		}
-		
-		contentHeight = y;
-	}
-	
-	@Override
-	public void update() {
-		super.update();
-		
-		for (GSSettingCategoryElement element : settingCategories.values())
-			element.tick();
-	}
-	
-	@Override
-	public void preRender(GSIRenderer2D renderer) {
-		if (layoutChanged) {
-			requestLayout();
-			layoutChanged = false;
-		}
-		
-		super.preRender(renderer);
 	}
 	
 	@Override
@@ -195,7 +174,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 		
 		int descX = settingsWidth;
 		
-		int scrollOffset = getScrollOffset(getParent());
+		int scrollOffset = GSPanelUtil.getScrollY(this);
 		int descY = GSMathUtil.clamp(hoveredElement.y, scrollOffset, height + scrollOffset - descHeight);
 		
 		if (descWidth > 0 && descHeight > 0 && targetDescHeight != 0) {
@@ -216,13 +195,18 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	}
 
 	@Override
-	public int getContentWidth() {
-		return width;
+	protected GSDimension calculatePreferredSize() {
+		int w = 0, h = 0;
+		for (GSSettingCategoryElement element : settingCategories.values()) {
+			w = Math.max(w, element.getPreferredWidth());
+			h += element.getPreferredHeight() + 2 * SETTING_CATEGORY_MARGIN;
+		}
+		return new GSDimension(w, h);
 	}
-
+	
 	@Override
-	public int getContentHeight() {
-		return contentHeight;
+	public boolean isScrollableWidthFixed() {
+		return true;
 	}
 	
 	private class GSSettingCategoryElement {
@@ -245,13 +229,26 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			settings = new LinkedList<>();
 		}
 		
-		public int getMinimumWidth() {
+		public int getPreferredWidth() {
 			int minimumWidth = 0;
 			for (GSSettingElementGUI<?> element : settings) {
 				if (element.getPreferredWidth() > minimumWidth)
 					minimumWidth = element.getPreferredWidth();
 			}
 			return minimumWidth;
+		}
+		
+		public int getPreferredHeight() {
+			GSIRenderer2D renderer = GSPanelContext.getRenderer();
+			
+			int h = 0;
+			h += renderer.getTextHeight();
+			h += CATEGORY_TITLE_MARGIN_BOTTOM;
+
+			for (GSSettingElementGUI<?> element : settings)
+				h += element.getPreferredHeight();
+			
+			return h;
 		}
 
 		public void addSetting(GSSetting<?> setting) {
@@ -327,11 +324,6 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			       mouseY >= this.y && mouseY < this.y + this.height;
 		}
 		
-		public void tick() {
-			for (GSSettingElementGUI<?> element : settings)
-				element.update();
-		}
-
 		public void render(GSIRenderer2D renderer) {
 			renderer.drawCenteredText(titleText, x + width / 2, y, CATEGORY_TITLE_COLOR);
 		}

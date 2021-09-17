@@ -29,8 +29,6 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 	private final GSIMouseListener mouseListener;
 	private final GSIActionListener actionListener;
 	
-	private boolean enabled;
-	
 	public GSDropdownSubMenu(Text text, GSDropdown dropdown) {
 		this(null, text, dropdown);
 	}
@@ -46,8 +44,6 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 		popup = null;
 		mouseListener = new GSSubMenuMouseListener();
 		actionListener = new GSSubMenuActionListener();
-		
-		enabled = true;
 	}
 
 	@Override
@@ -78,7 +74,7 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 		
 		boolean selected = (renderer.isMouseInside(0, 0, width, height) || popup != null);
 		
-		int backgroundColor = (enabled && selected) ? HOVERED_BACKGROUND_COLOR : BACKGROUND_COLOR;
+		int backgroundColor = (isEnabled() && selected) ? HOVERED_BACKGROUND_COLOR : BACKGROUND_COLOR;
 		renderer.fillRect(0, 0, width, height, backgroundColor);
 
 		// Force allowed icon size to that predefined in GSDropdownItem
@@ -88,7 +84,7 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 	
 		// Center drawn text on y-axis
 		int ty = Math.max((height - renderer.getTextHeight() + 1) / 2, 0);
-		int textColor = enabled ? (selected ? HOVERED_TEXT_COLOR : TEXT_COLOR) : DISABLED_TEXT_COLOR;
+		int textColor = isEnabled() ? (selected ? HOVERED_TEXT_COLOR : TEXT_COLOR) : DISABLED_TEXT_COLOR;
 		renderTitle(renderer, PADDING + ICON_SIZE + ICON_MARGIN, ty, textColor);
 
 		// Render right arrow at same height as icon
@@ -104,12 +100,12 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 	}
 	
 	protected void renderRightArrow(GSIRenderer2D renderer, int x, int y, boolean selected) {
-		int sx = enabled ? (selected ? 10 : 0) : 20;
+		int sx = isEnabled() ? (selected ? 10 : 0) : 20;
 		renderer.drawTexture(ARROW_TEXTURE, x, y, ICON_SIZE, ICON_SIZE, sx, 0);
 	}
 
 	@Override
-	public GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredSize() {
 		GSIRenderer2D renderer = GSPanelContext.getRenderer();
 
 		int w = 0;
@@ -129,17 +125,12 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 		return title;
 	}
 	
-	public boolean isEnabled() {
-		return enabled;
-	}
-
+	@Override
 	public void setEnabled(boolean enabled) {
-		if (enabled != this.enabled) {
-			this.enabled = enabled;
-			
-			if (!enabled && popup != null)
-				hideSubMenu();
-		}
+		super.setEnabled(enabled);
+		
+		if (!isEnabled() && popup != null)
+			hideSubMenu();
 	}
 	
 	private void showSubMenu() {
@@ -153,11 +144,11 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 		int x = viewLocation.getX() + width;
 		int y = viewLocation.getY() - GSDropdown.VERTICAL_PADDING;
 		
-		GSDimension pref = popup.getPreferredSize();
+		int prefW = popup.getProperty(PREFERRED_WIDTH);
 		GSPanel rootPanel = GSPanelContext.getRootPanel();
-		if (x + pref.getWidth() >= rootPanel.getWidth()) {
+		if (x + prefW >= rootPanel.getWidth()) {
 			// Move pop-up to the left side
-			x = Math.max(x - width - pref.getWidth(), 0);
+			x = Math.max(x - width - prefW, 0);
 		}
 		
 		return new GSLocation(x, y);
@@ -180,7 +171,7 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 		public void mouseMoved(GSMouseEvent event) {
 			// Since coordinates are in parent space, we can use
 			// the #isInBounds(x, y) method for checking bounds.
-			if (enabled && isInBounds(event.getX(), event.getY())) {
+			if (isEnabled() && isInBounds(event.getX(), event.getY())) {
 				if (popup == null)
 					showSubMenu();
 			} else {

@@ -1,5 +1,8 @@
 package com.g4mesoft.panel.scroll;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
@@ -11,7 +14,6 @@ import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.renderer.GSITextureRegion;
 import com.g4mesoft.util.GSMathUtil;
 
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
@@ -47,60 +49,42 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	private static final Text SCROLL_LEFT_TEXT  = new TranslatableText("panel.scrollbar.scrollleft");
 	private static final Text SCROLL_RIGHT_TEXT = new TranslatableText("panel.scrollbar.scrollright");
 	
-	protected final GSIScrollable parent;
-	private final GSIScrollListener listener;
-	
-	private final GSParentScrollHandler parentScrollHandler;
-	
 	private boolean vertical;
 
-	private boolean scrollDragActive;
+	private float minScrollOffset;
+	private float maxScrollOffset;
+	private float viewSize;
+	
 	private float scrollOffset;
-	
-	private boolean enabled;
-	
-	/**
-	 * <b>NOTE:</b> parent must be the GSParentPanel that dispatches events to this
-	 * scroll bar. If this is not the case, mouse scrolling might have undefined
-	 * behavior.
-	 * 
-	 * @param parent
-	 * @param listener
-	 */
-	public GSScrollBar(GSIScrollable parent, GSIScrollListener listener) {
-		this.parent = parent;
-		this.listener = listener;
-		
-		parentScrollHandler = new GSParentScrollHandler();
+	private boolean scrollDragActive;
 
-		// Vertical by default
-		setVertical(true);
+	private final List<GSIScrollListener> scrollListeners;
+
+	public GSScrollBar() {
+		this(true, 0.0f, 100.0f, DEFAULT_SCROLL_AMOUNT);
+	}
+	
+	public GSScrollBar(boolean vertical, float minScrollOffset, float maxScrollOffset, float viewSize) {
+		this.vertical = vertical;
+
+		this.minScrollOffset = minScrollOffset;
+		this.maxScrollOffset = maxScrollOffset;
+		this.viewSize = viewSize;
 		
-		enabled = true;
+		scrollOffset = minScrollOffset;
+		scrollDragActive = false;
+		
+		scrollListeners = new ArrayList<GSIScrollListener>();
 		
 		addMouseEventListener(this);
 	}
 
-	@Override
-	public void onBoundsChanged() {
-		super.onBoundsChanged();
-
-		// Update the scroll offset to ensure that it is valid.
-		setScrollOffset(scrollOffset);
+	public void addScrollListener(GSIScrollListener listener) {
+		scrollListeners.add(listener);
 	}
-	
-	@Override
-	public void onAdded(GSPanel parent) {
-		super.onAdded(parent);
 
-		parent.addMouseEventListener(parentScrollHandler);
-	}
-	
-	@Override
-	public void onRemoved(GSPanel parent) {
-		super.onRemoved(parent);
-
-		parent.removeMouseEventListener(parentScrollHandler);
+	public void removeScrollListener(GSIScrollListener listener) {
+		scrollListeners.remove(listener);
 	}
 	
 	@Override
@@ -132,7 +116,7 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	}
 
 	protected int getScrollButtonSpriteX(boolean top, boolean hovered) {
-		return enabled ? (hovered ? 10 : 0) : 20;
+		return isEnabled() ? (hovered ? 10 : 0) : 20;
 	}
 
 	protected int getScrollButtonSpriteY(boolean top, boolean hovered) {
@@ -178,13 +162,11 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	}
 	
 	protected int getKnobAreaColor() {
-		if (!enabled)
-			return DISABLED_KNOB_AREA_COLOR;
-		return KNOB_AREA_COLOR;
+		return isEnabled() ? KNOB_AREA_COLOR : DISABLED_KNOB_AREA_COLOR;
 	}
 	
 	protected int getKnobColor(boolean hovered) {
-		if (!enabled)
+		if (!isEnabled())
 			return DISABLED_KNOB_COLOR;
 		if (scrollDragActive || hovered)
 			return HOVERED_KNOB_COLOR;
@@ -194,22 +176,22 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	protected int getKnobPos() {
 		int pos = getButtonHeight();
 
-		int maxScroll = getMaxScrollOffset();
-		if (maxScroll > 0) {
+		float scrollInterval = maxScrollOffset - minScrollOffset;
+		if (scrollInterval > 0.0f) {
 			int emptyArea = getKnobAreaSize() - getKnobSize();
-			pos += (int)(emptyArea * scrollOffset / maxScroll);
+			float relativeScroll = scrollOffset - minScrollOffset;
+			pos += (int)(emptyArea * relativeScroll / scrollInterval);
 		}
 
 		return pos;
 	}
 	
 	protected int getKnobSize() {
-		int contentSize = getContentSize();
-		if (contentSize > 0) {
-			int visibleContent = Math.min(getContentViewSize(), contentSize);
-			return Math.max(getKnobAreaSize() * visibleContent / contentSize, getMinimumNobSize());
+		float scrollInterval = viewSize + maxScrollOffset - minScrollOffset;
+		if (scrollInterval > viewSize) {
+			int knobSize = Math.round(getKnobAreaSize() * viewSize / scrollInterval);
+			return Math.max(knobSize, getMinimumNobSize());
 		}
-
 		return getKnobAreaSize();
 	}
 
@@ -217,14 +199,6 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 		return (isVertical() ? height : width) - getButtonHeight() * 2;
 	}
 	
-	protected int getContentSize() {
-		return isVertical() ? parent.getContentHeight() : parent.getContentWidth();
-	}
-
-	protected int getContentViewSize() {
-		return isVertical() ? parent.getContentViewHeight() : parent.getContentViewWidth();
-	}
-
 	protected int getButtonWidth() {
 		return DEFAULT_BUTTON_WIDTH;
 	}
@@ -237,21 +211,17 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 		return DEFAULT_MINIMUM_NOB_SIZE;
 	}
 
-	public float getDefaultScrollAmount() {
-		return DEFAULT_SCROLL_AMOUNT;
-	}
-	
 	@Override
 	public void populateRightClickMenu(GSDropdown dropdown, int x, int y) {
 		dropdown.addItem(new GSDropdownAction(SCROLL_HERE_TEXT, () -> {
-			setScrollOffset(getScrollDelta(isVertical() ? y : x) - getContentViewSize() * 0.5f);
+			setScrollOffset(minScrollOffset + getScrollDelta(isVertical() ? y : x) - viewSize * 0.5f);
 		}));
 		dropdown.separate();
 		dropdown.addItem(new GSDropdownAction(isVertical() ? TOP_TEXT : LEFT_EDGE_TEXT, () -> {
-			setScrollOffset(0.0f);
+			setScrollOffset(minScrollOffset);
 		}));
 		dropdown.addItem(new GSDropdownAction(isVertical() ? BOTTOM_TEXT : RIGHT_EDGE_TEXT, () -> {
-			setScrollOffset(getMaxScrollOffset());
+			setScrollOffset(maxScrollOffset);
 		}));
 		dropdown.separate();
 		dropdown.addItem(new GSDropdownAction(isVertical() ? PAGE_UP_TEXT : PAGE_LEFT_TEXT, () -> {
@@ -278,14 +248,25 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	
 	@Override
 	public void mousePressed(GSMouseEvent event) {
-		if (enabled && event.getButton() == GSMouseEvent.BUTTON_LEFT) {
+		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
 			int mousePos = isVertical() ? event.getY() : event.getX();
-
 			int knobPos = getKnobPos();
+			
 			if (mousePos < knobPos) {
-				onIncrementalScroll(-1);
+				if (mousePos < getButtonHeight()) {
+					// Incremental scroll when clicking scroll buttons.
+					onIncrementalScroll(-1);
+				} else {
+					// Page scroll if in knob area, but not on the
+					// knob itself.
+					onPageScroll(-1);
+				}
 			} else if (mousePos >= knobPos + getKnobSize()) {
-				onIncrementalScroll(1);
+				if (mousePos >= height - getButtonHeight()) {
+					onIncrementalScroll(1);
+				} else {
+					onPageScroll(1);
+				}
 			} else {
 				scrollDragActive = true;
 			}
@@ -295,21 +276,18 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	}
 	
 	private void onIncrementalScroll(int sign) {
-		float scrollAmount = getIncrementalScroll(sign);
+		// TODO: implement incremental scroll
+		float scrollAmount = Float.NaN;//getIncrementalScroll(sign);
 		if (Float.isNaN(scrollAmount) || scrollAmount < 0.0)
-			scrollAmount = getDefaultScrollAmount();
+			scrollAmount = DEFAULT_SCROLL_AMOUNT;
 		
 		setScrollOffset(scrollOffset + sign * scrollAmount);
 	}
 	
 	private void onPageScroll(int sign) {
-		setScrollOffset(scrollOffset + sign * getContentViewSize());
+		setScrollOffset(scrollOffset + sign * viewSize);
 	}
 	
-	protected float getIncrementalScroll(int sign) {
-		return isVertical() ? parent.getIncrementalScrollY(sign) : parent.getIncrementalScrollX(sign);
-	}
-
 	@Override
 	public void mouseReleased(GSMouseEvent event) {
 		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
@@ -320,7 +298,7 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	
 	@Override
 	public void mouseDragged(GSMouseEvent event) {
-		if (enabled && scrollDragActive && event.getButton() == GSMouseEvent.BUTTON_LEFT) {
+		if (scrollDragActive && event.getButton() == GSMouseEvent.BUTTON_LEFT) {
 			float drag = isVertical() ? event.getDragY() : event.getDragX();
 			setScrollOffset(scrollOffset + getScrollDelta(drag));
 			event.consume();
@@ -330,22 +308,8 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	private float getScrollDelta(float delta) {
 		int compAreaSize = getKnobAreaSize() - getKnobSize();
 		if (compAreaSize > 0)
-			delta *= (float)getMaxScrollOffset() / compAreaSize;
+			delta *= (maxScrollOffset - minScrollOffset) / compAreaSize;
 		return delta;
-	}
-	
-	public void setScrollOffset(float scroll) {
-		if (listener != null)
-			listener.preScrollChanged(scroll);
-		
-		scrollOffset = GSMathUtil.clamp(scroll, 0.0f, getMaxScrollOffset());
-		
-		if (listener != null)
-			listener.scrollChanged(scrollOffset);
-	}
-	
-	protected int getMaxScrollOffset() {
-		return Math.max(getContentSize() - getContentViewSize(), 0);
 	}
 	
 	public boolean isVertical() {
@@ -353,56 +317,52 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	}
 	
 	public void setVertical(boolean vertical) {
-		if (vertical != this.vertical) {
-			this.vertical = vertical;
-			
-			GSPanel parent = getParent();
-			if (parent != null)
-				parent.requestLayout();
-		}
+		this.vertical = vertical;
 	}
 	
 	public float getScrollOffset() {
 		return scrollOffset;
 	}
 	
-	public boolean isEnabled() {
-		return enabled;
-	}
-	
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
-	}
-	
-	public boolean isScrollDragActive() {
-		return scrollDragActive;
-	}
-	
-	private class GSParentScrollHandler implements GSIMouseListener {
+	public void setScrollOffset(float scroll) {
+		for (GSIScrollListener listener : scrollListeners)
+			listener.preScrollChanged(scroll);
 		
-		@Override
-		public void mouseScrolled(GSMouseEvent event) {
-			// In case the user is trying to zoom in or out we should not
-			// scroll. This has different behavior on different platforms.
-			if (!Screen.hasControlDown() && !Screen.hasAltDown()) {
-				float scroll;
+		// Note that minScrollOffset and maxScrollOffset might have
+		// changed at this point. Ensure that it changes appropriately.
+		scrollOffset = GSMathUtil.clamp(scroll, minScrollOffset, maxScrollOffset);
+		
+		for (GSIScrollListener listener : scrollListeners)
+			listener.scrollChanged(scrollOffset);
+	}
+	
+	public float getMinScrollOffset() {
+		return minScrollOffset;
+	}
+	
+	public void setMinScrollOffset(float minScrollOffset) {
+		this.minScrollOffset = minScrollOffset;
+		
+		if (scrollOffset < minScrollOffset)
+			setScrollOffset(minScrollOffset);
+	}
 
-				// Shift will flip the xScroll and yScroll. This makes it
-				// possible to scroll horizontally without any xScroll.
-				if (isVertical() != Screen.hasShiftDown()) {
-					scroll = event.getScrollY(); 
-				} else {
-					scroll = event.getScrollX();
-				}
-			
-				int mx = event.getX();
-				int my = event.getY();
-				
-				if (enabled && mx >= 0.0 && my >= 0.0 && mx < parent.getWidth() && my < parent.getHeight()) {
-					setScrollOffset(scrollOffset - scroll * getDefaultScrollAmount());
-					event.consume();
-				}
-			}
-		}
+	public float getMaxScrollOffset() {
+		return maxScrollOffset;
+	}
+
+	public void setMaxScrollOffset(float maxScrollOffset) {
+		this.maxScrollOffset = maxScrollOffset;
+		
+		if (scrollOffset > maxScrollOffset)
+			setScrollOffset(maxScrollOffset);
+	}
+	
+	public float getViewSize() {
+		return viewSize;
+	}
+	
+	public void setViewSize(float viewSize) {
+		this.viewSize = viewSize;
 	}
 }

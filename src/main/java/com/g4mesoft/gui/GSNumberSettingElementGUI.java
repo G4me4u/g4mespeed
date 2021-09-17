@@ -74,9 +74,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	}
 	
 	@Override
-	public void onBoundsChanged() {
-		super.onBoundsChanged();
-		
+	public void onResized(int oldWidth, int oldHeight) {
 		if (shouldUseSlider()) {
 			if (textField != null) {
 				remove(textField);

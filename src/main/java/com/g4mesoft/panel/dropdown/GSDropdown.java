@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSIActionListener;
+import com.g4mesoft.panel.GSILayoutProperty;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.panel.GSPopup;
@@ -40,27 +41,16 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 	public void addItem(GSDropdownItem item) {
 		if (separateNextItem) {
 			separateNextItem = false;
-			addItem0(new GSDropdownSeparator());
+			super.add(new GSDropdownSeparator());
 		}
 		
-		addItem0(item);
+		super.add(item);
 	}
-
+	
 	public void separate() {
 		separateNextItem |= !isEmpty();
 	}
 	
-	private void addItem0(GSDropdownItem item) {
-		super.add(item);
-		
-		if (isVisible()) {
-			// Generally it is a bad idea to modify the menu
-			// when it is visible. In case it is required, we
-			// have to update the menu layout.
-			requestLayout();
-		}
-	}
-
 	@Override
 	public void layout() {
 		int y = VERTICAL_PADDING;
@@ -68,7 +58,7 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 		for (GSPanel child : getChildren()) {
 			// Since children must implement GSDropdownItem, it is
 			// assumed that they have a preferred size.
-			GSDimension pref = child.getPreferredSize();
+			GSDimension pref = child.getProperty(PREFERRED_SIZE);
 			// Ensure there is actually space for the preferred size.
 			int h = Math.max(Math.min(pref.getHeight(), height - y), 0);
 			child.setBounds(0, y, width, h);
@@ -86,32 +76,25 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 	
 	@Override
 	public GSDimension calculateMinimumSize() {
-		int mnw = 0;
-		int mnh = 0;
-		
-		for (GSPanel child : getChildren()) {
-			GSDimension mn = child.getMinimumSize();
-			if (mn.getWidth() > mnw)
-				mnw = mn.getWidth();
-			mnh += mn.getHeight();
-		}
-		
-		return new GSDimension(mnw, mnh + 2 * VERTICAL_PADDING);
+		return calculateSize(MINIMUM_SIZE);
 	}
 	
 	@Override
-	public GSDimension calculatePreferredSize() {
-		int pw = 0;
-		int ph = 0;
+	protected GSDimension calculatePreferredSize() {
+		return calculateSize(PREFERRED_SIZE);
+	}
+	
+	private GSDimension calculateSize(GSILayoutProperty<GSDimension> sizeProperty) {
+		int w = 0, h = 0;
 		
 		for (GSPanel child : getChildren()) {
-			GSDimension pref = child.getPreferredSize();
-			if (pref.getWidth() > pw)
-				pw = pref.getWidth();
-			ph += pref.getHeight();
+			GSDimension size = child.getProperty(sizeProperty);
+			if (size.getWidth() > w)
+				w = size.getWidth();
+			h += size.getHeight();
 		}
 		
-		return new GSDimension(pw, ph + 2 * VERTICAL_PADDING);
+		return new GSDimension(w, h + 2 * VERTICAL_PADDING);
 	}
 	
 	public boolean isEmpty() {

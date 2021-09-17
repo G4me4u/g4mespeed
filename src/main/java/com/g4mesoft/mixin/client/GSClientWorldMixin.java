@@ -3,6 +3,7 @@ package com.g4mesoft.mixin.client;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -19,20 +20,21 @@ public class GSClientWorldMixin {
 
 	@Shadow @Final private MinecraftClient client;
 	
+	@Unique
 	private boolean tickingEntities;
 	
 	@Inject(method = "tickEntities", at = @At("HEAD"))
-	public void onTickEntitiesHead(CallbackInfo ci) {
+	private void onTickEntitiesHead(CallbackInfo ci) {
 		tickingEntities = true;
 	}
 
 	@Inject(method = "tickEntities", at = @At("RETURN"))
-	public void onTickEntitiesReturn(CallbackInfo ci) {
+	private void onTickEntitiesReturn(CallbackInfo ci) {
 		tickingEntities = false;
 	}
 	
 	@Inject(method = "tickEntity", cancellable = true, at = @At("HEAD"))
-	public void onTickEntity(Entity entity, CallbackInfo ci) {
+	private void onTickEntity(Entity entity, CallbackInfo ci) {
 		if (tickingEntities && (entity instanceof AbstractClientPlayerEntity)) {
 			if (GSClientController.getInstance().getTpsModule().isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
 				ci.cancel();

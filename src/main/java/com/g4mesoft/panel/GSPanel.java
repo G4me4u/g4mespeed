@@ -11,12 +11,22 @@ import com.g4mesoft.panel.event.GSEvent;
 import com.g4mesoft.panel.event.GSIButtonStroke;
 import com.g4mesoft.panel.event.GSIFocusEventListener;
 import com.g4mesoft.panel.event.GSIKeyListener;
+import com.g4mesoft.panel.event.GSILayoutEventListener;
 import com.g4mesoft.panel.event.GSIMouseListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
+import com.g4mesoft.panel.event.GSLayoutEvent;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
-public class GSPanel implements GSIViewport {
+public class GSPanel {
+	
+	public static final GSILayoutProperty<Integer> MINIMUM_WIDTH      = GSLayoutProperties.MINIMUM_WIDTH;
+	public static final GSILayoutProperty<Integer> MINIMUM_HEIGHT     = GSLayoutProperties.MINIMUM_HEIGHT;
+	public static final GSILayoutProperty<GSDimension> MINIMUM_SIZE   = GSLayoutProperties.MINIMUM_SIZE;
+
+	public static final GSILayoutProperty<Integer> PREFERRED_WIDTH    = GSLayoutProperties.PREFERRED_WIDTH;
+	public static final GSILayoutProperty<Integer> PREFERRED_HEIGHT   = GSLayoutProperties.PREFERRED_HEIGHT;
+	public static final GSILayoutProperty<GSDimension> PREFERRED_SIZE = GSLayoutProperties.PREFERRED_SIZE;
 	
 	private GSPanel parent;
 	
@@ -30,10 +40,13 @@ public class GSPanel implements GSIViewport {
 	private List<GSIMouseListener> mouseEventListeners;
 	private List<GSIKeyListener> keyEventListeners;
 	private List<GSIFocusEventListener> focusEventListeners;
+	private List<GSILayoutEventListener> layoutEventListeners;
 	
 	private boolean passingEvents;
 	private boolean focused;
 	private boolean focusable;
+	
+	private boolean enabled;
 	
 	private int popupCount;
 	
@@ -43,21 +56,31 @@ public class GSPanel implements GSIViewport {
 
 	protected GSECursorType cursor;
 	
-	protected GSDimension minimumSize;
-	protected GSDimension preferredSize;
+	protected final GSLayout layout;
+	protected GSDimension cachedMinimumSize;
+	protected GSDimension cachedPreferredSize;
+	private boolean valid;
 	
-	protected GSPanel() {
+	public GSPanel() {
 		parent = null;
 		
 		mouseEventListeners = null;
 		keyEventListeners = null;
 		focusEventListeners = null;
+		layoutEventListeners = null;
 		
 		focused = false;
 		// All panels are focusable by default
 		focusable = true;
+		// All panels are enabled by default
+		enabled = true;
 		
 		cursor = GSECursorType.DEFAULT;
+		
+		cachedMinimumSize = null;
+		cachedPreferredSize = null;
+		layout = new GSLayout(this);
+		valid = false;
 	}
 
 	public void add(GSPanel panel) {
@@ -68,8 +91,28 @@ public class GSPanel implements GSIViewport {
 		throw new UnsupportedOperationException("Not a parent panel");
 	}
 
+	public void remove(int index) {
+		throw new UnsupportedOperationException("Not a parent panel");
+	}
+
 	public void removeAll() {
 		throw new UnsupportedOperationException("Not a parent panel");
+	}
+	
+	public GSPanel get(int index) {
+		throw new UnsupportedOperationException("Not a parent panel");
+	}
+	
+	public GSPanel getChildAt(int x, int y) {
+		return null;
+	}
+	
+	public boolean isEmpty() {
+		return true;
+	}
+	
+	public List<GSPanel> getChildren() {
+		return Collections.emptyList();
 	}
 	
 	public int getX() {
@@ -84,12 +127,10 @@ public class GSPanel implements GSIViewport {
 		return new GSLocation(x, y);
 	}
 
-	@Override
 	public int getWidth() {
 		return width;
 	}
 	
-	@Override
 	public int getHeight() {
 		return height;
 	}
@@ -114,21 +155,43 @@ public class GSPanel implements GSIViewport {
 		if (width < 0 || height < 0)
 			throw new IllegalArgumentException("width and height must be non-negative!");
 		
-		if (this.x != x || this.y != y || this.width != width || this.height != height) {
-			this.x = x;
-			this.y = y;
-			this.width = width;
-			this.height = height;
-		
-			onBoundsChanged();
-			requestLayout();
+		int oldX = this.x;
+		int oldY = this.y;
+		int oldWidth = this.width;
+		int oldHeight = this.height;
+
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+
+		if (width != oldWidth || height != oldHeight) {
+			invalidate();
+			onResized(oldWidth, oldHeight);
+			dispatchLayoutEvent(GSLayoutEvent.createResizedEvent(), this);
+		}
+
+		if (x != oldX || y != oldY) {
+			onMoved(oldX, oldY);
+			dispatchLayoutEvent(GSLayoutEvent.createMovedEvent(), this);
 		}
 	}
-
-	protected void onBoundsChanged() {
+	
+	protected void onResized(int oldWidth, int oldHeight) {
 	}
 
+	protected void onMoved(int oldX, int oldY) {
+	}
+	
 	protected void layout() {
+	}
+	
+	public GSILayoutManager getLayoutManager() {
+		throw new UnsupportedOperationException("Not a parent panel");
+	}
+
+	public void setLayoutManager(GSILayoutManager layoutManager) {
+		throw new UnsupportedOperationException("Not a parent panel");
 	}
 	
 	public boolean isAdded() {
@@ -148,6 +211,8 @@ public class GSPanel implements GSIViewport {
 			throw new IllegalArgumentException("Can not set parent to self!");
 		
 		this.parent = parent;
+		
+		dispatchLayoutEvent(GSLayoutEvent.createAddedEvent(), this);
 	}
 
 	public void onRemoved(GSPanel parent) {
@@ -157,6 +222,8 @@ public class GSPanel implements GSIViewport {
 		this.parent = null;
 		
 		unfocus();
+
+		dispatchLayoutEvent(GSLayoutEvent.createRemovedEvent(), this);
 	}
 	
 	public boolean isVisible() {
@@ -169,8 +236,10 @@ public class GSPanel implements GSIViewport {
 		
 			if (visible) {
 				onShown();
+				dispatchLayoutEvent(GSLayoutEvent.createShownEvent(), this);
 			} else {
 				onHidden();
+				dispatchLayoutEvent(GSLayoutEvent.createHiddenEvent(), this);
 			}
 		}
 	}
@@ -181,12 +250,12 @@ public class GSPanel implements GSIViewport {
 	protected void onHidden() {
 	}
 	
-	public void update() {
-	}
-	
 	public void preRender(GSIRenderer2D renderer) {
+		if (!isValid())
+			validate();
+		
 		renderer.pushMatrix();
-		renderer.translate(getViewOffsetX(), getViewOffsetY());
+		renderer.translate(getX(), getY());
 	}
 	
 	public void render(GSIRenderer2D renderer) {
@@ -194,10 +263,6 @@ public class GSPanel implements GSIViewport {
 	
 	public void postRender(GSIRenderer2D renderer) {
 		renderer.popMatrix();
-	}
-	
-	public GSPanel getChildAt(int x, int y) {
-		return null;
 	}
 	
 	public boolean isInBounds(int x, int y) {
@@ -274,14 +339,28 @@ public class GSPanel implements GSIViewport {
 		return Collections.unmodifiableList(focusEventListeners);
 	}
 	
-	public int getViewOffsetX() {
-		return x;
+	public void addLayoutEventListener(GSILayoutEventListener layoutListener) {
+		if (layoutEventListeners == null)
+			layoutEventListeners = new ArrayList<GSILayoutEventListener>(1);
+		
+		layoutEventListeners.add(layoutListener);
+	}
+	
+	public void removeLayoutEventListener(GSILayoutEventListener layoutListener) {
+		if (layoutEventListeners != null) {
+			layoutEventListeners.remove(layoutListener);
+			
+			if (layoutEventListeners.isEmpty())
+				layoutEventListeners = null;
+		}
 	}
 
-	public int getViewOffsetY() {
-		return y;
+	public List<GSILayoutEventListener> getLayoutEventListeners() {
+		if (layoutEventListeners == null)
+			return Collections.emptyList();
+		return Collections.unmodifiableList(layoutEventListeners);
 	}
-
+	
 	public boolean isPassingEvents() {
 		return passingEvents;
 	}
@@ -296,6 +375,10 @@ public class GSPanel implements GSIViewport {
 
 	public void dispatchKeyEvent(GSKeyEvent event, GSPanel source) {
 		GSPanelContext.dispatchKeyEvent(event, source, this);
+	}
+
+	public void dispatchLayoutEvent(GSLayoutEvent event, GSPanel source) {
+		GSPanelContext.dispatchLayoutEvent(event, source, this);
 	}
 	
 	public boolean isFocused() {
@@ -321,6 +404,14 @@ public class GSPanel implements GSIViewport {
 	public void unfocus() {
 		if (isFocused())
 			GSPanelContext.unfocus(this);
+	}
+	
+	public boolean isEnabled() {
+		return enabled;
+	}
+	
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
 	}
 	
 	public boolean hasPopupVisible() {
@@ -354,38 +445,69 @@ public class GSPanel implements GSIViewport {
 		this.cursor = cursor;
 	}
 	
-	public GSDimension getMinimumSize() {
-		return (minimumSize != null) ? minimumSize : calculateMinimumSize();
+	/* Visible for GSLayoutProperties */
+	int getDefaultMinimumWidth() {
+		if (cachedMinimumSize == null)
+			cachedMinimumSize = calculateMinimumSize();
+		return cachedMinimumSize.getWidth();
 	}
 
+	/* Visible for GSLayoutProperties */
+	int getDefaultMinimumHeight() {
+		if (cachedMinimumSize == null)
+			cachedMinimumSize = calculateMinimumSize();
+		return cachedMinimumSize.getHeight();
+	}
+	
+	/* Visible for GSLayoutProperties */
+	int getDefaultPreferredWidth() {
+		if (cachedPreferredSize == null)
+			cachedPreferredSize = calculatePreferredSize();
+		return cachedPreferredSize.getWidth();
+	}
+
+	/* Visible for GSLayoutProperties */
+	int getDefaultPreferredHeight() {
+		if (cachedPreferredSize == null)
+			cachedPreferredSize = calculatePreferredSize();
+		return cachedPreferredSize.getHeight();
+	}
+	
 	protected GSDimension calculateMinimumSize() {
-		return GSDimension.ZERO;
-	}
-
-	public void setMinimumSize(GSDimension minimumSize) {
-		this.minimumSize = minimumSize;
-
-		if (parent != null)
-			parent.requestLayout();
-	}
-
-	public GSDimension getPreferredSize() {
-		return (preferredSize != null) ? preferredSize : calculatePreferredSize();
+		return calculatePreferredSize();
 	}
 	
 	protected GSDimension calculatePreferredSize() {
-		return GSDimension.MAX_VALUE;
-	}
-	
-	public void setPreferredSize(GSDimension preferredSize) {
-		this.preferredSize = preferredSize;
-		
-		if (parent != null)
-			parent.requestLayout();
+		return GSDimension.ZERO;
 	}
 
-	public void requestLayout() {
+	public GSLayout getLayout() {
+		return layout;
+	}
+	
+	public <T> T getProperty(GSILayoutProperty<T> property) {
+		return layout.get(property);
+	}
+
+	public <T> void setProperty(GSILayoutProperty<T> property, T value) {
+		layout.set(property, value);
+	}
+	
+	protected void invalidate() {
+		valid = false;
+		
+		// Invalidate cached sizes
+		cachedMinimumSize = null;
+		cachedPreferredSize = null;
+	}
+
+	protected void validate() {
 		layout();
+		valid = true;
+	}
+	
+	public final boolean isValid() {
+		return valid;
 	}
 	
 	protected void putButtonStroke(GSIButtonStroke button, Runnable listener) {

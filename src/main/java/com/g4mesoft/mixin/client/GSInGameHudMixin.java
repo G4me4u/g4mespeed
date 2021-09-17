@@ -7,6 +7,7 @@ import java.util.Locale;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -42,6 +43,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 	private static final int LABEL_BACKGROUND_COLOR = 0x60333333;
 	private static final int LABEL_TARGET_COLOR     = 0xFFEEEEEE;
 	
+	@Unique
 	private static final DecimalFormat LOW_PRECISION_TPS_FORMAT = new DecimalFormat("0.0", new DecimalFormatSymbols(Locale.ENGLISH));
 
 	@Shadow private int scaledWidth;
@@ -53,7 +55,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 
 	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE, 
 			target = "Lnet/minecraft/client/gui/hud/SubtitlesHud;render(Lnet/minecraft/client/util/math/MatrixStack;)V"))
-	public void onRender(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
+	private void onRender(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
 		GSClientController controller = GSClientController.getInstance();
 		GSTpsModule tpsModule = controller.getTpsModule();
 		
@@ -95,6 +97,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 		}
 	}
 	
+	@Unique
 	private static int getTpsLabelColor(float averageTps, float targetTps) {
 		float frac = Math.max(averageTps / targetTps, 0.0f);
 		

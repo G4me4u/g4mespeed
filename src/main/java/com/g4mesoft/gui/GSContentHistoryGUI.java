@@ -75,7 +75,7 @@ public class GSContentHistoryGUI extends GSClosableParentPanel {
 
 		removeAll();
 		add(content);
-		requestLayout();
+		invalidate();
 		
 		content.requestFocus();
 	}

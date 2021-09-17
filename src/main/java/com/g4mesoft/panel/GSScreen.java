@@ -58,14 +58,6 @@ final class GSScreen extends Screen {
 	
 	@Override
 	@GSCoreOverride
-	public void tick() {
-		super.tick();
-		
-		rootPanel.update();
-	}
-	
-	@Override
-	@GSCoreOverride
 	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
 		RenderSystem.disableTexture();
 		RenderSystem.disableAlphaTest();

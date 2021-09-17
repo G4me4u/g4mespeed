@@ -7,6 +7,7 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -26,9 +27,6 @@ import net.minecraft.util.profiler.Profiler;
 @Mixin(MinecraftServer.class)
 public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
-	private float msAccum = 0.0f;
-	private float msPerTick = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
-	
 	@Shadow @Final private static Logger LOGGER;
 	@Shadow private volatile boolean running;
 	@Shadow private long timeReference;
@@ -49,6 +47,11 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	
 	@Shadow protected abstract void endMonitor(TickDurationMonitor tickDurationMonitor);
 
+	@Unique
+	private float msAccum = 0.0f;
+	@Unique
+	private float msPerTick = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
+	
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {
 		long millisPrevTick = (long)msAccum;
@@ -138,7 +141,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 	
 	@Inject(method = "shutdown", at = @At("RETURN"))
-	public void onShutdown(CallbackInfo ci) {
+	private void onShutdown(CallbackInfo ci) {
 		GSServerController.getInstance().onServerShutdown();
 	}
 }

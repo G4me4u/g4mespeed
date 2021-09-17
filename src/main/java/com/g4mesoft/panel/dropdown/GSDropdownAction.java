@@ -19,8 +19,6 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 	private final Text title;
 	private final GSIActionListener listener;
 	
-	private boolean enabled;
-	
 	public GSDropdownAction(Text text, GSIActionListener listener) {
 		this(null, text, listener);
 	}
@@ -29,8 +27,6 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 		this.icon = icon;
 		this.title = title;
 		this.listener = listener;
-		
-		enabled = true;
 		
 		addMouseEventListener(this);
 	}
@@ -46,7 +42,7 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 		
 		boolean hovered = renderer.isMouseInside(0, 0, width, height);
 		
-		int backgroundColor = (enabled && hovered) ? HOVERED_BACKGROUND_COLOR : BACKGROUND_COLOR;
+		int backgroundColor = (isEnabled() && hovered) ? HOVERED_BACKGROUND_COLOR : BACKGROUND_COLOR;
 		renderer.fillRect(0, 0, width, height, backgroundColor);
 
 		if (icon != null) {
@@ -57,7 +53,7 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 	
 		// Center drawn text on y-axis
 		int ty = Math.max((height - renderer.getTextHeight() + 1) / 2, 0);
-		int textColor = enabled ? (hovered ? HOVERED_TEXT_COLOR : TEXT_COLOR) : DISABLED_TEXT_COLOR;
+		int textColor = isEnabled() ? (hovered ? HOVERED_TEXT_COLOR : TEXT_COLOR) : DISABLED_TEXT_COLOR;
 		renderTitle(renderer, PADDING + ICON_SIZE + ICON_MARGIN, ty, textColor);
 	}
 	
@@ -70,7 +66,7 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 	}
 
 	@Override
-	public GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredSize() {
 		GSIRenderer2D renderer = GSPanelContext.getRenderer();
 
 		int w = 0;
@@ -88,7 +84,7 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 	
 	@Override
 	public void mouseReleased(GSMouseEvent event) {
-		if (enabled && event.getButton() == GSMouseEvent.BUTTON_LEFT) {
+		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
 			int mx = event.getX();
 			int my = event.getY();
 			// Ensure mouse position is still inside the panel
@@ -115,14 +111,6 @@ public class GSDropdownAction extends GSDropdownItem implements GSIMouseListener
 	
 	public Text getText() {
 		return title;
-	}
-	
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
 	}
 	
 	@Override

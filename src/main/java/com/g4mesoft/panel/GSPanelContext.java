@@ -10,6 +10,7 @@ import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.panel.event.GSEventDispatcher;
 import com.g4mesoft.panel.event.GSKeyEvent;
+import com.g4mesoft.panel.event.GSLayoutEvent;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSBasicRenderer2D;
 import com.g4mesoft.renderer.GSIRenderer2D;
@@ -120,6 +121,10 @@ public final class GSPanelContext {
 
 	public static void dispatchKeyEvent(GSKeyEvent event, GSPanel source, GSPanel dest) {
 		getContext().dispatchKeyEventImpl(event, source, dest);
+	}
+
+	public static void dispatchLayoutEvent(GSLayoutEvent event, GSPanel source, GSPanel dest) {
+		getContext().dispatchLayoutEventImpl(event, source, dest);
 	}
 	
 	static GSEventDispatcher getEventDispatcher() {
@@ -267,6 +272,10 @@ public final class GSPanelContext {
 
 	private void dispatchKeyEventImpl(GSKeyEvent event, GSPanel source, GSPanel dest) {
 		eventDispatcher.dispatchKeyEvent(event, source, dest);
+	}
+
+	private void dispatchLayoutEventImpl(GSLayoutEvent event, GSPanel source, GSPanel dest) {
+		eventDispatcher.dispatchLayoutEvent(event, source, dest);
 	}
 	
 	private GSEventDispatcher getEventDispatcherImpl() {

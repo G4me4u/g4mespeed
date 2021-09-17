@@ -11,14 +11,15 @@ public class GSParentPanel extends GSPanel {
 	protected final List<GSPanel> children;
 	
 	private GSILayoutManager layoutManager;
-	private boolean minimumSizeSet;
-	private boolean preferredSizeSet;
-	
+
 	public GSParentPanel() {
+		this(null);
+	}
+	
+	public GSParentPanel(GSILayoutManager layoutManager) {
 		children = new ArrayList<>();
 		
-		layoutManager = null;
-		minimumSizeSet = preferredSizeSet = false;
+		setLayoutManager(layoutManager);
 	}
 	
 	@Override
@@ -43,50 +44,50 @@ public class GSParentPanel extends GSPanel {
 
 		panel.onAdded(this);
 		panel.setVisible(isVisible());
+		
+		invalidate();
 	}
 	
 	@Override
 	public void remove(GSPanel panel) {
-		if (children.remove(panel))
+		if (children.remove(panel)) {
 			onChildRemoved(panel);
+			invalidate();
+		}
+	}
+
+	@Override
+	public void remove(int index) {
+		GSPanel panel = children.remove(index);
+		if (panel != null) {
+			onChildRemoved(panel);
+			invalidate();
+		}
 	}
 	
 	@Override
 	public void removeAll() {
-		while (!children.isEmpty())
-			onChildRemoved(children.remove(children.size() - 1));
+		if (!children.isEmpty()) {
+			int count = children.size();
+			do {
+				// NOTE: Remove last to ensure we do not
+				// have an O(n^2) removeAll algorithm.
+				// For reference, view ArrayList#remove.
+				onChildRemoved(children.remove(--count));
+			} while (count != 0);
+		
+			invalidate();
+		}
 	}
-	
+
 	protected void onChildRemoved(GSPanel child) {
 		child.setVisible(false);
 		child.onRemoved(this);
 	}
 	
 	@Override
-	public void update() {
-		super.update();
-
-		updateChildren();
-	}
-
-	protected void updateChildren() {
-		for (GSPanel child : getChildren())
-			child.update();
-	}
-	
-	@Override
-	public void render(GSIRenderer2D renderer) {
-		super.render(renderer);
-
-		renderChildren(renderer);
-	}
-	
-	protected void renderChildren(GSIRenderer2D renderer) {
-		for (GSPanel child : getChildren()) {
-			child.preRender(renderer);
-			child.render(renderer);
-			child.postRender(renderer);
-		}
+	public GSPanel get(int index) {
+		return children.get(index);
 	}
 	
 	@Override
@@ -101,48 +102,75 @@ public class GSParentPanel extends GSPanel {
 		
 		return null;
 	}
+	
+	@Override
+	public boolean isEmpty() {
+		return children.isEmpty();
+	}
 
+	@Override
 	public List<GSPanel> getChildren() {
 		return Collections.unmodifiableList(children);
 	}
 	
+	@Override
+	public void render(GSIRenderer2D renderer) {
+		super.render(renderer);
+
+		renderChildren(renderer);
+	}
+	
+	protected void renderChildren(GSIRenderer2D renderer) {
+		for (GSPanel child : children) {
+			child.preRender(renderer);
+			child.render(renderer);
+			child.postRender(renderer);
+		}
+	}
+	
+	@Override
 	public GSILayoutManager getLayoutManager() {
 		return layoutManager;
 	}
 
+	@Override
 	public void setLayoutManager(GSILayoutManager layoutManager) {
-		this.layoutManager = layoutManager;
-	
-		requestLayout();
-	}
-	
-	@Override
-	public GSDimension getMinimumSize() {
-		if (!minimumSizeSet && minimumSize == null && layoutManager != null)
-			minimumSize = layoutManager.getMinimumSize(this);
+		if (layoutManager != this.layoutManager) {
+			this.layoutManager = layoutManager;
 		
-		return super.getMinimumSize();
-	}
-	
-	@Override
-	public void setMinimumSize(GSDimension minimumSize) {
-		super.setMinimumSize(minimumSize);
-		
-		minimumSizeSet = (minimumSize != null);
+			invalidate();
+		}
 	}
 
+	/* Visible for GSLayoutProperties */
 	@Override
-	public GSDimension getPreferredSize() {
-		if (!preferredSizeSet && preferredSize == null && layoutManager != null)
-			preferredSize = layoutManager.getPreferredSize(this);
-		
-		return super.getPreferredSize();
+	int getDefaultMinimumWidth() {
+		if (cachedMinimumSize == null && layoutManager != null)
+			cachedMinimumSize = layoutManager.getMinimumSize(this);
+		return super.getDefaultMinimumWidth();
+	}
+
+	/* Visible for GSLayoutProperties */
+	@Override
+	int getDefaultMinimumHeight() {
+		if (cachedMinimumSize == null && layoutManager != null)
+			cachedMinimumSize = layoutManager.getMinimumSize(this);
+		return super.getDefaultMinimumHeight();
+	}
+
+	/* Visible for GSLayoutProperties */
+	@Override
+	int getDefaultPreferredWidth() {
+		if (cachedPreferredSize == null && layoutManager != null)
+			cachedPreferredSize = layoutManager.getPreferredSize(this);
+		return super.getDefaultPreferredWidth();
 	}
 	
+	/* Visible for GSLayoutProperties */
 	@Override
-	public void setPreferredSize(GSDimension preferredSize) {
-		super.setPreferredSize(preferredSize);
-		
-		preferredSizeSet = (preferredSize != null);
+	int getDefaultPreferredHeight() {
+		if (cachedPreferredSize == null && layoutManager != null)
+			cachedPreferredSize = layoutManager.getPreferredSize(this);
+		return super.getDefaultPreferredHeight();
 	}
 }

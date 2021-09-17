@@ -16,7 +16,6 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
@@ -314,6 +313,11 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	}
 
 	@Override
+	public float getTextWidthNoStyle(CharSequence text) {
+		return client.textRenderer.getWidth(new GSCharSequenceOrderedText(text));
+	}
+
+	@Override
 	public void drawText(String text, int x, int y, int color, boolean shadowed) {
 		if (building)
 			throw new IllegalStateException("Batches are not supported for drawing text");
@@ -331,6 +335,11 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		RenderSystem.shadeModel(GL11.GL_SMOOTH);
 		RenderSystem.enableBlend();
 		RenderSystem.disableAlphaTest();
+	}
+	
+	@Override
+	public void drawTextNoStyle(CharSequence text, int x, int y, int color, boolean shadowed) {
+		drawText(new GSCharSequenceOrderedText(text), x, y, color, shadowed);
 	}
 	
 	@Override
@@ -427,14 +436,14 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	}
 	
 	@Override
-	public OrderedText trimString(Text text, int availableWidth, String ellipsis) {
+	public OrderedText trimString(Text text, int availableWidth, Text ellipsis) {
 		if (getTextWidth(text) <= availableWidth)
 			return text.asOrderedText();
 		
 		availableWidth -= (int)Math.ceil(getTextWidth(ellipsis));
 		
 		StringVisitable trimmed = client.textRenderer.trimToWidth(text, availableWidth);
-		StringVisitable result = StringVisitable.concat(trimmed, new LiteralText(ellipsis));
+		StringVisitable result = StringVisitable.concat(trimmed, ellipsis);
 		
 		return Language.getInstance().reorder(result);
 	}

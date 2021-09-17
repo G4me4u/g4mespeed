@@ -27,6 +27,9 @@ public class GSFileUtil {
 	}
 	
 	public static <E> E readFile(File file, GSFileDecoder<E> decoder) throws IOException {
+		if (!file.isFile())
+			throw new IOException("File does not exist, or is a directory.");
+
 		E element;
 		
 		PacketByteBuf buffer = null;

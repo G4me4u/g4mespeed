@@ -50,9 +50,7 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 	}
 	
 	@Override
-	public void onBoundsChanged() {
-		super.onBoundsChanged();
-
+	public void onResized(int oldWidth, int oldHeight) {
 		int sx = width - TOGGLE_WIDTH - CONTENT_MARGIN - RESET_BUTTON_WIDTH - CONTENT_PADDING;
 		int sy = (height - GSToggleSwitchPanel.SWITCH_HEIGHT) / 2;
 		switchWidget.setPreferredBounds(sx, sy);

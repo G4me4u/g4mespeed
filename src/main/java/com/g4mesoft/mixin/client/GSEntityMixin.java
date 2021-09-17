@@ -1,6 +1,7 @@
 package com.g4mesoft.mixin.client;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -16,7 +17,9 @@ import net.minecraft.world.World;
 @Mixin(Entity.class)
 public class GSEntityMixin implements GSIEntityAccess {
 
+	@Unique
 	private boolean wasMovedByPiston = false;
+	@Unique
 	private boolean movedByPiston = false;
 	
 	@Inject(method = "move", at = @At(value = "INVOKE", shift = Shift.BEFORE,

@@ -524,11 +524,11 @@ com.g4mesoft.gui.GSHotkeyGUI -> core.E:
     64:89:void layout() -> gsc_pl
     93:97:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
     101:102:void onKeyRegistered(com.g4mesoft.hotkey.GSKeyBinding) -> gsc_rJ
-    105:115:void addKeyEntry(com.g4mesoft.hotkey.GSKeyBinding) -> gsc_hH
-    119:119:int getContentWidth() -> gsc_rJ
-    124:124:int getContentHeight() -> gsc_hH
-    128:131:void setChangingElement(com.g4mesoft.gui.GSHotkeyElementGUI) -> gsc_rJ
-    134:134:com.g4mesoft.gui.GSHotkeyElementGUI getChangingElement() -> gsc_sc
+    105:113:void addKeyEntry(com.g4mesoft.hotkey.GSKeyBinding) -> gsc_hH
+    117:117:int getContentWidth() -> gsc_rJ
+    122:122:int getContentHeight() -> gsc_hH
+    126:129:void setChangingElement(com.g4mesoft.gui.GSHotkeyElementGUI) -> gsc_rJ
+    132:132:com.g4mesoft.gui.GSHotkeyElementGUI getChangingElement() -> gsc_sc
     51:53:void lambda$new$1() -> gsc_vm
     46:48:void lambda$new$0() -> gsc_Qo
     30:31:void <clinit>() -> <clinit>
@@ -539,13 +539,13 @@ com.g4mesoft.gui.GSHotkeyGUI$GSHotkeyCategoryGUI -> core.F:
     int y -> gsc_UM
     int w -> gsc_mg
     com.g4mesoft.gui.GSHotkeyGUI this$0 -> gsc_rJ
-    147:151:void <init>(com.g4mesoft.gui.GSHotkeyGUI,java.lang.String) -> <init>
-    154:159:void addKeyBinding(com.g4mesoft.hotkey.GSKeyBinding) -> gsc_rJ
-    162:169:int getPreferredWidth() -> gsc_rJ
-    173:186:int layoutHotkeys(int,int,int) -> gsc_rJ
-    190:194:void renderTitle(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
-    197:198:void resetAll() -> gsc_hH
-    201:202:void unbindAll() -> gsc_sc
+    145:149:void <init>(com.g4mesoft.gui.GSHotkeyGUI,java.lang.String) -> <init>
+    152:157:void addKeyBinding(com.g4mesoft.hotkey.GSKeyBinding) -> gsc_rJ
+    160:167:int getPreferredWidth() -> gsc_rJ
+    171:184:int layoutHotkeys(int,int,int) -> gsc_rJ
+    188:192:void renderTitle(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
+    195:196:void resetAll() -> gsc_hH
+    199:200:void unbindAll() -> gsc_sc
 com.g4mesoft.gui.GSInfoGUI -> core.I:
     int TEXT_COLOR -> gsc_mg
     int EXTENSION_NAME_COLOR -> gsc_vm
@@ -644,24 +644,21 @@ com.g4mesoft.gui.GSSettingsGUI -> core.K:
     java.util.Map settingCategories -> gsc_Jn
     int settingsWidth -> gsc_AS
     int contentHeight -> gsc_cT
-    boolean layoutChanged -> gsc_Yp
     com.g4mesoft.gui.GSSettingElementGUI hoveredElement -> gsc_gn
     java.util.List descLines -> gsc_eh
     int startDescHeight -> gsc_Pt
     int targetDescHeight -> gsc_PS
     long descAnimStart -> gsc_bx
-    57:67:void <init>(com.g4mesoft.setting.GSSettingManager) -> <init>
-    70:81:void addSettingElement(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_bs
-    85:88:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_rJ
-    92:93:void onSettingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_hH
-    97:106:void onSettingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_sc
-    110:125:void layout() -> gsc_pl
-    129:133:void update() -> a_
-    137:143:void preRender(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_sc
-    147:184:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
-    187:216:void renderHoveredDesc(com.g4mesoft.renderer.GSIRenderer2D,com.g4mesoft.gui.GSSettingElementGUI) -> gsc_rJ
-    220:220:int getContentWidth() -> gsc_rJ
-    225:225:int getContentHeight() -> gsc_hH
+    56:66:void <init>(com.g4mesoft.setting.GSSettingManager) -> <init>
+    69:80:void addSettingElement(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_bs
+    84:87:void onSettingChanged(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_rJ
+    91:92:void onSettingAdded(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_hH
+    96:105:void onSettingRemoved(com.g4mesoft.setting.GSSettingCategory,com.g4mesoft.setting.GSSetting) -> gsc_sc
+    109:124:void layout() -> gsc_pl
+    128:165:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
+    168:197:void renderHoveredDesc(com.g4mesoft.renderer.GSIRenderer2D,com.g4mesoft.gui.GSSettingElementGUI) -> gsc_rJ
+    201:201:int getContentWidth() -> gsc_rJ
+    206:206:int getContentHeight() -> gsc_hH
 com.g4mesoft.gui.GSSettingsGUI$GSSettingCategoryElement -> core.L:
     com.g4mesoft.setting.GSSettingCategory category -> gsc_hH
     net.minecraft.class_2561 titleText -> gsc_sc
@@ -671,17 +668,16 @@ com.g4mesoft.gui.GSSettingsGUI$GSSettingCategoryElement -> core.L:
     int width -> gsc_vm
     int height -> gsc_Qo
     com.g4mesoft.gui.GSSettingsGUI this$0 -> gsc_rJ
-    240:246:void <init>(com.g4mesoft.gui.GSSettingsGUI,com.g4mesoft.setting.GSSettingCategory) -> <init>
-    249:254:int getMinimumWidth() -> gsc_rJ
-    258:270:void addSetting(com.g4mesoft.setting.GSSetting) -> gsc_rJ
-    273:281:void removeSetting(com.g4mesoft.setting.GSSetting) -> gsc_hH
-    284:290:void onSettingChanged(com.g4mesoft.setting.GSSetting) -> gsc_sc
-    293:310:int layoutElements(int,int,int) -> gsc_rJ
-    314:322:com.g4mesoft.gui.GSSettingElementGUI getHoveredElement(int,int) -> gsc_rJ
-    326:326:boolean isHovered(int,int) -> gsc_hH
-    331:333:void tick() -> gsc_hH
-    336:337:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
-    340:340:boolean isEmpty() -> gsc_sc
+    221:227:void <init>(com.g4mesoft.gui.GSSettingsGUI,com.g4mesoft.setting.GSSettingCategory) -> <init>
+    230:235:int getMinimumWidth() -> gsc_rJ
+    239:251:void addSetting(com.g4mesoft.setting.GSSetting) -> gsc_rJ
+    254:262:void removeSetting(com.g4mesoft.setting.GSSetting) -> gsc_hH
+    265:271:void onSettingChanged(com.g4mesoft.setting.GSSetting) -> gsc_sc
+    274:291:int layoutElements(int,int,int) -> gsc_rJ
+    295:303:com.g4mesoft.gui.GSSettingElementGUI getHoveredElement(int,int) -> gsc_rJ
+    307:307:boolean isHovered(int,int) -> gsc_hH
+    312:313:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
+    316:316:boolean isEmpty() -> gsc_sc
 com.g4mesoft.gui.GSTabbedGUI -> core.O:
     int BACKGROUND_TOP_COLOR -> gsc_rJ
     int BACKGROUND_BOTTOM_COLOR -> gsc_hH
@@ -701,18 +697,18 @@ com.g4mesoft.gui.GSTabbedGUI -> core.O:
     int selectedTabIndex -> gsc_pl
     48:49:void <init>() -> <init>
     51:58:void <init>(boolean) -> <init>
-    61:68:void addTab(java.lang.String,com.g4mesoft.panel.GSPanel) -> gsc_rJ
-    71:81:void setSelectedTabIndex(int) -> gsc_rJ
-    84:84:com.g4mesoft.panel.GSPanel getTabContent(int) -> gsc_hH
-    88:88:com.g4mesoft.panel.GSPanel getSelectedTabContent() -> gsc_rJ
-    92:156:void layout() -> gsc_pl
-    160:166:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
-    169:170:void renderBackground(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_hH
-    173:184:void renderTabs(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_vm
-    187:201:void renderTab(com.g4mesoft.renderer.GSIRenderer2D,com.g4mesoft.gui.GSTabbedGUI$GSTabEntry,int,boolean) -> gsc_rJ
-    204:205:void playClickSound() -> gsc_Nt
-    209:223:void mousePressed(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_rJ
-    111:111:int lambda$layout$0(com.g4mesoft.gui.GSTabbedGUI$GSTabEntry,com.g4mesoft.gui.GSTabbedGUI$GSTabEntry) -> gsc_rJ
+    61:67:void addTab(java.lang.String,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    70:80:void setSelectedTabIndex(int) -> gsc_rJ
+    83:83:com.g4mesoft.panel.GSPanel getTabContent(int) -> gsc_hH
+    87:87:com.g4mesoft.panel.GSPanel getSelectedTabContent() -> gsc_rJ
+    91:155:void layout() -> gsc_pl
+    159:165:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
+    168:169:void renderBackground(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_hH
+    172:183:void renderTabs(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_vm
+    186:200:void renderTab(com.g4mesoft.renderer.GSIRenderer2D,com.g4mesoft.gui.GSTabbedGUI$GSTabEntry,int,boolean) -> gsc_rJ
+    203:204:void playClickSound() -> gsc_Nt
+    208:222:void mousePressed(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_rJ
+    110:110:int lambda$layout$0(com.g4mesoft.gui.GSTabbedGUI$GSTabEntry,com.g4mesoft.gui.GSTabbedGUI$GSTabEntry) -> gsc_rJ
     20:20:int access$100(com.g4mesoft.gui.GSTabbedGUI) -> gsc_rJ
 com.g4mesoft.gui.GSTabbedGUI$GSTabEntry -> core.P:
     java.lang.String title -> gsc_hH
@@ -721,17 +717,17 @@ com.g4mesoft.gui.GSTabbedGUI$GSTabEntry -> core.P:
     int x -> gsc_UM
     int width -> gsc_mg
     com.g4mesoft.gui.GSTabbedGUI this$0 -> gsc_rJ
-    234:237:void <init>(com.g4mesoft.gui.GSTabbedGUI,java.lang.String,com.g4mesoft.panel.GSPanel) -> <init>
-    240:240:java.lang.String getTitle() -> gsc_rJ
-    244:244:com.g4mesoft.panel.GSPanel getTabContent() -> gsc_hH
-    248:249:void setDisplayTitle(java.lang.String) -> gsc_rJ
-    252:252:java.lang.String getDisplayTitle() -> gsc_sc
-    256:260:boolean isHovered(int,int) -> gsc_rJ
-    264:265:void setX(int) -> gsc_rJ
-    268:268:int getX() -> gsc_bs
-    272:273:void setWidth(int) -> gsc_hH
-    276:276:int getWidth() -> gsc_UM
-    225:225:boolean access$000(com.g4mesoft.gui.GSTabbedGUI$GSTabEntry,int,int) -> gsc_rJ
+    233:236:void <init>(com.g4mesoft.gui.GSTabbedGUI,java.lang.String,com.g4mesoft.panel.GSPanel) -> <init>
+    239:239:java.lang.String getTitle() -> gsc_rJ
+    243:243:com.g4mesoft.panel.GSPanel getTabContent() -> gsc_hH
+    247:248:void setDisplayTitle(java.lang.String) -> gsc_rJ
+    251:251:java.lang.String getDisplayTitle() -> gsc_sc
+    255:259:boolean isHovered(int,int) -> gsc_rJ
+    263:264:void setX(int) -> gsc_rJ
+    267:267:int getX() -> gsc_bs
+    271:272:void setWidth(int) -> gsc_hH
+    275:275:int getWidth() -> gsc_UM
+    224:224:boolean access$000(com.g4mesoft.gui.GSTabbedGUI$GSTabEntry,int,int) -> gsc_rJ
 com.g4mesoft.hotkey.GSEKeyEventType -> core.bb:
     com.g4mesoft.hotkey.GSEKeyEventType PRESS -> gsc_rJ
     com.g4mesoft.hotkey.GSEKeyEventType RELEASE -> gsc_hH
@@ -1654,12 +1650,44 @@ com.g4mesoft.packet.GSPacketRegistryList -> core.bA:
     63:69:void addPacketRegistry(com.g4mesoft.GSExtensionUID,com.g4mesoft.registry.GSSupplierRegistry) -> gsc_rJ
     38:49:java.lang.Long lambda$getPacketId$1(java.lang.Class) -> gsc_sc
     25:32:com.g4mesoft.GSExtensionUID lambda$getPacketExtensionUID$0(java.lang.Class,java.lang.Class) -> gsc_rJ
+com.g4mesoft.panel.GSBasicLayoutProperty -> core.U:
+    java.lang.String name -> gsc_rJ
+    java.util.function.Function defValueFunction -> gsc_hH
+    java.util.function.Function copyConstructor -> gsc_sc
+    15:16:void <init>(java.lang.String,java.lang.Object) -> <init>
+    19:20:void <init>(java.lang.String,java.lang.Object,java.util.function.Function) -> <init>
+    23:24:void <init>(java.lang.String,java.util.function.Function) -> <init>
+    26:37:void <init>(java.lang.String,java.util.function.Function,java.util.function.Function) -> <init>
+    41:44:java.lang.Object get(java.util.Map,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    49:49:java.lang.Object remove(java.util.Map,com.g4mesoft.panel.GSPanel) -> gsc_hH
+    54:55:void put(java.util.Map,java.lang.Object,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    59:59:java.lang.Object computeDefaultValue(com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    64:64:java.lang.Object castUnchecked(java.lang.Object) -> gsc_rJ
+    68:68:java.lang.Object validate(java.lang.Object) -> gsc_hH
+    72:72:java.lang.Object copy(java.lang.Object) -> gsc_sc
+    77:77:int hashCode() -> hashCode
+    82:86:boolean equals(java.lang.Object) -> equals
+    19:19:java.lang.Object lambda$new$0(java.util.function.Function,java.lang.Object,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+com.g4mesoft.panel.GSBiLayoutProperty -> core.dj:
+    com.g4mesoft.panel.GSILayoutProperty leftProperty -> gsc_rJ
+    com.g4mesoft.panel.GSILayoutProperty rightProperty -> gsc_hH
+    java.util.function.BiFunction constructor -> gsc_sc
+    java.util.function.Function leftGetter -> gsc_bs
+    java.util.function.Function rightGetter -> gsc_UM
+    15:32:void <init>(com.g4mesoft.panel.GSILayoutProperty,com.g4mesoft.panel.GSILayoutProperty,java.util.function.BiFunction,java.util.function.Function,java.util.function.Function) -> <init>
+    36:38:java.lang.Object get(java.util.Map,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    43:51:java.lang.Object remove(java.util.Map,com.g4mesoft.panel.GSPanel) -> gsc_hH
+    56:58:void put(java.util.Map,java.lang.Object,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    62:64:java.lang.Object computeDefaultValue(com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    69:69:java.lang.Object castUnchecked(java.lang.Object) -> gsc_rJ
+    74:76:int hashCode() -> hashCode
+    81:88:boolean equals(java.lang.Object) -> equals
 com.g4mesoft.panel.GSClosableParentPanel -> core.N:
     com.g4mesoft.panel.event.GSIButtonStroke closeButton -> gsc_sc
     11:13:void <init>() -> <init>
     16:16:com.g4mesoft.panel.event.GSIButtonStroke getCloseButton() -> gsc_rJ
     20:29:void setCloseButton(com.g4mesoft.panel.event.GSIButtonStroke) -> gsc_rJ
-    33:34:void close() -> gsc_hH
+    32:33:void close() -> gsc_hH
 com.g4mesoft.panel.GSColorBrightnessSlider -> core.av:
     com.g4mesoft.panel.GSDimension PREFERRED_SIZE -> gsc_rJ
     int THUMB_HEIGHT -> gsc_hH
@@ -1752,6 +1780,22 @@ com.g4mesoft.panel.GSDimension -> core.R:
     17:17:int getWidth() -> gsc_rJ
     21:21:int getHeight() -> gsc_hH
     5:6:void <clinit>() -> <clinit>
+com.g4mesoft.panel.GSEAnchor -> core.dk:
+    com.g4mesoft.panel.GSEAnchor CENTER -> gsc_rJ
+    com.g4mesoft.panel.GSEAnchor NORTH -> gsc_hH
+    com.g4mesoft.panel.GSEAnchor NORTHEAST -> gsc_sc
+    com.g4mesoft.panel.GSEAnchor EAST -> gsc_bs
+    com.g4mesoft.panel.GSEAnchor SOUTHEAST -> gsc_UM
+    com.g4mesoft.panel.GSEAnchor SOUTH -> gsc_mg
+    com.g4mesoft.panel.GSEAnchor SOUTHWEST -> gsc_vm
+    com.g4mesoft.panel.GSEAnchor WEST -> gsc_Qo
+    com.g4mesoft.panel.GSEAnchor NORTHWEST -> gsc_Jn
+    com.g4mesoft.panel.GSEAnchor[] $VALUES -> gsc_AS
+    3:3:com.g4mesoft.panel.GSEAnchor[] values() -> values
+    3:3:com.g4mesoft.panel.GSEAnchor valueOf(java.lang.String) -> valueOf
+    3:3:void <init>(java.lang.String,int) -> <init>
+    3:3:com.g4mesoft.panel.GSEAnchor[] $values() -> gsc_rJ
+    3:13:void <clinit>() -> <clinit>
 com.g4mesoft.panel.GSECursorType -> core.S:
     com.g4mesoft.panel.GSECursorType DEFAULT -> gsc_rJ
     com.g4mesoft.panel.GSECursorType IBEAM -> gsc_hH
@@ -1765,6 +1809,17 @@ com.g4mesoft.panel.GSECursorType -> core.S:
     3:3:void <init>(java.lang.String,int) -> <init>
     3:3:com.g4mesoft.panel.GSECursorType[] $values() -> gsc_rJ
     3:5:void <clinit>() -> <clinit>
+com.g4mesoft.panel.GSEFill -> core.dl:
+    com.g4mesoft.panel.GSEFill NONE -> gsc_rJ
+    com.g4mesoft.panel.GSEFill HORIZONTAL -> gsc_hH
+    com.g4mesoft.panel.GSEFill VERTICAL -> gsc_sc
+    com.g4mesoft.panel.GSEFill BOTH -> gsc_bs
+    com.g4mesoft.panel.GSEFill[] $VALUES -> gsc_UM
+    3:3:com.g4mesoft.panel.GSEFill[] values() -> values
+    3:3:com.g4mesoft.panel.GSEFill valueOf(java.lang.String) -> valueOf
+    3:3:void <init>(java.lang.String,int) -> <init>
+    3:3:com.g4mesoft.panel.GSEFill[] $values() -> gsc_rJ
+    3:8:void <clinit>() -> <clinit>
 com.g4mesoft.panel.GSEIconAlignment -> core.aX:
     com.g4mesoft.panel.GSEIconAlignment LEFT -> gsc_rJ
     com.g4mesoft.panel.GSEIconAlignment RIGHT -> gsc_hH
@@ -1784,14 +1839,107 @@ com.g4mesoft.panel.GSETextAlignment -> core.aY:
     6:6:void <init>(java.lang.String,int) -> <init>
     6:6:com.g4mesoft.panel.GSETextAlignment[] $values() -> gsc_rJ
     6:10:void <clinit>() -> <clinit>
+com.g4mesoft.panel.GSFloatLayoutProperty -> core.dm:
+    float minValue -> gsc_rJ
+    float maxValue -> gsc_hH
+    13:14:void <init>(java.lang.String,float) -> <init>
+    17:21:void <init>(java.lang.String,float,float,float) -> <init>
+    24:25:void <init>(java.lang.String,java.util.function.Function) -> <init>
+    28:32:void <init>(java.lang.String,java.util.function.Function,float,float) -> <init>
+    36:36:java.lang.Float validate(java.lang.Float) -> gsc_rJ
+    40:40:float getMinValue() -> gsc_rJ
+    44:44:float getMaxValue() -> gsc_hH
+    7:7:boolean equals(java.lang.Object) -> equals
+    7:7:int hashCode() -> hashCode
+    7:7:java.lang.Object copy(java.lang.Object) -> gsc_sc
+    7:7:java.lang.Object validate(java.lang.Object) -> gsc_hH
+    7:7:java.lang.Object castUnchecked(java.lang.Object) -> gsc_rJ
+    7:7:java.lang.Object computeDefaultValue(com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    7:7:void put(java.util.Map,java.lang.Object,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    7:7:java.lang.Object remove(java.util.Map,com.g4mesoft.panel.GSPanel) -> gsc_hH
+    7:7:java.lang.Object get(java.util.Map,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+com.g4mesoft.panel.GSGridLayoutManager -> core.dn:
+    com.g4mesoft.panel.GSILayoutProperty MINIMUM_WIDTH -> gsc_rJ
+    com.g4mesoft.panel.GSILayoutProperty MINIMUM_HEIGHT -> gsc_hH
+    com.g4mesoft.panel.GSILayoutProperty MINIMUM_SIZE -> gsc_sc
+    com.g4mesoft.panel.GSILayoutProperty PREFERRED_WIDTH -> gsc_bs
+    com.g4mesoft.panel.GSILayoutProperty PREFERRED_HEIGHT -> gsc_UM
+    com.g4mesoft.panel.GSILayoutProperty PREFERRED_SIZE -> gsc_mg
+    com.g4mesoft.panel.GSILayoutProperty GRID_X -> gsc_vm
+    com.g4mesoft.panel.GSILayoutProperty GRID_Y -> gsc_Qo
+    com.g4mesoft.panel.GSILayoutProperty GRID_WIDTH -> gsc_Jn
+    com.g4mesoft.panel.GSILayoutProperty GRID_HEIGHT -> gsc_AS
+    com.g4mesoft.panel.GSILayoutProperty WEIGHT_X -> gsc_cT
+    com.g4mesoft.panel.GSILayoutProperty WEIGHT_Y -> gsc_Yp
+    com.g4mesoft.panel.GSILayoutProperty ANCHOR -> gsc_gn
+    com.g4mesoft.panel.GSILayoutProperty FILL -> gsc_eh
+    com.g4mesoft.panel.GSILayoutProperty TOP_MARGIN -> gsc_Pt
+    com.g4mesoft.panel.GSILayoutProperty LEFT_MARGIN -> gsc_PS
+    com.g4mesoft.panel.GSILayoutProperty BOTTOM_MARGIN -> gsc_bx
+    com.g4mesoft.panel.GSILayoutProperty RIGHT_MARGIN -> gsc_yN
+    com.g4mesoft.panel.GSILayoutProperty VERT_MARGIN -> gsc_pl
+    com.g4mesoft.panel.GSILayoutProperty HORIZ_MARGIN -> gsc_LG
+    com.g4mesoft.panel.GSILayoutProperty MARGIN -> gsc_VL
+    7:7:void <init>() -> <init>
+    39:39:com.g4mesoft.panel.GSDimension getMinimumSize(com.g4mesoft.panel.GSParentPanel) -> gsc_rJ
+    44:44:com.g4mesoft.panel.GSDimension getPreferredSize(com.g4mesoft.panel.GSParentPanel) -> gsc_hH
+    49:163:void layoutChildren(com.g4mesoft.panel.GSParentPanel) -> gsc_sc
+    166:239:void layoutChild(com.g4mesoft.panel.GSPanel,com.g4mesoft.panel.GSRectangle) -> gsc_rJ
+    242:247:com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo calculateLayoutInfo(com.g4mesoft.panel.GSParentPanel,com.g4mesoft.panel.GSILayoutProperty) -> gsc_rJ
+    252:264:com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo initLayoutInfo(com.g4mesoft.panel.GSParentPanel) -> gsc_bs
+    269:299:void calculateWeights(com.g4mesoft.panel.GSParentPanel,com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo) -> gsc_rJ
+    303:378:void calculateGridSizes(com.g4mesoft.panel.GSParentPanel,com.g4mesoft.panel.GSILayoutProperty,com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo) -> gsc_rJ
+    381:392:com.g4mesoft.panel.GSDimension getMinimumSize(com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo) -> gsc_rJ
+    11:35:void <clinit>() -> <clinit>
+com.g4mesoft.panel.GSGridLayoutManager$1 -> core.do:
+    int[] $SwitchMap$com$g4mesoft$panel$GSEAnchor -> gsc_rJ
+    196:196:void <clinit>() -> <clinit>
+com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo -> core.dp:
+    int columnCount -> gsc_hH
+    int rowCount -> gsc_sc
+    float[] columnWeights -> gsc_bs
+    float[] rowWeights -> gsc_UM
+    float columnWeight -> gsc_mg
+    float rowWeight -> gsc_vm
+    int[] minColumnWidths -> gsc_Qo
+    int[] minRowHeights -> gsc_Jn
+    com.g4mesoft.panel.GSGridLayoutManager this$0 -> gsc_rJ
+    408:419:void <init>(com.g4mesoft.panel.GSGridLayoutManager,int,int) -> <init>
+    395:395:float access$000(com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo) -> gsc_rJ
+    395:395:int access$100(com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo) -> gsc_hH
+    395:395:int[] access$200(com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo) -> gsc_sc
+    395:395:float[] access$300(com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo) -> gsc_bs
+    395:395:float access$400(com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo) -> gsc_UM
+    395:395:int access$500(com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo) -> gsc_mg
+    395:395:int[] access$600(com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo) -> gsc_vm
+    395:395:float[] access$700(com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo) -> gsc_Qo
+    395:395:float access$002(com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo,float) -> gsc_rJ
+    395:395:float access$016(com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo,float) -> gsc_hH
+    395:395:float access$402(com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo,float) -> gsc_sc
+    395:395:float access$416(com.g4mesoft.panel.GSGridLayoutManager$GSGridLayoutInfo,float) -> gsc_bs
+com.g4mesoft.panel.GSHorizMargin -> core.dq:
+    int left -> gsc_rJ
+    int right -> gsc_hH
+    9:10:void <init>() -> <init>
+    13:14:void <init>(int) -> <init>
+    16:19:void <init>(int,int) -> <init>
+    22:22:int getLeft() -> gsc_rJ
+    26:27:void setLeft(int) -> gsc_rJ
+    30:30:int getRight() -> gsc_hH
+    34:35:void setRight(int) -> gsc_hH
 com.g4mesoft.panel.GSIActionListener -> core.T:
     void actionPerformed() -> actionPerformed
-com.g4mesoft.panel.GSIClosable -> core.U:
-    void close() -> gsc_hH
 com.g4mesoft.panel.GSILayoutManager -> core.V:
     com.g4mesoft.panel.GSDimension getMinimumSize(com.g4mesoft.panel.GSParentPanel) -> gsc_rJ
     com.g4mesoft.panel.GSDimension getPreferredSize(com.g4mesoft.panel.GSParentPanel) -> gsc_hH
     void layoutChildren(com.g4mesoft.panel.GSParentPanel) -> gsc_sc
+com.g4mesoft.panel.GSILayoutProperty -> core.dr:
+    java.lang.Object get(java.util.Map,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    java.lang.Object remove(java.util.Map,com.g4mesoft.panel.GSPanel) -> gsc_hH
+    void put(java.util.Map,java.lang.Object,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    java.lang.Object computeDefaultValue(com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    int hashCode() -> hashCode
+    boolean equals(java.lang.Object) -> equals
 com.g4mesoft.panel.GSIModelListener -> core.cE:
     void modelChanged() -> gsc_rJ
 com.g4mesoft.panel.GSIViewport -> core.W:
@@ -1803,6 +1951,57 @@ com.g4mesoft.panel.GSIcon -> core.X:
     int getWidth() -> gsc_rJ
     int getHeight() -> gsc_hH
     14:14:com.g4mesoft.panel.GSDimension getSize() -> gsc_sc
+com.g4mesoft.panel.GSIntLayoutProperty -> core.ds:
+    int minValue -> gsc_rJ
+    int maxValue -> gsc_hH
+    13:14:void <init>(java.lang.String,int) -> <init>
+    17:21:void <init>(java.lang.String,int,int,int) -> <init>
+    24:25:void <init>(java.lang.String,java.util.function.Function) -> <init>
+    28:32:void <init>(java.lang.String,java.util.function.Function,int,int) -> <init>
+    36:36:java.lang.Integer validate(java.lang.Integer) -> gsc_rJ
+    40:40:int getMinValue() -> gsc_rJ
+    44:44:int getMaxValue() -> gsc_hH
+    7:7:boolean equals(java.lang.Object) -> equals
+    7:7:int hashCode() -> hashCode
+    7:7:java.lang.Object copy(java.lang.Object) -> gsc_sc
+    7:7:java.lang.Object validate(java.lang.Object) -> gsc_hH
+    7:7:java.lang.Object castUnchecked(java.lang.Object) -> gsc_rJ
+    7:7:java.lang.Object computeDefaultValue(com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    7:7:void put(java.util.Map,java.lang.Object,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    7:7:java.lang.Object remove(java.util.Map,com.g4mesoft.panel.GSPanel) -> gsc_hH
+    7:7:java.lang.Object get(java.util.Map,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+com.g4mesoft.panel.GSLayout -> core.dt:
+    com.g4mesoft.panel.GSPanel panel -> gsc_rJ
+    java.util.HashMap properties -> gsc_hH
+    11:15:void <init>(com.g4mesoft.panel.GSPanel) -> <init>
+    18:20:java.lang.Object get(com.g4mesoft.panel.GSILayoutProperty) -> gsc_rJ
+    24:26:java.lang.Object remove(com.g4mesoft.panel.GSILayoutProperty) -> gsc_hH
+    30:41:com.g4mesoft.panel.GSLayout set(com.g4mesoft.panel.GSILayoutProperty,java.lang.Object) -> gsc_rJ
+    45:45:com.g4mesoft.panel.GSPanel getPanel() -> gsc_rJ
+com.g4mesoft.panel.GSLayoutProperties -> core.du:
+    com.g4mesoft.panel.GSILayoutProperty MINIMUM_WIDTH -> gsc_rJ
+    com.g4mesoft.panel.GSILayoutProperty MINIMUM_HEIGHT -> gsc_hH
+    com.g4mesoft.panel.GSILayoutProperty MINIMUM_SIZE -> gsc_sc
+    com.g4mesoft.panel.GSILayoutProperty PREFERRED_WIDTH -> gsc_bs
+    com.g4mesoft.panel.GSILayoutProperty PREFERRED_HEIGHT -> gsc_UM
+    com.g4mesoft.panel.GSILayoutProperty PREFERRED_SIZE -> gsc_mg
+    com.g4mesoft.panel.GSILayoutProperty GRID_X -> gsc_vm
+    com.g4mesoft.panel.GSILayoutProperty GRID_Y -> gsc_Qo
+    com.g4mesoft.panel.GSILayoutProperty GRID_WIDTH -> gsc_Jn
+    com.g4mesoft.panel.GSILayoutProperty GRID_HEIGHT -> gsc_AS
+    com.g4mesoft.panel.GSILayoutProperty WEIGHT_X -> gsc_cT
+    com.g4mesoft.panel.GSILayoutProperty WEIGHT_Y -> gsc_Yp
+    com.g4mesoft.panel.GSILayoutProperty ANCHOR -> gsc_gn
+    com.g4mesoft.panel.GSILayoutProperty FILL -> gsc_eh
+    com.g4mesoft.panel.GSILayoutProperty TOP_MARGIN -> gsc_Pt
+    com.g4mesoft.panel.GSILayoutProperty LEFT_MARGIN -> gsc_PS
+    com.g4mesoft.panel.GSILayoutProperty BOTTOM_MARGIN -> gsc_bx
+    com.g4mesoft.panel.GSILayoutProperty RIGHT_MARGIN -> gsc_yN
+    com.g4mesoft.panel.GSILayoutProperty VERT_MARGIN -> gsc_pl
+    com.g4mesoft.panel.GSILayoutProperty HORIZ_MARGIN -> gsc_LG
+    com.g4mesoft.panel.GSILayoutProperty MARGIN -> gsc_VL
+    32:33:void <init>() -> <init>
+    5:30:void <clinit>() -> <clinit>
 com.g4mesoft.panel.GSLocation -> core.Y:
     com.g4mesoft.panel.GSLocation ZERO -> gsc_rJ
     com.g4mesoft.panel.GSLocation MAX_VALUE -> gsc_hH
@@ -1812,7 +2011,33 @@ com.g4mesoft.panel.GSLocation -> core.Y:
     17:17:int getX() -> gsc_rJ
     21:21:int getY() -> gsc_hH
     5:6:void <clinit>() -> <clinit>
+com.g4mesoft.panel.GSMargin -> core.dv:
+    int top -> gsc_rJ
+    int left -> gsc_hH
+    int bottom -> gsc_sc
+    int right -> gsc_bs
+    11:12:void <init>() -> <init>
+    15:16:void <init>(com.g4mesoft.panel.GSVertMargin,com.g4mesoft.panel.GSHorizMargin) -> <init>
+    19:20:void <init>(int,int) -> <init>
+    23:24:void <init>(int) -> <init>
+    26:31:void <init>(int,int,int,int) -> <init>
+    34:34:com.g4mesoft.panel.GSVertMargin getVertMargin() -> gsc_rJ
+    38:38:com.g4mesoft.panel.GSHorizMargin getHorizMargin() -> gsc_hH
+    42:42:int getTop() -> gsc_sc
+    46:47:void setTop(int) -> gsc_rJ
+    50:50:int getLeft() -> gsc_bs
+    54:55:void setLeft(int) -> gsc_hH
+    58:58:int getBottom() -> gsc_UM
+    62:63:void setBottom(int) -> gsc_sc
+    66:66:int getRight() -> gsc_mg
+    70:71:void setRight(int) -> gsc_bs
 com.g4mesoft.panel.GSPanel -> core.Z:
+    com.g4mesoft.panel.GSILayoutProperty MINIMUM_WIDTH -> gsc_EE
+    com.g4mesoft.panel.GSILayoutProperty MINIMUM_HEIGHT -> gsc_qi
+    com.g4mesoft.panel.GSILayoutProperty MINIMUM_SIZE -> gsc_qO
+    com.g4mesoft.panel.GSILayoutProperty PREFERRED_WIDTH -> gsc_jX
+    com.g4mesoft.panel.GSILayoutProperty PREFERRED_HEIGHT -> gsc_Ln
+    com.g4mesoft.panel.GSILayoutProperty PREFERRED_SIZE -> gsc_fV
     com.g4mesoft.panel.GSPanel parent -> gsc_rJ
     boolean visible -> gsc_hH
     int x -> gsc_LG
@@ -1830,90 +2055,100 @@ com.g4mesoft.panel.GSPanel -> core.Z:
     com.g4mesoft.panel.event.GSIMouseListener buttonMouseListener -> gsc_cT
     com.g4mesoft.panel.event.GSIKeyListener buttonKeyListener -> gsc_Yp
     com.g4mesoft.panel.GSECursorType cursor -> gsc_kd
-    com.g4mesoft.panel.GSDimension minimumSize -> gsc_EE
-    com.g4mesoft.panel.GSDimension preferredSize -> gsc_qi
-    49:61:void <init>() -> <init>
-    64:64:void add(com.g4mesoft.panel.GSPanel) -> gsc_sc
-    68:68:void remove(com.g4mesoft.panel.GSPanel) -> gsc_bs
-    72:72:void removeAll() -> gsc_gn
-    76:76:int getX() -> gsc_eh
-    80:80:int getY() -> gsc_Pt
-    84:84:com.g4mesoft.panel.GSLocation getLocation() -> gsc_PS
-    89:89:int getWidth() -> gsc_cT
-    94:94:int getHeight() -> gsc_Yp
-    98:98:com.g4mesoft.panel.GSDimension getSize() -> gsc_bx
-    102:102:com.g4mesoft.panel.GSRectangle getBounds() -> gsc_yN
-    106:107:void setBounds(com.g4mesoft.panel.GSRectangle) -> gsc_rJ
-    110:111:void setBounds(com.g4mesoft.panel.GSLocation,com.g4mesoft.panel.GSDimension) -> gsc_rJ
-    114:126:void setBounds(int,int,int,int) -> gsc_rJ
-    129:129:void onBoundsChanged() -> gsc_kd
-    132:132:void layout() -> gsc_pl
-    135:135:boolean isAdded() -> gsc_LG
-    139:139:com.g4mesoft.panel.GSPanel getParent() -> gsc_VL
-    143:151:void onAdded(com.g4mesoft.panel.GSPanel) -> a_
-    154:160:void onRemoved(com.g4mesoft.panel.GSPanel) -> gsc_hH
-    163:163:boolean isVisible() -> gsc_ew
-    167:176:void setVisible(boolean) -> gsc_rJ
-    179:179:void onShown() -> gsc_kZ
-    182:182:void onHidden() -> gsc_EE
-    185:185:void update() -> a_
-    188:190:void preRender(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_sc
-    193:193:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
-    196:197:void postRender(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_bs
-    200:200:com.g4mesoft.panel.GSPanel getChildAt(int,int) -> a_
-    204:208:boolean isInBounds(int,int) -> gsc_hH
-    212:216:void addMouseEventListener(com.g4mesoft.panel.event.GSIMouseListener) -> gsc_rJ
-    219:225:void removeMouseEventListener(com.g4mesoft.panel.event.GSIMouseListener) -> gsc_hH
-    228:230:java.util.List getMouseEventListeners() -> gsc_qi
-    234:238:void addKeyEventListener(com.g4mesoft.panel.event.GSIKeyListener) -> gsc_rJ
-    241:247:void removeKeyEventListener(com.g4mesoft.panel.event.GSIKeyListener) -> gsc_hH
-    250:252:java.util.List getKeyEventListeners() -> gsc_PX
-    256:260:void addFocusEventListener(com.g4mesoft.panel.event.GSIFocusEventListener) -> gsc_rJ
-    263:269:void removeFocusEventListener(com.g4mesoft.panel.event.GSIFocusEventListener) -> gsc_hH
-    272:274:java.util.List getFocusEventListeners() -> gsc_vs
-    278:278:int getViewOffsetX() -> gsc_Ju
-    282:282:int getViewOffsetY() -> gsc_OS
-    286:286:boolean isPassingEvents() -> gsc_BO
-    290:291:void setPassingEvents(boolean) -> gsc_hH
-    294:295:void dispatchMouseEvent(com.g4mesoft.panel.event.GSMouseEvent,com.g4mesoft.panel.GSPanel) -> gsc_rJ
-    298:299:void dispatchKeyEvent(com.g4mesoft.panel.event.GSKeyEvent,com.g4mesoft.panel.GSPanel) -> gsc_rJ
-    302:302:boolean isFocused() -> gsc_dJ
-    306:307:void setFocused(boolean) -> gsc_sc
-    310:310:boolean isFocusable() -> gsc_Gp
-    314:315:void setFocusable(boolean) -> gsc_bs
-    318:319:void requestFocus() -> gsc_RK
-    322:324:void unfocus() -> gsc_tx
-    327:327:boolean hasPopupVisible() -> gsc_Ya
-    332:333:void incrementPopupCount() -> gsc_pV
-    337:340:void decrementPopupCount() -> gsc_tL
-    343:343:boolean isEditingText() -> gsc_ig
-    347:347:com.g4mesoft.panel.GSECursorType getCursor() -> gsc_rC
-    351:355:void setCursor(com.g4mesoft.panel.GSECursorType) -> gsc_rJ
-    358:358:com.g4mesoft.panel.GSDimension getMinimumSize() -> gsc_DG
-    362:362:com.g4mesoft.panel.GSDimension calculateMinimumSize() -> gsc_vB
-    366:370:void setMinimumSize(com.g4mesoft.panel.GSDimension) -> gsc_rJ
-    373:373:com.g4mesoft.panel.GSDimension getPreferredSize() -> gsc_mr
-    377:377:com.g4mesoft.panel.GSDimension calculatePreferredSize() -> gsc_cD
-    381:385:void setPreferredSize(com.g4mesoft.panel.GSDimension) -> gsc_hH
-    388:389:void requestLayout() -> gsc_qO
-    392:419:void putButtonStroke(com.g4mesoft.panel.event.GSIButtonStroke,java.lang.Runnable) -> gsc_rJ
-    422:424:void removeButtonStroke(com.g4mesoft.panel.event.GSIButtonStroke) -> gsc_hH
-    427:436:void handleButtonEvent(com.g4mesoft.panel.event.GSEvent) -> gsc_rJ
-    439:439:boolean hasI18nTranslation(java.lang.String) -> gsc_sc
-    443:443:java.lang.String i18nTranslate(java.lang.String) -> gsc_bs
-    447:447:java.lang.String i18nTranslateFormatted(java.lang.String,java.lang.Object[]) -> gsc_rJ
-    451:451:void populateRightClickMenu(com.g4mesoft.panel.dropdown.GSDropdown,int,int) -> gsc_rJ
-    455:455:int hashCode() -> hashCode
-    460:460:boolean equals(java.lang.Object) -> equals
+    com.g4mesoft.panel.GSLayout layout -> gsc_Fq
+    com.g4mesoft.panel.GSDimension cachedMinimumSize -> gsc_vw
+    com.g4mesoft.panel.GSDimension cachedPreferredSize -> gsc_Tk
+    boolean valid -> gsc_gn
+    59:76:void <init>() -> <init>
+    79:79:void add(com.g4mesoft.panel.GSPanel) -> gsc_sc
+    83:83:void remove(com.g4mesoft.panel.GSPanel) -> gsc_bs
+    87:87:void removeAll() -> gsc_gn
+    91:91:int getX() -> gsc_eh
+    95:95:int getY() -> gsc_Pt
+    99:99:com.g4mesoft.panel.GSLocation getLocation() -> gsc_PS
+    104:104:int getWidth() -> gsc_cT
+    109:109:int getHeight() -> gsc_Yp
+    113:113:com.g4mesoft.panel.GSDimension getSize() -> gsc_bx
+    117:117:com.g4mesoft.panel.GSRectangle getBounds() -> gsc_yN
+    121:122:void setBounds(com.g4mesoft.panel.GSRectangle) -> gsc_rJ
+    125:126:void setBounds(com.g4mesoft.panel.GSLocation,com.g4mesoft.panel.GSDimension) -> gsc_rJ
+    129:141:void setBounds(int,int,int,int) -> gsc_rJ
+    144:144:void onBoundsChanged() -> gsc_kd
+    147:147:void layout() -> gsc_pl
+    150:150:com.g4mesoft.panel.GSILayoutManager getLayoutManager() -> gsc_fV
+    154:154:void setLayoutManager(com.g4mesoft.panel.GSILayoutManager) -> gsc_rJ
+    158:158:boolean isAdded() -> gsc_LG
+    162:162:com.g4mesoft.panel.GSPanel getParent() -> gsc_VL
+    166:174:void onAdded(com.g4mesoft.panel.GSPanel) -> a_
+    177:183:void onRemoved(com.g4mesoft.panel.GSPanel) -> gsc_hH
+    186:186:boolean isVisible() -> gsc_ew
+    190:199:void setVisible(boolean) -> gsc_rJ
+    202:202:void onShown() -> gsc_kZ
+    205:205:void onHidden() -> gsc_EE
+    208:213:void preRender(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_sc
+    216:216:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
+    219:220:void postRender(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_bs
+    223:223:com.g4mesoft.panel.GSPanel getChildAt(int,int) -> a_
+    227:231:boolean isInBounds(int,int) -> gsc_hH
+    235:239:void addMouseEventListener(com.g4mesoft.panel.event.GSIMouseListener) -> gsc_rJ
+    242:248:void removeMouseEventListener(com.g4mesoft.panel.event.GSIMouseListener) -> gsc_hH
+    251:253:java.util.List getMouseEventListeners() -> gsc_qi
+    257:261:void addKeyEventListener(com.g4mesoft.panel.event.GSIKeyListener) -> gsc_rJ
+    264:270:void removeKeyEventListener(com.g4mesoft.panel.event.GSIKeyListener) -> gsc_hH
+    273:275:java.util.List getKeyEventListeners() -> gsc_PX
+    279:283:void addFocusEventListener(com.g4mesoft.panel.event.GSIFocusEventListener) -> gsc_rJ
+    286:292:void removeFocusEventListener(com.g4mesoft.panel.event.GSIFocusEventListener) -> gsc_hH
+    295:297:java.util.List getFocusEventListeners() -> gsc_vs
+    301:301:int getViewOffsetX() -> gsc_Ju
+    305:305:int getViewOffsetY() -> gsc_OS
+    309:309:boolean isPassingEvents() -> gsc_BO
+    313:314:void setPassingEvents(boolean) -> gsc_hH
+    317:318:void dispatchMouseEvent(com.g4mesoft.panel.event.GSMouseEvent,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    321:322:void dispatchKeyEvent(com.g4mesoft.panel.event.GSKeyEvent,com.g4mesoft.panel.GSPanel) -> gsc_rJ
+    325:325:boolean isFocused() -> gsc_dJ
+    329:330:void setFocused(boolean) -> gsc_sc
+    333:333:boolean isFocusable() -> gsc_Gp
+    337:338:void setFocusable(boolean) -> gsc_bs
+    341:342:void requestFocus() -> gsc_RK
+    345:347:void unfocus() -> gsc_tx
+    350:350:boolean hasPopupVisible() -> gsc_Ya
+    355:356:void incrementPopupCount() -> gsc_pV
+    360:363:void decrementPopupCount() -> gsc_tL
+    366:366:boolean isEditingText() -> gsc_ig
+    370:370:com.g4mesoft.panel.GSECursorType getCursor() -> gsc_rC
+    374:378:void setCursor(com.g4mesoft.panel.GSECursorType) -> gsc_rJ
+    382:384:int getDefaultMinimumWidth() -> gsc_DG
+    389:391:int getDefaultMinimumHeight() -> gsc_mr
+    396:398:int getDefaultPreferredWidth() -> gsc_Ri
+    403:405:int getDefaultPreferredHeight() -> gsc_BC
+    409:409:com.g4mesoft.panel.GSDimension calculateMinimumSize() -> gsc_vB
+    413:413:com.g4mesoft.panel.GSDimension calculatePreferredSize() -> gsc_cD
+    417:417:com.g4mesoft.panel.GSLayout getLayout() -> gsc_TT
+    421:421:java.lang.Object getProperty(com.g4mesoft.panel.GSILayoutProperty) -> gsc_rJ
+    425:426:void setProperty(com.g4mesoft.panel.GSILayoutProperty,java.lang.Object) -> gsc_rJ
+    429:430:void requestLayout() -> gsc_qO
+    433:438:void invalidate() -> gsc_Wl
+    441:443:void validate() -> gsc_gs
+    446:446:boolean isValid() -> gsc_Vc
+    450:477:void putButtonStroke(com.g4mesoft.panel.event.GSIButtonStroke,java.lang.Runnable) -> gsc_rJ
+    480:482:void removeButtonStroke(com.g4mesoft.panel.event.GSIButtonStroke) -> gsc_hH
+    485:494:void handleButtonEvent(com.g4mesoft.panel.event.GSEvent) -> gsc_rJ
+    497:497:boolean hasI18nTranslation(java.lang.String) -> gsc_sc
+    501:501:java.lang.String i18nTranslate(java.lang.String) -> gsc_bs
+    505:505:java.lang.String i18nTranslateFormatted(java.lang.String,java.lang.Object[]) -> gsc_rJ
+    509:509:void populateRightClickMenu(com.g4mesoft.panel.dropdown.GSDropdown,int,int) -> gsc_rJ
+    513:513:int hashCode() -> hashCode
+    518:518:boolean equals(java.lang.Object) -> equals
     19:19:void access$000(com.g4mesoft.panel.GSPanel,com.g4mesoft.panel.event.GSEvent) -> gsc_rJ
+    21:27:void <clinit>() -> <clinit>
 com.g4mesoft.panel.GSPanel$1 -> core.aa:
     com.g4mesoft.panel.GSPanel this$0 -> gsc_rJ
-    396:396:void <init>(com.g4mesoft.panel.GSPanel) -> <init>
-    399:400:void mousePressed(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_rJ
+    454:454:void <init>(com.g4mesoft.panel.GSPanel) -> <init>
+    457:458:void mousePressed(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_rJ
 com.g4mesoft.panel.GSPanel$2 -> core.ab:
     com.g4mesoft.panel.GSPanel this$0 -> gsc_rJ
-    407:407:void <init>(com.g4mesoft.panel.GSPanel) -> <init>
-    410:412:void keyPressed(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_rJ
+    465:465:void <init>(com.g4mesoft.panel.GSPanel) -> <init>
+    468:470:void keyPressed(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_rJ
 com.g4mesoft.panel.GSPanelContext -> core.ac:
     net.minecraft.class_2960 UI_TEXTURE_IDENTIFIER -> gsc_vm
     com.g4mesoft.panel.GSPanelContext instance -> gsc_rJ
@@ -1986,27 +2221,23 @@ com.g4mesoft.panel.GSPanelUtil$1 -> core.ba:
 com.g4mesoft.panel.GSParentPanel -> core.ae:
     java.util.List children -> gsc_PX
     com.g4mesoft.panel.GSILayoutManager layoutManager -> gsc_rJ
-    boolean minimumSizeSet -> gsc_hH
-    boolean preferredSizeSet -> gsc_sc
-    17:22:void <init>() -> <init>
-    26:28:void layout() -> gsc_pl
-    32:38:void setVisible(boolean) -> gsc_rJ
-    42:46:void add(com.g4mesoft.panel.GSPanel) -> gsc_sc
-    50:52:void remove(com.g4mesoft.panel.GSPanel) -> gsc_bs
-    56:58:void removeAll() -> gsc_gn
-    61:63:void onChildRemoved(com.g4mesoft.panel.GSPanel) -> gsc_UM
-    67:70:void update() -> a_
-    73:75:void updateChildren() -> gsc_jX
-    79:82:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
-    85:90:void renderChildren(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_UM
-    96:102:com.g4mesoft.panel.GSPanel getChildAt(int,int) -> a_
-    106:106:java.util.List getChildren() -> gsc_Ln
-    110:110:com.g4mesoft.panel.GSILayoutManager getLayoutManager() -> gsc_fV
-    114:117:void setLayoutManager(com.g4mesoft.panel.GSILayoutManager) -> gsc_rJ
-    121:124:com.g4mesoft.panel.GSDimension getMinimumSize() -> gsc_DG
-    129:132:void setMinimumSize(com.g4mesoft.panel.GSDimension) -> gsc_rJ
-    136:139:com.g4mesoft.panel.GSDimension getPreferredSize() -> gsc_mr
-    144:147:void setPreferredSize(com.g4mesoft.panel.GSDimension) -> gsc_hH
+    15:19:void <init>() -> <init>
+    23:25:void layout() -> gsc_pl
+    29:35:void setVisible(boolean) -> gsc_rJ
+    39:45:void add(com.g4mesoft.panel.GSPanel) -> gsc_sc
+    49:53:void remove(com.g4mesoft.panel.GSPanel) -> gsc_bs
+    57:64:void removeAll() -> gsc_gn
+    67:69:void onChildRemoved(com.g4mesoft.panel.GSPanel) -> gsc_UM
+    73:76:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
+    79:84:void renderChildren(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_UM
+    90:96:com.g4mesoft.panel.GSPanel getChildAt(int,int) -> a_
+    100:100:java.util.List getChildren() -> gsc_Ln
+    105:105:com.g4mesoft.panel.GSILayoutManager getLayoutManager() -> gsc_fV
+    110:113:void setLayoutManager(com.g4mesoft.panel.GSILayoutManager) -> gsc_rJ
+    118:120:int getDefaultMinimumWidth() -> gsc_DG
+    126:128:int getDefaultMinimumHeight() -> gsc_mr
+    134:136:int getDefaultPreferredWidth() -> gsc_Ri
+    142:144:int getDefaultPreferredHeight() -> gsc_BC
 com.g4mesoft.panel.GSPopup -> core.af:
     int SHADOW_WIDTH -> gsc_rJ
     int SHADOW_OFFSET_X -> gsc_hH
@@ -2080,23 +2311,32 @@ com.g4mesoft.panel.GSScreen -> core.ai:
     34:40:void method_25426() -> method_25426
     45:50:void method_25432() -> method_25432
     53:57:void setVisibleImpl(boolean) -> gsc_rJ
-    62:65:void method_25393() -> method_25393
-    70:91:void method_25394(net.minecraft.class_4587,int,int,float) -> method_25394
-    96:97:void method_16014(double,double) -> method_16014
-    102:104:boolean method_25402(double,double,int) -> method_25402
-    110:112:boolean method_25406(double,double,int) -> method_25406
-    118:119:boolean method_25403(double,double,int,double,double) -> method_25403
-    125:127:boolean method_25401(double,double,double) -> method_25401
-    133:138:boolean method_25404(int,int,int) -> method_25404
-    144:145:boolean method_16803(int,int,int) -> method_16803
-    151:152:boolean method_25400(char,int) -> method_25400
-    156:156:com.g4mesoft.panel.GSRootPanel getRootPanel() -> gsc_rJ
+    62:83:void method_25394(net.minecraft.class_4587,int,int,float) -> method_25394
+    88:89:void method_16014(double,double) -> method_16014
+    94:96:boolean method_25402(double,double,int) -> method_25402
+    102:104:boolean method_25406(double,double,int) -> method_25406
+    110:111:boolean method_25403(double,double,int,double,double) -> method_25403
+    117:119:boolean method_25401(double,double,double) -> method_25401
+    125:130:boolean method_25404(int,int,int) -> method_25404
+    136:137:boolean method_16803(int,int,int) -> method_16803
+    143:144:boolean method_25400(char,int) -> method_25400
+    148:148:com.g4mesoft.panel.GSRootPanel getRootPanel() -> gsc_rJ
 com.g4mesoft.panel.GSTexturedIcon -> core.aj:
     com.g4mesoft.renderer.GSITextureRegion texture -> gsc_rJ
     10:12:void <init>(com.g4mesoft.renderer.GSITextureRegion) -> <init>
     16:24:void render(com.g4mesoft.renderer.GSIRenderer2D,com.g4mesoft.panel.GSRectangle) -> gsc_rJ
     28:28:int getWidth() -> gsc_rJ
     33:33:int getHeight() -> gsc_hH
+com.g4mesoft.panel.GSVertMargin -> core.dw:
+    int top -> gsc_rJ
+    int bottom -> gsc_hH
+    9:10:void <init>() -> <init>
+    13:14:void <init>(int) -> <init>
+    16:19:void <init>(int,int) -> <init>
+    22:22:int getTop() -> gsc_rJ
+    26:27:void setTop(int) -> gsc_rJ
+    30:30:int getBottom() -> gsc_hH
+    34:35:void setBottom(int) -> gsc_hH
 com.g4mesoft.panel.button.GSButton -> core.cF:
     int DEFAULT_BACKGROUND_COLOR -> gsc_rJ
     int DEFAULT_HOVERED_BACKGROUND_COLOR -> gsc_hH
@@ -2179,7 +2419,7 @@ com.g4mesoft.panel.button.GSButton -> core.cF:
     348:351:void setBorderWidth(int) -> gsc_vm
     354:354:int getBorderColor() -> gsc_Ln
     358:359:void setBorderColor(int) -> gsc_Qo
-    362:362:int getHoveredBorderColor() -> gsc_fV
+    362:362:int getHoveredBorderColor() -> a_
     366:367:void setHoveredBorderColor(int) -> gsc_Jn
     370:370:int getDisabledBorderColor() -> gsc_Fq
     374:375:void setDisabledBorderColor(int) -> gsc_AS
@@ -2194,21 +2434,79 @@ com.g4mesoft.panel.button.GSButton -> core.cF:
     410:410:boolean isEnabled() -> gsc_Tk
     414:415:void setEnabled(boolean) -> gsc_UM
 com.g4mesoft.panel.button.GSRadioButton -> core.cy:
-    int BORDER_COLOR -> gsc_rJ
-    int FILL_COLOR -> gsc_hH
-    int HOVERED_BORDER_COLOR -> gsc_sc
-    int HOVERED_FILL_COLOR -> gsc_bs
+    int DEFAULT_ICON_COLOR -> gsc_rJ
+    int DEFAULT_HOVERED_ICON_COLOR -> gsc_hH
+    int DEFAULT_DISABLED_ICON_COLOR -> gsc_sc
+    int DEFAULT_TEXT_COLOR -> gsc_bs
+    int DEFAULT_HOVERED_TEXT_COLOR -> gsc_vm
+    int DEFAULT_DISABLED_TEXT_COLOR -> gsc_Qo
+    int DEFAULT_ICON_SIZE -> gsc_Jn
+    int DEFAULT_VERTICAL_MARGIN -> gsc_AS
+    int DEFAULT_HORIZONTAL_MARGIN -> gsc_cT
+    int DEFAULT_ICON_SPACING -> gsc_Yp
+    net.minecraft.class_2561 text -> gsc_gn
+    com.g4mesoft.panel.GSIcon icon -> gsc_eh
+    com.g4mesoft.panel.GSIcon hoveredIcon -> gsc_Pt
+    com.g4mesoft.panel.GSIcon disabledIcon -> gsc_PS
+    com.g4mesoft.panel.GSIcon selectedIcon -> gsc_bx
+    com.g4mesoft.panel.GSIcon hoveredSelectedIcon -> gsc_yN
+    com.g4mesoft.panel.GSIcon disabledSelectedIcon -> gsc_pl
     java.util.List actionListeners -> gsc_UM
+    com.g4mesoft.panel.GSEIconAlignment iconAlignment -> gsc_PX
+    com.g4mesoft.panel.GSETextAlignment textAlignment -> gsc_Nt
+    int textColor -> gsc_vs
+    int hoveredTextColor -> gsc_Ju
+    int disabledTextColor -> gsc_OS
+    int verticalMargin -> gsc_BO
+    int horizontalMargin -> gsc_dJ
+    int iconSpacing -> gsc_Gp
     boolean selected -> gsc_mg
-    24:30:void <init>() -> <init>
-    34:44:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
-    48:59:void mouseReleased(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_hH
-    63:63:com.g4mesoft.panel.GSECursorType getCursor() -> gsc_rC
-    67:68:void addActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_rJ
-    71:72:void removeActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_hH
-    75:76:void dispatchActionPerformed() -> gsc_hH
-    79:79:boolean isSelected() -> gsc_rJ
-    83:84:void setSelected(boolean) -> gsc_UM
+    boolean enabled -> gsc_RK
+    67:99:void <init>(net.minecraft.class_2561) -> <init>
+    103:106:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
+    110:126:void renderForeground(com.g4mesoft.renderer.GSIRenderer2D,boolean) -> gsc_rJ
+    130:130:com.g4mesoft.panel.GSECursorType getCursor() -> gsc_rC
+    135:140:com.g4mesoft.panel.GSDimension calculatePreferredSize() -> gsc_cD
+    145:156:void mouseReleased(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_hH
+    160:171:void keyPressed(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_rJ
+    174:174:net.minecraft.class_2561 getText() -> gsc_sc
+    178:179:void setText(java.lang.String) -> gsc_rJ
+    182:183:void setText(net.minecraft.class_2561) -> gsc_rJ
+    186:186:com.g4mesoft.panel.GSIcon getIcon() -> gsc_bs
+    190:193:void setIcon(com.g4mesoft.panel.GSIcon) -> gsc_rJ
+    196:196:com.g4mesoft.panel.GSIcon getHoveredIcon() -> gsc_UM
+    200:203:void setHoveredIcon(com.g4mesoft.panel.GSIcon) -> gsc_hH
+    206:206:com.g4mesoft.panel.GSIcon getDisabledIcon() -> gsc_mg
+    210:213:void setDisabledIcon(com.g4mesoft.panel.GSIcon) -> gsc_sc
+    216:216:com.g4mesoft.panel.GSIcon getSelectedIcon() -> gsc_vm
+    220:223:void setSelectedIcon(com.g4mesoft.panel.GSIcon) -> gsc_bs
+    226:226:com.g4mesoft.panel.GSIcon getHoveredSelectedIcon() -> gsc_Qo
+    230:233:void setHoveredSelectedIcon(com.g4mesoft.panel.GSIcon) -> gsc_UM
+    236:236:com.g4mesoft.panel.GSIcon getDisabledSelectedIcon() -> gsc_Jn
+    240:243:void setDisabledSelectedIcon(com.g4mesoft.panel.GSIcon) -> gsc_mg
+    246:247:void addActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_rJ
+    250:251:void removeActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_hH
+    254:255:void dispatchActionPerformed() -> gsc_hH
+    258:258:com.g4mesoft.panel.GSEIconAlignment getIconAlignment() -> gsc_AS
+    262:265:void setIconAlignment(com.g4mesoft.panel.GSEIconAlignment) -> gsc_rJ
+    268:268:com.g4mesoft.panel.GSETextAlignment getTextAlignment() -> gsc_Nt
+    272:275:void setTextAlignment(com.g4mesoft.panel.GSETextAlignment) -> gsc_rJ
+    278:278:int getTextColor() -> gsc_jX
+    282:283:void setTextColor(int) -> gsc_rJ
+    286:286:int getHoveredTextColor() -> gsc_Ln
+    290:291:void setHoveredTextColor(int) -> gsc_hH
+    294:294:int getDisabledTextColor() -> b_
+    298:299:void setDisabledTextColor(int) -> gsc_sc
+    302:302:int getVerticalMargin() -> gsc_Fq
+    306:307:void setVerticalMargin(int) -> gsc_bs
+    310:310:int getHorizontalMargin() -> gsc_vw
+    314:315:void setHorizontalMargin(int) -> gsc_UM
+    318:318:int getIconSpacing() -> gsc_Tk
+    322:323:void setIconSpacing(int) -> gsc_mg
+    326:326:boolean isSelected() -> gsc_rJ
+    330:331:void setSelected(boolean) -> gsc_UM
+    334:334:boolean isEnabled() -> gsc_hr
+    338:339:void setEnabled(boolean) -> gsc_mg
 com.g4mesoft.panel.button.GSRadioButtonGroup -> core.cz:
     java.util.Set buttons -> gsc_rJ
     java.util.Map actionListeners -> gsc_hH
@@ -2222,6 +2520,22 @@ com.g4mesoft.panel.button.GSRadioButtonGroup$1 -> core.cA:
     com.g4mesoft.panel.button.GSRadioButtonGroup this$0 -> gsc_hH
     22:22:void <init>(com.g4mesoft.panel.button.GSRadioButtonGroup,com.g4mesoft.panel.button.GSRadioButton) -> <init>
     25:27:void actionPerformed() -> actionPerformed
+com.g4mesoft.panel.button.GSRadioButtonIcon -> core.dx:
+    int color -> gsc_rJ
+    int preferredSize -> gsc_hH
+    12:15:void <init>(int,int) -> <init>
+    19:24:void render(com.g4mesoft.renderer.GSIRenderer2D,com.g4mesoft.panel.GSRectangle) -> gsc_rJ
+    void renderIcon(com.g4mesoft.renderer.GSIRenderer2D,int,int,int) -> gsc_rJ
+    30:30:int getWidth() -> gsc_rJ
+    35:35:int getHeight() -> gsc_hH
+    39:39:int getColor() -> gsc_bs
+com.g4mesoft.panel.button.GSSelectedIcon -> core.dy:
+    int FILL_INDENT -> gsc_sc
+    10:11:void <init>(int,int) -> <init>
+    15:21:void renderIcon(com.g4mesoft.renderer.GSIRenderer2D,int,int,int) -> gsc_rJ
+com.g4mesoft.panel.button.GSUnselectedIcon -> core.dz:
+    8:9:void <init>(int,int) -> <init>
+    13:14:void renderIcon(com.g4mesoft.renderer.GSIRenderer2D,int,int,int) -> gsc_rJ
 com.g4mesoft.panel.dropdown.GSBasicDropdownListField -> core.cH:
     java.lang.Object highlightedItem -> gsc_rJ
     7:7:void <init>() -> <init>
@@ -2238,22 +2552,23 @@ com.g4mesoft.panel.dropdown.GSDropdown -> core.ak:
     int VERTICAL_PADDING -> gsc_hH
     java.util.List actionListeners -> gsc_sc
     boolean separateNextItem -> gsc_bs
-    26:31:void <init>() -> <init>
-    35:38:void add(com.g4mesoft.panel.GSPanel) -> gsc_sc
-    41:47:void addItem(com.g4mesoft.panel.dropdown.GSDropdownItem) -> gsc_rJ
-    50:51:void separate() -> gsc_rJ
-    54:62:void addItem0(com.g4mesoft.panel.dropdown.GSDropdownItem) -> gsc_hH
-    66:78:void layout() -> gsc_pl
-    82:85:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
-    89:99:com.g4mesoft.panel.GSDimension calculateMinimumSize() -> gsc_vB
-    104:114:com.g4mesoft.panel.GSDimension calculatePreferredSize() -> gsc_cD
-    118:118:boolean isEmpty() -> gsc_hH
-    123:124:void addActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_rJ
-    128:129:void removeActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_hH
-    133:134:void onActionPerformed() -> gsc_bs
-    137:142:void hide() -> gsc_mg
-    146:155:void keyPressed(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_rJ
-    159:163:void focusLost(com.g4mesoft.panel.event.GSFocusEvent) -> gsc_rJ
+    27:32:void <init>() -> <init>
+    36:39:void add(com.g4mesoft.panel.GSPanel) -> gsc_sc
+    42:48:void addItem(com.g4mesoft.panel.dropdown.GSDropdownItem) -> gsc_rJ
+    51:52:void separate() -> gsc_rJ
+    55:57:void addItem0(com.g4mesoft.panel.dropdown.GSDropdownItem) -> gsc_hH
+    61:73:void layout() -> gsc_pl
+    77:80:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
+    84:84:com.g4mesoft.panel.GSDimension calculateMinimumSize() -> gsc_vB
+    89:89:com.g4mesoft.panel.GSDimension calculatePreferredSize() -> gsc_cD
+    93:102:com.g4mesoft.panel.GSDimension calculateSize(com.g4mesoft.panel.GSILayoutProperty) -> gsc_hH
+    106:106:boolean isEmpty() -> gsc_hH
+    111:112:void addActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_rJ
+    116:117:void removeActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_hH
+    121:122:void onActionPerformed() -> gsc_bs
+    125:130:void hide() -> gsc_mg
+    134:143:void keyPressed(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_rJ
+    147:151:void focusLost(com.g4mesoft.panel.event.GSFocusEvent) -> gsc_rJ
 com.g4mesoft.panel.dropdown.GSDropdownAction -> core.al:
     com.g4mesoft.panel.GSIcon icon -> gsc_Jn
     net.minecraft.class_2561 title -> gsc_AS
@@ -2710,40 +3025,36 @@ com.g4mesoft.panel.field.GSBasicTextCaret -> core.bY:
     183:194:void navigateStep(boolean,int) -> gsc_rJ
     205:210:void navigateToLocation(int,int) -> gsc_rJ
     222:245:boolean navigateToPoint(int,int,int) -> gsc_rJ
-    250:250:void update() -> gsc_hH
-    254:264:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
-    273:285:void paintCaret(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_hH
-    297:304:int getBoundedLocation(int) -> gsc_Jn
-    309:309:int getCaretLocation() -> gsc_sc
-    314:323:void setCaretLocation(int) -> gsc_rJ
-    327:327:int getCaretDot() -> gsc_bs
-    332:341:void setCaretDot(int) -> gsc_hH
-    345:345:int getCaretMark() -> gsc_UM
-    350:357:void setCaretMark(int) -> gsc_sc
-    366:378:void setSelection(int,int) -> gsc_hH
-    382:382:boolean hasCaretSelection() -> gsc_mg
-    387:398:void textInserted(com.g4mesoft.panel.field.GSITextModel,int,int) -> gsc_rJ
-    402:421:void textRemoved(com.g4mesoft.panel.field.GSITextModel,int,int) -> gsc_hH
-    425:425:int getBlinkRate() -> gsc_vm
-    439:445:void setBlinkRate(int) -> gsc_bs
-    448:448:int getClickRate() -> gsc_Qo
-    452:458:void setClickRate(int) -> gsc_UM
-    464:464:int getCaretWidth() -> gsc_Jn
-    476:480:void setCaretWidth(int) -> gsc_mg
-    486:486:int getCaretInsets() -> gsc_AS
-    499:503:void setCaretInsets(int) -> gsc_vm
-    506:506:int getCaretColor() -> gsc_cT
-    510:511:void setCaretColor(int) -> gsc_Qo
-    515:548:void mousePressed(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_rJ
-    552:557:void mouseDragged(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_bs
-    561:586:void keyPressed(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_rJ
-    589:597:int getModifierFlags(int) -> gsc_AS
-    602:605:void focusGained(com.g4mesoft.panel.event.GSFocusEvent) -> gsc_hH
+    250:260:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
+    269:281:void paintCaret(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_hH
+    293:300:int getBoundedLocation(int) -> gsc_Jn
+    305:305:int getCaretLocation() -> gsc_sc
+    310:319:void setCaretLocation(int) -> gsc_rJ
+    323:323:int getCaretDot() -> gsc_bs
+    328:337:void setCaretDot(int) -> gsc_hH
+    341:341:int getCaretMark() -> gsc_UM
+    346:353:void setCaretMark(int) -> gsc_sc
+    362:374:void setSelection(int,int) -> gsc_hH
+    378:378:boolean hasCaretSelection() -> gsc_mg
+    383:394:void textInserted(com.g4mesoft.panel.field.GSITextModel,int,int) -> gsc_rJ
+    398:417:void textRemoved(com.g4mesoft.panel.field.GSITextModel,int,int) -> gsc_hH
+    421:421:int getBlinkRate() -> gsc_vm
+    435:441:void setBlinkRate(int) -> gsc_bs
+    444:444:int getClickRate() -> gsc_Qo
+    448:454:void setClickRate(int) -> gsc_UM
+    460:460:int getCaretWidth() -> gsc_Jn
+    472:476:void setCaretWidth(int) -> gsc_mg
+    482:482:int getCaretInsets() -> gsc_AS
+    495:499:void setCaretInsets(int) -> gsc_vm
+    502:502:int getCaretColor() -> gsc_cT
+    506:507:void setCaretColor(int) -> gsc_Qo
+    511:544:void mousePressed(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_rJ
+    548:553:void mouseDragged(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_bs
+    557:582:void keyPressed(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_rJ
+    585:593:int getModifierFlags(int) -> gsc_AS
+    598:601:void focusGained(com.g4mesoft.panel.event.GSFocusEvent) -> gsc_hH
 com.g4mesoft.panel.field.GSColorPickerField -> core.bZ:
     int BUTTON_MARGIN -> gsc_rJ
-    int DEFAULT_BACKGROUND_COLOR -> gsc_hH
-    int DEFAULT_BORDER_WIDTH -> gsc_sc
-    int DEFAULT_BORDER_COLOR -> gsc_bs
     com.g4mesoft.panel.field.GSTextField textField -> gsc_UM
     com.g4mesoft.panel.field.GSColorPickerFieldTextModel textModel -> gsc_mg
     com.g4mesoft.panel.button.GSButton colorButton -> gsc_vm
@@ -2754,42 +3065,42 @@ com.g4mesoft.panel.field.GSColorPickerField -> core.bZ:
     int borderWidth -> gsc_Yp
     int borderColor -> gsc_gn
     boolean editable -> gsc_eh
-    44:91:void <init>(int) -> <init>
-    95:102:void layout() -> gsc_pl
-    106:109:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
-    112:124:void drawBorderAndBackground(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_hH
-    128:133:com.g4mesoft.panel.GSDimension calculateMinimumSize() -> gsc_vB
-    138:144:com.g4mesoft.panel.GSDimension calculatePreferredSize() -> gsc_cD
-    148:152:void onFieldChanged() -> gsc_mg
-    155:161:void onButtonPressed() -> gsc_vm
-    164:167:void onPickerChanged() -> gsc_Qo
-    170:171:void addActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_rJ
-    174:175:void removeActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_hH
-    178:179:void dispatchActionEvent() -> gsc_Jn
-    182:182:int getColor() -> gsc_rJ
-    186:190:void setColor(int) -> gsc_rJ
-    193:196:void setFieldColor(int) -> gsc_UM
-    199:202:void setButtonColor(int) -> gsc_mg
-    205:205:int getBackgroundColor() -> gsc_hH
-    209:210:void setBackgroundColor(int) -> gsc_hH
-    213:213:int getBorderWidth() -> gsc_sc
-    217:218:void setBorderWidth(int) -> gsc_sc
-    221:221:int getBorderColor() -> gsc_bs
-    225:226:void setBorderColor(int) -> gsc_bs
-    229:229:boolean isEditable() -> gsc_UM
-    233:236:void setEditable(boolean) -> gsc_UM
+    40:89:void <init>(int) -> <init>
+    93:100:void layout() -> gsc_pl
+    104:107:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
+    110:122:void drawBorderAndBackground(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_hH
+    126:131:com.g4mesoft.panel.GSDimension calculateMinimumSize() -> gsc_vB
+    136:142:com.g4mesoft.panel.GSDimension calculatePreferredSize() -> gsc_cD
+    146:150:void onFieldChanged() -> gsc_mg
+    153:159:void onButtonPressed() -> gsc_vm
+    162:165:void onPickerChanged() -> gsc_Qo
+    168:169:void addActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_rJ
+    172:173:void removeActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_hH
+    176:177:void dispatchActionEvent() -> gsc_Jn
+    180:180:int getColor() -> gsc_rJ
+    184:188:void setColor(int) -> gsc_rJ
+    191:194:void setFieldColor(int) -> gsc_UM
+    197:200:void setButtonColor(int) -> gsc_mg
+    203:203:int getBackgroundColor() -> gsc_hH
+    207:208:void setBackgroundColor(int) -> gsc_hH
+    211:211:int getBorderWidth() -> gsc_sc
+    215:216:void setBorderWidth(int) -> gsc_sc
+    219:219:int getBorderColor() -> gsc_bs
+    223:224:void setBorderColor(int) -> gsc_bs
+    227:227:boolean isEditable() -> gsc_UM
+    231:234:void setEditable(boolean) -> gsc_UM
     20:20:com.g4mesoft.panel.field.GSColorPickerFieldTextModel access$000(com.g4mesoft.panel.field.GSColorPickerField) -> gsc_rJ
     20:20:int access$100(com.g4mesoft.panel.field.GSColorPickerField) -> gsc_hH
     20:20:void access$200(com.g4mesoft.panel.field.GSColorPickerField,int) -> gsc_rJ
     20:20:com.g4mesoft.panel.GSColorPicker access$300(com.g4mesoft.panel.field.GSColorPickerField) -> gsc_sc
 com.g4mesoft.panel.field.GSColorPickerField$1 -> core.cg:
     com.g4mesoft.panel.field.GSColorPickerField this$0 -> gsc_rJ
-    58:58:void <init>(com.g4mesoft.panel.field.GSColorPickerField) -> <init>
-    61:63:void focusLost(com.g4mesoft.panel.event.GSFocusEvent) -> gsc_rJ
+    50:50:void <init>(com.g4mesoft.panel.field.GSColorPickerField) -> <init>
+    53:55:void focusLost(com.g4mesoft.panel.event.GSFocusEvent) -> gsc_rJ
 com.g4mesoft.panel.field.GSColorPickerField$2 -> core.ch:
     com.g4mesoft.panel.field.GSColorPickerField this$0 -> gsc_rJ
-    66:66:void <init>(com.g4mesoft.panel.field.GSColorPickerField) -> <init>
-    69:72:void focusLost(com.g4mesoft.panel.event.GSFocusEvent) -> gsc_rJ
+    58:58:void <init>(com.g4mesoft.panel.field.GSColorPickerField) -> <init>
+    61:64:void focusLost(com.g4mesoft.panel.event.GSFocusEvent) -> gsc_rJ
 com.g4mesoft.panel.field.GSColorPickerFieldTextModel -> core.ci:
     boolean alpha -> gsc_rJ
     7:9:void <init>(boolean) -> <init>
@@ -2802,7 +3113,6 @@ com.g4mesoft.panel.field.GSITextCaret -> core.cj:
     void uninstall(com.g4mesoft.panel.field.GSTextField) -> gsc_hH
     void addTextCaretListener(com.g4mesoft.panel.field.GSITextCaretListener) -> gsc_rJ
     void removeTextCaretListener(com.g4mesoft.panel.field.GSITextCaretListener) -> gsc_hH
-    void update() -> gsc_hH
     void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
     int getCaretLocation() -> gsc_sc
     void setCaretLocation(int) -> gsc_rJ
@@ -2903,75 +3213,74 @@ com.g4mesoft.panel.field.GSTextField -> core.cG:
     230:230:int getCaretLocation() -> gsc_oa
     234:234:int getCaretSelectionStart() -> gsc_Ji
     238:238:int getCaretSelectionEnd() -> gsc_pd
-    243:245:void update() -> a_
-    249:284:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
-    287:299:void drawBorderAndBackground(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_hH
-    302:326:void drawVisibleTextSegment(com.g4mesoft.renderer.GSIRenderer2D,int,int,int) -> gsc_rJ
-    329:351:void drawCaretSelection(com.g4mesoft.renderer.GSIRenderer2D,int,int) -> gsc_rJ
-    355:381:com.g4mesoft.panel.GSRectangle modelToView(int) -> gsc_rJ
-    386:386:com.g4mesoft.panel.GSECursorType getCursor() -> gsc_rC
-    392:401:void populateRightClickMenu(com.g4mesoft.panel.dropdown.GSDropdown,int,int) -> gsc_rJ
-    404:406:void selectAll() -> gsc_rJ
-    409:410:void unselect() -> gsc_hH
-    414:424:com.g4mesoft.panel.GSDimension calculatePreferredSize() -> gsc_cD
-    428:451:int viewToModel(int,int) -> gsc_sc
-    456:472:void caretLocationChanged(int,int) -> gsc_rJ
-    475:488:boolean isLocationInView(int) -> gsc_cT
-    493:495:void textInserted(com.g4mesoft.panel.field.GSITextModel,int,int) -> gsc_rJ
-    499:501:void textRemoved(com.g4mesoft.panel.field.GSITextModel,int,int) -> gsc_hH
-    505:519:void keyPressed(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_rJ
-    522:530:void checkTypedControlCharacter(int,int) -> gsc_mg
-    533:542:void copyToClipboard() -> gsc_sc
-    545:547:void cutToClipboard() -> gsc_bs
-    550:558:void pasteFromClipboard() -> gsc_UM
-    561:572:void removeSelectionText() -> gsc_iv
-    576:580:void keyTyped(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_sc
-    583:603:void handleTypedCodePoint(int,int) -> gsc_bs
-    606:609:boolean isTypeableCharacter(char) -> gsc_rJ
-    614:634:void handleTypedControlChar(int,char,int) -> gsc_rJ
-    637:643:void insertTypedChar(int,char,int) -> gsc_hH
-    646:656:void removeTextRange(int,int) -> gsc_UM
-    659:663:void moveCaretPointX(java.lang.String,int) -> gsc_rJ
-    666:666:boolean isControlCharacter(char) -> gsc_hH
-    671:673:void focusGained(com.g4mesoft.panel.event.GSFocusEvent) -> gsc_hH
-    677:679:void focusLost(com.g4mesoft.panel.event.GSFocusEvent) -> gsc_rJ
-    682:706:int getLocationAfterWord(int,boolean) -> gsc_rJ
-    710:753:com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType getWordCharacterTypeAt(int) -> gsc_Yp
-    757:758:void addModelListener(com.g4mesoft.panel.GSIModelListener) -> gsc_rJ
-    761:762:void removeModelListener(com.g4mesoft.panel.GSIModelListener) -> gsc_hH
-    765:773:void setTextModel(com.g4mesoft.panel.field.GSITextModel) -> gsc_rJ
-    776:777:void invokeModelChangedEvent() -> gsc_Ch
-    780:780:com.g4mesoft.panel.field.GSITextModel getTextModel() -> gsc_mg
-    784:785:void addActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_rJ
-    788:789:void removeActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_hH
-    792:793:void dispatchActionEvent() -> gsc_XA
-    796:800:void setText(java.lang.String) -> gsc_rJ
-    803:807:void appendText(java.lang.String) -> gsc_hH
-    810:810:java.lang.String getText() -> gsc_vm
-    814:814:int getBackgroundColor() -> gsc_Qo
-    818:819:void setBackgroundColor(int) -> gsc_hH
-    822:822:int getEditableTextColor() -> gsc_Jn
-    826:827:void setEditableTextColor(int) -> gsc_sc
-    830:830:int getUneditableTextColor() -> gsc_Nt
-    834:835:void setUneditableTextColor(int) -> gsc_bs
-    838:838:com.g4mesoft.panel.GSETextAlignment getTextAlignment() -> gsc_jX
-    842:846:void setTextAlignment(com.g4mesoft.panel.GSETextAlignment) -> gsc_rJ
-    849:850:void setEditable(boolean) -> gsc_UM
-    853:853:boolean isEditable() -> gsc_Ln
-    857:867:void setCaret(com.g4mesoft.panel.field.GSITextCaret) -> gsc_rJ
-    870:870:com.g4mesoft.panel.field.GSITextCaret getCaret() -> gsc_fV
-    874:875:void setSelectionTextColor(int) -> gsc_UM
-    878:878:int getSelectionTextColor() -> gsc_Fq
-    882:883:void setSelectionBackgroundColor(int) -> gsc_mg
-    886:886:int getSelectionBackgroundColor() -> gsc_vw
-    890:890:int getBorderWidth() -> gsc_Tk
-    894:898:void setBorderWidth(int) -> gsc_vm
-    901:901:int getBorderColor() -> gsc_hr
-    905:906:void setBorderColor(int) -> gsc_Qo
-    909:909:int getVerticalMargin() -> gsc_Qb
-    913:917:void setVerticalMargin(int) -> gsc_Jn
-    920:920:int getHorizontalMargin() -> gsc_vO
-    924:928:void setHorizontalMargin(int) -> gsc_AS
+    243:278:void render(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_rJ
+    281:293:void drawBorderAndBackground(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_hH
+    296:320:void drawVisibleTextSegment(com.g4mesoft.renderer.GSIRenderer2D,int,int,int) -> gsc_rJ
+    323:345:void drawCaretSelection(com.g4mesoft.renderer.GSIRenderer2D,int,int) -> gsc_rJ
+    349:375:com.g4mesoft.panel.GSRectangle modelToView(int) -> gsc_rJ
+    380:380:com.g4mesoft.panel.GSECursorType getCursor() -> gsc_rC
+    386:395:void populateRightClickMenu(com.g4mesoft.panel.dropdown.GSDropdown,int,int) -> gsc_rJ
+    398:400:void selectAll() -> gsc_rJ
+    403:404:void unselect() -> gsc_hH
+    408:418:com.g4mesoft.panel.GSDimension calculatePreferredSize() -> gsc_cD
+    422:445:int viewToModel(int,int) -> gsc_sc
+    450:466:void caretLocationChanged(int,int) -> gsc_rJ
+    469:482:boolean isLocationInView(int) -> gsc_cT
+    487:489:void textInserted(com.g4mesoft.panel.field.GSITextModel,int,int) -> gsc_rJ
+    493:495:void textRemoved(com.g4mesoft.panel.field.GSITextModel,int,int) -> gsc_hH
+    499:513:void keyPressed(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_rJ
+    516:524:void checkTypedControlCharacter(int,int) -> gsc_mg
+    527:536:void copyToClipboard() -> gsc_sc
+    539:541:void cutToClipboard() -> gsc_bs
+    544:552:void pasteFromClipboard() -> gsc_UM
+    555:566:void removeSelectionText() -> gsc_iv
+    570:574:void keyTyped(com.g4mesoft.panel.event.GSKeyEvent) -> gsc_sc
+    577:597:void handleTypedCodePoint(int,int) -> gsc_bs
+    600:603:boolean isTypeableCharacter(char) -> gsc_rJ
+    608:628:void handleTypedControlChar(int,char,int) -> gsc_rJ
+    631:637:void insertTypedChar(int,char,int) -> gsc_hH
+    640:650:void removeTextRange(int,int) -> gsc_UM
+    653:657:void moveCaretPointX(java.lang.String,int) -> gsc_rJ
+    660:660:boolean isControlCharacter(char) -> gsc_hH
+    665:667:void focusGained(com.g4mesoft.panel.event.GSFocusEvent) -> gsc_hH
+    671:673:void focusLost(com.g4mesoft.panel.event.GSFocusEvent) -> gsc_rJ
+    676:700:int getLocationAfterWord(int,boolean) -> gsc_rJ
+    704:747:com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType getWordCharacterTypeAt(int) -> gsc_Yp
+    751:752:void addModelListener(com.g4mesoft.panel.GSIModelListener) -> gsc_rJ
+    755:756:void removeModelListener(com.g4mesoft.panel.GSIModelListener) -> gsc_hH
+    759:767:void setTextModel(com.g4mesoft.panel.field.GSITextModel) -> gsc_rJ
+    770:771:void invokeModelChangedEvent() -> gsc_Ch
+    774:774:com.g4mesoft.panel.field.GSITextModel getTextModel() -> gsc_mg
+    778:779:void addActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_rJ
+    782:783:void removeActionListener(com.g4mesoft.panel.GSIActionListener) -> gsc_hH
+    786:787:void dispatchActionEvent() -> gsc_XA
+    790:794:void setText(java.lang.String) -> gsc_rJ
+    797:801:void appendText(java.lang.String) -> gsc_hH
+    804:804:java.lang.String getText() -> gsc_vm
+    808:808:int getBackgroundColor() -> gsc_Qo
+    812:813:void setBackgroundColor(int) -> gsc_hH
+    816:816:int getEditableTextColor() -> gsc_Jn
+    820:821:void setEditableTextColor(int) -> gsc_sc
+    824:824:int getUneditableTextColor() -> gsc_Nt
+    828:829:void setUneditableTextColor(int) -> gsc_bs
+    832:832:com.g4mesoft.panel.GSETextAlignment getTextAlignment() -> gsc_jX
+    836:840:void setTextAlignment(com.g4mesoft.panel.GSETextAlignment) -> gsc_rJ
+    843:844:void setEditable(boolean) -> gsc_UM
+    847:847:boolean isEditable() -> gsc_Ln
+    851:861:void setCaret(com.g4mesoft.panel.field.GSITextCaret) -> gsc_rJ
+    864:864:com.g4mesoft.panel.field.GSITextCaret getCaret() -> c_
+    868:869:void setSelectionTextColor(int) -> gsc_UM
+    872:872:int getSelectionTextColor() -> gsc_Fq
+    876:877:void setSelectionBackgroundColor(int) -> gsc_mg
+    880:880:int getSelectionBackgroundColor() -> gsc_vw
+    884:884:int getBorderWidth() -> gsc_Tk
+    888:892:void setBorderWidth(int) -> gsc_vm
+    895:895:int getBorderColor() -> gsc_hr
+    899:900:void setBorderColor(int) -> gsc_Qo
+    903:903:int getVerticalMargin() -> gsc_Qb
+    907:911:void setVerticalMargin(int) -> gsc_Jn
+    914:914:int getHorizontalMargin() -> gsc_vO
+    918:922:void setHorizontalMargin(int) -> gsc_AS
     51:54:void <clinit>() -> <clinit>
 com.g4mesoft.panel.field.GSTextField$1 -> core.cN:
     int[] $SwitchMap$com$g4mesoft$panel$GSETextAlignment -> gsc_rJ
@@ -2981,11 +3290,11 @@ com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType -> core.cO:
     com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType SYMBOL -> gsc_hH
     com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType OTHER -> gsc_sc
     com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType[] $VALUES -> gsc_bs
-    930:930:com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType[] values() -> values
-    930:930:com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType valueOf(java.lang.String) -> valueOf
-    930:930:void <init>(java.lang.String,int) -> <init>
-    930:930:com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType[] $values() -> gsc_rJ
-    930:932:void <clinit>() -> <clinit>
+    924:924:com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType[] values() -> values
+    924:924:com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType valueOf(java.lang.String) -> valueOf
+    924:924:void <init>(java.lang.String,int) -> <init>
+    924:924:com.g4mesoft.panel.field.GSTextField$GSEWordCharacterType[] $values() -> gsc_rJ
+    924:926:void <clinit>() -> <clinit>
 com.g4mesoft.panel.field.GSTextLabel -> core.cP:
     int DEFAULT_BACKGROUND_COLOR -> gsc_rJ
     int DEFAULT_TEXT_COLOR -> gsc_hH
@@ -3164,7 +3473,7 @@ com.g4mesoft.panel.scroll.GSScrollBar -> core.aP:
     323:328:void mouseDragged(com.g4mesoft.panel.event.GSMouseEvent) -> gsc_bs
     331:334:float getScrollDelta(float) -> gsc_hH
     338:345:void setScrollOffset(float) -> gsc_rJ
-    348:348:int getMaxScrollOffset() -> gsc_fV
+    348:348:int getMaxScrollOffset() -> d_
     352:352:boolean isVertical() -> gsc_Fq
     356:363:void setVertical(boolean) -> gsc_vm
     366:366:float getScrollOffset() -> gsc_vw
@@ -3207,8 +3516,8 @@ com.g4mesoft.panel.scroll.GSScrollPanel$GSScrollContentPanel -> core.aU:
     97:99:void postRender(com.g4mesoft.renderer.GSIRenderer2D) -> gsc_bs
     103:103:int getViewOffsetY() -> gsc_OS
     108:116:com.g4mesoft.panel.GSPanel getChildAt(int,int) -> a_
-    121:121:com.g4mesoft.panel.GSDimension calculatePreferredSize() -> gsc_cD
-    126:126:com.g4mesoft.panel.GSDimension calculateMinimumSize() -> gsc_vB
+    121:121:com.g4mesoft.panel.GSDimension calculateMinimumSize() -> gsc_vB
+    126:126:com.g4mesoft.panel.GSDimension calculatePreferredSize() -> gsc_cD
     131:133:int getContentWidth() -> gsc_rJ
     138:140:int getContentHeight() -> gsc_hH
     145:147:float getIncrementalScrollX(int) -> gsc_rJ
@@ -3253,65 +3562,65 @@ com.g4mesoft.renderer.GSBasicRenderer2D -> core.co:
     com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D transform -> gsc_yN
     java.util.LinkedList transformStack -> gsc_pl
     float opacity -> gsc_LG
-    45:52:void <init>(net.minecraft.class_310) -> <init>
-    55:59:void begin(net.minecraft.class_287,net.minecraft.class_4587,int,int) -> gsc_rJ
-    62:68:void end() -> gsc_rJ
-    72:72:int getMouseX() -> gsc_hH
-    77:77:int getMouseY() -> gsc_sc
-    82:86:void pushMatrix() -> gsc_bs
-    90:97:void popMatrix() -> gsc_mg
-    101:107:void translate(int,int) -> gsc_rJ
-    111:112:void translateDepth(float) -> gsc_hH
-    115:116:void onTransformChanged() -> gsc_gn
-    120:121:void pushClip(int,int,int,int) -> gsc_rJ
-    125:126:void pushClip(com.g4mesoft.renderer.GSClipRect) -> gsc_rJ
-    130:130:com.g4mesoft.renderer.GSClipRect popClip() -> gsc_vm
-    135:135:float getOpacity() -> gsc_Qo
-    140:141:void setOpacity(float) -> gsc_rJ
-    151:177:void fillGradient(int,int,int,int,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,boolean) -> gsc_rJ
-    181:196:void drawRect(int,int,int,int,int) -> gsc_rJ
-    200:201:void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int,int,int,int,int) -> gsc_rJ
-    205:206:void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int,int,int,int,int,float,float,float) -> gsc_rJ
-    210:211:void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int) -> gsc_rJ
-    215:236:void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int,float,float,float) -> gsc_rJ
-    240:241:void drawVLine(int,int,int,int) -> gsc_hH
-    245:246:void drawHLine(int,int,int,int) -> gsc_sc
-    250:267:void drawDottedVLine(int,int,int,int,int,int) -> gsc_rJ
-    271:288:void drawDottedHLine(int,int,int,int,int,int) -> gsc_hH
-    292:292:int getTextAscent() -> gsc_eh
-    297:297:int getTextDescent() -> gsc_Pt
-    303:303:int getTextHeight() -> gsc_Jn
-    308:308:int getLineHeight() -> gsc_AS
-    313:313:float getTextWidth(java.lang.String) -> gsc_rJ
-    318:334:void drawText(java.lang.String,int,int,int,boolean) -> gsc_rJ
-    338:338:float getTextWidth(net.minecraft.class_5481) -> gsc_rJ
-    343:359:void drawText(net.minecraft.class_5481,int,int,int,boolean) -> gsc_rJ
-    363:387:java.lang.String trimString(java.lang.String,int,java.lang.String) -> gsc_rJ
-    392:426:java.util.List splitToLines(java.lang.String,int) -> gsc_rJ
-    431:439:net.minecraft.class_5481 trimString(net.minecraft.class_2561,int,java.lang.String) -> gsc_rJ
-    444:444:java.util.List splitToLines(net.minecraft.class_2561,int) -> gsc_rJ
-    449:456:void build(int,net.minecraft.class_293) -> gsc_rJ
-    460:461:com.g4mesoft.renderer.GSBasicRenderer2D vert(float,float,float) -> gsc_rJ
-    466:467:com.g4mesoft.renderer.GSBasicRenderer2D color(float,float,float,float) -> gsc_rJ
-    472:473:com.g4mesoft.renderer.GSBasicRenderer2D tex(float,float) -> gsc_rJ
-    478:479:com.g4mesoft.renderer.GSBasicRenderer2D next() -> gsc_cT
-    484:489:void finish() -> gsc_UM
-    25:25:com.g4mesoft.renderer.GSIRenderer next() -> gsc_Yp
-    25:25:com.g4mesoft.renderer.GSIRenderer tex(float,float) -> gsc_hH
-    25:25:com.g4mesoft.renderer.GSIRenderer color(float,float,float,float) -> gsc_hH
-    25:25:com.g4mesoft.renderer.GSIRenderer vert(float,float,float) -> a_
+    44:51:void <init>(net.minecraft.class_310) -> <init>
+    54:58:void begin(net.minecraft.class_287,net.minecraft.class_4587,int,int) -> gsc_rJ
+    61:67:void end() -> gsc_rJ
+    71:71:int getMouseX() -> gsc_hH
+    76:76:int getMouseY() -> gsc_sc
+    81:85:void pushMatrix() -> gsc_bs
+    89:96:void popMatrix() -> gsc_mg
+    100:106:void translate(int,int) -> gsc_rJ
+    110:111:void translateDepth(float) -> gsc_hH
+    114:115:void onTransformChanged() -> gsc_gn
+    119:120:void pushClip(int,int,int,int) -> gsc_rJ
+    124:125:void pushClip(com.g4mesoft.renderer.GSClipRect) -> gsc_rJ
+    129:129:com.g4mesoft.renderer.GSClipRect popClip() -> gsc_vm
+    134:134:float getOpacity() -> gsc_Qo
+    139:140:void setOpacity(float) -> gsc_rJ
+    150:176:void fillGradient(int,int,int,int,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,boolean) -> gsc_rJ
+    180:195:void drawRect(int,int,int,int,int) -> gsc_rJ
+    199:200:void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int,int,int,int,int) -> gsc_rJ
+    204:205:void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int,int,int,int,int,float,float,float) -> gsc_rJ
+    209:210:void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int) -> gsc_rJ
+    214:235:void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int,float,float,float) -> gsc_rJ
+    239:240:void drawVLine(int,int,int,int) -> gsc_hH
+    244:245:void drawHLine(int,int,int,int) -> gsc_sc
+    249:266:void drawDottedVLine(int,int,int,int,int,int) -> gsc_rJ
+    270:287:void drawDottedHLine(int,int,int,int,int,int) -> gsc_hH
+    291:291:int getTextAscent() -> gsc_eh
+    296:296:int getTextDescent() -> gsc_Pt
+    302:302:int getTextHeight() -> gsc_Jn
+    307:307:int getLineHeight() -> gsc_AS
+    312:312:float getTextWidth(java.lang.String) -> gsc_rJ
+    317:333:void drawText(java.lang.String,int,int,int,boolean) -> gsc_rJ
+    337:337:float getTextWidth(net.minecraft.class_5481) -> gsc_rJ
+    342:358:void drawText(net.minecraft.class_5481,int,int,int,boolean) -> gsc_rJ
+    362:386:java.lang.String trimString(java.lang.String,int,java.lang.String) -> gsc_rJ
+    391:425:java.util.List splitToLines(java.lang.String,int) -> gsc_rJ
+    430:438:net.minecraft.class_5481 trimString(net.minecraft.class_2561,int,net.minecraft.class_2561) -> gsc_rJ
+    443:443:java.util.List splitToLines(net.minecraft.class_2561,int) -> gsc_rJ
+    448:455:void build(int,net.minecraft.class_293) -> gsc_rJ
+    459:460:com.g4mesoft.renderer.GSBasicRenderer2D vert(float,float,float) -> gsc_rJ
+    465:466:com.g4mesoft.renderer.GSBasicRenderer2D color(float,float,float,float) -> gsc_rJ
+    471:472:com.g4mesoft.renderer.GSBasicRenderer2D tex(float,float) -> gsc_rJ
+    477:478:com.g4mesoft.renderer.GSBasicRenderer2D next() -> gsc_cT
+    483:488:void finish() -> gsc_UM
+    24:24:com.g4mesoft.renderer.GSIRenderer next() -> gsc_Yp
+    24:24:com.g4mesoft.renderer.GSIRenderer tex(float,float) -> gsc_hH
+    24:24:com.g4mesoft.renderer.GSIRenderer color(float,float,float,float) -> gsc_hH
+    24:24:com.g4mesoft.renderer.GSIRenderer vert(float,float,float) -> a_
 com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D -> core.cp:
     int offsetX -> gsc_hH
     int offsetY -> gsc_sc
     com.g4mesoft.renderer.GSBasicRenderer2D this$0 -> gsc_rJ
-    496:498:void <init>(com.g4mesoft.renderer.GSBasicRenderer2D) -> <init>
-    500:503:void <init>(com.g4mesoft.renderer.GSBasicRenderer2D,com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> <init>
-    506:507:void reset() -> gsc_rJ
-    491:491:void access$000(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_rJ
-    491:491:int access$100(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_hH
-    491:491:int access$200(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_sc
-    491:491:int access$112(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D,int) -> gsc_rJ
-    491:491:int access$212(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D,int) -> gsc_hH
+    495:497:void <init>(com.g4mesoft.renderer.GSBasicRenderer2D) -> <init>
+    499:502:void <init>(com.g4mesoft.renderer.GSBasicRenderer2D,com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> <init>
+    505:506:void reset() -> gsc_rJ
+    490:490:void access$000(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_rJ
+    490:490:int access$100(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_hH
+    490:490:int access$200(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D) -> gsc_sc
+    490:490:int access$112(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D,int) -> gsc_rJ
+    490:490:int access$212(com.g4mesoft.renderer.GSBasicRenderer2D$GSTransform2D,int) -> gsc_hH
 com.g4mesoft.renderer.GSBasicRenderer3D -> core.cc:
     net.minecraft.class_287 builder -> gsc_Qo
     net.minecraft.class_4587 matrixStack -> gsc_Jn
@@ -3397,9 +3706,10 @@ com.g4mesoft.renderer.GSIRenderer -> core.ct:
     57:75:int brightenColor(int) -> gsc_sc
 com.g4mesoft.renderer.GSIRenderer2D -> core.cu:
     java.lang.String DEFAULT_ELLIPSIS -> gsc_vm
+    net.minecraft.class_2561 DEFAULT_ELLIPSIS_TEXT -> gsc_VL
     int getMouseX() -> gsc_hH
     int getMouseY() -> gsc_sc
-    17:21:boolean isMouseInside(int,int,int,int) -> gsc_bs
+    19:23:boolean isMouseInside(int,int,int,int) -> gsc_bs
     void pushMatrix() -> gsc_bs
     void popMatrix() -> gsc_mg
     void translate(int,int) -> gsc_rJ
@@ -3409,13 +3719,13 @@ com.g4mesoft.renderer.GSIRenderer2D -> core.cu:
     com.g4mesoft.renderer.GSClipRect popClip() -> gsc_vm
     float getOpacity() -> gsc_Qo
     void setOpacity(float) -> gsc_rJ
-    43:49:void fillRect(int,int,int,int,int) -> gsc_hH
-    52:53:void fillRect(int,int,int,int,float,float,float,float) -> gsc_rJ
-    56:67:void fillHGradient(int,int,int,int,int,int) -> gsc_sc
-    73:78:void fillHGradient(int,int,int,int,float,float,float,float,float,float,float,float) -> gsc_rJ
-    81:92:void fillVGradient(int,int,int,int,int,int) -> gsc_bs
-    98:103:void fillVGradient(int,int,int,int,float,float,float,float,float,float,float,float) -> gsc_hH
-    109:134:void fillGradient(int,int,int,int,int,int,int,int,boolean) -> gsc_rJ
+    45:51:void fillRect(int,int,int,int,int) -> gsc_hH
+    54:55:void fillRect(int,int,int,int,float,float,float,float) -> gsc_rJ
+    58:69:void fillHGradient(int,int,int,int,int,int) -> gsc_sc
+    75:80:void fillHGradient(int,int,int,int,float,float,float,float,float,float,float,float) -> gsc_rJ
+    83:94:void fillVGradient(int,int,int,int,int,int) -> gsc_bs
+    100:105:void fillVGradient(int,int,int,int,float,float,float,float,float,float,float,float) -> gsc_hH
+    111:136:void fillGradient(int,int,int,int,int,int,int,int,boolean) -> gsc_rJ
     void fillGradient(int,int,int,int,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,float,boolean) -> gsc_rJ
     void drawRect(int,int,int,int,int) -> gsc_rJ
     void drawTexture(com.g4mesoft.renderer.GSITextureRegion,int,int,int,int,int,int) -> gsc_rJ
@@ -3431,27 +3741,28 @@ com.g4mesoft.renderer.GSIRenderer2D -> core.cu:
     int getTextHeight() -> gsc_Jn
     int getLineHeight() -> gsc_AS
     float getTextWidth(java.lang.String) -> gsc_rJ
-    172:172:float getTextWidth(net.minecraft.class_2561) -> gsc_rJ
+    174:174:float getTextWidth(net.minecraft.class_2561) -> gsc_rJ
     float getTextWidth(net.minecraft.class_5481) -> gsc_rJ
-    178:179:void drawCenteredText(java.lang.String,int,int,int) -> gsc_rJ
-    182:183:void drawCenteredText(java.lang.String,int,int,int,boolean) -> gsc_hH
-    186:187:void drawText(java.lang.String,int,int,int) -> gsc_hH
+    180:181:void drawCenteredText(java.lang.String,int,int,int) -> gsc_rJ
+    184:185:void drawCenteredText(java.lang.String,int,int,int,boolean) -> gsc_hH
+    188:189:void drawText(java.lang.String,int,int,int) -> gsc_hH
     void drawText(java.lang.String,int,int,int,boolean) -> gsc_rJ
-    192:193:void drawCenteredText(net.minecraft.class_2561,int,int,int) -> gsc_rJ
-    196:197:void drawCenteredText(net.minecraft.class_2561,int,int,int,boolean) -> gsc_rJ
-    200:201:void drawText(net.minecraft.class_2561,int,int,int) -> gsc_hH
-    204:205:void drawText(net.minecraft.class_2561,int,int,int,boolean) -> gsc_hH
-    208:209:void drawCenteredText(net.minecraft.class_5481,int,int,int) -> gsc_rJ
-    212:213:void drawCenteredText(net.minecraft.class_5481,int,int,int,boolean) -> gsc_hH
-    216:217:void drawText(net.minecraft.class_5481,int,int,int) -> gsc_hH
+    194:195:void drawCenteredText(net.minecraft.class_2561,int,int,int) -> gsc_rJ
+    198:199:void drawCenteredText(net.minecraft.class_2561,int,int,int,boolean) -> gsc_rJ
+    202:203:void drawText(net.minecraft.class_2561,int,int,int) -> gsc_hH
+    206:207:void drawText(net.minecraft.class_2561,int,int,int,boolean) -> gsc_hH
+    210:211:void drawCenteredText(net.minecraft.class_5481,int,int,int) -> gsc_rJ
+    214:215:void drawCenteredText(net.minecraft.class_5481,int,int,int,boolean) -> gsc_hH
+    218:219:void drawText(net.minecraft.class_5481,int,int,int) -> gsc_hH
     void drawText(net.minecraft.class_5481,int,int,int,boolean) -> gsc_rJ
-    222:222:java.lang.String trimString(java.lang.String,int) -> gsc_hH
+    224:224:java.lang.String trimString(java.lang.String,int) -> gsc_hH
     java.lang.String trimString(java.lang.String,int,java.lang.String) -> gsc_rJ
     java.util.List splitToLines(java.lang.String,int) -> gsc_rJ
-    230:230:net.minecraft.class_5481 trimString(net.minecraft.class_2561,int) -> gsc_hH
-    net.minecraft.class_5481 trimString(net.minecraft.class_2561,int,java.lang.String) -> gsc_rJ
+    232:232:net.minecraft.class_5481 trimString(net.minecraft.class_2561,int) -> gsc_hH
+    net.minecraft.class_5481 trimString(net.minecraft.class_2561,int,net.minecraft.class_2561) -> gsc_rJ
     java.util.List splitToLines(net.minecraft.class_2561,int) -> gsc_rJ
-    238:239:void vert(float,float) -> gsc_sc
+    240:241:void vert(float,float) -> gsc_sc
+    12:12:void <clinit>() -> <clinit>
 com.g4mesoft.renderer.GSIRenderer3D -> core.cf:
     void pushMatrix() -> gsc_hH
     void popMatrix() -> gsc_sc

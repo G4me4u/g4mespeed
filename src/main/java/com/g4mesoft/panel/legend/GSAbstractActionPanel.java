@@ -13,13 +13,9 @@ public abstract class GSAbstractActionPanel extends GSPanel implements GSIMouseL
 
 	private final GSIActionListener listener;
 
-	protected boolean enabled;
-	
 	public GSAbstractActionPanel(GSIActionListener listener) {
 		this.listener = listener;
 	
-		enabled = true;
-		
 		addMouseEventListener(this);
 	}
 	
@@ -31,7 +27,7 @@ public abstract class GSAbstractActionPanel extends GSPanel implements GSIMouseL
 	
 	@Override
 	public void mousePressed(GSMouseEvent event) {
-		if (isEnabled() && event.getButton() == GSMouseEvent.BUTTON_LEFT) {
+		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
 			onClicked(event.getX(), event.getY());
 			event.consume();
 		}
@@ -40,13 +36,5 @@ public abstract class GSAbstractActionPanel extends GSPanel implements GSIMouseL
 	protected void dispatchActionPerformedEvent() {
 		if (listener != null)
 			listener.actionPerformed();
-	}
-	
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
 	}
 }

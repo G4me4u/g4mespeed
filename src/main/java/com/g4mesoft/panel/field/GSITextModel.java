@@ -20,6 +20,8 @@ public interface GSITextModel {
 	
 	public String getText(int offset, int count);
 
+	public CharSequence getCharSequence(int offset, int count);
+
 	public void getChars(int offset, int count, char[] buffer, int bufferOffset);
 
 	public char getChar(int offset);

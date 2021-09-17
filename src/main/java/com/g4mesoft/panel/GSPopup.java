@@ -54,12 +54,12 @@ public class GSPopup extends GSParentPanel {
 	
 	@Override
 	public GSDimension calculateMinimumSize() {
-		return content.getMinimumSize();
+		return content.getProperty(MINIMUM_SIZE);
 	}
 
 	@Override
-	public GSDimension calculatePreferredSize() {
-		return content.getPreferredSize();
+	protected GSDimension calculatePreferredSize() {
+		return content.getProperty(PREFERRED_SIZE);
 	}
 
 	public void show(GSPanel source, GSLocation location) {
@@ -87,7 +87,7 @@ public class GSPopup extends GSParentPanel {
 			y += viewLocation.getY();
 		}
 		
-		GSDimension pref = getPreferredSize();
+		GSDimension pref = getProperty(PREFERRED_SIZE);
 		setBounds(adjustLocation(x, y, pref), pref);
 		
 		super.add(content);
