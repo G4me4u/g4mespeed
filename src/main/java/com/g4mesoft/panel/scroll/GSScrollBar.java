@@ -44,15 +44,15 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 	private static final Text SCROLL_LEFT_TEXT  = new TranslatableText("panel.scrollbar.scrollleft");
 	private static final Text SCROLL_RIGHT_TEXT = new TranslatableText("panel.scrollbar.scrollright");
 	
-	private boolean vertical;
-	private GSIScrollBarModel model;
+	protected boolean vertical;
+	protected GSIScrollBarModel model;
 	
-	private boolean scrollDragActive;
+	protected boolean scrollDragActive;
 	
-	private int viewSize;
-	private int knobAreaSize;
-	private int knobSize;
-	private int knobPos;
+	protected int viewSize;
+	protected int knobAreaSize;
+	protected int knobSize;
+	protected int knobPos;
 
 	public GSScrollBar() {
 		this(true);

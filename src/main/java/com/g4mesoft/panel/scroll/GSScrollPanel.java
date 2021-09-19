@@ -11,20 +11,20 @@ import net.minecraft.client.gui.screen.Screen;
 
 public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GSIScrollListener {
 
-	private final GSViewport contentViewport;
-	private final GSViewport columnHeaderViewport;
-	private final GSViewport rowHeaderViewport;
+	protected final GSViewport contentViewport;
+	protected final GSViewport columnHeaderViewport;
+	protected final GSViewport rowHeaderViewport;
 	
-	private GSScrollBar verticalScrollBar;
-	private GSScrollBar horizontalScrollBar;
+	protected GSScrollBar verticalScrollBar;
+	protected GSScrollBar horizontalScrollBar;
 	
-	private GSPanel topLeftCorner;
-	private GSPanel topRightCorner;
-	private GSPanel bottomLeftCorner;
-	private GSPanel bottomRightCorner;
+	protected GSPanel topLeftCorner;
+	protected GSPanel topRightCorner;
+	protected GSPanel bottomLeftCorner;
+	protected GSPanel bottomRightCorner;
 	
-	private GSEScrollBarPolicy verticalScrollBarPolicy;
-	private GSEScrollBarPolicy horizontalScrollBarPolicy;
+	protected GSEScrollBarPolicy verticalScrollBarPolicy;
+	protected GSEScrollBarPolicy horizontalScrollBarPolicy;
 	
 	private final GSContentLayoutListener contentLayoutListener;
 
