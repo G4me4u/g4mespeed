@@ -74,9 +74,12 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 
 		GSPanel content = contentViewport.getContent();
 		
-		GSIScrollable scrollableContent = null;
-		if (content instanceof GSIScrollable)
-			scrollableContent = (GSIScrollable)content;
+		boolean sWidthFixed = false;
+		boolean sHeightFixed = false;
+		if (content instanceof GSIScrollable) {
+			sWidthFixed  = ((GSIScrollable)content).isScrollableWidthFixed();
+			sHeightFixed = ((GSIScrollable)content).isScrollableHeightFixed();
+		}
 		
 		int availW = parent.getWidth();
 		int availH = parent.getHeight();
@@ -108,60 +111,52 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 		GSDimension hsbPrefSize = horizontalScrollBar.getProperty(GSPanel.PREFERRED_SIZE);
 
 		boolean vsbNeeded;
-		if (scrollableContent == null || !scrollableContent.isScrollableHeightFixed()) {
-			switch (scrollPanel.getVerticalScrollBarPolicy()) {
-			case SCROLLBAR_ALWAYS:
-				vsbNeeded = true;
-				break;
-			case SCROLLBAR_AS_NEEDED:
-			default:
-				vsbNeeded = (availH < contentPrefH);
-				break;
-			case SCROLLBAR_NEVER:
-				vsbNeeded = false;
-				break;
-			}
-
-			if (vsbNeeded)
-				availW -= vsbPrefSize.getWidth();
-		} else {
+		switch (scrollPanel.getVerticalScrollBarPolicy()) {
+		case SCROLLBAR_ALWAYS:
+			vsbNeeded = true;
+			break;
+		case SCROLLBAR_AS_NEEDED:
+		default:
+			vsbNeeded = (!sHeightFixed && availH < contentPrefH);
+			break;
+		case SCROLLBAR_NEVER:
 			vsbNeeded = false;
+			break;
 		}
+
+		if (vsbNeeded)
+			availW -= vsbPrefSize.getWidth();
 		
 		boolean hsbNeeded;
-		if (scrollableContent == null || !scrollableContent.isScrollableWidthFixed()) {
-			switch (scrollPanel.getVerticalScrollBarPolicy()) {
-			case SCROLLBAR_ALWAYS:
-				hsbNeeded = true;
-				break;
-			case SCROLLBAR_AS_NEEDED:
-			default:
-				hsbNeeded = (availW < contentPrefW);
-				break;
-			case SCROLLBAR_NEVER:
-				hsbNeeded = true;
-				break;
-			}
-			
-			if (hsbNeeded) {
-				availH -= hsbPrefSize.getHeight();
-	
-				if (!vsbNeeded && scrollPanel.getVerticalScrollBarPolicy() == GSEScrollBarPolicy.SCROLLBAR_AS_NEEDED) {
-					// Check if we have to add the vertical scroll bar with
-					// the updated height from the horizontal scroll bar.
-					if (availH < contentPrefH) {
-						vsbNeeded = true;
-						availW -= vsbPrefSize.getWidth();
-					}
-				}
-			}
-		} else {
-			hsbNeeded = false;
+		switch (scrollPanel.getHorizontalScrollBarPolicy()) {
+		case SCROLLBAR_ALWAYS:
+			hsbNeeded = true;
+			break;
+		case SCROLLBAR_AS_NEEDED:
+		default:
+			hsbNeeded = (!sWidthFixed && availW < contentPrefW);
+			break;
+		case SCROLLBAR_NEVER:
+			hsbNeeded = true;
+			break;
 		}
 		
-		if (scrollableContent != null && scrollableContent.isScrollableWidthFixed())
+		if (hsbNeeded) {
+			availH -= hsbPrefSize.getHeight();
+
+			if (!vsbNeeded && scrollPanel.getVerticalScrollBarPolicy() == GSEScrollBarPolicy.SCROLLBAR_AS_NEEDED) {
+				// Check if we have to add the vertical scroll bar with
+				// the updated height from the horizontal scroll bar.
+				if (availH < contentPrefH) {
+					vsbNeeded = true;
+					availW -= vsbPrefSize.getWidth();
+				}
+			}
+		}
+		
+		if (sWidthFixed)
 			contentPrefW = availW;
-		if (scrollableContent != null && scrollableContent.isScrollableHeightFixed())
+		if (sHeightFixed)
 			contentPrefH = availH;
 		
 		// Add and set bounds of the panels in the scroll panel.

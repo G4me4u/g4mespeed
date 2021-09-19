@@ -1,6 +1,6 @@
 package com.g4mesoft.panel.dropdown;
 
-import com.g4mesoft.panel.GSIActionListener;
+import com.g4mesoft.panel.GSIChangeListener;
 import com.g4mesoft.panel.GSPanel;
 
 public interface GSIDropdownListField<T> {
@@ -13,8 +13,8 @@ public interface GSIDropdownListField<T> {
 	
 	public T getHighlightedItem();
 	
-	public void addActionListener(GSIActionListener listener);
+	public void addChangeListener(GSIChangeListener listener);
 	
-	public void removeActionListener(GSIActionListener listener);
+	public void removeChangeListener(GSIChangeListener listener);
 	
 }

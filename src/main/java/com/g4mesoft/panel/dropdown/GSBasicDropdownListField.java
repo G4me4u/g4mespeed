@@ -1,6 +1,6 @@
 package com.g4mesoft.panel.dropdown;
 
-import com.g4mesoft.panel.GSIActionListener;
+import com.g4mesoft.panel.GSIChangeListener;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.field.GSTextField;
 
@@ -30,12 +30,12 @@ public class GSBasicDropdownListField<T> extends GSTextField implements GSIDropd
 	}
 	
 	@Override
-	public void addActionListener(GSIActionListener listener) {
-		super.addActionListener(listener);
+	public void addChangeListener(GSIChangeListener listener) {
+		super.addChangeListener(listener);
 	}
 
 	@Override
-	public void removeActionListener(GSIActionListener listener) {
-		super.removeActionListener(listener);
+	public void removeChangeListener(GSIChangeListener listener) {
+		super.removeChangeListener(listener);
 	}
 }

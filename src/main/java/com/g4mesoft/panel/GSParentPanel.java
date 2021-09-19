@@ -44,7 +44,7 @@ public class GSParentPanel extends GSPanel {
 
 		panel.onAdded(this);
 		panel.setVisible(isVisible());
-		
+
 		invalidate();
 	}
 	

@@ -61,6 +61,9 @@ public class GSPanel {
 	protected GSDimension cachedPreferredSize;
 	private boolean valid;
 	
+	private boolean validating;
+	private boolean invalidateLater;
+	
 	public GSPanel() {
 		parent = null;
 		
@@ -81,6 +84,9 @@ public class GSPanel {
 		cachedPreferredSize = null;
 		layout = new GSLayout(this);
 		valid = false;
+
+		validating = false;
+		invalidateLater = false;
 	}
 
 	public void add(GSPanel panel) {
@@ -212,7 +218,7 @@ public class GSPanel {
 		
 		this.parent = parent;
 		
-		dispatchLayoutEvent(GSLayoutEvent.createAddedEvent(), this);
+		dispatchLayoutEvent(GSLayoutEvent.createAddedEvent(), parent);
 	}
 
 	public void onRemoved(GSPanel parent) {
@@ -223,7 +229,7 @@ public class GSPanel {
 		
 		unfocus();
 
-		dispatchLayoutEvent(GSLayoutEvent.createRemovedEvent(), this);
+		dispatchLayoutEvent(GSLayoutEvent.createRemovedEvent(), parent);
 	}
 	
 	public boolean isVisible() {
@@ -251,8 +257,18 @@ public class GSPanel {
 	}
 	
 	public void preRender(GSIRenderer2D renderer) {
-		if (!isValid())
+		if (invalidateLater) {
+			// Ensure that we do not invalidate whilst validating. This
+			// makes sure that we are not invalid during rendering.
+			invalidate();
+			invalidateLater = false;
+		}
+		
+		if (!isValid()) {
+			validating = true;
 			validate();
+			validating = false;
+		}
 		
 		renderer.pushMatrix();
 		renderer.translate(getX(), getY());
@@ -494,11 +510,15 @@ public class GSPanel {
 	}
 	
 	protected void invalidate() {
-		valid = false;
-		
-		// Invalidate cached sizes
-		cachedMinimumSize = null;
-		cachedPreferredSize = null;
+		if (validating) {
+			invalidateLater = true;
+		} else {
+			valid = false;
+			
+			// Invalidate cached sizes
+			cachedMinimumSize = null;
+			cachedPreferredSize = null;
+		}
 	}
 
 	protected void validate() {

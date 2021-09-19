@@ -16,13 +16,7 @@ public class GSViewport extends GSParentPanel {
 	
 	@Override
 	public void add(GSPanel panel) {
-		if (!isEmpty()) {
-			// Ensure that we have at most one child at
-			// any point in time.
-			removeAll();
-		}
-		
-		super.add(panel);
+		setContent(panel);
 	}
 
 	public GSPanel getContent() {
@@ -30,11 +24,14 @@ public class GSViewport extends GSParentPanel {
 	}
 	
 	public void setContent(GSPanel panel) {
-		if (panel == null) {
+		if (!isEmpty()) {
+			// Ensure that we have at most one child at
+			// any point in time.
 			removeAll();
-		} else {
-			add(panel);
 		}
+		
+		if (panel != null)
+			super.add(panel);
 	}
 	
 	@Override

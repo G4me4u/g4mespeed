@@ -64,7 +64,7 @@ public class GSColorPickerField extends GSParentPanel {
 			}
 		});
 		
-		textField.addActionListener(this::onFieldChanged);
+		textField.addChangeListener(this::onFieldChanged);
 		colorButton.addActionListener(this::onButtonPressed);
 		picker.addActionListener(this::onPickerChanged);
 		

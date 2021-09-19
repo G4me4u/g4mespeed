@@ -1,9 +1,7 @@
 package com.g4mesoft.panel.scroll;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.g4mesoft.panel.GSDimension;
+import com.g4mesoft.panel.GSIChangeListener;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.dropdown.GSDropdown;
@@ -12,12 +10,11 @@ import com.g4mesoft.panel.event.GSIMouseListener;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.renderer.GSITextureRegion;
-import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class GSScrollBar extends GSPanel implements GSIMouseListener {
+public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeListener {
 
 	private static final GSITextureRegion SCROLL_BUTTON_TEXTURE = GSPanelContext.getTexture(0, 32, 30, 40);
 	
@@ -27,8 +24,6 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	private static final int KNOB_COLOR = 0xFF4D4D4D;
 	private static final int HOVERED_KNOB_COLOR = 0xFF7A7A7A;
 	private static final int DISABLED_KNOB_COLOR = 0xFF2B2A2B;
-	
-	private static final float DEFAULT_SCROLL_AMOUNT = 20.0f;
 	
 	private static final int DEFAULT_SCROLL_BAR_WIDTH = 9;
 	private static final int DEFAULT_BUTTON_WIDTH = 9;
@@ -50,43 +45,42 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	private static final Text SCROLL_RIGHT_TEXT = new TranslatableText("panel.scrollbar.scrollright");
 	
 	private boolean vertical;
-
-	private float minScrollOffset;
-	private float maxScrollOffset;
-	private float viewSize;
+	private GSIScrollBarModel model;
 	
-	private float scrollOffset;
 	private boolean scrollDragActive;
-
-	private final List<GSIScrollListener> scrollListeners;
+	
+	private int viewSize;
+	private int knobAreaSize;
+	private int knobSize;
+	private int knobPos;
 
 	public GSScrollBar() {
-		this(true, 0.0f, 100.0f, DEFAULT_SCROLL_AMOUNT);
+		this(true);
+	}
+
+	public GSScrollBar(boolean vertical) {
+		this(vertical, new GSDefaultScrollBarModel());
 	}
 	
-	public GSScrollBar(boolean vertical, float minScrollOffset, float maxScrollOffset, float viewSize) {
+	public GSScrollBar(boolean vertical, float minScroll, float maxScroll) {
+		this(vertical, new GSDefaultScrollBarModel(minScroll, maxScroll));
+	}
+
+	public GSScrollBar(boolean vertical, GSIScrollBarModel model) {
 		this.vertical = vertical;
 
-		this.minScrollOffset = minScrollOffset;
-		this.maxScrollOffset = maxScrollOffset;
-		this.viewSize = viewSize;
-		
-		scrollOffset = minScrollOffset;
 		scrollDragActive = false;
 		
-		scrollListeners = new ArrayList<GSIScrollListener>();
-		
 		addMouseEventListener(this);
-	}
-
-	public void addScrollListener(GSIScrollListener listener) {
-		scrollListeners.add(listener);
-	}
-
-	public void removeScrollListener(GSIScrollListener listener) {
-		scrollListeners.remove(listener);
+		
+		setModel(model);
 	}
 	
+	@Override
+	protected void onResized(int oldWidth, int oldHeight) {
+		updateAttribs();
+	}
+
 	@Override
 	public void render(GSIRenderer2D renderer) {
 		drawScrollButton(renderer, true);
@@ -145,15 +139,12 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	}
 
 	protected void drawKnob(GSIRenderer2D renderer) {
-		int kp = getKnobPos();
-		int ks = getKnobSize();
-		
 		if (isVertical()) {
-			boolean hovered = renderer.isMouseInside(0, kp, width, ks);
-			renderer.fillRect(1, kp, width - 2, ks, getKnobColor(hovered));
+			boolean hovered = renderer.isMouseInside(0, knobPos, width, knobSize);
+			renderer.fillRect(1, knobPos, width - 2, knobSize, getKnobColor(hovered));
 		} else {
-			boolean hovered = renderer.isMouseInside(kp, 0, ks, height);
-			renderer.fillRect(kp, 1, ks, height - 2, getKnobColor(hovered));
+			boolean hovered = renderer.isMouseInside(knobPos, 0, knobSize, height);
+			renderer.fillRect(knobPos, 1, knobSize, height - 2, getKnobColor(hovered));
 		}
 	}
 	
@@ -173,32 +164,6 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 		return KNOB_COLOR;
 	}
 	
-	protected int getKnobPos() {
-		int pos = getButtonHeight();
-
-		float scrollInterval = maxScrollOffset - minScrollOffset;
-		if (scrollInterval > 0.0f) {
-			int emptyArea = getKnobAreaSize() - getKnobSize();
-			float relativeScroll = scrollOffset - minScrollOffset;
-			pos += (int)(emptyArea * relativeScroll / scrollInterval);
-		}
-
-		return pos;
-	}
-	
-	protected int getKnobSize() {
-		float scrollInterval = viewSize + maxScrollOffset - minScrollOffset;
-		if (scrollInterval > viewSize) {
-			int knobSize = Math.round(getKnobAreaSize() * viewSize / scrollInterval);
-			return Math.max(knobSize, getMinimumNobSize());
-		}
-		return getKnobAreaSize();
-	}
-
-	protected int getKnobAreaSize() {
-		return (isVertical() ? height : width) - getButtonHeight() * 2;
-	}
-	
 	protected int getButtonWidth() {
 		return DEFAULT_BUTTON_WIDTH;
 	}
@@ -213,15 +178,19 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 
 	@Override
 	public void populateRightClickMenu(GSDropdown dropdown, int x, int y) {
+		float mns = model.getMinScroll();
+		float mxs = model.getMaxScroll();
+		float vs = viewSize;
+		
 		dropdown.addItem(new GSDropdownAction(SCROLL_HERE_TEXT, () -> {
-			setScrollOffset(minScrollOffset + getScrollDelta(isVertical() ? y : x) - viewSize * 0.5f);
+			setScroll(mns + getScrollDelta(isVertical() ? y : x) - vs * 0.5f);
 		}));
 		dropdown.separate();
 		dropdown.addItem(new GSDropdownAction(isVertical() ? TOP_TEXT : LEFT_EDGE_TEXT, () -> {
-			setScrollOffset(minScrollOffset);
+			setScroll(mns);
 		}));
 		dropdown.addItem(new GSDropdownAction(isVertical() ? BOTTOM_TEXT : RIGHT_EDGE_TEXT, () -> {
-			setScrollOffset(maxScrollOffset);
+			setScroll(mxs);
 		}));
 		dropdown.separate();
 		dropdown.addItem(new GSDropdownAction(isVertical() ? PAGE_UP_TEXT : PAGE_LEFT_TEXT, () -> {
@@ -250,7 +219,6 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	public void mousePressed(GSMouseEvent event) {
 		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
 			int mousePos = isVertical() ? event.getY() : event.getX();
-			int knobPos = getKnobPos();
 			
 			if (mousePos < knobPos) {
 				if (mousePos < getButtonHeight()) {
@@ -261,7 +229,7 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 					// knob itself.
 					onPageScroll(-1);
 				}
-			} else if (mousePos >= knobPos + getKnobSize()) {
+			} else if (mousePos >= knobPos + knobSize) {
 				if (mousePos >= height - getButtonHeight()) {
 					onIncrementalScroll(1);
 				} else {
@@ -276,16 +244,11 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	}
 	
 	private void onIncrementalScroll(int sign) {
-		// TODO: implement incremental scroll
-		float scrollAmount = Float.NaN;//getIncrementalScroll(sign);
-		if (Float.isNaN(scrollAmount) || scrollAmount < 0.0)
-			scrollAmount = DEFAULT_SCROLL_AMOUNT;
-		
-		setScrollOffset(scrollOffset + sign * scrollAmount);
+		setScroll(model.getScroll() + sign * model.getIncrementalScroll(sign));
 	}
 	
 	private void onPageScroll(int sign) {
-		setScrollOffset(scrollOffset + sign * viewSize);
+		setScroll(model.getScroll() + sign * viewSize);
 	}
 	
 	@Override
@@ -300,15 +263,17 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 	public void mouseDragged(GSMouseEvent event) {
 		if (scrollDragActive && event.getButton() == GSMouseEvent.BUTTON_LEFT) {
 			float drag = isVertical() ? event.getDragY() : event.getDragX();
-			setScrollOffset(scrollOffset + getScrollDelta(drag));
+			setScroll(model.getScroll() + getScrollDelta(drag));
 			event.consume();
 		}
 	}
 	
 	private float getScrollDelta(float delta) {
-		int compAreaSize = getKnobAreaSize() - getKnobSize();
-		if (compAreaSize > 0)
-			delta *= (maxScrollOffset - minScrollOffset) / compAreaSize;
+		int complementaryAreaSize = knobAreaSize - knobSize;
+		if (complementaryAreaSize > 0) {
+			float scrollInterval = model.getMaxScroll() - model.getMinScroll();
+			delta *= scrollInterval / complementaryAreaSize;
+		}
 		return delta;
 	}
 	
@@ -320,49 +285,63 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener {
 		this.vertical = vertical;
 	}
 	
-	public float getScrollOffset() {
-		return scrollOffset;
+	public float getScroll() {
+		return model.getScroll();
 	}
 	
-	public void setScrollOffset(float scroll) {
-		for (GSIScrollListener listener : scrollListeners)
-			listener.preScrollChanged(scroll);
-		
-		// Note that minScrollOffset and maxScrollOffset might have
-		// changed at this point. Ensure that it changes appropriately.
-		scrollOffset = GSMathUtil.clamp(scroll, minScrollOffset, maxScrollOffset);
-		
-		for (GSIScrollListener listener : scrollListeners)
-			listener.scrollChanged(scrollOffset);
+	public void setScroll(float scroll) {
+		model.setScroll(scroll);
 	}
 	
-	public float getMinScrollOffset() {
-		return minScrollOffset;
+	public GSIScrollBarModel getModel() {
+		return model;
 	}
 	
-	public void setMinScrollOffset(float minScrollOffset) {
-		this.minScrollOffset = minScrollOffset;
+	public void setModel(GSIScrollBarModel model) {
+		if (model == null)
+			throw new IllegalArgumentException("model is null!");
+
+		GSIScrollBarModel oldModel = this.model;
+		this.model = model;
+
+		if (oldModel != null) {
+			float oldScroll = oldModel.getScroll();
+			oldModel.removeChangeListener(this);
+			model.setScroll(oldScroll);
+		}
 		
-		if (scrollOffset < minScrollOffset)
-			setScrollOffset(minScrollOffset);
+		model.addChangeListener(this);
+
+		updateAttribs();
 	}
 
-	public float getMaxScrollOffset() {
-		return maxScrollOffset;
+	@Override
+	public void valueChanged() {
+		updateAttribs();
 	}
-
-	public void setMaxScrollOffset(float maxScrollOffset) {
-		this.maxScrollOffset = maxScrollOffset;
+	
+	private void updateAttribs() {
+		// Assume view size is the same as the scroll bar size in the
+		// respective dimension.
+		viewSize = isVertical() ? height : width;
+		knobAreaSize = viewSize - getButtonHeight() * 2;
+		// Calculate initial offset for knob pos (offset later).
+		knobPos = getButtonHeight();
 		
-		if (scrollOffset > maxScrollOffset)
-			setScrollOffset(maxScrollOffset);
-	}
-	
-	public float getViewSize() {
-		return viewSize;
-	}
-	
-	public void setViewSize(float viewSize) {
-		this.viewSize = viewSize;
+		float interval = model.getMaxScroll() - model.getMinScroll();
+		if (interval > 0.0f) {
+			// Calculate the knob size
+			float nSize = viewSize / (viewSize + interval);
+			knobSize = Math.round(knobAreaSize * nSize);
+			if (getMinimumNobSize() > knobSize)
+				knobSize = getMinimumNobSize();
+			
+			// Calculate the knob position
+			int emptyArea = knobAreaSize - knobSize;
+			float relScroll = model.getScroll() - model.getMinScroll();
+			knobPos += Math.round(emptyArea * relScroll / interval);
+		} else {
+			knobSize = knobAreaSize;
+		}
 	}
 }

@@ -102,14 +102,21 @@ public final class GSPanelUtil {
 	public static int getScrollX(GSPanel panel) {
 		GSPanel parent = panel.getParent();
 		if (parent instanceof GSViewport)
-			return ((GSViewport)parent).getOffsetX();
+			return -((GSViewport)parent).getOffsetX();
 		return 0;
 	}
 
 	public static int getScrollY(GSPanel panel) {
 		GSPanel parent = panel.getParent();
 		if (parent instanceof GSViewport)
-			return ((GSViewport)parent).getOffsetY();
+			return -((GSViewport)parent).getOffsetY();
 		return 0;
+	}
+	
+	public static GSDimension getViewportSize(GSPanel panel) {
+		GSPanel parent = panel.getParent();
+		if (parent instanceof GSViewport)
+			return ((GSViewport)parent).getSize();
+		return panel.getSize();
 	}
 }

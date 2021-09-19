@@ -2,15 +2,15 @@ package com.g4mesoft.panel.scroll;
 
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSParentPanel;
+import com.g4mesoft.panel.event.GSILayoutEventListener;
 import com.g4mesoft.panel.event.GSIMouseListener;
+import com.g4mesoft.panel.event.GSLayoutEvent;
 import com.g4mesoft.panel.event.GSMouseEvent;
 
 import net.minecraft.client.gui.screen.Screen;
 
 public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GSIScrollListener {
 
-	private static final float SCROLL_MULTIPLIER = 20.0f;
-	
 	private final GSViewport contentViewport;
 	private final GSViewport columnHeaderViewport;
 	private final GSViewport rowHeaderViewport;
@@ -25,6 +25,8 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 	
 	private GSEScrollBarPolicy verticalScrollBarPolicy;
 	private GSEScrollBarPolicy horizontalScrollBarPolicy;
+	
+	private final GSContentLayoutListener contentLayoutListener;
 
 	public GSScrollPanel() {
 		this(null);
@@ -38,6 +40,8 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		verticalScrollBarPolicy = GSEScrollBarPolicy.SCROLLBAR_AS_NEEDED;
 		horizontalScrollBarPolicy = GSEScrollBarPolicy.SCROLLBAR_AS_NEEDED;
 
+		contentLayoutListener = new GSContentLayoutListener();
+		
 		setVerticalScrollBar(new GSScrollBar());
 		setHorizontalScrollBar(new GSScrollBar());
 
@@ -50,14 +54,6 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		addMouseEventListener(this);
 	}
 
-	@Override
-	protected void validate() {
-		super.validate();
-
-		// Viewport size might have changed, update scroll bars.
-		updateScrollBarParams();
-	}
-	
 	/* Visible for GSScrollPanelLayoutManager */
 	GSViewport getContentViewport() {
 		return contentViewport;
@@ -68,8 +64,15 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 	}
 
 	public void setContent(GSPanel content) {
+		GSPanel oldContent = contentViewport.getContent();
+		if (oldContent != null)
+			oldContent.removeLayoutEventListener(contentLayoutListener);
+		
 		contentViewport.setContent(content);
 
+		if (content != null)
+			content.addLayoutEventListener(contentLayoutListener);
+		
 		invalidate();
 	}
 
@@ -83,7 +86,14 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 	}
 
 	public void setColumnHeader(GSPanel columnHeader) {
+		GSPanel oldColumnHeader = columnHeaderViewport.getContent();
+		if (oldColumnHeader != null)
+			oldColumnHeader.removeLayoutEventListener(contentLayoutListener);
+		
 		columnHeaderViewport.setContent(columnHeader);
+
+		if (columnHeader != null)
+			columnHeader.addLayoutEventListener(contentLayoutListener);
 		
 		if (columnHeaderViewport.isAdded()) {
 			if (columnHeader != null)
@@ -106,7 +116,14 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 	}
 
 	public void setRowHeader(GSPanel rowHeader) {
+		GSPanel oldRowHeader = rowHeaderViewport.getContent();
+		if (oldRowHeader != null)
+			oldRowHeader.removeLayoutEventListener(contentLayoutListener);
+		
 		rowHeaderViewport.setContent(rowHeader);
+
+		if (rowHeader != null)
+			rowHeader.addLayoutEventListener(contentLayoutListener);
 
 		if (rowHeaderViewport.isAdded()) {
 			if (rowHeader != null)
@@ -133,11 +150,13 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		if (verticalScrollBar != null) {
 			if (verticalScrollBar.isAdded())
 				remove(verticalScrollBar);
-			verticalScrollBar.removeScrollListener(this);
+			verticalScrollBar.getModel().removeScrollListener(this);
 		}
 		
 		verticalScrollBar = scrollBar;
-		verticalScrollBar.addScrollListener(this);
+		verticalScrollBar.setModel(new GSContentScrollBarModel(true));
+		verticalScrollBar.getModel().addScrollListener(this);
+		verticalScrollBar.setVertical(true);
 		
 		updateScrollBarParams();
 		
@@ -158,11 +177,13 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		if (horizontalScrollBar != null) {
 			if (horizontalScrollBar.isAdded())
 				remove(horizontalScrollBar);
-			horizontalScrollBar.removeScrollListener(this);
+			horizontalScrollBar.getModel().removeScrollListener(this);
 		}
 		
 		horizontalScrollBar = scrollBar;
-		horizontalScrollBar.addScrollListener(this);
+		horizontalScrollBar.setModel(new GSContentScrollBarModel(false));
+		horizontalScrollBar.getModel().addScrollListener(this);
+		horizontalScrollBar.setVertical(false);
 		
 		updateScrollBarParams();
 		
@@ -268,23 +289,26 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		// In case the user is trying to zoom in or out we should not
 		// scroll. This has different behavior on different platforms.
 		if (!Screen.hasControlDown() && !Screen.hasAltDown()) {
-			float newScrollOffsetX = horizontalScrollBar.getScrollOffset();
-			float newScrollOffsetY = verticalScrollBar.getScrollOffset();
+			float newScrollX = horizontalScrollBar.getScroll();
+			float newScrollY = verticalScrollBar.getScroll();
+			
+			float blockScrollX = horizontalScrollBar.getModel().getBlockScroll();
+			float blockScrollY = verticalScrollBar.getModel().getBlockScroll();
 
 			// Shift will flip the xScroll and yScroll. This makes it
 			// possible to scroll horizontally without any xScroll.
 			if (Screen.hasShiftDown()) {
-				newScrollOffsetX -= event.getScrollY() * SCROLL_MULTIPLIER;
-				newScrollOffsetY -= event.getScrollX() * SCROLL_MULTIPLIER;
+				newScrollX -= event.getScrollY() * blockScrollX;
+				newScrollY -= event.getScrollX() * blockScrollY;
 			} else {
-				newScrollOffsetX -= event.getScrollX() * SCROLL_MULTIPLIER;
-				newScrollOffsetY -= event.getScrollY() * SCROLL_MULTIPLIER;
+				newScrollX -= event.getScrollX() * blockScrollX;
+				newScrollY -= event.getScrollY() * blockScrollY;
 			}
 			
 			if (!horizontalScrollBar.isAdded())
-				newScrollOffsetX = 0.0f;
+				newScrollX = 0.0f;
 			if (!verticalScrollBar.isAdded())
-				newScrollOffsetY = 0.0f;
+				newScrollY = 0.0f;
 
 			int mx = event.getX();
 			int my = event.getY();
@@ -292,13 +316,13 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 			if (!columnHeaderViewport.isEmpty() && columnHeaderViewport.isInBounds(mx, my)) {
 				// The user is hovering over the column header. Ignore
 				// scrollY to make scrolling more intuitive.
-				horizontalScrollBar.setScrollOffset(newScrollOffsetX);
+				horizontalScrollBar.setScroll(newScrollX);
 			} else if (!rowHeaderViewport.isEmpty() && rowHeaderViewport.isInBounds(mx, my)) {
 				// Similarly, ignore scrollX when hovering the row header.
-				verticalScrollBar.setScrollOffset(newScrollOffsetY);
+				verticalScrollBar.setScroll(newScrollY);
 			} else {
-				horizontalScrollBar.setScrollOffset(newScrollOffsetX);
-				verticalScrollBar.setScrollOffset(newScrollOffsetY);
+				horizontalScrollBar.setScroll(newScrollX);
+				verticalScrollBar.setScroll(newScrollY);
 			}
 		}
 	}
@@ -307,8 +331,8 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 	public void scrollChanged(float ignore) {
 		// Called from both the vertical and horizontal scroll bar,
 		// so we have to ignore the newScrollOffset from parameters.
-		int offsetX = Math.round(-horizontalScrollBar.getScrollOffset());
-		int offsetY = Math.round(-verticalScrollBar.getScrollOffset());
+		int offsetX = Math.round(-horizontalScrollBar.getScroll());
+		int offsetY = Math.round(-verticalScrollBar.getScroll());
 		// Update the offsets of the viewports.
 		contentViewport.setOffset(offsetX, offsetY);
 		columnHeaderViewport.setOffset(offsetX, 0);
@@ -316,43 +340,40 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 	}
 	
 	private void updateScrollBarParams() {
-		float maxScrollOffsetX = 0.0f;
-		float maxScrollOffsetY = 0.0f;
+		// Calculate the minimum and maximum scroll
+		float maxScrollX = 0.0f;
+		float maxScrollY = 0.0f;
 
 		GSPanel content = getContent();
 		if (content != null) {
-			maxScrollOffsetX = content.getWidth();
-			maxScrollOffsetY = content.getHeight();
+			maxScrollX = content.getWidth();
+			maxScrollY = content.getHeight();
 		}
 		GSPanel columnHeader = getColumnHeader();
-		if (columnHeader != null && columnHeader.getWidth() > maxScrollOffsetX)
-			maxScrollOffsetX = columnHeader.getWidth();
+		if (columnHeader != null && columnHeader.getWidth() > maxScrollX)
+			maxScrollX = columnHeader.getWidth();
 		GSPanel rowHeader = getRowHeader();
-		if (rowHeader != null && rowHeader.getHeight() > maxScrollOffsetY)
-			maxScrollOffsetY = rowHeader.getHeight();
+		if (rowHeader != null && rowHeader.getHeight() > maxScrollY)
+			maxScrollY = rowHeader.getHeight();
 		
 		// Subtract the already visible viewport
-		maxScrollOffsetX -= contentViewport.getWidth();
-		maxScrollOffsetY -= contentViewport.getHeight();
+		maxScrollX -= contentViewport.getWidth();
+		maxScrollY -= contentViewport.getHeight();
 		
-		if (maxScrollOffsetX < 0.0f)
-			maxScrollOffsetX = 0.0f;
-		if (maxScrollOffsetY < 0.0f)
-			maxScrollOffsetY = 0.0f;
+		if (maxScrollX < 0.0f)
+			maxScrollX = 0.0f;
+		if (maxScrollY < 0.0f)
+			maxScrollY = 0.0f;
 		
 		// Update minimum, maximum and view parameters of the scroll bar
 		if (verticalScrollBar != null) {
-			verticalScrollBar.setMinScrollOffset(0.0f);
-			verticalScrollBar.setMaxScrollOffset(maxScrollOffsetY);
-			verticalScrollBar.setViewSize(contentViewport.getHeight());
-			verticalScrollBar.setVertical(true);
+			GSIScrollBarModel model = verticalScrollBar.getModel();
+			model.setScrollInterval(0.0f, maxScrollY);
 		}
-
+		
 		if (horizontalScrollBar != null) {
-			horizontalScrollBar.setMinScrollOffset(0.0f);
-			horizontalScrollBar.setMaxScrollOffset(maxScrollOffsetX);
-			horizontalScrollBar.setViewSize(contentViewport.getWidth());
-			horizontalScrollBar.setVertical(false);
+			GSIScrollBarModel model = horizontalScrollBar.getModel();
+			model.setScrollInterval(0.0f, maxScrollX);
 		}
 	}
 	
@@ -366,5 +387,43 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		// Both row header and content should have the same offsetY,
 		// so it is sufficient to return the content offset.
 		return contentViewport.getOffsetY();
+	}
+	
+	private class GSContentScrollBarModel extends GSDefaultScrollBarModel {
+		
+		private boolean vertical;
+		
+		public GSContentScrollBarModel(boolean vertical) {
+			this.vertical = vertical;
+		}
+		
+		@Override
+		public float getIncrementalScroll(int sign) {
+			GSPanel content = getContent();
+			if (content instanceof GSIScrollable) {
+				GSIScrollable scrollable = (GSIScrollable)content;
+				
+				float incScroll;
+				if (vertical) {
+					incScroll = scrollable.getIncrementalScrollY(sign);
+				} else {
+					incScroll = scrollable.getIncrementalScrollX(sign);
+				}
+				
+				// Ensure that the returned scroll is valid (default is NaN)
+				if (!Float.isNaN(incScroll) && incScroll > 0.0f)
+					return incScroll;
+			}
+			
+			return super.getIncrementalScroll(sign);
+		}
+	}
+	
+	private class GSContentLayoutListener implements GSILayoutEventListener {
+		
+		@Override
+		public void panelResized(GSLayoutEvent event) {
+			updateScrollBarParams();
+		}
 	}
 }

@@ -6,7 +6,7 @@ import java.util.List;
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.panel.GSETextAlignment;
-import com.g4mesoft.panel.GSIActionListener;
+import com.g4mesoft.panel.GSIChangeListener;
 import com.g4mesoft.panel.GSIModelListener;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
@@ -55,7 +55,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	private GSITextModel textModel;
 	private final List<GSIModelListener> modelListeners;
-	private final List<GSIActionListener> actionListeners;
+	private final List<GSIChangeListener> changeListeners;
 
 	private int backgroundColor;
 	
@@ -95,7 +95,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		}
 		
 		modelListeners = new ArrayList<>();
-		actionListeners = new ArrayList<>();
+		changeListeners = new ArrayList<>();
 		
 		backgroundColor = DEFAULT_BACKGROUND_COLOR;
 		
@@ -482,13 +482,13 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	@Override
 	public void textInserted(GSITextModel model, int offset, int count) {
 		clippedModelInvalid = true;
-		dispatchActionEvent();
+		dispatchValueChanged();
 	}
 
 	@Override
 	public void textRemoved(GSITextModel model, int offset, int count) {
 		clippedModelInvalid = true;
-		dispatchActionEvent();
+		dispatchValueChanged();
 	}
 	
 	@Override
@@ -771,16 +771,16 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		return textModel;
 	}
 	
-	public void addActionListener(GSIActionListener listener) {
-		actionListeners.add(listener);
+	public void addChangeListener(GSIChangeListener listener) {
+		changeListeners.add(listener);
 	}
 
-	public void removeActionListener(GSIActionListener listener) {
-		actionListeners.remove(listener);
+	public void removeChangeListener(GSIChangeListener listener) {
+		changeListeners.remove(listener);
 	}
 
-	private void dispatchActionEvent() {
-		actionListeners.forEach(GSIActionListener::actionPerformed);
+	private void dispatchValueChanged() {
+		changeListeners.forEach(GSIChangeListener::valueChanged);
 	}
 	
 	public void setText(String text) {

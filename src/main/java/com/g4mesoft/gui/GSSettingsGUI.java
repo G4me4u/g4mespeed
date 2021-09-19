@@ -175,7 +175,8 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 		int descX = settingsWidth;
 		
 		int scrollOffset = GSPanelUtil.getScrollY(this);
-		int descY = GSMathUtil.clamp(hoveredElement.y, scrollOffset, height + scrollOffset - descHeight);
+		int viewHeight = GSPanelUtil.getViewportSize(this).getHeight();
+		int descY = GSMathUtil.clamp(hoveredElement.y, scrollOffset, viewHeight + scrollOffset - descHeight);
 		
 		if (descWidth > 0 && descHeight > 0 && targetDescHeight != 0) {
 			renderer.fillRect(descX, descY, descWidth, descHeight, DESC_BACKGROUND_COLOR);
