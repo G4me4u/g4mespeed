@@ -230,7 +230,8 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 					onPageScroll(-1);
 				}
 			} else if (mousePos >= knobPos + knobSize) {
-				if (mousePos >= height - getButtonHeight()) {
+				int length = isVertical() ? height : width;
+				if (mousePos >= length - getButtonHeight()) {
 					onIncrementalScroll(1);
 				} else {
 					onPageScroll(1);
