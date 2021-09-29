@@ -1,6 +1,6 @@
 package com.g4mesoft.panel;
 
-public class GSRectangle {
+public final class GSRectangle {
 
 	public int x;
 	public int y;
@@ -232,5 +232,29 @@ public class GSRectangle {
 	
 	public boolean isEmpty() {
 		return (width <= 0 || height <= 0);
+	}
+	
+	@Override
+	public int hashCode() {
+		int hash = 0;
+		hash += 31 * hash + height;
+		hash += 31 * hash + width;
+		hash += 31 * hash + y;
+		hash += 31 * hash + x;
+		return hash;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this)
+			return true;
+		if (obj instanceof GSRectangle) {
+			GSRectangle other = (GSRectangle)obj;
+			return x == other.x &&
+			       y == other.y &&
+			       width == other.width &&
+			       height == other.height;
+		}
+		return false;
 	}
 }
