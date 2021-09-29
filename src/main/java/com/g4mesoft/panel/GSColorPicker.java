@@ -3,14 +3,14 @@ package com.g4mesoft.panel;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.util.GSColorUtil;
 
 public class GSColorPicker extends GSParentPanel {
 
-	private static final int SLIDER_MARGIN = 3;
-	
-	protected static final int BACKGROUND_COLOR = 0xFF252526;
+	protected static final int DEFAULT_BACKGROUND_COLOR = 0xFF252526;
+
+	private static final GSIBorder DEFAULT_WHEEL_BORDER = new GSEmptyBorder(0, 0, 0, 3);
+	private static final GSIBorder DEFAULT_SLIDER_BORDER = new GSEmptyBorder(3);
 	
 	private final GSColorWheel colorWheel;
 	private final GSColorBrightnessSlider brightnessSlider;
@@ -22,51 +22,27 @@ public class GSColorPicker extends GSParentPanel {
 		brightnessSlider = new GSColorBrightnessSlider();
 		
 		listeners = new ArrayList<>();
+
+		setBackgroundColor(DEFAULT_BACKGROUND_COLOR);
+		setLayoutManager(new GSColorPickerLayoutManager());
 		
 		colorWheel.addActionListener(() -> {
 			brightnessSlider.setHue(colorWheel.getHue());
 			brightnessSlider.setSaturation(colorWheel.getSaturation());
 			dispatchActionEvent();
 		});
+		colorWheel.setBorder(DEFAULT_WHEEL_BORDER);
 		
 		brightnessSlider.addActionListener(() -> {
 			colorWheel.setBrightness(brightnessSlider.getBrightness());
 			dispatchActionEvent();
 		});
+		brightnessSlider.setBorder(DEFAULT_SLIDER_BORDER);
 		
 		setColor(initialColor);
 	
 		add(colorWheel);
 		add(brightnessSlider);
-	}
-	
-	@Override
-	protected void layout() {
-		int bsw = brightnessSlider.getProperty(PREFERRED_WIDTH);
-		int bsh = Math.max(0, height - 2 * SLIDER_MARGIN);
-		int bsx = width - bsw - SLIDER_MARGIN;
-		int cws = Math.min(bsx - SLIDER_MARGIN, height);
-		
-		colorWheel.setBounds(0, (height - cws) / 2, cws, cws);
-		brightnessSlider.setBounds(bsx, (height - bsh) / 2, bsw, bsh);
-	}
-
-	@Override
-	public void render(GSIRenderer2D renderer) {
-		renderer.fillRect(0, 0, width, height, BACKGROUND_COLOR);
-		
-		super.render(renderer);
-	}
-	
-	@Override
-	protected GSDimension calculatePreferredSize() {
-		GSDimension cws = colorWheel.getProperty(PREFERRED_SIZE);
-		GSDimension bss = brightnessSlider.getProperty(PREFERRED_SIZE);
-		
-		int w = cws.getWidth() + bss.getWidth() + 2 * SLIDER_MARGIN;
-		int h = Math.max(bss.getHeight() + + 2 * SLIDER_MARGIN, cws.getHeight());
-		
-		return new GSDimension(w, h);
 	}
 	
 	public void addActionListener(GSIActionListener listener) {
@@ -79,6 +55,14 @@ public class GSColorPicker extends GSParentPanel {
 	
 	private void dispatchActionEvent() {
 		listeners.forEach(GSIActionListener::actionPerformed);
+	}
+	
+	public GSColorWheel getColorWheel() {
+		return colorWheel;
+	}
+
+	public GSColorBrightnessSlider getBrightnessSlider() {
+		return brightnessSlider;
 	}
 	
 	public int getColor() {

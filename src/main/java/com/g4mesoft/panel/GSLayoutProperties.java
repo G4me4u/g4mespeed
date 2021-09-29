@@ -20,14 +20,11 @@ public final class GSLayoutProperties {
 	public static final GSILayoutProperty<GSEAnchor> ANCHOR      = new GSBasicLayoutProperty<>("anchor", GSEAnchor.CENTER);
 	public static final GSILayoutProperty<GSEFill>   FILL        = new GSBasicLayoutProperty<>("fill"  , GSEFill.NONE);
 	
-	public static final GSILayoutProperty<Integer> TOP_MARGIN    = new GSIntLayoutProperty("topMargin"   , 0, 0, Integer.MAX_VALUE);
-	public static final GSILayoutProperty<Integer> LEFT_MARGIN   = new GSIntLayoutProperty("leftMargin"  , 0, 0, Integer.MAX_VALUE);
-	public static final GSILayoutProperty<Integer> BOTTOM_MARGIN = new GSIntLayoutProperty("bottomMargin", 0, 0, Integer.MAX_VALUE);
-	public static final GSILayoutProperty<Integer> RIGHT_MARGIN  = new GSIntLayoutProperty("rightMargin" , 0, 0, Integer.MAX_VALUE);
-	
-	public static final GSILayoutProperty<GSVertMargin>  VERT_MARGIN  = new GSBiLayoutProperty<>(TOP_MARGIN, BOTTOM_MARGIN, GSVertMargin::new, GSVertMargin::getTop, GSVertMargin::getBottom);
-	public static final GSILayoutProperty<GSHorizMargin> HORIZ_MARGIN = new GSBiLayoutProperty<>(LEFT_MARGIN, RIGHT_MARGIN, GSHorizMargin::new, GSHorizMargin::getLeft, GSHorizMargin::getRight);
-	public static final GSILayoutProperty<GSMargin>      MARGIN       = new GSBiLayoutProperty<>(VERT_MARGIN, HORIZ_MARGIN, GSMargin::new, GSMargin::getVertMargin, GSMargin::getHorizMargin);
+	public static final GSILayoutProperty<Integer>   TOP_MARGIN    = new GSIntLayoutProperty("topMargin"   , 0, 0, Integer.MAX_VALUE);
+	public static final GSILayoutProperty<Integer>   LEFT_MARGIN   = new GSIntLayoutProperty("leftMargin"  , 0, 0, Integer.MAX_VALUE);
+	public static final GSILayoutProperty<Integer>   BOTTOM_MARGIN = new GSIntLayoutProperty("bottomMargin", 0, 0, Integer.MAX_VALUE);
+	public static final GSILayoutProperty<Integer>   RIGHT_MARGIN  = new GSIntLayoutProperty("rightMargin" , 0, 0, Integer.MAX_VALUE);
+	public static final GSILayoutProperty<GSSpacing> MARGIN        = new GSSpacingLayoutProperty(TOP_MARGIN, LEFT_MARGIN, BOTTOM_MARGIN, RIGHT_MARGIN);
 	
 	private GSLayoutProperties() {
 	}

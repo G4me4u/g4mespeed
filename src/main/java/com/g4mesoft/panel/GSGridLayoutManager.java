@@ -29,18 +29,15 @@ public class GSGridLayoutManager implements GSILayoutManager {
 	public static final GSILayoutProperty<Integer> LEFT_MARGIN          = GSLayoutProperties.LEFT_MARGIN;
 	public static final GSILayoutProperty<Integer> BOTTOM_MARGIN        = GSLayoutProperties.BOTTOM_MARGIN;
 	public static final GSILayoutProperty<Integer> RIGHT_MARGIN         = GSLayoutProperties.RIGHT_MARGIN;
-
-	public static final GSILayoutProperty<GSVertMargin>  VERT_MARGIN    = GSLayoutProperties.VERT_MARGIN;
-	public static final GSILayoutProperty<GSHorizMargin> HORIZ_MARGIN   = GSLayoutProperties.HORIZ_MARGIN;
-	public static final GSILayoutProperty<GSMargin>      MARGIN         = GSLayoutProperties.MARGIN;
+	public static final GSILayoutProperty<GSSpacing>      MARGIN         = GSLayoutProperties.MARGIN;
 	
 	@Override
-	public GSDimension getMinimumSize(GSParentPanel parent) {
+	public GSDimension getMinimumInnerSize(GSParentPanel parent) {
 		return getMinimumSize(calculateLayoutInfo(parent, MINIMUM_SIZE));
 	}
 
 	@Override
-	public GSDimension getPreferredSize(GSParentPanel parent) {
+	public GSDimension getPreferredInnerSize(GSParentPanel parent) {
 		return getMinimumSize(calculateLayoutInfo(parent, PREFERRED_SIZE));
 	}
 
@@ -56,13 +53,13 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		GSGridLayoutInfo layoutInfo = calculateLayoutInfo(parent, PREFERRED_SIZE);
 		GSDimension size = getMinimumSize(layoutInfo);
 
-		if (size.getWidth() > parent.getWidth() || size.getHeight() > parent.getHeight()) {
+		if (size.getWidth() > parent.getInnerWidth() || size.getHeight() > parent.getInnerHeight()) {
 			calculateLayoutInfo(parent, MINIMUM_SIZE);
 			size = getMinimumSize(layoutInfo);
 		}
 		
-		int deltaW = parent.getWidth()  - size.getWidth();
-		int deltaH = parent.getHeight() - size.getHeight();
+		int deltaW = parent.getInnerWidth()  - size.getWidth();
+		int deltaH = parent.getInnerHeight() - size.getHeight();
 
 		// Distribute the width weighted to all columns
 		int remW = 0;
@@ -182,7 +179,7 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		GSLayout layout = child.getLayout();
 
 		// Correct display bounds according to margin
-		GSMargin margin = layout.get(MARGIN);
+		GSSpacing margin = layout.get(MARGIN);
 		displayBounds.x += Math.min(margin.left, displayBounds.width);
 		displayBounds.y += Math.min(margin.top, displayBounds.height);
 		displayBounds.width  -= margin.left + margin.right;
@@ -251,7 +248,7 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		}
 		
 		// Finally, set the bounds of the child
-		child.setBounds(displayBounds);
+		child.setOuterBounds(displayBounds);
 	}
 
 	private GSGridLayoutInfo calculateLayoutInfo(GSParentPanel parent, GSILayoutProperty<GSDimension> sizeProperty) {

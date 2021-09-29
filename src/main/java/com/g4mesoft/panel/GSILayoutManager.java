@@ -2,9 +2,9 @@ package com.g4mesoft.panel;
 
 public interface GSILayoutManager {
 
-	public GSDimension getMinimumSize(GSParentPanel parent);
+	public GSDimension getMinimumInnerSize(GSParentPanel parent);
 
-	public GSDimension getPreferredSize(GSParentPanel parent);
+	public GSDimension getPreferredInnerSize(GSParentPanel parent);
 	
 	public void layoutChildren(GSParentPanel parent);
 	

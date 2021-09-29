@@ -20,10 +20,15 @@ public abstract class GSAbstractTextActionPanel extends GSAbstractActionPanel {
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		super.render(renderer);
+	protected void renderBackground(GSIRenderer2D renderer, int x, int y, int width, int height) {
+		// Handled by #renderBackground(renderer, hovered)
+	}
+	
+	@Override
+	protected void renderForeground(GSIRenderer2D renderer) {
+		super.renderForeground(renderer);
 
-		boolean hovered = renderer.isMouseInside(0, 0, width, height);
+		boolean hovered = renderer.isMouseInside(0, 0, innerWidth, innerHeight);
 		renderBackground(renderer, hovered);
 		renderForeground(renderer, hovered);
 	}
@@ -33,8 +38,8 @@ public abstract class GSAbstractTextActionPanel extends GSAbstractActionPanel {
 	protected void renderForeground(GSIRenderer2D renderer, boolean hovered) {
 		int color = isEnabled() ? TEXT_COLOR : DISABLED_TEXT_COLOR;
 		
-		int tx = width / 2;
-		int ty = (height - renderer.getTextHeight() + 1) / 2;
+		int tx = innerWidth / 2;
+		int ty = (innerHeight - renderer.getTextHeight() + 1) / 2;
 		renderer.drawCenteredText(text, tx, ty, color, true);
 	}
 	

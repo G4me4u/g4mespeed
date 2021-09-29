@@ -139,8 +139,8 @@ public class GSEventDispatcher {
 		do {
 			panel.populateRightClickMenu(dropdown, x, y);
 			dropdown.separate();
-			x += panel.getX();
-			y += panel.getY();
+			x += panel.getInnerX();
+			y += panel.getInnerY();
 			panel = panel.getParent();
 		} while (panel != null);
 	}
@@ -179,8 +179,8 @@ public class GSEventDispatcher {
 		
 			// Support for accessibility menu button
 			if (!event.isConsumed() && event.getKeyCode() == GSKeyEvent.KEY_MENU) {
-				int x = focusedPanel.getWidth() / 2;
-				int y = focusedPanel.getHeight() / 2;
+				int x = focusedPanel.getInnerWidth() / 2;
+				int y = focusedPanel.getInnerHeight() / 2;
 				showRightClickMenu(focusedPanel, x, y);
 			}
 		}
@@ -249,13 +249,13 @@ public class GSEventDispatcher {
 	private GSPanel getTopPanelAt(int x, int y) {
 		GSPanel panel = null;
 		
-		if (rootPanel.isInBounds(x, y)) {
+		if (GSPanelUtil.isInside(rootPanel, x, y)) {
 			GSPanel child = rootPanel;
 			do {
 				panel = child;
 				
-				x -= panel.getX();
-				y -= panel.getY();
+				x -= panel.getInnerX();
+				y -= panel.getInnerY();
 				child = panel.getChildAt(x, y);
 			} while (child != null);
 		}
@@ -353,8 +353,8 @@ public class GSEventDispatcher {
 			if (!panel.isPassingEvents())
 				invokeMouseEventListeners(panel, event, method);
 
-			event.setX(event.getX() + panel.getX());
-			event.setY(event.getY() + panel.getY());
+			event.setX(event.getX() + panel.getInnerX());
+			event.setY(event.getY() + panel.getInnerY());
 			
 			panel = panel.getParent();
 		}

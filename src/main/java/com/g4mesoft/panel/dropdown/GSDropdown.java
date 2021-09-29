@@ -13,11 +13,10 @@ import com.g4mesoft.panel.event.GSFocusEvent;
 import com.g4mesoft.panel.event.GSIFocusEventListener;
 import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
-import com.g4mesoft.renderer.GSIRenderer2D;
 
 public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocusEventListener {
 
-	protected static final int BACKGROUND_COLOR = 0xFF252526;
+	protected static final int DEFAULT_BACKGROUND_COLOR = 0xFF252526;
 	protected static final int VERTICAL_PADDING = 4;
 	
 	private final List<GSIActionListener> actionListeners;
@@ -26,6 +25,8 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 	
 	public GSDropdown() {
 		actionListeners = new ArrayList<>();
+		
+		setBackgroundColor(DEFAULT_BACKGROUND_COLOR);
 		
 		addKeyEventListener(this);
 		addFocusEventListener(this);
@@ -60,27 +61,20 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 			// assumed that they have a preferred size.
 			GSDimension pref = child.getProperty(PREFERRED_SIZE);
 			// Ensure there is actually space for the preferred size.
-			int h = Math.max(Math.min(pref.getHeight(), height - y), 0);
-			child.setBounds(0, y, width, h);
+			int h = Math.max(Math.min(pref.getHeight(), innerHeight - y), 0);
+			child.setOuterBounds(0, y, innerWidth, h);
 
 			y += h;
 		}
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		renderer.fillRect(0, 0, width, height, BACKGROUND_COLOR);
-
-		super.render(renderer);
-	}
-	
-	@Override
-	public GSDimension calculateMinimumSize() {
+	public GSDimension calculateMinimumInnerSize() {
 		return calculateSize(MINIMUM_SIZE);
 	}
 	
 	@Override
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		return calculateSize(PREFERRED_SIZE);
 	}
 	

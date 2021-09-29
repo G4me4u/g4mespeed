@@ -28,14 +28,21 @@ public class GSPanel {
 	public static final GSILayoutProperty<Integer> PREFERRED_HEIGHT   = GSLayoutProperties.PREFERRED_HEIGHT;
 	public static final GSILayoutProperty<GSDimension> PREFERRED_SIZE = GSLayoutProperties.PREFERRED_SIZE;
 	
+	public static final int UNSPECIFIED_COLOR = 0x00FFFFFF;
+	
 	private GSPanel parent;
 	
 	private boolean visible;
 	
-	public int x;
-	public int y;
-	public int width;
-	public int height;
+	public int outerX;
+	public int outerY;
+	public int outerWidth;
+	public int outerHeight;
+	
+	public int innerX;
+	public int innerY;
+	public int innerWidth;
+	public int innerHeight;
 	
 	private List<GSIMouseListener> mouseEventListeners;
 	private List<GSIKeyListener> keyEventListeners;
@@ -54,15 +61,21 @@ public class GSPanel {
 	private GSIMouseListener buttonMouseListener;
 	private GSIKeyListener buttonKeyListener;
 
+	protected int backgroundColor;
+	protected int disabledBackgroundColor;
+
+	protected GSIBorder border;
+	protected GSIBorder disabledBorder;
+	
 	protected GSECursorType cursor;
 	
 	protected final GSLayout layout;
-	protected GSDimension cachedMinimumSize;
-	protected GSDimension cachedPreferredSize;
+	protected GSDimension cachedMinimumInnerSize;
+	protected GSDimension cachedPreferredInnerSize;
 	private boolean valid;
 	
 	private boolean validating;
-	private boolean invalidateLater;
+	protected boolean invalidateLater;
 	
 	public GSPanel() {
 		parent = null;
@@ -78,10 +91,17 @@ public class GSPanel {
 		// All panels are enabled by default
 		enabled = true;
 		
+		// No background by default
+		backgroundColor = UNSPECIFIED_COLOR;
+		disabledBackgroundColor = UNSPECIFIED_COLOR;
+		// No border by default
+		border = null;
+		disabledBorder = null;
+		
 		cursor = GSECursorType.DEFAULT;
 		
-		cachedMinimumSize = null;
-		cachedPreferredSize = null;
+		cachedMinimumInnerSize = null;
+		cachedPreferredInnerSize = null;
 		layout = new GSLayout(this);
 		valid = false;
 
@@ -121,72 +141,107 @@ public class GSPanel {
 		return Collections.emptyList();
 	}
 	
-	public int getX() {
-		return x;
+	public int getInnerX() {
+		return innerX;
 	}
 
-	public int getY() {
-		return y;
+	public int getInnerY() {
+		return innerY;
 	}
 	
-	public GSLocation getLocation() {
-		return new GSLocation(x, y);
+	public GSLocation getInnerLocation() {
+		return new GSLocation(innerX, innerY);
 	}
 
-	public int getWidth() {
-		return width;
+	public int getInnerWidth() {
+		return innerWidth;
 	}
 	
-	public int getHeight() {
-		return height;
+	public int getInnerHeight() {
+		return innerHeight;
 	}
 	
-	public GSDimension getSize() {
-		return new GSDimension(width, height);
+	public GSDimension getInnerSize() {
+		return new GSDimension(innerWidth, innerHeight);
 	}
 	
-	public GSRectangle getBounds() {
-		return new GSRectangle(x, y, width, height);
+	public GSRectangle getInnerBounds() {
+		return new GSRectangle(innerX, innerY, innerWidth, innerHeight);
 	}
 	
-	public void setBounds(GSRectangle bounds) {
-		setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+	public int getOuterX() {
+		return outerX;
 	}
 
-	public void setBounds(GSLocation location, GSDimension size) {
-		setBounds(location.getX(), location.getY(), size.getWidth(), size.getHeight());
+	public int getOuterY() {
+		return outerY;
 	}
 	
-	public void setBounds(int x, int y, int width, int height) {
+	public GSLocation getOuterLocation() {
+		return new GSLocation(outerX, outerY);
+	}
+
+	public int getOuterWidth() {
+		return outerWidth;
+	}
+	
+	public int getOuterHeight() {
+		return outerHeight;
+	}
+	
+	public GSDimension getOuterSize() {
+		return new GSDimension(outerWidth, outerHeight);
+	}
+	
+	public GSRectangle getOuterBounds() {
+		return new GSRectangle(outerX, outerY, outerWidth, outerHeight);
+	}
+	
+	public void setOuterBounds(GSRectangle bounds) {
+		setOuterBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+	}
+
+	public void setOuterBounds(GSLocation location, GSDimension size) {
+		setOuterBounds(location.getX(), location.getY(), size.getWidth(), size.getHeight());
+	}
+	
+	public void setOuterBounds(int x, int y, int width, int height) {
 		if (width < 0 || height < 0)
 			throw new IllegalArgumentException("width and height must be non-negative!");
 		
-		int oldX = this.x;
-		int oldY = this.y;
-		int oldWidth = this.width;
-		int oldHeight = this.height;
-
-		this.x = x;
-		this.y = y;
-		this.width = width;
-		this.height = height;
-
-		if (width != oldWidth || height != oldHeight) {
-			invalidate();
-			onResized(oldWidth, oldHeight);
-			dispatchLayoutEvent(GSLayoutEvent.createResizedEvent(), this);
-		}
-
-		if (x != oldX || y != oldY) {
-			onMoved(oldX, oldY);
-			dispatchLayoutEvent(GSLayoutEvent.createMovedEvent(), this);
+		if (x != outerX || y != outerY || width != outerWidth || height != outerHeight) {
+			outerX = x;
+			outerY = y;
+			outerWidth = width;
+			outerHeight = height;
+			updateInnerBounds();
 		}
 	}
 	
-	protected void onResized(int oldWidth, int oldHeight) {
-	}
-
-	protected void onMoved(int oldX, int oldY) {
+	private void updateInnerBounds() {
+		GSSpacing outerSpacing;
+		if (enabled || disabledBorder == null) {
+			outerSpacing = border.getOuterSpacing(this);
+		} else {
+			outerSpacing = disabledBorder.getOuterSpacing(this);
+		}
+		
+		int oldInnerX = innerX;
+		int oldInnerY = innerY;
+		int oldInnerWidth = innerWidth;
+		int oldInnerHeight = innerHeight;
+		
+		innerX = Math.min(outerWidth, outerSpacing.getLeft());
+		innerY = Math.min(outerHeight, outerSpacing.getTop());
+		innerWidth  = Math.max(0, outerWidth - outerSpacing.getHorizontal());
+		innerHeight = Math.max(0, outerHeight - outerSpacing.getVertical());
+		
+		if (oldInnerWidth != innerWidth || oldInnerHeight != innerHeight) {
+			invalidate();
+			dispatchLayoutEvent(GSLayoutEvent.createResizedEvent(), this);
+		}
+		if (oldInnerX != innerX || oldInnerY != innerY)
+			dispatchLayoutEvent(GSLayoutEvent.createMovedEvent(), this);
 	}
 	
 	protected void layout() {
@@ -256,7 +311,7 @@ public class GSPanel {
 	protected void onHidden() {
 	}
 	
-	public void preRender(GSIRenderer2D renderer) {
+	public final void render(GSIRenderer2D renderer) {
 		if (invalidateLater) {
 			// Ensure that we do not invalidate whilst validating. This
 			// makes sure that we are not invalid during rendering.
@@ -266,27 +321,55 @@ public class GSPanel {
 		
 		if (!isValid()) {
 			validating = true;
-			validate();
-			validating = false;
+			try {
+				validate();
+			} finally {
+				validating = false;
+			}
 		}
 		
 		renderer.pushMatrix();
-		renderer.translate(getX(), getY());
-	}
-	
-	public void render(GSIRenderer2D renderer) {
-	}
-	
-	public void postRender(GSIRenderer2D renderer) {
+
+		renderer.translate(outerX, outerY);
+		renderer.pushClip(0, 0, outerWidth, outerHeight);
+		GSIBorder b = getVisibleBorder();
+		if (b != null)
+			b.render(renderer, this);
+		if (b != null && b.isFullyOpaque()) {
+			int rx = innerX - outerX, ry = innerY - outerY;
+			renderBackground(renderer, rx, ry, innerWidth, innerHeight);
+		} else {
+			renderBackground(renderer, 0, 0, outerWidth, outerHeight);
+		}
+		renderer.popClip();
+		
+		renderer.translate(innerX - outerX, innerY - outerY);
+		renderer.pushClip(0, 0, innerWidth, innerHeight);
+		renderForeground(renderer);
+		renderer.popClip();
+		
 		renderer.popMatrix();
 	}
 	
-	public boolean isInBounds(int x, int y) {
-		if (x < this.x || x >= this.x + width)
-			return false;
-		if (y < this.y || y >= this.y + height)
-			return false;
-		return true;
+	protected GSIBorder getVisibleBorder() {
+		if (!enabled && disabledBorder != null)
+			return disabledBorder;
+		return border;
+	}
+	
+	protected void renderBackground(GSIRenderer2D renderer, int x, int y, int width, int height) {
+		int color;
+		if (enabled || disabledBackgroundColor == UNSPECIFIED_COLOR) {
+			color = backgroundColor;
+		} else {
+			color = disabledBackgroundColor;
+		}
+		
+		if ((color & 0xFF000000) != 0)
+			renderer.fillRect(x, y, width, height, color);
+	}
+
+	protected void renderForeground(GSIRenderer2D renderer) {
 	}
 	
 	public void addMouseEventListener(GSIMouseListener eventListener) {
@@ -427,7 +510,13 @@ public class GSPanel {
 	}
 	
 	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
+		if (enabled != this.enabled) {
+			this.enabled = enabled;
+		
+			// The border spacing might have changed.
+			if (disabledBorder != null && checkSpacing(border, disabledBorder))
+				updateInnerBounds();
+		}
 	}
 	
 	public boolean hasPopupVisible() {
@@ -450,6 +539,80 @@ public class GSPanel {
 		return false;
 	}
 	
+	public int getBackgroundColor() {
+		return backgroundColor;
+	}
+	
+	public final void setBackgroundColor(int backgroundColor) {
+		this.backgroundColor = backgroundColor;
+	}
+
+	public int getDisabledBackgroundColor() {
+		return disabledBackgroundColor;
+	}
+	
+	public void setDisabledBackgroundColor(int disabledBackgroundColor) {
+		this.disabledBackgroundColor = disabledBackgroundColor;
+	}
+	
+	public GSIBorder getBorder() {
+		return border;
+	}
+	
+	public void setBorder(GSIBorder border) {
+		if (this.border != null || border != null) {
+			GSIBorder oldBorder = this.border;
+			this.border = border;
+			
+			if (enabled || disabledBorder == null) {
+				// Only invalidate if this.border is currently
+				// the border which is visible.
+				if (checkSpacing(border, oldBorder))
+					updateInnerBounds();
+			}
+		}
+	}
+
+	public GSIBorder getDisabledBorder() {
+		return disabledBorder;
+	}
+	
+	public void setDisabledBorder(GSIBorder disabledBorder) {
+		GSIBorder oldBorder = this.disabledBorder;
+		this.disabledBorder = disabledBorder;
+		
+		if (!enabled) {
+			if (oldBorder == null) {
+				// Disabled border defaults to the normal border,
+				// if it is not specified.
+				oldBorder = border;
+			}
+			if (checkSpacing(disabledBorder, oldBorder))
+				updateInnerBounds();
+		}
+	}
+	
+	private boolean checkSpacing(GSIBorder newBorder, GSIBorder oldBorder) {
+		if (newBorder == null && oldBorder == null)
+			return false;
+		
+		GSSpacing ns;
+		if (newBorder != null) {
+			ns = newBorder.getOuterSpacing(this);
+		} else {
+			ns = new GSSpacing(0);
+		}
+		
+		GSSpacing os;
+		if (oldBorder != null) {
+			os = oldBorder.getOuterSpacing(this);
+		} else {
+			os = new GSSpacing(0);
+		}
+		
+		return !ns.equals(os);
+	}
+	
 	public GSECursorType getCursor() {
 		return cursor;
 	}
@@ -463,37 +626,38 @@ public class GSPanel {
 	
 	/* Visible for GSLayoutProperties */
 	int getDefaultMinimumWidth() {
-		if (cachedMinimumSize == null)
-			cachedMinimumSize = calculateMinimumSize();
-		return cachedMinimumSize.getWidth();
+		if (cachedMinimumInnerSize == null)
+			cachedMinimumInnerSize = calculateMinimumInnerSize();
+		return cachedMinimumInnerSize.getWidth();
 	}
 
 	/* Visible for GSLayoutProperties */
 	int getDefaultMinimumHeight() {
-		if (cachedMinimumSize == null)
-			cachedMinimumSize = calculateMinimumSize();
-		return cachedMinimumSize.getHeight();
+		if (cachedMinimumInnerSize == null)
+			cachedMinimumInnerSize = calculateMinimumInnerSize();
+		return cachedMinimumInnerSize.getHeight();
 	}
 	
 	/* Visible for GSLayoutProperties */
 	int getDefaultPreferredWidth() {
-		if (cachedPreferredSize == null)
-			cachedPreferredSize = calculatePreferredSize();
-		return cachedPreferredSize.getWidth();
+		if (cachedPreferredInnerSize == null)
+			cachedPreferredInnerSize = calculatePreferredInnerSize();
+		// TODO: add border insets here :thinking:
+		return cachedPreferredInnerSize.getWidth();
 	}
 
 	/* Visible for GSLayoutProperties */
 	int getDefaultPreferredHeight() {
-		if (cachedPreferredSize == null)
-			cachedPreferredSize = calculatePreferredSize();
-		return cachedPreferredSize.getHeight();
+		if (cachedPreferredInnerSize == null)
+			cachedPreferredInnerSize = calculatePreferredInnerSize();
+		return cachedPreferredInnerSize.getHeight();
 	}
 	
-	protected GSDimension calculateMinimumSize() {
-		return calculatePreferredSize();
+	protected GSDimension calculateMinimumInnerSize() {
+		return calculatePreferredInnerSize();
 	}
 	
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		return GSDimension.ZERO;
 	}
 
@@ -509,16 +673,20 @@ public class GSPanel {
 		layout.set(property, value);
 	}
 	
-	protected void invalidate() {
+	public final void invalidate() {
 		if (validating) {
 			invalidateLater = true;
 		} else {
-			valid = false;
-			
-			// Invalidate cached sizes
-			cachedMinimumSize = null;
-			cachedPreferredSize = null;
+			forcedInvalidate();
 		}
+	}
+	
+	protected void forcedInvalidate() {
+		valid = false;
+		
+		// Invalidate cached sizes
+		cachedMinimumInnerSize = null;
+		cachedPreferredInnerSize = null;
 	}
 
 	protected void validate() {

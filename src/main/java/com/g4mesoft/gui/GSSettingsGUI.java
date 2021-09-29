@@ -106,7 +106,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 
 	@Override
 	public void layout() {
-		settingsWidth = width / 2;
+		settingsWidth = innerWidth / 2;
 		for (GSSettingCategoryElement element : settingCategories.values()) {
 			int minElementWidth = element.getPreferredWidth();
 			if (minElementWidth > settingsWidth)
@@ -122,7 +122,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
+	protected void renderForeground(GSIRenderer2D renderer) {
 		int mouseX = renderer.getMouseX();
 		int mouseY = renderer.getMouseY();
 		
@@ -134,13 +134,13 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			element.render(renderer);
 		}
 		
-		super.render(renderer);
+		super.renderForeground(renderer);
 		
 		if (hoveredElement != this.hoveredElement) {
 			this.hoveredElement = hoveredElement;
 			
 			if (hoveredElement != null) {
-				int descTextWidth = width - settingsWidth - DESC_LINE_MARGIN * 2;
+				int descTextWidth = innerWidth - settingsWidth - DESC_LINE_MARGIN * 2;
 				
 				MutableText desc = new TranslatableText(hoveredElement.getSettingNameText().getKey() + ".desc");
 				Text def = new TranslatableText("setting.default", hoveredElement.getFormattedDefault());
@@ -149,8 +149,8 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 				int lineCount = descLines.size();
 				int minimumDescHeight = lineCount * renderer.getTextHeight() + (lineCount - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
 				
-				targetDescHeight = Math.max(minimumDescHeight, hoveredElement.height);
-				startDescHeight = hoveredElement.height;
+				targetDescHeight = Math.max(minimumDescHeight, hoveredElement.innerHeight);
+				startDescHeight = hoveredElement.innerHeight;
 				
 				descAnimStart = Util.getMeasuringTimeMs();
 			} else {
@@ -170,13 +170,13 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 		progress = 1.0f - (float)Math.pow(1.0 - progress, 3.0);
 		
 		int descHeight = startDescHeight + Math.round((targetDescHeight - startDescHeight) * progress);
-		int descWidth = width - settingsWidth;
+		int descWidth = innerWidth - settingsWidth;
 		
 		int descX = settingsWidth;
 		
 		int scrollOffset = GSPanelUtil.getScrollY(this);
 		int viewHeight = GSPanelUtil.getViewportSize(this).getHeight();
-		int descY = GSMathUtil.clamp(hoveredElement.y, scrollOffset, viewHeight + scrollOffset - descHeight);
+		int descY = GSMathUtil.clamp(hoveredElement.innerY, scrollOffset, viewHeight + scrollOffset - descHeight);
 		
 		if (descWidth > 0 && descHeight > 0 && targetDescHeight != 0) {
 			renderer.fillRect(descX, descY, descWidth, descHeight, DESC_BACKGROUND_COLOR);
@@ -196,7 +196,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	}
 
 	@Override
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		int w = 0, h = 0;
 		for (GSSettingCategoryElement element : settingCategories.values()) {
 			w = Math.max(w, element.getPreferredWidth());
@@ -300,7 +300,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 
 			for (GSSettingElementGUI<?> element : settings) {
 				element.setPreferredBounds(x, y, width);
-				y += element.height;
+				y += element.innerHeight;
 			}
 			
 			this.height = y - this.y;
@@ -313,7 +313,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 				return null;
 
 			for (GSSettingElementGUI<?> element : settings) {
-				if (element.isInBounds(mouseX, mouseY))
+				if (GSPanelUtil.isInside(element, mouseX, mouseY))
 					return element;
 			}
 			

@@ -8,7 +8,7 @@ import com.g4mesoft.panel.GSParentPanel;
 public class GSViewportLayoutManager implements GSILayoutManager {
 
 	@Override
-	public GSDimension getMinimumSize(GSParentPanel parent) {
+	public GSDimension getMinimumInnerSize(GSParentPanel parent) {
 		GSPanel content = ((GSViewport)parent).getContent();
 		if (content == null)
 			return GSDimension.ZERO;
@@ -23,7 +23,7 @@ public class GSViewportLayoutManager implements GSILayoutManager {
 	}
 
 	@Override
-	public GSDimension getPreferredSize(GSParentPanel parent) {
+	public GSDimension getPreferredInnerSize(GSParentPanel parent) {
 		GSPanel content = ((GSViewport)parent).getContent();
 		if (content == null)
 			return GSDimension.ZERO;
@@ -43,7 +43,7 @@ public class GSViewportLayoutManager implements GSILayoutManager {
 		GSPanel content = viewport.getContent();
 
 		if (content != null) {
-			GSDimension prefSize = getPreferredSize(parent);
+			GSDimension prefSize = getPreferredInnerSize(parent);
 
 			int prefW = prefSize.getWidth();
 			int prefH = prefSize.getHeight();
@@ -51,12 +51,12 @@ public class GSViewportLayoutManager implements GSILayoutManager {
 			if (content instanceof GSIScrollable) {
 				GSIScrollable scrollable = (GSIScrollable)content;
 				if (scrollable.isScrollableWidthFixed())
-					prefW = parent.getWidth();
+					prefW = parent.getInnerWidth();
 				if (scrollable.isScrollableHeightFixed())
-					prefH = parent.getHeight();
+					prefH = parent.getInnerHeight();
 			}
 			
-			content.setBounds(viewport.getOffsetX(), viewport.getOffsetY(), prefW, prefH);
+			content.setOuterBounds(viewport.getOffsetX(), viewport.getOffsetY(), prefW, prefH);
 		}
 	}
 }

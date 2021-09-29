@@ -91,8 +91,8 @@ public final class GSPanelUtil {
 	public static GSLocation getViewLocation(GSPanel panel) {
 		int x = 0, y = 0;
 		while (panel != null) {
-			x += panel.getX();
-			y += panel.getY();
+			x += panel.getInnerX();
+			y += panel.getInnerY();
 			panel = panel.getParent();
 		}
 		
@@ -116,7 +116,17 @@ public final class GSPanelUtil {
 	public static GSDimension getViewportSize(GSPanel panel) {
 		GSPanel parent = panel.getParent();
 		if (parent instanceof GSViewport)
-			return ((GSViewport)parent).getSize();
-		return panel.getSize();
+			return ((GSViewport)parent).getInnerSize();
+		return panel.getOuterSize();
+	}
+
+	public static boolean isInside(GSPanel panel, int x, int y) {
+		int rx = x - panel.getInnerX();
+		if (rx < 0 || rx >= panel.getInnerWidth())
+			return false;
+		int ry = y - panel.getInnerY();
+		if (ry < 0 || ry >= panel.getInnerHeight())
+			return false;
+		return true;
 	}
 }

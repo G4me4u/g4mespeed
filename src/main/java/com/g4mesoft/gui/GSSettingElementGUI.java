@@ -43,15 +43,13 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	}
 	
 	public void setPreferredBounds(int x, int y, int width) {
-		setBounds(x, y, width, getPreferredHeight());
+		setOuterBounds(x, y, width, getPreferredHeight());
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		if (renderer.isMouseInside(0, 0, width, height))
-			renderer.fillRect(0, 0, width, height, HOVERED_BACKGROUND);
-		
-		super.render(renderer);
+	protected void renderBackground(GSIRenderer2D renderer, int x, int y, int width, int height) {
+		if (renderer.isMouseInside(0, 0, outerWidth, outerHeight))
+			renderer.fillRect(x, y, width, height, HOVERED_BACKGROUND);
 	}
 	
 	public int getTextColor() {
@@ -59,10 +57,10 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	}
 	
 	@Override
-	public void layout() {
-		int x = width - CONTENT_PADDING - RESET_BUTTON_WIDTH;
+	protected void layout() {
+		int x = innerWidth - CONTENT_PADDING - RESET_BUTTON_WIDTH;
 		int y = (getSettingHeight() - RESET_BUTTON_HEIGHT) / 2;
-		resetButton.setBounds(x, y, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT);
+		resetButton.setOuterBounds(x, y, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT);
 		
 		updateResetActive();
 	}
@@ -83,7 +81,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	public abstract Text getFormattedDefault();
 
 	protected int getSettingHeight() {
-		return height;
+		return outerHeight;
 	}
 	
 	public int getPreferredWidth() {

@@ -77,12 +77,12 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 	}
 	
 	@Override
-	protected void onResized(int oldWidth, int oldHeight) {
+	protected void layout() {
 		updateAttribs();
 	}
 
 	@Override
-	public void render(GSIRenderer2D renderer) {
+	protected void renderForeground(GSIRenderer2D renderer) {
 		drawScrollButton(renderer, true);
 		drawScrollButton(renderer, false);
 		
@@ -91,7 +91,7 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 	}
 	
 	protected void drawScrollButton(GSIRenderer2D renderer, boolean top) {
-		int bp = top ? 0 : (isVertical() ? height : width) - getButtonHeight();
+		int bp = top ? 0 : (isVertical() ? innerHeight : innerWidth) - getButtonHeight();
 
 		if (isVertical()) {
 			drawScrollButton(renderer, 0, bp, getButtonWidth(), getButtonHeight(), top);
@@ -122,7 +122,7 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 		if (top)
 			return (mousePos < getButtonHeight());
 		
-		int length = (isVertical() ? height : width);
+		int length = isVertical() ? innerHeight : innerWidth;
 		return (mousePos >= length - getButtonHeight());
 	}
 	
@@ -130,21 +130,21 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 		int bh = getButtonHeight();
 		
 		if (isVertical()) {
-			renderer.fillRect(0, bh, width    , height - 2 * bh, 0xFF000000);
-			renderer.fillRect(1, bh, width - 2, height - 2 * bh, getKnobAreaColor());
+			renderer.fillRect(0, bh, innerWidth    , innerHeight - 2 * bh, 0xFF000000);
+			renderer.fillRect(1, bh, innerWidth - 2, innerHeight - 2 * bh, getKnobAreaColor());
 		} else {
-			renderer.fillRect(bh, 0, width - 2 * bh, height    , 0xFF000000);
-			renderer.fillRect(bh, 1, width - 2 * bh, height - 2, getKnobAreaColor());
+			renderer.fillRect(bh, 0, innerWidth - 2 * bh, innerHeight    , 0xFF000000);
+			renderer.fillRect(bh, 1, innerWidth - 2 * bh, innerHeight - 2, getKnobAreaColor());
 		}
 	}
 
 	protected void drawKnob(GSIRenderer2D renderer) {
 		if (isVertical()) {
-			boolean hovered = renderer.isMouseInside(0, knobPos, width, knobSize);
-			renderer.fillRect(1, knobPos, width - 2, knobSize, getKnobColor(hovered));
+			boolean hovered = renderer.isMouseInside(0, knobPos, innerWidth, knobSize);
+			renderer.fillRect(1, knobPos, innerWidth - 2, knobSize, getKnobColor(hovered));
 		} else {
-			boolean hovered = renderer.isMouseInside(knobPos, 0, knobSize, height);
-			renderer.fillRect(knobPos, 1, knobSize, height - 2, getKnobColor(hovered));
+			boolean hovered = renderer.isMouseInside(knobPos, 0, knobSize, innerHeight);
+			renderer.fillRect(knobPos, 1, knobSize, innerHeight - 2, getKnobColor(hovered));
 		}
 	}
 	
@@ -209,7 +209,7 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 	}
 	
 	@Override
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		int w = Math.max(DEFAULT_SCROLL_BAR_WIDTH, getButtonWidth());
 		int h = getMinimumNobSize() + getButtonHeight() * 2;
 		return isVertical() ? new GSDimension(w, h) : new GSDimension(h, w);
@@ -230,7 +230,8 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 					onPageScroll(-1);
 				}
 			} else if (mousePos >= knobPos + knobSize) {
-				if (mousePos >= height - getButtonHeight()) {
+				int length = isVertical() ? innerHeight : innerWidth;
+				if (mousePos >= length - getButtonHeight()) {
 					onIncrementalScroll(1);
 				} else {
 					onPageScroll(1);
@@ -323,7 +324,7 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 	private void updateAttribs() {
 		// Assume view size is the same as the scroll bar size in the
 		// respective dimension.
-		viewSize = isVertical() ? height : width;
+		viewSize = isVertical() ? outerHeight : outerWidth;
 		knobAreaSize = viewSize - getButtonHeight() * 2;
 		// Calculate initial offset for knob pos (offset later).
 		knobPos = getButtonHeight();

@@ -22,6 +22,6 @@ public abstract class GSDropdownItem extends GSPanel {
 	}
 	
 	@Override
-	protected abstract GSDimension calculatePreferredSize();
+	protected abstract GSDimension calculatePreferredInnerSize();
 
 }

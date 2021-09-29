@@ -28,7 +28,7 @@ public class GSButtonPanel extends GSAbstractTextActionPanel implements GSIKeyLi
 	}
 	
 	public void setPreferredBounds(int x, int y, int width) {
-		setBounds(x, y, width, BUTTON_HEIGHT);
+		setOuterBounds(x, y, width, BUTTON_HEIGHT);
 	}
 
 	@Override
@@ -36,8 +36,8 @@ public class GSButtonPanel extends GSAbstractTextActionPanel implements GSIKeyLi
 		// Taken from AbstractButtonWidget#renderButton
 		int sy = isEnabled() ? (hovered ? 86 : 66) : 46;
 
-		renderer.drawTexture(BUTTON_TEXTURE, 0, 0, width / 2, height, 0, sy);
-		renderer.drawTexture(BUTTON_TEXTURE, width / 2, 0, width / 2, height, 200 - width / 2, sy);
+		renderer.drawTexture(BUTTON_TEXTURE, 0, 0, innerWidth / 2, innerHeight, 0, sy);
+		renderer.drawTexture(BUTTON_TEXTURE, innerWidth / 2, 0, innerWidth / 2, innerHeight, 200 - innerWidth / 2, sy);
 	}
 
 	@Override

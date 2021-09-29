@@ -32,8 +32,8 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 	}
 
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		super.render(renderer);
+	protected void renderForeground(GSIRenderer2D renderer) {
+		super.renderForeground(renderer);
 		
 		int ty = (getSettingHeight() - renderer.getTextHeight()) / 2;
 		renderer.drawText(nameText, CONTENT_PADDING, ty, getTextColor());
@@ -50,9 +50,11 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 	}
 	
 	@Override
-	public void onResized(int oldWidth, int oldHeight) {
-		int sx = width - TOGGLE_WIDTH - CONTENT_MARGIN - RESET_BUTTON_WIDTH - CONTENT_PADDING;
-		int sy = (height - GSToggleSwitchPanel.SWITCH_HEIGHT) / 2;
+	protected void layout() {
+		super.layout();
+		
+		int sx = innerWidth - TOGGLE_WIDTH - CONTENT_MARGIN - RESET_BUTTON_WIDTH - CONTENT_PADDING;
+		int sy = (innerHeight - GSToggleSwitchPanel.SWITCH_HEIGHT) / 2;
 		switchWidget.setPreferredBounds(sx, sy);
 		switchWidget.setEnabled(setting.isEnabledInGui());
 	}

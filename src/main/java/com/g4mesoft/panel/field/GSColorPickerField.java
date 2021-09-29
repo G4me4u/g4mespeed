@@ -14,7 +14,6 @@ import com.g4mesoft.panel.GSPopup;
 import com.g4mesoft.panel.button.GSButton;
 import com.g4mesoft.panel.event.GSFocusEvent;
 import com.g4mesoft.panel.event.GSIFocusEventListener;
-import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.util.GSColorUtil;
 
 public class GSColorPickerField extends GSParentPanel {
@@ -31,10 +30,6 @@ public class GSColorPickerField extends GSParentPanel {
 	
 	private int color;
 
-	private int backgroundColor;
-	private int borderWidth;
-	private int borderColor;
-	
 	private boolean editable;
 	
 	public GSColorPickerField(int initialColor) {
@@ -74,14 +69,16 @@ public class GSColorPickerField extends GSParentPanel {
 		add(colorButton);
 	
 		// Use text field styling as default values
-		backgroundColor = textField.getBackgroundColor();
-		borderWidth = textField.getBorderWidth();
-		borderColor = textField.getBorderColor();
+		setBackgroundColor(textField.getBackgroundColor());
+		setDisabledBackgroundColor(textField.getDisabledBackgroundColor());
+		setBorder(textField.getBorder());
+		setDisabledBorder(textField.getDisabledBorder());
 		
 		// Style text field and button to no background or border.
-		textField.setBorderWidth(0);
-		textField.setBackgroundColor(0x00000000);
-		colorButton.setBorderWidth(0);
+		textField.setBackgroundColor(UNSPECIFIED_COLOR);
+		textField.setDisabledBackgroundColor(UNSPECIFIED_COLOR);
+		textField.setBorder(null);
+		textField.setDisabledBorder(null);
 		
 		// Set color of button and field.
 		setColor(initialColor);
@@ -90,56 +87,30 @@ public class GSColorPickerField extends GSParentPanel {
 	
 	@Override
 	public void layout() {
-		int h = height - 2 * borderWidth;
-		int w = width - 2 * borderWidth;
-		
-		int bs = h - 2 * BUTTON_MARGIN;
-		
-		colorButton.setBounds(borderWidth + BUTTON_MARGIN, borderWidth + BUTTON_MARGIN, bs, bs);
-		textField.setBounds(borderWidth + bs + 2 * BUTTON_MARGIN, borderWidth, w - bs - 2 * BUTTON_MARGIN, h);
+		int bs = innerHeight - 2 * BUTTON_MARGIN;
+		colorButton.setOuterBounds(BUTTON_MARGIN, BUTTON_MARGIN, bs, bs);
+		textField.setOuterBounds(bs + 2 * BUTTON_MARGIN, 0, innerWidth - bs - 2 * BUTTON_MARGIN, innerHeight);
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		drawBorderAndBackground(renderer);
-		
-		super.render(renderer);
-	}
-	
-	protected void drawBorderAndBackground(GSIRenderer2D renderer) {
-		int bw2 = borderWidth * 2;
-		
-		if (borderWidth != 0) {
-			// Top, Bottom, Left, Right
-			renderer.fillRect(0, 0, width - borderWidth, borderWidth, borderColor);
-			renderer.fillRect(borderWidth, height - borderWidth, width - borderWidth, borderWidth, borderColor);
-			renderer.fillRect(0, borderWidth, borderWidth, height - borderWidth, borderColor);
-			renderer.fillRect(width - borderWidth, 0, borderWidth, height - borderWidth, borderColor);
-		}
-		
-		if (((backgroundColor >>> 24) & 0xFF) != 0x00)
-			renderer.fillRect(borderWidth, borderWidth, width - bw2, height - bw2, backgroundColor);
-	}
-	
-	@Override
-	protected GSDimension calculateMinimumSize() {
+	protected GSDimension calculateMinimumInnerSize() {
 		GSDimension fs = textField.getProperty(MINIMUM_SIZE);
 		
-		int h = fs.getHeight() + 2 * borderWidth;
-		int w = fs.getWidth() + fs.getHeight() + 2 * borderWidth;
+		int h = fs.getHeight();
+		int w = fs.getWidth() + h;
 		
 		return new GSDimension(w, h);
 	}
 
 	@Override
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		GSDimension fs = textField.getProperty(PREFERRED_SIZE);
 		GSDimension ps = picker.getProperty(PREFERRED_SIZE);
 		
-		int h = fs.getHeight() + 2 * borderWidth;
-		int w = fs.getWidth() + fs.getHeight() + 2 * borderWidth;
+		int h = fs.getHeight();
+		int w = Math.max(fs.getWidth() + h, ps.getWidth());
 		
-		return new GSDimension(Math.max(w, ps.getWidth()), h);
+		return new GSDimension(w, h);
 	}
 	
 	private void onFieldChanged() {
@@ -154,7 +125,7 @@ public class GSColorPickerField extends GSParentPanel {
 			picker.setColor(color);
 			
 			GSPopup popup = new GSPopup(picker);
-			popup.show(this, 0, height, true);
+			popup.show(this, 0, innerHeight, true);
 		}
 	}
 	
@@ -197,30 +168,6 @@ public class GSColorPickerField extends GSParentPanel {
 		colorButton.setBackgroundColor(color);
 		colorButton.setHoveredBackgroundColor(color);
 		colorButton.setDisabledBackgroundColor(color);
-	}
-	
-	public int getBackgroundColor() {
-		return backgroundColor;
-	}
-	
-	public void setBackgroundColor(int backgroundColor) {
-		this.backgroundColor = backgroundColor;
-	}
-	
-	public int getBorderWidth() {
-		return borderWidth;
-	}
-	
-	public void setBorderWidth(int borderWidth) {
-		this.borderWidth = borderWidth;
-	}
-	
-	public int getBorderColor() {
-		return borderColor;
-	}
-	
-	public void setBorderColor(int borderColor) {
-		this.borderColor = borderColor;
 	}
 	
 	public boolean isEditable() {

@@ -38,14 +38,14 @@ public class GSColorWheel extends GSPanel implements GSIMouseListener {
 	
 	@Override
 	protected void layout() {
-		wheelX = width  / 2;
-		wheelY = height / 2;
+		wheelX = innerWidth  / 2;
+		wheelY = innerHeight / 2;
 		
 		wheelRadius = Math.min(wheelX, wheelY) - CURSOR_RADIUS;
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
+	protected void renderForeground(GSIRenderer2D renderer) {
 		renderer.build(GSIRenderer2D.QUADS, VertexFormats.POSITION_COLOR);
 		
 		drawColorWheel(renderer);
@@ -94,7 +94,7 @@ public class GSColorWheel extends GSPanel implements GSIMouseListener {
 	}
 	
 	@Override
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		return new GSDimension(2 * PREFERRED_RADIUS + 1 + CURSOR_RADIUS,
 		                       2 * PREFERRED_RADIUS + 1 + CURSOR_RADIUS);
 	}

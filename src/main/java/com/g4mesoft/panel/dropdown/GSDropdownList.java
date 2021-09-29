@@ -52,7 +52,7 @@ public class GSDropdownList<T> extends GSParentPanel {
 	}
 	
 	@Override
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		GSDimension buttonSize = button.getProperty(PREFERRED_SIZE);
 		int w = buttonSize.getWidth();
 		int h = buttonSize.getHeight();

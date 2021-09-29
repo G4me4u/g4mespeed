@@ -64,11 +64,6 @@ public class GSBiLayoutProperty<T, L, R> implements GSILayoutProperty<T> {
 		return constructor.apply(left, right);
 	}
 
-	@SuppressWarnings("unchecked")
-	public T castUnchecked(Object value) {
-		return (T)value;
-	}
-
 	@Override
 	public int hashCode() {
 		int hash = leftProperty.hashCode();

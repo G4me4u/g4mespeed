@@ -105,7 +105,7 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 	}
 
 	@Override
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		GSIRenderer2D renderer = GSPanelContext.getRenderer();
 
 		int w = 0;

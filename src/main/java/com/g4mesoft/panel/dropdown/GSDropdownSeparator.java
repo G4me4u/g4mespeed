@@ -8,14 +8,14 @@ public class GSDropdownSeparator extends GSDropdownItem {
 	private static final int SEPARATOR_COLOR = 0xFF616162;
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		super.render(renderer);
+	protected void renderForeground(GSIRenderer2D renderer) {
+		super.renderForeground(renderer);
 	
-		renderer.drawHLine(0, width, height / 2, SEPARATOR_COLOR);
+		renderer.drawHLine(0, innerWidth, innerHeight / 2, SEPARATOR_COLOR);
 	}
 	
 	@Override
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		return new GSDimension(0, 2 * PADDING + 1);
 	}
 }

@@ -34,7 +34,7 @@ final class GSScreen extends Screen {
 		super.init();
 	
 		client.keyboard.setRepeatEvents(true);
-		rootPanel.setBounds(0, 0, width, height);
+		rootPanel.setOuterBounds(0, 0, width, height);
 		
 		setVisibleImpl(true);
 	}
@@ -67,13 +67,8 @@ final class GSScreen extends Screen {
 		RenderSystem.color4f(1.0f, 1.0f, 1.0f, 1.0f);
 		
 		GSIRenderer2D renderer = GSPanelContext.getRenderer();
-		
 		((GSBasicRenderer2D)renderer).begin(Tessellator.getInstance().getBuffer(), matrixStack, mouseX, mouseY);
-		
-		rootPanel.preRender(renderer);
 		rootPanel.render(renderer);
-		rootPanel.postRender(renderer);
-		
 		((GSBasicRenderer2D)renderer).end();
 		
 		RenderSystem.disableBlend();

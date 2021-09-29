@@ -35,7 +35,7 @@ public class GSContentHistoryGUI extends GSClosableParentPanel {
 	protected void layout() {
 		super.layout();
 
-		content.setBounds(0, 0, width, height);
+		content.setOuterBounds(0, 0, innerWidth, innerHeight);
 	}
 
 	public void clearHistory() {

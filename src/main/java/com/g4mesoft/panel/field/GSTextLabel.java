@@ -23,7 +23,6 @@ public class GSTextLabel extends GSPanel {
 	private GSEIconAlignment iconAlignment;
 	private GSETextAlignment textAlignment;
 	
-	private int backgroundColor;
 	private int textColor;
 	private int iconSpacing;
 	
@@ -50,24 +49,21 @@ public class GSTextLabel extends GSPanel {
 		iconAlignment = GSEIconAlignment.LEFT;
 		textAlignment = GSETextAlignment.CENTER;
 		
-		backgroundColor = DEFAULT_BACKGROUND_COLOR;
+		setBackgroundColor(DEFAULT_BACKGROUND_COLOR);
 		textColor = DEFAULT_TEXT_COLOR;
 		iconSpacing = DEFAULT_ICON_SPACING;
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		super.render(renderer);
-
-		if (((backgroundColor >>> 24) & 0xFF) != 0x00)
-			renderer.fillRect(0, 0, width, height, backgroundColor);
+	protected void renderForeground(GSIRenderer2D renderer) {
+		super.renderForeground(renderer);
 
 		GSPanelUtil.drawLabel(renderer, icon, iconSpacing, text,
-				textColor, true, iconAlignment, textAlignment, 0, 0, width, height);
+				textColor, true, iconAlignment, textAlignment, 0, 0, innerWidth, innerHeight);
 	}
 	
 	@Override
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		return GSPanelUtil.labelPreferredSize(icon, text, DEFAULT_ICON_SPACING);
 	}
 
@@ -111,14 +107,6 @@ public class GSTextLabel extends GSPanel {
 		this.textAlignment = textAlignment;
 	}
 	
-	public int getBackgroundColor() {
-		return backgroundColor;
-	}
-	
-	public void setBackgroundColor(int backgroundColor) {
-		this.backgroundColor = backgroundColor;
-	}
-
 	public int getTextColor() {
 		return textColor;
 	}

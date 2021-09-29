@@ -71,46 +71,42 @@ public class GSModMenuConfigPanel extends GSClosableParentPanel {
 	protected void layout() {
 		super.layout();
 
-		configGUI.setBounds(0, TOP_MARGIN, width, height - TOP_MARGIN - BOTTOM_MARGIN);
-		closeButton.setPreferredBounds((width - DONE_WIDTH) / 2, height - BOTTOM_MARGIN + BUTTON_MARGIN, DONE_WIDTH);
-		titleLabel.setBounds(0, 0, width, TOP_MARGIN);
+		configGUI.setOuterBounds(0, TOP_MARGIN, innerWidth, innerHeight - TOP_MARGIN - BOTTOM_MARGIN);
+		closeButton.setPreferredBounds((innerWidth - DONE_WIDTH) / 2, innerHeight - BOTTOM_MARGIN + BUTTON_MARGIN, DONE_WIDTH);
+		titleLabel.setOuterBounds(0, 0, innerWidth, TOP_MARGIN);
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		renderBackground(renderer);
-		
-		super.render(renderer);
-		
-		renderShadows(renderer);
-	}
-
-	private void renderBackground(GSIRenderer2D renderer) {
+	protected void renderBackground(GSIRenderer2D renderer, int x, int y, int width, int height) {
 		// Draw content background (scrollable)
-		int x = configGUI.getX();
-		int y = configGUI.getY();
+		int cx = configGUI.getOuterX();
+		int cy = configGUI.getOuterY();
 
 		// If the content is a scroll panel, offset the background.
 		GSPanel content = configGUI.getSelectedTabContent();
 		if (content instanceof GSScrollPanel) {
-			x -= ((GSScrollPanel)content).getViewportOffsetX();
-			y -= ((GSScrollPanel)content).getViewportOffsetY();
+			cx -= ((GSScrollPanel)content).getViewportOffsetX();
+			cy -= ((GSScrollPanel)content).getViewportOffsetY();
 		}
 		
 		// Draw content background
-		renderer.drawTexture(BACKGROUND_TEXTURE.getRegion(x, y, width, configGUI.getHeight()),
-				0, configGUI.getY(), DARK_BACKGROUND_R, DARK_BACKGROUND_G, DARK_BACKGROUND_B);
+		renderer.drawTexture(BACKGROUND_TEXTURE.getRegion(cx, cy, width, configGUI.getOuterHeight()),
+				configGUI.getOuterX(), configGUI.getOuterY(), DARK_BACKGROUND_R, DARK_BACKGROUND_G, DARK_BACKGROUND_B);
 		// Draw top margin
-		renderer.drawTexture(BACKGROUND_TEXTURE.getRegion(0, 0, width, TOP_MARGIN),
-				0, 0, BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
+		renderer.drawTexture(BACKGROUND_TEXTURE.getRegion(x, y, width, TOP_MARGIN),
+				x, y, BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
 		// Draw bottom margin
-		renderer.drawTexture(BACKGROUND_TEXTURE.getRegion(0, height - BOTTOM_MARGIN, width, BOTTOM_MARGIN),
-				0, height - BOTTOM_MARGIN, BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
+		renderer.drawTexture(BACKGROUND_TEXTURE.getRegion(x, y + height - BOTTOM_MARGIN, width, BOTTOM_MARGIN),
+				x, y + height - BOTTOM_MARGIN, BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
 	}
 	
-	private void renderShadows(GSIRenderer2D renderer) {
-		renderer.fillVGradient(0, TOP_MARGIN, width, SHADOW_WIDTH, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		renderer.fillVGradient(0, height - BOTTOM_MARGIN - SHADOW_WIDTH, width, SHADOW_WIDTH, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	@Override
+	protected void renderForeground(GSIRenderer2D renderer) {
+		super.renderForeground(renderer);
+		
+		// Render content shadows
+		renderer.fillVGradient(0, TOP_MARGIN, innerWidth, SHADOW_WIDTH, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		renderer.fillVGradient(0, innerHeight - BOTTOM_MARGIN - SHADOW_WIDTH, innerWidth, SHADOW_WIDTH, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 	}
 	
 	@Override

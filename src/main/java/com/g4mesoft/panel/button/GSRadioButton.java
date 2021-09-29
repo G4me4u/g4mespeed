@@ -7,7 +7,9 @@ import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.panel.GSEIconAlignment;
 import com.g4mesoft.panel.GSETextAlignment;
+import com.g4mesoft.panel.GSEmptyBorder;
 import com.g4mesoft.panel.GSIActionListener;
+import com.g4mesoft.panel.GSIBorder;
 import com.g4mesoft.panel.GSIcon;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelUtil;
@@ -32,8 +34,7 @@ public class GSRadioButton extends GSPanel implements GSIMouseListener, GSIKeyLi
 	
 	private static final int DEFAULT_ICON_SIZE = 6;
 	
-	private static final int DEFAULT_VERTICAL_MARGIN   = 2;
-	private static final int DEFAULT_HORIZONTAL_MARGIN = 2;
+	private static final GSIBorder DEFAULT_BORDER = new GSEmptyBorder(2);
 	
 	private static final int DEFAULT_ICON_SPACING = 2;
 	
@@ -55,9 +56,6 @@ public class GSRadioButton extends GSPanel implements GSIMouseListener, GSIKeyLi
 	private int textColor;
 	private int hoveredTextColor;
 	private int disabledTextColor;
-	
-	private int verticalMargin;
-	private int horizontalMargin;
 	
 	private int iconSpacing;
 	
@@ -83,8 +81,7 @@ public class GSRadioButton extends GSPanel implements GSIMouseListener, GSIKeyLi
 		hoveredTextColor = DEFAULT_HOVERED_TEXT_COLOR;
 		disabledTextColor = DEFAULT_DISABLED_TEXT_COLOR;
 
-		verticalMargin = DEFAULT_VERTICAL_MARGIN;
-		horizontalMargin = DEFAULT_HORIZONTAL_MARGIN;
+		setBorder(DEFAULT_BORDER);
 		
 		iconSpacing = DEFAULT_ICON_SPACING;
 		
@@ -97,30 +94,30 @@ public class GSRadioButton extends GSPanel implements GSIMouseListener, GSIKeyLi
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		super.render(renderer);
-		
-		renderForeground(renderer, renderer.isMouseInside(0, 0, width, height));
-	}
-	
-	protected void renderForeground(GSIRenderer2D renderer, boolean hovered) {
-		// Available bounds for drawing text and icon.
-		int x = horizontalMargin;
-		int y = verticalMargin;
-		int w = Math.max(0, width - 2 * x);
-		int h = Math.max(0, height - 2 * y);
-		
+	protected void renderForeground(GSIRenderer2D renderer) {
 		GSIcon icn;
-		if (isSelected()) {
-			icn = isEnabled() ? (hovered ? hoveredSelectedIcon : selectedIcon) : disabledSelectedIcon;
+		int txtClr;
+		if (isEnabled()) {
+			if (renderer.isMouseInside(0, 0, innerWidth, innerHeight)) {
+				icn = isSelected() ? hoveredSelectedIcon : hoveredIcon;
+				txtClr = hoveredTextColor;
+			} else {
+				icn = isSelected() ? selectedIcon : icon;
+				txtClr = textColor;
+			}
 		} else {
-			icn = isEnabled() ? (hovered ? hoveredIcon : icon) : disabledIcon;
+			icn = isSelected() ? disabledSelectedIcon : disabledIcon;
+			txtClr = disabledTextColor;
 		}
 		
-		int txtClr = isEnabled() ? (hovered ? hoveredTextColor : textColor) : disabledTextColor;
+		// Fallback to standard icon and text color
+		if (icn == null)
+			icn = isSelected() ? selectedIcon : icon;
+		if (txtClr == UNSPECIFIED_COLOR)
+			txtClr = textColor;
 		
-		GSPanelUtil.drawLabel(renderer, icn, iconSpacing, text,
-				txtClr, isEnabled(), iconAlignment, textAlignment, x, y, w, h);
+		GSPanelUtil.drawLabel(renderer, icn, iconSpacing, text, txtClr,
+				isEnabled(), iconAlignment, textAlignment, 0, 0, innerWidth, innerHeight);
 	}
 	
 	@Override
@@ -129,13 +126,8 @@ public class GSRadioButton extends GSPanel implements GSIMouseListener, GSIKeyLi
 	}
 	
 	@Override
-	protected GSDimension calculatePreferredSize() {
-		GSDimension labelSize = GSPanelUtil.labelPreferredSize(icon, text, iconSpacing);
-		
-		int w = labelSize.getWidth() + horizontalMargin * 2;
-		int h = labelSize.getHeight() + verticalMargin * 2;
-	
-		return new GSDimension(w, h);
+	protected GSDimension calculatePreferredInnerSize() {
+		return GSPanelUtil.labelPreferredSize(icon, text, iconSpacing);
 	}
 	
 	@Override
@@ -145,7 +137,7 @@ public class GSRadioButton extends GSPanel implements GSIMouseListener, GSIKeyLi
 			int y = event.getY();
 
 			// Ensure the mouse pointer is in bounds
-			if (x >= 0 && y >= 0 && x < width && y < height) {
+			if (x >= 0 && y >= 0 && x < innerWidth && y < innerHeight) {
 				setSelected(true);
 				dispatchActionPerformed();
 				event.consume();
@@ -294,22 +286,6 @@ public class GSRadioButton extends GSPanel implements GSIMouseListener, GSIKeyLi
 	
 	public void setDisabledTextColor(int disabledTextColor) {
 		this.disabledTextColor = disabledTextColor;
-	}
-
-	public int getVerticalMargin() {
-		return verticalMargin;
-	}
-
-	public void setVerticalMargin(int verticalMargin) {
-		this.verticalMargin = verticalMargin;
-	}
-
-	public int getHorizontalMargin() {
-		return horizontalMargin;
-	}
-	
-	public void setHorizontalMargin(int horizontalMargin) {
-		this.horizontalMargin = horizontalMargin;
 	}
 
 	public int getIconSpacing() {

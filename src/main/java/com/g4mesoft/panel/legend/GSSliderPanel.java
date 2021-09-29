@@ -32,18 +32,18 @@ public class GSSliderPanel extends GSAbstractTextActionPanel {
 
 	@Override
 	protected void renderBackground(GSIRenderer2D renderer, boolean hovered) {
-		renderer.drawTexture(SLIDER_TEXTURE, 0, 0, width / 2, height, 0, 46);
-		renderer.drawTexture(SLIDER_TEXTURE, width / 2, 0, width / 2, height, 200 - width / 2, 46);
+		renderer.drawTexture(SLIDER_TEXTURE, 0, 0, innerWidth / 2, innerHeight, 0, 46);
+		renderer.drawTexture(SLIDER_TEXTURE, innerWidth / 2, 0, innerWidth / 2, innerHeight, 200 - innerWidth / 2, 46);
 
-		int vx = Math.round(value * (width - 8));
-		int sy = (isEnabled() && renderer.isMouseInside(0, 0, width, height)) ? 86 : 66;
-		renderer.drawTexture(SLIDER_TEXTURE, vx    , 0, 4, height,   0, sy);
-		renderer.drawTexture(SLIDER_TEXTURE, vx + 4, 0, 4, height, 196, sy);
+		int vx = Math.round(value * (innerWidth - 8));
+		int sy = (isEnabled() && renderer.isMouseInside(0, 0, innerWidth, innerHeight)) ? 86 : 66;
+		renderer.drawTexture(SLIDER_TEXTURE, vx    , 0, 4, innerHeight,   0, sy);
+		renderer.drawTexture(SLIDER_TEXTURE, vx + 4, 0, 4, innerHeight, 196, sy);
 	}
 
 	@Override
 	protected void onClicked(int mouseX, int mouseY) {
-		setValue((float)(mouseX - 4) / (width - 8));
+		setValue((float)(mouseX - 4) / (innerWidth - 8));
 		dispatchActionPerformedEvent();
 	}
 	

@@ -399,7 +399,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	}
 	
 	@Override
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		GSIRenderer2D renderer = GSPanelContext.getRenderer();
 		
 		// Base bounds of text
@@ -801,14 +801,6 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		return textModel.getText(0, textModel.getLength());
 	}
 
-	public int getBackgroundColor() {
-		return backgroundColor;
-	}
-	
-	public void setBackgroundColor(int backgroundColor) {
-		this.backgroundColor = backgroundColor;
-	}
-	
 	public int getEditableTextColor() {
 		return editableTextColor;
 	}

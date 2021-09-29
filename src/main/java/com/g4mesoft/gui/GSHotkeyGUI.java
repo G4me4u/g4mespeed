@@ -67,8 +67,8 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 				w = prefWidth;
 		}
 		
-		if (this.width < w)
-			w = this.width;
+		if (innerWidth < w)
+			w = innerWidth;
 
 		int y = 0;
 		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values())
@@ -86,8 +86,8 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		super.render(renderer);
+	protected void renderForeground(GSIRenderer2D renderer) {
+		super.renderForeground(renderer);
 		
 		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values())
 			hotkeyCategory.renderTitle(renderer);
@@ -110,7 +110,7 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 	}
 
 	@Override
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		int w = 0, h = 0;
 		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values()) {
 			w = Math.max(w, hotkeyCategory.getPreferredWidth());
@@ -191,7 +191,7 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 			
 			for (GSHotkeyElementGUI hotkeyElement : elements) {
 				int h = hotkeyElement.getPreferredHeight();
-				hotkeyElement.setBounds(x, y, w, h);
+				hotkeyElement.setOuterBounds(x, y, w, h);
 				y += h + HOTKEY_MARGIN * 2;
 			}
 			

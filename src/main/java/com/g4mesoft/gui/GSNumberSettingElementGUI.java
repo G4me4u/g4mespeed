@@ -40,7 +40,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 			prefHeight = getPreferredHeight();
 		}
 		
-		setBounds(x, y, width, prefHeight);
+		setOuterBounds(x, y, width, prefHeight);
 	}
 	
 	private boolean isSingleLine(int width) {
@@ -50,8 +50,8 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		super.render(renderer);
+	protected void renderForeground(GSIRenderer2D renderer) {
+		super.renderForeground(renderer);
 
 		int ty = (getSettingHeight() - renderer.getTextHeight()) / 2;
 		renderer.drawText(nameText, CONTENT_PADDING, ty, getTextColor());
@@ -74,7 +74,9 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	}
 	
 	@Override
-	public void onResized(int oldWidth, int oldHeight) {
+	protected void layout() {
+		super.layout();
+		
 		if (shouldUseSlider()) {
 			if (textField != null) {
 				remove(textField);
@@ -116,38 +118,38 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	}
 	
 	private void updateSliderBounds() {
-		int sw = Math.min(GSSliderPanel.MAX_WIDTH, width - CONTENT_PADDING * 2);
+		int sw = Math.min(GSSliderPanel.MAX_WIDTH, innerWidth - CONTENT_PADDING * 2);
 		int sh = GSSliderPanel.SLIDER_HEIGHT;
 
 		int sx, sy;
-		if (isSingleLine(width)) {
-			sx = width - CONTENT_PADDING - RESET_BUTTON_WIDTH - CONTENT_MARGIN - sw;
-			sy = (height - sh) / 2;
+		if (isSingleLine(innerWidth)) {
+			sx = innerWidth - CONTENT_PADDING - RESET_BUTTON_WIDTH - CONTENT_MARGIN - sw;
+			sy = (innerHeight - sh) / 2;
 		} else {
-			sx = (width - sw) / 2;
-			sy = height - CONTENT_PADDING - sh;
+			sx = (innerWidth - sw) / 2;
+			sy = innerHeight - CONTENT_PADDING - sh;
 		}
 		
-		slider.setBounds(sx, sy, sw, sh);
+		slider.setOuterBounds(sx, sy, sw, sh);
 		slider.setEnabled(setting.isEnabledInGui());
 	}
 	
 	private void updateTextFieldBounds() {
-		int tw = Math.min(TEXT_FIELD_MAX_WIDTH, width - CONTENT_MARGIN - RESET_BUTTON_WIDTH - CONTENT_PADDING * 2);
+		int tw = Math.min(TEXT_FIELD_MAX_WIDTH, innerWidth - CONTENT_MARGIN - RESET_BUTTON_WIDTH - CONTENT_PADDING * 2);
 		int tx, ty;
-		if (isSingleLine(width)) {
-			tx = width - CONTENT_PADDING - 2 * RESET_BUTTON_WIDTH - 2 * CONTENT_MARGIN - tw;
-			ty = (height - TEXT_FIELD_HEIGHT) / 2;
+		if (isSingleLine(innerWidth)) {
+			tx = innerWidth - CONTENT_PADDING - 2 * RESET_BUTTON_WIDTH - 2 * CONTENT_MARGIN - tw;
+			ty = (innerHeight - TEXT_FIELD_HEIGHT) / 2;
 		} else {
-			tx = (width - tw - CONTENT_MARGIN - RESET_BUTTON_WIDTH) / 2;
-			ty = height - CONTENT_PADDING - TEXT_FIELD_HEIGHT;
+			tx = (innerWidth - tw - CONTENT_MARGIN - RESET_BUTTON_WIDTH) / 2;
+			ty = innerHeight - CONTENT_PADDING - TEXT_FIELD_HEIGHT;
 		}
-		textField.setBounds(tx, ty, tw, TEXT_FIELD_HEIGHT);
+		textField.setOuterBounds(tx, ty, tw, TEXT_FIELD_HEIGHT);
 		textField.setEditable(setting.isEnabledInGui());
 
-		int bx = textField.getX() + textField.getWidth() + CONTENT_MARGIN;
+		int bx = textField.getOuterX() + textField.getOuterWidth() + CONTENT_MARGIN;
 		int by = ty + (TEXT_FIELD_HEIGHT - RESET_BUTTON_HEIGHT) / 2;
-		valueSetButton.setBounds(bx, by, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT);
+		valueSetButton.setOuterBounds(bx, by, RESET_BUTTON_WIDTH, RESET_BUTTON_HEIGHT);
 	}
 	
 	private void onValueChanged() {
@@ -196,7 +198,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	@Override
 	protected int getSettingHeight() {
 		int h = super.getSettingHeight();
-		if (!isSingleLine(width)) {
+		if (!isSingleLine(innerWidth)) {
 			h -= CONTENT_MARGIN;
 			h -= (isSliderActive() ? GSSliderPanel.SLIDER_HEIGHT : TEXT_FIELD_HEIGHT);
 		}

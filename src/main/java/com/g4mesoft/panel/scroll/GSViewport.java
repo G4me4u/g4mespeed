@@ -2,7 +2,6 @@ package com.g4mesoft.panel.scroll;
 
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSParentPanel;
-import com.g4mesoft.renderer.GSIRenderer2D;
 
 public class GSViewport extends GSParentPanel {
 
@@ -35,15 +34,19 @@ public class GSViewport extends GSParentPanel {
 	}
 	
 	@Override
-	public void preRender(GSIRenderer2D renderer) {
-		renderer.pushClip(x, y, width, height);
-		super.preRender(renderer);
-	}
+	protected void validate() {
+		super.validate();
 	
-	@Override
-	public void postRender(GSIRenderer2D renderer) {
-		super.postRender(renderer);
-		renderer.popClip();
+		// Sometimes, specifically when the viewport is added to a
+		// scroll panel, layout causes the viewport to invalidate.
+		if (invalidateLater) {
+			// Attempt to solve the issue by forcing invalidate and
+			// validating immediately.
+			forcedInvalidate();
+			super.validate();
+			// No need to invalidate later
+			invalidateLater = false;
+		}
 	}
 	
 	public int getOffsetX() {

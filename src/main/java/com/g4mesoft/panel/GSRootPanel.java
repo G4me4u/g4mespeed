@@ -24,7 +24,7 @@ public final class GSRootPanel extends GSParentPanel {
 	@Override
 	protected void layout() {
 		if (content != null)
-			content.setBounds(0, 0, width, height);
+			content.setOuterBounds(0, 0, innerWidth, innerHeight);
 	}
 	
 	@Override
@@ -62,7 +62,6 @@ public final class GSRootPanel extends GSParentPanel {
 		
 		if (panel != null) {
 			add(panel, DEFAULT_LAYER);
-			layout();
 			
 			GSEventDispatcher eventDispatcher = GSPanelContext.getEventDispatcher();
 			

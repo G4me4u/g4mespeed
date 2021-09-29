@@ -75,11 +75,11 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	@Override
 	public void layout() {
 		int by = HOTKEY_PADDING;
-		int rbx = width - RESET_BUTTON_WIDTH - HOTKEY_PADDING;
+		int rbx = innerWidth - RESET_BUTTON_WIDTH - HOTKEY_PADDING;
 		int mbx = rbx - MODIFY_BUTTON_WIDTH - HOTKEY_PADDING;
 
-		resetButton.setBounds(rbx, by, RESET_BUTTON_WIDTH, HOTKEY_HEIGHT);
-		modifyButton.setBounds(mbx, by, MODIFY_BUTTON_WIDTH, HOTKEY_HEIGHT);
+		resetButton.setOuterBounds(rbx, by, RESET_BUTTON_WIDTH, HOTKEY_HEIGHT);
+		modifyButton.setOuterBounds(mbx, by, MODIFY_BUTTON_WIDTH, HOTKEY_HEIGHT);
 
 		updateButtons();
 	}
@@ -126,15 +126,18 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 			modifyButton.setText(keyName);
 		}
 	}
+
+	@Override
+	protected void renderBackground(GSIRenderer2D renderer, int x, int y, int width, int height) {
+		if (renderer.isMouseInside(0, 0, outerWidth, outerHeight))
+			renderer.fillRect(x, y, width, height, HOVERED_BACKGROUND);
+	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		if (renderer.isMouseInside(0, 0, width, height))
-			renderer.fillRect(0, 0, width, height, HOVERED_BACKGROUND);
+	protected void renderForeground(GSIRenderer2D renderer) {
+		super.renderForeground(renderer);
 
-		super.render(renderer);
-
-		int ty = (height - renderer.getTextHeight() + 1) / 2;
+		int ty = (innerHeight - renderer.getTextHeight() + 1) / 2;
 		renderer.drawText(nameText, HOTKEY_PADDING, ty, FONT_COLOR);
 	}
 

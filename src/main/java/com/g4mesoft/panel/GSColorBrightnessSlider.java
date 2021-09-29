@@ -33,25 +33,25 @@ public class GSColorBrightnessSlider extends GSPanel implements GSIMouseListener
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		renderBackground(renderer);
+	protected void renderForeground(GSIRenderer2D renderer) {
+		renderGradient(renderer);
 		renderThumb(renderer);
 	}
-	
-	private void renderBackground(GSIRenderer2D renderer) {
+
+	protected void renderGradient(GSIRenderer2D renderer) {
 		int tc = GSColorUtil.hsb2rgb(hue, saturation, 1.0);
 		int bc = GSColorUtil.hsb2rgb(hue, saturation, 0.0);
-		renderer.fillVGradient(0, 0, width, height, tc, bc);
+		renderer.fillVGradient(0, 0, innerWidth, innerHeight, tc, bc);
 	}
-	
-	private void renderThumb(GSIRenderer2D renderer) {
-		int thumbY = (int)((1.0 - brightness) * (height - THUMB_HEIGHT));
+
+	protected void renderThumb(GSIRenderer2D renderer) {
+		int thumbY = (int)((1.0 - brightness) * (innerHeight - THUMB_HEIGHT));
 		int color = GSColorUtil.invertRGB(GSColorUtil.hsb2rgb(hue, saturation, brightness));
-		renderer.drawRect(0, thumbY, width, THUMB_HEIGHT, color);
+		renderer.drawRect(0, thumbY, innerWidth, THUMB_HEIGHT, color);
 	}
 	
 	@Override
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		return PREFERRED_SIZE;
 	}
 	
@@ -72,7 +72,7 @@ public class GSColorBrightnessSlider extends GSPanel implements GSIMouseListener
 	}
 	
 	private void setBrightnessFromY(int y) {
-		double b = 1.0 - (double)(y - THUMB_HEIGHT / 2) / (height - THUMB_HEIGHT);
+		double b = 1.0 - (double)(y - THUMB_HEIGHT / 2) / (innerHeight - THUMB_HEIGHT);
 		brightness = GSMathUtil.clamp(b, 0.0, 1.0);
 		dispatchActionEvent();
 	}

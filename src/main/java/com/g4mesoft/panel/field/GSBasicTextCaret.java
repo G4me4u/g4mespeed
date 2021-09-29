@@ -220,7 +220,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	 */
 	protected boolean navigateToPoint(int navX, int navY, int modifierFlags) {
 		int x0 = textField.getBorderWidth();
-		int x1 = textField.getWidth() - textField.getBorderWidth();
+		int x1 = textField.getInnerWidth() - textField.getBorderWidth();
 		
 		int indexOffset = 0;
 		if ((modifierFlags & SELECTION_MODIFIER) != 0) {
@@ -233,7 +233,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 			}
 		}
 		
-		if (navX >= x0 && navX < x1 && navY >= 0 && navY < textField.getHeight()) {
+		if (navX >= x0 && navX < x1 && navY >= 0 && navY < textField.getInnerHeight()) {
 			int navigationIndex = textField.viewToModel(navX, navY);
 			
 			if (navigationIndex != -1) {
@@ -269,7 +269,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 		GSRectangle bounds = textField.modelToView(dot);
 		if (bounds != null) {
 			int mnx = textField.getBorderWidth();
-			int mxx = textField.getWidth() - textField.getBorderWidth() - caretWidth;
+			int mxx = textField.getInnerWidth() - textField.getBorderWidth() - caretWidth;
 			
 			int x = GSMathUtil.clamp(bounds.x, mnx, mxx);
 			int y = bounds.y + caretInsets;
@@ -546,7 +546,7 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	@Override
 	public void mouseDragged(GSMouseEvent event) {
 		if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
-			int y = GSMathUtil.clamp(event.getY(), 0, textField.getHeight() - 1);
+			int y = GSMathUtil.clamp(event.getY(), 0, textField.getInnerHeight() - 1);
 			navigateToPoint(event.getX(), y, SELECTION_MODIFIER);
 			event.consume();
 		}

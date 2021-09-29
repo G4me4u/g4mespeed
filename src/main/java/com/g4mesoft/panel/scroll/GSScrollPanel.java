@@ -1,11 +1,13 @@
 package com.g4mesoft.panel.scroll;
 
 import com.g4mesoft.panel.GSPanel;
+import com.g4mesoft.panel.GSPanelUtil;
 import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.panel.event.GSILayoutEventListener;
 import com.g4mesoft.panel.event.GSIMouseListener;
 import com.g4mesoft.panel.event.GSLayoutEvent;
 import com.g4mesoft.panel.event.GSMouseEvent;
+import com.g4mesoft.util.GSColorUtil;
 
 import net.minecraft.client.gui.screen.Screen;
 
@@ -46,7 +48,10 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		setHorizontalScrollBar(new GSScrollBar());
 
 		setContent(content);
-		setBottomRightCorner(new GSScrollPanelCorner());
+		
+		GSPanel brCorner = new GSPanel();
+		brCorner.setBackgroundColor(GSColorUtil.BLACK);
+		setBottomRightCorner(brCorner);
 
 		setLayoutManager(new GSScrollPanelLayoutManager());
 	
@@ -313,11 +318,11 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 			int mx = event.getX();
 			int my = event.getY();
 			
-			if (!columnHeaderViewport.isEmpty() && columnHeaderViewport.isInBounds(mx, my)) {
+			if (!columnHeaderViewport.isEmpty() && GSPanelUtil.isInside(columnHeaderViewport, mx, my)) {
 				// The user is hovering over the column header. Ignore
 				// scrollY to make scrolling more intuitive.
 				horizontalScrollBar.setScroll(newScrollX);
-			} else if (!rowHeaderViewport.isEmpty() && rowHeaderViewport.isInBounds(mx, my)) {
+			} else if (!rowHeaderViewport.isEmpty() && GSPanelUtil.isInside(rowHeaderViewport, mx, my)) {
 				// Similarly, ignore scrollX when hovering the row header.
 				verticalScrollBar.setScroll(newScrollY);
 			} else {
@@ -346,19 +351,19 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 
 		GSPanel content = getContent();
 		if (content != null) {
-			maxScrollX = content.getWidth();
-			maxScrollY = content.getHeight();
+			maxScrollX = content.getOuterWidth();
+			maxScrollY = content.getOuterHeight();
 		}
 		GSPanel columnHeader = getColumnHeader();
-		if (columnHeader != null && columnHeader.getWidth() > maxScrollX)
-			maxScrollX = columnHeader.getWidth();
+		if (columnHeader != null && columnHeader.getOuterWidth() > maxScrollX)
+			maxScrollX = columnHeader.getOuterWidth();
 		GSPanel rowHeader = getRowHeader();
-		if (rowHeader != null && rowHeader.getHeight() > maxScrollY)
-			maxScrollY = rowHeader.getHeight();
+		if (rowHeader != null && rowHeader.getOuterHeight() > maxScrollY)
+			maxScrollY = rowHeader.getOuterHeight();
 		
 		// Subtract the already visible viewport
-		maxScrollX -= contentViewport.getWidth();
-		maxScrollY -= contentViewport.getHeight();
+		maxScrollX -= contentViewport.getInnerWidth();
+		maxScrollY -= contentViewport.getInnerHeight();
 		
 		if (maxScrollX < 0.0f)
 			maxScrollX = 0.0f;

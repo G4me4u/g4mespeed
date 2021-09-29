@@ -100,8 +100,8 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 			tab.setWidth(titleWidth + TAB_HORIZONTAL_PADDING * 2);
 		}
 
-		int contentWidth = Math.max(width - HORIZONTAL_MARGIN * 2, tabs.size());
-		int contentHeight = Math.max(height - tabHeight - VERTICAL_MARGIN, 1);
+		int contentWidth = Math.max(innerWidth - HORIZONTAL_MARGIN * 2, tabs.size());
+		int contentHeight = Math.max(innerHeight - tabHeight - VERTICAL_MARGIN, 1);
 
 		int remainingTabs = tabs.size();
 		int remainingWidth = contentWidth;
@@ -146,7 +146,7 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 			if (content != null) {
 				int xo = HORIZONTAL_MARGIN;
 				int yo = VERTICAL_MARGIN + tabHeight;
-				content.setBounds(xo, yo, contentWidth, contentHeight);
+				content.setOuterBounds(xo, yo, contentWidth, contentHeight);
 			}
 
 			tab.setX(tabOffsetX);
@@ -155,17 +155,16 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		if (showBackground)
-			renderBackground(renderer);
-		
-		super.render(renderer);
+	protected void renderForeground(GSIRenderer2D renderer) {
+		super.renderForeground(renderer);
 		
 		renderTabs(renderer);
 	}
 	
-	protected void renderBackground(GSIRenderer2D renderer) {
-		renderer.fillVGradient(0, 0, width, height, BACKGROUND_TOP_COLOR, BACKGROUND_BOTTOM_COLOR);
+	@Override
+	protected void renderBackground(GSIRenderer2D renderer, int x, int y, int width, int height) {
+		if (showBackground)
+			renderer.fillVGradient(0, 0, width, height, BACKGROUND_TOP_COLOR, BACKGROUND_BOTTOM_COLOR);
 	}
 
 	private void renderTabs(GSIRenderer2D renderer) {

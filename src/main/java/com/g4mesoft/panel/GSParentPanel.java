@@ -72,7 +72,7 @@ public class GSParentPanel extends GSPanel {
 			do {
 				// NOTE: Remove last to ensure we do not
 				// have an O(n^2) removeAll algorithm.
-				// For reference, view ArrayList#remove.
+				// For reference, see ArrayList#remove.
 				onChildRemoved(children.remove(--count));
 			} while (count != 0);
 		
@@ -92,11 +92,13 @@ public class GSParentPanel extends GSPanel {
 	
 	@Override
 	public GSPanel getChildAt(int x, int y) {
-		// Traverse children in reverse direction to match
-		// the order that they are drawn (last on top).
+		// Traverse children in reverse direction to match the order
+		// that they are drawn (first to last, bottom to top).
 		for (int i = children.size() - 1; i >= 0; i--) {
 			GSPanel child = children.get(i);
-			if (child.isInBounds(x, y))
+			int rx = x - child.getInnerX();
+			int ry = y - child.getInnerY();
+			if (rx >= 0 && ry >= 0 && rx < child.getInnerWidth() && ry < child.getInnerHeight())
 				return child;
 		}
 		
@@ -114,18 +116,15 @@ public class GSParentPanel extends GSPanel {
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		super.render(renderer);
+	protected void renderForeground(GSIRenderer2D renderer) {
+		super.renderForeground(renderer);
 
 		renderChildren(renderer);
 	}
 	
 	protected void renderChildren(GSIRenderer2D renderer) {
-		for (GSPanel child : children) {
-			child.preRender(renderer);
+		for (GSPanel child : children)
 			child.render(renderer);
-			child.postRender(renderer);
-		}
 	}
 	
 	@Override
@@ -145,32 +144,32 @@ public class GSParentPanel extends GSPanel {
 	/* Visible for GSLayoutProperties */
 	@Override
 	int getDefaultMinimumWidth() {
-		if (cachedMinimumSize == null && layoutManager != null)
-			cachedMinimumSize = layoutManager.getMinimumSize(this);
+		if (cachedMinimumInnerSize == null && layoutManager != null)
+			cachedMinimumInnerSize = layoutManager.getMinimumInnerSize(this);
 		return super.getDefaultMinimumWidth();
 	}
 
 	/* Visible for GSLayoutProperties */
 	@Override
 	int getDefaultMinimumHeight() {
-		if (cachedMinimumSize == null && layoutManager != null)
-			cachedMinimumSize = layoutManager.getMinimumSize(this);
+		if (cachedMinimumInnerSize == null && layoutManager != null)
+			cachedMinimumInnerSize = layoutManager.getMinimumInnerSize(this);
 		return super.getDefaultMinimumHeight();
 	}
 
 	/* Visible for GSLayoutProperties */
 	@Override
 	int getDefaultPreferredWidth() {
-		if (cachedPreferredSize == null && layoutManager != null)
-			cachedPreferredSize = layoutManager.getPreferredSize(this);
+		if (cachedPreferredInnerSize == null && layoutManager != null)
+			cachedPreferredInnerSize = layoutManager.getPreferredInnerSize(this);
 		return super.getDefaultPreferredWidth();
 	}
 	
 	/* Visible for GSLayoutProperties */
 	@Override
 	int getDefaultPreferredHeight() {
-		if (cachedPreferredSize == null && layoutManager != null)
-			cachedPreferredSize = layoutManager.getPreferredSize(this);
+		if (cachedPreferredInnerSize == null && layoutManager != null)
+			cachedPreferredInnerSize = layoutManager.getPreferredInnerSize(this);
 		return super.getDefaultPreferredHeight();
 	}
 }

@@ -3,12 +3,16 @@ package com.g4mesoft.panel.button;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.g4mesoft.panel.GSBiBorder;
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.panel.GSEIconAlignment;
 import com.g4mesoft.panel.GSETextAlignment;
+import com.g4mesoft.panel.GSEmptyBorder;
 import com.g4mesoft.panel.GSIActionListener;
+import com.g4mesoft.panel.GSIBorder;
 import com.g4mesoft.panel.GSIcon;
+import com.g4mesoft.panel.GSLineBorder;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.GSPanelUtil;
@@ -34,13 +38,10 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	private static final int DEFAULT_HOVERED_TEXT_COLOR = 0xFFFFFFFF;
 	private static final int DEFAULT_DISABLED_TEXT_COLOR = 0xFF707070;
  
-	private static final int DEFAULT_BORDER_WIDTH = 1;
-	private static final int DEFAULT_BORDER_COLOR = 0xFF171717;
-	private static final int DEFAULT_HOVERED_BORDER_COLOR = 0xFF262626;
-	private static final int DEFAULT_DISABLED_BORDER_COLOR = 0xFF060606;
-	
-	private static final int DEFAULT_VERTICAL_MARGIN   = 2;
-	private static final int DEFAULT_HORIZONTAL_MARGIN = 2;
+	private static final GSIBorder INNER_BORDER            = new GSEmptyBorder(2);
+	private static final GSIBorder DEFAULT_BORDER          = new GSBiBorder(INNER_BORDER, new GSLineBorder(0xFF171717, 1));
+	private static final GSIBorder DEFAULT_HOVERED_BORDER  = new GSBiBorder(INNER_BORDER, new GSLineBorder(0xFF262626, 1));
+	private static final GSIBorder DEFAULT_DISABLED_BORDER = new GSBiBorder(INNER_BORDER, new GSLineBorder(0xFF060606, 1));
 
 	private static final int DEFAULT_ICON_SPACING = 2;
 	private static final int VERTICAL_PADDING = 2;
@@ -56,21 +57,13 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	private GSEIconAlignment iconAlignment;
 	private GSETextAlignment textAlignment;
 	
-	private int backgroundColor;
 	private int hoveredBackgroundColor;
-	private int disabledBackgroundColor;
+	
+	private GSIBorder hoveredBorder;
 
 	private int textColor;
 	private int hoveredTextColor;
 	private int disabledTextColor;
-	
-	private int borderWidth;
-	private int borderColor;
-	private int hoveredBorderColor;
-	private int disabledBorderColor;
-
-	private int verticalMargin;
-	private int horizontalMargin;
 	
 	private int iconSpacing;
 	
@@ -104,21 +97,17 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 		iconAlignment = GSEIconAlignment.LEFT;
 		textAlignment = GSETextAlignment.CENTER;
 		
-		backgroundColor = DEFAULT_BACKGROUND_COLOR;
+		setBackgroundColor(DEFAULT_BACKGROUND_COLOR);
 		hoveredBackgroundColor = DEFAULT_HOVERED_BACKGROUND_COLOR;
-		disabledBackgroundColor = DEFAULT_DISABLED_BACKGROUND_COLOR;
+		setDisabledBackgroundColor(DEFAULT_DISABLED_BACKGROUND_COLOR);
 		
 		textColor = DEFAULT_TEXT_COLOR;
 		hoveredTextColor = DEFAULT_HOVERED_TEXT_COLOR;
 		disabledTextColor = DEFAULT_DISABLED_TEXT_COLOR;
 
-		borderWidth = DEFAULT_BORDER_WIDTH;
-		borderColor = DEFAULT_BORDER_COLOR;
-		hoveredBorderColor = DEFAULT_HOVERED_BORDER_COLOR;
-		disabledBorderColor = DEFAULT_DISABLED_BORDER_COLOR;
-		
-		verticalMargin = DEFAULT_VERTICAL_MARGIN;
-		horizontalMargin = DEFAULT_HORIZONTAL_MARGIN;
+		setBorder(DEFAULT_BORDER);
+		hoveredBorder = DEFAULT_HOVERED_BORDER;
+		setDisabledBorder(DEFAULT_DISABLED_BORDER);
 		
 		iconSpacing = DEFAULT_ICON_SPACING;
 		
@@ -129,44 +118,70 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	}
 
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		super.render(renderer);
+	protected GSIBor getVisibleBorder() {
+		GSIBorder b;
+		if (isEnabled()) {
+			int rx = innerX - outerX, ry = innerY - outerY;
+			GSIRenderer2D renderer = GSPanelContext.getRenderer();
+			if (renderer.isMouseInside(rx, ry, innerWidth, innerHeight)) {
+				b = hoveredBorder;
+			} else {
+				b = border;
+			}
+		} else {
+			b = disabledBorder;
+		}
 
-		boolean hovered = renderer.isMouseInside(0, 0, width, height);
-
-		renderBorderAndBackground(renderer, hovered);
-		renderForeground(renderer, hovered);
+		return (b != null) ? b : border;
 	}
 	
-	protected void renderBorderAndBackground(GSIRenderer2D renderer, boolean hovered) {
-		int bgc = isEnabled() ? (hovered ? hoveredBackgroundColor : backgroundColor) : disabledBackgroundColor;
-		int bc  = isEnabled() ? (hovered ? hoveredBorderColor : borderColor) : disabledBorderColor;
-
-		int bw2 = borderWidth * 2;
-		if (borderWidth != 0) {
-			// Top, Bottom, Left, Right
-			renderer.fillRect(0, 0, width - borderWidth, borderWidth, bc);
-			renderer.fillRect(borderWidth, height - borderWidth, width - borderWidth, borderWidth, bc);
-			renderer.fillRect(0, borderWidth, borderWidth, height - borderWidth, bc);
-			renderer.fillRect(width - borderWidth, 0, borderWidth, height - borderWidth, bc);
+	@Override
+	protected void renderBackground(GSIRenderer2D renderer, int x, int y, int width, int height) {
+		int color;
+		if (isEnabled()) {
+			int rx = innerX - outerX, ry = innerY - outerY;
+			if (renderer.isMouseInside(rx, ry, innerWidth, innerHeight)) {
+				color = hoveredBackgroundColor;
+			} else {
+				color = backgroundColor;
+			}
+		} else {
+			color = disabledBackgroundColor;
 		}
-		
-		if (((bgc >>> 24) & 0xFF) != 0x00)
-			renderer.fillRect(borderWidth, borderWidth, width - bw2, height - bw2, bgc);
+
+		// Fallback to standard background color
+		if (color == UNSPECIFIED_COLOR)
+			color = backgroundColor;
+
+		if ((color & 0xFF000000) != 0x00)
+			renderer.fillRect(x, y, width, height, color);
 	}
 
-	protected void renderForeground(GSIRenderer2D renderer, boolean hovered) {
-		// Available bounds for drawing text and icon.
-		int x = borderWidth + horizontalMargin;
-		int y = borderWidth + verticalMargin;
-		int w = Math.max(0, width - 2 * x);
-		int h = Math.max(0, height - 2 * y);
+	@Override
+	protected void renderForeground(GSIRenderer2D renderer) {
+		GSIcon icn;
+		int txtClr;
+		if (isEnabled()) {
+			if (renderer.isMouseInside(0, 0, innerWidth, innerHeight)) {
+				icn = hoveredIcon;
+				txtClr = hoveredTextColor;
+			} else {
+				icn = icon;
+				txtClr = textColor;
+			}
+		} else {
+			icn = disabledIcon;
+			txtClr = disabledTextColor;
+		}
 		
-		GSIcon icn = isEnabled() ? (hovered ? hoveredIcon : icon) : disabledIcon;
-		int txtClr = isEnabled() ? (hovered ? hoveredTextColor : textColor) : disabledTextColor;
+		// Fallback to standard icon and text color
+		if (icn == null)
+			icn = icon;
+		if (txtClr == UNSPECIFIED_COLOR)
+			txtClr = textColor;
 		
-		GSPanelUtil.drawLabel(renderer, icn, iconSpacing, text,
-				txtClr, isEnabled(), iconAlignment, textAlignment, x, y, w, h);
+		GSPanelUtil.drawLabel(renderer, icn, iconSpacing, text, txtClr,
+				isEnabled(), iconAlignment, textAlignment, 0, 0, innerWidth, innerHeight);
 	}
 
 	@Override
@@ -175,14 +190,11 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	}
 	
 	@Override
-	protected GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredInnerSize() {
 		GSDimension labelSize = GSPanelUtil.labelPreferredSize(icon, text, iconSpacing);
-		
-		// Add borders, margin, and padding
-		int w = labelSize.getWidth() + (borderWidth + horizontalMargin) * 2;
-		int h = labelSize.getHeight() + (borderWidth + verticalMargin + VERTICAL_PADDING) * 2;
-	
-		return new GSDimension(w, h);
+		// Add button vertical padding
+		int h = labelSize.getHeight() + VERTICAL_PADDING * 2;
+		return new GSDimension(labelSize.getWidth(), h);
 	}
 	
 	@Override
@@ -192,7 +204,7 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 			int y = event.getY();
 
 			// Ensure the mouse pointer is in bounds
-			if (x >= 0 && y >= 0 && x < width && y < height) {
+			if (x >= 0 && y >= 0 && x < innerWidth && y < innerHeight) {
 				dispatchActionEvent();
 				playClickSound();
 				event.consume();
@@ -288,28 +300,12 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 		this.textAlignment = textAlignment;
 	}
 	
-	public int getBackgroundColor() {
-		return backgroundColor;
-	}
-	
-	public void setBackgroundColor(int backgroundColor) {
-		this.backgroundColor = backgroundColor;
-	}
-
 	public int getHoveredBackgroundColor() {
 		return hoveredBackgroundColor;
 	}
 	
 	public void setHoveredBackgroundColor(int hoveredBackgroundColor) {
 		this.hoveredBackgroundColor = hoveredBackgroundColor;
-	}
-
-	public int getDisabledBackgroundColor() {
-		return disabledBackgroundColor;
-	}
-	
-	public void setDisabledBackgroundColor(int disabledBackgroundColor) {
-		this.disabledBackgroundColor = disabledBackgroundColor;
 	}
 
 	public int getTextColor() {
@@ -334,56 +330,6 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	
 	public void setDisabledTextColor(int disabledTextColor) {
 		this.disabledTextColor = disabledTextColor;
-	}
-
-	public int getBorderWidth() {
-		return borderWidth;
-	}
-	
-	public void setBorderWidth(int borderWidth) {
-		if (borderWidth < 0)
-			throw new IllegalArgumentException("borderWidth must be non-negative!");
-		this.borderWidth = borderWidth;
-	}
-	
-	public int getBorderColor() {
-		return borderColor;
-	}
-	
-	public void setBorderColor(int borderColor) {
-		this.borderColor = borderColor;
-	}
-	
-	public int getHoveredBorderColor() {
-		return hoveredBorderColor;
-	}
-	
-	public void setHoveredBorderColor(int hoveredBorderColor) {
-		this.hoveredBorderColor = hoveredBorderColor;
-	}
-	
-	public int getDisabledBorderColor() {
-		return disabledBorderColor;
-	}
-	
-	public void setDisabledBorderColor(int disabledBorderColor) {
-		this.disabledBorderColor = disabledBorderColor;
-	}
-	
-	public int getVerticalMargin() {
-		return verticalMargin;
-	}
-
-	public void setVerticalMargin(int verticalMargin) {
-		this.verticalMargin = verticalMargin;
-	}
-
-	public int getHorizontalMargin() {
-		return horizontalMargin;
-	}
-	
-	public void setHorizontalMargin(int horizontalMargin) {
-		this.horizontalMargin = horizontalMargin;
 	}
 
 	public int getIconSpacing() {

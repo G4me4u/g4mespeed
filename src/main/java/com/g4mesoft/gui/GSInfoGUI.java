@@ -37,16 +37,16 @@ public class GSInfoGUI extends GSParentPanel {
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer) {
-		super.render(renderer);
+	protected void renderForeground(GSIRenderer2D renderer) {
+		super.renderForeground(renderer);
 
 		Collection<GSExtensionInfo> serverInfoList = client.getServerExtensionInfoList().getAllInfo();
 		Collection<GSExtensionInfo> clientInfoList = G4mespeedMod.getExtensionInfoList().getAllInfo();
 		
 		int lineCount = 3 + serverInfoList.size() + clientInfoList.size();
 		
-		int xc = width / 2;
-		int y = height / 2 - renderer.getLineHeight() * lineCount / 2 - 10;
+		int xc = innerWidth / 2;
+		int y = innerHeight / 2 - renderer.getLineHeight() * lineCount / 2 - 10;
 		
 		if (client.isConnectedToServer()) {
 			y = drawExtensionList(renderer, xc, y, SERVER_EXTENSIONS_TITLE, serverInfoList);

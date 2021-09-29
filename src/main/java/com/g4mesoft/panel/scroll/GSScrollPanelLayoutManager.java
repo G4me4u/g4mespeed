@@ -9,12 +9,12 @@ import com.g4mesoft.panel.GSParentPanel;
 public class GSScrollPanelLayoutManager implements GSILayoutManager {
 
 	@Override
-	public GSDimension getMinimumSize(GSParentPanel parent) {
+	public GSDimension getMinimumInnerSize(GSParentPanel parent) {
 		return computeSize(parent, GSPanel.MINIMUM_SIZE);
 	}
 
 	@Override
-	public GSDimension getPreferredSize(GSParentPanel parent) {
+	public GSDimension getPreferredInnerSize(GSParentPanel parent) {
 		return computeSize(parent, GSPanel.PREFERRED_SIZE);
 	}
 	
@@ -81,8 +81,8 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 			sHeightFixed = ((GSIScrollable)content).isScrollableHeightFixed();
 		}
 		
-		int availW = parent.getWidth();
-		int availH = parent.getHeight();
+		int availW = parent.getInnerWidth();
+		int availH = parent.getInnerHeight();
 
 		boolean chPresent = !columnHeaderViewport.isEmpty();
 		boolean rhPresent = !rowHeaderViewport.isEmpty();
@@ -162,32 +162,32 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 		// Add and set bounds of the panels in the scroll panel.
 		
 		ensureAdded(parent, contentViewport);
-		contentViewport.setBounds(rhw, chh, availW, availH);
+		contentViewport.setOuterBounds(rhw, chh, availW, availH);
 		
 		if (chPresent) {
 			ensureAdded(parent, columnHeaderViewport);
-			columnHeaderViewport.setBounds(rhw, 0, availW, chh);
+			columnHeaderViewport.setOuterBounds(rhw, 0, availW, chh);
 		} else {
 			ensureRemoved(parent, columnHeaderViewport);
 		}
 		
 		if (rhPresent) {
 			ensureAdded(parent, rowHeaderViewport);
-			rowHeaderViewport.setBounds(0, chh, rhw, availH);
+			rowHeaderViewport.setOuterBounds(0, chh, rhw, availH);
 		} else {
 			ensureRemoved(parent, rowHeaderViewport);
 		}
 		
 		if (vsbNeeded) {
 			ensureAdded(parent, verticalScrollBar);
-			verticalScrollBar.setBounds(rhw + availW, chh, vsbPrefSize.getWidth(), availH);
+			verticalScrollBar.setOuterBounds(rhw + availW, chh, vsbPrefSize.getWidth(), availH);
 		} else {
 			ensureRemoved(parent, verticalScrollBar);
 		}
 		
 		if (hsbNeeded) {
 			ensureAdded(parent, horizontalScrollBar);
-			horizontalScrollBar.setBounds(rhw, chh + availH, availW, hsbPrefSize.getHeight());
+			horizontalScrollBar.setOuterBounds(rhw, chh + availH, availW, hsbPrefSize.getHeight());
 		} else {
 			ensureRemoved(parent, horizontalScrollBar);
 		}
@@ -198,7 +198,7 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 		if (topLeftCorner != null) {
 			if (chPresent && rhPresent) {
 				ensureAdded(parent, topLeftCorner);
-				topLeftCorner.setBounds(0, 0, rhw, chh);
+				topLeftCorner.setOuterBounds(0, 0, rhw, chh);
 			} else {
 				ensureRemoved(parent, topLeftCorner);
 			}
@@ -208,7 +208,7 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 		if (topRightCorner != null) {
 			if (chPresent && vsbNeeded) {
 				ensureAdded(parent, topRightCorner);
-				topRightCorner.setBounds(rhw + availW, 0, vsbPrefSize.getWidth(), chh);
+				topRightCorner.setOuterBounds(rhw + availW, 0, vsbPrefSize.getWidth(), chh);
 			} else {
 				ensureRemoved(parent, topRightCorner);
 			}
@@ -218,7 +218,7 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 		if (bottomLeftCorner != null) {
 			if (rhPresent && hsbNeeded) {
 				ensureAdded(parent, bottomLeftCorner);
-				bottomLeftCorner.setBounds(0, chh + availH, rhw, hsbPrefSize.getHeight());
+				bottomLeftCorner.setOuterBounds(0, chh + availH, rhw, hsbPrefSize.getHeight());
 			} else {
 				ensureRemoved(parent, bottomLeftCorner);
 			}
@@ -228,7 +228,7 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 		if (bottomRightCorner != null) {
 			if (vsbNeeded && hsbNeeded) {
 				ensureAdded(parent, bottomRightCorner);
-				bottomRightCorner.setBounds(rhw + availW, chh + availH, vsbPrefSize.getWidth(), hsbPrefSize.getHeight());
+				bottomRightCorner.setOuterBounds(rhw + availW, chh + availH, vsbPrefSize.getWidth(), hsbPrefSize.getHeight());
 			} else {
 				ensureRemoved(parent, bottomRightCorner);
 			}
