@@ -1,6 +1,6 @@
 package com.g4mesoft.panel;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,6 +28,8 @@ public class GSPanel {
 	public static final GSILayoutProperty<Integer> PREFERRED_HEIGHT   = GSLayoutProperties.PREFERRED_HEIGHT;
 	public static final GSILayoutProperty<GSDimension> PREFERRED_SIZE = GSLayoutProperties.PREFERRED_SIZE;
 	
+	public static final int DEFAULT_EVENT_LISTENER_PRIORITY = 0;
+	
 	private GSPanel parent;
 	
 	private boolean visible;
@@ -37,10 +39,10 @@ public class GSPanel {
 	public int width;
 	public int height;
 	
-	private List<GSIMouseListener> mouseEventListeners;
-	private List<GSIKeyListener> keyEventListeners;
-	private List<GSIFocusEventListener> focusEventListeners;
-	private List<GSILayoutEventListener> layoutEventListeners;
+	private GSPriorityEventListenerList<GSIMouseListener> mouseEventListeners;
+	private GSPriorityEventListenerList<GSIKeyListener> keyEventListeners;
+	private GSPriorityEventListenerList<GSIFocusEventListener> focusEventListeners;
+	private GSPriorityEventListenerList<GSILayoutEventListener> layoutEventListeners;
 	
 	private boolean passingEvents;
 	private boolean focused;
@@ -288,12 +290,16 @@ public class GSPanel {
 			return false;
 		return true;
 	}
-	
+
 	public void addMouseEventListener(GSIMouseListener eventListener) {
+		addMouseEventListener(eventListener, DEFAULT_EVENT_LISTENER_PRIORITY);
+	}
+	
+	public void addMouseEventListener(GSIMouseListener eventListener, int priority) {
 		if (mouseEventListeners == null)
-			mouseEventListeners = new ArrayList<GSIMouseListener>(1);
+			mouseEventListeners = new GSPriorityEventListenerList<GSIMouseListener>();
 		
-		mouseEventListeners.add(eventListener);
+		mouseEventListeners.add(eventListener, priority);
 	}
 
 	public void removeMouseEventListener(GSIMouseListener eventListener) {
@@ -305,17 +311,21 @@ public class GSPanel {
 		}
 	}
 
-	public List<GSIMouseListener> getMouseEventListeners() {
+	public Collection<GSIMouseListener> getMouseEventListeners() {
 		if (mouseEventListeners == null)
 			return Collections.emptyList();
-		return Collections.unmodifiableList(mouseEventListeners);
+		return mouseEventListeners.asCollection();
+	}
+
+	public void addKeyEventListener(GSIKeyListener eventListener) {
+		addKeyEventListener(eventListener, DEFAULT_EVENT_LISTENER_PRIORITY);
 	}
 	
-	public void addKeyEventListener(GSIKeyListener eventListener) {
+	public void addKeyEventListener(GSIKeyListener eventListener, int priority) {
 		if (keyEventListeners == null)
-			keyEventListeners = new ArrayList<GSIKeyListener>(1);
+			keyEventListeners = new GSPriorityEventListenerList<GSIKeyListener>();
 		
-		keyEventListeners.add(eventListener);
+		keyEventListeners.add(eventListener, priority);
 	}
 	
 	public void removeKeyEventListener(GSIKeyListener eventListener) {
@@ -327,17 +337,21 @@ public class GSPanel {
 		}
 	}
 
-	public List<GSIKeyListener> getKeyEventListeners() {
+	public Collection<GSIKeyListener> getKeyEventListeners() {
 		if (keyEventListeners == null)
 			return Collections.emptyList();
-		return Collections.unmodifiableList(keyEventListeners);
+		return keyEventListeners.asCollection();
 	}
 
 	public void addFocusEventListener(GSIFocusEventListener eventListener) {
+		addFocusEventListener(eventListener, DEFAULT_EVENT_LISTENER_PRIORITY);
+	}
+
+	public void addFocusEventListener(GSIFocusEventListener eventListener, int priority) {
 		if (focusEventListeners == null)
-			focusEventListeners = new ArrayList<GSIFocusEventListener>(1);
+			focusEventListeners = new GSPriorityEventListenerList<GSIFocusEventListener>();
 		
-		focusEventListeners.add(eventListener);
+		focusEventListeners.add(eventListener, priority);
 	}
 	
 	public void removeFocusEventListener(GSIFocusEventListener eventListener) {
@@ -349,17 +363,21 @@ public class GSPanel {
 		}
 	}
 
-	public List<GSIFocusEventListener> getFocusEventListeners() {
+	public Collection<GSIFocusEventListener> getFocusEventListeners() {
 		if (focusEventListeners == null)
 			return Collections.emptyList();
-		return Collections.unmodifiableList(focusEventListeners);
+		return focusEventListeners.asCollection();
 	}
 	
-	public void addLayoutEventListener(GSILayoutEventListener layoutListener) {
+	public void addLayoutEventListener(GSILayoutEventListener eventListener) {
+		addLayoutEventListener(eventListener, DEFAULT_EVENT_LISTENER_PRIORITY);
+	}
+
+	public void addLayoutEventListener(GSILayoutEventListener eventListener, int priority) {
 		if (layoutEventListeners == null)
-			layoutEventListeners = new ArrayList<GSILayoutEventListener>(1);
+			layoutEventListeners = new GSPriorityEventListenerList<GSILayoutEventListener>();
 		
-		layoutEventListeners.add(layoutListener);
+		layoutEventListeners.add(eventListener, priority);
 	}
 	
 	public void removeLayoutEventListener(GSILayoutEventListener layoutListener) {
@@ -371,10 +389,10 @@ public class GSPanel {
 		}
 	}
 
-	public List<GSILayoutEventListener> getLayoutEventListeners() {
+	public Collection<GSILayoutEventListener> getLayoutEventListeners() {
 		if (layoutEventListeners == null)
 			return Collections.emptyList();
-		return Collections.unmodifiableList(layoutEventListeners);
+		return layoutEventListeners.asCollection();
 	}
 	
 	public boolean isPassingEvents() {

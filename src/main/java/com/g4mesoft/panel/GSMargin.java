@@ -11,10 +11,6 @@ public class GSMargin {
 		this(0, 0, 0, 0);
 	}
 
-	public GSMargin(GSVertMargin vMargin, GSHorizMargin hMargin) {
-		this(vMargin.top, hMargin.left, vMargin.bottom, hMargin.right);
-	}
-
 	public GSMargin(int vertMargin, int horizMargin) {
 		this(vertMargin, horizMargin, vertMargin, horizMargin);
 	}
@@ -30,12 +26,12 @@ public class GSMargin {
 		this.right = right;
 	}
 	
-	public GSVertMargin getVertMargin() {
-		return new GSVertMargin(top, bottom);
+	public int getVertMargin() {
+		return top + bottom;
 	}
 
-	public GSHorizMargin getHorizMargin() {
-		return new GSHorizMargin(left, right);
+	public int getHorizMargin() {
+		return left + right;
 	}
 	
 	public int getTop() {

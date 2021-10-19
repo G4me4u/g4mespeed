@@ -30,9 +30,7 @@ public class GSGridLayoutManager implements GSILayoutManager {
 	public static final GSILayoutProperty<Integer> BOTTOM_MARGIN        = GSLayoutProperties.BOTTOM_MARGIN;
 	public static final GSILayoutProperty<Integer> RIGHT_MARGIN         = GSLayoutProperties.RIGHT_MARGIN;
 
-	public static final GSILayoutProperty<GSVertMargin>  VERT_MARGIN    = GSLayoutProperties.VERT_MARGIN;
-	public static final GSILayoutProperty<GSHorizMargin> HORIZ_MARGIN   = GSLayoutProperties.HORIZ_MARGIN;
-	public static final GSILayoutProperty<GSMargin>      MARGIN         = GSLayoutProperties.MARGIN;
+	public static final GSILayoutProperty<GSMargin> MARGIN              = GSLayoutProperties.MARGIN;
 	
 	@Override
 	public GSDimension getMinimumSize(GSParentPanel parent) {

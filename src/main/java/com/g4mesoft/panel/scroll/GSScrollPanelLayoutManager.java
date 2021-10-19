@@ -70,35 +70,32 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 		
 		GSViewport contentViewport = scrollPanel.getContentViewport();
 		GSViewport columnHeaderViewport = scrollPanel.getColumnHeaderViewport();
-		GSViewport rowHeaderViewport = scrollPanel.getColumnHeaderViewport();
+		GSViewport rowHeaderViewport = scrollPanel.getRowHeaderViewport();
 
-		GSPanel content = contentViewport.getContent();
-		
-		boolean sWidthFixed = false;
-		boolean sHeightFixed = false;
-		if (content instanceof GSIScrollable) {
-			sWidthFixed  = ((GSIScrollable)content).isScrollableWidthFixed();
-			sHeightFixed = ((GSIScrollable)content).isScrollableHeightFixed();
-		}
-		
 		int availW = parent.getWidth();
 		int availH = parent.getHeight();
 
 		boolean chPresent = !columnHeaderViewport.isEmpty();
 		boolean rhPresent = !rowHeaderViewport.isEmpty();
 		
-		int chh = 0;
+		int chPrefW, chh;
 		if (chPresent) {
 			GSDimension size = columnHeaderViewport.getProperty(GSPanel.PREFERRED_SIZE);
+			chPrefW = size.getWidth();
 			chh = Math.min(availH, size.getHeight());
 			availH -= chh;
+		} else {
+			chPrefW = chh = 0;
 		}
 		
-		int rhw = 0;
+		int rhw, rhPrefH;
 		if (rhPresent) {
 			GSDimension size = rowHeaderViewport.getProperty(GSPanel.PREFERRED_SIZE);
 			rhw = Math.min(availW, size.getWidth());
+			rhPrefH = size.getHeight();
 			availW -= rhw;
+		} else {
+			rhw = rhPrefH = 0;
 		}
 
 		int contentPrefW = contentViewport.getProperty(GSPanel.PREFERRED_WIDTH);
@@ -117,7 +114,7 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 			break;
 		case SCROLLBAR_AS_NEEDED:
 		default:
-			vsbNeeded = (!sHeightFixed && availH < contentPrefH);
+			vsbNeeded = (availH < contentPrefH || availH < rhPrefH);
 			break;
 		case SCROLLBAR_NEVER:
 			vsbNeeded = false;
@@ -134,10 +131,10 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 			break;
 		case SCROLLBAR_AS_NEEDED:
 		default:
-			hsbNeeded = (!sWidthFixed && availW < contentPrefW);
+			hsbNeeded = (availW < contentPrefW || availW < chPrefW);
 			break;
 		case SCROLLBAR_NEVER:
-			hsbNeeded = true;
+			hsbNeeded = false;
 			break;
 		}
 		
@@ -147,17 +144,12 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 			if (!vsbNeeded && scrollPanel.getVerticalScrollBarPolicy() == GSEScrollBarPolicy.SCROLLBAR_AS_NEEDED) {
 				// Check if we have to add the vertical scroll bar with
 				// the updated height from the horizontal scroll bar.
-				if (availH < contentPrefH) {
+				if (availH < contentPrefH || availH < rhPrefH) {
 					vsbNeeded = true;
 					availW -= vsbPrefSize.getWidth();
 				}
 			}
 		}
-		
-		if (sWidthFixed)
-			contentPrefW = availW;
-		if (sHeightFixed)
-			contentPrefH = availH;
 		
 		// Add and set bounds of the panels in the scroll panel.
 		

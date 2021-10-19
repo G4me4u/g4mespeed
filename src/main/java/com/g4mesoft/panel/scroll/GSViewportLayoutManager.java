@@ -50,9 +50,9 @@ public class GSViewportLayoutManager implements GSILayoutManager {
 			
 			if (content instanceof GSIScrollable) {
 				GSIScrollable scrollable = (GSIScrollable)content;
-				if (scrollable.isScrollableWidthFixed())
+				if (scrollable.isScrollableWidthFixed() && prefW < parent.getWidth())
 					prefW = parent.getWidth();
-				if (scrollable.isScrollableHeightFixed())
+				if (scrollable.isScrollableHeightFixed() && prefH < parent.getHeight())
 					prefH = parent.getHeight();
 			}
 			

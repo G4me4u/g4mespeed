@@ -71,7 +71,7 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		contentViewport.setContent(content);
 
 		if (content != null)
-			content.addLayoutEventListener(contentLayoutListener);
+			content.addLayoutEventListener(contentLayoutListener, -1);
 		
 		invalidate();
 	}
@@ -93,16 +93,8 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		columnHeaderViewport.setContent(columnHeader);
 
 		if (columnHeader != null)
-			columnHeader.addLayoutEventListener(contentLayoutListener);
+			columnHeader.addLayoutEventListener(contentLayoutListener, -1);
 		
-		if (columnHeaderViewport.isAdded()) {
-			if (columnHeader != null)
-				add(columnHeaderViewport);
-		} else {
-			if (columnHeader == null)
-				remove(columnHeaderViewport);
-		}
-
 		invalidate();
 	}
 
@@ -123,16 +115,8 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		rowHeaderViewport.setContent(rowHeader);
 
 		if (rowHeader != null)
-			rowHeader.addLayoutEventListener(contentLayoutListener);
+			rowHeader.addLayoutEventListener(contentLayoutListener, -1);
 
-		if (rowHeaderViewport.isAdded()) {
-			if (rowHeader != null)
-				add(rowHeaderViewport);
-		} else {
-			if (rowHeader == null)
-				remove(rowHeaderViewport);
-		}
-		
 		invalidate();
 	}
 	
@@ -288,7 +272,7 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 	public void mouseScrolled(GSMouseEvent event) {
 		// In case the user is trying to zoom in or out we should not
 		// scroll. This has different behavior on different platforms.
-		if (!Screen.hasControlDown() && !Screen.hasAltDown()) {
+		if (!event.isConsumed() && !Screen.hasControlDown() && !Screen.hasAltDown()) {
 			float newScrollX = horizontalScrollBar.getScroll();
 			float newScrollY = verticalScrollBar.getScroll();
 			
