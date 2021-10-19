@@ -38,16 +38,16 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	
 	private GSTransform2D transform;
 	private final LinkedList<GSTransform2D> transformStack;
-	
 	private float opacity;
+	private final LinkedList<Float> opacityStack;
 	
 	public GSBasicRenderer2D(MinecraftClient client) {
 		this.client = client;
 		
 		transform = new GSTransform2D();
 		transformStack = new LinkedList<>();
-		
 		opacity = 1.0f;
+		opacityStack = new LinkedList<>();
 	}
 	
 	public void begin(BufferBuilder builder, MatrixStack matrixStack, int mouseX, int mouseY) {
@@ -130,13 +130,16 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	}
 	
 	@Override
-	public float getOpacity() {
-		return opacity;
+	public void pushOpacity(float opacityMultiplier) {
+		opacityStack.push(this.opacity);
+		this.opacity *= GSMathUtil.clamp(opacityMultiplier, 0.0f, 1.0f);
 	}
 
 	@Override
-	public void setOpacity(float opacity) {
-		this.opacity = GSMathUtil.clamp(opacity, 0.0f, 1.0f);
+	public float popOpacity() {
+		float oldOpacity = opacity;
+		opacity = opacityStack.pop();
+		return oldOpacity;
 	}
 
 	@Override

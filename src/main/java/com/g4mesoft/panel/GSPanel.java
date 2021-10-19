@@ -17,6 +17,7 @@ import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.panel.event.GSLayoutEvent;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.util.GSMathUtil;
 
 public class GSPanel {
 	
@@ -29,6 +30,8 @@ public class GSPanel {
 	public static final GSILayoutProperty<GSDimension> PREFERRED_SIZE = GSLayoutProperties.PREFERRED_SIZE;
 	
 	public static final int DEFAULT_EVENT_LISTENER_PRIORITY = 0;
+	public static final float FULLY_OPAQUE      = 1.0f;
+	public static final float FULLY_TRANSPARENT = 0.0f;
 	
 	private GSPanel parent;
 	
@@ -66,6 +69,8 @@ public class GSPanel {
 	private boolean validating;
 	private boolean invalidateLater;
 	
+	private float opacity;
+	
 	public GSPanel() {
 		parent = null;
 		
@@ -89,6 +94,8 @@ public class GSPanel {
 
 		validating = false;
 		invalidateLater = false;
+		
+		opacity = FULLY_OPAQUE;
 	}
 
 	public void add(GSPanel panel) {
@@ -274,12 +281,14 @@ public class GSPanel {
 		
 		renderer.pushMatrix();
 		renderer.translate(getX(), getY());
+		renderer.pushOpacity(opacity);
 	}
 	
 	public void render(GSIRenderer2D renderer) {
 	}
 	
 	public void postRender(GSIRenderer2D renderer) {
+		renderer.popOpacity();
 		renderer.popMatrix();
 	}
 	
@@ -546,6 +555,14 @@ public class GSPanel {
 	
 	public final boolean isValid() {
 		return valid;
+	}
+	
+	public float getOpacity() {
+		return opacity;
+	}
+	
+	public void setOpacity(float opacity) {
+		this.opacity = GSMathUtil.clamp(opacity, FULLY_TRANSPARENT, FULLY_OPAQUE);
 	}
 	
 	protected void putButtonStroke(GSIButtonStroke button, Runnable listener) {
