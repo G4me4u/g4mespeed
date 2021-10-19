@@ -10,7 +10,11 @@ public class GSScrollPanelCorner extends GSPanel {
 	private int backgroundColor;
 	
 	public GSScrollPanelCorner() {
-		backgroundColor = DEFAULT_BACKGROUND_COLOR;
+		this(DEFAULT_BACKGROUND_COLOR);
+	}
+
+	public GSScrollPanelCorner(int backgroundColor) {
+		this.backgroundColor = backgroundColor;
 	}
 	
 	@Override
