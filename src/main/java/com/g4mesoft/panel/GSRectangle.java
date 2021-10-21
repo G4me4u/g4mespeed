@@ -161,7 +161,7 @@ public final class GSRectangle {
 		
 		// Either we overflow or the point is contained
 		return (_x1 < _x || _x1 > x) && 
-		       (_y1 < _y || _y1 > y);
+			   (_y1 < _y || _y1 > y);
 	}
 	
 	public boolean intersects(GSRectangle other) {
@@ -186,9 +186,9 @@ public final class GSRectangle {
 		
 		// Either we overflow or we intersect normally
 		return (_x1 < _x || _x1 >  x) && 
-		       ( x1 <  x ||  x1 > _x) &&
-		       (_y1 < _y || _y1 >  y) &&
-		       ( y1 <  y ||  y1 > _y);
+			   ( x1 <  x ||  x1 > _x) &&
+			   (_y1 < _y || _y1 >  y) &&
+			   ( y1 <  y ||  y1 > _y);
 	}
 	
 	public GSRectangle union(GSRectangle other) {
@@ -228,6 +228,45 @@ public final class GSRectangle {
 		_height = (int)((_y1 > Integer.MAX_VALUE) ? Integer.MAX_VALUE : _y1);
 		
 		return new GSRectangle(_x, _y, _width, _height);
+	}
+
+	public GSRectangle intersection(GSRectangle other) {
+		return intersection(other.x, other.y, other.width, other.height);
+	}
+	
+	public GSRectangle intersection(int x, int y, int width, int height) {
+		// Transform rectangles into (x0, y0, x1, y1) bounds
+		int _x = this.x;
+		int _y = this.y;	
+		long _x1 = _x + this.width;
+		long _y1 = _y + this.height;
+		
+		long x1 = x + width;
+		long y1 = y + height;
+		
+		// Find intersection of (x0, y0, x1, y1) bounds
+		if (_x < x)
+			_x = x;
+		if (_y < y)
+			_y = y;
+		if (_x1 > x1)
+			_x1 = x1;
+		if (_y1 > y1)
+			_y1 = y1;
+		
+		// Transform back into (x, y, width, height) bounds
+		_x1 -= _x;
+		_y1 -= _y;
+		
+		// _x1, _y1 will never overflow (they will never be
+		// larger than the smallest of the two source w, h)
+		// they might underflow, though.
+		if (_x1 < Integer.MIN_VALUE)
+			_x1 = Integer.MIN_VALUE;
+		if (_y1 < Integer.MIN_VALUE)
+			_y1 = Integer.MIN_VALUE;
+		
+		return new GSRectangle(_x, _y, (int)_x1, (int)_y1);
 	}
 	
 	public boolean isEmpty() {
