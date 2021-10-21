@@ -10,6 +10,7 @@ import com.g4mesoft.renderer.GSIRenderer2D;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.client.util.math.MatrixStack;
@@ -68,7 +69,8 @@ final class GSScreen extends Screen {
 		
 		GSIRenderer2D renderer = GSPanelContext.getRenderer();
 		
-		((GSBasicRenderer2D)renderer).begin(Tessellator.getInstance().getBuffer(), matrixStack, mouseX, mouseY);
+		BufferBuilder buffer = Tessellator.getInstance().getBuffer();
+		((GSBasicRenderer2D)renderer).begin(buffer, matrixStack, mouseX, mouseY, width, height);
 		
 		rootPanel.preRender(renderer);
 		rootPanel.render(renderer);

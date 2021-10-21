@@ -203,6 +203,10 @@ public class GSClipAdjuster {
 		return clipRectStack.remove();
 	}
 	
+	public GSClipRect getClip() {
+		return clipRectStack.isEmpty() ? null : clipRectStack.peek();
+	}
+	
 	public void setClipOffset(float offsetX, float offsetY) {
 		clipOffsetX = offsetX;
 		clipOffsetY = offsetY;

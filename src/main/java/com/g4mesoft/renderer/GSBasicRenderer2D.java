@@ -7,6 +7,7 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 import com.g4mesoft.access.client.GSIBufferBuilderAccess;
+import com.g4mesoft.panel.GSRectangle;
 import com.g4mesoft.util.GSMathUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -32,6 +33,8 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	private MatrixStack matrixStack;
 	private int mouseX;
 	private int mouseY;
+	private int viewportWidth;
+	private int viewportHeight;
 	
 	private boolean building;
 	private int buildingShape;
@@ -50,11 +53,13 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		opacityStack = new LinkedList<>();
 	}
 	
-	public void begin(BufferBuilder builder, MatrixStack matrixStack, int mouseX, int mouseY) {
+	public void begin(BufferBuilder builder, MatrixStack matrixStack, int mouseX, int mouseY, int viewportWidth, int viewportHeight) {
 		this.builder = builder;
 		this.matrixStack = matrixStack;
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
+		this.viewportWidth = viewportWidth;
+		this.viewportHeight = viewportHeight;
 	}
 	
 	public void end() {
@@ -127,6 +132,24 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	@Override
 	public GSClipRect popClip() {
 		return ((GSIBufferBuilderAccess)builder).popClip();
+	}
+	
+	@Override
+	public GSRectangle getClipBounds() {
+		GSClipRect clip = ((GSIBufferBuilderAccess)builder).getClip();
+		if (clip == null) {
+			// Clipped by viewport edges.
+			return new GSRectangle(0, 0, viewportWidth, viewportHeight);
+		}
+
+		// Find minimum bounds that contains the clip (x0, y0, x1, and y1 should be
+		// mathematical integers, since they have only been set by GSIRenderer2D).
+		int x = Math.max((int)(clip.x0 - 0.5f), 0);
+		int y = Math.max((int)(clip.y0 - 0.5f), 0);
+		int w = Math.min((int)(clip.x1 + 0.5f) - x, viewportWidth);
+		int h = Math.min((int)(clip.y1 + 0.5f) - y, viewportHeight);
+		
+		return new GSRectangle(x, y, w, h);
 	}
 	
 	@Override

@@ -14,6 +14,8 @@ public interface GSIBufferBuilderAccess {
 
 	public GSClipRect popClip();
 
+	public GSClipRect getClip();
+
 	public float getClipOffsetX();
 
 	public float getClipOffsetY();

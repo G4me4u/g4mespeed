@@ -2,6 +2,8 @@ package com.g4mesoft.renderer;
 
 import java.util.List;
 
+import com.g4mesoft.panel.GSRectangle;
+
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
@@ -36,6 +38,8 @@ public interface GSIRenderer2D extends GSIRenderer {
 	public void pushClip(GSClipRect clipRect);
 
 	public GSClipRect popClip();
+	
+	public GSRectangle getClipBounds();
 	
 	public void pushOpacity(float opacity);
 

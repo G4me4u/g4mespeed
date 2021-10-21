@@ -50,10 +50,15 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 
 		adjuster.pushClip(clip);
 	}
-
+	
 	@Override
 	public GSClipRect popClip() {
 		return adjuster.popClip();
+	}
+
+	@Override
+	public GSClipRect getClip() {
+		return adjuster.getClip();
 	}
 
 	@Override
