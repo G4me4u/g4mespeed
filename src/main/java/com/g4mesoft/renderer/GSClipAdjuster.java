@@ -18,16 +18,11 @@ public class GSClipAdjuster {
 	private final float[] clipXBuffer;
 	private final float[] clipYBuffer;
 	
-	private float clipOffsetX;
-	private float clipOffsetY;
-	
 	private LinkedList<GSClipRect> clipRectStack;
 	
 	public GSClipAdjuster() {
 		clipXBuffer = new float[4];
 		clipYBuffer = new float[4];
-	
-		clipOffsetX = clipOffsetY = 0.0f;
 	
 		clipRectStack = new LinkedList<>();
 	}
@@ -193,7 +188,6 @@ public class GSClipAdjuster {
 	}
 	
 	public void pushClip(GSClipRect clipRect) {
-		clipRect = clipRect.offset(clipOffsetX, clipOffsetY);
 		if (!clipRectStack.isEmpty())
 			clipRect = clipRectStack.peek().intersection(clipRect);
 		clipRectStack.push(clipRect);
@@ -205,18 +199,5 @@ public class GSClipAdjuster {
 	
 	public GSClipRect getClip() {
 		return clipRectStack.isEmpty() ? null : clipRectStack.peek();
-	}
-	
-	public void setClipOffset(float offsetX, float offsetY) {
-		clipOffsetX = offsetX;
-		clipOffsetY = offsetY;
-	}
-	
-	public float getClipOffsetX() {
-		return clipOffsetX;
-	}
-
-	public float getClipOffsetY() {
-		return clipOffsetY;
 	}
 }

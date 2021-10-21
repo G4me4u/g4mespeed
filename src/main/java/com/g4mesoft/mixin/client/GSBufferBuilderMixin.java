@@ -62,21 +62,6 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	}
 
 	@Override
-	public float getClipOffsetX() {
-		return adjuster.getClipOffsetX();
-	}
-	
-	@Override
-	public float getClipOffsetY() {
-		return adjuster.getClipOffsetY();
-	}
-	
-	@Override
-	public void setClipOffset(float offsetX, float offsetY) {
-		adjuster.setClipOffset(offsetX, offsetY);
-	}
-	
-	@Override
 	public ByteBuffer getByteBuffer() {
 		return buffer;
 	}

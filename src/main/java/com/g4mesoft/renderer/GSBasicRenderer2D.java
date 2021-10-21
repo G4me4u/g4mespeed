@@ -96,8 +96,6 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		
 		transform = transformStack.pop();
 		matrixStack.pop();
-
-		onTransformChanged();
 	}
 
 	@Override
@@ -106,8 +104,6 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		transform.offsetY += y;
 
 		matrixStack.translate(x, y, 0.0f);
-		
-		onTransformChanged();
 	}
 	
 	@Override
@@ -115,17 +111,21 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		matrixStack.translate(0.0f, 0.0f, z);
 	}
 	
-	private void onTransformChanged() {
-		((GSIBufferBuilderAccess)builder).setClipOffset(transform.offsetX, transform.offsetY);
-	}
-	
 	@Override
 	public void pushClip(int x, int y, int width, int height) {
-		((GSIBufferBuilderAccess)builder).pushClip(x, y, x + width, y + height);
+		// Translate clip according to current transform
+		int x0 = x + transform.offsetX;
+		int y0 = y + transform.offsetY;
+		int x1 = x0 + width;
+		int y1 = y0 + height;
+		
+		((GSIBufferBuilderAccess)builder).pushClip(x0, y0, x1, y1);
 	}
 
 	@Override
 	public void pushClip(GSClipRect clip) {
+		// Translate clip according to current transform
+		clip = clip.offset(transform.offsetX, transform.offsetY);
 		((GSIBufferBuilderAccess)builder).pushClip(clip);
 	}
 
@@ -137,9 +137,10 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	@Override
 	public GSRectangle getClipBounds() {
 		GSClipRect clip = ((GSIBufferBuilderAccess)builder).getClip();
+		
 		if (clip == null) {
 			// Clipped by viewport edges.
-			return new GSRectangle(0, 0, viewportWidth, viewportHeight);
+			return new GSRectangle(-transform.offsetX, -transform.offsetY, viewportWidth, viewportHeight);
 		}
 
 		// Find minimum bounds that contains the clip (x0, y0, x1, and y1 should be
@@ -149,7 +150,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		int w = Math.min((int)(clip.x1 + 0.5f) - x, viewportWidth);
 		int h = Math.min((int)(clip.y1 + 0.5f) - y, viewportHeight);
 		
-		return new GSRectangle(x, y, w, h);
+		return new GSRectangle(x - transform.offsetX, y - transform.offsetY, w, h);
 	}
 	
 	@Override
