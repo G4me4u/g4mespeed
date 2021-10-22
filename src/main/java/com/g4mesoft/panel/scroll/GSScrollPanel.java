@@ -142,8 +142,6 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		verticalScrollBar.getModel().addScrollListener(this);
 		verticalScrollBar.setVertical(true);
 		
-		updateScrollBarParams();
-		
 		invalidate();
 	}
 
@@ -168,8 +166,6 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		horizontalScrollBar.setModel(new GSContentScrollBarModel(false));
 		horizontalScrollBar.getModel().addScrollListener(this);
 		horizontalScrollBar.setVertical(false);
-		
-		updateScrollBarParams();
 		
 		invalidate();
 	}

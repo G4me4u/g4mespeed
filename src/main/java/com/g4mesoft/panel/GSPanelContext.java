@@ -1,7 +1,9 @@
 package com.g4mesoft.panel;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryUtil;
@@ -37,6 +39,8 @@ public final class GSPanelContext {
 	private final GSTexture sheetTexture;
 	private final Map<Integer, Long> standardCursors;
 	
+	private final Queue<GSPanel> validationQueue;
+	
 	private GSPanelContext(MinecraftClient client) {
 		this.client = client;
 		
@@ -47,6 +51,8 @@ public final class GSPanelContext {
 
 		sheetTexture = new GSTexture(UI_TEXTURE_IDENTIFIER, 512, 512);
 		standardCursors = new HashMap<>();
+	
+		validationQueue = new LinkedList<>();
 	}
 
 	public static void init(MinecraftClient client) {
@@ -145,6 +151,14 @@ public final class GSPanelContext {
 
 	public static GSIcon getIcon(int rx, int ry, int rw, int rh) {
 		return getContext().getIconImpl(rx, ry, rw, rh);
+	}
+	
+	public static boolean scheduleValidation(GSPanel panel) {
+		return getContext().scheduleValidationImpl(panel);
+	}
+	
+	static void validateAll() {
+		getContext().validateAllImpl();
 	}
 	
 	private void disposeImpl() {
@@ -296,6 +310,29 @@ public final class GSPanelContext {
 
 	private GSIcon getIconImpl(int rx, int ry, int rw, int rh) {
 		return new GSTexturedIcon(getTexture(rx, ry, rw, rh));
+	}
+	
+	private boolean scheduleValidationImpl(GSPanel panel) {
+		if (requiresScheduledValidation(panel)) {
+			// Only schedule validation if the parent is
+			// not going to validate us.
+			validationQueue.add(panel);
+			return true;
+		}
+		return false;
+	}
+	
+	private void validateAllImpl() {
+		while (!validationQueue.isEmpty()) {
+			GSPanel panel = validationQueue.poll();
+			if (requiresScheduledValidation(panel))
+				panel.revalidate();
+		}
+	}
+	
+	private boolean requiresScheduledValidation(GSPanel panel) {
+		GSPanel parent = panel.getParent();
+		return (parent != null && parent.isValid());
 	}
 	
 	private static GSPanelContext getContext() {

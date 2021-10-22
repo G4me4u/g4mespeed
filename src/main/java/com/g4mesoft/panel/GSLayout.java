@@ -34,8 +34,10 @@ public class GSLayout {
 		
 		property.put(properties, value, panel);
 		
-		panel.invalidateParent();
-
+		GSPanel parent = panel.getParent();
+		if (parent != null)
+			parent.invalidate();
+		
 		return this;
 	}
 	

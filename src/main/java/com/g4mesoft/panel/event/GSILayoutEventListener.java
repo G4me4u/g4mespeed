@@ -19,5 +19,10 @@ public interface GSILayoutEventListener {
 	
 	default public void panelHidden(GSLayoutEvent event) {
 	}
+
+	default public void panelInvalidated(GSLayoutEvent event) {
+	}
 	
+	default public void panelValidated(GSLayoutEvent event) {
+	}
 }

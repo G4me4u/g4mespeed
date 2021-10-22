@@ -2,15 +2,17 @@ package com.g4mesoft.panel.event;
 
 public final class GSLayoutEvent extends GSEvent {
 
-	public static final int ADDED_TYPE   = 400;
-	public static final int REMOVED_TYPE = 401;
-	public static final int RESIZED_TYPE = 402;
-	public static final int MOVED_TYPE   = 403;
-	public static final int SHOWN_TYPE   = 404;
-	public static final int HIDDEN_TYPE  = 405;
+	public static final int ADDED_TYPE       = 400;
+	public static final int REMOVED_TYPE     = 401;
+	public static final int RESIZED_TYPE     = 402;
+	public static final int MOVED_TYPE       = 403;
+	public static final int SHOWN_TYPE       = 404;
+	public static final int HIDDEN_TYPE      = 405;
+	public static final int INVALIDATED_TYPE = 406;
+	public static final int VALIDATED_TYPE   = 407;
 	
 	public static final int FIRST_TYPE = ADDED_TYPE;
-	public static final int LAST_TYPE  = HIDDEN_TYPE;
+	public static final int LAST_TYPE  = VALIDATED_TYPE;
 	
 	private final int type;
 	
@@ -48,5 +50,13 @@ public final class GSLayoutEvent extends GSEvent {
 
 	public static GSLayoutEvent createHiddenEvent() {
 		return new GSLayoutEvent(HIDDEN_TYPE);
+	}
+
+	public static GSLayoutEvent createInvalidatedEvent() {
+		return new GSLayoutEvent(INVALIDATED_TYPE);
+	}
+	
+	public static GSLayoutEvent createValidatedEvent() {
+		return new GSLayoutEvent(VALIDATED_TYPE);
 	}
 }

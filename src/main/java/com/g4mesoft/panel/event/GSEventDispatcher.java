@@ -342,6 +342,12 @@ public class GSEventDispatcher {
 		case GSLayoutEvent.HIDDEN_TYPE:
 			invokeLayoutEventListeners(dest, event, GSILayoutEventListener::panelHidden);
 			break;
+		case GSLayoutEvent.INVALIDATED_TYPE:
+			invokeLayoutEventListeners(dest, event, GSILayoutEventListener::panelInvalidated);
+			break;
+		case GSLayoutEvent.VALIDATED_TYPE:
+			invokeLayoutEventListeners(dest, event, GSILayoutEventListener::panelValidated);
+			break;
 		case GSLayoutEvent.UNKNOWN_TYPE:
 		default:
 			break;

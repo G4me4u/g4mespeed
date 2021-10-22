@@ -142,6 +142,22 @@ public class GSParentPanel extends GSPanel {
 		}
 	}
 
+	@Override
+	void invalidateNow() {
+		super.invalidateNow();
+		// Invalidate the entire sub-tree
+		for (GSPanel child : children)
+			child.invalidate();
+	}
+	
+	@Override
+	protected void validate() {
+		super.validate();
+		// Validate the entire sub-tree
+		for (GSPanel child : children)
+			child.revalidate();
+	}
+	
 	/* Visible for GSLayoutProperties */
 	@Override
 	int getDefaultMinimumWidth() {

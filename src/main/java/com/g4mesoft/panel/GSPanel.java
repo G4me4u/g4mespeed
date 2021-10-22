@@ -266,19 +266,6 @@ public class GSPanel {
 	}
 	
 	public void preRender(GSIRenderer2D renderer) {
-		if (invalidateLater) {
-			// Ensure that we do not invalidate whilst validating. This
-			// makes sure that we are not invalid during rendering.
-			invalidate();
-			invalidateLater = false;
-		}
-		
-		if (!isValid()) {
-			validating = true;
-			validate();
-			validating = false;
-		}
-		
 		renderer.pushMatrix();
 		renderer.translate(getX(), getY());
 		renderer.pushOpacity(opacity);
@@ -536,30 +523,56 @@ public class GSPanel {
 		layout.set(property, value);
 	}
 
-	protected void invalidateParent() {
-		if (parent != null)
-			parent.invalidate();
-	}
-	
-	protected void invalidate() {
+	protected final void invalidate() {
 		if (validating) {
 			invalidateLater = true;
-		} else {
-			valid = false;
-			
-			// Invalidate cached sizes
-			cachedMinimumSize = null;
-			cachedPreferredSize = null;
+		} else if (valid) {
+			invalidateNow();
+			dispatchLayoutEvent(GSLayoutEvent.createInvalidatedEvent(), this);
+		}
+	}
+	
+	void invalidateNow() {
+		valid = false;
+		
+		// Invalidate cached sizes
+		cachedMinimumSize = null;
+		cachedPreferredSize = null;
+		
+		GSPanelContext.scheduleValidation(this);
+	}
+	
+	void revalidate() {
+		if (!valid) {
+			validating = true;
+			try {
+				validate();
+				valid = true;
+			} finally {
+				validating = false;
+			}
+			dispatchLayoutEvent(GSLayoutEvent.createValidatedEvent(), this);
+		}
+		
+		if (invalidateLater) {
+			// We invalidated during validation. Move the invalidation
+			// here instead, to ensure that children are invalidated.
+			// A fresh revalidation will be scheduled immediately.
+			invalidate();
+			invalidateLater = false;
 		}
 	}
 
 	protected void validate() {
 		layout();
-		valid = true;
 	}
 	
 	public final boolean isValid() {
 		return valid;
+	}
+
+	public final boolean isValidating() {
+		return validating;
 	}
 	
 	public float getOpacity() {
