@@ -535,6 +535,11 @@ public class GSPanel {
 	public <T> void setProperty(GSILayoutProperty<T> property, T value) {
 		layout.set(property, value);
 	}
+
+	protected void invalidateParent() {
+		if (parent != null)
+			parent.invalidate();
+	}
 	
 	protected void invalidate() {
 		if (validating) {
