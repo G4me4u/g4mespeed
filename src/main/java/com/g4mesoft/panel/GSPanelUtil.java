@@ -1,5 +1,6 @@
 package com.g4mesoft.panel;
 
+import com.g4mesoft.panel.scroll.GSScrollPanel;
 import com.g4mesoft.panel.scroll.GSViewport;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
@@ -111,6 +112,28 @@ public final class GSPanelUtil {
 		if (parent instanceof GSViewport)
 			return -((GSViewport)parent).getOffsetY();
 		return 0;
+	}
+	
+	public static void setScrollX(GSPanel panel, int scrollX) {
+		GSScrollPanel scrollPanel = getScrollPanel(panel);
+		if (scrollPanel != null)
+			scrollPanel.getHorizontalScrollBar().setScroll(scrollX);
+	}
+	
+	public static void setScrollY(GSPanel panel, int scrollY) {
+		GSScrollPanel scrollPanel = getScrollPanel(panel);
+		if (scrollPanel != null)
+			scrollPanel.getVerticalScrollBar().setScroll(scrollY);
+	}
+	
+	private static GSScrollPanel getScrollPanel(GSPanel panel) {
+		GSPanel parent = panel.getParent();
+		if (parent != null) {
+			parent = parent.getParent();
+			if (parent instanceof GSScrollPanel)
+				return (GSScrollPanel)parent;
+		}
+		return null;
 	}
 	
 	public static GSDimension getViewportSize(GSPanel panel) {
