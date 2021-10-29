@@ -44,6 +44,8 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	private float opacity;
 	private final LinkedList<Float> opacityStack;
 	
+	private GSRectangle cachedClippedBounds;
+	
 	public GSBasicRenderer2D(MinecraftClient client) {
 		this.client = client;
 		
@@ -51,6 +53,8 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		transformStack = new LinkedList<>();
 		opacity = 1.0f;
 		opacityStack = new LinkedList<>();
+		
+		cachedClippedBounds = null;
 	}
 	
 	public void begin(BufferBuilder builder, MatrixStack matrixStack, int mouseX, int mouseY, int viewportWidth, int viewportHeight) {
@@ -69,6 +73,8 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		transformStack.clear();
 		transform.reset();
 		builder = null;
+
+		invalidateClippedBounds();
 	}
 
 	@Override
@@ -96,6 +102,8 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		
 		transform = transformStack.pop();
 		matrixStack.pop();
+		
+		invalidateClippedBounds();
 	}
 
 	@Override
@@ -104,6 +112,8 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		transform.offsetY += y;
 
 		matrixStack.translate(x, y, 0.0f);
+		
+		invalidateClippedBounds();
 	}
 	
 	@Override
@@ -120,6 +130,8 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		int y1 = y0 + height;
 		
 		((GSIBufferBuilderAccess)builder).pushClip(x0, y0, x1, y1);
+		
+		invalidateClippedBounds();
 	}
 
 	@Override
@@ -127,15 +139,32 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		// Translate clip according to current transform
 		clip = clip.offset(transform.offsetX, transform.offsetY);
 		((GSIBufferBuilderAccess)builder).pushClip(clip);
+		
+		invalidateClippedBounds();
 	}
 
 	@Override
 	public GSClipRect popClip() {
-		return ((GSIBufferBuilderAccess)builder).popClip();
+		GSClipRect oldClip = ((GSIBufferBuilderAccess)builder).popClip();
+		
+		invalidateClippedBounds();
+		
+		return oldClip;
 	}
 	
 	@Override
 	public GSRectangle getClipBounds() {
+		if (cachedClippedBounds != null)
+			cachedClippedBounds = computeClippedBounds();
+		return new GSRectangle(cachedClippedBounds);
+	}
+	
+	private void invalidateClippedBounds() {
+		// Should be invoked whenever the transform, clip, or viewport size changes.
+		cachedClippedBounds = null;
+	}
+	
+	private GSRectangle computeClippedBounds() {
 		GSClipRect clip = ((GSIBufferBuilderAccess)builder).getClip();
 		
 		if (clip == null) {
