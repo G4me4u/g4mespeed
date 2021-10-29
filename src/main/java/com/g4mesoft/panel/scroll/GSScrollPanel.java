@@ -169,13 +169,13 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		if (horizontalScrollBar != null) {
 			if (horizontalScrollBar.isAdded())
 				remove(horizontalScrollBar);
-			horizontalScrollBar.getModel().removeScrollListener(this);
+			horizontalScrollBar.removeScrollListener(this);
 			// Remove content from scroll bar
 			horizontalScrollBar.setScrollable(null);
 		}
 		
 		horizontalScrollBar = scrollBar;
-		horizontalScrollBar.getModel().addScrollListener(this);
+		horizontalScrollBar.addScrollListener(this);
 		horizontalScrollBar.setVertical(false);
 		horizontalScrollBar.setScrollable(getScrollableContent());
 		
