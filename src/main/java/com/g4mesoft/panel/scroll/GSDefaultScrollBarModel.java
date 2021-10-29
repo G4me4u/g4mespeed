@@ -1,12 +1,8 @@
 package com.g4mesoft.panel.scroll;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.g4mesoft.panel.GSIChangeListener;
 import com.g4mesoft.util.GSMathUtil;
 
-public class GSDefaultScrollBarModel implements GSIScrollBarModel {
+public class GSDefaultScrollBarModel extends GSAbstractScrollBarModel {
 
 	private static final float DEFAULT_BLOCK_SCROLL = 20.0f;
 	private static final float DEFAULT_MIN_SCROLL   = 0.0f;
@@ -18,9 +14,6 @@ public class GSDefaultScrollBarModel implements GSIScrollBarModel {
 	private float maxScroll;
 	private float blockScroll;
 	
-	private final List<GSIChangeListener> changeListeners;
-	private final List<GSIScrollListener> scrollListeners;
-
 	public GSDefaultScrollBarModel() {
 		this(DEFAULT_MIN_SCROLL, DEFAULT_MAX_SCROLL);
 	}
@@ -33,40 +26,8 @@ public class GSDefaultScrollBarModel implements GSIScrollBarModel {
 		this.minScroll = Float.isNaN(minScroll) ? DEFAULT_MIN_SCROLL : minScroll;
 		this.maxScroll = Float.isNaN(maxScroll) ? DEFAULT_MAX_SCROLL : maxScroll;
 		this.blockScroll = DEFAULT_BLOCK_SCROLL;
-		
-		changeListeners = new ArrayList<>();
-		scrollListeners = new ArrayList<>();
 
 		setScroll(scroll);
-	}
-
-	@Override
-	public void addChangeListener(GSIChangeListener listener) {
-		changeListeners.add(listener);
-	}
-
-	@Override
-	public void removeChangeListener(GSIChangeListener listener) {
-		changeListeners.remove(listener);
-	}
-
-	private void dispatchValueChanged() {
-		changeListeners.forEach(GSIChangeListener::valueChanged);
-	}
-
-	@Override
-	public void addScrollListener(GSIScrollListener listener) {
-		scrollListeners.add(listener);
-	}
-	
-	@Override
-	public void removeScrollListener(GSIScrollListener listener) {
-		scrollListeners.remove(listener);
-	}
-	
-	private void dispatchScrollChanged(float newScroll) {
-		for (GSIScrollListener listener : scrollListeners)
-			listener.scrollChanged(newScroll);
 	}
 
 	@Override
