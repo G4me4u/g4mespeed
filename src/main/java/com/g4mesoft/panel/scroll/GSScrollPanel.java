@@ -330,8 +330,8 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 	public void scrollChanged(float ignore) {
 		// Called from both the vertical and horizontal scroll bar,
 		// so we have to ignore the newScrollOffset from parameters.
-		int offsetX = Math.round(-horizontalScrollBar.getScroll());
-		int offsetY = Math.round(-verticalScrollBar.getScroll());
+		int offsetX = Math.round(horizontalScrollBar.getScroll());
+		int offsetY = Math.round(verticalScrollBar.getScroll());
 		// Update the offsets of the viewports.
 		contentViewport.setOffset(offsetX, offsetY);
 		columnHeaderViewport.setOffset(offsetX, 0);

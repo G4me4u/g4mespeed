@@ -76,7 +76,7 @@ public class GSViewportLayoutManager implements GSILayoutManager {
 				}
 			}
 			
-			content.setBounds(offsetX, offsetY, prefW, prefH);
+			content.setBounds(-offsetX, -offsetY, prefW, prefH);
 		}
 	}
 }

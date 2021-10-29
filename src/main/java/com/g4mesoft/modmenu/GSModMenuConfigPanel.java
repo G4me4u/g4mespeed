@@ -93,8 +93,8 @@ public class GSModMenuConfigPanel extends GSClosableParentPanel {
 		// If the content is a scroll panel, offset the background.
 		GSPanel content = configGUI.getSelectedTabContent();
 		if (content instanceof GSScrollPanel) {
-			x -= ((GSScrollPanel)content).getViewportOffsetX();
-			y -= ((GSScrollPanel)content).getViewportOffsetY();
+			x += ((GSScrollPanel)content).getViewportOffsetX();
+			y += ((GSScrollPanel)content).getViewportOffsetY();
 		}
 		
 		// Draw content background
