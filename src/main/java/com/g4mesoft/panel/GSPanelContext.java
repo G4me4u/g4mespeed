@@ -313,26 +313,25 @@ public final class GSPanelContext {
 	}
 	
 	private boolean scheduleValidationImpl(GSPanel panel) {
-		if (requiresScheduledValidation(panel)) {
-			// Only schedule validation if the parent is
-			// not going to validate us.
-			validationQueue.add(panel);
-			return true;
-		}
-		return false;
+		validationQueue.add(panel);
+		return true;
 	}
 	
 	private void validateAllImpl() {
-		while (!validationQueue.isEmpty()) {
-			GSPanel panel = validationQueue.poll();
+		GSPanel panel;
+		while ((panel = validationQueue.poll()) != null) {
 			if (requiresScheduledValidation(panel))
 				panel.revalidate();
 		}
 	}
 	
 	private boolean requiresScheduledValidation(GSPanel panel) {
+		if (panel.isValid())
+			return false;
 		GSPanel parent = panel.getParent();
-		return (parent != null && parent.isValid());
+		if (parent == null)
+			return (panel == getRootPanel());
+		return parent.isValid();
 	}
 	
 	private static GSPanelContext getContext() {

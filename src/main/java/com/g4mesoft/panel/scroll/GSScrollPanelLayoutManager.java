@@ -107,6 +107,9 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 		GSDimension vsbPrefSize = verticalScrollBar.getProperty(GSPanel.PREFERRED_SIZE);
 		GSDimension hsbPrefSize = horizontalScrollBar.getProperty(GSPanel.PREFERRED_SIZE);
 
+		int scrollableW = Math.max(contentPrefW, chPrefW);
+		int scrollableH = Math.max(contentPrefH, rhPrefH);
+		
 		boolean vsbNeeded;
 		switch (scrollPanel.getVerticalScrollBarPolicy()) {
 		case SCROLLBAR_ALWAYS:
@@ -114,7 +117,7 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 			break;
 		case SCROLLBAR_AS_NEEDED:
 		default:
-			vsbNeeded = (availH < contentPrefH || availH < rhPrefH);
+			vsbNeeded = (scrollableH > availH);
 			break;
 		case SCROLLBAR_NEVER:
 			vsbNeeded = false;
@@ -131,7 +134,7 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 			break;
 		case SCROLLBAR_AS_NEEDED:
 		default:
-			hsbNeeded = (availW < contentPrefW || availW < chPrefW);
+			hsbNeeded = (scrollableW > availW);
 			break;
 		case SCROLLBAR_NEVER:
 			hsbNeeded = false;
@@ -144,7 +147,7 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 			if (!vsbNeeded && scrollPanel.getVerticalScrollBarPolicy() == GSEScrollBarPolicy.SCROLLBAR_AS_NEEDED) {
 				// Check if we have to add the vertical scroll bar with
 				// the updated height from the horizontal scroll bar.
-				if (availH < contentPrefH || availH < rhPrefH) {
+				if (scrollableH > availH) {
 					vsbNeeded = true;
 					availW -= vsbPrefSize.getWidth();
 				}
@@ -176,6 +179,7 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 		} else {
 			ensureRemoved(parent, verticalScrollBar);
 		}
+		verticalScrollBar.getModel().setScrollInterval(0.0f, Math.max(0.0f, scrollableH - availH));
 		
 		if (hsbNeeded) {
 			ensureAdded(parent, horizontalScrollBar);
@@ -183,6 +187,7 @@ public class GSScrollPanelLayoutManager implements GSILayoutManager {
 		} else {
 			ensureRemoved(parent, horizontalScrollBar);
 		}
+		horizontalScrollBar.getModel().setScrollInterval(0.0f, Math.max(0.0f, scrollableW - availW));
 		
 		// Add corners if they should be visible
 		

@@ -1,5 +1,8 @@
 package com.g4mesoft.panel.scroll;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSIChangeListener;
 import com.g4mesoft.panel.GSPanel;
@@ -14,7 +17,7 @@ import com.g4mesoft.renderer.GSITextureRegion;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeListener {
+public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeListener, GSIScrollListener {
 
 	private static final GSITextureRegion SCROLL_BUTTON_TEXTURE = GSPanelContext.getTexture(0, 32, 30, 40);
 	
@@ -53,6 +56,10 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 	protected int knobAreaSize;
 	protected int knobSize;
 	protected int knobPos;
+	
+	protected GSIScrollable scrollable;
+	
+	private List<GSIScrollListener> scrollListeners;
 
 	public GSScrollBar() {
 		this(true);
@@ -245,7 +252,24 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 	}
 	
 	private void onIncrementalScroll(int sign) {
-		setScroll(model.getScroll() + sign * model.getIncrementalScroll(sign));
+		setScroll(model.getScroll() + sign * getIncrementalScroll(sign));
+	}
+	
+	private float getIncrementalScroll(int sign) {
+		if (scrollable != null) {
+			float incScroll;
+			if (vertical) {
+				incScroll = scrollable.getIncrementalScrollY(sign);
+			} else {
+				incScroll = scrollable.getIncrementalScrollX(sign);
+			}
+			
+			// Ensure that the returned scroll is valid (default is NaN)
+			if (!Float.isNaN(incScroll) && incScroll > 0.0f)
+				return incScroll;
+		}
+		
+		return model.getBlockScroll();
 	}
 	
 	private void onPageScroll(int sign) {
@@ -308,12 +332,40 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 		if (oldModel != null) {
 			float oldScroll = oldModel.getScroll();
 			oldModel.removeChangeListener(this);
+			oldModel.removeScrollListener(this);
 			model.setScroll(oldScroll);
 		}
 		
 		model.addChangeListener(this);
+		model.addScrollListener(this);
 
 		updateAttribs();
+	}
+
+	public GSIScrollable getScrollable() {
+		return scrollable;
+	}
+	
+	public void setScrollable(GSIScrollable scrollable) {
+		this.scrollable = scrollable;
+	}
+	
+	public void addScrollListener(GSIScrollListener listener) {
+		if (scrollListeners == null)
+			scrollListeners = new ArrayList<>();
+		scrollListeners.add(listener);
+	}
+
+	public void removeScrollListener(GSIScrollListener listener) {
+		if (scrollListeners != null)
+			scrollListeners.remove(listener);
+	}
+	
+	private void dispatchScrollChanged(float newScroll) {
+		if (scrollListeners != null) {
+			for (GSIScrollListener listener : scrollListeners)
+				listener.scrollChanged(newScroll);
+		}
 	}
 
 	@Override
@@ -344,5 +396,10 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 		} else {
 			knobSize = knobAreaSize;
 		}
+	}
+	
+	@Override
+	public void scrollChanged(float newScroll) {
+		dispatchScrollChanged(newScroll);
 	}
 }

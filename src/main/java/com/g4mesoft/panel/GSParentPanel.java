@@ -9,6 +9,7 @@ import com.g4mesoft.renderer.GSIRenderer2D;
 public class GSParentPanel extends GSPanel {
 
 	protected final List<GSPanel> children;
+	private boolean iteratingChildren;
 	
 	private GSILayoutManager layoutManager;
 
@@ -31,8 +32,13 @@ public class GSParentPanel extends GSPanel {
 	@Override
 	public void setVisible(boolean visible) {
 		if (visible != isVisible()) {
-			for (GSPanel panel : children)
-				panel.setVisible(visible);
+			iteratingChildren = true;
+			try {
+				for (GSPanel panel : children)
+					panel.setVisible(visible);
+			} finally {
+				iteratingChildren = false;
+			}
 
 			super.setVisible(visible);
 		}
@@ -40,43 +46,62 @@ public class GSParentPanel extends GSPanel {
 	
 	@Override
 	public void add(GSPanel panel) {
+		if (panel == null)
+			throw new IllegalArgumentException("panel is null");
+		if (iteratingChildren)
+			throw new IllegalStateException("Children can not be added  when iterating");
+		
 		children.add(panel);
 
 		panel.onAdded(this);
 		panel.setVisible(isVisible());
 
-		invalidate();
+		if (!isValidating())
+			invalidate();
+		panel.invalidate();
 	}
 	
 	@Override
 	public void remove(GSPanel panel) {
+		if (iteratingChildren)
+			throw new IllegalStateException("Children can not be removed when iterating");
+
 		if (children.remove(panel)) {
 			onChildRemoved(panel);
-			invalidate();
+			if (!isValidating())
+				invalidate();
 		}
 	}
 
 	@Override
 	public void remove(int index) {
+		if (iteratingChildren)
+			throw new IllegalStateException("Children can not be removed when iterating");
+		
 		GSPanel panel = children.remove(index);
 		if (panel != null) {
 			onChildRemoved(panel);
-			invalidate();
+			if (!isValidating())
+				invalidate();
 		}
 	}
 	
 	@Override
 	public void removeAll() {
+		if (iteratingChildren)
+			throw new IllegalStateException("Children can not be removed when iterating");
+		
 		if (!children.isEmpty()) {
-			int count = children.size();
 			do {
 				// NOTE: Remove last to ensure we do not
 				// have an O(n^2) removeAll algorithm.
 				// For reference, view ArrayList#remove.
-				onChildRemoved(children.remove(--count));
-			} while (count != 0);
+				int lastIndex = children.size() - 1;
+				onChildRemoved(children.remove(lastIndex));
+			} while (!children.isEmpty());
 		
-			invalidate();
+			if (!isValidating())
+				invalidate();
 		}
 	}
 
@@ -92,12 +117,17 @@ public class GSParentPanel extends GSPanel {
 	
 	@Override
 	public GSPanel getChildAt(int x, int y) {
-		// Traverse children in reverse direction to match
-		// the order that they are drawn (last on top).
-		for (int i = children.size() - 1; i >= 0; i--) {
-			GSPanel child = children.get(i);
-			if (child.isInBounds(x, y))
-				return child;
+		iteratingChildren = true;
+		try {
+			// Traverse children in reverse direction to match
+			// the order that they are drawn (last on top).
+			for (int i = children.size() - 1; i >= 0; i--) {
+				GSPanel child = children.get(i);
+				if (child.isInBounds(x, y))
+					return child;
+			}
+		} finally {
+			iteratingChildren = false;
 		}
 		
 		return null;
@@ -121,10 +151,20 @@ public class GSParentPanel extends GSPanel {
 	}
 	
 	protected void renderChildren(GSIRenderer2D renderer) {
-		for (GSPanel child : children) {
-			child.preRender(renderer);
-			child.render(renderer);
-			child.postRender(renderer);
+		GSRectangle clipBounds = renderer.getClipBounds();
+		
+		iteratingChildren = true;
+		try {
+			for (GSPanel child : children) {
+				// Ensure that the child is actually visible.
+				if (clipBounds.intersects(child.getBounds())) {
+					child.preRender(renderer);
+					child.render(renderer);
+					child.postRender(renderer);
+				}
+			}
+		} finally {
+			iteratingChildren = false;
 		}
 	}
 	
@@ -146,16 +186,26 @@ public class GSParentPanel extends GSPanel {
 	void invalidateNow() {
 		super.invalidateNow();
 		// Invalidate the entire sub-tree
-		for (GSPanel child : children)
-			child.invalidate();
+		iteratingChildren = true;
+		try {
+			for (GSPanel child : children)
+				child.invalidate();
+		} finally {
+			iteratingChildren = false;
+		}
 	}
 	
 	@Override
 	protected void validate() {
 		super.validate();
 		// Validate the entire sub-tree
-		for (GSPanel child : children)
-			child.revalidate();
+		iteratingChildren = true;
+		try {
+			for (GSPanel child : children)
+				child.revalidate();
+		} finally {
+			iteratingChildren = false;
+		}
 	}
 	
 	/* Visible for GSLayoutProperties */

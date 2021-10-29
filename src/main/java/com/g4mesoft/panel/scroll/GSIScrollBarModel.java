@@ -30,6 +30,4 @@ public interface GSIScrollBarModel {
 	
 	public void setBlockScroll(float blockScroll);
 	
-	public float getIncrementalScroll(int sign);
-	
 }

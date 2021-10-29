@@ -64,11 +64,6 @@ public class GSDefaultScrollBarModel implements GSIScrollBarModel {
 		scrollListeners.remove(listener);
 	}
 	
-	private void dispatchPreScrollChanged(float newScroll) {
-		for (GSIScrollListener listener : scrollListeners)
-			listener.preScrollChanged(newScroll);
-	}
-
 	private void dispatchScrollChanged(float newScroll) {
 		for (GSIScrollListener listener : scrollListeners)
 			listener.scrollChanged(newScroll);
@@ -84,7 +79,6 @@ public class GSDefaultScrollBarModel implements GSIScrollBarModel {
 		if (Float.isNaN(scroll))
 			scroll = minScroll;
 		
-		dispatchPreScrollChanged(scroll);
 		this.scroll = GSMathUtil.clamp(scroll, minScroll, maxScroll);
 		dispatchScrollChanged(this.scroll);
 		dispatchValueChanged();
@@ -133,10 +127,5 @@ public class GSDefaultScrollBarModel implements GSIScrollBarModel {
 	@Override
 	public void setBlockScroll(float blockScroll) {
 		this.blockScroll = Math.max(0.0f, blockScroll);
-	}
-	
-	@Override
-	public float getIncrementalScroll(int sign) {
-		return getBlockScroll();
 	}
 }

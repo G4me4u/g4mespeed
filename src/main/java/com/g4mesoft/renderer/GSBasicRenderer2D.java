@@ -154,7 +154,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	
 	@Override
 	public GSRectangle getClipBounds() {
-		if (cachedClippedBounds != null)
+		if (cachedClippedBounds == null)
 			cachedClippedBounds = computeClippedBounds();
 		return new GSRectangle(cachedClippedBounds);
 	}

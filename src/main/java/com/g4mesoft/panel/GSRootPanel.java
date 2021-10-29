@@ -22,6 +22,13 @@ public final class GSRootPanel extends GSParentPanel {
 	}
 	
 	@Override
+	protected void onShown() {
+		super.onShown();
+	
+		GSPanelContext.scheduleValidation(this);
+	}
+	
+	@Override
 	protected void layout() {
 		if (content != null)
 			content.setBounds(0, 0, width, height);
