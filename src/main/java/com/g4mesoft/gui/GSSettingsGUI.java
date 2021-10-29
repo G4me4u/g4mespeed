@@ -206,7 +206,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	}
 	
 	@Override
-	public boolean isScrollableWidthFixed() {
+	public boolean isScrollableWidthFilled() {
 		return true;
 	}
 	

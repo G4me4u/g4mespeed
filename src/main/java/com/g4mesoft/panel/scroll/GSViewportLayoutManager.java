@@ -43,20 +43,40 @@ public class GSViewportLayoutManager implements GSILayoutManager {
 		GSPanel content = viewport.getContent();
 
 		if (content != null) {
-			GSDimension prefSize = getPreferredSize(parent);
+			int offsetX = viewport.getOffsetX();
+			int offsetY = viewport.getOffsetY();
 
+			GSDimension prefSize = getPreferredSize(parent);
 			int prefW = prefSize.getWidth();
 			int prefH = prefSize.getHeight();
 			
 			if (content instanceof GSIScrollable) {
 				GSIScrollable scrollable = (GSIScrollable)content;
-				if (scrollable.isScrollableWidthFixed() && prefW < parent.getWidth())
-					prefW = parent.getWidth();
-				if (scrollable.isScrollableHeightFixed() && prefH < parent.getHeight())
-					prefH = parent.getHeight();
+				if (scrollable.isScrollableWidthFilled()) {
+					if (offsetX < 0) {
+						// Use up the extra width to the left.
+						prefW -= offsetX;
+						offsetX = 0;
+					}
+					if (prefW < offsetX + parent.getWidth()) {
+						// Use up the extra width to the right.
+						prefW = offsetX + parent.getWidth();
+					}
+				}
+				if (scrollable.isScrollableHeightFilled()) {
+					if (offsetY < 0) {
+						// Use up the extra height above.
+						prefH -= offsetY;
+						offsetY = 0;
+					}
+					if (prefH < offsetY + parent.getHeight()) {
+						// Use up the extra height below.
+						prefH = offsetY + parent.getHeight();
+					}
+				}
 			}
 			
-			content.setBounds(viewport.getOffsetX(), viewport.getOffsetY(), prefW, prefH);
+			content.setBounds(offsetX, offsetY, prefW, prefH);
 		}
 	}
 }

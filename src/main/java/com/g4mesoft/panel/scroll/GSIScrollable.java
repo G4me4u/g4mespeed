@@ -12,11 +12,11 @@ public interface GSIScrollable {
 		return null;
 	}
 	
-	default public boolean isScrollableWidthFixed() {
+	default public boolean isScrollableWidthFilled() {
 		return false;
 	}
 
-	default public boolean isScrollableHeightFixed() {
+	default public boolean isScrollableHeightFilled() {
 		return false;
 	}
 	

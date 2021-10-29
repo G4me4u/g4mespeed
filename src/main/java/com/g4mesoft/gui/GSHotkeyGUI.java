@@ -133,7 +133,7 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 	}
 	
 	@Override
-	public boolean isScrollableWidthFixed() {
+	public boolean isScrollableWidthFilled() {
 		return true;
 	}
 	
