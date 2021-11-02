@@ -1,5 +1,7 @@
 package com.g4mesoft.renderer;
 
+import com.g4mesoft.core.GSCoreOverride;
+
 import net.minecraft.text.CharacterVisitor;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
@@ -19,6 +21,7 @@ public class GSCharSequenceOrderedText implements OrderedText {
 	}
 	
 	@Override
+	@GSCoreOverride
 	public boolean accept(CharacterVisitor visitor) {
 		for (int i = 0, len = sequence.length(); i < len; ) {
 			char c = sequence.charAt(i);
