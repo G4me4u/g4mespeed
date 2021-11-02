@@ -5,6 +5,7 @@ import java.util.List;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -25,12 +26,13 @@ public abstract class GSTranslatableTextMixin {
 	@Shadow @Final private String key;
 	@Shadow @Final protected List<Text> translations;
 	
+	@Shadow protected abstract void setTranslation(String translation);
+
+	@Unique
 	private long lastTranslationTimestamp = -1L;
 	
-	@Shadow protected abstract void setTranslation(String translation);
-	
 	@Inject(method = "updateTranslations", at = @At("HEAD"), cancellable = true)
-	public void onUpdateTranslations(CallbackInfo ci) {
+	private void onUpdateTranslations(CallbackInfo ci) {
 		GSController threadController = GSController.getInstanceOnThread();
 		
 		// If we don't know which controller we are

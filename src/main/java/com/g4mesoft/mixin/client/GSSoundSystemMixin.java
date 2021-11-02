@@ -4,11 +4,12 @@ import java.util.Map;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSITpsDependant;
@@ -29,10 +30,13 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 
 	@Shadow @Final private Map<SoundInstance, Channel.SourceManager> sources;
 
+	@Shadow protected abstract float getAdjustedPitch(SoundInstance soundInstance);
+	
+	@Unique
 	private GSTpsModule tpsModule;
 	
 	@Inject(method = "<init>", at = @At("RETURN"))
-	public void onInit(SoundManager soundManager, GameOptions options, ResourceManager resourceManager, CallbackInfo ci) {
+	private void onInit(SoundManager soundManager, GameOptions options, ResourceManager resourceManager, CallbackInfo ci) {
 		GSClientController client = GSClientController.getInstance();
 		tpsModule = client.getTpsModule();
 		
@@ -40,19 +44,20 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 		client.getSettingManager().addChangeListener(this);
 	}
 	
-	/**
-	 * @author Christian
-	 * @reason The whole method is changed to return shifted pitch
-	 */
-	@Overwrite
-	private float getAdjustedPitch(SoundInstance soundInstance) {
-		float pitch = MathHelper.clamp(soundInstance.getPitch(), 0.5F, 2.0F);
-		if (tpsModule.cShiftPitch.getValue())
-			return pitch * tpsModule.getTps() / GSTpsModule.DEFAULT_TPS;
+	@Inject(method = "getAdjustedPitch", cancellable = true, at = @At("HEAD"))
+	private void onGetAdjustedPitch(SoundInstance soundInstance, CallbackInfoReturnable<Float> cir) {
+		float pitch = MathHelper.clamp(soundInstance.getPitch(), 0.5f, 2.0f);
+		
+		if (tpsModule.cShiftPitch.getValue()) {
+			// Scale pitch by relative tps difference to the default.
+			pitch *= tpsModule.getTps() / GSTpsModule.DEFAULT_TPS;
+		}
 
-		return pitch;
+		cir.setReturnValue(pitch);
+		cir.cancel();
 	}
 
+	@Unique
 	private void updatePitch() {
 		for (Map.Entry<SoundInstance, Channel.SourceManager> soundEntry : sources.entrySet()) {
 			float pitch = getAdjustedPitch(soundEntry.getKey());

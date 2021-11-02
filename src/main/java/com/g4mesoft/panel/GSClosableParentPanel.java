@@ -4,7 +4,7 @@ import com.g4mesoft.panel.event.GSIButtonStroke;
 import com.g4mesoft.panel.event.GSKeyButtonStroke;
 import com.g4mesoft.panel.event.GSKeyEvent;
 
-public class GSClosableParentPanel extends GSParentPanel implements GSIClosable {
+public class GSClosableParentPanel extends GSParentPanel {
 
 	private GSIButtonStroke closeButton;
 	
@@ -28,7 +28,6 @@ public class GSClosableParentPanel extends GSParentPanel implements GSIClosable 
 		putButtonStroke(closeButton, this::close);
 	}
 	
-	@Override
 	public void close() {
 		GSPanelContext.openContent(null);
 	}

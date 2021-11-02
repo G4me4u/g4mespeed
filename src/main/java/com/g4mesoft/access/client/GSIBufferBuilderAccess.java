@@ -15,12 +15,8 @@ public interface GSIBufferBuilderAccess {
 
 	public GSClipRect popClip();
 
-	public float getClipOffsetX();
+	public GSClipRect getClip();
 
-	public float getClipOffsetY();
-	
-	public void setClipOffset(float offsetX, float offsetY);
-	
 	public ByteBuffer getByteBuffer();
 
 	public DrawMode getDrawMode();

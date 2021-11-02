@@ -7,6 +7,7 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -55,13 +56,19 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Shadow public Overlay overlay;
 	@Shadow @Final public InGameHud inGameHud;
 
+	@Unique
 	private GSClientController controller;
+	@Unique
 	private GSTpsModule tpsModule;
 	
+	@Unique
 	private final GSITickTimer playerTimer = new GSBasicTickTimer(GSITickTimer.DEFAULT_MILLIS_PER_TICK);
-
+	
+	@Unique
 	private boolean flushingUpdates = false;
+	@Unique
 	private boolean forceScheduledPistonBlockEntityUpdates = false;
+	@Unique
 	private final Set<BlockPos> scheduledPistonBlockEntityUpdates = new LinkedHashSet<>();
 	
 	@Shadow protected abstract boolean isPaused();
@@ -70,14 +77,14 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	
 	@Inject(method = "run", at = @At(value = "FIELD", target="Lnet/minecraft/client/MinecraftClient;thread:Ljava/lang/Thread;",
 			opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
-	public void onInit(CallbackInfo ci) {
+	private void onInit(CallbackInfo ci) {
 		controller = GSClientController.getInstance();
 		controller.init((MinecraftClient)(Object)this);
 		tpsModule = controller.getTpsModule();
 	}
 	
 	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
-	public void onDisconnect(Screen screen, CallbackInfo ci) {
+	private void onDisconnect(Screen screen, CallbackInfo ci) {
 		// Check if player is null. This ensures that we only
 		// call disconnect when we're leaving a play-session.
 		if (this.player != null)
@@ -85,7 +92,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	}
 	
 	@Inject(method = "stop", at = @At(value = "CONSTANT", args = "stringValue=Stopping!"))
-	public void onClientClose(CallbackInfo ci) {
+	private void onClientClose(CallbackInfo ci) {
 		controller.onClientClose();
 	}
 
@@ -103,7 +110,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	
 	@Inject(method = "tick", at = @At(value = "FIELD", shift = Shift.AFTER, 
 			opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/MinecraftClient;itemUseCooldown:I"))
-	public void onTickAfterItemUseCooldownDecrement(CallbackInfo ci) {
+	private void onTickAfterItemUseCooldownDecrement(CallbackInfo ci) {
 		if (tpsModule.isMainPlayerFixedMovement()) {
 			// Fix item cool-down by incrementing it.
 			itemUseCooldown++;
@@ -112,7 +119,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 
 	@Inject(method = "tick", at = @At(value = "FIELD", shift = Shift.AFTER, 
 			opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/MinecraftClient;attackCooldown:I"))
-	public void onTickAfterAttackCooldownDecrement(CallbackInfo ci) {
+	private void onTickAfterAttackCooldownDecrement(CallbackInfo ci) {
 		if (tpsModule.isMainPlayerFixedMovement()) {
 			// Fix attack cool-down by incrementing it.
 			attackCooldown++;
@@ -120,28 +127,28 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	}
 	
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;tick()V"))
-	public void onTickRedirectInteractionManagerTick(InGameHud inGameHud) {
+	private void onTickRedirectInteractionManagerTick(InGameHud inGameHud) {
 		// Tick is handled elsewhere when correcting movement.
 		if (!tpsModule.isMainPlayerFixedMovement())
 			inGameHud.tick();
 	}
 
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;tick()V"))
-	public void onTickRedirectInteractionManagerTick(ClientPlayerInteractionManager interactionManager) {
+	private void onTickRedirectInteractionManagerTick(ClientPlayerInteractionManager interactionManager) {
 		// Tick is handled elsewhere when correcting movement.
 		if (!tpsModule.isMainPlayerFixedMovement())
 			interactionManager.tick();
 	}
 	
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;handleInputEvents()V"))
-	public void onTickRedirectHandleInputEvents(MinecraftClient ignore) {
+	private void onTickRedirectHandleInputEvents(MinecraftClient ignore) {
 		// Events are handled elsewhere when correcting movement.
 		if (!tpsModule.isMainPlayerFixedMovement())
 			handleInputEvents();
 	}
 
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;tick()V"))
-	public void onTickRedirectGameRendererTick(GameRenderer gameRenderer) {
+	private void onTickRedirectGameRendererTick(GameRenderer gameRenderer) {
 		// Tick is handled elsewhere when correcting movement.
 		if (!tpsModule.isMainPlayerFixedMovement())
 			gameRenderer.tick();
@@ -149,7 +156,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	
 	@Inject(method = "render", slice = @Slice(from = @At(value = "CONSTANT", args = "stringValue=tick")), 
 			at = @At(value = "INVOKE", ordinal = 0, shift = Shift.AFTER, target = "Lnet/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V"))
-	public void onRenderBeforeTickLoop(CallbackInfo ci) {
+	private void onRenderBeforeTickLoop(CallbackInfo ci) {
 		if (!flushingUpdates || forceScheduledPistonBlockEntityUpdates) {
 			// Perform piston block entity updates after runTasks()
 			performScheduledPistonBlockEntityUpdates();
@@ -167,6 +174,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		}
 	}
 	
+	@Unique
 	private void performScheduledPistonBlockEntityUpdates() {
 		if (!scheduledPistonBlockEntityUpdates.isEmpty()) {
 			BlockPos[] positions = scheduledPistonBlockEntityUpdates.toArray(new BlockPos[0]);
@@ -180,6 +188,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		}
 	}
 	
+	@Unique
 	private void onTickCorrection() {
 		if (itemUseCooldown > 0)
 			itemUseCooldown--;
@@ -205,6 +214,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		}
 	}
 	
+	@Unique
 	private void tickFixedMovementPlayers() {
 		if (!tpsModule.isDefaultTps()) {
 			for (AbstractClientPlayerEntity entity : world.getPlayers()) {
@@ -215,7 +225,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	}
 	
 	@ModifyArg(method = "render", index = 0, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;render(FJZ)V"))
-	public float onModifyGameRenderTickDelta(float oldTickDelta) {
+	private float onModifyGameRenderTickDelta(float oldTickDelta) {
 		if (!paused && tpsModule.isMainPlayerFixedMovement())
 			return playerTimer.getTickDelta();
 		return oldTickDelta;

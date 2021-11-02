@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.g4mesoft.access.client.GSIBufferBuilderAccess;
+import com.g4mesoft.panel.GSRectangle;
 import com.g4mesoft.util.GSMathUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 
@@ -16,7 +17,6 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormat.DrawMode;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
@@ -33,29 +33,37 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	private MatrixStack matrixStack;
 	private int mouseX;
 	private int mouseY;
+	private int viewportWidth;
+	private int viewportHeight;
 	
 	private boolean building;
 	private DrawMode buildingDrawMode;
 	
 	private GSTransform2D transform;
 	private final LinkedList<GSTransform2D> transformStack;
-	
 	private float opacity;
+	private final LinkedList<Float> opacityStack;
+	
+	private GSRectangle cachedClippedBounds;
 	
 	public GSBasicRenderer2D(MinecraftClient client) {
 		this.client = client;
 		
 		transform = new GSTransform2D();
 		transformStack = new LinkedList<>();
-		
 		opacity = 1.0f;
+		opacityStack = new LinkedList<>();
+		
+		cachedClippedBounds = null;
 	}
 	
-	public void begin(BufferBuilder builder, MatrixStack matrixStack, int mouseX, int mouseY) {
+	public void begin(BufferBuilder builder, MatrixStack matrixStack, int mouseX, int mouseY, int viewportWidth, int viewportHeight) {
 		this.builder = builder;
 		this.matrixStack = matrixStack;
 		this.mouseX = mouseX;
 		this.mouseY = mouseY;
+		this.viewportWidth = viewportWidth;
+		this.viewportHeight = viewportHeight;
 	}
 	
 	public void end() {
@@ -65,6 +73,8 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		transformStack.clear();
 		transform.reset();
 		builder = null;
+
+		invalidateClippedBounds();
 	}
 
 	@Override
@@ -92,8 +102,8 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		
 		transform = transformStack.pop();
 		matrixStack.pop();
-
-		onTransformChanged();
+		
+		invalidateClippedBounds();
 	}
 
 	@Override
@@ -103,7 +113,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 
 		matrixStack.translate(x, y, 0.0f);
 		
-		onTransformChanged();
+		invalidateClippedBounds();
 	}
 	
 	@Override
@@ -111,33 +121,78 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		matrixStack.translate(0.0f, 0.0f, z);
 	}
 	
-	private void onTransformChanged() {
-		((GSIBufferBuilderAccess)builder).setClipOffset(transform.offsetX, transform.offsetY);
-	}
-	
 	@Override
 	public void pushClip(int x, int y, int width, int height) {
-		((GSIBufferBuilderAccess)builder).pushClip(x, y, x + width, y + height);
+		// Translate clip according to current transform
+		int x0 = x + transform.offsetX;
+		int y0 = y + transform.offsetY;
+		int x1 = x0 + width;
+		int y1 = y0 + height;
+		
+		((GSIBufferBuilderAccess)builder).pushClip(x0, y0, x1, y1);
+		
+		invalidateClippedBounds();
 	}
 
 	@Override
 	public void pushClip(GSClipRect clip) {
+		// Translate clip according to current transform
+		clip = clip.offset(transform.offsetX, transform.offsetY);
 		((GSIBufferBuilderAccess)builder).pushClip(clip);
+		
+		invalidateClippedBounds();
 	}
 
 	@Override
 	public GSClipRect popClip() {
-		return ((GSIBufferBuilderAccess)builder).popClip();
+		GSClipRect oldClip = ((GSIBufferBuilderAccess)builder).popClip();
+		
+		invalidateClippedBounds();
+		
+		return oldClip;
 	}
 	
 	@Override
-	public float getOpacity() {
-		return opacity;
+	public GSRectangle getClipBounds() {
+		if (cachedClippedBounds == null)
+			cachedClippedBounds = computeClippedBounds();
+		return new GSRectangle(cachedClippedBounds);
+	}
+	
+	private void invalidateClippedBounds() {
+		// Should be invoked whenever the transform, clip, or viewport size changes.
+		cachedClippedBounds = null;
+	}
+	
+	private GSRectangle computeClippedBounds() {
+		GSClipRect clip = ((GSIBufferBuilderAccess)builder).getClip();
+		
+		if (clip == null) {
+			// Clipped by viewport edges.
+			return new GSRectangle(-transform.offsetX, -transform.offsetY, viewportWidth, viewportHeight);
+		}
+
+		// Find minimum bounds that contains the clip (x0, y0, x1, and y1 should be
+		// mathematical integers, since they have only been set by GSIRenderer2D).
+		int x = Math.max((int)(clip.x0 - 0.5f), 0);
+		int y = Math.max((int)(clip.y0 - 0.5f), 0);
+		int w = Math.min((int)(clip.x1 + 0.5f) - x, viewportWidth);
+		int h = Math.min((int)(clip.y1 + 0.5f) - y, viewportHeight);
+		
+		return new GSRectangle(x - transform.offsetX, y - transform.offsetY, w, h);
+	}
+	
+	@Override
+	public void pushOpacity(float opacityMultiplier) {
+		opacityStack.push(this.opacity);
+		this.opacity *= GSMathUtil.clamp(opacityMultiplier, 0.0f, 1.0f);
 	}
 
 	@Override
-	public void setOpacity(float opacity) {
-		this.opacity = GSMathUtil.clamp(opacity, 0.0f, 1.0f);
+	public float popOpacity() {
+		float oldOpacity = opacity;
+		opacity = opacityStack.pop();
+		return oldOpacity;
 	}
 
 	@Override
@@ -316,6 +371,11 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	}
 
 	@Override
+	public float getTextWidthNoStyle(CharSequence text) {
+		return client.textRenderer.getWidth(new GSCharSequenceOrderedText(text));
+	}
+
+	@Override
 	public void drawText(String text, int x, int y, int color, boolean shadowed) {
 		if (building)
 			throw new IllegalStateException("Batches are not supported for drawing text");
@@ -331,6 +391,11 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 
 		RenderSystem.disableTexture();
 		RenderSystem.enableBlend();
+	}
+	
+	@Override
+	public void drawTextNoStyle(CharSequence text, int x, int y, int color, boolean shadowed) {
+		drawText(new GSCharSequenceOrderedText(text), x, y, color, shadowed);
 	}
 	
 	@Override
@@ -425,14 +490,14 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	}
 	
 	@Override
-	public OrderedText trimString(Text text, int availableWidth, String ellipsis) {
+	public OrderedText trimString(Text text, int availableWidth, Text ellipsis) {
 		if (getTextWidth(text) <= availableWidth)
 			return text.asOrderedText();
 		
 		availableWidth -= (int)Math.ceil(getTextWidth(ellipsis));
 		
 		StringVisitable trimmed = client.textRenderer.trimToWidth(text, availableWidth);
-		StringVisitable result = StringVisitable.concat(trimmed, new LiteralText(ellipsis));
+		StringVisitable result = StringVisitable.concat(trimmed, ellipsis);
 		
 		return Language.getInstance().reorder(result);
 	}

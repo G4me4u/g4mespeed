@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -42,10 +43,15 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	@Shadow private boolean lastOnGround;
 	@Shadow private Vec3d velocity;
 	
+	@Unique
 	private boolean fixedMovement = false;
+	@Unique
 	private boolean lastFixedMovement = false;
+	@Unique
 	private boolean tickedFromFallingBlock = false;
+	@Unique
 	private int fallingBlockTrackingTick = 0;
+	@Unique
 	private Vec3d lastFallingBlockVelocity = Vec3d.ZERO;
 	
 	@Inject(method = "tick", cancellable = true, at = @At("HEAD"))

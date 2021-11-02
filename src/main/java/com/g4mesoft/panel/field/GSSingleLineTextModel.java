@@ -275,6 +275,18 @@ public class GSSingleLineTextModel extends GSAbstractTextModel {
 		
 		return new String(buffer, offset, count);
 	}
+	
+	@Override
+	public CharSequence getCharSequence(int offset, int count) {
+		if (offset < 0 || offset >= length)
+			throw new GSTextModelIndexOutOfBoundsException(offset);
+		if (count < 0)
+			throw new GSTextModelIndexOutOfBoundsException(count);
+		if (offset + count > length)
+			throw new GSTextModelIndexOutOfBoundsException(length);
+		
+		return new GSBasicCharSequence(buffer, offset, count);
+	}
 
 	@Override
 	public void getChars(int offset, int count, char[] charBuffer, int bufferOffset) {

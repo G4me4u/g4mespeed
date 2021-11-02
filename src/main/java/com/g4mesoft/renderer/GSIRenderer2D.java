@@ -2,12 +2,16 @@ package com.g4mesoft.renderer;
 
 import java.util.List;
 
+import com.g4mesoft.panel.GSRectangle;
+
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
 public interface GSIRenderer2D extends GSIRenderer {
 
 	public static final String DEFAULT_ELLIPSIS = "...";
+	public static final Text DEFAULT_ELLIPSIS_TEXT = new LiteralText(DEFAULT_ELLIPSIS);
 	
 	public int getMouseX();
 
@@ -35,9 +39,11 @@ public interface GSIRenderer2D extends GSIRenderer {
 
 	public GSClipRect popClip();
 	
-	public float getOpacity();
+	public GSRectangle getClipBounds();
 	
-	public void setOpacity(float opacity);
+	public void pushOpacity(float opacity);
+
+	public float popOpacity();
 
 	default public void fillRect(int x, int y, int width, int height, int color) {
 		float a = ((color >>> 24) & 0xFF) / 255.0f;
@@ -168,6 +174,8 @@ public interface GSIRenderer2D extends GSIRenderer {
 	
 	public float getTextWidth(String text);
 
+	public float getTextWidthNoStyle(CharSequence text);
+
 	default public float getTextWidth(Text text) {
 		return getTextWidth(text.asOrderedText());
 	}
@@ -187,6 +195,20 @@ public interface GSIRenderer2D extends GSIRenderer {
 	}
 
 	public void drawText(String text, int x, int y, int color, boolean shadowed);
+	
+	default public void drawCenteredTextNoStyle(CharSequence text, int xc, int y, int color) {
+		drawCenteredTextNoStyle(text, xc, y, color, true);
+	}
+	
+	default public void drawCenteredTextNoStyle(CharSequence text, int xc, int y, int color, boolean shadowed) {
+		drawTextNoStyle(text, xc - (int)Math.ceil(getTextWidthNoStyle(text)) / 2, y, color, shadowed);
+	}
+	
+	default public void drawTextNoStyle(CharSequence text, int x, int y, int color) {
+		drawTextNoStyle(text, x, y, color, true);
+	}
+	
+	public void drawTextNoStyle(CharSequence text, int x, int y, int color, boolean shadowed);
 	
 	default public void drawCenteredText(Text text, int xc, int y, int color) {
 		drawCenteredText(text.asOrderedText(), xc, y, color);
@@ -227,10 +249,10 @@ public interface GSIRenderer2D extends GSIRenderer {
 	public List<String> splitToLines(String text, int availableWidth);
 
 	default public OrderedText trimString(Text text, int availableWidth) {
-		return trimString(text, availableWidth, DEFAULT_ELLIPSIS);
+		return trimString(text, availableWidth, DEFAULT_ELLIPSIS_TEXT);
 	}
 	
-	public OrderedText trimString(Text text, int availableWidth, String ellipsis);
+	public OrderedText trimString(Text text, int availableWidth, Text ellipsis);
 	
 	public List<OrderedText> splitToLines(Text text, int availableWidth);
 

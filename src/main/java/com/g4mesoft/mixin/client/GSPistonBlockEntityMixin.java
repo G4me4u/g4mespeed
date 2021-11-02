@@ -6,6 +6,7 @@ import java.util.List;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -61,9 +62,11 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	
 	@Shadow public abstract Direction getMovementDirection();
 
+	@Unique
 	private float actualLastProgress;
-	
+	@Unique
 	private float nextProgress = 0.0f;
+	@Unique
 	private boolean wasAdded = false;
 	
 	/* Number of steps for a full extension (visible / modifiable for mod compatibility) */
@@ -116,17 +119,17 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	}
 
 	@Redirect(method = "getRenderOffsetX", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/PistonBlockEntity;getProgress(F)F"))
-	public float getSmoothRenderOffsetX(PistonBlockEntity blockEntity, float partialTicks) {
+	private float getSmoothRenderOffsetX(PistonBlockEntity blockEntity, float partialTicks) {
 		return ((GSIPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
 	}
 	
 	@Redirect(method = "getRenderOffsetY", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/PistonBlockEntity;getProgress(F)F"))
-	public float getSmoothRenderOffsetY(PistonBlockEntity blockEntity, float partialTicks) {
+	private float getSmoothRenderOffsetY(PistonBlockEntity blockEntity, float partialTicks) {
 		return ((GSIPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
 	}
 	
 	@Redirect(method = "getRenderOffsetZ", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/PistonBlockEntity;getProgress(F)F"))
-	public float getSmoothRenderOffsetZ(PistonBlockEntity blockEntity, float partialTicks) {
+	private float getSmoothRenderOffsetZ(PistonBlockEntity blockEntity, float partialTicks) {
 		return ((GSIPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
 	}
 	
@@ -209,6 +212,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		}
 	}
 	
+	@Unique
 	private void markEntitiesMovedByPiston(float stretchAmount) {
 		VoxelShape voxelShape = getHeadBlockState().getCollisionShape(this.world, this.getPos());
 		if (!voxelShape.isEmpty()) {
@@ -232,10 +236,12 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		}
 	}
 	
+	@Unique
 	private static boolean shouldCorrectPushEntities(PistonBlockEntity blockEntity) {
 		return isPushCorrectionEnabled(blockEntity) && !blockEntity.getPushedBlock().isOf(Blocks.SLIME_BLOCK);
 	}
 	
+	@Unique
 	private static boolean isPushCorrectionEnabled(PistonBlockEntity blockEntity) {
 		World world = blockEntity.getWorld();
 		if (world == null || !world.isClient)
@@ -244,7 +250,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	}
 
 	@Inject(method = "readNbt", at = @At("RETURN"))
-	public void onReadNbt(NbtCompound tag, CallbackInfo ci) {
+	private void onReadNbt(NbtCompound tag, CallbackInfo ci) {
 		actualLastProgress = Math.max(0.0f, this.lastProgress - 1.0f / numberOfSteps);
 	}
 	

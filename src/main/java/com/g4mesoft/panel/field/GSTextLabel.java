@@ -63,7 +63,7 @@ public class GSTextLabel extends GSPanel {
 			renderer.fillRect(0, 0, width, height, backgroundColor);
 
 		GSPanelUtil.drawLabel(renderer, icon, iconSpacing, text,
-				textColor, true, iconAlignment, textAlignment, x, y, width, height);
+				textColor, true, iconAlignment, textAlignment, 0, 0, width, height);
 	}
 	
 	@Override

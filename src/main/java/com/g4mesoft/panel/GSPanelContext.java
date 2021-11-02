@@ -1,7 +1,9 @@
 package com.g4mesoft.panel;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryUtil;
@@ -10,6 +12,7 @@ import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.panel.event.GSEventDispatcher;
 import com.g4mesoft.panel.event.GSKeyEvent;
+import com.g4mesoft.panel.event.GSLayoutEvent;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSBasicRenderer2D;
 import com.g4mesoft.renderer.GSIRenderer2D;
@@ -36,6 +39,8 @@ public final class GSPanelContext {
 	private final GSTexture sheetTexture;
 	private final Map<Integer, Long> standardCursors;
 	
+	private final Queue<GSPanel> validationQueue;
+	
 	private GSPanelContext(MinecraftClient client) {
 		this.client = client;
 		
@@ -46,6 +51,8 @@ public final class GSPanelContext {
 
 		sheetTexture = new GSTexture(UI_TEXTURE_IDENTIFIER, 512, 512);
 		standardCursors = new HashMap<>();
+	
+		validationQueue = new LinkedList<>();
 	}
 
 	public static void init(MinecraftClient client) {
@@ -121,6 +128,10 @@ public final class GSPanelContext {
 	public static void dispatchKeyEvent(GSKeyEvent event, GSPanel source, GSPanel dest) {
 		getContext().dispatchKeyEventImpl(event, source, dest);
 	}
+
+	public static void dispatchLayoutEvent(GSLayoutEvent event, GSPanel source, GSPanel dest) {
+		getContext().dispatchLayoutEventImpl(event, source, dest);
+	}
 	
 	static GSEventDispatcher getEventDispatcher() {
 		return getContext().getEventDispatcherImpl();
@@ -140,6 +151,14 @@ public final class GSPanelContext {
 
 	public static GSIcon getIcon(int rx, int ry, int rw, int rh) {
 		return getContext().getIconImpl(rx, ry, rw, rh);
+	}
+	
+	public static boolean scheduleValidation(GSPanel panel) {
+		return getContext().scheduleValidationImpl(panel);
+	}
+	
+	static void validateAll() {
+		getContext().validateAllImpl();
 	}
 	
 	private void disposeImpl() {
@@ -268,6 +287,10 @@ public final class GSPanelContext {
 	private void dispatchKeyEventImpl(GSKeyEvent event, GSPanel source, GSPanel dest) {
 		eventDispatcher.dispatchKeyEvent(event, source, dest);
 	}
+
+	private void dispatchLayoutEventImpl(GSLayoutEvent event, GSPanel source, GSPanel dest) {
+		eventDispatcher.dispatchLayoutEvent(event, source, dest);
+	}
 	
 	private GSEventDispatcher getEventDispatcherImpl() {
 		return eventDispatcher;
@@ -287,6 +310,28 @@ public final class GSPanelContext {
 
 	private GSIcon getIconImpl(int rx, int ry, int rw, int rh) {
 		return new GSTexturedIcon(getTexture(rx, ry, rw, rh));
+	}
+	
+	private boolean scheduleValidationImpl(GSPanel panel) {
+		validationQueue.add(panel);
+		return true;
+	}
+	
+	private void validateAllImpl() {
+		GSPanel panel;
+		while ((panel = validationQueue.poll()) != null) {
+			if (requiresScheduledValidation(panel))
+				panel.revalidate();
+		}
+	}
+	
+	private boolean requiresScheduledValidation(GSPanel panel) {
+		if (panel.isValid())
+			return false;
+		GSPanel parent = panel.getParent();
+		if (parent == null)
+			return (panel == getRootPanel());
+		return parent.isValid();
 	}
 	
 	private static GSPanelContext getContext() {

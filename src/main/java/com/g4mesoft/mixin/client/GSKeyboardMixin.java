@@ -4,6 +4,7 @@ import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -20,11 +21,12 @@ import net.minecraft.client.MinecraftClient;
 public class GSKeyboardMixin implements GSIKeyboardAccess {
 	
 	@Shadow @Final private MinecraftClient client;
-
+	
+	@Unique
 	private boolean prevEventRepeating;
 	
 	@Inject(method = "onKey(JIIII)V", at = @At("HEAD"))
-	public void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
+	private void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
 			prevEventRepeating = (action == GLFW.GLFW_REPEAT);
 
@@ -40,14 +42,14 @@ public class GSKeyboardMixin implements GSIKeyboardAccess {
 	}
 
 	@Inject(method="onKey(JIIII)V", at = @At(value = "INVOKE", ordinal = 0, shift = At.Shift.AFTER, 
-			target = "Lnet/minecraft/client/option/KeyBinding;setKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;Z)V"))
-	public void onKeyReleased(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
+	        target = "Lnet/minecraft/client/option/KeyBinding;setKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;Z)V"))
+	private void onKeyReleased(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		GSClientController.getInstance().getKeyManager().dispatchEvents(GSEKeyEventType.RELEASE);
 	}
 
 	@Inject(method="onKey(JIIII)V", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
-			target = "Lnet/minecraft/client/option/KeyBinding;onKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;)V"))
-	public void onKeyPressRepeat(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
+	        target = "Lnet/minecraft/client/option/KeyBinding;onKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;)V"))
+	private void onKeyPressRepeat(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		if (action == GLFW.GLFW_PRESS)
 			GSClientController.getInstance().getKeyManager().dispatchEvents(GSEKeyEventType.PRESS);
 	}

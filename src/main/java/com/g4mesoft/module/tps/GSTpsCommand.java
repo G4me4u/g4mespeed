@@ -14,6 +14,8 @@ import net.minecraft.text.TranslatableText;
 
 public final class GSTpsCommand {
 
+	private static final double LOG_2 = Math.log(2.0);
+	
 	private GSTpsCommand() {
 	}
 	
@@ -35,7 +37,7 @@ public final class GSTpsCommand {
 		float tps = GSServerController.getInstance().getTpsModule().getTps();
 		String tpsFormatted = GSTpsModule.TPS_FORMAT.format(tps);
 		
-		float fn = (float)((Math.log(tps / GSTpsModule.DEFAULT_TPS)) / Math.log(2.0) * 12.0);
+		float fn = (float)(Math.log(tps / GSTpsModule.DEFAULT_TPS) / LOG_2 * 12.0);
 		int n = Math.round(fn);
 		if (n % 12 != 0 && GSMathUtil.equalsApproximate(fn, n, 1E-4f)) {
 			int o = n / 12;

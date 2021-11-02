@@ -139,8 +139,8 @@ public class GSEventDispatcher {
 		do {
 			panel.populateRightClickMenu(dropdown, x, y);
 			dropdown.separate();
-			x += panel.getViewOffsetX();
-			y += panel.getViewOffsetY();
+			x += panel.getX();
+			y += panel.getY();
 			panel = panel.getParent();
 		} while (panel != null);
 	}
@@ -254,8 +254,8 @@ public class GSEventDispatcher {
 			do {
 				panel = child;
 				
-				x -= panel.getViewOffsetX();
-				y -= panel.getViewOffsetY();
+				x -= panel.getX();
+				y -= panel.getY();
 				child = panel.getChildAt(x, y);
 			} while (child != null);
 		}
@@ -319,13 +319,48 @@ public class GSEventDispatcher {
 		}
 	}
 	
+	public void dispatchLayoutEvent(GSLayoutEvent event, GSPanel source, GSPanel dest) {
+		if (dest == null)
+			throw new IllegalArgumentException("destination is null!");
+		
+		switch (event.getType()) {
+		case GSLayoutEvent.ADDED_TYPE:
+			invokeLayoutEventListeners(dest, event, GSILayoutEventListener::panelAdded);
+			break;
+		case GSLayoutEvent.REMOVED_TYPE:
+			invokeLayoutEventListeners(dest, event, GSILayoutEventListener::panelRemoved);
+			break;
+		case GSLayoutEvent.RESIZED_TYPE:
+			invokeLayoutEventListeners(dest, event, GSILayoutEventListener::panelResized);
+			break;
+		case GSLayoutEvent.MOVED_TYPE:
+			invokeLayoutEventListeners(dest, event, GSILayoutEventListener::panelMoved);
+			break;
+		case GSLayoutEvent.SHOWN_TYPE:
+			invokeLayoutEventListeners(dest, event, GSILayoutEventListener::panelShown);
+			break;
+		case GSLayoutEvent.HIDDEN_TYPE:
+			invokeLayoutEventListeners(dest, event, GSILayoutEventListener::panelHidden);
+			break;
+		case GSLayoutEvent.INVALIDATED_TYPE:
+			invokeLayoutEventListeners(dest, event, GSILayoutEventListener::panelInvalidated);
+			break;
+		case GSLayoutEvent.VALIDATED_TYPE:
+			invokeLayoutEventListeners(dest, event, GSILayoutEventListener::panelValidated);
+			break;
+		case GSLayoutEvent.UNKNOWN_TYPE:
+		default:
+			break;
+		}
+	}
+	
 	private void distributeMouseEvent(GSPanel panel, GSMouseEvent event, BiConsumer<GSIMouseListener, GSMouseEvent> method) {
 		while (panel != null && !event.isConsumed()) {
 			if (!panel.isPassingEvents())
 				invokeMouseEventListeners(panel, event, method);
 
-			event.setX(event.getX() + panel.getViewOffsetX());
-			event.setY(event.getY() + panel.getViewOffsetY());
+			event.setX(event.getX() + panel.getX());
+			event.setY(event.getY() + panel.getY());
 			
 			panel = panel.getParent();
 		}
@@ -345,17 +380,30 @@ public class GSEventDispatcher {
 	}
 	
 	private void invokeMouseEventListeners(GSPanel panel, GSMouseEvent event, BiConsumer<GSIMouseListener, GSMouseEvent> method) {
-		for (GSIMouseListener listener : panel.getMouseEventListeners())
-			method.accept(listener, event);
+		if (panel.isEnabled()) {
+			event.setPanel(panel);
+			for (GSIMouseListener listener : panel.getMouseEventListeners())
+				method.accept(listener, event);
+		}
 	}
 	
 	private void invokeKeyEventListeners(GSPanel panel, GSKeyEvent event, BiConsumer<GSIKeyListener, GSKeyEvent> method) {
-		for (GSIKeyListener listener : panel.getKeyEventListeners())
+		if (panel.isEnabled()) {
+			event.setPanel(panel);
+			for (GSIKeyListener listener : panel.getKeyEventListeners())
+				method.accept(listener, event);
+		}
+	}
+
+	private void invokeFocusEventListeners(GSPanel panel, GSFocusEvent event, BiConsumer<GSIFocusEventListener, GSFocusEvent> method) {
+		event.setPanel(panel);
+		for (GSIFocusEventListener listener : panel.getFocusEventListeners())
 			method.accept(listener, event);
 	}
 
-	private void invokeFocusEventListeners(GSPanel source, GSFocusEvent event, BiConsumer<GSIFocusEventListener, GSFocusEvent> method) {
-		for (GSIFocusEventListener listener : source.getFocusEventListeners())
+	private void invokeLayoutEventListeners(GSPanel panel, GSLayoutEvent event, BiConsumer<GSILayoutEventListener, GSLayoutEvent> method) {
+		event.setPanel(panel);
+		for (GSILayoutEventListener listener : panel.getLayoutEventListeners())
 			method.accept(listener, event);
 	}
 	

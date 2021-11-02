@@ -87,8 +87,18 @@ public class GSModMenuConfigPanel extends GSClosableParentPanel {
 
 	private void renderBackground(GSIRenderer2D renderer) {
 		// Draw content background (scrollable)
-		int y = configGUI.getY() + getContentScrollOffset();
-		renderer.drawTexture(BACKGROUND_TEXTURE.getRegion(0, y, width, configGUI.getHeight()),
+		int x = configGUI.getX();
+		int y = configGUI.getY();
+
+		// If the content is a scroll panel, offset the background.
+		GSPanel content = configGUI.getSelectedTabContent();
+		if (content instanceof GSScrollPanel) {
+			x += ((GSScrollPanel)content).getViewportOffsetX();
+			y += ((GSScrollPanel)content).getViewportOffsetY();
+		}
+		
+		// Draw content background
+		renderer.drawTexture(BACKGROUND_TEXTURE.getRegion(x, y, width, configGUI.getHeight()),
 				0, configGUI.getY(), DARK_BACKGROUND_R, DARK_BACKGROUND_G, DARK_BACKGROUND_B);
 		// Draw top margin
 		renderer.drawTexture(BACKGROUND_TEXTURE.getRegion(0, 0, width, TOP_MARGIN),
@@ -98,13 +108,6 @@ public class GSModMenuConfigPanel extends GSClosableParentPanel {
 				0, height - BOTTOM_MARGIN, BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
 	}
 	
-	private int getContentScrollOffset() {
-		GSPanel content = configGUI.getSelectedTabContent();
-		if (content instanceof GSScrollPanel)
-			return ((GSScrollPanel)content).getScrollOffset();
-		return 0;
-	}
-
 	private void renderShadows(GSIRenderer2D renderer) {
 		renderer.fillVGradient(0, TOP_MARGIN, width, SHADOW_WIDTH, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		renderer.fillVGradient(0, height - BOTTOM_MARGIN - SHADOW_WIDTH, width, SHADOW_WIDTH, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);

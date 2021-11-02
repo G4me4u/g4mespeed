@@ -46,19 +46,19 @@ public class GSDropdownList<T> extends GSParentPanel {
 	
 	@Override
 	public void layout() {
-		int buttonWidth = Math.min(width, button.getPreferredSize().getWidth());
+		int buttonWidth = Math.min(width, button.getProperty(PREFERRED_WIDTH));
 		button.setBounds(width - buttonWidth, 0, buttonWidth, height);
 		fieldPanel.setBounds(0, 0, width - buttonWidth, height);
 	}
 	
 	@Override
 	protected GSDimension calculatePreferredSize() {
-		GSDimension buttonSize = button.getPreferredSize();
+		GSDimension buttonSize = button.getProperty(PREFERRED_SIZE);
 		int w = buttonSize.getWidth();
 		int h = buttonSize.getHeight();
 		
 		if (fieldPanel != null) {
-			GSDimension fieldSize = fieldPanel.getPreferredSize();
+			GSDimension fieldSize = fieldPanel.getProperty(PREFERRED_SIZE);
 			w += Math.max(MINIMUM_FIELD_WIDTH, fieldSize.getWidth());
 			if (fieldSize.getHeight() > h)
 				h = fieldSize.getHeight();
@@ -116,7 +116,7 @@ public class GSDropdownList<T> extends GSParentPanel {
 		if (fieldPanel != null)
 			add(fieldPanel);
 	
-		requestLayout();
+		invalidate();
 	}
 	
 	private T getSelectedItem() {

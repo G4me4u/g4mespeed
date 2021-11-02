@@ -5,6 +5,7 @@ import java.util.function.BooleanSupplier;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Constant;
@@ -26,10 +27,14 @@ import net.minecraft.util.Util;
 @Mixin(MinecraftServer.class)
 public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
+	@Unique
 	private float msAccum = 0.0f;
+	@Unique
 	private float msPerTick = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
 
+	@Unique
 	private long msThisTick;
+	@Unique
 	private long ticksBehind;
 	
 	@Shadow private long timeReference;
@@ -139,7 +144,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 	
 	@Inject(method = "shutdown", at = @At("RETURN"))
-	public void onShutdown(CallbackInfo ci) {
+	private void onShutdown(CallbackInfo ci) {
 		GSServerController.getInstance().onServerShutdown();
 	}
 }

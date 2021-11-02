@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -29,6 +30,7 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	@Shadow private int vertexCount;
 	@Shadow private int elementOffset;
 	
+	@Unique
 	private final GSClipAdjuster adjuster = new GSClipAdjuster();
 
 	@Inject(method = "next", at = @At("RETURN"))
@@ -49,27 +51,17 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 
 		adjuster.pushClip(clip);
 	}
-
+	
 	@Override
 	public GSClipRect popClip() {
 		return adjuster.popClip();
 	}
 
 	@Override
-	public float getClipOffsetX() {
-		return adjuster.getClipOffsetX();
+	public GSClipRect getClip() {
+		return adjuster.getClip();
 	}
-	
-	@Override
-	public float getClipOffsetY() {
-		return adjuster.getClipOffsetY();
-	}
-	
-	@Override
-	public void setClipOffset(float offsetX, float offsetY) {
-		adjuster.setClipOffset(offsetX, offsetY);
-	}
-	
+
 	@Override
 	public ByteBuffer getByteBuffer() {
 		return buffer;

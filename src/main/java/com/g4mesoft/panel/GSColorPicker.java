@@ -42,7 +42,7 @@ public class GSColorPicker extends GSParentPanel {
 	
 	@Override
 	protected void layout() {
-		int bsw = brightnessSlider.getPreferredSize().getWidth();
+		int bsw = brightnessSlider.getProperty(PREFERRED_WIDTH);
 		int bsh = Math.max(0, height - 2 * SLIDER_MARGIN);
 		int bsx = width - bsw - SLIDER_MARGIN;
 		int cws = Math.min(bsx - SLIDER_MARGIN, height);
@@ -60,8 +60,8 @@ public class GSColorPicker extends GSParentPanel {
 	
 	@Override
 	protected GSDimension calculatePreferredSize() {
-		GSDimension cws = colorWheel.getPreferredSize();
-		GSDimension bss = brightnessSlider.getPreferredSize();
+		GSDimension cws = colorWheel.getProperty(PREFERRED_SIZE);
+		GSDimension bss = brightnessSlider.getProperty(PREFERRED_SIZE);
 		
 		int w = cws.getWidth() + bss.getWidth() + 2 * SLIDER_MARGIN;
 		int h = Math.max(bss.getHeight() + + 2 * SLIDER_MARGIN, cws.getHeight());

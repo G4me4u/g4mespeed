@@ -6,6 +6,7 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -45,8 +46,11 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	
 	@Shadow protected abstract void scheduleSectionRender(BlockPos pos, boolean important);
 	
+	@Unique
 	private GSClientController controller;
+	@Unique
 	private GSTpsModule tpsModule;
+	@Unique
 	private GSBasicRenderer3D renderer3d;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
@@ -75,6 +79,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 		handleOnRenderTransparentLast(matrixStack);
 	}
 
+	@Unique
 	private void handleOnRenderTransparentLast(MatrixStack matrixStack) {
 		Collection<GSIRenderable3D> renderables = controller.getRenderables();
 		
@@ -109,6 +114,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 		}
 	}
 	
+	@Unique
 	private boolean hasRenderPhase(Collection<GSIRenderable3D> renderables, GSERenderPhase phase) {
 		for (GSIRenderable3D renderable : renderables) {
 			if (renderable.getRenderPhase() == phase)

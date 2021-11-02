@@ -76,8 +76,6 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	
 	private SoundEvent clickSound;
 	
-	private boolean enabled;
-	
 	public GSButton(String text) {
 		this(null, text);
 	}
@@ -126,8 +124,6 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 		
 		clickSound = SoundEvents.UI_BUTTON_CLICK;
 		
-		enabled = true;
-		
 		addMouseEventListener(this);
 		addKeyEventListener(this);
 	}
@@ -143,8 +139,8 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	}
 	
 	protected void renderBorderAndBackground(GSIRenderer2D renderer, boolean hovered) {
-		int bgc = enabled ? (hovered ? hoveredBackgroundColor : backgroundColor) : disabledBackgroundColor;
-		int bc = enabled ? (hovered ? hoveredBorderColor : borderColor) : disabledBorderColor;
+		int bgc = isEnabled() ? (hovered ? hoveredBackgroundColor : backgroundColor) : disabledBackgroundColor;
+		int bc  = isEnabled() ? (hovered ? hoveredBorderColor : borderColor) : disabledBorderColor;
 
 		int bw2 = borderWidth * 2;
 		if (borderWidth != 0) {
@@ -166,11 +162,11 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 		int w = Math.max(0, width - 2 * x);
 		int h = Math.max(0, height - 2 * y);
 		
-		GSIcon icn = enabled ? (hovered ? hoveredIcon : icon) : disabledIcon;
-		int txtClr = enabled ? (hovered ? hoveredTextColor : textColor) : disabledTextColor;
+		GSIcon icn = isEnabled() ? (hovered ? hoveredIcon : icon) : disabledIcon;
+		int txtClr = isEnabled() ? (hovered ? hoveredTextColor : textColor) : disabledTextColor;
 		
 		GSPanelUtil.drawLabel(renderer, icn, iconSpacing, text,
-				txtClr, enabled, iconAlignment, textAlignment, x, y, w, h);
+				txtClr, isEnabled(), iconAlignment, textAlignment, x, y, w, h);
 	}
 
 	@Override
@@ -179,7 +175,7 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	}
 	
 	@Override
-	public GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredSize() {
 		GSDimension labelSize = GSPanelUtil.labelPreferredSize(icon, text, iconSpacing);
 		
 		// Add borders, margin, and padding
@@ -404,13 +400,5 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 
 	public void setClickSound(SoundEvent clickSound) {
 		this.clickSound = clickSound;
-	}
-	
-	public boolean isEnabled() {
-		return enabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
 	}
 }

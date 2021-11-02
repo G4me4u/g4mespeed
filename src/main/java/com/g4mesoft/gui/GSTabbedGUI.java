@@ -63,8 +63,7 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 		if (selectedTabIndex == -1)
 			setSelectedTabIndex(0);
 		
-		if (isVisible())
-			requestLayout();
+		invalidate();
 	}
 
 	public void setSelectedTabIndex(int index) {

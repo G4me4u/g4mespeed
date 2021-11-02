@@ -14,7 +14,7 @@ import net.minecraft.network.ClientConnection;
 public class GSClientConnectionMixin {
 
 	@Inject(method = "exceptionCaught", at = @At("HEAD"))
-	public void onExceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable throwable, CallbackInfo ci) {
+	private void onExceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable throwable, CallbackInfo ci) {
 		if (GSDebug.GS_DEBUG)
 			throwable.printStackTrace();
 	}

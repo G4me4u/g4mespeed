@@ -246,10 +246,6 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	}
 	
 	@Override
-	public void update() {
-	}
-	
-	@Override
 	public void render(GSIRenderer2D renderer) {
 		long now = System.currentTimeMillis();
 		if (lastFrame != -1L)

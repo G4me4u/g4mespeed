@@ -56,22 +56,18 @@ final class GSScreen extends Screen {
 	
 	@Override
 	@GSCoreOverride
-	public void tick() {
-		super.tick();
-		
-		rootPanel.update();
-	}
-	
-	@Override
-	@GSCoreOverride
 	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+		// Validate panels before rendering
+		GSPanelContext.validateAll();
+		
 		RenderSystem.disableTexture();
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		
 		GSIRenderer2D renderer = GSPanelContext.getRenderer();
 		
-		((GSBasicRenderer2D)renderer).begin(Tessellator.getInstance().getBuffer(), matrixStack, mouseX, mouseY);
+		((GSBasicRenderer2D)renderer).begin(Tessellator.getInstance().getBuffer(),
+				matrixStack, mouseX, mouseY, width, height);
 		
 		rootPanel.preRender(renderer);
 		rootPanel.render(renderer);

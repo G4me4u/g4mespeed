@@ -15,7 +15,7 @@ public class GSDropdownSeparator extends GSDropdownItem {
 	}
 	
 	@Override
-	public GSDimension calculatePreferredSize() {
+	protected GSDimension calculatePreferredSize() {
 		return new GSDimension(0, 2 * PADDING + 1);
 	}
 }

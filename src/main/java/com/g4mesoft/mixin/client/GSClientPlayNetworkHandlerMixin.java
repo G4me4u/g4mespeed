@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -108,7 +109,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	
 	@Inject(method = "onPlayerPositionLook", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
 	        target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
-	public void onOnPlayerPositionLook(PlayerPositionLookS2CPacket packet, CallbackInfo ci) {
+	private void onOnPlayerPositionLook(PlayerPositionLookS2CPacket packet, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.getValue()) {
 			// The server will inherently detect that the player moved in an incorrect way, if the
 			// player was moved by a piston. In this case we ignore the update and send confirmation.
@@ -265,6 +266,7 @@ public class GSClientPlayNetworkHandlerMixin {
 			packet.visitUpdates(this::scheduleRenderUpdateForFallingBlock);
 	}
 	
+	@Unique
 	private void scheduleRenderUpdateForFallingBlock(BlockPos pos, BlockState state) {
 		if (state.getBlock() instanceof FallingBlock)
 			((GSIWorldRendererAccess)client.worldRenderer).scheduleBlockUpdate0(pos, true);

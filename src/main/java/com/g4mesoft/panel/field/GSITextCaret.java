@@ -12,8 +12,6 @@ public interface GSITextCaret {
 
 	public void removeTextCaretListener(GSITextCaretListener listener);
 	
-	public void update();
-
 	public void render(GSIRenderer2D renderer);
 
 	public int getCaretLocation();

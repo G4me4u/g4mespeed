@@ -21,10 +21,6 @@ public class GSColorPickerField extends GSParentPanel {
 
 	private static final int BUTTON_MARGIN = 1;
 	
-	private static final int DEFAULT_BACKGROUND_COLOR = 0xFF202020;
-	private static final int DEFAULT_BORDER_WIDTH     = 1;
-	private static final int DEFAULT_BORDER_COLOR     = 0xFF171717;
-	
 	private final GSTextField textField;
 	private final GSColorPickerFieldTextModel textModel;
 	
@@ -43,14 +39,10 @@ public class GSColorPickerField extends GSParentPanel {
 	
 	public GSColorPickerField(int initialColor) {
 		textField = new GSTextField();
-		textField.setBorderWidth(0);
-		textField.setBackgroundColor(0x00000000);
-		
 		textModel = new GSColorPickerFieldTextModel(false);
 		textField.setTextModel(textModel);
 		
 		colorButton = new GSButton((GSIcon)null);
-		colorButton.setBorderWidth(0);
 		colorButton.setCursor(GSECursorType.HAND);
 		
 		picker = new GSColorPicker(0x00000000);
@@ -72,7 +64,7 @@ public class GSColorPickerField extends GSParentPanel {
 			}
 		});
 		
-		textField.addActionListener(this::onFieldChanged);
+		textField.addChangeListener(this::onFieldChanged);
 		colorButton.addActionListener(this::onButtonPressed);
 		picker.addActionListener(this::onPickerChanged);
 		
@@ -81,9 +73,15 @@ public class GSColorPickerField extends GSParentPanel {
 		add(textField);
 		add(colorButton);
 	
-		backgroundColor = DEFAULT_BACKGROUND_COLOR;
-		borderWidth = DEFAULT_BORDER_WIDTH;
-		borderColor = DEFAULT_BORDER_COLOR;
+		// Use text field styling as default values
+		backgroundColor = textField.getBackgroundColor();
+		borderWidth = textField.getBorderWidth();
+		borderColor = textField.getBorderColor();
+		
+		// Style text field and button to no background or border.
+		textField.setBorderWidth(0);
+		textField.setBackgroundColor(0x00000000);
+		colorButton.setBorderWidth(0);
 		
 		// Set color of button and field.
 		setColor(initialColor);
@@ -125,7 +123,7 @@ public class GSColorPickerField extends GSParentPanel {
 	
 	@Override
 	protected GSDimension calculateMinimumSize() {
-		GSDimension fs = textField.getMinimumSize();
+		GSDimension fs = textField.getProperty(MINIMUM_SIZE);
 		
 		int h = fs.getHeight() + 2 * borderWidth;
 		int w = fs.getWidth() + fs.getHeight() + 2 * borderWidth;
@@ -135,8 +133,8 @@ public class GSColorPickerField extends GSParentPanel {
 
 	@Override
 	protected GSDimension calculatePreferredSize() {
-		GSDimension fs = textField.getPreferredSize();
-		GSDimension ps = picker.getPreferredSize();
+		GSDimension fs = textField.getProperty(PREFERRED_SIZE);
+		GSDimension ps = picker.getProperty(PREFERRED_SIZE);
 		
 		int h = fs.getHeight() + 2 * borderWidth;
 		int w = fs.getWidth() + fs.getHeight() + 2 * borderWidth;

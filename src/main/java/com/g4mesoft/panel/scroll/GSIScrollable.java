@@ -1,20 +1,23 @@
 package com.g4mesoft.panel.scroll;
 
-import com.g4mesoft.panel.GSIViewport;
-import com.g4mesoft.panel.GSPanel;
+import com.g4mesoft.panel.GSDimension;
 
-public interface GSIScrollable extends GSIViewport {
+public interface GSIScrollable {
 
-	public int getContentWidth();
-	
-	public int getContentHeight();
-	
-	default public int getContentViewWidth() {
-		return getWidth();
+	default public GSDimension getMinimumScrollableSize() {
+		return null;
 	}
 
-	default public int getContentViewHeight() {
-		return getHeight();
+	default public GSDimension getPreferredScrollableSize() {
+		return null;
+	}
+	
+	default public boolean isScrollableWidthFilled() {
+		return false;
+	}
+
+	default public boolean isScrollableHeightFilled() {
+		return false;
 	}
 	
 	default public float getIncrementalScrollX(int sign) {
@@ -23,14 +26,5 @@ public interface GSIScrollable extends GSIViewport {
 
 	default public float getIncrementalScrollY(int sign) {
 		return Float.NaN;
-	}
-	
-	default public int getScrollOffset(GSPanel parent) {
-		if (parent instanceof GSScrollPanel.GSScrollContentPanel)
-			parent = parent.getParent();
-		if (parent instanceof GSScrollPanel)
-			return ((GSScrollPanel)parent).getScrollOffset();
-		
-		return 0;
 	}
 }

@@ -42,7 +42,7 @@ public class GSToggleSwitchPanel extends GSAbstractActionPanel implements GSIKey
 	
 	@Override
 	public void render(GSIRenderer2D renderer) {
-		int sx = enabled ? (renderer.isMouseInside(0, 0, width, height) ? 30 : 0) : 60;
+		int sx = isEnabled() ? (renderer.isMouseInside(0, 0, width, height) ? 30 : 0) : 60;
 		int sy = toggled ? 16 : 0;
 		renderer.drawTexture(SWITCH_TEXTURE, 0, 0, SWITCH_WIDTH, SWITCH_HEIGHT, sx, sy);
 	}
