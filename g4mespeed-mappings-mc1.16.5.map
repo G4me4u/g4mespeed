@@ -3883,9 +3883,9 @@ com.g4mesoft.renderer.GSBasicRenderer3D -> core.cc:
 com.g4mesoft.renderer.GSCharSequenceOrderedText -> core.dO:
     java.lang.CharSequence sequence -> gsc_rJ
     net.minecraft.class_2583 style -> gsc_hH
-    13:14:void <init>(java.lang.CharSequence) -> <init>
-    16:19:void <init>(java.lang.CharSequence,net.minecraft.class_2583) -> <init>
-    23:39:boolean accept(net.minecraft.class_5224) -> gsc_rJ
+    15:16:void <init>(java.lang.CharSequence) -> <init>
+    18:21:void <init>(java.lang.CharSequence,net.minecraft.class_2583) -> <init>
+    26:42:boolean accept(net.minecraft.class_5224) -> accept
 com.g4mesoft.renderer.GSClipAdjuster -> core.cq:
     float[] clipXBuffer -> gsc_rJ
     float[] clipYBuffer -> gsc_hH
