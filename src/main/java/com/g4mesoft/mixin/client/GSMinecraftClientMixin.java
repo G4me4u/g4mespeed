@@ -126,11 +126,11 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		}
 	}
 	
-	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;tick()V"))
-	private void onTickRedirectInteractionManagerTick(InGameHud inGameHud) {
+	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;tick(Z)V"))
+	private void onTickRedirectInteractionManagerTick(InGameHud inGameHud, boolean paused) {
 		// Tick is handled elsewhere when correcting movement.
 		if (!tpsModule.isMainPlayerFixedMovement())
-			inGameHud.tick();
+			inGameHud.tick(paused);
 	}
 
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;tick()V"))
@@ -194,7 +194,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 			itemUseCooldown--;
 
 		if (!paused) {
-			inGameHud.tick();
+			inGameHud.tick(this.paused);
 		
 			if (world != null)
 				interactionManager.tick();

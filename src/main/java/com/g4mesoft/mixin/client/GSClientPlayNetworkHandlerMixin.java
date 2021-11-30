@@ -1,7 +1,5 @@
 package com.g4mesoft.mixin.client;
 
-import java.util.Iterator;
-
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -9,7 +7,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
@@ -26,6 +23,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FallingBlock;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -81,7 +79,7 @@ public class GSClientPlayNetworkHandlerMixin {
 		}
 	}
 	
-	@Inject(method = "onEntityUpdate", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
+	@Inject(method = "onEntity", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
 	        target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
 	private void onOnEntityUpdate(EntityS2CPacket packet, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.getValue()) {
@@ -166,21 +164,24 @@ public class GSClientPlayNetworkHandlerMixin {
 			controller.getTpsModule().onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
 	}
 	
-	@Redirect(method = "onChunkData", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;hasNext()Z"))
-	private boolean replaceChunkDataBlockEntityLoop(Iterator<NbtCompound> itr) {
+	@Inject(method = "onBlockEntityUpdate", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
+		target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
+	private void onOnBlockEntityUpdate(BlockEntityUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-
-		// Note that Fabric Carpet changes parts of the loop, so we have
-		// to override the entirety of the loop by redirecting the condition.
 		
-		while(itr.hasNext()) {
-			NbtCompound tag = itr.next();
+		if (tpsModule.sParanoidMode.getValue()) {
+			BlockPos pos = packet.getPos();
 			
-			BlockPos blockPos = new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
-			
-			boolean pistonType = "minecraft:piston".equals(tag.getString("id"));
-			
-			if (pistonType) {
+			if (packet.getBlockEntityType() == BlockEntityType.PISTON) {
+				BlockState blockState = world.getBlockState(pos);
+				BlockEntity blockEntity = world.getBlockEntity(pos);
+				
+				if (!blockState.isOf(Blocks.MOVING_PISTON)) {
+					blockState = Blocks.MOVING_PISTON.getDefaultState();
+					world.setBlockState(pos, blockState, Block.NO_REDRAW | Block.MOVED);
+				}
+				
+				NbtCompound tag = packet.getNbt();
 				// Because of a weird issue where the progress saved
 				// by a piston is actually 1 gametick old we have to
 				// increment the progress by 0.5.
@@ -192,61 +193,17 @@ public class GSClientPlayNetworkHandlerMixin {
 				// enabled.
 				if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked"))
 					tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
-			}
-			
-			BlockEntity blockEntity = world.getBlockEntity(blockPos);
-			if (blockEntity != null) {
-				blockEntity.readNbt(tag);
-			} else if (pistonType) {
-				// Make sure we're actually supposed to put
-				// a moving piston block entity in this location...
-				BlockState blockState = world.getBlockState(blockPos);
-				if (blockState.getBlock() == Blocks.MOVING_PISTON) {
-					blockEntity = new PistonBlockEntity(blockPos, blockState);
+				
+				if (blockEntity == null) {
+					blockEntity = new PistonBlockEntity(pos, blockState);
 					blockEntity.readNbt(tag);
 					world.addBlockEntity(blockEntity);
+				} else {
+					blockEntity.readNbt(tag);
 				}
-			}
-		}
-		
-		return false;
-	}
-	
-	@Inject(method = "onBlockEntityUpdate", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
-		target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
-	private void onOnBlockEntityUpdate(BlockEntityUpdateS2CPacket packet, CallbackInfo ci) {
-		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		
-		if (tpsModule.sParanoidMode.getValue()) {
-			BlockPos pos = packet.getPos();
-			
-			if (packet.getBlockEntityType() == 0 && world.isChunkLoaded(pos)) {
-				NbtCompound tag = packet.getNbt();
 
-				if ("minecraft:piston".equals(tag.getString("id"))) {
-					BlockState blockState = world.getBlockState(pos);
-					BlockEntity blockEntity = world.getBlockEntity(pos);
-					
-					if (!blockState.isOf(Blocks.MOVING_PISTON)) {
-						blockState = Blocks.MOVING_PISTON.getDefaultState();
-						world.setBlockState(pos, blockState, Block.NO_REDRAW | Block.MOVED);
-					}
-					
-					// See above redirect method.
-					if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked"))
-						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
-					
-					if (blockEntity == null) {
-						blockEntity = new PistonBlockEntity(pos, blockState);
-						blockEntity.readNbt(tag);
-						world.addBlockEntity(blockEntity);
-					} else {
-						blockEntity.readNbt(tag);
-					}
-
-					// Cancel vanilla handling of the packet.
-					ci.cancel();
-				}
+				// Cancel vanilla handling of the packet.
+				ci.cancel();
 			}
 		}
 	}

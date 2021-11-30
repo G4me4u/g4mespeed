@@ -190,7 +190,7 @@ public class GSBasicRenderer3D implements GSIRenderer3D {
 
 	@Override
 	public GSBasicRenderer3D vert(float x, float y, float z) {
-		builder.vertex(matrixStack.peek().getModel(), x, y, z);
+		builder.vertex(matrixStack.peek().getPositionMatrix(), x, y, z);
 		return this;
 	}
 

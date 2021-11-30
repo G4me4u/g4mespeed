@@ -5,7 +5,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.g4mesoft.core.GSController;
 
@@ -38,7 +37,7 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 	}
 
 	@Inject(method = "writeNbt", at = @At("RETURN"))
-	private void onWriteNbt(NbtCompound tag, CallbackInfoReturnable<NbtCompound> cir) {
+	private void onWriteNbt(NbtCompound tag, CallbackInfo ci) {
 		GSController controller = GSController.getInstanceOnThread();
 		if (controller != null && controller.getTpsModule().sImmediateBlockBroadcast.getValue())
 			tag.putBoolean("ticked", ticked);

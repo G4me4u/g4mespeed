@@ -73,14 +73,14 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		
 		this.trackerFixedMovement = trackerFixedMovement;
 		
-		((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).setTrackerFixedMovement(player, trackerFixedMovement);
+		((GSIServerChunkManagerAccess)player.getWorld().getChunkManager()).setTrackerFixedMovement(player, trackerFixedMovement);
 	}
 
 	@Inject(method = "onPlayerMove", at = @At(value = "INVOKE", shift = Shift.AFTER,
 			target = "Lnet/minecraft/server/network/ServerPlayerEntity;increaseTravelMotionStats(DDD)V"))
 	private void onPlayerMoveUpdateCameraPosition(PlayerMoveC2SPacket packet, CallbackInfo ci) {
 		if (trackerFixedMovement)
-			((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).tickEntityTracker(player);
+			((GSIServerChunkManagerAccess)player.getWorld().getChunkManager()).tickEntityTracker(player);
 	}
 
 	
