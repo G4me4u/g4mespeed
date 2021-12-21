@@ -4,12 +4,12 @@ buildscript {
     }
     
     dependencies {
-		classpath "com.guardsquare:proguard-gradle:7.1.0-beta5"
+		classpath "com.guardsquare:proguard-gradle:7.2.0-beta2"
     }
 }
 
 plugins {
-	id 'fabric-loom' version '0.8-SNAPSHOT'
+	id 'fabric-loom' version '0.10-SNAPSHOT'
 }
 
 repositories {
