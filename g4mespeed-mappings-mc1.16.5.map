@@ -850,20 +850,20 @@ com.g4mesoft.mixin.client.GSClientPlayNetworkHandlerMixin -> com.g4mesoft.mixin.
     net.minecraft.class_638 field_3699 -> field_3699
     int WORLD_TIME_UPDATE_INTERVAL -> gsc_rJ
     double IGNORE_TELEPORT_MAX_DISTANCE -> gsc_hH
-    50:50:void <init>() -> <init>
-    61:62:void onInit(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    66:67:void onOnGameJoin(net.minecraft.class_2678,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    72:81:void onOnEntityPosition(net.minecraft.class_2777,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    86:107:void onOnEntityUpdate(net.minecraft.class_2684,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    112:139:void onOnPlayerPositionLook(net.minecraft.class_2708,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    142:142:boolean isRecentlyMovedByPiston(net.minecraft.class_1297) -> gsc_rJ
-    147:158:void onCustomPayload(net.minecraft.class_2658,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    163:166:void onWorldTimeSync(net.minecraft.class_2761,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    170:215:boolean replaceChunkDataBlockEntityLoop(java.util.Iterator) -> gsc_rJ
-    221:257:void onOnBlockEntityUpdate(net.minecraft.class_2622,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    261:264:void onOnBlockUpdateReturn(net.minecraft.class_2626,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    269:272:void onOnChunkDeltaUpdateReturn(net.minecraft.class_2637,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    276:278:void scheduleRenderUpdateForFallingBlock(net.minecraft.class_2338,net.minecraft.class_2680) -> gsc_rJ
+    51:51:void <init>() -> <init>
+    62:63:void onInit(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    67:68:void onOnGameJoin(net.minecraft.class_2678,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    73:82:void onOnEntityPosition(net.minecraft.class_2777,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    87:108:void onOnEntityUpdate(net.minecraft.class_2684,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    113:140:void onOnPlayerPositionLook(net.minecraft.class_2708,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    143:143:boolean isRecentlyMovedByPiston(net.minecraft.class_1297) -> gsc_rJ
+    148:159:void onCustomPayload(net.minecraft.class_2658,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    164:167:void onWorldTimeSync(net.minecraft.class_2761,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    171:216:boolean replaceChunkDataBlockEntityLoop(java.util.Iterator) -> gsc_rJ
+    222:258:void onOnBlockEntityUpdate(net.minecraft.class_2622,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    262:265:void onOnBlockUpdateReturn(net.minecraft.class_2626,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    270:273:void onOnChunkDeltaUpdateReturn(net.minecraft.class_2637,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    277:279:void scheduleRenderUpdateForFallingBlock(net.minecraft.class_2338,net.minecraft.class_2680) -> gsc_rJ
 com.g4mesoft.mixin.client.GSClientWorldMixin -> com.g4mesoft.mixin.client.GSClientWorldMixin:
     net.minecraft.class_310 field_3729 -> field_3729
     boolean tickingEntities -> gsc_rJ
@@ -1210,23 +1210,23 @@ com.g4mesoft.mixin.server.GSServerPlayNetworkHandlerMixin -> com.g4mesoft.mixin.
     java.util.Map translationVersions -> gsc_hH
     boolean fixedMovement -> gsc_sc
     boolean trackerFixedMovement -> gsc_UM
-    36:50:void <init>() -> <init>
+    39:53:void <init>() -> <init>
     boolean method_19507() -> method_19507
-    55:57:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    61:61:boolean onPlayerMoveFixedMovement(net.minecraft.class_3244) -> gsc_rJ
-    67:77:void onPlayerMove(net.minecraft.class_2828,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    82:84:void onPlayerMoveUpdateCameraPosition(net.minecraft.class_2828,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    89:100:void onCustomPayload(net.minecraft.class_2817,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    104:104:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_rJ
-    109:109:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_rJ
-    114:114:com.g4mesoft.GSExtensionInfo getExtensionInfo(com.g4mesoft.GSExtensionUID) -> gsc_hH
-    119:120:void clearAllExtensionInfo() -> gsc_rJ
-    124:125:void addAllExtensionInfo(com.g4mesoft.GSExtensionInfo[]) -> gsc_rJ
-    129:130:void addExtensionInfo(com.g4mesoft.GSExtensionInfo) -> gsc_rJ
-    134:135:void setTranslationVersion(com.g4mesoft.GSExtensionUID,int) -> gsc_rJ
-    139:139:int getTranslationVersion(com.g4mesoft.GSExtensionUID) -> gsc_sc
-    144:144:boolean isFixedMovement() -> gsc_hH
-    149:150:void setFixedMovement(boolean) -> gsc_rJ
+    58:60:void onTick(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    67:67:int onPlayerMoveModifyConstant5(int) -> gsc_rJ
+    73:83:void onPlayerMove(net.minecraft.class_2828,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    88:90:void onPlayerMoveUpdateCameraPosition(net.minecraft.class_2828,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    95:106:void onCustomPayload(net.minecraft.class_2817,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    110:110:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID) -> gsc_rJ
+    115:115:boolean isExtensionInstalled(com.g4mesoft.GSExtensionUID,com.g4mesoft.core.GSVersion) -> gsc_rJ
+    120:120:com.g4mesoft.GSExtensionInfo getExtensionInfo(com.g4mesoft.GSExtensionUID) -> gsc_hH
+    125:126:void clearAllExtensionInfo() -> gsc_rJ
+    130:131:void addAllExtensionInfo(com.g4mesoft.GSExtensionInfo[]) -> gsc_rJ
+    135:136:void addExtensionInfo(com.g4mesoft.GSExtensionInfo) -> gsc_rJ
+    140:141:void setTranslationVersion(com.g4mesoft.GSExtensionUID,int) -> gsc_rJ
+    145:145:int getTranslationVersion(com.g4mesoft.GSExtensionUID) -> gsc_sc
+    150:150:boolean isFixedMovement() -> gsc_hH
+    155:156:void setFixedMovement(boolean) -> gsc_rJ
 com.g4mesoft.mixin.server.GSServerWorldMixin -> com.g4mesoft.mixin.server.GSServerWorldMixin:
     it.unimi.dsi.fastutil.ints.Int2ObjectMap field_17915 -> field_17915
     41:42:void <init>(net.minecraft.class_5269,net.minecraft.class_5321,net.minecraft.class_2874,java.util.function.Supplier,boolean,boolean,long) -> <init>
