@@ -22,6 +22,7 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.renderer.GSBasicRenderer3D;
 import com.g4mesoft.renderer.GSERenderPhase;
 import com.g4mesoft.renderer.GSIRenderable3D;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.MinecraftClient;
@@ -93,7 +94,12 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 			RenderSystem.enableCull();
 			
 			RenderSystem.enableBlend();
-			RenderSystem.defaultBlendFunc();
+			if (MinecraftClient.isFabulousGraphicsOrBetter()) {
+				// The Fabulous graphics setting seems to use a different blend func
+		        RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
+			} else {
+				RenderSystem.defaultBlendFunc();
+			}
 			RenderSystem.disableTexture();
 			
 			// View matrix is already uploaded to shader uniform

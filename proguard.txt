@@ -25,6 +25,8 @@
 
 -keep class com.g4mesoft.core.GSCoreOverride
 
+-keepnames @com.g4mesoft.core.GSCoreOverride class *
+
 -keepclassmembernames class * {
 	@com.g4mesoft.core.GSCoreOverride *;
 }

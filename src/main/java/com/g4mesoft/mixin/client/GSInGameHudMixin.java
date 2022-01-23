@@ -53,9 +53,25 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 	
 	@Shadow public abstract TextRenderer getTextRenderer();
 
+	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE,
+	        target = "Lnet/minecraft/client/gui/hud/BossBarHud;render(Lnet/minecraft/client/util/math/MatrixStack;)V"))
+	private void onRenderBeforeBossBar(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
+		if (GSClientController.getInstance().getTpsModule().cTpsLabel.getValue() == GSTpsModule.TPS_LABEL_TOP_CENTER) {
+			matrixStack.push();
+			matrixStack.translate(0.0, client.textRenderer.fontHeight + 5, 0.0);
+		}
+	}
+
+	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.AFTER,
+	        target = "Lnet/minecraft/client/gui/hud/BossBarHud;render(Lnet/minecraft/client/util/math/MatrixStack;)V"))
+	private void onRenderAfterBossBar(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
+		if (GSClientController.getInstance().getTpsModule().cTpsLabel.getValue() == GSTpsModule.TPS_LABEL_TOP_CENTER)
+			matrixStack.pop();
+	}
+	
 	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE, 
 			target = "Lnet/minecraft/client/gui/hud/SubtitlesHud;render(Lnet/minecraft/client/util/math/MatrixStack;)V"))
-	private void onRender(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
+	private void onRenderBeforeSubtitles(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
 		GSClientController controller = GSClientController.getInstance();
 		GSTpsModule tpsModule = controller.getTpsModule();
 		
