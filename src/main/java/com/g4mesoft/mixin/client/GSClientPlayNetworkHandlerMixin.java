@@ -45,7 +45,8 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
 
-@Mixin(ClientPlayNetworkHandler.class)
+/* Use priority -1001 to ensure we have priority over MultiConnect */
+@Mixin(value = ClientPlayNetworkHandler.class, priority = -1001)
 public class GSClientPlayNetworkHandlerMixin {
 
 	@Shadow @Final private ClientConnection connection;

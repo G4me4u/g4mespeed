@@ -3,13 +3,16 @@ package com.g4mesoft.mixin.server;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
@@ -56,9 +59,12 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 			floatingTicks--;
 	}
 	
-	@Redirect(method = "onPlayerMove", require = 0, at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;isHost()Z"))
-	private boolean onPlayerMoveFixedMovement(ServerPlayNetworkHandler serverPlayNetworkHandler) {
-		return isHost() || fixedMovement;
+	@ModifyConstant(method = "onPlayerMove", allow = 1, constant = @Constant(intValue = 5), slice = @Slice(
+		from = @At(value = "FIELD", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;movePacketsCount:I", opcode = Opcodes.PUTFIELD),
+		to = @At(value = "CONSTANT", args = "stringValue={} is sending move packets too frequently ({} packets since last tick)")))
+	private int onPlayerMoveModifyConstant5(int oldValue) {
+		// Allow for "infinite" packets between ticks when using fixed movement.
+		return fixedMovement ? Integer.MAX_VALUE : oldValue;
 	}
 	
 	@Inject(method = "onPlayerMove", at = @At(value = "INVOKE", shift = Shift.AFTER,
