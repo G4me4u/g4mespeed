@@ -822,11 +822,6 @@ com.g4mesoft.mixin.client.GSAbstractClientPlayerEntityMixin -> com.g4mesoft.mixi
     11:11:void <init>() -> <init>
     18:18:boolean isFixedMovement() -> gsc_sc
     23:24:void setFixedMovement(boolean) -> gsc_sc
-com.g4mesoft.mixin.client.GSBossBarHudMixin -> com.g4mesoft.mixin.client.GSBossBarHudMixin:
-    net.minecraft.class_310 field_2058 -> field_2058
-    18:18:void <init>() -> <init>
-    24:28:void onRenderHead(net.minecraft.class_4587,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    32:34:void onRenderReturn(net.minecraft.class_4587,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
 com.g4mesoft.mixin.client.GSBufferBuilderMixin -> com.g4mesoft.mixin.client.GSBufferBuilderMixin:
     java.nio.ByteBuffer field_1555 -> field_1555
     int field_1567 -> field_1567
@@ -920,8 +915,10 @@ com.g4mesoft.mixin.client.GSInGameHudMixin -> com.g4mesoft.mixin.client.GSInGame
     net.minecraft.class_310 field_2035 -> field_2035
     28:28:void <init>() -> <init>
     net.minecraft.class_327 method_1756() -> method_1756
-    59:98:void onRender(net.minecraft.class_4587,float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    102:112:int getTpsLabelColor(float,float) -> gsc_rJ
+    59:63:void onRenderBeforeBossBar(net.minecraft.class_4587,float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    68:70:void onRenderAfterBossBar(net.minecraft.class_4587,float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    75:114:void onRenderBeforeSubtitles(net.minecraft.class_4587,float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
+    118:128:int getTpsLabelColor(float,float) -> gsc_rJ
     47:47:void <clinit>() -> <clinit>
 com.g4mesoft.mixin.client.GSIntegratedServerMixin -> com.g4mesoft.mixin.client.GSIntegratedServerMixin:
     boolean field_5524 -> field_5524
@@ -1253,7 +1250,7 @@ com.g4mesoft.mixin.server.GSTranslatableTextMixin -> com.g4mesoft.mixin.server.G
     23:31:void <init>() -> <init>
     void method_11024(java.lang.String) -> method_11024
     36:68:void onUpdateTranslations(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-com.g4mesoft.modmenu.GSModMenuApi -> core.dh:
+com.g4mesoft.modmenu.GSModMenuApi -> com.g4mesoft.modmenu.GSModMenuApi:
     9:9:void <init>() -> <init>
     14:14:com.terraformersmc.modmenu.api.ConfigScreenFactory getModConfigScreenFactory() -> getModConfigScreenFactory
     18:19:net.minecraft.class_437 lambda$getModConfigScreenFactory$0(net.minecraft.class_437) -> gsc_rJ
