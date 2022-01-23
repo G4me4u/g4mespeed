@@ -1271,7 +1271,7 @@ com.g4mesoft.mixin.server.GSTranslatableTextMixin -> com.g4mesoft.mixin.server.G
     25:33:void <init>() -> <init>
     void method_11024(java.lang.String,java.util.function.Consumer) -> method_11024
     38:72:void onUpdateTranslations(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-com.g4mesoft.modmenu.GSModMenuApi -> core.dg:
+com.g4mesoft.modmenu.GSModMenuApi -> com.g4mesoft.modmenu.GSModMenuApi:
     9:9:void <init>() -> <init>
     14:14:com.terraformersmc.modmenu.api.ConfigScreenFactory getModConfigScreenFactory() -> getModConfigScreenFactory
     18:19:net.minecraft.class_437 lambda$getModConfigScreenFactory$0(net.minecraft.class_437) -> gsc_rJ
