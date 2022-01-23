@@ -827,11 +827,6 @@ com.g4mesoft.mixin.client.GSAbstractClientPlayerEntityMixin -> com.g4mesoft.mixi
     11:11:void <init>() -> <init>
     18:18:boolean isFixedMovement() -> gsc_sc
     23:24:void setFixedMovement(boolean) -> gsc_sc
-com.g4mesoft.mixin.client.GSBossBarHudMixin -> com.g4mesoft.mixin.client.GSBossBarHudMixin:
-    net.minecraft.class_310 field_2058 -> field_2058
-    18:18:void <init>() -> <init>
-    24:28:void onRenderHead(net.minecraft.class_4587,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    32:34:void onRenderReturn(net.minecraft.class_4587,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
 com.g4mesoft.mixin.client.GSBufferBuilderMixin -> com.g4mesoft.mixin.client.GSBufferBuilderMixin:
     java.nio.ByteBuffer field_1555 -> field_1555
     net.minecraft.class_293$class_5596 field_1567 -> field_1567
@@ -922,8 +917,10 @@ com.g4mesoft.mixin.client.GSInGameHudMixin -> com.g4mesoft.mixin.client.GSInGame
     net.minecraft.class_310 field_2035 -> field_2035
     28:28:void <init>() -> <init>
     net.minecraft.class_327 method_1756() -> method_1756
-    59:98:void onRender(net.minecraft.class_4587,float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    102:112:int getTpsLabelColor(float,float) -> gsc_rJ
+    59:63:void onRenderBeforeBossBar(net.minecraft.class_4587,float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    68:70:void onRenderAfterBossBar(net.minecraft.class_4587,float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    75:114:void onRenderBeforeSubtitles(net.minecraft.class_4587,float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_sc
+    118:128:int getTpsLabelColor(float,float) -> gsc_rJ
     47:47:void <clinit>() -> <clinit>
 com.g4mesoft.mixin.client.GSIntegratedServerMixin -> com.g4mesoft.mixin.client.GSIntegratedServerMixin:
     boolean field_5524 -> field_5524
@@ -1073,16 +1070,16 @@ com.g4mesoft.mixin.client.GSWorldRendererMixin -> com.g4mesoft.mixin.client.GSWo
     com.g4mesoft.core.client.GSClientController controller -> gsc_hH
     com.g4mesoft.module.tps.GSTpsModule tpsModule -> gsc_sc
     com.g4mesoft.renderer.GSBasicRenderer3D renderer3d -> gsc_rJ
-    43:43:void <init>() -> <init>
+    44:44:void <init>() -> <init>
     void method_16037(net.minecraft.class_2338,boolean) -> method_16037
-    58:61:void onInit(net.minecraft.class_310,net.minecraft.class_4599,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    68:75:void onRenderTransparentLastFabulous(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    79:80:void onRenderTransparentLastDefault(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    84:115:void handleOnRenderTransparentLast(net.minecraft.class_4587) -> gsc_rJ
-    119:124:boolean hasRenderPhase(java.util.Collection,com.g4mesoft.renderer.GSERenderPhase) -> gsc_rJ
-    130:135:float onRenderEntityModifyDeltaTick(net.minecraft.class_1297,double,double,double,float,net.minecraft.class_4587,net.minecraft.class_4597) -> gsc_rJ
-    141:146:int onRenderGetEntityAge(net.minecraft.class_1297) -> gsc_rJ
-    151:152:void scheduleBlockUpdate0(net.minecraft.class_2338,boolean) -> gsc_rJ
+    59:62:void onInit(net.minecraft.class_310,net.minecraft.class_4599,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    69:76:void onRenderTransparentLastFabulous(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    80:81:void onRenderTransparentLastDefault(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
+    85:121:void handleOnRenderTransparentLast(net.minecraft.class_4587) -> gsc_rJ
+    125:130:boolean hasRenderPhase(java.util.Collection,com.g4mesoft.renderer.GSERenderPhase) -> gsc_rJ
+    136:141:float onRenderEntityModifyDeltaTick(net.minecraft.class_1297,double,double,double,float,net.minecraft.class_4587,net.minecraft.class_4597) -> gsc_rJ
+    147:152:int onRenderGetEntityAge(net.minecraft.class_1297) -> gsc_rJ
+    157:158:void scheduleBlockUpdate0(net.minecraft.class_2338,boolean) -> gsc_rJ
 com.g4mesoft.mixin.server.GSChunkHolderMixin -> com.g4mesoft.mixin.server.GSChunkHolderMixin:
     net.minecraft.class_5539 field_26929 -> field_26929
     it.unimi.dsi.fastutil.shorts.ShortSet[] field_25804 -> field_25804
