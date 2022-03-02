@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-	id 'fabric-loom' version '0.10-SNAPSHOT'
+	id 'fabric-loom' version '0.11-SNAPSHOT'
 }
 
 repositories {
@@ -43,7 +43,7 @@ dependencies {
 	//modImplementation ":optifabric:1.9.2"
 	
 	// Fabric API. This is technically optional, but you probably want it anyway.
-    //modImplementation "net.fabricmc.fabric-api:fabric-api:0.46.1+1.18"
+    //modImplementation "net.fabricmc.fabric-api:fabric-api:0.47.8+1.18.2"
 }
 
 processResources {

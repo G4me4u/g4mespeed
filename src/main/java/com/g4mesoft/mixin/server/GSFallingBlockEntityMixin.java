@@ -7,13 +7,11 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.g4mesoft.access.server.GSIServerChunkManagerAccess;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -32,13 +30,6 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 		super(type, world);
 	}
 	
-	@Inject(method = "tick", at = @At(value = "INVOKE", ordinal = 0, shift = Shift.AFTER,
-			target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
-	private void onTickRemoveBlock(CallbackInfo ci) {
-		if (!world.isClient && GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED)
-			((GSIServerChunkManagerAccess)world.getChunkManager()).updateBlockImmediately(getBlockPos());
-	}
-	
 	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.BEFORE,
 			target = "Lnet/minecraft/entity/FallingBlockEntity;discard()V"))
 	private void onTickBeforeRemove(CallbackInfo ci) {
@@ -53,24 +44,6 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 	private void redirectSendToOtherNearbyPlayers(ThreadedAnvilChunkStorage chunkStorage, Entity entity, Packet<?> packet) {
 		if (world.isClient || GSServerController.getInstance().getTpsModule().sPrettySand.getValue() == GSTpsModule.PRETTY_SAND_DISABLED)
 			chunkStorage.sendToOtherNearbyPlayers(entity, packet);
-	}
-	
-	@Inject(method = "createSpawnPacket", cancellable = true, at = @At("HEAD"))
-	private void onCreateSpawnPacket(CallbackInfoReturnable<Packet<?>> cir) {
-		if (!world.isClient && GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED) {
-			// Calculate offset applied to position (falling block entity is not 1.0 tall)
-			double yOffs = (double)((1.0F - getHeight()) / 2.0F);
-			
-			// The 1.17 client will offset the position by yOffs, but we
-			// can negate it by removing it twice (server + client offset).
-			cir.setReturnValue(new EntitySpawnS2CPacket(
-					getId(), getUuid(),
-					getX(), getY() - 2.0 * yOffs, getZ(), getPitch(), getYaw(),
-					getType(),
-					Block.getRawIdFromState(getBlockState()), 
-					getVelocity()));
-			cir.cancel();
-		}
 	}
 	
 	@Inject(method = "onSpawnPacket", at = @At(value = "INVOKE", shift = Shift.AFTER,

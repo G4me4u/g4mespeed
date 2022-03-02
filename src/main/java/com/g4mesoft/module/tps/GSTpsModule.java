@@ -303,7 +303,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			@Environment(EnvType.CLIENT)
 			public void accept(GSIClientModuleManager managerClient) {
 				MinecraftClient client = MinecraftClient.getInstance();
-				boolean sneaking = client.options.keySneak.isPressed();
+				boolean sneaking = client.options.sneakKey.isPressed();
 				
 				if (managerClient.isG4mespeedServer()) {
 					if (sTpsHotkeyMode.getValue() != HOTKEY_MODE_DISABLED) {

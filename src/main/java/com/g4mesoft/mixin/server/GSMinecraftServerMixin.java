@@ -72,7 +72,10 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		controllerServer.getTpsModule().addTpsListener(this);
 	}
 
-	@Inject(method = "runServer", at = @At(value = "INVOKE", shift = Shift.BEFORE,
+	@Inject(method = "runServer", slice = @Slice(
+			from = @At(value = "INVOKE", shift = At.Shift.AFTER, 
+			target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V")),
+			at = @At(value = "INVOKE", shift = Shift.BEFORE, ordinal = 0,
 			target = "Lnet/minecraft/util/Util;getMeasuringTimeMs()J"))
 	private void onRunServerLoopBeginning(CallbackInfo ci) {
 		msThisTick = (long)msAccum;
@@ -93,14 +96,14 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 
 	@ModifyArg(method = "runServer", require = 0, index = 2, at = @At(value = "INVOKE",
-			target = "Lorg/apache/logging/log4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"))
+			target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"))
 	private Object modifyRunServerWarnTicksBehind(Object ignore) {
 		// Modify debug message to account for "infinite" ticks per second
 		return (ticksBehind == Long.MAX_VALUE) ? "infinite" : Long.valueOf(ticksBehind);
 	}
 	
 	@Inject(method = "runServer", at = @At(value = "INVOKE", shift = Shift.AFTER,
-	        target = "Lorg/apache/logging/log4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"))
+	        target = "Lorg/slf4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"))
 	private void onRunServerAfterWarn(CallbackInfo ci) {
 		if (ticksBehind == Long.MAX_VALUE) {
 			timeReference = Util.getMeasuringTimeMs();
