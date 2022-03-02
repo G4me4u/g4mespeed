@@ -72,7 +72,10 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		controllerServer.getTpsModule().addTpsListener(this);
 	}
 
-	@Inject(method = "runServer", at = @At(value = "INVOKE", shift = Shift.BEFORE,
+	@Inject(method = "runServer", slice = @Slice(
+			from = @At(value = "INVOKE", shift = At.Shift.AFTER, 
+			target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V")),
+			at = @At(value = "INVOKE", shift = Shift.BEFORE, ordinal = 0,
 			target = "Lnet/minecraft/util/Util;getMeasuringTimeMs()J"))
 	private void onRunServerLoopBeginning(CallbackInfo ci) {
 		msThisTick = (long)msAccum;
