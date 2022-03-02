@@ -70,7 +70,7 @@ if (outputJarName.endsWith("-dev")) {
 def obfuscatedFileName = "${outputJarName}-release.jar"
 def homeDir = System.getProperty("user.home")
 
-task obfuscateJar(type: proguard.gradle.ProGuardTask) {
+task release(type: proguard.gradle.ProGuardTask) {
 	configuration "proguard.txt"
 
 	injars "./build/libs/${outputJarName}.jar"
@@ -92,6 +92,8 @@ task obfuscateJar(type: proguard.gradle.ProGuardTask) {
 	printmapping "g4mespeed-mappings-mc${project.minecraft_version}.map"
 	applymapping "g4mespeed-mappings-mc${project.minecraft_version}.map"
 }
+
+release.dependsOn build
 
 jar {
 	from "LICENSE"
