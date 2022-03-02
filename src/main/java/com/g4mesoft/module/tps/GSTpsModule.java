@@ -141,7 +141,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
 		sTpsHotkeyMode = new GSIntegerSetting("hotkeyMode", HOTKEY_MODE_CREATIVE, 0, 2);
 		sTpsHotkeyFeedback = new GSIntegerSetting("hotkeyFeedback", HOTKEY_FEEDBACK_STATUS, 0, 2);
-		cNormalMovement = new GSBooleanSetting("normalMovement", false);
+		cNormalMovement = new GSBooleanSetting("normalMovement", true);
 		cTpsLabel = new GSIntegerSetting("tpsLabel", TPS_LABEL_DISABLED, 0, 3);
 		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
 		sRestoreTickrate = new GSBooleanSetting("restoreTickrate", false);

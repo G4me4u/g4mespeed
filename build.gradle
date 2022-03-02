@@ -9,7 +9,7 @@ buildscript {
 }
 
 plugins {
-	id 'fabric-loom' version '0.10-SNAPSHOT'
+	id 'fabric-loom' version '0.11-SNAPSHOT'
 }
 
 repositories {
@@ -65,13 +65,17 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 def outputJarName = jar.archiveName.with { it.take(it.lastIndexOf(".")) }
+if (outputJarName.endsWith("-dev")) {
+	// Newest loom version also has the -dev suffix.
+	outputJarName = outputJarName.with { it.take(it.lastIndexOf("-dev")) }
+}
 def obfuscatedFileName = "${outputJarName}-release.jar"
 def homeDir = System.getProperty("user.home")
 
-task obfuscateJar(type: proguard.gradle.ProGuardTask) {
+task release(type: proguard.gradle.ProGuardTask) {
 	configuration "proguard.txt"
 
-	injars "./build/libs/${jar.archiveName}"
+	injars "./build/libs/${outputJarName}.jar"
 	outjars "./build/libs/${obfuscatedFileName}"
 	
 	// Automatically handle the Java version of this build.
@@ -90,6 +94,8 @@ task obfuscateJar(type: proguard.gradle.ProGuardTask) {
 	printmapping "g4mespeed-mappings-mc${project.minecraft_version}.map"
 	applymapping "g4mespeed-mappings-mc${project.minecraft_version}.map"
 }
+
+release.dependsOn build
 
 jar {
 	from "LICENSE"
