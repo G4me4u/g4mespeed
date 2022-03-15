@@ -94,7 +94,6 @@ com.g4mesoft.access.client.GSIMouseAccess -> core.l:
     int getPreviousEventModifiers() -> gsc_rJ
     double getPreviousEventScrollX() -> gsc_hH
 com.g4mesoft.access.client.GSIPistonBlockEntityAccess -> core.cC:
-    float getSmoothProgress(float) -> gsc_rJ
     float getOffsetForProgress(float,float,float) -> gsc_rJ
     void onAdded() -> gsc_rJ
     void handleScheduledUpdate() -> gsc_bs
@@ -992,36 +991,33 @@ com.g4mesoft.mixin.client.GSPistonBlockEntityMixin -> com.g4mesoft.mixin.client.
     float nextProgress -> gsc_bs
     boolean wasAdded -> gsc_UM
     float numberOfSteps -> numberOfSteps
+    float method_11499(float) -> method_11499
     void method_11503(float) -> method_11503
     void method_23674(float) -> method_23674
     net.minecraft.class_2680 method_11496() -> method_11496
     net.minecraft.class_238 method_11500(net.minecraft.class_238) -> method_11500
     net.minecraft.class_2350 method_11506() -> method_11506
-    65:76:void <init>(net.minecraft.class_2591) -> <init>
-    81:81:float getSmoothProgress(float) -> gsc_rJ
-    87:116:float getOffsetForProgress(float,float,float) -> gsc_rJ
-    121:121:float getSmoothRenderOffsetX(net.minecraft.class_2669,float) -> gsc_rJ
-    126:126:float getSmoothRenderOffsetY(net.minecraft.class_2669,float) -> gsc_hH
-    131:131:float getSmoothRenderOffsetZ(net.minecraft.class_2669,float) -> gsc_sc
-    136:137:void onMoveEntitiesHead(float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    142:142:double onPushEntitiesModifyDeltaProgress(double) -> gsc_rJ
-    148:149:void onPushEntitiesAfterEntitySetVelocity(float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo,net.minecraft.class_2350,double,net.minecraft.class_265,net.minecraft.class_238,java.util.List,java.util.List,boolean,java.util.Iterator,net.minecraft.class_1297) -> gsc_rJ
-    154:154:double onMethod_23674ModifyDeltaProgress(double) -> gsc_hH
-    158:162:double getDeltaProgress(double) -> gsc_sc
-    168:170:float onOffsetBoxRedirectProgress(net.minecraft.class_2669) -> gsc_rJ
-    176:178:float onGetCollisionShapeAndHeadStateRedirectProgress(net.minecraft.class_2669) -> gsc_hH
-    183:190:void onAdded() -> gsc_rJ
-    194:204:void handleScheduledUpdate() -> gsc_bs
-    208:228:void markEntitiesMovedByPiston(float) -> gsc_hH
-    232:232:boolean shouldCorrectPushEntities() -> gsc_hH
-    237:237:boolean isPushCorrectionEnabled() -> gsc_sc
-    242:243:void onFromTag(net.minecraft.class_2680,net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    247:248:void onTickAndFinishProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
-    254:267:double method_11006() -> method_11006
+    68:79:void <init>(net.minecraft.class_2591) -> <init>
+    83:85:void onGetProgressHead(float,org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable) -> gsc_rJ
+    90:119:float getOffsetForProgress(float,float,float) -> gsc_rJ
+    124:125:void onMoveEntitiesHead(float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    130:130:double onPushEntitiesModifyDeltaProgress(double) -> gsc_rJ
+    136:137:void onPushEntitiesAfterEntitySetVelocity(float,org.spongepowered.asm.mixin.injection.callback.CallbackInfo,net.minecraft.class_2350,double,net.minecraft.class_265,net.minecraft.class_238,java.util.List,java.util.List,boolean,java.util.Iterator,net.minecraft.class_1297) -> gsc_rJ
+    142:142:double onMethod_23674ModifyDeltaProgress(double) -> gsc_hH
+    146:150:double getDeltaProgress(double) -> gsc_sc
+    156:158:float onOffsetBoxRedirectProgress(net.minecraft.class_2669) -> gsc_rJ
+    164:166:float onGetCollisionShapeAndHeadStateRedirectProgress(net.minecraft.class_2669) -> gsc_hH
+    171:178:void onAdded() -> gsc_rJ
+    182:192:void handleScheduledUpdate() -> gsc_bs
+    196:216:void markEntitiesMovedByPiston(float) -> gsc_hH
+    220:220:boolean shouldCorrectPushEntities() -> gsc_hH
+    225:225:boolean isPushCorrectionEnabled() -> gsc_sc
+    230:231:void onFromTag(net.minecraft.class_2680,net.minecraft.class_2487,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    235:236:void onTickAndFinishProgressChanged(org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
+    242:255:double method_11006() -> method_11006
 com.g4mesoft.mixin.client.GSPistonBlockEntityRendererMixin -> com.g4mesoft.mixin.client.GSPistonBlockEntityRendererMixin:
-    15:15:void <init>() -> <init>
-    19:19:float getPistonProgress(net.minecraft.class_2669,float) -> gsc_rJ
-    24:24:float fixShortArm(float) -> gsc_rJ
+    10:10:void <init>() -> <init>
+    14:14:float fixShortArm(float) -> gsc_rJ
 com.g4mesoft.mixin.client.GSRenderTickCounterMixin -> com.g4mesoft.mixin.client.GSRenderTickCounterMixin:
     float field_1970 -> field_1970
     float field_1969 -> field_1969
@@ -1069,11 +1065,11 @@ com.g4mesoft.mixin.client.GSWorldRendererMixin -> com.g4mesoft.mixin.client.GSWo
     60:63:void onInit(net.minecraft.class_310,net.minecraft.class_4599,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
     70:77:void onRenderTransparentLastFabulous(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_rJ
     81:82:void onRenderTransparentLastDefault(net.minecraft.class_4587,float,long,boolean,net.minecraft.class_4184,net.minecraft.class_757,net.minecraft.class_765,net.minecraft.class_1159,org.spongepowered.asm.mixin.injection.callback.CallbackInfo) -> gsc_hH
-    86:123:void handleOnRenderTransparentLast(net.minecraft.class_4587) -> gsc_rJ
-    127:132:boolean hasRenderPhase(java.util.Collection,com.g4mesoft.renderer.GSERenderPhase) -> gsc_rJ
-    138:143:float onRenderEntityModifyDeltaTick(net.minecraft.class_1297,double,double,double,float,net.minecraft.class_4587,net.minecraft.class_4597) -> gsc_rJ
-    149:154:int onRenderGetEntityAge(net.minecraft.class_1297) -> gsc_rJ
-    159:160:void scheduleBlockUpdate0(net.minecraft.class_2338,boolean) -> gsc_rJ
+    86:124:void handleOnRenderTransparentLast(net.minecraft.class_4587) -> gsc_rJ
+    128:133:boolean hasRenderPhase(java.util.Collection,com.g4mesoft.renderer.GSERenderPhase) -> gsc_rJ
+    139:144:float onRenderEntityModifyDeltaTick(net.minecraft.class_1297,double,double,double,float,net.minecraft.class_4587,net.minecraft.class_4597) -> gsc_rJ
+    150:155:int onRenderGetEntityAge(net.minecraft.class_1297) -> gsc_rJ
+    160:161:void scheduleBlockUpdate0(net.minecraft.class_2338,boolean) -> gsc_rJ
 com.g4mesoft.mixin.server.GSChunkHolderMixin -> com.g4mesoft.mixin.server.GSChunkHolderMixin:
     it.unimi.dsi.fastutil.shorts.ShortSet[] field_25804 -> field_25804
     boolean field_25803 -> field_25803
