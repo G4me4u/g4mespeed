@@ -77,10 +77,9 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	}
 
 	@Inject(method = "getProgress", cancellable = true, at = @At("HEAD"))
-	private void getSmoothProgress(float partialTicks, CallbackInfoReturnable<Float> cir) {
-		if (world.isClient()) {
+	private void onGetProgress(float partialTicks, CallbackInfoReturnable<Float> cir) {
+		if (world.isClient())
 			cir.setReturnValue(getSmoothProgress(partialTicks));
-		}
 	}
 
 	@Override
