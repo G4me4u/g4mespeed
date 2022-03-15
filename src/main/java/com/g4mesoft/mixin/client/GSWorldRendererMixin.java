@@ -97,7 +97,8 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 			RenderSystem.enableBlend();
 			if (MinecraftClient.isFabulousGraphicsOrBetter()) {
 				// The Fabulous graphics setting seems to use a different blend func
-		        RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
+				RenderSystem.blendFuncSeparate(GlStateManager.SrcFactor.SRC_ALPHA, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA,
+						GlStateManager.SrcFactor.ONE, GlStateManager.DstFactor.ONE_MINUS_SRC_ALPHA);
 			} else {
 				RenderSystem.defaultBlendFunc();
 			}
