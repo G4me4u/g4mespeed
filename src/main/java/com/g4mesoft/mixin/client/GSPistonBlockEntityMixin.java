@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import com.g4mesoft.access.client.GSIEntityAccess;
@@ -75,6 +76,13 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		super(blockEntityType_1);
 	}
 
+	@Inject(method = "getProgress", cancellable = true, at = @At("HEAD"))
+	private void getSmoothProgress(float partialTicks, CallbackInfoReturnable<Float> cir) {
+		if (world.isClient()) {
+			cir.setReturnValue(getSmoothProgress(partialTicks));
+		}
+	}
+
 	@Override
 	@Environment(EnvType.CLIENT)
 	public float getSmoothProgress(float partialTicks) {
@@ -116,21 +124,6 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		return Math.min(1.0f, val);
 	}
 
-	@Redirect(method = "getRenderOffsetX", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/PistonBlockEntity;getProgress(F)F"))
-	private float getSmoothRenderOffsetX(PistonBlockEntity blockEntity, float partialTicks) {
-		return ((GSIPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
-	}
-	
-	@Redirect(method = "getRenderOffsetY", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/PistonBlockEntity;getProgress(F)F"))
-	private float getSmoothRenderOffsetY(PistonBlockEntity blockEntity, float partialTicks) {
-		return ((GSIPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
-	}
-	
-	@Redirect(method = "getRenderOffsetZ", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/PistonBlockEntity;getProgress(F)F"))
-	private float getSmoothRenderOffsetZ(PistonBlockEntity blockEntity, float partialTicks) {
-		return ((GSIPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
-	}
-	
 	@Inject(method = {"pushEntities", "method_23674"}, at = @At("HEAD"))
 	private void onMoveEntitiesHead(float nextProgress, CallbackInfo ci) {
 		this.nextProgress = nextProgress;
