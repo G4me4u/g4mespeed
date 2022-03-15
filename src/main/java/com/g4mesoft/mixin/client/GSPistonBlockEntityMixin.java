@@ -51,6 +51,8 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	
 	@Shadow private int field_26705;
 
+	@Shadow public abstract float getProgress(float tickDelta);
+
 	@Shadow protected abstract void pushEntities(float nextProgress);
 	
 	@Shadow protected abstract void method_23674(float nextProgress);
@@ -77,20 +79,14 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	}
 
 	@Inject(method = "getProgress", cancellable = true, at = @At("HEAD"))
-	private void onGetProgress(float partialTicks, CallbackInfoReturnable<Float> cir) {
-		if (world.isClient())
-			cir.setReturnValue(getSmoothProgress(partialTicks));
+	private void onGetProgressHead(float tickDelta, CallbackInfoReturnable<Float> cir) {
+		if (world.isClient)
+			cir.setReturnValue(getOffsetForProgress(progress, actualLastProgress, tickDelta));
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public float getSmoothProgress(float partialTicks) {
-		return getOffsetForProgress(progress, actualLastProgress, partialTicks);
-	}
-	
-	@Override
-	@Environment(EnvType.CLIENT)
-	public float getOffsetForProgress(float progress, float lastProgress, float partialTicks) {
+	public float getOffsetForProgress(float progress, float lastProgress, float tickDelta) {
 		if ((isRemoved() || this.field_26705 != 0) && GSMathUtil.equalsApproximate(lastProgress, 1.0f))
 			return 1.0f;
 		
@@ -101,22 +97,22 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		default:
 		case GSTpsModule.PISTON_ANIM_PAUSE_END:
 			// Will be clamped by the return statement.
-			val = (progress * numberOfSteps + partialTicks) / numberOfSteps;
+			val = (progress * numberOfSteps + tickDelta) / numberOfSteps;
 			break;
 		case GSTpsModule.PISTON_ANIM_PAUSE_MIDDLE:
 			if (progress < 0.5f - GSMathUtil.EPSILON_F) {
-				val = (progress * numberOfSteps + partialTicks) / numberOfSteps;
+				val = (progress * numberOfSteps + tickDelta) / numberOfSteps;
 			} else if (progress > 0.5f + GSMathUtil.EPSILON_F) {
-				val = (progress * numberOfSteps - 1.0f + partialTicks) / numberOfSteps;
+				val = (progress * numberOfSteps - 1.0f + tickDelta) / numberOfSteps;
 			} else {
 				val = 0.5f;
 			}
 			break;
 		case GSTpsModule.PISTON_ANIM_PAUSE_BEGINNING:
-			val = lastProgress + (progress - lastProgress) * partialTicks;
+			val = lastProgress + (progress - lastProgress) * tickDelta;
 			break;
 		case GSTpsModule.PISTON_ANIM_NO_PAUSE:
-			val = (progress * numberOfSteps + partialTicks) / (numberOfSteps + 1.0f);
+			val = (progress * numberOfSteps + tickDelta) / (numberOfSteps + 1.0f);
 			break;
 		}
 		
@@ -166,7 +162,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	          target = "Lnet/minecraft/block/entity/PistonBlockEntity;progress:F"))
 	private float onGetCollisionShapeAndHeadStateRedirectProgress(PistonBlockEntity blockEntity) {
 		if (shouldCorrectPushEntities())
-			return ((GSIPistonBlockEntityAccess)this).getSmoothProgress(1.0f);
+			return getProgress(1.0f);
 		return progress;
 	}
 	
