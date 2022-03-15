@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import com.g4mesoft.access.client.GSIEntityAccess;
@@ -52,6 +53,8 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	
 	@Shadow private int field_26705;
 
+	@Shadow public abstract float getProgress(float tickDelta);
+
 	@Shadow private static void pushEntities(World world, BlockPos pos, float nextProgress, PistonBlockEntity blockEntity) { }
 	
 	@Shadow private static void moveEntitiesInHoneyBlock(World world, BlockPos pos, float nextProgress, PistonBlockEntity blockEntity) { }
@@ -76,16 +79,16 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	public GSPistonBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 	}
-	
-	@Override
-	@Environment(EnvType.CLIENT)
-	public float getSmoothProgress(float partialTicks) {
-		return getOffsetForProgress(progress, actualLastProgress, partialTicks);
+
+	@Inject(method = "getProgress", cancellable = true, at = @At("HEAD"))
+	private void onGetProgressHead(float tickDelta, CallbackInfoReturnable<Float> cir) {
+		if (world.isClient)
+			cir.setReturnValue(getOffsetForProgress(progress, actualLastProgress, tickDelta));
 	}
-	
+
 	@Override
 	@Environment(EnvType.CLIENT)
-	public float getOffsetForProgress(float progress, float lastProgress, float partialTicks) {
+	public float getOffsetForProgress(float progress, float lastProgress, float tickDelta) {
 		if ((isRemoved() || this.field_26705 != 0) && GSMathUtil.equalsApproximate(lastProgress, 1.0f))
 			return 1.0f;
 		
@@ -96,43 +99,28 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		default:
 		case GSTpsModule.PISTON_ANIM_PAUSE_END:
 			// Will be clamped by the return statement.
-			val = (progress * numberOfSteps + partialTicks) / numberOfSteps;
+			val = (progress * numberOfSteps + tickDelta) / numberOfSteps;
 			break;
 		case GSTpsModule.PISTON_ANIM_PAUSE_MIDDLE:
 			if (progress < 0.5f - GSMathUtil.EPSILON_F) {
-				val = (progress * numberOfSteps + partialTicks) / numberOfSteps;
+				val = (progress * numberOfSteps + tickDelta) / numberOfSteps;
 			} else if (progress > 0.5f + GSMathUtil.EPSILON_F) {
-				val = (progress * numberOfSteps - 1.0f + partialTicks) / numberOfSteps;
+				val = (progress * numberOfSteps - 1.0f + tickDelta) / numberOfSteps;
 			} else {
 				val = 0.5f;
 			}
 			break;
 		case GSTpsModule.PISTON_ANIM_PAUSE_BEGINNING:
-			val = lastProgress + (progress - lastProgress) * partialTicks;
+			val = lastProgress + (progress - lastProgress) * tickDelta;
 			break;
 		case GSTpsModule.PISTON_ANIM_NO_PAUSE:
-			val = (progress * numberOfSteps + partialTicks) / (numberOfSteps + 1.0f);
+			val = (progress * numberOfSteps + tickDelta) / (numberOfSteps + 1.0f);
 			break;
 		}
 		
 		return Math.min(1.0f, val);
 	}
 
-	@Redirect(method = "getRenderOffsetX", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/PistonBlockEntity;getProgress(F)F"))
-	private float getSmoothRenderOffsetX(PistonBlockEntity blockEntity, float partialTicks) {
-		return ((GSIPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
-	}
-	
-	@Redirect(method = "getRenderOffsetY", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/PistonBlockEntity;getProgress(F)F"))
-	private float getSmoothRenderOffsetY(PistonBlockEntity blockEntity, float partialTicks) {
-		return ((GSIPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
-	}
-	
-	@Redirect(method = "getRenderOffsetZ", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/entity/PistonBlockEntity;getProgress(F)F"))
-	private float getSmoothRenderOffsetZ(PistonBlockEntity blockEntity, float partialTicks) {
-		return ((GSIPistonBlockEntityAccess)blockEntity).getSmoothProgress(partialTicks);
-	}
-	
 	@Inject(method = {"pushEntities", "moveEntitiesInHoneyBlock"}, at = @At("HEAD"))
 	private static void onMoveEntitiesHead(World world, BlockPos pos, float nextProgress, PistonBlockEntity blockEntity, CallbackInfo ci) {
 		((GSIPistonBlockEntityAccess)blockEntity).setNextProgress(nextProgress);
@@ -183,7 +171,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	          target = "Lnet/minecraft/block/entity/PistonBlockEntity;progress:F"))
 	private float onGetCollisionShapeRedirectProgress(PistonBlockEntity blockEntity) {
 		if (shouldCorrectPushEntities(blockEntity))
-			return ((GSIPistonBlockEntityAccess)this).getSmoothProgress(1.0f);
+			return getProgress(1.0f);
 		return progress;
 	}
 	
