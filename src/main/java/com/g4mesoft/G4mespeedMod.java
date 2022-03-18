@@ -57,9 +57,9 @@ public class G4mespeedMod implements ModInitializer {
 				GSIExtension extension = container.getEntrypoint();
 				String name = extension.getInfo().getName();
 				addExtension(extension);
-				GS_LOGGER.info("Added extension {} provided by {}", name, modid);
+				GS_LOGGER.info("Added extension '{}' provided by '{}'", name, modid);
 			} catch (Throwable e) {
-				GS_LOGGER.error("Mod {} provides a broken implementation of GSIExtension", modid, e);
+				GS_LOGGER.error("Mod '{}' provides a broken implementation of GSIExtension", modid, e);
 			}
 		});
 		
