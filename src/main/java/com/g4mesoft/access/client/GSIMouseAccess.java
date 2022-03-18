@@ -2,8 +2,8 @@ package com.g4mesoft.access.client;
 
 public interface GSIMouseAccess {
 
-	public int getPreviousEventModifiers();
+	public int gs_getPreviousEventModifiers();
 
-	public double getPreviousEventScrollX();
+	public double gs_getPreviousEventScrollX();
 	
 }

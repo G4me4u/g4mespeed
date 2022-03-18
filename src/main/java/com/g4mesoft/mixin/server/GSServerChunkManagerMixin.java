@@ -32,22 +32,22 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 	@Shadow protected abstract ChunkHolder getChunkHolder(long chunkId);
 	
 	@Override
-	public void tickEntityTracker(Entity entity) {
-		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).tickEntityTracker(entity);
+	public void gs_tickEntityTracker(Entity entity) {
+		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).gs_tickEntityTracker(entity);
 	}
 	
 	@Override
-	public void setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement) {
-		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).setTrackerFixedMovement(player, trackerFixedMovement);
+	public void gs_setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement) {
+		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).gs_setTrackerFixedMovement(player, trackerFixedMovement);
 	}
 	
 	@Override
-	public void setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock) {
-		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).setTrackerTickedFromFallingBlock(entity, tickedFromFallingBlock);
+	public void gs_setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock) {
+		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).gs_setTrackerTickedFromFallingBlock(entity, tickedFromFallingBlock);
 	}
 	
 	@Override
-	public void flushAndSendChunkUpdates() {
+	public void gs_flushAndSendChunkUpdates() {
 		world.getProfiler().push("chunks");
 		
 		if (!world.isDebugWorld()) {
@@ -57,7 +57,7 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 			// processing them. This is to ensure that random ticks are being
 			// processed randomly. Since we don't process those here, we can
 			// broadcast without having to shuffle the chunk holders.
-			((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).getEntryIterator0().forEach((chunkHolder) -> {
+			((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).gs_getEntryIterator().forEach((chunkHolder) -> {
 				Optional<WorldChunk> optional = chunkHolder.getEntityTickingFuture().getNow(ChunkHolder.UNLOADED_WORLD_CHUNK).left();
 				if (optional.isPresent()) {
 					world.getProfiler().push("broadcast");
@@ -73,31 +73,31 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 	}
 
 	@Override
-	public void updateBlockImmediately(BlockPos pos) {
+	public void gs_updateBlockImmediately(BlockPos pos) {
 		ChunkHolder chunkHolder = getChunkHolderAt(pos);
 		if (chunkHolder != null)
-			((GSIChunkHolderAccess)chunkHolder).updateBlockImmediately(world, pos);
+			((GSIChunkHolderAccess)chunkHolder).gs_updateBlockImmediately(world, pos);
 	}
 
 	@Override
-	public void updateBlockEntityImmediately(BlockPos pos) {
+	public void gs_updateBlockEntityImmediately(BlockPos pos) {
 		ChunkHolder chunkHolder = getChunkHolderAt(pos);
 		if (chunkHolder != null)
-			((GSIChunkHolderAccess)chunkHolder).updateBlockEntityImmediately(world, pos);
+			((GSIChunkHolderAccess)chunkHolder).gs_updateBlockEntityImmediately(world, pos);
 	}
 	
 	@Override
-	public void markBlockEntityUpdate(BlockPos pos) {
+	public void gs_markBlockEntityUpdate(BlockPos pos) {
 		ChunkHolder chunkHolder = getChunkHolderAt(pos);
 		if (chunkHolder != null)
-			((GSIChunkHolderAccess)chunkHolder).markBlockEntityUpdate(pos);
+			((GSIChunkHolderAccess)chunkHolder).gs_markBlockEntityUpdate(pos);
 	}
 	
 	@Override
-	public void sendToNearbyPlayers(BlockPos pos, Packet<?> packet) {
+	public void gs_sendToNearbyPlayers(BlockPos pos, Packet<?> packet) {
 		ChunkHolder chunkHolder = getChunkHolderAt(pos);
 		if (chunkHolder != null)
-			((GSIChunkHolderAccess)chunkHolder).sendToNearbyPlayers0(packet);
+			((GSIChunkHolderAccess)chunkHolder).gs_sendToNearbyPlayers0(packet);
 	}
 	
 	@Unique

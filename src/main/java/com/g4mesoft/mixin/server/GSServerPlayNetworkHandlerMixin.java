@@ -44,18 +44,18 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 	@Shadow protected abstract boolean isHost();
 
 	@Unique
-	private final GSExtensionInfoList extensionInfoList = new GSExtensionInfoList();
+	private final GSExtensionInfoList gs_extensionInfoList = new GSExtensionInfoList();
 	@Unique
-	private final Map<GSExtensionUID, Integer> translationVersions = new HashMap<>();
+	private final Map<GSExtensionUID, Integer> gs_translationVersions = new HashMap<>();
 	@Unique
-	private boolean fixedMovement = false;
+	private boolean gs_fixedMovement = false;
 
 	@Unique
-	private boolean trackerFixedMovement = false;
+	private boolean gs_trackerFixedMovement = false;
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void onTick(CallbackInfo ci) {
-		if (fixedMovement && floatingTicks > 70)
+		if (gs_fixedMovement && floatingTicks > 70)
 			floatingTicks--;
 	}
 	
@@ -64,7 +64,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		to = @At(value = "CONSTANT", args = "stringValue={} is sending move packets too frequently ({} packets since last tick)")))
 	private int onPlayerMoveModifyConstant5(int oldValue) {
 		// Allow for "infinite" packets between ticks when using fixed movement.
-		return fixedMovement ? Integer.MAX_VALUE : oldValue;
+		return gs_fixedMovement ? Integer.MAX_VALUE : oldValue;
 	}
 	
 	@Inject(method = "onPlayerMove", at = @At(value = "INVOKE", shift = Shift.AFTER,
@@ -74,19 +74,19 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		// Only send movement packets if the server is not running 20 ticks per second.
 		if (!GSServerController.getInstance().getTpsModule().isDefaultTps()) {
 			// G4mespeed is not installed, assume that the player is moving with 20 ticks per second.
-			trackerFixedMovement = fixedMovement || !isExtensionInstalled(GSCoreExtension.UID);
+			trackerFixedMovement = gs_fixedMovement || !gs_isExtensionInstalled(GSCoreExtension.UID);
 		}
 		
-		this.trackerFixedMovement = trackerFixedMovement;
+		this.gs_trackerFixedMovement = trackerFixedMovement;
 		
-		((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).setTrackerFixedMovement(player, trackerFixedMovement);
+		((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).gs_setTrackerFixedMovement(player, trackerFixedMovement);
 	}
 
 	@Inject(method = "onPlayerMove", at = @At(value = "INVOKE", shift = Shift.AFTER,
 			target = "Lnet/minecraft/server/network/ServerPlayerEntity;increaseTravelMotionStats(DDD)V"))
 	private void onPlayerMoveUpdateCameraPosition(PlayerMoveC2SPacket packet, CallbackInfo ci) {
-		if (trackerFixedMovement)
-			((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).tickEntityTracker(player);
+		if (gs_trackerFixedMovement)
+			((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).gs_tickEntityTracker(player);
 	}
 
 	
@@ -98,7 +98,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		GSICustomPayloadPacket<ServerPlayPacketListener> payload = (GSICustomPayloadPacket<ServerPlayPacketListener>)packet;
 		
 		GSServerController controllerServer = GSServerController.getInstance();
-		GSIPacket gsPacket = packetManger.decodePacket(payload, extensionInfoList, (ServerPlayNetworkHandler)(Object)this, controllerServer.getServer());
+		GSIPacket gsPacket = packetManger.decodePacket(payload, gs_extensionInfoList, (ServerPlayNetworkHandler)(Object)this, controllerServer.getServer());
 		if (gsPacket != null) {
 			gsPacket.handleOnServer(controllerServer, player);
 			ci.cancel();
@@ -106,53 +106,53 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 	}
 	
 	@Override
-	public boolean isExtensionInstalled(GSExtensionUID extensionUid) {
-		return extensionInfoList.isExtensionInstalled(extensionUid);
+	public boolean gs_isExtensionInstalled(GSExtensionUID extensionUid) {
+		return gs_extensionInfoList.isExtensionInstalled(extensionUid);
 	}
 	
 	@Override
-	public boolean isExtensionInstalled(GSExtensionUID extensionUid, GSVersion minimumVersion) {
-		return extensionInfoList.isExtensionInstalled(extensionUid, minimumVersion);
+	public boolean gs_isExtensionInstalled(GSExtensionUID extensionUid, GSVersion minimumVersion) {
+		return gs_extensionInfoList.isExtensionInstalled(extensionUid, minimumVersion);
 	}
 
 	@Override
-	public GSExtensionInfo getExtensionInfo(GSExtensionUID extensionUid) {
-		return extensionInfoList.getInfo(extensionUid);
+	public GSExtensionInfo gs_getExtensionInfo(GSExtensionUID extensionUid) {
+		return gs_extensionInfoList.getInfo(extensionUid);
 	}
 
 	@Override
-	public void clearAllExtensionInfo() {
-		extensionInfoList.clearInfo();
+	public void gs_clearAllExtensionInfo() {
+		gs_extensionInfoList.clearInfo();
 	}
 	
 	@Override
-	public void addAllExtensionInfo(GSExtensionInfo[] extensionInfo) {
-		extensionInfoList.addAllInfo(extensionInfo);
+	public void gs_addAllExtensionInfo(GSExtensionInfo[] extensionInfo) {
+		gs_extensionInfoList.addAllInfo(extensionInfo);
 	}
 
 	@Override
-	public void addExtensionInfo(GSExtensionInfo info) {
-		extensionInfoList.addInfo(info);
+	public void gs_addExtensionInfo(GSExtensionInfo info) {
+		gs_extensionInfoList.addInfo(info);
 	}
 	
 	@Override
-	public void setTranslationVersion(GSExtensionUID uid, int translationVersion) {
-		translationVersions.put(uid, translationVersion);
+	public void gs_setTranslationVersion(GSExtensionUID uid, int translationVersion) {
+		gs_translationVersions.put(uid, translationVersion);
 	}
 
 	@Override
-	public int getTranslationVersion(GSExtensionUID uid) {
-		return translationVersions.getOrDefault(uid, GSTranslationModule.INVALID_TRANSLATION_VERSION);
+	public int gs_getTranslationVersion(GSExtensionUID uid) {
+		return gs_translationVersions.getOrDefault(uid, GSTranslationModule.INVALID_TRANSLATION_VERSION);
 	}
 	
 	@Override
-	public boolean isFixedMovement() {
-		return fixedMovement;
+	public boolean gs_isFixedMovement() {
+		return gs_fixedMovement;
 	}
 	
 	@Override
-	public void setFixedMovement(boolean fixedMovement) {
-		this.fixedMovement = fixedMovement;
+	public void gs_setFixedMovement(boolean fixedMovement) {
+		this.gs_fixedMovement = fixedMovement;
 	}
 	
 }

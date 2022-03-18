@@ -47,8 +47,8 @@ public abstract class GSServerWorldMixin extends World {
 
 			entityList.forEach((entity) -> {
 				if (!entity.isRemoved() && entity.getType() == EntityType.FALLING_BLOCK) {
-					((GSIServerChunkManagerAccess)chunkManager).setTrackerTickedFromFallingBlock(entity, true);
-					((GSIServerChunkManagerAccess)chunkManager).tickEntityTracker(entity);
+					((GSIServerChunkManagerAccess)chunkManager).gs_setTrackerTickedFromFallingBlock(entity, true);
+					((GSIServerChunkManagerAccess)chunkManager).gs_tickEntityTracker(entity);
 				}
 			});
 		}
@@ -59,7 +59,7 @@ public abstract class GSServerWorldMixin extends World {
 	private void onTickImmediateUpdates(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
 		if (GSServerController.getInstance().getTpsModule().sImmediateBlockBroadcast.getValue()) {
 			getProfiler().swap("chunkSource");
-			((GSIServerChunkManagerAccess) getChunkManager()).flushAndSendChunkUpdates();
+			((GSIServerChunkManagerAccess) getChunkManager()).gs_flushAndSendChunkUpdates();
 		}
 	}
 	

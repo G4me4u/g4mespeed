@@ -2,8 +2,8 @@ package com.g4mesoft.access.client;
 
 public interface GSIAbstractClientPlayerEntityAccess {
 
-	public boolean isFixedMovement();
+	public boolean gs_isFixedMovement();
 	
-	public void setFixedMovement(boolean fixedMovement);
+	public void gs_setFixedMovement(boolean fixedMovement);
 	
 }

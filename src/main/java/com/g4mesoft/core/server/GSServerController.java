@@ -89,22 +89,22 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	@Override
 	public boolean isExtensionInstalled(ServerPlayerEntity player, GSExtensionUID extensionUid) {
-		return ((GSIServerPlayNetworkHandlerAccess)player.networkHandler).isExtensionInstalled(extensionUid);
+		return ((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_isExtensionInstalled(extensionUid);
 	}
 	
 	@Override
 	public boolean isExtensionInstalled(ServerPlayerEntity player, GSExtensionUID extensionUid, GSVersion minimumVersion) {
-		return ((GSIServerPlayNetworkHandlerAccess)player.networkHandler).isExtensionInstalled(extensionUid, minimumVersion);
+		return ((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_isExtensionInstalled(extensionUid, minimumVersion);
 	}
 
 	@Override
 	public GSExtensionInfo getExtensionInfo(ServerPlayerEntity player, GSExtensionUID extensionUid) {
-		return ((GSIServerPlayNetworkHandlerAccess)player.networkHandler).getExtensionInfo(extensionUid);
+		return ((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_getExtensionInfo(extensionUid);
 	}
 	
 	public void onG4mespeedClientJoined(ServerPlayerEntity player, GSExtensionInfo[] extensionInfo) {
-		((GSIServerPlayNetworkHandlerAccess)player.networkHandler).clearAllExtensionInfo();
-		((GSIServerPlayNetworkHandlerAccess)player.networkHandler).addAllExtensionInfo(extensionInfo);
+		((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_clearAllExtensionInfo();
+		((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_addAllExtensionInfo(extensionInfo);
 		
 		if (isExtensionInstalled(player, GSCoreExtension.UID)) {
 			GSExtensionInfo coreInfo = getExtensionInfo(player, GSCoreExtension.UID);

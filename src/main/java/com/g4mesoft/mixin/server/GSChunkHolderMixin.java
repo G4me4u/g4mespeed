@@ -57,31 +57,31 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	private static final GSVersion CORRECTED_PUSHING_VERSION = new GSVersion(1, 2, 2);
 	
 	@Unique
-	private int loopSectionIndex;
+	private int gs_loopSectionIndex;
 	@Unique
-	private ShortSet[] blockEntityUpdatesBySection;
+	private ShortSet[] gs_blockEntityUpdatesBySection;
 	@Unique
-	private boolean pendingBlockEntityUpdates;
+	private boolean gs_pendingBlockEntityUpdates;
 	
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void onInit(ChunkPos pos, int level, HeightLimitView world, LightingProvider lightingProvider,
 	                    LevelUpdateListener levelUpdateListener, PlayersWatchingChunkProvider playersWatchingChunkProvider, CallbackInfo ci) {
 		
-		blockEntityUpdatesBySection = new ShortSet[blockUpdatesBySection.length];
-		pendingBlockEntityUpdates = false;
+		gs_blockEntityUpdatesBySection = new ShortSet[blockUpdatesBySection.length];
+		gs_pendingBlockEntityUpdates = false;
 	}
 	
 	@Inject(method = "flushUpdates", at = @At("HEAD"))
 	private void onFlushUpdates(WorldChunk chunk, CallbackInfo ci) {
-		loopSectionIndex = 0;
+		gs_loopSectionIndex = 0;
 
-		if (pendingBlockEntityUpdates) {
+		if (gs_pendingBlockEntityUpdates) {
 			GSServerController.getInstance().sendPacketToAll(new GSFlushingBlockEntityUpdatesPacket(true), CORRECTED_PUSHING_VERSION);
 		
 			// Only gets executed if there are no normal block or light
 			// updates that are marked for updates (where loops do not run).
 			if (!pendingBlockUpdates && skyLightUpdateBits.isEmpty() && blockLightUpdateBits.isEmpty()) {
-				for (int s = 0; s < blockEntityUpdatesBySection.length; s++)
+				for (int s = 0; s < gs_blockEntityUpdatesBySection.length; s++)
 					sendBlockEntityUpdates(chunk, s);
 			}
 		}
@@ -92,21 +92,21 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	        at = @At(value = "FIELD", ordinal = 1, shift = Shift.BEFORE, opcode = Opcodes.GETFIELD,
 	        target = "Lnet/minecraft/server/world/ChunkHolder;blockUpdatesBySection:[Lit/unimi/dsi/fastutil/shorts/ShortSet;"))
 	private void onFlushUpdatesBlockUpdateLoop(WorldChunk chunk, CallbackInfo ci) {
-		if (loopSectionIndex < blockEntityUpdatesBySection.length)
-			sendBlockEntityUpdates(chunk, loopSectionIndex++);
+		if (gs_loopSectionIndex < gs_blockEntityUpdatesBySection.length)
+			sendBlockEntityUpdates(chunk, gs_loopSectionIndex++);
 	}
 	
 	@Inject(method = "flushUpdates", at = @At("RETURN"))
 	private void onFlushUpdatesReturn(CallbackInfo ci) {
-		if (pendingBlockEntityUpdates) {
+		if (gs_pendingBlockEntityUpdates) {
 			GSServerController.getInstance().sendPacketToAll(new GSFlushingBlockEntityUpdatesPacket(false), CORRECTED_PUSHING_VERSION);
-			pendingBlockEntityUpdates = false;
+			gs_pendingBlockEntityUpdates = false;
 		}
 	}
 	
 	@Unique
 	private void sendBlockEntityUpdates(WorldChunk chunk, int sectionIndex) {
-		ShortSet markedUpdates = blockEntityUpdatesBySection[sectionIndex];
+		ShortSet markedUpdates = gs_blockEntityUpdatesBySection[sectionIndex];
 
 		if (markedUpdates != null) {
 			ChunkSectionPos sectionPos = ChunkSectionPos.from(chunk.getPos(), sectionIndex);
@@ -128,37 +128,37 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 				}
 			}
 
-			blockEntityUpdatesBySection[sectionIndex] = null;
+			gs_blockEntityUpdatesBySection[sectionIndex] = null;
 		}
 	}
 	
 	@Override
-	public void updateBlockImmediately(World world, BlockPos pos) {
+	public void gs_updateBlockImmediately(World world, BlockPos pos) {
         sendPacketToPlayersWatching(new BlockUpdateS2CPacket(world, pos.toImmutable()), false);
-        updateBlockEntityImmediately(world, pos);
+        gs_updateBlockEntityImmediately(world, pos);
 	}
 	
 	@Override
-	public void updateBlockEntityImmediately(World world, BlockPos pos) {
+	public void gs_updateBlockEntityImmediately(World world, BlockPos pos) {
 		tryUpdateBlockEntityAt(world, pos, world.getBlockState(pos));
 	}
 	
 	@Override
-	public void markBlockEntityUpdate(BlockPos blockPos) {
+	public void gs_markBlockEntityUpdate(BlockPos blockPos) {
 		WorldChunk worldChunk = this.getWorldChunk();
 		if (worldChunk != null) {
 			int sectionIndex = ChunkSectionPos.getSectionCoord(blockPos.getY());
-			if (blockEntityUpdatesBySection[sectionIndex] == null) {
-				pendingBlockEntityUpdates = true;
-				blockEntityUpdatesBySection[sectionIndex] = new ShortArraySet();
+			if (gs_blockEntityUpdatesBySection[sectionIndex] == null) {
+				gs_pendingBlockEntityUpdates = true;
+				gs_blockEntityUpdatesBySection[sectionIndex] = new ShortArraySet();
 			}
 
-			blockEntityUpdatesBySection[sectionIndex].add(ChunkSectionPos.packLocal(blockPos));
+			gs_blockEntityUpdatesBySection[sectionIndex].add(ChunkSectionPos.packLocal(blockPos));
 		}
 	}
 	
 	@Override
-	public void sendToNearbyPlayers0(Packet<?> packet) {
+	public void gs_sendToNearbyPlayers0(Packet<?> packet) {
 		sendPacketToPlayersWatching(packet, false);
 	}
 }

@@ -11,15 +11,15 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 public class GSAbstractClientPlayerEntityMixin implements GSIAbstractClientPlayerEntityAccess {
 
 	@Unique
-	private boolean fixedMovement;
+	private boolean gs_fixedMovement;
 	
 	@Override
-	public boolean isFixedMovement() {
-		return fixedMovement;
+	public boolean gs_isFixedMovement() {
+		return gs_fixedMovement;
 	}
 
 	@Override
-	public void setFixedMovement(boolean fixedMovement) {
-		this.fixedMovement = fixedMovement;
+	public void gs_setFixedMovement(boolean fixedMovement) {
+		this.gs_fixedMovement = fixedMovement;
 	}
 }

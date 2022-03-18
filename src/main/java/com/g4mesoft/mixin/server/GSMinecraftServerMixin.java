@@ -27,28 +27,28 @@ import net.minecraft.util.Util;
 @Mixin(MinecraftServer.class)
 public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
-	@Unique
-	private float msAccum = 0.0f;
-	@Unique
-	private float msPerTick = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
+	@Shadow private long timeReference;
 
 	@Unique
-	private long msThisTick;
+	private float gs_msAccum = 0.0f;
 	@Unique
-	private long ticksBehind;
-	
-	@Shadow private long timeReference;
+	private float gs_msPerTick = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
+
+	@Unique
+	private long gs_msThisTick;
+	@Unique
+	private long gs_ticksBehind;
 	
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {
-		long millisPrevTick = (long)msAccum;
+		long millisPrevTick = (long)gs_msAccum;
 		
-		msPerTick = GSTpsModule.MS_PER_SEC / newTps;
-		msAccum = msPerTick;
+		gs_msPerTick = GSTpsModule.MS_PER_SEC / newTps;
+		gs_msAccum = gs_msPerTick;
 		
 		long now = Util.getMeasuringTimeMs();
 		long dt = timeReference - now;
-		long millisNextTick = (long)msAccum;
+		long millisNextTick = (long)gs_msAccum;
 		
 		if (dt < millisPrevTick && millisPrevTick != 0L) {
 			// Interpolate the progress until next tick with the
@@ -78,17 +78,17 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			at = @At(value = "INVOKE", shift = Shift.BEFORE, ordinal = 0,
 			target = "Lnet/minecraft/util/Util;getMeasuringTimeMs()J"))
 	private void onRunServerLoopBeginning(CallbackInfo ci) {
-		msThisTick = (long)msAccum;
-		msAccum += msPerTick - msThisTick;
+		gs_msThisTick = (long)gs_msAccum;
+		gs_msAccum += gs_msPerTick - gs_msThisTick;
 	}
 
 	@ModifyConstant(method = "runServer", constant = @Constant(longValue = 50L, ordinal = 0))
 	private long onRunServerModify50_0(long prevMsThisTick) {
-		if (GSMathUtil.equalsApproximate(msPerTick, 0.0f)) {
-			ticksBehind = Long.MAX_VALUE;
+		if (GSMathUtil.equalsApproximate(gs_msPerTick, 0.0f)) {
+			gs_ticksBehind = Long.MAX_VALUE;
 		} else {
 			long deltaMs = Util.getMeasuringTimeMs() - timeReference;
-			ticksBehind = (deltaMs > 0L) ? (long)(deltaMs / msPerTick) : 0L;
+			gs_ticksBehind = (deltaMs > 0L) ? (long)(deltaMs / gs_msPerTick) : 0L;
 		}
 		
 		/* Does not matter what is returned here as long as it is non-zero */
@@ -99,16 +99,16 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			target = "Lorg/apache/logging/log4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"))
 	private Object modifyRunServerWarnTicksBehind(Object ignore) {
 		// Modify debug message to account for "infinite" ticks per second
-		return (ticksBehind == Long.MAX_VALUE) ? "infinite" : Long.valueOf(ticksBehind);
+		return (gs_ticksBehind == Long.MAX_VALUE) ? "infinite" : Long.valueOf(gs_ticksBehind);
 	}
 	
 	@Inject(method = "runServer", at = @At(value = "INVOKE", shift = Shift.AFTER,
 	        target = "Lorg/apache/logging/log4j/Logger;warn(Ljava/lang/String;Ljava/lang/Object;Ljava/lang/Object;)V"))
 	private void onRunServerAfterWarn(CallbackInfo ci) {
-		if (ticksBehind == Long.MAX_VALUE) {
+		if (gs_ticksBehind == Long.MAX_VALUE) {
 			timeReference = Util.getMeasuringTimeMs();
 		} else {
-			timeReference += ticksBehind * msPerTick;
+			timeReference += gs_ticksBehind * gs_msPerTick;
 		}
 	}
 
@@ -121,22 +121,22 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	@ModifyConstant(method = "runServer", constant = @Constant(longValue = 50L), slice = @Slice(from = @At(value = "FIELD",
 			shift = Shift.AFTER, opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/server/MinecraftServer;needsDebugSetup:Z")))
 	private long onRunServerModify50AfterDebugSetup(long prevMsThisTick) {
-		return msThisTick;
+		return gs_msThisTick;
 	}
 	
 	@ModifyConstant(method = "runServer", constant = @Constant(longValue = 2000L))
 	private long onRunServerModify2000(long prevMsThisTick) {
-		return (long)(1000L + 20L * msPerTick);
+		return (long)(1000L + 20L * gs_msPerTick);
 	}
 
 	@ModifyConstant(method = "runServer", constant = @Constant(longValue = 15000L))
 	private long onRunServerModify15000(long prevMsThisTick) {
-		return (long)(10000L + 100L * msPerTick);
+		return (long)(10000L + 100L * gs_msPerTick);
 	}
 	
 	@Inject(method = "runServer", at = @At(value = "FIELD", target="Lnet/minecraft/server/MinecraftServer;lastTimeReference:J", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
 	private void onRunServerAfterOverloaded(CallbackInfo ci) {
-		this.msAccum = msPerTick;
+		this.gs_msAccum = gs_msPerTick;
 	}
 	
 	@Inject(method = "tick", at = @At("HEAD"))

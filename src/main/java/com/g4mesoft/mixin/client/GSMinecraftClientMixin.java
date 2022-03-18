@@ -57,19 +57,18 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Shadow @Final public InGameHud inGameHud;
 
 	@Unique
-	private GSClientController controller;
+	private GSClientController gs_controller;
 	@Unique
-	private GSTpsModule tpsModule;
+	private GSTpsModule gs_tpsModule;
+	
+	private final GSITickTimer gs_playerTimer = new GSBasicTickTimer(GSITickTimer.DEFAULT_MILLIS_PER_TICK);
 	
 	@Unique
-	private final GSITickTimer playerTimer = new GSBasicTickTimer(GSITickTimer.DEFAULT_MILLIS_PER_TICK);
-	
+	private boolean gs_flushingUpdates = false;
 	@Unique
-	private boolean flushingUpdates = false;
+	private boolean gs_forceScheduledPistonBlockEntityUpdates = false;
 	@Unique
-	private boolean forceScheduledPistonBlockEntityUpdates = false;
-	@Unique
-	private final Set<BlockPos> scheduledPistonBlockEntityUpdates = new LinkedHashSet<>();
+	private final Set<BlockPos> gs_scheduledPistonBlockEntityUpdates = new LinkedHashSet<>();
 	
 	@Shadow protected abstract boolean isPaused();
 	
@@ -78,9 +77,9 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Inject(method = "run", at = @At(value = "FIELD", target="Lnet/minecraft/client/MinecraftClient;thread:Ljava/lang/Thread;",
 			opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
 	private void onInit(CallbackInfo ci) {
-		controller = GSClientController.getInstance();
-		controller.init((MinecraftClient)(Object)this);
-		tpsModule = controller.getTpsModule();
+		gs_controller = GSClientController.getInstance();
+		gs_controller.init((MinecraftClient)(Object)this);
+		gs_tpsModule = gs_controller.getTpsModule();
 	}
 	
 	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
@@ -88,30 +87,30 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		// Check if player is null. This ensures that we only
 		// call disconnect when we're leaving a play-session.
 		if (this.player != null)
-			controller.onDisconnectServer();
+			gs_controller.onDisconnectServer();
 	}
 	
 	@Inject(method = "stop", at = @At(value = "CONSTANT", args = "stringValue=Stopping!"))
 	private void onClientClose(CallbackInfo ci) {
-		controller.onClientClose();
+		gs_controller.onClientClose();
 	}
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void onTick(CallbackInfo ci) {
 		GSDebug.onClientTick();
 		
-		controller.tick(isPaused());
+		gs_controller.tick(isPaused());
 		
-		if (flushingUpdates) {
+		if (gs_flushingUpdates) {
 			// Server is very slow. Perform scheduled updates anyway.
-			forceScheduledPistonBlockEntityUpdates = true;
+			gs_forceScheduledPistonBlockEntityUpdates = true;
 		}
 	}
 	
 	@Inject(method = "tick", at = @At(value = "FIELD", shift = Shift.AFTER, 
 			opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/MinecraftClient;itemUseCooldown:I"))
 	private void onTickAfterItemUseCooldownDecrement(CallbackInfo ci) {
-		if (tpsModule.isMainPlayerFixedMovement()) {
+		if (gs_tpsModule.isMainPlayerFixedMovement()) {
 			// Fix item cool-down by incrementing it.
 			itemUseCooldown++;
 		}
@@ -120,7 +119,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Inject(method = "tick", at = @At(value = "FIELD", shift = Shift.AFTER, 
 			opcode = Opcodes.PUTFIELD, target = "Lnet/minecraft/client/MinecraftClient;attackCooldown:I"))
 	private void onTickAfterAttackCooldownDecrement(CallbackInfo ci) {
-		if (tpsModule.isMainPlayerFixedMovement()) {
+		if (gs_tpsModule.isMainPlayerFixedMovement()) {
 			// Fix attack cool-down by incrementing it.
 			attackCooldown++;
 		}
@@ -129,45 +128,45 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/hud/InGameHud;tick()V"))
 	private void onTickRedirectInteractionManagerTick(InGameHud inGameHud) {
 		// Tick is handled elsewhere when correcting movement.
-		if (!tpsModule.isMainPlayerFixedMovement())
+		if (!gs_tpsModule.isMainPlayerFixedMovement())
 			inGameHud.tick();
 	}
 
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;tick()V"))
 	private void onTickRedirectInteractionManagerTick(ClientPlayerInteractionManager interactionManager) {
 		// Tick is handled elsewhere when correcting movement.
-		if (!tpsModule.isMainPlayerFixedMovement())
+		if (!gs_tpsModule.isMainPlayerFixedMovement())
 			interactionManager.tick();
 	}
 	
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/MinecraftClient;handleInputEvents()V"))
 	private void onTickRedirectHandleInputEvents(MinecraftClient ignore) {
 		// Events are handled elsewhere when correcting movement.
-		if (!tpsModule.isMainPlayerFixedMovement())
+		if (!gs_tpsModule.isMainPlayerFixedMovement())
 			handleInputEvents();
 	}
 
 	@Redirect(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;tick()V"))
 	private void onTickRedirectGameRendererTick(GameRenderer gameRenderer) {
 		// Tick is handled elsewhere when correcting movement.
-		if (!tpsModule.isMainPlayerFixedMovement())
+		if (!gs_tpsModule.isMainPlayerFixedMovement())
 			gameRenderer.tick();
 	}
 	
 	@Inject(method = "render", slice = @Slice(from = @At(value = "CONSTANT", args = "stringValue=tick")), 
 			at = @At(value = "INVOKE", ordinal = 0, shift = Shift.AFTER, target = "Lnet/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V"))
 	private void onRenderBeforeTickLoop(CallbackInfo ci) {
-		if (!flushingUpdates || forceScheduledPistonBlockEntityUpdates) {
+		if (!gs_flushingUpdates || gs_forceScheduledPistonBlockEntityUpdates) {
 			// Perform piston block entity updates after runTasks()
 			performScheduledPistonBlockEntityUpdates();
-			forceScheduledPistonBlockEntityUpdates = false;
+			gs_forceScheduledPistonBlockEntityUpdates = false;
 		}
 
-		playerTimer.update(Util.getMeasuringTimeMs());
+		gs_playerTimer.update0(Util.getMeasuringTimeMs());
 
-		int tickCount = Math.min(playerTimer.getTickCount(), 10);
+		int tickCount = Math.min(gs_playerTimer.getTickCount0(), 10);
 		for (int i = 0; i < tickCount; i++) {
-			if (tpsModule.isMainPlayerFixedMovement())
+			if (gs_tpsModule.isMainPlayerFixedMovement())
 				onTickCorrection();
 			if (!paused && world != null)
 				tickFixedMovementPlayers();
@@ -176,14 +175,14 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	
 	@Unique
 	private void performScheduledPistonBlockEntityUpdates() {
-		if (!scheduledPistonBlockEntityUpdates.isEmpty()) {
-			BlockPos[] positions = scheduledPistonBlockEntityUpdates.toArray(new BlockPos[0]);
-			scheduledPistonBlockEntityUpdates.clear();
+		if (!gs_scheduledPistonBlockEntityUpdates.isEmpty()) {
+			BlockPos[] positions = gs_scheduledPistonBlockEntityUpdates.toArray(new BlockPos[0]);
+			gs_scheduledPistonBlockEntityUpdates.clear();
 		
 			for (BlockPos blockPos : positions) {
 				BlockEntity blockEntity = world.getBlockEntity(blockPos);
 				if (blockEntity instanceof PistonBlockEntity)
-					((GSIPistonBlockEntityAccess)blockEntity).handleScheduledUpdate();
+					((GSIPistonBlockEntityAccess)blockEntity).gs_handleScheduledUpdate();
 			}
 		}
 	}
@@ -216,9 +215,9 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	
 	@Unique
 	private void tickFixedMovementPlayers() {
-		if (!tpsModule.isDefaultTps()) {
+		if (!gs_tpsModule.isDefaultTps()) {
 			for (AbstractClientPlayerEntity entity : world.getPlayers()) {
-				if (entity != player && !entity.hasVehicle() && !entity.isRemoved() && tpsModule.isPlayerFixedMovement(entity))
+				if (entity != player && !entity.hasVehicle() && !entity.isRemoved() && gs_tpsModule.isPlayerFixedMovement(entity))
 					world.tickEntity(world::tickEntity, entity);
 			}
 		}
@@ -226,26 +225,26 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	
 	@ModifyArg(method = "render", index = 0, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;render(FJZ)V"))
 	private float onModifyGameRenderTickDelta(float oldTickDelta) {
-		if (!paused && tpsModule.isMainPlayerFixedMovement())
-			return playerTimer.getTickDelta();
+		if (!paused && gs_tpsModule.isMainPlayerFixedMovement())
+			return gs_playerTimer.getTickDelta0();
 		return oldTickDelta;
 	}
 	
 	@Override
-	public void setFlushingBlockEntityUpdates(boolean flushingUpdates) {
-		this.flushingUpdates = flushingUpdates;
+	public void gs_setFlushingBlockEntityUpdates(boolean flushingUpdates) {
+		this.gs_flushingUpdates = flushingUpdates;
 
 		if (!flushingUpdates)
-			forceScheduledPistonBlockEntityUpdates = true;
+			gs_forceScheduledPistonBlockEntityUpdates = true;
 	}
 	
 	@Override
-	public void schedulePistonBlockEntityUpdate(BlockPos blockPos) {
-		scheduledPistonBlockEntityUpdates.add(blockPos);
+	public void gs_schedulePistonBlockEntityUpdate(BlockPos blockPos) {
+		gs_scheduledPistonBlockEntityUpdates.add(blockPos);
 	}
 	
 	@Override
-	public float getFixedMovementTickDelta() {
-		return playerTimer.getTickDelta();
+	public float gs_getFixedMovementTickDelta() {
+		return gs_playerTimer.getTickDelta0();
 	}
 }

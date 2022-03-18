@@ -22,32 +22,32 @@ public abstract class GSThreadedAnvilChunkStorageMixin implements GSIThreadedAnv
 	@Shadow protected abstract Iterable<ChunkHolder> entryIterator();
 	
 	@Override
-	public void tickEntityTracker(Entity entity) {
+	public void gs_tickEntityTracker(Entity entity) {
 		Object tracker = entityTrackers.get(entity.getId());
 		if (tracker != null)
 			((GSIThreadedAnvilChunkStorageEntityTrackerAccess)tracker).getEntry().tick();
 	}
 	
 	@Override
-	public void setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement) {
+	public void gs_setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement) {
 		Object tracker = entityTrackers.get(player.getId());
 		if (tracker != null) {
 			EntityTrackerEntry entry = ((GSIThreadedAnvilChunkStorageEntityTrackerAccess)tracker).getEntry();
-			((GSIEntityTrackerEntryAccess)entry).setFixedMovement(trackerFixedMovement);
+			((GSIEntityTrackerEntryAccess)entry).gs_setFixedMovement(trackerFixedMovement);
 		}
 	}
 
 	@Override
-	public void setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock) {
+	public void gs_setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock) {
 		Object tracker = entityTrackers.get(entity.getId());
 		if (tracker != null) {
 			EntityTrackerEntry entry = ((GSIThreadedAnvilChunkStorageEntityTrackerAccess)tracker).getEntry();
-			((GSIEntityTrackerEntryAccess)entry).setTickedFromFallingBlock(tickedFromFallingBlock);
+			((GSIEntityTrackerEntryAccess)entry).gs_setTickedFromFallingBlock(tickedFromFallingBlock);
 		}
 	}
 	
 	@Override
-	public Iterable<ChunkHolder> getEntryIterator0() {
+	public Iterable<ChunkHolder> gs_getEntryIterator() {
 		return entryIterator();
 	}
 }

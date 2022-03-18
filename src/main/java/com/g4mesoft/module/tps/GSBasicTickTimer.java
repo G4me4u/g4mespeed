@@ -13,13 +13,13 @@ public class GSBasicTickTimer implements GSITickTimer {
 	}
 	
 	@Override
-	public void init(long initialTimeMillis) {
+	public void init0(long initialTimeMillis) {
 		prevTimeMillis = initialTimeMillis;
 		tickDelta = 0.0f;
 	}
 	
 	@Override
-	public void update(long timeMillis) {
+	public void update0(long timeMillis) {
 		long deltaMillis = timeMillis - prevTimeMillis;
 		prevTimeMillis = timeMillis;
 		
@@ -29,7 +29,7 @@ public class GSBasicTickTimer implements GSITickTimer {
 	}
 
 	@Override
-	public float getMillisPerTick() {
+	public float getMillisPerTick0() {
 		return millisPerTick;
 	}
 	
@@ -38,22 +38,22 @@ public class GSBasicTickTimer implements GSITickTimer {
 	}
 	
 	@Override
-	public float getTickDelta() {
+	public float getTickDelta0() {
 		return tickDelta;
 	}
 	
 	@Override
-	public void setTickDelta(float tickDelta) {
+	public void setTickDelta0(float tickDelta) {
 		this.tickDelta = tickDelta;
 	}
 	
 	@Override
-	public int getTickCount() {
+	public int getTickCount0() {
 		return tickCount;
 	}
 	
 	@Override
-	public void setTickCount(int tickCount) {
+	public void setTickCount0(int tickCount) {
 		this.tickCount = tickCount;
 	}
 }
