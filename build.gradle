@@ -1,13 +1,3 @@
-buildscript {
-    repositories {
-		mavenCentral()
-    }
-    
-    dependencies {
-		classpath "com.guardsquare:proguard-gradle:7.2.0-beta2"
-    }
-}
-
 plugins {
 	id 'fabric-loom' version '0.11-SNAPSHOT'
 }
@@ -61,39 +51,6 @@ tasks.withType(JavaCompile).configureEach {
 	// If Javadoc is generated, this must be specified in that task too.
 	it.options.encoding = "UTF-8"
 }
-
-def outputJarName = jar.archiveName.with { it.take(it.lastIndexOf(".")) }
-if (outputJarName.endsWith("-dev")) {
-	// Newest loom version also has the -dev suffix.
-	outputJarName = outputJarName.with { it.take(it.lastIndexOf("-dev")) }
-}
-def obfuscatedFileName = "${outputJarName}-release.jar"
-def homeDir = System.getProperty("user.home")
-
-task release(type: proguard.gradle.ProGuardTask) {
-	configuration "proguard.txt"
-
-	injars "./build/libs/${outputJarName}.jar"
-	outjars "./build/libs/${obfuscatedFileName}"
-	
-	// Automatically handle the Java version of this build.
-	if (System.getProperty('java.version').startsWith('1.')) {
-		// Before Java 9, the runtime classes were packaged in a single jar file.
-		libraryjars "${System.getProperty('java.home')}/lib/rt.jar"
-	} else {
-		// As of Java 9, the runtime classes are packaged in modular jmod files.
-		libraryjars "${System.getProperty('java.home')}/jmods/java.base.jmod", jarfilter: '!**.jar', filter: '!module-info.class'
-		libraryjars "${System.getProperty('java.home')}/jmods/java.sql.jmod", jarfilter: '!**.jar', filter: '!module-info.class'
-		//libraryjars "${System.getProperty('java.home')}/jmods/....."
-	}
-	
-	obfuscationdictionary "member_obfuscation_dictionary.txt"
-	
-	printmapping "g4mespeed-mappings-mc${project.minecraft_version}.map"
-	applymapping "g4mespeed-mappings-mc${project.minecraft_version}.map"
-}
-
-release.dependsOn build
 
 jar {
 	from "LICENSE"
