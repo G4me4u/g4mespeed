@@ -59,7 +59,7 @@ public class GSMouseMixin implements GSIMouseAccess {
 	private void onOnMouseScroll(long windowHandle, double scrollX, double scrollY, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
 			prevEventScrollX = (float)(client.options.discreteMouseScroll ? Math.signum(scrollX) : scrollX);
-			prevEventScrollX *= client.options.mouseWheelSensitivity;
+			prevEventScrollX *= client.options.method_41806().method_41753(); /* mouseWheelSensitivity */
 		}
 	}
 	
