@@ -12,14 +12,14 @@ public final class GSVersion {
 	
 	private final int majorVersion;
 	private final int minorVersion;
-	private final int updateVersion;
+	private final int patchVersion;
 
 	private String versionStringCache;
-	
-	public GSVersion(int majorVersion, int minorVersion, int updateVersion) {
+
+	public GSVersion(int majorVersion, int minorVersion, int patchVersion) {
 		this.majorVersion = majorVersion;
 		this.minorVersion = minorVersion;
-		this.updateVersion = updateVersion;
+		this.patchVersion = patchVersion;
 
 		versionStringCache = null;
 	}
@@ -32,21 +32,21 @@ public final class GSVersion {
 		return minorVersion;
 	}
 	
-	public int getUpdateVersion() {
-		return updateVersion;
+	public int getPatchVersion() {
+		return patchVersion;
 	}
 	
 	public String getVersionString() {
 		if (versionStringCache == null) {
 			String format = (majorVersion != 0) ? RELEASE_FORMAT : BETA_FORMAT;
-			versionStringCache = String.format(format, majorVersion, minorVersion, updateVersion);
+			versionStringCache = String.format(format, majorVersion, minorVersion, patchVersion);
 		}
 		
 		return versionStringCache;
 	}
 	
 	public boolean isInvalid() {
-		return majorVersion < 0 || minorVersion < 0 || updateVersion < 0;
+		return majorVersion < 0 || minorVersion < 0 || patchVersion < 0;
 	}
 
 	public boolean isGreaterThanOrEqualTo(GSVersion other) {
@@ -61,7 +61,7 @@ public final class GSVersion {
 			if (minorVersion > other.minorVersion)
 				return true;
 			if (minorVersion == other.minorVersion)
-				return updateVersion >= other.updateVersion;
+				return patchVersion >= other.patchVersion;
 		}
 	
 		return false;
@@ -83,9 +83,9 @@ public final class GSVersion {
 		if (isInvalid())
 			return other.isInvalid();
 		
-		return majorVersion  == other.majorVersion &&
-		       minorVersion  == other.minorVersion &&
-		       updateVersion == other.updateVersion;
+		return majorVersion == other.majorVersion &&
+		       minorVersion == other.minorVersion &&
+		       patchVersion == other.patchVersion;
 	}
 	
 	public static GSVersion read(PacketByteBuf buf) {
@@ -98,7 +98,7 @@ public final class GSVersion {
 	public static void write(PacketByteBuf buf, GSVersion version) {
 		buf.writeShort((short)version.majorVersion);
 		buf.writeShort((short)version.minorVersion);
-		buf.writeShort((short)version.updateVersion);
+		buf.writeShort((short)version.patchVersion);
 	}
 	
 	@Override
