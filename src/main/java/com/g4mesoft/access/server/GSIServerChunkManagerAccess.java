@@ -7,20 +7,20 @@ import net.minecraft.util.math.BlockPos;
 
 public interface GSIServerChunkManagerAccess {
 
-	public void tickEntityTracker(Entity entity);
+	public void gs_tickEntityTracker(Entity entity);
 	
-	public void setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement);
+	public void gs_setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement);
 
-	public void setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock);
+	public void gs_setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock);
 	
-	public void flushAndSendChunkUpdates();
+	public void gs_flushAndSendChunkUpdates();
 	
-	public void updateBlockImmediately(BlockPos pos);
+	public void gs_updateBlockImmediately(BlockPos pos);
 
-	public void updateBlockEntityImmediately(BlockPos pos);
+	public void gs_updateBlockEntityImmediately(BlockPos pos);
 
-	public void markBlockEntityUpdate(BlockPos pos);
+	public void gs_markBlockEntityUpdate(BlockPos pos);
 
-	public void sendToNearbyPlayers(BlockPos pos, Packet<?> packet);
+	public void gs_sendToNearbyPlayers(BlockPos pos, Packet<?> packet);
 
 }

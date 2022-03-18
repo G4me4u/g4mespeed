@@ -29,7 +29,7 @@ public abstract class GSTranslatableTextMixin {
 	@Shadow protected abstract void setTranslation(String translation);
 
 	@Unique
-	private long lastTranslationTimestamp = -1L;
+	private long gs_lastTranslationTimestamp = -1L;
 	
 	@Inject(method = "updateTranslations", at = @At("HEAD"), cancellable = true)
 	private void onUpdateTranslations(CallbackInfo ci) {
@@ -45,12 +45,12 @@ public abstract class GSTranslatableTextMixin {
 			Language language = Language.getInstance();
 			
 			long timestamp = translationModule.getTranslationTimestamp();
-			if (lastTranslationTimestamp == timestamp && !this.translations.isEmpty() && this.languageCache == language) {
+			if (gs_lastTranslationTimestamp == timestamp && !this.translations.isEmpty() && this.languageCache == language) {
 				ci.cancel();
 				return;
 			}
 			
-			lastTranslationTimestamp = timestamp;
+			gs_lastTranslationTimestamp = timestamp;
 			this.translations.clear();
 			
 			try {
@@ -62,7 +62,7 @@ public abstract class GSTranslatableTextMixin {
 				
 				// Make sure we fallback to default
 				this.languageCache = null;
-				lastTranslationTimestamp = -1L;
+				gs_lastTranslationTimestamp = -1L;
 			}
 		}
 	}

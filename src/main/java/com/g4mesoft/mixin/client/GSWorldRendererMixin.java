@@ -49,17 +49,17 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	@Shadow protected abstract void scheduleSectionRender(BlockPos pos, boolean important);
 	
 	@Unique
-	private GSClientController controller;
+	private GSClientController gs_controller;
 	@Unique
-	private GSTpsModule tpsModule;
+	private GSTpsModule gs_tpsModule;
 	@Unique
-	private GSBasicRenderer3D renderer3d;
+	private GSBasicRenderer3D gs_renderer3d;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void onInit(MinecraftClient client, BufferBuilderStorage builderStorage, CallbackInfo ci) {
-		controller = GSClientController.getInstance();
-		tpsModule = controller.getTpsModule();
-		renderer3d = new GSBasicRenderer3D();
+		gs_controller = GSClientController.getInstance();
+		gs_tpsModule = gs_controller.getTpsModule();
+		gs_renderer3d = new GSBasicRenderer3D();
 	}
 	
 	@Inject(method = "render", slice = @Slice(
@@ -83,7 +83,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 
 	@Unique
 	private void handleOnRenderTransparentLast(MatrixStack matrixStack) {
-		Collection<GSIRenderable3D> renderables = controller.getRenderables();
+		Collection<GSIRenderable3D> renderables = gs_controller.getRenderables();
 		
 		if (hasRenderPhase(renderables, GSERenderPhase.TRANSPARENT_LAST)) {
 			// Rendering world border sometimes has depth and
@@ -109,12 +109,12 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 			RenderSystem.pushMatrix();
 			RenderSystem.loadIdentity();
 			
-			renderer3d.begin(Tessellator.getInstance().getBuffer(), matrixStack);
+			gs_renderer3d.begin(Tessellator.getInstance().getBuffer(), matrixStack);
 			for (GSIRenderable3D renderable : renderables) {
 				if (renderable.getRenderPhase() == GSERenderPhase.TRANSPARENT_LAST)
-					renderable.render(renderer3d);
+					renderable.render(gs_renderer3d);
 			}
-			renderer3d.end();
+			gs_renderer3d.end();
 	
 			RenderSystem.popMatrix();
 	
@@ -137,8 +137,8 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 			target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
 	private float onRenderEntityModifyDeltaTick(Entity entity, double cameraX, double cameraY, double cameraZ, float deltaTick, MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
 		if (!client.isPaused() && (entity instanceof AbstractClientPlayerEntity)) {
-			if (tpsModule.isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
-				return ((GSIMinecraftClientAccess)client).getFixedMovementTickDelta();
+			if (gs_tpsModule.isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
+				return ((GSIMinecraftClientAccess)client).gs_getFixedMovementTickDelta();
 		}
 
 		return deltaTick;
@@ -147,7 +147,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	@Redirect(method = "render", allow = 1, require = 1, expect = 1,
 			at = @At(value = "FIELD", target="Lnet/minecraft/entity/Entity;age:I", opcode = Opcodes.GETFIELD))
 	private int onRenderGetEntityAge(Entity entity) {
-		if (tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (gs_tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
 			// We do not want the render positions to be modified when
 			// using pretty sand (already done by position packets).
 			return (entity.age == 0) ? -1 : entity.age;
@@ -156,7 +156,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	}
 	
 	@Override
-	public void scheduleBlockUpdate0(BlockPos pos, boolean important) {
+	public void gs_scheduleBlockUpdate(BlockPos pos, boolean important) {
 		scheduleSectionRender(pos, important);
 	}
 }

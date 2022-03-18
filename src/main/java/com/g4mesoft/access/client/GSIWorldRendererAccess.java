@@ -4,6 +4,6 @@ import net.minecraft.util.math.BlockPos;
 
 public interface GSIWorldRendererAccess {
 
-	public void scheduleBlockUpdate0(BlockPos pos, boolean important);
+	public void gs_scheduleBlockUpdate(BlockPos pos, boolean important);
 	
 }

@@ -139,8 +139,9 @@ public class GSClientPlayNetworkHandlerMixin {
 		}
 	}
 	
+	@Unique
 	private boolean isRecentlyMovedByPiston(Entity entity) {
-		return (((GSIEntityAccess)entity).isMovedByPiston() || ((GSIEntityAccess)entity).wasMovedByPiston());
+		return (((GSIEntityAccess)entity).gs_isMovedByPiston() || ((GSIEntityAccess)entity).gs_wasMovedByPiston());
 	}
 	
 	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
@@ -275,6 +276,6 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Unique
 	private void scheduleRenderUpdateForFallingBlock(BlockPos pos, BlockState state) {
 		if (state.getBlock() instanceof FallingBlock)
-			((GSIWorldRendererAccess)client.worldRenderer).scheduleBlockUpdate0(pos, true);
+			((GSIWorldRendererAccess)client.worldRenderer).gs_scheduleBlockUpdate(pos, true);
 	}
 }

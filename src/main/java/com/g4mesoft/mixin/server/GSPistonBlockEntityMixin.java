@@ -19,7 +19,7 @@ import net.minecraft.nbt.CompoundTag;
 public class GSPistonBlockEntityMixin extends BlockEntity {
 
 	@Unique
-	private boolean ticked;
+	private boolean gs_ticked;
 	
 	public GSPistonBlockEntityMixin(BlockEntityType<?> type) {
 		super(type);
@@ -27,18 +27,18 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void onTick(CallbackInfo ci) {
-		ticked = true;
+		gs_ticked = true;
 	}
 	
 	@Inject(method = "fromTag", at = @At("RETURN"))
 	private void onFromTag(BlockState state, CompoundTag tag, CallbackInfo ci) {
-		ticked = !tag.contains("ticked") || tag.getBoolean("ticked");
+		gs_ticked = !tag.contains("ticked") || tag.getBoolean("ticked");
 	}
 
 	@Inject(method = "toTag", at = @At("RETURN"))
 	private void onToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
 		GSController controller = GSController.getInstanceOnThread();
 		if (controller != null && controller.getTpsModule().sImmediateBlockBroadcast.getValue())
-			tag.putBoolean("ticked", ticked);
+			tag.putBoolean("ticked", gs_ticked);
 	}
 }

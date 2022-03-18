@@ -33,7 +33,7 @@ public class GSPlayerFixedMovementPacket implements GSIPacket {
 
 	@Override
 	public void handleOnServer(GSServerController controller, ServerPlayerEntity player) {
-		((GSIServerPlayNetworkHandlerAccess)player.networkHandler).setFixedMovement(fixedMovement);
+		((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_setFixedMovement(fixedMovement);
 	}
 
 	@Override

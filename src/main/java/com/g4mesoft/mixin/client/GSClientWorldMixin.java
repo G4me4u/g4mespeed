@@ -21,21 +21,21 @@ public class GSClientWorldMixin {
 	@Shadow @Final private MinecraftClient client;
 	
 	@Unique
-	private boolean tickingEntities;
+	private boolean gs_tickingEntities;
 	
 	@Inject(method = "tickEntities", at = @At("HEAD"))
 	private void onTickEntitiesHead(CallbackInfo ci) {
-		tickingEntities = true;
+		gs_tickingEntities = true;
 	}
 
 	@Inject(method = "tickEntities", at = @At("RETURN"))
 	private void onTickEntitiesReturn(CallbackInfo ci) {
-		tickingEntities = false;
+		gs_tickingEntities = false;
 	}
 	
 	@Inject(method = "tickEntity", cancellable = true, at = @At("HEAD"))
 	private void onTickEntity(Entity entity, CallbackInfo ci) {
-		if (tickingEntities && (entity instanceof AbstractClientPlayerEntity)) {
+		if (gs_tickingEntities && (entity instanceof AbstractClientPlayerEntity)) {
 			if (GSClientController.getInstance().getTpsModule().isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
 				ci.cancel();
 		}

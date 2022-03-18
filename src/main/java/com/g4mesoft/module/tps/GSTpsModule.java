@@ -621,7 +621,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		
 			if (!controller.isG4mespeedServer())
 				return GSMathUtil.equalsApproximate(getServerTps(), DEFAULT_TPS);
-			return ((GSIAbstractClientPlayerEntityAccess)player).isFixedMovement();
+			return ((GSIAbstractClientPlayerEntityAccess)player).gs_isFixedMovement();
 		}
 		
 		return false;

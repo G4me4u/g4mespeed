@@ -129,7 +129,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		int x1 = x0 + width;
 		int y1 = y0 + height;
 		
-		((GSIBufferBuilderAccess)builder).pushClip(x0, y0, x1, y1);
+		((GSIBufferBuilderAccess)builder).gs_pushClip(x0, y0, x1, y1);
 		
 		invalidateClippedBounds();
 	}
@@ -138,14 +138,14 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	public void pushClip(GSClipRect clip) {
 		// Translate clip according to current transform
 		clip = clip.offset(transform.offsetX, transform.offsetY);
-		((GSIBufferBuilderAccess)builder).pushClip(clip);
+		((GSIBufferBuilderAccess)builder).gs_pushClip(clip);
 		
 		invalidateClippedBounds();
 	}
 
 	@Override
 	public GSClipRect popClip() {
-		GSClipRect oldClip = ((GSIBufferBuilderAccess)builder).popClip();
+		GSClipRect oldClip = ((GSIBufferBuilderAccess)builder).gs_popClip();
 		
 		invalidateClippedBounds();
 		
@@ -165,7 +165,7 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 	}
 	
 	private GSRectangle computeClippedBounds() {
-		GSClipRect clip = ((GSIBufferBuilderAccess)builder).getClip();
+		GSClipRect clip = ((GSIBufferBuilderAccess)builder).gs_getClip();
 		
 		if (clip == null) {
 			// Clipped by viewport edges.

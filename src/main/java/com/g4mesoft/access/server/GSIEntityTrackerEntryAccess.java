@@ -2,10 +2,10 @@ package com.g4mesoft.access.server;
 
 public interface GSIEntityTrackerEntryAccess {
 
-	public boolean isFixedMovement();
+	public boolean gs_isFixedMovement();
 
-	public void setFixedMovement(boolean fixedMovement);
+	public void gs_setFixedMovement(boolean fixedMovement);
 
-	public void setTickedFromFallingBlock(boolean tickedFromFallingBlock);
+	public void gs_setTickedFromFallingBlock(boolean tickedFromFallingBlock);
 	
 }

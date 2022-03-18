@@ -6,24 +6,24 @@ import com.g4mesoft.core.GSVersion;
 
 public interface GSIServerPlayNetworkHandlerAccess {
 
-	public boolean isExtensionInstalled(GSExtensionUID extensionUid);
+	public boolean gs_isExtensionInstalled(GSExtensionUID extensionUid);
 
-	public boolean isExtensionInstalled(GSExtensionUID extensionUid, GSVersion minimumVersion);
+	public boolean gs_isExtensionInstalled(GSExtensionUID extensionUid, GSVersion minimumVersion);
 
-	public GSExtensionInfo getExtensionInfo(GSExtensionUID extensionUid);
+	public GSExtensionInfo gs_getExtensionInfo(GSExtensionUID extensionUid);
 
-	public void clearAllExtensionInfo();
+	public void gs_clearAllExtensionInfo();
 	
-	public void addAllExtensionInfo(GSExtensionInfo[] extensionInfo);
+	public void gs_addAllExtensionInfo(GSExtensionInfo[] extensionInfo);
 
-	public void addExtensionInfo(GSExtensionInfo extensionInfo);
+	public void gs_addExtensionInfo(GSExtensionInfo extensionInfo);
 	
-	public void setTranslationVersion(GSExtensionUID uid, int translationVersion);
+	public void gs_setTranslationVersion(GSExtensionUID uid, int translationVersion);
 
-	public int getTranslationVersion(GSExtensionUID uid);
+	public int gs_getTranslationVersion(GSExtensionUID uid);
 	
-	public boolean isFixedMovement();
+	public boolean gs_isFixedMovement();
 	
-	public void setFixedMovement(boolean fixedMovement);
+	public void gs_setFixedMovement(boolean fixedMovement);
 	
 }

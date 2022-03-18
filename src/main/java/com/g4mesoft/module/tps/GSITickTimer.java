@@ -12,9 +12,11 @@ public interface GSITickTimer {
 
 	public float getMillisPerTick();
 	
-	public float getTickDelta();
+	/* Zero appended for compatibility reasons (mojmap) */
+	public float getTickDelta0();
 	
-	public void setTickDelta(float tickDelta);
+	/* Zero appended for compatibility reasons (mojmap) */
+	public void setTickDelta0(float tickDelta);
 	
 	public int getTickCount();
 

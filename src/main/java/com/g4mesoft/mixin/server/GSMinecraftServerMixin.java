@@ -48,20 +48,20 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	@Shadow protected abstract void endMonitor(TickDurationMonitor tickDurationMonitor);
 
 	@Unique
-	private float msAccum = 0.0f;
+	private float gs_msAccum = 0.0f;
 	@Unique
-	private float msPerTick = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
+	private float gs_msPerTick = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
 	
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {
-		long millisPrevTick = (long)msAccum;
+		long millisPrevTick = (long)gs_msAccum;
 		
-		msPerTick = GSTpsModule.MS_PER_SEC / newTps;
-		msAccum = msPerTick;
+		gs_msPerTick = GSTpsModule.MS_PER_SEC / newTps;
+		gs_msAccum = gs_msPerTick;
 		
 		long now = Util.getMeasuringTimeMs();
 		long dt = timeReference - now;
-		long millisNextTick = (long)msAccum;
+		long millisNextTick = (long)gs_msAccum;
 		
 		if (dt < millisPrevTick && millisPrevTick != 0L) {
 			// Interpolate the progress until next tick with the
@@ -93,24 +93,24 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/server/MinecraftServer;running:Z"))
 	private void onModifiedRunLoop(CallbackInfo ci) {
 		while (this.running) {
-			long msThisTick = (long)msAccum;
-			msAccum += msPerTick - msThisTick;
+			long msThisTick = (long)gs_msAccum;
+			gs_msAccum += gs_msPerTick - msThisTick;
 
 			long msBehind = Util.getMeasuringTimeMs() - this.timeReference;
-			if (msBehind > 1000L + 20L * msPerTick && this.timeReference - this.lastTimeReference >= 10000L + 100L * msPerTick) {
+			if (msBehind > 1000L + 20L * gs_msPerTick && this.timeReference - this.lastTimeReference >= 10000L + 100L * gs_msPerTick) {
 				// Handle cases where msPerTick is near zero (or actually zero)
-				if (GSMathUtil.equalsApproximate(msPerTick, 0.0f)) {
+				if (GSMathUtil.equalsApproximate(gs_msPerTick, 0.0f)) {
 					LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or infinite ticks behind", msBehind);
 					this.timeReference += msBehind;
 					this.lastTimeReference = this.timeReference;
 				} else {
-					long ticksBehind = (long)(msBehind / msPerTick);
+					long ticksBehind = (long)(msBehind / gs_msPerTick);
 					LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", msBehind, ticksBehind);
-					this.timeReference += ticksBehind * msPerTick;
+					this.timeReference += ticksBehind * gs_msPerTick;
 					this.lastTimeReference = this.timeReference;
 				}
 
-				this.msAccum = msPerTick;
+				this.gs_msAccum = gs_msPerTick;
 			}
 
 			this.timeReference += msThisTick;

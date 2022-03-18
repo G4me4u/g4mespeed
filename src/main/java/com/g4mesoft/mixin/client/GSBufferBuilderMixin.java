@@ -30,69 +30,69 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	@Shadow private int elementOffset;
 	
 	@Unique
-	private final GSClipAdjuster adjuster = new GSClipAdjuster();
+	private final GSClipAdjuster gs_adjuster = new GSClipAdjuster();
 
 	@Inject(method = "next", at = @At("RETURN"))
 	public void onNextReturn(CallbackInfo ci) {
 		if (building && (vertexCount & 0x3 /* % 4 */) == 0)
-			adjuster.clipPreviousShape((BufferBuilder)(Object)this);
+			gs_adjuster.clipPreviousShape((BufferBuilder)(Object)this);
 	}
 	
 	@Override
-	public void pushClip(float x0, float y0, float x1, float y1) {
-		pushClip(new GSClipRect(x0, y0, x1, y1));
+	public void gs_pushClip(float x0, float y0, float x1, float y1) {
+		gs_pushClip(new GSClipRect(x0, y0, x1, y1));
 	}
 
 	@Override
-	public void pushClip(GSClipRect clip) {
+	public void gs_pushClip(GSClipRect clip) {
 		if (building)
 			throw new IllegalStateException("Buffer Builder is building.");
 
-		adjuster.pushClip(clip);
+		gs_adjuster.pushClip(clip);
 	}
 	
 	@Override
-	public GSClipRect popClip() {
-		return adjuster.popClip();
+	public GSClipRect gs_popClip() {
+		return gs_adjuster.popClip();
 	}
 
 	@Override
-	public GSClipRect getClip() {
-		return adjuster.getClip();
+	public GSClipRect gs_getClip() {
+		return gs_adjuster.getClip();
 	}
 
 	@Override
-	public ByteBuffer getByteBuffer() {
+	public ByteBuffer gs_getByteBuffer() {
 		return buffer;
 	}
 
 	@Override
-	public int getDrawMode() {
+	public int gs_getDrawMode() {
 		return drawMode;
 	}
 
 	@Override
-	public VertexFormat getVertexFormat() {
+	public VertexFormat gs_getVertexFormat() {
 		return format;
 	}
 
 	@Override
-	public int getBuildStart() {
+	public int gs_getBuildStart() {
 		return buildStart;
 	}
 	
 	@Override
-	public int getVertexCount() {
+	public int gs_getVertexCount() {
 		return vertexCount;
 	}
 
 	@Override
-	public void setVertexCount(int vertexCount) {
+	public void gs_setVertexCount(int vertexCount) {
 		this.vertexCount = vertexCount;
 	}
 
 	@Override
-	public void setElementOffset(int elementOffset) {
+	public void gs_setElementOffset(int elementOffset) {
 		this.elementOffset = elementOffset;
 	}
 }

@@ -4,10 +4,10 @@ import net.minecraft.util.math.BlockPos;
 
 public interface GSIMinecraftClientAccess {
 
-	public void setFlushingBlockEntityUpdates(boolean flushingUpdates);
+	public void gs_setFlushingBlockEntityUpdates(boolean flushingUpdates);
 
-	public void schedulePistonBlockEntityUpdate(BlockPos blockPos);
+	public void gs_schedulePistonBlockEntityUpdate(BlockPos blockPos);
 	
-	public float getFixedMovementTickDelta();
+	public float gs_getFixedMovementTickDelta();
 	
 }

@@ -45,6 +45,6 @@ public class GSPistonBlockMixin {
 	@Unique
 	private void markBlockEntityForUpdate(World world, BlockPos pos) {
 		if (!world.isClient && GSServerController.getInstance().getTpsModule().sParanoidMode.getValue())
-			((GSIServerChunkManagerAccess)world.getChunkManager()).markBlockEntityUpdate(pos);
+			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_markBlockEntityUpdate(pos);
 	}
 }

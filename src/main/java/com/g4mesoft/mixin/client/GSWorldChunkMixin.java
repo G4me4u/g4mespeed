@@ -25,6 +25,6 @@ public class GSWorldChunkMixin {
 	        target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
 	private void onSetBlockEntityAfterPut(BlockPos pos, BlockEntity blockEntity, CallbackInfo ci) {
 		if (blockEntity instanceof PistonBlockEntity)
-			((GSIPistonBlockEntityAccess)blockEntity).onAdded();
+			((GSIPistonBlockEntityAccess)blockEntity).gs_onAdded();
 	}
 }

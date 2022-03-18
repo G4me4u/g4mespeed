@@ -41,23 +41,23 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	@Shadow private Vec3d velocity;
 	
 	@Unique
-	private boolean fixedMovement = false;
+	private boolean gs_fixedMovement = false;
 	@Unique
-	private boolean lastFixedMovement = false;
+	private boolean gs_lastFixedMovement = false;
 	@Unique
-	private boolean tickedFromFallingBlock = false;
+	private boolean gs_tickedFromFallingBlock = false;
 	@Unique
-	private int fallingBlockTrackingTick = 0;
+	private int gs_fallingBlockTrackingTick = 0;
 	@Unique
-	private Vec3d lastFallingBlockVelocity = Vec3d.ZERO;
+	private Vec3d gs_lastFallingBlockVelocity = Vec3d.ZERO;
 	
 	@Inject(method = "tick", cancellable = true, at = @At("HEAD"))
 	private void onTick(CallbackInfo ci) {
-		if (fixedMovement != lastFixedMovement) {
-			lastFixedMovement = fixedMovement;
+		if (gs_fixedMovement != gs_lastFixedMovement) {
+			gs_lastFixedMovement = gs_fixedMovement;
 
 			if (entity.getType() == EntityType.PLAYER) {
-				GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getEntityId(), fixedMovement);
+				GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getEntityId(), gs_fixedMovement);
 				// Encode packet to a vanilla packet. This is required for sending to all nearby
 				// players. Note that vanilla players will not react to the packet.
 				GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
@@ -67,15 +67,15 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 		
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
 		if (tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
-			if (tickedFromFallingBlock) {
+			if (gs_tickedFromFallingBlock) {
 				Vec3d currentVelocity = entity.getVelocity();
-				double dvx = currentVelocity.getX() - lastFallingBlockVelocity.getX() * FALLING_BLOCK_FRICTION;
-				double dvy = currentVelocity.getY() - lastFallingBlockVelocity.getY() * FALLING_BLOCK_FRICTION;
-				double dvz = currentVelocity.getZ() - lastFallingBlockVelocity.getZ() * FALLING_BLOCK_FRICTION;
-				lastFallingBlockVelocity = currentVelocity;
+				double dvx = currentVelocity.getX() - gs_lastFallingBlockVelocity.getX() * FALLING_BLOCK_FRICTION;
+				double dvy = currentVelocity.getY() - gs_lastFallingBlockVelocity.getY() * FALLING_BLOCK_FRICTION;
+				double dvz = currentVelocity.getZ() - gs_lastFallingBlockVelocity.getZ() * FALLING_BLOCK_FRICTION;
+				gs_lastFallingBlockVelocity = currentVelocity;
 				
 				if (tpsModule.sPrettySand.getValue() == GSTpsModule.PRETTY_SAND_FIDELITY ||
-				    fallingBlockTrackingTick == 0 ||
+				    gs_fallingBlockTrackingTick == 0 ||
 				    !GSMathUtil.equalsApproximate(dvx, 0.0) ||
 				    !GSMathUtil.equalsApproximate(dvy, FALLING_BLOCK_GRAVITY * FALLING_BLOCK_FRICTION) ||
 				    !GSMathUtil.equalsApproximate(dvz, 0.0)) {
@@ -89,8 +89,8 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 					trackingTick = Math.max(1, trackingTick);
 				}
 	
-				fallingBlockTrackingTick++;
-				tickedFromFallingBlock = false;
+				gs_fallingBlockTrackingTick++;
+				gs_tickedFromFallingBlock = false;
 			} else {
 				ci.cancel();
 				// return;
@@ -102,7 +102,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 			target = "Lnet/minecraft/server/network/EntityTrackerEntry;sendPackets(Ljava/util/function/Consumer;)V"))
 	private void onStartTracking(ServerPlayerEntity player, CallbackInfo ci) {
 		if (entity.getType() == EntityType.PLAYER) {
-			GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getEntityId(), fixedMovement);
+			GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getEntityId(), gs_fixedMovement);
 			// Note that player might be tracking the entity after just joining
 			// in which case the extension versions will not yet have been sent.
 			GSServerController.getInstance().sendPacket(packet, player, GSVersion.INVALID);
@@ -110,17 +110,17 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	}
 	
 	@Override
-	public boolean isFixedMovement() {
-		return fixedMovement;
+	public boolean gs_isFixedMovement() {
+		return gs_fixedMovement;
 	}
 
 	@Override
-	public void setFixedMovement(boolean fixedMovement) {
-		this.fixedMovement = fixedMovement;
+	public void gs_setFixedMovement(boolean fixedMovement) {
+		this.gs_fixedMovement = fixedMovement;
 	}
 
 	@Override
-	public void setTickedFromFallingBlock(boolean tickedFromFallingBlock) {
-		this.tickedFromFallingBlock = tickedFromFallingBlock;
+	public void gs_setTickedFromFallingBlock(boolean tickedFromFallingBlock) {
+		this.gs_tickedFromFallingBlock = tickedFromFallingBlock;
 	}
 }
