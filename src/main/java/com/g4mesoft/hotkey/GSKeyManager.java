@@ -28,6 +28,7 @@ public class GSKeyManager {
 	private final List<GSKeyBinding> keyBindings;
 	private final Map<InputUtil.Key, LinkedList<GSKeyBinding>> codeToKeys;
 	private final LinkedList<GSKeyBinding> eventQueue;
+	private int queuePriority;
 
 	private GSIKeyBindingRegisterListener registerListener;
 	
@@ -37,6 +38,7 @@ public class GSKeyManager {
 		keyBindings = new ArrayList<>();
 		codeToKeys = new HashMap<>();
 		eventQueue = new LinkedList<>();
+		queuePriority = 0;
 	}
 
 	public void dispose() {
@@ -174,7 +176,7 @@ public class GSKeyManager {
 		if (name.contains(":") || category.contains(":"))
 			throw new IllegalArgumentException("Invalid name or category! It must not contains ':'!");
 		
-		GSKeyBinding keyBinding = new GSKeyBinding(this, name, category, keyCode, allowDisabled);
+		GSKeyBinding keyBinding = new GSKeyBinding(this, name, category, keyCode, allowDisabled, 0);
 		keyBinding.setKeyListener(listener);
 		addKeyBinding(keyBinding);
 		
@@ -263,16 +265,27 @@ public class GSKeyManager {
 	
 	public void clearEventQueue() {
 		eventQueue.clear();
+		queuePriority = 0;
 	}
 
 	public void scheduleEvent(GSKeyBinding keyBinding) {
-		eventQueue.add(keyBinding);
+		int priority = keyBinding.getPriority();
+		if (priority >= queuePriority) {
+			// We have a priority greater than every other key.
+			// Clear the queue to ensure key is dominant.
+			if (priority > queuePriority)
+				eventQueue.clear();
+
+			eventQueue.add(keyBinding);
+			queuePriority = priority;
+		}
 	}
 	
 	public void dispatchEvents(GSEKeyEventType eventType) {
 		GSKeyBinding keyBinding;
 		while ((keyBinding = eventQueue.poll()) != null)
 			keyBinding.dispatchKeyEvent(eventType);
+		clearEventQueue();
 	}
 	
 	public List<GSKeyBinding> getKeyBindings() {
