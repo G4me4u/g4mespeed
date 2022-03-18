@@ -12,18 +12,22 @@ public class GSKeyBinding {
 	private final GSKeyCode defaultKeyCode;
 	private final boolean allowDisabled;
 	
+	private int priority;
+	
 	private GSKeyCode keyCode;
 	private boolean[] keyStates;
 	private boolean pressed;
-
+	
 	private GSIKeyBindingListener listener;
 	
-	public GSKeyBinding(GSKeyManager manager, String name, String category, GSKeyCode defaultKeyCode, boolean allowDisabled) {
+	public GSKeyBinding(GSKeyManager manager, String name, String category, GSKeyCode defaultKeyCode, boolean allowDisabled, int priority) {
 		this.manager = manager;
 		this.name = name;
 		this.category = category;
 		this.defaultKeyCode = defaultKeyCode;
 		this.allowDisabled = allowDisabled;
+		
+		this.priority = priority;
 	
 		keyCode = defaultKeyCode;
 		keyStates = new boolean[keyCode.getKeyCount()];
@@ -119,5 +123,16 @@ public class GSKeyBinding {
 	
 	public boolean isPressed() {
 		return pressed;
+	}
+
+	/* Higher value of priority means key is dominant */
+	public void setPriority(int priority) {
+		if (priority < 0)
+			throw new IllegalArgumentException("priority must be non-negative");
+		this.priority = priority;
+	}
+	
+	public int getPriority() {
+		return priority;
 	}
 }
