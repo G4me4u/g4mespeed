@@ -70,7 +70,7 @@ public class G4mespeedMod implements ModInitializer {
 		
 		initialized = true;
 
-		GS_LOGGER.info("G4mespeed " + GSCoreExtension.VERSION + " initialized!");
+		GS_LOGGER.info("G4mespeed {} initialized!", GSCoreExtension.VERSION);
 	}
 	
 	public static void addExtension(GSIExtension extension) {
