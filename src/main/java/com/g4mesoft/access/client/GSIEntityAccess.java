@@ -2,10 +2,10 @@ package com.g4mesoft.access.client;
 
 public interface GSIEntityAccess {
 
-	public boolean wasMovedByPiston();
+	public boolean gs_wasMovedByPiston();
 
-	public boolean isMovedByPiston();
+	public boolean gs_isMovedByPiston();
 	
-	public void setMovedByPiston(boolean movedByPiston);
+	public void gs_setMovedByPiston(boolean movedByPiston);
 	
 }

@@ -88,7 +88,7 @@ final class GSScreen extends Screen {
 	@Override
 	@GSCoreOverride
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		int modifiers = ((GSIMouseAccess)client.mouse).getPreviousEventModifiers();
+		int modifiers = ((GSIMouseAccess)client.mouse).gs_getPreviousEventModifiers();
 		GSPanelContext.getEventDispatcher().mousePressed(button, (float)mouseX, (float)mouseY, modifiers);
 		return true;
 	}
@@ -96,7 +96,7 @@ final class GSScreen extends Screen {
 	@Override
 	@GSCoreOverride
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		int modifiers = ((GSIMouseAccess)client.mouse).getPreviousEventModifiers();
+		int modifiers = ((GSIMouseAccess)client.mouse).gs_getPreviousEventModifiers();
 		GSPanelContext.getEventDispatcher().mouseReleased(button, (float)mouseX, (float)mouseY, modifiers);
 		return true;
 	}
@@ -111,7 +111,7 @@ final class GSScreen extends Screen {
 	@Override
 	@GSCoreOverride
 	public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
-		float scrollX = (float)((GSIMouseAccess)client.mouse).getPreviousEventScrollX();
+		float scrollX = (float)((GSIMouseAccess)client.mouse).gs_getPreviousEventScrollX();
 		GSPanelContext.getEventDispatcher().mouseScroll((float)mouseX, (float)mouseY, scrollX, (float)scrollY);
 		return true;
 	}
@@ -119,7 +119,7 @@ final class GSScreen extends Screen {
 	@Override
 	@GSCoreOverride
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-		if (((GSIKeyboardAccess)client.keyboard).isPreviousEventRepeating()) {
+		if (((GSIKeyboardAccess)client.keyboard).gs_isPreviousEventRepeating()) {
 			GSPanelContext.getEventDispatcher().keyRepeated(keyCode, scanCode, modifiers);
 		} else {
 			GSPanelContext.getEventDispatcher().keyPressed(keyCode, scanCode, modifiers);

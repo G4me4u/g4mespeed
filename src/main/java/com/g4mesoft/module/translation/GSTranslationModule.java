@@ -125,7 +125,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	private void sendMissingTranslations(ServerPlayerEntity player, GSExtensionUID uid, int translationVersion) {
 		// Make sure the player hasn't already requested
 		// a translation mapping in the current session.
-		if (((GSIServerPlayNetworkHandlerAccess)player.networkHandler).getTranslationVersion(uid) != INVALID_TRANSLATION_VERSION)
+		if (((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_getTranslationVersion(uid) != INVALID_TRANSLATION_VERSION)
 			return;
 		
 		GSTranslationCacheList cacheList = cacheLists.get(uid);
@@ -144,7 +144,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 					managerServer.sendPacket(new GSTranslationCachePacket(uid, cache), player);
 			});
 
-			((GSIServerPlayNetworkHandlerAccess)player.networkHandler).setTranslationVersion(uid, cacheList.getVersion());
+			((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_setTranslationVersion(uid, cacheList.getVersion());
 		}
 	}
 	

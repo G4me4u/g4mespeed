@@ -48,7 +48,7 @@ public class GSServerPlayerFixedMovementPacket implements GSIPacket {
 		if (client.world != null) {
 			Entity entity = client.world.getEntityById(entityId);
 			if (entity instanceof AbstractClientPlayerEntity)
-				((GSIAbstractClientPlayerEntityAccess)entity).setFixedMovement(fixedMovement);
+				((GSIAbstractClientPlayerEntityAccess)entity).gs_setFixedMovement(fixedMovement);
 		}
 	}
 }

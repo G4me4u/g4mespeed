@@ -29,95 +29,97 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	@Shadow @Final private float tickTime;
 	
 	@Unique
-	private int ticksThisFrame;
+	private int gs_ticksThisFrame;
 	
 	@Unique
-	private boolean firstUpdate;
+	private boolean gs_firstUpdate;
 	@Unique
-	private GSCarpetCompat carpetCompat;
+	private GSCarpetCompat gs_carpetCompat;
 	@Unique
-	private GSTpsModule tpsModule;
+	private GSTpsModule gs_tpsModule;
 	@Unique
-	private GSServerTickTimer serverTimer;
+	private GSServerTickTimer gs_serverTimer;
 	
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void onInit(float ticksPerSecond, long initialTimeMillis, CallbackInfo ci) {
-		firstUpdate = true;
+		gs_firstUpdate = true;
 	}
 
 	@Inject(method = "beginRenderTick", at = @At(value = "FIELD", shift = Shift.AFTER, opcode = Opcodes.PUTFIELD,
 			target = "Lnet/minecraft/client/render/RenderTickCounter;lastFrameDuration:F"))
 	private void onModifyTickrate(long timeMillis, CallbackInfoReturnable<Boolean> cir) {
-		if (firstUpdate) {
-			init(prevTimeMillis);
-			firstUpdate = false;
+		if (gs_firstUpdate) {
+			init0(prevTimeMillis);
+			gs_firstUpdate = false;
 		}
 		
-		float millisPerTick = getMillisPerTick();
+		float millisPerTick = getMillisPerTick0();
 		
 		if (GSClientController.getInstance().isG4mespeedServer()) {
-			serverTimer.setMillisPerTick(millisPerTick);
+			gs_serverTimer.setMillisPerTick(millisPerTick);
 		} else {
-			serverTimer.setMillisPerTick(DEFAULT_MILLIS_PER_TICK);
+			gs_serverTimer.setMillisPerTick(DEFAULT_MILLIS_PER_TICK);
 		}
 		
-		if (!carpetCompat.isTickrateLinked() || tpsModule.cForceCarpetTickrate.getValue())
+		if (!gs_carpetCompat.isTickrateLinked() || gs_tpsModule.cForceCarpetTickrate.getValue())
 			this.lastFrameDuration = (timeMillis - this.prevTimeMillis) / millisPerTick;
 	}
 
 	@Inject(method = "beginRenderTick", at = @At(value = "FIELD", shift = Shift.BEFORE, opcode = Opcodes.GETFIELD,
 			target = "Lnet/minecraft/client/render/RenderTickCounter;tickDelta:F"))
 	private void onGetTicksThisFrame(long currentTimeMillis, CallbackInfoReturnable<Integer> cir) {
-		ticksThisFrame = (int)tickDelta;
+		gs_ticksThisFrame = (int)tickDelta;
 	}
 
 	@Inject(method = "beginRenderTick", cancellable = true, at = @At("RETURN"))
 	private void onBeginRenderTick(long timeMillis, CallbackInfoReturnable<Integer> cir) {
-		update(timeMillis);
-		cir.setReturnValue(ticksThisFrame);
+		update0(timeMillis);
+		cir.setReturnValue(gs_ticksThisFrame);
 		cir.cancel();
 	}
 
+	/* Following methods might add compatibility issues (if other mods have same names) */
+
 	@Override
-	public void init(long initialTimeMillis) {
-		carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
-		tpsModule = GSClientController.getInstance().getTpsModule();
-		serverTimer = tpsModule.getServerTimer();
+	public void init0(long initialTimeMillis) {
+		gs_carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
+		gs_tpsModule = GSClientController.getInstance().getTpsModule();
+		gs_serverTimer = gs_tpsModule.getServerTimer();
 		
-		serverTimer.init(initialTimeMillis);
+		gs_serverTimer.init0(initialTimeMillis);
 	}
 
 	@Override
-	public void update(long timeMillis) {
-		serverTimer.update(timeMillis);
-		serverTimer.syncTimer(this);
+	public void update0(long timeMillis) {
+		gs_serverTimer.update0(timeMillis);
+		gs_serverTimer.syncTimer(this);
 	}
-
+	
 	@Override
-	public float getMillisPerTick() {
+	public float getMillisPerTick0() {
 		// Other mods such as the ReplayMod modify the timeScale value
 		// of the timer. To ensure that the functionality stays as expected,
 		// scale the milliseconds per tick by that value.
-		return tpsModule.getMsPerTick() * tickTime / DEFAULT_MILLIS_PER_TICK;
+		return gs_tpsModule.getMsPerTick() * tickTime / DEFAULT_MILLIS_PER_TICK;
 	}
 
 	@Override
-	public float getTickDelta() {
+	public float getTickDelta0() {
 		return tickDelta;
 	}
 
 	@Override
-	public void setTickDelta(float tickDelta) {
+	public void setTickDelta0(float tickDelta) {
 		this.tickDelta = tickDelta;
 	}
 
 	@Override
-	public int getTickCount() {
-		return ticksThisFrame;
+	public int getTickCount0() {
+		return gs_ticksThisFrame;
 	}
 
 	@Override
-	public void setTickCount(int tickCount) {
-		this.ticksThisFrame = tickCount;
+	public void setTickCount0(int tickCount) {
+		this.gs_ticksThisFrame = tickCount;
 	}
 }

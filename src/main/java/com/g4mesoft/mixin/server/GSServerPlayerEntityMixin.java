@@ -5,6 +5,7 @@ import java.util.Set;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -21,17 +22,18 @@ public class GSServerPlayerEntityMixin implements GSIServerPlayerEntity {
 
 	@Shadow public ServerPlayNetworkHandler networkHandler;
 	
-	private final Set<Integer> entitiesToDestroy = new HashSet<>();
+	@Unique
+	private final Set<Integer> gs_entitiesToDestroy = new HashSet<>();
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void onTickHead(CallbackInfo ci) {
-		int entityCount = entitiesToDestroy.size();
+		int entityCount = gs_entitiesToDestroy.size();
 		if (entityCount != 0) {
 			// Replacement for entitiesToDestroy.toArray(...)
 			int[] entityIdArray = new int[entityCount];
-			for (int entityId : entitiesToDestroy)
+			for (int entityId : gs_entitiesToDestroy)
 				entityIdArray[--entityCount] = entityId;
-			entitiesToDestroy.clear();
+			gs_entitiesToDestroy.clear();
 			
 			networkHandler.sendPacket(new EntitiesDestroyS2CPacket(entityIdArray));
 		}
@@ -39,22 +41,22 @@ public class GSServerPlayerEntityMixin implements GSIServerPlayerEntity {
 	
 	@Inject(method = "copyFrom", at = @At("RETURN"))
 	private void onCopyFromReturn(ServerPlayerEntity oldPlayer, boolean alive, CallbackInfo ci) {
-		entitiesToDestroy.clear();
-		entitiesToDestroy.addAll(((GSIServerPlayerEntity)oldPlayer).getEntitiesToDestroy());
+		gs_entitiesToDestroy.clear();
+		gs_entitiesToDestroy.addAll(((GSIServerPlayerEntity)oldPlayer).gs_getEntitiesToDestroy());
 	}
 	
 	@Override
-	public void onStartTrackingFallingSand(Entity entity) {
-		entitiesToDestroy.remove(entity.getId());
+	public void gs_onStartTrackingFallingSand(Entity entity) {
+		gs_entitiesToDestroy.remove(entity.getId());
 	}
 
 	@Override
-	public void onStopTrackingFallingSand(Entity entity) {
-		entitiesToDestroy.add(entity.getId());
+	public void gs_onStopTrackingFallingSand(Entity entity) {
+		gs_entitiesToDestroy.add(entity.getId());
 	}
 	
 	@Override
-	public Set<Integer> getEntitiesToDestroy() {
-		return entitiesToDestroy;
+	public Set<Integer> gs_getEntitiesToDestroy() {
+		return gs_entitiesToDestroy;
 	}
 }
