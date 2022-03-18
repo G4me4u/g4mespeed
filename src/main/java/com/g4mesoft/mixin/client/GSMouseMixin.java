@@ -23,14 +23,14 @@ public class GSMouseMixin implements GSIMouseAccess {
 	@Shadow @Final private MinecraftClient client;
 
 	@Unique
-	private int prevEventModifiers;
+	private int gs_prevEventModifiers;
 	@Unique
-	private float prevEventScrollX;
+	private float gs_prevEventScrollX;
 
 	@Inject(method="onMouseButton(JIII)V", at = @At(value = "HEAD"))
 	private void onMouseEvent(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
-			prevEventModifiers = mods;
+			gs_prevEventModifiers = mods;
 
 			GSKeyManager keyManager = GSClientController.getInstance().getKeyManager();
 
@@ -58,18 +58,18 @@ public class GSMouseMixin implements GSIMouseAccess {
 	@Inject(method="onMouseScroll", at = @At(value = "HEAD"))
 	private void onOnMouseScroll(long windowHandle, double scrollX, double scrollY, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
-			prevEventScrollX = (float)(client.options.discreteMouseScroll ? Math.signum(scrollX) : scrollX);
-			prevEventScrollX *= client.options.mouseWheelSensitivity;
+			gs_prevEventScrollX = (float)(client.options.discreteMouseScroll ? Math.signum(scrollX) : scrollX);
+			gs_prevEventScrollX *= client.options.mouseWheelSensitivity;
 		}
 	}
 	
 	@Override
-	public int getPreviousEventModifiers() {
-		return prevEventModifiers;
+	public int gs_getPreviousEventModifiers() {
+		return gs_prevEventModifiers;
 	}
 
 	@Override
-	public double getPreviousEventScrollX() {
-		return prevEventScrollX;
+	public double gs_getPreviousEventScrollX() {
+		return gs_prevEventScrollX;
 	}
 }

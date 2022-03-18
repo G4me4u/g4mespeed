@@ -32,7 +32,7 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 	
 	@Override
-	public void init(long initialTimeMillis) {
+	public void init0(long initialTimeMillis) {
 		prevTimeMillis = initialTimeMillis;
 		tickDelta = 0.0f;
 		ticksSinceLastPacket = 0;
@@ -40,11 +40,11 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	@Override
-	public synchronized void update(long timeMillis) {
+	public synchronized void update0(long timeMillis) {
 		long deltaMillis = timeMillis - prevTimeMillis;
 		prevTimeMillis = timeMillis;
 		
-		tickDelta += deltaMillis / getMillisPerTick();
+		tickDelta += deltaMillis / getMillisPerTick0();
 		
 		tickCount = (int)tickDelta;
 		tickDelta -= tickCount;
@@ -62,7 +62,7 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	@Override
-	public float getMillisPerTick() {
+	public float getMillisPerTick0() {
 		return millisPerTick;
 	}
 	
@@ -71,22 +71,22 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	@Override
-	public float getTickDelta() {
+	public float getTickDelta0() {
 		return tickDelta;
 	}
 
 	@Override
-	public void setTickDelta(float tickDelta) {
+	public void setTickDelta0(float tickDelta) {
 		this.tickDelta = tickDelta;
 	}
 
 	@Override
-	public int getTickCount() {
+	public int getTickCount0() {
 		return tickCount;
 	}
 	
 	@Override
-	public void setTickCount(int tickCount) {
+	public void setTickCount0(int tickCount) {
 		this.tickCount = tickCount;
 	}
 	
@@ -112,14 +112,14 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	private void adjustTickDelta(GSITickTimer timer) {
-		float targetTickDelta = tickDelta + syncDelay / timer.getMillisPerTick();
+		float targetTickDelta = tickDelta + syncDelay / timer.getMillisPerTick0();
 		
 		targetTickDelta %= 1.0f;
 		if (targetTickDelta < 0.0f)
 			targetTickDelta++;
 		
-		float syncTickDelta = timer.getTickDelta();
-		int syncTickCount = timer.getTickCount();
+		float syncTickDelta = timer.getTickDelta0();
+		int syncTickCount = timer.getTickCount0();
 		
 		// Check if we have to cross tick border
 		// and adjust target value accordingly.
@@ -144,15 +144,15 @@ public class GSServerTickTimer implements GSITickTimer {
 			syncTickDelta--;
 		}
 		
-		timer.setTickDelta(syncTickDelta);
-		timer.setTickCount(syncTickCount);
+		timer.setTickDelta0(syncTickDelta);
+		timer.setTickCount0(syncTickCount);
 	}
 	
 	public synchronized void onSyncPacket(int syncTickInterval) {
 		this.syncTickInterval = syncTickInterval;
 		syncReceived = true;
 
-		init(Util.getMeasuringTimeMs());
+		init0(Util.getMeasuringTimeMs());
 	}
 
 }

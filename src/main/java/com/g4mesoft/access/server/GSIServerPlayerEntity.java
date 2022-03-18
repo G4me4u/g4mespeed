@@ -6,10 +6,10 @@ import net.minecraft.entity.Entity;
 
 public interface GSIServerPlayerEntity {
 
-	public void onStartTrackingFallingSand(Entity entity);
+	public void gs_onStartTrackingFallingSand(Entity entity);
 
-	public void onStopTrackingFallingSand(Entity entity);
+	public void gs_onStopTrackingFallingSand(Entity entity);
 
-	public Set<Integer> getEntitiesToDestroy();
+	public Set<Integer> gs_getEntitiesToDestroy();
 	
 }

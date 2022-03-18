@@ -34,8 +34,8 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 			target = "Lnet/minecraft/entity/FallingBlockEntity;discard()V"))
 	private void onTickBeforeRemove(CallbackInfo ci) {
 		if (!world.isClient && !isRemoved() && GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED) {
-			((GSIServerChunkManagerAccess)world.getChunkManager()).setTrackerTickedFromFallingBlock(this, true);
-			((GSIServerChunkManagerAccess)world.getChunkManager()).tickEntityTracker(this);
+			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_setTrackerTickedFromFallingBlock(this, true);
+			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_tickEntityTracker(this);
 		}
 	}
 	

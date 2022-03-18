@@ -38,6 +38,6 @@ public class GSFlushingBlockEntityUpdatesPacket implements GSIPacket {
 
 	@Override
 	public void handleOnClient(GSClientController controller) {
-		((GSIMinecraftClientAccess)MinecraftClient.getInstance()).setFlushingBlockEntityUpdates(flushingUpdates);
+		((GSIMinecraftClientAccess)MinecraftClient.getInstance()).gs_setFlushingBlockEntityUpdates(flushingUpdates);
 	}
 }

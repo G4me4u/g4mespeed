@@ -33,14 +33,14 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 	@Shadow protected abstract float getAdjustedPitch(SoundInstance soundInstance);
 	
 	@Unique
-	private GSTpsModule tpsModule;
+	private GSTpsModule gs_tpsModule;
 	
 	@Inject(method = "<init>", at = @At("RETURN"))
 	private void onInit(SoundManager soundManager, GameOptions options, ResourceManager resourceManager, CallbackInfo ci) {
 		GSClientController client = GSClientController.getInstance();
-		tpsModule = client.getTpsModule();
+		gs_tpsModule = client.getTpsModule();
 		
-		tpsModule.addTpsListener(this);
+		gs_tpsModule.addTpsListener(this);
 		client.getSettingManager().addChangeListener(this);
 	}
 	
@@ -48,9 +48,9 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 	private void onGetAdjustedPitch(SoundInstance soundInstance, CallbackInfoReturnable<Float> cir) {
 		float pitch = MathHelper.clamp(soundInstance.getPitch(), 0.5f, 2.0f);
 		
-		if (tpsModule.cShiftPitch.getValue()) {
+		if (gs_tpsModule.cShiftPitch.getValue()) {
 			// Scale pitch by relative tps difference to the default.
-			pitch *= tpsModule.getTps() / GSTpsModule.DEFAULT_TPS;
+			pitch *= gs_tpsModule.getTps() / GSTpsModule.DEFAULT_TPS;
 		}
 
 		cir.setReturnValue(pitch);
@@ -72,7 +72,7 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 	
 	@Override
 	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
-		if (setting == tpsModule.cShiftPitch)
+		if (setting == gs_tpsModule.cShiftPitch)
 			updatePitch();
 	}
 }

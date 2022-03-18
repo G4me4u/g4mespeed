@@ -9,26 +9,26 @@ import net.minecraft.client.render.VertexFormat.DrawMode;
 
 public interface GSIBufferBuilderAccess {
 
-	public void pushClip(float x0, float y0, float x1, float y1);
+	public void gs_pushClip(float x0, float y0, float x1, float y1);
 
-	public void pushClip(GSClipRect clip);
+	public void gs_pushClip(GSClipRect clip);
 
-	public GSClipRect popClip();
+	public GSClipRect gs_popClip();
 
-	public GSClipRect getClip();
+	public GSClipRect gs_getClip();
 
-	public ByteBuffer getByteBuffer();
+	public ByteBuffer gs_getByteBuffer();
 
-	public DrawMode getDrawMode();
+	public DrawMode gs_getDrawMode();
 
-	public VertexFormat getVertexFormat();
+	public VertexFormat gs_getVertexFormat();
 
-	public int getBuildStart();
+	public int gs_getBuildStart();
 
-	public int getVertexCount();
+	public int gs_getVertexCount();
 
-	public void setVertexCount(int vertexCount);
+	public void gs_setVertexCount(int vertexCount);
 
-	public void setElementOffset(int elementOffset);
+	public void gs_setElementOffset(int elementOffset);
 	
 }

@@ -27,17 +27,17 @@ public class GSClipAdjuster {
 	}
 	
 	public void clipPreviousShape(BufferBuilder builder) {
-		if (clipRectStack.isEmpty() || ((GSIBufferBuilderAccess)builder).getDrawMode() != DrawMode.QUADS)
+		if (clipRectStack.isEmpty() || ((GSIBufferBuilderAccess)builder).gs_getDrawMode() != DrawMode.QUADS)
 			return;
 		
-		int vertexStart = ((GSIBufferBuilderAccess)builder).getVertexCount() - 4;
+		int vertexStart = ((GSIBufferBuilderAccess)builder).gs_getVertexCount() - 4;
 		if (vertexStart < 0)
 			return;
 
-		VertexFormat format = ((GSIBufferBuilderAccess)builder).getVertexFormat();
-		ByteBuffer buffer = ((GSIBufferBuilderAccess)builder).getByteBuffer();
+		VertexFormat format = ((GSIBufferBuilderAccess)builder).gs_getVertexFormat();
+		ByteBuffer buffer = ((GSIBufferBuilderAccess)builder).gs_getByteBuffer();
 		
-		int startIndex = ((GSIBufferBuilderAccess)builder).getBuildStart() + vertexStart * format.getVertexSize();
+		int startIndex = ((GSIBufferBuilderAccess)builder).gs_getBuildStart() + vertexStart * format.getVertexSize();
 		
 		// Assume the quad is on the x-y plane where z = z0 for
 		// all the vertices. Also assume that the sides of the
@@ -73,8 +73,8 @@ public class GSClipAdjuster {
 		if (x1 < clipRect.x0 || x0 >= clipRect.x1 || 
 		    y1 < clipRect.y0 || y0 >= clipRect.y1) {
 			
-			((GSIBufferBuilderAccess)builder).setVertexCount(vertexStart);
-			((GSIBufferBuilderAccess)builder).setElementOffset(startIndex);
+			((GSIBufferBuilderAccess)builder).gs_setVertexCount(vertexStart);
+			((GSIBufferBuilderAccess)builder).gs_setElementOffset(startIndex);
 			
 			return;
 		}

@@ -6,12 +6,12 @@ import net.minecraft.server.world.ChunkHolder;
 
 public interface GSIThreadedAnvilChunkStorageAccess {
 
-	public void tickEntityTracker(Entity entity);
+	public void gs_tickEntityTracker(Entity entity);
 	
-	public void setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement);
+	public void gs_setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement);
 
-	public void setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock);
+	public void gs_setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock);
 	
-	public Iterable<ChunkHolder> getEntryIterator0();
+	public Iterable<ChunkHolder> gs_getEntryIterator();
 	
 }

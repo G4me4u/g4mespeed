@@ -18,20 +18,20 @@ import net.minecraft.world.World;
 public class GSEntityMixin implements GSIEntityAccess {
 
 	@Unique
-	private boolean wasMovedByPiston = false;
+	private boolean gs_wasMovedByPiston = false;
 	@Unique
-	private boolean movedByPiston = false;
+	private boolean gs_movedByPiston = false;
 	
 	@Inject(method = "move", at = @At(value = "INVOKE", shift = Shift.BEFORE,
 	        target = "Lnet/minecraft/entity/Entity;adjustMovementForPiston(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;"))
 	private void onMoveBeforeAdjustMovementForPiston(CallbackInfo ci) {
-		movedByPiston = true;
+		gs_movedByPiston = true;
 	}
 
 	@Inject(method = "resetPosition", at = @At("HEAD"))
 	private void onResetPosition(CallbackInfo ci) {
-		wasMovedByPiston = movedByPiston;
-		movedByPiston = false;
+		gs_wasMovedByPiston = gs_movedByPiston;
+		gs_movedByPiston = false;
 	}
 
 	@Redirect(method = "adjustMovementForPiston", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getTime()J"))
@@ -48,17 +48,17 @@ public class GSEntityMixin implements GSIEntityAccess {
 	}
 	
 	@Override
-	public boolean wasMovedByPiston() {
-		return wasMovedByPiston;
+	public boolean gs_wasMovedByPiston() {
+		return gs_wasMovedByPiston;
 	}
 	
 	@Override
-	public boolean isMovedByPiston() {
-		return movedByPiston;
+	public boolean gs_isMovedByPiston() {
+		return gs_movedByPiston;
 	}
 	
 	@Override
-	public void setMovedByPiston(boolean movedByPiston) {
-		this.movedByPiston = movedByPiston;
+	public void gs_setMovedByPiston(boolean movedByPiston) {
+		this.gs_movedByPiston = movedByPiston;
 	}
 }

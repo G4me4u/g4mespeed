@@ -20,7 +20,7 @@ import net.minecraft.world.World;
 public class GSPistonBlockEntityMixin extends BlockEntity {
 
 	@Unique
-	private boolean ticked;
+	private boolean gs_ticked;
 	
 	public GSPistonBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
@@ -28,18 +28,18 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	private static void onTick(World world, BlockPos pos, BlockState state, PistonBlockEntity blockEntity, CallbackInfo ci) {
-		((GSPistonBlockEntityMixin)(Object)blockEntity).ticked = true;
+		((GSPistonBlockEntityMixin)(Object)blockEntity).gs_ticked = true;
 	}
 	
 	@Inject(method = "readNbt", at = @At("RETURN"))
 	private void onReadNbt(NbtCompound tag, CallbackInfo ci) {
-		ticked = !tag.contains("ticked") || tag.getBoolean("ticked");
+		gs_ticked = !tag.contains("ticked") || tag.getBoolean("ticked");
 	}
 
 	@Inject(method = "writeNbt", at = @At("RETURN"))
 	private void onWriteNbt(NbtCompound tag, CallbackInfo ci) {
 		GSController controller = GSController.getInstanceOnThread();
 		if (controller != null && controller.getTpsModule().sImmediateBlockBroadcast.getValue())
-			tag.putBoolean("ticked", ticked);
+			tag.putBoolean("ticked", gs_ticked);
 	}
 }

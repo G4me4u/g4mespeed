@@ -23,12 +23,12 @@ public class GSKeyboardMixin implements GSIKeyboardAccess {
 	@Shadow @Final private MinecraftClient client;
 	
 	@Unique
-	private boolean prevEventRepeating;
+	private boolean gs_prevEventRepeating;
 	
 	@Inject(method = "onKey(JIIII)V", at = @At("HEAD"))
 	private void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
-			prevEventRepeating = (action == GLFW.GLFW_REPEAT);
+			gs_prevEventRepeating = (action == GLFW.GLFW_REPEAT);
 
 			GSKeyManager keyManager = GSClientController.getInstance().getKeyManager();
 
@@ -55,7 +55,7 @@ public class GSKeyboardMixin implements GSIKeyboardAccess {
 	}
 	
 	@Override
-	public boolean isPreviousEventRepeating() {
-		return prevEventRepeating;
+	public boolean gs_isPreviousEventRepeating() {
+		return gs_prevEventRepeating;
 	}
 }
