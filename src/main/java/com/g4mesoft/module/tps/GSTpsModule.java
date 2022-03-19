@@ -98,7 +98,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	private int serverSyncTimer;
 	private GSTpsMonitor serverTpsMonitor;
 	private long lastServerTpsTime;
-
+	
+	@Environment(EnvType.CLIENT)
+	private boolean fixedMovementOnDefaultTps = false;
 	@Environment(EnvType.CLIENT)
 	private float serverTps = Float.NaN;
 	@Environment(EnvType.CLIENT)
@@ -593,7 +595,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	@Environment(EnvType.CLIENT)
 	public boolean isMainPlayerFixedMovement() {
-		if (cNormalMovement.getValue() && !isDefaultTps()) {
+		if (cNormalMovement.getValue() && (!isDefaultTps() || fixedMovementOnDefaultTps)) {
 			PlayerEntity player = GSClientController.getInstance().getPlayer();
 
 			// Do not enable fixed movement if player has a vehicle.
@@ -612,7 +614,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Environment(EnvType.CLIENT)
 	public boolean isPlayerFixedMovement(AbstractClientPlayerEntity player) {
 		// Only enable fixed movement if tps is different from default.
-		if (!isDefaultTps()) {
+		if (!isDefaultTps() || fixedMovementOnDefaultTps) {
 			GSClientController controller = GSClientController.getInstance();
 		
 			// Check if is is the main player.
@@ -625,5 +627,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		}
 		
 		return false;
+	}
+	
+	@Environment(EnvType.CLIENT)
+	public void setFixedMovementOnDefaultTps(boolean fixedMovementOnDefaultTps) {
+		this.fixedMovementOnDefaultTps = fixedMovementOnDefaultTps;
 	}
 }
