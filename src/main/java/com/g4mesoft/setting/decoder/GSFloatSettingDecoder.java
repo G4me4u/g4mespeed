@@ -17,7 +17,15 @@ public class GSFloatSettingDecoder implements GSISettingDecoder<GSFloatSetting> 
 		float interval = buffer.readFloat();
 		boolean visibleInGui = buffer.readBoolean();
 		
-		return new GSFloatSetting(name, defaultValue, minValue, maxValue, interval, visibleInGui).setValue(value);
+		GSFloatSetting setting = new GSFloatSetting(name, defaultValue, minValue, maxValue, interval, visibleInGui);
+		setting.setValue(value);
+
+		if (buffer.isReadable(1)) {
+			// Only read when available to ensure backwards compatability
+			setting.setEnabledInGui(buffer.readBoolean());
+		}
+		
+		return setting;
 	}
 
 	@Override
@@ -27,7 +35,8 @@ public class GSFloatSettingDecoder implements GSISettingDecoder<GSFloatSetting> 
 		buffer.writeFloat(setting.getMinValue());
 		buffer.writeFloat(setting.getMaxValue());
 		buffer.writeFloat(setting.getInterval());
-		buffer.writeBoolean(setting.isVisibleInGUI());
+		buffer.writeBoolean(setting.isVisibleInGui());
+		buffer.writeBoolean(setting.isEnabledInGui());
 	}
 
 	@Override

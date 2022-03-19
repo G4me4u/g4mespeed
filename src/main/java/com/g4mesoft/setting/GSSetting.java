@@ -77,7 +77,7 @@ public abstract class GSSetting<T> {
 		return active;
 	}
 
-	public boolean isVisibleInGUI() {
+	public boolean isVisibleInGui() {
 		return visibleInGui;
 	}
 
