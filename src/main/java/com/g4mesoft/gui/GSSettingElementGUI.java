@@ -55,7 +55,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	}
 	
 	public int getTextColor() {
-		return setting.isEnabledInGui() ? ENABLED_TEXT_COLOR : DISABLED_TEXT_COLOR;
+		return isSettingEnabled() ? ENABLED_TEXT_COLOR : DISABLED_TEXT_COLOR;
 	}
 	
 	@Override
@@ -68,7 +68,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	}
 
 	protected void resetSetting() {
-		if (setting.isEnabledInGui())
+		if (isSettingEnabled())
 			setting.reset();
 	}
 	
@@ -77,11 +77,15 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	}
 	
 	private void updateResetActive() {
-		resetButton.setEnabled(!setting.isDefaultValue() && setting.isEnabledInGui());
+		resetButton.setEnabled(!setting.isDefaultValue() && isSettingEnabled());
 	}
 
 	public abstract Text getFormattedDefault();
 
+	protected boolean isSettingEnabled() {
+		return setting.isEnabledInGui() && setting.isAllowedChange();
+	}
+	
 	protected int getSettingHeight() {
 		return height;
 	}

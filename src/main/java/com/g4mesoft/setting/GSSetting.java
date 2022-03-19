@@ -12,6 +12,7 @@ public abstract class GSSetting<T> {
 	private boolean active;
 	
 	private boolean enabledInGui;
+	private boolean allowedChange;
 	
 	public GSSetting(String name, T defaultValue, boolean visibleInGui) {
 		this.name = name;
@@ -22,6 +23,7 @@ public abstract class GSSetting<T> {
 		active = true;
 		
 		enabledInGui = true;
+		allowedChange = true;
 	}
 	
 	public String getName() {
@@ -91,5 +93,17 @@ public abstract class GSSetting<T> {
 
 	public boolean isEnabledInGui() {
 		return enabledInGui;
+	}
+
+	public GSSetting<T> setAllowedChange(boolean allowedChange) {
+		if (allowedChange != this.allowedChange) {
+			this.allowedChange = allowedChange;
+			notifyOwnerChange();
+		}
+		return this;
+	}
+	
+	public boolean isAllowedChange() {
+		return allowedChange;
 	}
 }

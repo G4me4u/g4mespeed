@@ -54,7 +54,7 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 		int sx = width - TOGGLE_WIDTH - CONTENT_MARGIN - RESET_BUTTON_WIDTH - CONTENT_PADDING;
 		int sy = (height - GSToggleSwitchPanel.SWITCH_HEIGHT) / 2;
 		switchWidget.setPreferredBounds(sx, sy);
-		switchWidget.setEnabled(setting.isEnabledInGui());
+		switchWidget.setEnabled(isSettingEnabled());
 	}
 	
 	@Override
@@ -62,7 +62,7 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 		super.onSettingChanged();
 		
 		switchWidget.setToggled(setting.getValue());
-		switchWidget.setEnabled(setting.isEnabledInGui());
+		switchWidget.setEnabled(isSettingEnabled());
 	}
 
 	@Override
