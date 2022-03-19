@@ -123,8 +123,6 @@ public final class GSSettingMap {
 				setting = new GSUnknownSetting(name, type, data);
 			} else {
 				setting = decoder.decodeSetting(name, buffer);
-				// Settings from file are always enabled in GUI.
-				setting.setEnabledInGui(true);
 
 				int off = settingEnd - buffer.readerIndex();
 				if (off > 0) {
