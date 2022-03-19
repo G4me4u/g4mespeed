@@ -88,10 +88,8 @@ public class GSRemoteSettingManager extends GSSettingManager {
 	
 	public void onRemoteSettingMapReceived(GSSettingMap settingMap) {
 		GSSettingCategory category = settingMap.getCategory();
-
-		for (GSSetting<?> setting : settingMap.getSettings()) {
-			super.registerSetting(category, setting.copySetting().setEnabledInGui(allowedSettingChange));
-		}
+		for (GSSetting<?> setting : settingMap.getSettings())
+			onRemoteSettingAdded(category, setting);
 	}
 	
 	public void onRemoteSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
@@ -100,7 +98,7 @@ public class GSRemoteSettingManager extends GSSettingManager {
 		if (currentSetting != null) {
 			remoteSettingChanging = true;
 			currentSetting.setValueIfSameType(setting);
-			currentSetting.setEnabledInGui(setting.isEnabledInGui());
+			currentSetting.setEnabledInGui(setting.isEnabledInGui() && allowedSettingChange);
 			remoteSettingChanging = false;
 		}
 	}
