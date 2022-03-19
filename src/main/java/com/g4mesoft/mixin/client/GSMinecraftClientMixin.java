@@ -215,11 +215,9 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	
 	@Unique
 	private void tickFixedMovementPlayers() {
-		if (!gs_tpsModule.isDefaultTps()) {
-			for (AbstractClientPlayerEntity entity : world.getPlayers()) {
-				if (entity != player && !entity.hasVehicle() && !entity.removed && gs_tpsModule.isPlayerFixedMovement(entity))
-					world.tickEntity(world::tickEntity, entity);
-			}
+		for (AbstractClientPlayerEntity entity : world.getPlayers()) {
+			if (entity != player && !entity.hasVehicle() && !entity.removed && gs_tpsModule.isPlayerFixedMovement(entity))
+				world.tickEntity(world::tickEntity, entity);
 		}
 	}
 	
