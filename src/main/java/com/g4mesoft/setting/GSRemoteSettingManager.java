@@ -48,8 +48,11 @@ public class GSRemoteSettingManager extends GSSettingManager {
 	
 	private void updateShadowValue(GSSettingCategory category, GSSetting<?> setting) {
 		GSSetting<?> shadowSetting = getShadowSetting(category, setting.getName());
-		if (shadowSetting != null)
+		if (shadowSetting != null) {
 			shadowSetting.setValueIfSameType(setting);
+			// Make sure client knows whether a remote setting is enabled in GUI.
+			shadowSetting.setEnabledInGui(setting.isEnabledInGui());
+		}
 	}
 	
 	public void resetRemoteSettings() {
@@ -97,12 +100,15 @@ public class GSRemoteSettingManager extends GSSettingManager {
 		if (currentSetting != null) {
 			remoteSettingChanging = true;
 			currentSetting.setValueIfSameType(setting);
+			currentSetting.setEnabledInGui(setting.isEnabledInGui());
 			remoteSettingChanging = false;
 		}
 	}
 
 	public void onRemoteSettingAdded(GSSettingCategory category, GSSetting<?> setting) {
-		super.registerSetting(category, setting.copySetting().setEnabledInGui(allowedSettingChange));
+		GSSetting<?> copiedSetting = setting.copySetting();
+		copiedSetting.setEnabledInGui(copiedSetting.isEnabledInGui() && allowedSettingChange);
+		super.registerSetting(category, copiedSetting);
 	}
 	
 	public void onRemoteSettingRemoved(GSSettingCategory category, GSSetting<?> setting) {
