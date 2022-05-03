@@ -205,19 +205,17 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 				attackCooldown--;
 		}
 		
-		if (!paused && world != null) {
+		if (!paused && world != null)
 			gameRenderer.tick();
-
-			if (player != null && !player.hasVehicle() && !player.removed)
-				world.tickEntity(world::tickEntity, player);
-		}
 	}
 	
 	@Unique
 	private void tickFixedMovementPlayers() {
-		for (AbstractClientPlayerEntity entity : world.getPlayers()) {
-			if (entity != player && !entity.hasVehicle() && !entity.removed && gs_tpsModule.isPlayerFixedMovement(entity))
-				world.tickEntity(world::tickEntity, entity);
+		if (!gs_tpsModule.isDefaultTps() || gs_tpsModule.isFixedMovementOnDefaultTps()) {
+			for (AbstractClientPlayerEntity entity : world.getPlayers()) {
+				if (!entity.hasVehicle() && !entity.removed && gs_tpsModule.isPlayerFixedMovement(entity))
+					world.tickEntity(world::tickEntity, entity);
+			}
 		}
 	}
 	
