@@ -631,9 +631,15 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	@Environment(EnvType.CLIENT)
+	public boolean isFixedMovementOnDefaultTps() {
+		return fixedMovementOnDefaultTps;
+	}
+
+	@Environment(EnvType.CLIENT)
 	public void setFixedMovementOnDefaultTps(boolean fixedMovementOnDefaultTps) {
 		this.fixedMovementOnDefaultTps = fixedMovementOnDefaultTps;
 	}
+	
 	
 	@Environment(EnvType.CLIENT)
 	public void onClientGameModeChanged(GameMode gameMode) {
