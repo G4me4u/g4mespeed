@@ -60,7 +60,9 @@
     
     "client.GSWorldChunkMixin",
     "client.GSEntityMixin",
-    "client.GSIWorldAccess"
+    "client.GSIWorldAccess",
+    
+    "client.GSClientPlayerInteractionManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1
