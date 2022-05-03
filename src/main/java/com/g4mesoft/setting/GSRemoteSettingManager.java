@@ -55,6 +55,7 @@ public class GSRemoteSettingManager extends GSSettingManager {
 			shadowSetting.setValueIfSameType(setting);
 			// Make sure client knows whether a remote setting is enabled in GUI.
 			shadowSetting.setEnabledInGui(setting.isEnabledInGui());
+			shadowSetting.setAllowedChange(setting.isAllowedChange());
 			shadowSettingChanging = false;
 		}
 	}
@@ -122,10 +123,12 @@ public class GSRemoteSettingManager extends GSSettingManager {
 		if (allowedSettingChange != this.allowedSettingChange) {
 			this.allowedSettingChange = allowedSettingChange;
 	
+			remoteSettingChanging = true;
 			for (GSSettingMap settingMap : settings.values()) {
 				for (GSSetting<?> setting : settingMap.getSettings())
 					setting.setAllowedChange(allowedSettingChange);
 			}
+			remoteSettingChanging = false;
 		}
 	}
 	
