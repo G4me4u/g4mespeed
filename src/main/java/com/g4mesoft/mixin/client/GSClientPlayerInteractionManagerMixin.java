@@ -13,6 +13,11 @@ import net.minecraft.world.GameMode;
 @Mixin(ClientPlayerInteractionManager.class)
 public class GSClientPlayerInteractionManagerMixin {
 
+	@Inject(method = "setGameModes", at = @At("RETURN"))
+    public void onSetGameModes(GameMode gameMode, GameMode previousGameMode, CallbackInfo ci) {
+		GSClientController.getInstance().getTpsModule().onClientGameModeChanged(gameMode);
+	}
+
 	@Inject(method = "setGameMode", at = @At("RETURN"))
     private void onSetGameMode(GameMode gameMode, CallbackInfo ci) {
 		GSClientController.getInstance().getTpsModule().onClientGameModeChanged(gameMode);
