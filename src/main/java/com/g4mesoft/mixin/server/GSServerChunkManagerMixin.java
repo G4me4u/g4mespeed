@@ -31,6 +31,8 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 
 	@Shadow protected abstract ChunkHolder getChunkHolder(long chunkId);
 	
+	@Shadow public abstract void markForUpdate(BlockPos pos);
+	
 	@Override
 	public void gs_tickEntityTracker(Entity entity) {
 		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).gs_tickEntityTracker(entity);
@@ -91,6 +93,11 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 		ChunkHolder chunkHolder = getChunkHolderAt(pos);
 		if (chunkHolder != null)
 			((GSIChunkHolderAccess)chunkHolder).gs_markBlockEntityUpdate(pos);
+	}
+	
+	@Override
+	public void gs_markBlockUpdate(BlockPos pos) {
+		markForUpdate(pos);
 	}
 	
 	@Override
