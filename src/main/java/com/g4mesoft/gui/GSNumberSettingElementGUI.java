@@ -129,7 +129,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 		}
 		
 		slider.setBounds(sx, sy, sw, sh);
-		slider.setEnabled(setting.isEnabledInGui());
+		slider.setEnabled(isSettingEnabled());
 	}
 	
 	private void updateTextFieldBounds() {
@@ -143,7 +143,7 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 			ty = height - CONTENT_PADDING - TEXT_FIELD_HEIGHT;
 		}
 		textField.setBounds(tx, ty, tw, TEXT_FIELD_HEIGHT);
-		textField.setEditable(setting.isEnabledInGui());
+		textField.setEditable(isSettingEnabled());
 
 		int bx = textField.getX() + textField.getWidth() + CONTENT_MARGIN;
 		int by = ty + (TEXT_FIELD_HEIGHT - RESET_BUTTON_HEIGHT) / 2;
@@ -210,11 +210,11 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 		updateFieldValue();
 		
 		if (slider != null)
-			slider.setEnabled(setting.isEnabledInGui());
+			slider.setEnabled(isSettingEnabled());
 		if (textField != null)
-			textField.setEditable(setting.isEnabledInGui());
+			textField.setEditable(isSettingEnabled());
 		if (valueSetButton != null)
-			valueSetButton.setEnabled(setting.isEnabledInGui());
+			valueSetButton.setEnabled(isSettingEnabled());
 	}
 	
 	

@@ -60,6 +60,8 @@ public final class GSSettingMap {
 	private void setValueFromLoadedSetting(GSSetting<?> setting, GSSetting<?> loadedSetting) {
 		if (setting.isSameSetting(loadedSetting)) {
 			setting.setValueIfSameType(loadedSetting);
+			// Do not update the is enabled in GUI setting from file.
+			//setting.setEnabledInGui(loadedSetting.isEnabledInGui());
 		} else {
 			setting.reset();
 		}

@@ -67,7 +67,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	}
 
 	private void addSettingElement(GSSettingCategory category, GSSetting<?> setting) {
-		if (setting.isActive() && setting.isVisibleInGUI()) {
+		if (setting.isActive() && setting.isVisibleInGui()) {
 			GSSettingCategoryElement categoryElement = settingCategories.get(category);
 			if (categoryElement == null) {
 				categoryElement = new GSSettingCategoryElement(category);

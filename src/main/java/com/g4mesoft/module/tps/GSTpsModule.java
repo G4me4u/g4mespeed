@@ -46,6 +46,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
+import net.minecraft.world.GameMode;
 
 public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarpetCompatTickrateListener {
 
@@ -98,7 +99,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	private int serverSyncTimer;
 	private GSTpsMonitor serverTpsMonitor;
 	private long lastServerTpsTime;
-
+	
+	@Environment(EnvType.CLIENT)
+	private boolean fixedMovementOnDefaultTps = false;
 	@Environment(EnvType.CLIENT)
 	private float serverTps = Float.NaN;
 	@Environment(EnvType.CLIENT)
@@ -275,7 +278,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				}
 			}
 		});
-
+		
 		GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
 		if (carpetCompat.isCarpetDetected() && carpetCompat.isOutdatedCompatMode()) {
 			// With older versions of carpet we have to poll the current tps
@@ -311,8 +314,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 						// allows us to use hotkey controls.
 						managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
 					}
-				} else if (client.player != null) { 
-					if (isGameModeAllowingHotkeys(client.player)) {
+				} else if (client.interactionManager != null) { 
+					if (isGameModeAllowingHotkeys(client.interactionManager.getCurrentGameMode())) {
 						performHotkeyAction(hotkeyType, sneaking);
 						
 						if (client.inGameHud != null) {
@@ -330,7 +333,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	public void onPlayerHotkey(ServerPlayerEntity player, GSETpsHotkeyType type, boolean sneaking) {
 		if (sTpsHotkeyMode.getValue() != HOTKEY_MODE_DISABLED && isPlayerAllowedTpsChange(player)) {
-			if (isGameModeAllowingHotkeys(player)) {
+			if (isGameModeAllowingHotkeys(player.interactionManager.getGameMode())) {
 				float oldTps = tps;
 				performHotkeyAction(type, sneaking);
 				
@@ -504,10 +507,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		}
 	}
 	
-	public boolean isGameModeAllowingHotkeys(PlayerEntity player) {
+	public boolean isGameModeAllowingHotkeys(GameMode gameMode) {
 		switch (sTpsHotkeyMode.getValue()) {
 		case HOTKEY_MODE_CREATIVE:
-			return (player.isCreative() || player.isSpectator());
+			return (gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR);
 		case HOTKEY_MODE_ALL:
 			return true;
 		case HOTKEY_MODE_DISABLED:
@@ -515,7 +518,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			return false;
 		}
 	}
-	
+
 	public boolean isPlayerAllowedTpsChange(PlayerEntity player) {
 		return player.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL);
 	}
@@ -593,7 +596,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	@Environment(EnvType.CLIENT)
 	public boolean isMainPlayerFixedMovement() {
-		if (cNormalMovement.getValue() && !isDefaultTps()) {
+		if (cNormalMovement.getValue() && (!isDefaultTps() || fixedMovementOnDefaultTps)) {
 			PlayerEntity player = GSClientController.getInstance().getPlayer();
 
 			// Do not enable fixed movement if player has a vehicle.
@@ -612,7 +615,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Environment(EnvType.CLIENT)
 	public boolean isPlayerFixedMovement(AbstractClientPlayerEntity player) {
 		// Only enable fixed movement if tps is different from default.
-		if (!isDefaultTps()) {
+		if (!isDefaultTps() || fixedMovementOnDefaultTps) {
 			GSClientController controller = GSClientController.getInstance();
 		
 			// Check if is is the main player.
@@ -625,5 +628,27 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		}
 		
 		return false;
+	}
+	
+	@Environment(EnvType.CLIENT)
+	public boolean isFixedMovementOnDefaultTps() {
+		return fixedMovementOnDefaultTps;
+	}
+
+	@Environment(EnvType.CLIENT)
+	public void setFixedMovementOnDefaultTps(boolean fixedMovementOnDefaultTps) {
+		this.fixedMovementOnDefaultTps = fixedMovementOnDefaultTps;
+	}
+	
+	
+	@Environment(EnvType.CLIENT)
+	public void onClientGameModeChanged(GameMode gameMode) {
+		GSClientController controller = GSClientController.getInstance();
+		if (controller.isConnectedToServer() && !controller.isG4mespeedServer() && !isGameModeAllowingHotkeys(gameMode)) {
+			// User is connected to a non-g4mespeed server, and changed to a game mode that
+			// does not allow client tps changes. Ensure that the player can not cheat by
+			// resetting to default tps here.
+			setTps(DEFAULT_TPS);
+		}
 	}
 }

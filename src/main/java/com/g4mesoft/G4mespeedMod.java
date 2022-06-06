@@ -15,6 +15,8 @@ import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.packet.GSPacketManager;
 
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.metadata.ModMetadata;
 
 public class G4mespeedMod implements ModInitializer {
 
@@ -27,8 +29,6 @@ public class G4mespeedMod implements ModInitializer {
 	
 	private GSPacketManager packetManager;
 	private GSCarpetCompat carpetCompat;
-	
-	private GSCoreExtension coreExtension;
 	
 	private static final List<GSIExtension> extensions = new ArrayList<>();
 	private static final Set<GSExtensionUID> extensionIds = new HashSet<>();
@@ -43,30 +43,45 @@ public class G4mespeedMod implements ModInitializer {
 	@GSCoreOverride
 	public void onInitialize() {
 		instance = this;
-		
-		coreExtension = new GSCoreExtension();
-		addExtension(coreExtension);
 
 		packetManager = new GSPacketManager();
 		
 		carpetCompat = new GSCarpetCompat();
 		carpetCompat.detectCarpet();
 		
-		GS_LOGGER.info("G4mespeed " + GSCoreExtension.VERSION + " initialized!");
+		// Detect g4mespeed extensions from installed mods
+		FabricLoader.getInstance().getEntrypointContainers("g4mespeed", GSIExtension.class).forEach(container -> {
+			ModMetadata metadata = container.getProvider().getMetadata();
+			String modid = metadata.getId();
+			try {
+				GSIExtension extension = container.getEntrypoint();
+				String name = extension.getInfo().getName();
+				addExtension(extension);
+				GS_LOGGER.info("Added extension '{}' provided by '{}'", name, modid);
+			} catch (Throwable e) {
+				GS_LOGGER.error("Mod '{}' provides a broken implementation of GSIExtension", modid, e);
+			}
+		});
 		
+		// Initialize extensions & extension packets.
 		for (GSIExtension extension : extensions)
 			extension.init();
-	
+		packetManager.init();
+		
 		initialized = true;
+
+		GS_LOGGER.info("G4mespeed {} initialized!", GSCoreExtension.VERSION);
 	}
 	
 	public static void addExtension(GSIExtension extension) {
+		if (extension == null)
+			throw new IllegalArgumentException("extension is null");
+		
 		synchronized (extensions) {
 			GSExtensionUID uid = extension.getInfo().getUniqueId();
 			
 			if (INVALID_EXTENSION_UID.equals(uid))
 				throw new IllegalArgumentException("Invalid extension ID: " + uid);
-			
 			if (!extensionIds.add(uid))
 				throw new IllegalArgumentException("Duplicate extension ID: " + uid);
 			
@@ -123,10 +138,6 @@ public class G4mespeedMod implements ModInitializer {
 		return carpetCompat;
 	}
 
-	public GSCoreExtension getCoreExtension() {
-		return coreExtension;
-	}
-	
 	public static G4mespeedMod getInstance() {
 		return instance;
 	}

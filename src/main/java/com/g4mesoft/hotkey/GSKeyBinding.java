@@ -12,22 +12,26 @@ public class GSKeyBinding {
 	private final GSKeyCode defaultKeyCode;
 	private final boolean allowDisabled;
 	
+	private int priority;
+	
 	private GSKeyCode keyCode;
 	private boolean[] keyStates;
-	private boolean pressed;
-
+	private int pressedCount;
+	
 	private GSIKeyBindingListener listener;
 	
-	public GSKeyBinding(GSKeyManager manager, String name, String category, GSKeyCode defaultKeyCode, boolean allowDisabled) {
+	public GSKeyBinding(GSKeyManager manager, String name, String category, GSKeyCode defaultKeyCode, boolean allowDisabled, int priority) {
 		this.manager = manager;
 		this.name = name;
 		this.category = category;
 		this.defaultKeyCode = defaultKeyCode;
 		this.allowDisabled = allowDisabled;
+		
+		this.priority = priority;
 	
 		keyCode = defaultKeyCode;
 		keyStates = new boolean[keyCode.getKeyCount()];
-		pressed = false;
+		pressedCount = 0;
 		
 		listener = null;
 	}
@@ -41,35 +45,39 @@ public class GSKeyBinding {
 	void reset() {
 		for (int i = 0; i < keyStates.length; i++)
 			keyStates[i] = false;
-		pressed = false;
+		pressedCount = 0;
 	}
 
 	void onKeyPressed(Key key) {
-		boolean keyState = true;
+		int count = 0;
 		for (int i = 0; i < keyCode.getKeyCount(); i++) {
 			if (keyCode.get(i) == key)
 				keyStates[i] = true;
-			keyState &= keyStates[i];
+			if (keyStates[i])
+				count++;
 		}
 		
-		onKeyStateChanged(keyState);
+		onKeyStateChanged(count);
 	}
 	
 	void onKeyReleased(Key key) {
+		int count = 0;
 		for (int i = 0; i < keyCode.getKeyCount(); i++) {
 			if (keyCode.get(i) == key)
 				keyStates[i] = false;
+			if (keyStates[i])
+				count++;
 		}
 		
-		onKeyStateChanged(false);
+		onKeyStateChanged(count);
 	}
 	
-	private void onKeyStateChanged(boolean keyState) {
-		if (keyState != pressed) {
-			pressed = keyState;
-			
+	private void onKeyStateChanged(int count) {
+		boolean wasPressed = isPressed();
+		this.pressedCount = count;
+		
+		if (isPressed() != wasPressed)
 			manager.scheduleEvent(this);
-		}
 	}
 	
 	void dispatchKeyEvent(GSEKeyEventType eventType) {
@@ -117,7 +125,22 @@ public class GSKeyBinding {
 		return keyCode.getLocalizedText();
 	}
 	
+	public boolean isAnyPressed() {
+		return (pressedCount != 0);
+	}
+	
 	public boolean isPressed() {
-		return pressed;
+		return (pressedCount == keyCode.getKeyCount());
+	}
+
+	/* Higher value of priority means key is dominant */
+	public void setPriority(int priority) {
+		if (priority < 0)
+			throw new IllegalArgumentException("priority must be non-negative");
+		this.priority = priority;
+	}
+	
+	public int getPriority() {
+		return priority;
 	}
 }

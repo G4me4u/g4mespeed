@@ -13,9 +13,9 @@ import com.g4mesoft.registry.GSSupplierRegistry;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.Packet;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.util.Identifier;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.thread.ThreadExecutor;
 
 public class GSPacketManager {
@@ -23,12 +23,21 @@ public class GSPacketManager {
 	private static final Identifier GS_IDENTIFIER = new Identifier("mod/g4mespeed");
 	
 	private final GSPacketRegistryList registryList;
+	private boolean initialized;
 	
 	public GSPacketManager() {
 		registryList = new GSPacketRegistryList();
+		initialized = false;
+	}
+	
+	public void init() {
+		if (initialized)
+			throw new IllegalStateException("Already initialized");
 		
 		G4mespeedMod.getExtensions().forEach(this::registerPackets);
 		G4mespeedMod.addExtensionListener(this::registerPackets);
+	
+		initialized = true;
 	}
 	
 	public GSExtensionUID getPacketExtensionUniqueId(GSIPacket packet) {
