@@ -21,6 +21,8 @@ public interface GSIServerChunkManagerAccess {
 
 	public void gs_markBlockEntityUpdate(BlockPos pos);
 
+	public void gs_markBlockUpdate(BlockPos pos);
+	
 	public void gs_sendToNearbyPlayers(BlockPos pos, Packet<?> packet);
 
 }
