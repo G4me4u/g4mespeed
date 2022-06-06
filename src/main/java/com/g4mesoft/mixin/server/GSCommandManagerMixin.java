@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.core.server.GSServerController;
 import com.mojang.brigadier.CommandDispatcher;
 
-import net.minecraft.class_7157;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.CommandManager.RegistrationEnvironment;
 import net.minecraft.server.command.ServerCommandSource;
@@ -21,7 +21,7 @@ public class GSCommandManagerMixin {
 	@Shadow @Final private CommandDispatcher<ServerCommandSource> dispatcher;
 	
 	@Inject(method="<init>", at = @At("RETURN"))
-	private void registerCommands(RegistrationEnvironment environment, class_7157 arg, CallbackInfo ci) {
+	private void registerCommands(RegistrationEnvironment environment, CommandRegistryAccess commandRegistryAccess, CallbackInfo ci) {
 		GSServerController.getInstance().setCommandDispatcher(dispatcher);
 	}
 }

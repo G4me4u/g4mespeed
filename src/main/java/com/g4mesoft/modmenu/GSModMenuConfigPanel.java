@@ -17,7 +17,6 @@ import com.g4mesoft.renderer.GSTexture;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public class GSModMenuConfigPanel extends GSClosableParentPanel {
 
@@ -39,8 +38,8 @@ public class GSModMenuConfigPanel extends GSClosableParentPanel {
 	
 	private static final int SHADOW_WIDTH  = 4;
 	
-	private static final Text DONE_TEXT = new TranslatableText("g4mespeed.modmenu.done");
-	private static final Text TITLE_TEXT = new TranslatableText("g4mespeed.modmenu.title");
+	private static final Text DONE_TEXT = Text.translatable("g4mespeed.modmenu.done");
+	private static final Text TITLE_TEXT = Text.translatable("g4mespeed.modmenu.title");
 	
 	private final Screen previous;
 	

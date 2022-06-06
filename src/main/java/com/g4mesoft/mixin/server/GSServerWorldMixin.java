@@ -34,13 +34,13 @@ import net.minecraft.world.dimension.DimensionType;
 @Mixin(ServerWorld.class)
 public abstract class GSServerWorldMixin extends World {
 
-	@Shadow @Final EntityList entityList;
-
 	protected GSServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef,
-			RegistryEntry<DimensionType> registryEntry, Supplier<Profiler> profiler, boolean isClient,
-			boolean debugWorld, long seed) {
-		super(properties, registryRef, registryEntry, profiler, isClient, debugWorld, seed);
+			RegistryEntry<DimensionType> dimension, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld,
+			long seed, int maxChainedNeighborUpdates) {
+		super(properties, registryRef, dimension, profiler, isClient, debugWorld, seed, maxChainedNeighborUpdates);
 	}
+
+	@Shadow @Final EntityList entityList;
 
 	@Inject(method = "tick", at = @At("RETURN"))
 	private void onTickReturn(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {

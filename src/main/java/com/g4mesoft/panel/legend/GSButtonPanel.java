@@ -6,7 +6,6 @@ import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.renderer.GSTexture;
 
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -18,7 +17,7 @@ public class GSButtonPanel extends GSAbstractTextActionPanel implements GSIKeyLi
 	public static final int BUTTON_HEIGHT = 20;
 
 	public GSButtonPanel(String text, GSIActionListener listener) {
-		this(new LiteralText(text), listener);
+		this(Text.literal(text), listener);
 	}
 	
 	public GSButtonPanel(Text text, GSIActionListener listener) {

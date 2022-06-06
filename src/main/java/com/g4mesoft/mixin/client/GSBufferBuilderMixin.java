@@ -26,7 +26,7 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 
 	@Shadow private boolean building;
 	
-	@Shadow private int buildStart;
+	@Shadow private int batchOffset;
 	@Shadow private int vertexCount;
 	@Shadow private int elementOffset;
 	
@@ -78,8 +78,8 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	}
 
 	@Override
-	public int gs_getBuildStart() {
-		return buildStart;
+	public int gs_getBatchOffset() {
+		return batchOffset;
 	}
 	
 	@Override

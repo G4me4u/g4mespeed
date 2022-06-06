@@ -8,7 +8,6 @@ import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelUtil;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 public class GSTextLabel extends GSPanel {
@@ -32,7 +31,7 @@ public class GSTextLabel extends GSPanel {
 	}
 
 	public GSTextLabel(GSIcon icon, String text) {
-		this(icon, new LiteralText(text));
+		this(icon, Text.literal(text));
 	}
 
 	public GSTextLabel(Text text) {
@@ -84,7 +83,7 @@ public class GSTextLabel extends GSPanel {
 	}
 
 	public void setText(String text) {
-		setText(new LiteralText(text));
+		setText(Text.literal(text));
 	}
 	
 	public void setText(Text text) {

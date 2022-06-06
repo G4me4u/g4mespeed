@@ -23,7 +23,7 @@ public interface GSIBufferBuilderAccess {
 
 	public VertexFormat gs_getVertexFormat();
 
-	public int gs_getBuildStart();
+	public int gs_getBatchOffset();
 
 	public int gs_getVertexCount();
 

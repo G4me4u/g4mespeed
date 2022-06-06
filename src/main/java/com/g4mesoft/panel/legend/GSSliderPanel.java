@@ -6,7 +6,6 @@ import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.renderer.GSTexture;
 import com.g4mesoft.util.GSMathUtil;
 
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -21,7 +20,7 @@ public class GSSliderPanel extends GSAbstractTextActionPanel {
 	private float value;
 	
 	public GSSliderPanel(String text, GSIActionListener listener) {
-		this(new LiteralText(text), listener);
+		this(Text.literal(text), listener);
 	}
 
 	public GSSliderPanel(Text text, GSIActionListener listener) {

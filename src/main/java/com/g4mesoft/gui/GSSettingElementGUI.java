@@ -7,7 +7,6 @@ import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSParentPanel {
 
@@ -18,7 +17,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	
 	protected static final int RESET_BUTTON_WIDTH = 48;
 	protected static final int RESET_BUTTON_HEIGHT = 20;
-	protected static final Text RESET_TEXT = new TranslatableText("setting.button.reset");
+	protected static final Text RESET_TEXT = Text.translatable("setting.button.reset");
 
 	private static final int ENABLED_TEXT_COLOR = 0xFFFFFFFF;
 	private static final int DISABLED_TEXT_COLOR = 0xFFAAAAAA;
@@ -27,7 +26,8 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	protected final T setting;
 	protected final GSSettingCategory category;
 	
-	protected final TranslatableText nameText;
+	protected final String nameTextKey;
+	protected final Text nameText;
 	
 	private final GSButtonPanel resetButton;
 	
@@ -36,7 +36,8 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 		this.setting = setting;
 		this.category = category;
 		
-		nameText = new TranslatableText("setting." + category.getName() + "." + setting.getName());
+		nameTextKey = "setting." + category.getName() + "." + setting.getName();
+		nameText = Text.translatable(nameTextKey);
 		
 		resetButton = new GSButtonPanel(RESET_TEXT, this::resetSetting);
 		add(resetButton);
@@ -98,7 +99,7 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 		return RESET_BUTTON_HEIGHT + CONTENT_PADDING * 2;
 	}
 	
-	public TranslatableText getSettingNameText() {
-		return nameText;
+	public String getNameTextKey() {
+		return nameTextKey;
 	}
 }

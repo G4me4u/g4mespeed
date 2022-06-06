@@ -6,7 +6,7 @@ import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 
 public final class GSInfoCommand {
 
@@ -20,7 +20,7 @@ public final class GSInfoCommand {
 	}
 
 	private static int informCoreVersion(ServerCommandSource source) {
-		source.sendFeedback(new TranslatableText("command.gs.info", GSCoreExtension.VERSION), false);
+		source.sendFeedback(Text.translatable("command.gs.info", GSCoreExtension.VERSION), false);
 		
 		return Command.SINGLE_SUCCESS;
 	}

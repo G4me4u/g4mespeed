@@ -4,14 +4,13 @@ import java.util.List;
 
 import com.g4mesoft.panel.GSRectangle;
 
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
 public interface GSIRenderer2D extends GSIRenderer {
 
 	public static final String DEFAULT_ELLIPSIS = "...";
-	public static final Text DEFAULT_ELLIPSIS_TEXT = new LiteralText(DEFAULT_ELLIPSIS);
+	public static final Text DEFAULT_ELLIPSIS_TEXT = Text.literal(DEFAULT_ELLIPSIS);
 	
 	public int getMouseX();
 

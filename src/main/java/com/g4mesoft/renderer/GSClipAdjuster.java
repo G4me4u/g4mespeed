@@ -37,7 +37,7 @@ public class GSClipAdjuster {
 		VertexFormat format = ((GSIBufferBuilderAccess)builder).gs_getVertexFormat();
 		ByteBuffer buffer = ((GSIBufferBuilderAccess)builder).gs_getByteBuffer();
 		
-		int startIndex = ((GSIBufferBuilderAccess)builder).gs_getBuildStart() + vertexStart * format.getVertexSize();
+		int startIndex = ((GSIBufferBuilderAccess)builder).gs_getBatchOffset() + vertexStart * format.getVertexSizeByte();
 		
 		// Assume the quad is on the x-y plane where z = z0 for
 		// all the vertices. Also assume that the sides of the
@@ -48,8 +48,8 @@ public class GSClipAdjuster {
 		float minimumSum = clipXBuffer[0] + clipYBuffer[0];
 		int bli = 0;
 		
-		int index = startIndex + format.getVertexSize();
-		for (int i = 1; i < 4; i++, index += format.getVertexSize()) {
+		int index = startIndex + format.getVertexSizeByte();
+		for (int i = 1; i < 4; i++, index += format.getVertexSizeByte()) {
 			clipXBuffer[i] = buffer.getFloat(index + 0);
 			clipYBuffer[i] = buffer.getFloat(index + 4);
 		
@@ -100,10 +100,10 @@ public class GSClipAdjuster {
 			return;
 		}
 		
-		bli = (vertexStart + bli) * format.getVertexSize();
-		bri = (vertexStart + bri) * format.getVertexSize();
-		tri = (vertexStart + tri) * format.getVertexSize();
-		tli = (vertexStart + tli) * format.getVertexSize();
+		bli = (vertexStart + bli) * format.getVertexSizeByte();
+		bri = (vertexStart + bri) * format.getVertexSizeByte();
+		tri = (vertexStart + tri) * format.getVertexSizeByte();
+		tli = (vertexStart + tli) * format.getVertexSizeByte();
 		
 		float w = (x1 - x0);
 		float t0 = (clipRect.x0 - x0) / w;
@@ -125,19 +125,19 @@ public class GSClipAdjuster {
 	private void interpolateClipped(ByteBuffer buffer, VertexFormat format, int i0, int i1, float t0, float t1) {
 		for (VertexFormatElement vertexElement : format.getElements()) {
 			if (vertexElement.getType() != VertexFormatElement.Type.PADDING) {
-				VertexFormatElement.DataType dataType = vertexElement.getDataType();
-				for (int i = 0; i < ((GSIVertexFormatElementAccess)vertexElement).getLength(); i++) {
-					float v0 = getVertexElement(buffer, i0, dataType);
-					float v1 = getVertexElement(buffer, i1, dataType);
+				VertexFormatElement.ComponentType componentType = vertexElement.getComponentType();
+				for (int i = 0; i < ((GSIVertexFormatElementAccess)vertexElement).getComponentCount(); i++) {
+					float v0 = getVertexElement(buffer, i0, componentType);
+					float v1 = getVertexElement(buffer, i1, componentType);
 	
 					float dv = v1 - v0;
 					if (t0 > 0.0f)
-						setVertexElement(buffer, i0, dataType, v0 + dv * t0);
+						setVertexElement(buffer, i0, componentType, v0 + dv * t0);
 					if (t1 < 1.0f)
-						setVertexElement(buffer, i1, dataType, v0 + dv * t1);
+						setVertexElement(buffer, i1, componentType, v0 + dv * t1);
 				
-					i0 += dataType.getByteLength();
-					i1 += dataType.getByteLength();
+					i0 += componentType.getByteLength();
+					i1 += componentType.getByteLength();
 				}
 			} else {
 				i0 += vertexElement.getByteLength();
@@ -146,8 +146,8 @@ public class GSClipAdjuster {
 		}
 	}
 	
-	private float getVertexElement(ByteBuffer buffer, int index, VertexFormatElement.DataType dataType) {
-		switch (dataType) {
+	private float getVertexElement(ByteBuffer buffer, int index, VertexFormatElement.ComponentType componentType) {
+		switch (componentType) {
 		case FLOAT:
 			return buffer.getFloat(index);
 		case UINT:
@@ -164,8 +164,8 @@ public class GSClipAdjuster {
 		}
 	}
 
-	private void setVertexElement(ByteBuffer buffer, int index, VertexFormatElement.DataType dataType, float value) {
-		switch (dataType) {
+	private void setVertexElement(ByteBuffer buffer, int index, VertexFormatElement.ComponentType componentType, float value) {
+		switch (componentType) {
 		case FLOAT:
 			buffer.putFloat(index, value);
 			break;

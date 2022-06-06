@@ -10,9 +10,7 @@ import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public class GSInfoGUI extends GSParentPanel {
 
@@ -25,9 +23,9 @@ public class GSInfoGUI extends GSParentPanel {
 	
 	private static final int TEXT_SPACING = 5;
 	
-	private static final Text SERVER_EXTENSIONS_TITLE = new TranslatableText("gui.info.serverExtensionsTitle");
-	private static final Text CLIENT_EXTENSIONS_TITLE = new TranslatableText("gui.info.clientExtensionsTitle");
-	private static final Text INVALID_VERSION_TEXT    = new TranslatableText("gui.info.invalidVersion");
+	private static final Text SERVER_EXTENSIONS_TITLE = Text.translatable("gui.info.serverExtensionsTitle");
+	private static final Text CLIENT_EXTENSIONS_TITLE = Text.translatable("gui.info.clientExtensionsTitle");
+	private static final Text INVALID_VERSION_TEXT    = Text.translatable("gui.info.invalidVersion");
 	private static final String EXTENSION_NAME_TRANSLATION_KEY = "gui.info.extensionName";
 	
 	private final GSClientController client;
@@ -74,7 +72,7 @@ public class GSInfoGUI extends GSParentPanel {
 		GSVersion version = info.getVersion();
 
 		if (!version.isInvalid()) {
-			versionText = new LiteralText(version.toString());
+			versionText = Text.literal(version.toString());
 			
 			GSExtensionInfoList clientInfoList = G4mespeedMod.getExtensionInfoList();
 			GSExtensionInfo clientInfo = clientInfoList.getInfo(info.getUniqueId());
@@ -89,7 +87,7 @@ public class GSInfoGUI extends GSParentPanel {
 			versionColor = INVALID_VERSION_COLOR;
 		}
 		
-		Text prefix = new TranslatableText(EXTENSION_NAME_TRANSLATION_KEY, info.getName());
+		Text prefix = Text.translatable(EXTENSION_NAME_TRANSLATION_KEY, info.getName());
 
 		float pw = renderer.getTextWidth(prefix) + TEXT_SPACING;
 		float tw = pw + renderer.getTextWidth(versionText);

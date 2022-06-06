@@ -16,7 +16,6 @@ import com.g4mesoft.panel.scroll.GSIScrollable;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyBindingRegisterListener {
 
@@ -28,8 +27,8 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 
 	private static final int BUTTON_WIDTH = 96;
 	
-	private static final Text RESET_ALL_TEXT = new TranslatableText("gui.hotkey.resetAll");
-	private static final Text UNBIND_ALL_TEXT = new TranslatableText("gui.hotkey.unbindAll");
+	private static final Text RESET_ALL_TEXT = Text.translatable("gui.hotkey.resetAll");
+	private static final Text UNBIND_ALL_TEXT = Text.translatable("gui.hotkey.unbindAll");
 	
 	private final Map<String, GSHotkeyCategoryGUI> hotkeyCategories;
 	
@@ -148,7 +147,7 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 		private int w;
 		
 		public GSHotkeyCategoryGUI(String name) {
-			categoryNameText = new TranslatableText("hotkey." + name + ".title");
+			categoryNameText = Text.translatable("hotkey." + name + ".title");
 			
 			elements = new ArrayList<>();
 		}

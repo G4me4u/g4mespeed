@@ -44,7 +44,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
 import net.minecraft.world.GameMode;
 
@@ -320,11 +319,11 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 						
 						if (client.inGameHud != null) {
 							String formattedTps = TPS_FORMAT.format(tps);
-							Text overlay = new TranslatableText("play.info.clientTpsChanged", formattedTps);
+							Text overlay = Text.translatable("play.info.clientTpsChanged", formattedTps);
 							client.inGameHud.setOverlayMessage(overlay, false);
 						}
 					} else if (client.inGameHud != null) {
-						client.inGameHud.setOverlayMessage(new TranslatableText("play.info.hotkeysDisallowed"), false);
+						client.inGameHud.setOverlayMessage(Text.translatable("play.info.hotkeysDisallowed"), false);
 					}
 				}
 			}
@@ -342,7 +341,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 					manager.runOnServer((serverManager) -> {
 						Text name = player.getDisplayName();
 						String formattedTps = TPS_FORMAT.format(tps);
-						Text feedbackText = new TranslatableText("play.info.tpsChanged", name, formattedTps);
+						Text feedbackText = Text.translatable("play.info.tpsChanged", name, formattedTps);
 						
 						for (ServerPlayerEntity otherPlayer : serverManager.getAllPlayers()) {
 							if (isPlayerAllowedTpsChange(otherPlayer))
@@ -351,7 +350,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 					});
 				}
 			} else {
-				sendHotkeyFeedback(player, new TranslatableText("play.info.hotkeysDisallowed"));
+				sendHotkeyFeedback(player, Text.translatable("play.info.hotkeysDisallowed"));
 			}
 		}
 	}

@@ -26,7 +26,7 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // ModMenu integration
-	//modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 
 	// Test mod compatibility in dev environment.
 	//modImplementation ":sodium-fabric:mc1.16.1:0.1.0"

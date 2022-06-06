@@ -5,10 +5,8 @@ import java.util.Locale;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 public class GSIntegerSettingElementGUI extends GSNumberSettingElementGUI<GSIntegerSetting> {
@@ -52,15 +50,14 @@ public class GSIntegerSettingElementGUI extends GSNumberSettingElementGUI<GSInte
 	
 	private MutableText getFormattedValue(int value) {
 		String valueText = String.format(Locale.ENGLISH, "%d", value);
-		String nameTranslationKey = nameText.getKey();
 		
 		String key;
-		if (hasI18nTranslation(key = nameTranslationKey + "." + valueText))
-			return new TranslatableText(key, valueText);
-		if (hasI18nTranslation(key = nameTranslationKey + ".x"))
-			return new TranslatableText(key, valueText);
+		if (hasI18nTranslation(key = nameTextKey + "." + valueText))
+			return Text.translatable(key, valueText);
+		if (hasI18nTranslation(key = nameTextKey + ".x"))
+			return Text.translatable(key, valueText);
 		
-		return new LiteralText(valueText);
+		return Text.literal(valueText);
 	}
 	
 	@Override

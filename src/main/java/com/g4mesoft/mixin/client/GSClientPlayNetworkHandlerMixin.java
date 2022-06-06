@@ -29,6 +29,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.TrackedPosition;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.ClientConnection;
@@ -44,6 +45,7 @@ import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 /* Use priority -1001 to ensure we have priority over MultiConnect */
 @Mixin(value = ClientPlayNetworkHandler.class, priority = -1001)
@@ -89,7 +91,9 @@ public class GSClientPlayNetworkHandlerMixin {
 				if (!entity.isLogicalSideForUpdatingMovement()) {
 					if (packet.isPositionChanged()) {
 						// See comment above.
-						entity.updateTrackedPosition(packet.calculateDeltaPosition(entity.getTrackedPosition()));
+		                TrackedPosition trackedPosition = entity.getTrackedPosition();
+		                Vec3d pos = trackedPosition.withDelta(packet.getDeltaX(), packet.getDeltaY(), packet.getDeltaZ());
+		                trackedPosition.setPos(pos);
 					}
 					
 					if (packet.hasRotation()) {

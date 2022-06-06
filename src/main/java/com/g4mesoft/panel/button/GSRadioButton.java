@@ -17,7 +17,6 @@ import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 public class GSRadioButton extends GSPanel implements GSIMouseListener, GSIKeyListener {
@@ -173,7 +172,7 @@ public class GSRadioButton extends GSPanel implements GSIMouseListener, GSIKeyLi
 	}
 
 	public void setText(String text) {
-		setText(new LiteralText(text));
+		setText(Text.literal(text));
 	}
 	
 	public void setText(Text text) {

@@ -17,11 +17,11 @@ import com.g4mesoft.module.translation.GSTranslationModule;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.text.StringVisitable;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.text.TranslationException;
 import net.minecraft.util.Language;
 
-@Mixin(TranslatableText.class)
+@Mixin(TranslatableTextContent.class)
 public abstract class GSTranslatableTextMixin {
 
 	@Shadow @Final private String key;

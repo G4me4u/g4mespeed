@@ -8,14 +8,13 @@ import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends GSSettingElementGUI<T> {
 
 	private static final int SETTING_HEIGHT = 16;
 	private static final int TEXT_FIELD_HEIGHT = 20;
 	private static final int TEXT_FIELD_MAX_WIDTH = 196;
-	private static final Text SET_VALUE_TEXT = new TranslatableText("setting.button.set");
+	private static final Text SET_VALUE_TEXT = Text.translatable("setting.button.set");
 	
 	private static final int TEXT_MAX_WIDTH = 96;
 	

@@ -34,6 +34,8 @@ import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -55,16 +57,16 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	private GSBasicRenderer3D gs_renderer3d;
 
 	@Inject(method = "<init>", at = @At("RETURN"))
-	private void onInit(MinecraftClient client, BufferBuilderStorage builderStorage, CallbackInfo ci) {
+	private void onInit(MinecraftClient client, EntityRenderDispatcher entityRenderDispatcher, BlockEntityRenderDispatcher blockEntityRenderDispatcher, BufferBuilderStorage bufferBuilders, CallbackInfo ci) {
 		gs_controller = GSClientController.getInstance();
 		gs_tpsModule = gs_controller.getTpsModule();
 		gs_renderer3d = new GSBasicRenderer3D();
 	}
 	
 	@Inject(method = "render", slice = @Slice(
-			from = @At(value = "INVOKE", ordinal = 0, shift = Shift.BEFORE, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V"),
-			to = @At(value = "INVOKE", ordinal = 1, shift = Shift.AFTER, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V")), 
-			at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/gl/ShaderEffect;render(F)V"))
+	        from = @At(value = "INVOKE", ordinal = 0, shift = Shift.BEFORE, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V"),
+	        to = @At(value = "INVOKE", ordinal = 1, shift = Shift.AFTER, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V")), 
+	        at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/gl/ShaderEffect;render(F)V"))
 	private void onRenderTransparentLastFabulous(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
 		if (MinecraftClient.isFabulousGraphicsOrBetter())
 			client.worldRenderer.getTranslucentFramebuffer().beginWrite(false);
@@ -132,7 +134,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	}
 	
 	@ModifyArg(method = "render", index = 4, at = @At(value = "INVOKE", 
-			target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
+	           target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
 	private float onRenderEntityModifyDeltaTick(Entity entity, double cameraX, double cameraY, double cameraZ, float deltaTick, MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
 		if (!client.isPaused() && (entity instanceof AbstractClientPlayerEntity)) {
 			if (gs_tpsModule.isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
@@ -143,7 +145,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	}
 	
 	@Redirect(method = "render", allow = 1, require = 1, expect = 1,
-			at = @At(value = "FIELD", target="Lnet/minecraft/entity/Entity;age:I", opcode = Opcodes.GETFIELD))
+	          at = @At(value = "FIELD", target="Lnet/minecraft/entity/Entity;age:I", opcode = Opcodes.GETFIELD))
 	private int onRenderGetEntityAge(Entity entity) {
 		if (gs_tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
 			// We do not want the render positions to be modified when
