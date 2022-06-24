@@ -52,14 +52,12 @@ public abstract class GSClientWorldMixin implements GSIClientWorldAccess {
 	
 	@Override
 	public void gs_tickFixedMovementPlayers() {
-		if (!gs_tpsModule.isDefaultTps() || gs_tpsModule.isFixedMovementOnDefaultTps()) {
-			entityList.forEach((entity) -> {
-				if (entity instanceof AbstractClientPlayerEntity) {
-					AbstractClientPlayerEntity player = (AbstractClientPlayerEntity)entity;
-					if (!player.hasVehicle() && !player.isRemoved() && gs_tpsModule.isPlayerFixedMovement(player))
-						((World)(Object)this).tickEntity(this::tickEntity, player);
-				}
-			});
-		}
+		entityList.forEach((entity) -> {
+			if (entity instanceof AbstractClientPlayerEntity) {
+				AbstractClientPlayerEntity player = (AbstractClientPlayerEntity)entity;
+				if (!player.hasVehicle() && !player.isRemoved() && gs_tpsModule.isPlayerFixedMovement(player))
+					((World)(Object)this).tickEntity(this::tickEntity, player);
+			}
+		});
 	}
 }

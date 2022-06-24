@@ -16,10 +16,12 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.client.GSIClientWorldAccess;
 import com.g4mesoft.access.client.GSIMinecraftClientAccess;
 import com.g4mesoft.access.client.GSIPistonBlockEntityAccess;
 import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.compat.GSTweakerooCompat;
 import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSBasicTickTimer;
 import com.g4mesoft.module.tps.GSITickTimer;
@@ -70,6 +72,11 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Unique
 	private final Set<BlockPos> gs_scheduledPistonBlockEntityUpdates = new LinkedHashSet<>();
 	
+	@Unique
+	private GSTweakerooCompat gs_tweakerooCompat;
+	@Unique
+	private boolean gs_tweakerooWasCameraEntityEnabled = false;
+	
 	@Shadow protected abstract boolean isPaused();
 	
 	@Shadow protected abstract void handleInputEvents();
@@ -80,6 +87,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		gs_controller = GSClientController.getInstance();
 		gs_controller.init((MinecraftClient)(Object)this);
 		gs_tpsModule = gs_controller.getTpsModule();
+		gs_tweakerooCompat = G4mespeedMod.getInstance().getTweakerooCompat();
 	}
 	
 	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
@@ -153,6 +161,28 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 			gameRenderer.tick();
 	}
 	
+	@Inject(method = "tick", at = @At(value = "RETURN", shift = Shift.BEFORE))
+	private void onTickBeforeReturn(CallbackInfo ci) {
+		if (gs_tpsModule.cTweakerooFreecamHack.getValue()) {
+			// The malilib tick handler is invoked at return. Disable tweakeroo camera here.
+			if (gs_tweakerooCompat.isTweakerooDetected() && gs_tpsModule.isMainPlayerFixedMovement()) {
+				gs_tweakerooWasCameraEntityEnabled = gs_tweakerooCompat.isCameraEntityEnabled();
+				if (gs_tweakerooWasCameraEntityEnabled)
+					gs_tweakerooCompat.disableCameraEntity();
+			}
+		}
+	}
+
+	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.AFTER,
+			target = "Lnet/minecraft/client/MinecraftClient;tick()V"))
+	private void onRenderAfterTick(CallbackInfo ci) {
+		// Re-enable tweakeroo camera after malilib tick handler (aka. after tick returns).
+		if (gs_tweakerooWasCameraEntityEnabled) {
+			gs_tweakerooCompat.enableCameraEntityTicking();
+			gs_tweakerooWasCameraEntityEnabled = false;
+		}
+	}
+	
 	@Inject(method = "render", slice = @Slice(from = @At(value = "CONSTANT", args = "stringValue=tick")), 
 			at = @At(value = "INVOKE", ordinal = 0, shift = Shift.AFTER, target = "Lnet/minecraft/util/profiler/Profiler;push(Ljava/lang/String;)V"))
 	private void onRenderBeforeTickLoop(CallbackInfo ci) {
@@ -164,12 +194,17 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 
 		gs_playerTimer.update0(Util.getMeasuringTimeMs());
 
-		int tickCount = Math.min(gs_playerTimer.getTickCount0(), 10);
-		for (int i = 0; i < tickCount; i++) {
-			if (gs_tpsModule.isMainPlayerFixedMovement())
-				onTickCorrection();
-			if (!paused && world != null)
-				((GSIClientWorldAccess)world).gs_tickFixedMovementPlayers();
+		if (!gs_tpsModule.isDefaultTps() || gs_tpsModule.isFixedMovementOnDefaultTps()) {
+			int tickCount = Math.min(gs_playerTimer.getTickCount0(), 10);
+			for (int i = 0; i < tickCount; i++) {
+				if (gs_tpsModule.isMainPlayerFixedMovement()) {
+					onTickCorrection();
+					if (gs_tpsModule.cTweakerooFreecamHack.getValue() && gs_tweakerooCompat.isTweakerooDetected())
+						gs_tweakerooCompat.tickCameraEntityMovement();
+				}
+				if (!paused && world != null)
+					((GSIClientWorldAccess)world).gs_tickFixedMovementPlayers();
+			}
 		}
 	}
 	

@@ -10,7 +10,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.util.GSMathUtil;
 
-public final class GSCarpetCompat {
+public final class GSCarpetCompat extends GSAbstractCompat {
 
 	private static final String TICKSPEED_CLASSPATH = "carpet.helpers.TickSpeed";
 	private static final String ADD_TICKRATE_LISTENER_METHOD_NAME = "addTickrateListener";
@@ -20,93 +20,78 @@ public final class GSCarpetCompat {
 	private static final String G4MESPEED_INTERFACE_NAME = "g4mespeed";
 	
 	private boolean carpetDetected;
-	private Method carpetAddTickrateListener;
 	
 	private BiConsumer<String, Float> carpetTickrateListener;
 	
-	private Field msptField;
-	private float lastBroadcastCarpetTickrate;
 	private boolean outdatedCompatMode;
-	
+	private Field msptField;
+
+	private float lastBroadcastCarpetTickrate;
 	private final List<GSICarpetCompatTickrateListener> tickrateListeners;
 	
 	public GSCarpetCompat() {
+		carpetDetected = false;
+		
+		carpetTickrateListener = null;
+		
+		outdatedCompatMode = false;
+		msptField = null;
+		
+		lastBroadcastCarpetTickrate = GSTpsModule.DEFAULT_TPS;
 		tickrateListeners = new ArrayList<>();
 	}
 	
-	private void reset() {
-		carpetDetected = false;
-		carpetAddTickrateListener = null;
-		carpetTickrateListener = null;
-		
-		msptField = null;
-		lastBroadcastCarpetTickrate = GSTpsModule.DEFAULT_TPS;
-		outdatedCompatMode = false;
-	}
-	
-	public void detectCarpet() {
-		// Reset compatibility fields.
-		reset();
-		
-		Class<?> tickspeedClazz = null;
-		try {
-			tickspeedClazz = Class.forName(TICKSPEED_CLASSPATH);
-		} catch (Exception e) {
-			// Carpet is not installed...
+	@Override
+	public void detect() {
+		Class<?> tickspeedClazz = findClassByName(TICKSPEED_CLASSPATH);
+		if (tickspeedClazz == null) {
+			// Tickspeed class either moved, or carpet is not installed.
+			// Assume the latter and return silently.
+			return;
 		}
+	
+		carpetDetected = true;
 		
-		if (tickspeedClazz != null) {
-			carpetDetected = true;
-			
-			G4mespeedMod.GS_LOGGER.info("Carpet mod detected!");
-			
-			try {
-				carpetAddTickrateListener = tickspeedClazz.getDeclaredMethod(ADD_TICKRATE_LISTENER_METHOD_NAME, String.class, BiConsumer.class);
-			} catch (Exception e) {
-				// Carpet version is not up to date..!
-			}
-
-			if (carpetAddTickrateListener != null)
-				carpetTickrateListener = establishTickrateLink(this::carpetTickrateChanged);
+		G4mespeedMod.GS_LOGGER.info("Carpet mod detected!");
 		
-			if (carpetTickrateListener == null) {
-				G4mespeedMod.GS_LOGGER.info("Carpet might not be up to date! Attempting to link using outdated compatibility.");
-				
-				Method tickrateMethod = null;
-				try {
-					tickrateMethod = tickspeedClazz.getDeclaredMethod(TICKRATE_METHOD_NAME, Float.TYPE);
-					msptField = tickspeedClazz.getField(MSPT_FIELD_NAME);
-				} catch (Exception e) {
-					// This should really never happen, but if it does we should
-					// make sure to print the stack trace for debugging.
-					e.printStackTrace();
-					
-					G4mespeedMod.GS_LOGGER.info("Unable to establish link to carpet mod.");
-				}
-				
-				if (tickrateMethod != null && msptField != null) {
-					outdatedCompatMode = true;
-					carpetTickrateListener = new GSOutdatedCarpetTickrateListener(tickrateMethod);
-				}
+		Method carpetAddTickrateListener = findDeclaredMethod(tickspeedClazz, ADD_TICKRATE_LISTENER_METHOD_NAME, String.class, BiConsumer.class);
+		if (carpetAddTickrateListener != null) {
+			BiConsumer<String, Float> listener = this::carpetTickrateChanged;
+			carpetTickrateListener = getStatic(carpetAddTickrateListener, G4MESPEED_INTERFACE_NAME, listener);
+		}
+	
+		// In case invoking the above method failed for some reason...
+		if (carpetTickrateListener == null) {
+			G4mespeedMod.GS_LOGGER.info("Carpet might not be up to date! Attempting to link using outdated compatibility.");
+			
+			Method tickrateMethod = findDeclaredMethod(tickspeedClazz, TICKRATE_METHOD_NAME, Float.TYPE);
+			msptField = findField(tickspeedClazz, MSPT_FIELD_NAME);
+			
+			if (tickrateMethod == null || msptField == null) {
+				// This should never happen, but just to make sure print debug message.
+				G4mespeedMod.GS_LOGGER.info("Unable to establish link to carpet mod.");
+			} else {
+				outdatedCompatMode = true;
+				carpetTickrateListener = new GSOutdatedCarpetTickrateListener(tickrateMethod);
 			}
 		}
 	}
 
 	public void addCarpetTickrateListener(GSICarpetCompatTickrateListener tickrateListener) {
-		synchronized(tickrateListeners) {
+		synchronized (tickrateListeners) {
 			tickrateListeners.add(tickrateListener);
 		}
 	}
 
 	public void removeCarpetTickrateListener(GSICarpetCompatTickrateListener tickrateListener) {
-		synchronized(tickrateListeners) {
+		synchronized (tickrateListeners) {
 			tickrateListeners.remove(tickrateListener);
 		}
 	}
 	
 	private void carpetTickrateChanged(String modId, float tickrate) {
 		if (!G4MESPEED_INTERFACE_NAME.equals(modId)) {
-			synchronized(tickrateListeners) {
+			synchronized (tickrateListeners) {
 				lastBroadcastCarpetTickrate = tickrate;
 				
 				for (GSICarpetCompatTickrateListener tickrateListener : tickrateListeners)
@@ -115,20 +100,8 @@ public final class GSCarpetCompat {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
-	private BiConsumer<String, Float> establishTickrateLink(BiConsumer<String, Float> tickrateListener) {
-		if (carpetDetected && carpetAddTickrateListener != null) {
-			try {
-				return (BiConsumer<String, Float>)carpetAddTickrateListener.invoke(null, G4MESPEED_INTERFACE_NAME, tickrateListener);
-			} catch (Exception e) {
-				// Handle silently
-			}
-		}
-		return null;
-	}
-
 	public float getCarpetTickrate() {
-		if (isOutdatedCompatMode() && msptField != null) {
+		if (outdatedCompatMode && msptField != null) {
 			float tickrate = GSTpsModule.DEFAULT_TPS;
 			
 			try {
@@ -167,7 +140,7 @@ public final class GSCarpetCompat {
 		return outdatedCompatMode;
 	}
 	
-	private static class GSOutdatedCarpetTickrateListener implements BiConsumer<String, Float> {
+	private class GSOutdatedCarpetTickrateListener implements BiConsumer<String, Float> {
 
 		private final Method tickrateMethod;
 		
@@ -177,10 +150,7 @@ public final class GSCarpetCompat {
 
 		@Override
 		public void accept(String modId, Float tickrate) {
-			try {
-				tickrateMethod.invoke(null, tickrate);
-			} catch (Exception e) {
-			}
+			invokeStatic(tickrateMethod, tickrate);
 		}
 	}
 }
