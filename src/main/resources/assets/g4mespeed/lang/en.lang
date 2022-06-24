@@ -71,6 +71,9 @@ setting.tps.tpsLabel.3=Top right
 setting.tps.normalMovement=Fixed Movement Speed
 setting.tps.normalMovement.desc=Allows the player to move at a fixed 20 ticks per second without affecting server tick rate.
 
+setting.tps.tweakerooFreecamHack=Tweakeroo Free Camera Hack
+setting.tps.tweakerooFreecamHack.desc=A simple hack that also enables fixed movement speed for the Tweakeroo Free Camera. Disable this feature if you experience any issues with it.
+
 setting.betterPistons.cullMovingBlocks=Cull Moving Blocks
 setting.betterPistons.cullMovingBlocks.desc=Culls the back-face of blocks that are pushed by pistons. This will mostly affect transparent moving blocks.
 
