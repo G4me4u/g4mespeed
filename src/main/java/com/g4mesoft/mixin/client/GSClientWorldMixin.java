@@ -1,5 +1,7 @@
 package com.g4mesoft.mixin.client;
 
+import java.util.List;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -8,20 +10,28 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.g4mesoft.access.client.GSIClientWorldAccess;
 import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.world.World;
 
 @Mixin(ClientWorld.class)
-public class GSClientWorldMixin {
+public abstract class GSClientWorldMixin implements GSIClientWorldAccess {
 
 	@Shadow @Final private MinecraftClient client;
+	@Shadow @Final private List<AbstractClientPlayerEntity> players;
 	
 	@Unique
 	private boolean gs_tickingEntities;
+	@Unique
+	private GSTpsModule gs_tpsModule = GSClientController.getInstance().getTpsModule();
+	
+	@Shadow public abstract void tickEntity(Entity entity);
 	
 	@Inject(method = "tickEntities", at = @At("HEAD"))
 	private void onTickEntitiesHead(CallbackInfo ci) {
@@ -36,8 +46,16 @@ public class GSClientWorldMixin {
 	@Inject(method = "tickEntity", cancellable = true, at = @At("HEAD"))
 	private void onTickEntity(Entity entity, CallbackInfo ci) {
 		if (gs_tickingEntities && (entity instanceof AbstractClientPlayerEntity)) {
-			if (GSClientController.getInstance().getTpsModule().isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
+			if (gs_tpsModule.isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
 				ci.cancel();
+		}
+	}
+	
+	@Override
+	public void gs_tickFixedMovementPlayers() {
+		for (AbstractClientPlayerEntity player : players) {
+			if (!player.hasVehicle() && !player.removed && gs_tpsModule.isPlayerFixedMovement(player))
+				((World)(Object)this).tickEntity(this::tickEntity, player);
 		}
 	}
 }

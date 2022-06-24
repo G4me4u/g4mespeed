@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.g4mesoft.access.client.GSIClientWorldAccess;
 import com.g4mesoft.access.client.GSIMinecraftClientAccess;
 import com.g4mesoft.access.client.GSIPistonBlockEntityAccess;
 import com.g4mesoft.core.client.GSClientController;
@@ -30,7 +31,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.render.GameRenderer;
@@ -164,12 +164,14 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 
 		gs_playerTimer.update(Util.getMeasuringTimeMs());
 
-		int tickCount = Math.min(gs_playerTimer.getTickCount(), 10);
-		for (int i = 0; i < tickCount; i++) {
-			if (gs_tpsModule.isMainPlayerFixedMovement())
-				onTickCorrection();
-			if (!paused && world != null)
-				tickFixedMovementPlayers();
+		if (!gs_tpsModule.isDefaultTps() || gs_tpsModule.isFixedMovementOnDefaultTps()) {
+			int tickCount = Math.min(gs_playerTimer.getTickCount(), 10);
+			for (int i = 0; i < tickCount; i++) {
+				if (gs_tpsModule.isMainPlayerFixedMovement())
+					onTickCorrection();
+				if (!paused && world != null)
+					((GSIClientWorldAccess)world).gs_tickFixedMovementPlayers();
+			}
 		}
 	}
 	
@@ -207,16 +209,6 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		
 		if (!paused && world != null)
 			gameRenderer.tick();
-	}
-	
-	@Unique
-	private void tickFixedMovementPlayers() {
-		if (!gs_tpsModule.isDefaultTps() || gs_tpsModule.isFixedMovementOnDefaultTps()) {
-			for (AbstractClientPlayerEntity entity : world.getPlayers()) {
-				if (!entity.hasVehicle() && !entity.removed && gs_tpsModule.isPlayerFixedMovement(entity))
-					world.tickEntity(world::tickEntity, entity);
-			}
-		}
 	}
 	
 	@ModifyArg(method = "render", index = 0, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;render(FJZ)V"))
