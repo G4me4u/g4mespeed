@@ -68,6 +68,10 @@ public class GSTweakerooCompat extends GSAbstractCompat {
 		return tweakerooDetected;
 	}
 
+	public boolean isCameraEntityRetreived() {
+		return tweakerooDetected && cameraField != null && movementTickMethod != null;
+	}
+
 	public boolean isCameraEntityInstance(Entity entity) {
 		if (cameraEntityClazz != null)
 			return cameraEntityClazz.isInstance(entity);

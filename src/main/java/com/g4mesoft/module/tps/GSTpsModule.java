@@ -206,7 +206,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
 			settings.registerSetting(TPS_CATEGORY, cForceCarpetTickrate);
 		settings.registerSetting(TPS_CATEGORY, cNormalMovement);
-		if (G4mespeedMod.getInstance().getTweakerooCompat().isTweakerooDetected()) {
+		if (G4mespeedMod.getInstance().getTweakerooCompat().isCameraEntityRetreived()) {
 			settings.registerSetting(TPS_CATEGORY, cTweakerooFreecamHack);
 			cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.getValue());
 		}
@@ -533,7 +533,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
 		if (setting == cNormalMovement) {
 			sendFixedMovementPacket();
-			if (G4mespeedMod.getInstance().getTweakerooCompat().isTweakerooDetected())
+			if (G4mespeedMod.getInstance().getTweakerooCompat().isCameraEntityRetreived())
 				cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.getValue());
 		}
 	}
