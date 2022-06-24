@@ -4,9 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.core.client.GSClientController;
 
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 
 public class GSTweakerooCompat extends GSAbstractCompat {
