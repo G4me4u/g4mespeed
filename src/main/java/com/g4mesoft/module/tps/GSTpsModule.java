@@ -115,6 +115,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSIntegerSetting sTpsHotkeyMode;
 	public final GSIntegerSetting sTpsHotkeyFeedback;
 	public final GSBooleanSetting cNormalMovement;
+	public final GSBooleanSetting cTweakerooFreecamHack;
 	public final GSIntegerSetting cTpsLabel;
 	public final GSBooleanSetting sBroadcastTps;
 	public final GSBooleanSetting sRestoreTickrate;
@@ -144,6 +145,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		sTpsHotkeyMode = new GSIntegerSetting("hotkeyMode", HOTKEY_MODE_CREATIVE, 0, 2);
 		sTpsHotkeyFeedback = new GSIntegerSetting("hotkeyFeedback", HOTKEY_FEEDBACK_STATUS, 0, 2);
 		cNormalMovement = new GSBooleanSetting("normalMovement", true);
+		cTweakerooFreecamHack = new GSBooleanSetting("tweakerooFreecamHack", true);
 		cTpsLabel = new GSIntegerSetting("tpsLabel", TPS_LABEL_DISABLED, 0, 3);
 		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
 		sRestoreTickrate = new GSBooleanSetting("restoreTickrate", false);
@@ -203,6 +205,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
 			settings.registerSetting(TPS_CATEGORY, cForceCarpetTickrate);
 		settings.registerSetting(TPS_CATEGORY, cNormalMovement);
+		if (G4mespeedMod.getInstance().getTweakerooCompat().isCameraEntityRetreived()) {
+			settings.registerSetting(TPS_CATEGORY, cTweakerooFreecamHack);
+			cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.getValue());
+		}
 		settings.registerSetting(TPS_CATEGORY, cTpsLabel);
 
 		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonAnimationType);
@@ -524,8 +530,11 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	@Override
 	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
-		if (setting == cNormalMovement)
+		if (setting == cNormalMovement) {
 			sendFixedMovementPacket();
+			if (G4mespeedMod.getInstance().getTweakerooCompat().isCameraEntityRetreived())
+				cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.getValue());
+		}
 	}
 	
 	private void sendFixedMovementPacket() {

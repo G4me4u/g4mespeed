@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.compat.GSCarpetCompat;
+import com.g4mesoft.core.compat.GSTweakerooCompat;
 import com.g4mesoft.packet.GSPacketManager;
 
 import net.fabricmc.api.ModInitializer;
@@ -29,6 +30,7 @@ public class G4mespeedMod implements ModInitializer {
 	
 	private GSPacketManager packetManager;
 	private GSCarpetCompat carpetCompat;
+	private GSTweakerooCompat tweakerooCompat;
 	
 	private static final List<GSIExtension> extensions = new ArrayList<>();
 	private static final Set<GSExtensionUID> extensionIds = new HashSet<>();
@@ -47,7 +49,9 @@ public class G4mespeedMod implements ModInitializer {
 		packetManager = new GSPacketManager();
 		
 		carpetCompat = new GSCarpetCompat();
-		carpetCompat.detectCarpet();
+		carpetCompat.detect();
+		tweakerooCompat = new GSTweakerooCompat();
+		tweakerooCompat.detect();
 		
 		// Detect g4mespeed extensions from installed mods
 		FabricLoader.getInstance().getEntrypointContainers("g4mespeed", GSIExtension.class).forEach(container -> {
@@ -73,7 +77,7 @@ public class G4mespeedMod implements ModInitializer {
 		GS_LOGGER.info("G4mespeed {} initialized!", GSCoreExtension.VERSION);
 	}
 	
-	public static void addExtension(GSIExtension extension) {
+	private static void addExtension(GSIExtension extension) {
 		if (extension == null)
 			throw new IllegalArgumentException("extension is null");
 		
@@ -136,6 +140,10 @@ public class G4mespeedMod implements ModInitializer {
 
 	public GSCarpetCompat getCarpetCompat() {
 		return carpetCompat;
+	}
+
+	public GSTweakerooCompat getTweakerooCompat() {
+		return tweakerooCompat;
 	}
 
 	public static G4mespeedMod getInstance() {
