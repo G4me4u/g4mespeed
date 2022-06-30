@@ -23,7 +23,7 @@ import net.minecraft.world.World;
 public abstract class GSClientWorldMixin implements GSIClientWorldAccess {
 
 	@Shadow @Final private MinecraftClient client;
-	@Final EntityList entityList;
+	@Shadow @Final EntityList entityList;
 
 	@Unique
 	private boolean gs_tickingEntities;
