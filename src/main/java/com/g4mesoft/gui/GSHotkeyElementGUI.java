@@ -117,7 +117,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 		Text keyName = keyBinding.getLocalizedName();
 		
 		if (modifyingKeyCode) {
-			keyName = keyName.copyContentOnly().formatted(Formatting.YELLOW);
+			keyName = keyName.copy().formatted(Formatting.YELLOW);
 			modifyButton.setText(Text.literal("> ").append(keyName).append(" <"));
 		} else {
 			modifyButton.setText(keyName);
