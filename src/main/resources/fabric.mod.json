@@ -43,6 +43,12 @@
       "links": {
         "g4mespeed.modmenu.discord": "https://discord.gg/5yCsMbC"
       }
+    },
+    "multiconnect": {
+      "custom_payloads": {
+        "allowed_clientbound": "minecraft:mod/g4mespeed",
+        "allowed_serverbound": "minecraft:mod/g4mespeed"
+      }
     }
   }
 }
