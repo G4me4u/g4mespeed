@@ -2,6 +2,7 @@ package com.g4mesoft.mixin.client;
 
 import java.util.Collection;
 
+import org.joml.Matrix4f;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,7 +41,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Matrix4f;
 
 @Mixin(WorldRenderer.class)
 public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
@@ -66,7 +66,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	@Inject(method = "render", slice = @Slice(
 	        from = @At(value = "INVOKE", ordinal = 0, shift = Shift.BEFORE, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V"),
 	        to = @At(value = "INVOKE", ordinal = 1, shift = Shift.AFTER, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V")), 
-	        at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/gl/ShaderEffect;render(F)V"))
+	        at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/gl/PostEffectProcessor;render(F)V"))
 	private void onRenderTransparentLastFabulous(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
 		if (MinecraftClient.isFabulousGraphicsOrBetter())
 			client.worldRenderer.getTranslucentFramebuffer().beginWrite(false);

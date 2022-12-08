@@ -19,6 +19,7 @@ import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -121,7 +122,7 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 		
 		iconSpacing = DEFAULT_ICON_SPACING;
 		
-		clickSound = SoundEvents.UI_BUTTON_CLICK;
+		setClickSound(SoundEvents.UI_BUTTON_CLICK);
 		
 		addMouseEventListener(this);
 		addKeyEventListener(this);
@@ -395,6 +396,10 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	
 	public SoundEvent getClickSound() {
 		return clickSound;
+	}
+
+	public void setClickSound(RegistryEntry<SoundEvent> clickSound) {
+		setClickSound(clickSound.value());
 	}
 
 	public void setClickSound(SoundEvent clickSound) {

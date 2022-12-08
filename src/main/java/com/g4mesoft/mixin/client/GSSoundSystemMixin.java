@@ -17,12 +17,13 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.setting.GSISettingChangeListener;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
+
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.sound.Channel;
 import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.sound.SoundSystem;
-import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourceFactory;
 import net.minecraft.util.math.MathHelper;
 
 @Mixin(SoundSystem.class)
@@ -36,7 +37,7 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 	private GSTpsModule gs_tpsModule;
 	
 	@Inject(method = "<init>", at = @At("RETURN"))
-	private void onInit(SoundManager soundManager, GameOptions options, ResourceManager resourceManager, CallbackInfo ci) {
+	private void onInit(SoundManager loader, GameOptions settings, ResourceFactory resourceFactory, CallbackInfo ci) {
 		GSClientController client = GSClientController.getInstance();
 		gs_tpsModule = client.getTpsModule();
 		

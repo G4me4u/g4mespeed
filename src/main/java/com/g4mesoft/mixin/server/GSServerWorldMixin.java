@@ -21,11 +21,11 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.Packet;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.profiler.Profiler;
-import net.minecraft.util.registry.RegistryEntry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.EntityList;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
@@ -34,13 +34,13 @@ import net.minecraft.world.dimension.DimensionType;
 @Mixin(ServerWorld.class)
 public abstract class GSServerWorldMixin extends World {
 
+	@Shadow @Final EntityList entityList;
+
 	protected GSServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef,
 			RegistryEntry<DimensionType> dimension, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld,
 			long seed, int maxChainedNeighborUpdates) {
 		super(properties, registryRef, dimension, profiler, isClient, debugWorld, seed, maxChainedNeighborUpdates);
 	}
-
-	@Shadow @Final EntityList entityList;
 
 	@Inject(method = "tick", at = @At("RETURN"))
 	private void onTickReturn(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
@@ -66,7 +66,7 @@ public abstract class GSServerWorldMixin extends World {
 	}
 	
 	@ModifyArg(method = "processSyncedBlockEvents", allow = 1, index = 4, at = @At(value = "INVOKE", 
-			target = "Lnet/minecraft/server/PlayerManager;sendToAround(Lnet/minecraft/entity/player/PlayerEntity;DDDDLnet/minecraft/util/registry/RegistryKey;Lnet/minecraft/network/Packet;)V"))
+			target = "Lnet/minecraft/server/PlayerManager;sendToAround(Lnet/minecraft/entity/player/PlayerEntity;DDDDLnet/minecraft/registry/RegistryKey;Lnet/minecraft/network/Packet;)V"))
 	private double blockEventDistance(PlayerEntity player, double x, double y, double z, double dist, RegistryKey<World> dimensionKey, Packet<?> packet) {
 		Block block = ((GSIBlockEventS2CPacketAccess)packet).getBlock2();
 		

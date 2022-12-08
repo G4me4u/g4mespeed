@@ -513,15 +513,15 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 			throw new IllegalStateException("Already building!");
 		
 		if (format == VertexFormats.POSITION) {
-			RenderSystem.setShader(GameRenderer::getPositionShader);
+			RenderSystem.setShader(GameRenderer::getPositionProgram);
 		} else if (format == VertexFormats.POSITION_COLOR) {
-			RenderSystem.setShader(GameRenderer::getPositionColorShader);
+			RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 		} else if (format == VertexFormats.POSITION_COLOR_TEXTURE) {
-			RenderSystem.setShader(GameRenderer::getPositionColorTexShader);
+			RenderSystem.setShader(GameRenderer::getPositionColorTexProgram);
 		} else if (format == VertexFormats.POSITION_TEXTURE) {
-			RenderSystem.setShader(GameRenderer::getPositionTexShader);
+			RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 		} else if (format == VertexFormats.POSITION_TEXTURE_COLOR) {
-			RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+			RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
 		} else {
 			throw new IllegalArgumentException("Unsupported vertex format!");
 		}

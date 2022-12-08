@@ -31,7 +31,6 @@ final class GSScreen extends Screen {
 	protected void init() {
 		super.init();
 	
-		client.keyboard.setRepeatEvents(true);
 		rootPanel.setBounds(0, 0, width, height);
 		
 		setVisibleImpl(true);
@@ -41,8 +40,6 @@ final class GSScreen extends Screen {
 	@GSCoreOverride
 	public void removed() {
 		super.removed();
-
-		client.keyboard.setRepeatEvents(false);
 
 		setVisibleImpl(false);
 	}
