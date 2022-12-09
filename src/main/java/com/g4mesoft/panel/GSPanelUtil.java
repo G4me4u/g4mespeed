@@ -14,6 +14,13 @@ public final class GSPanelUtil {
 	
 	public static void drawLabel(GSIRenderer2D renderer, GSIcon icon, int spacing, Text text, int textColor,
 	                             boolean shadowed, GSEIconAlignment iconAlignment, GSETextAlignment textAlignment,
+	                             GSRectangle bounds) {
+		drawLabel(renderer, icon, spacing, text, textColor, shadowed, iconAlignment, textAlignment,
+				bounds.getX(), bounds.getY(), bounds.getWidth(), bounds.getHeight());
+	}
+	
+	public static void drawLabel(GSIRenderer2D renderer, GSIcon icon, int spacing, Text text, int textColor,
+	                             boolean shadowed, GSEIconAlignment iconAlignment, GSETextAlignment textAlignment,
 	                             int x, int y, int width, int height) {
 		
 		// Remaining width for text
@@ -126,7 +133,7 @@ public final class GSPanelUtil {
 			scrollPanel.getVerticalScrollBar().setScroll(scrollY);
 	}
 	
-	private static GSScrollPanel getScrollPanel(GSPanel panel) {
+	public static GSScrollPanel getScrollPanel(GSPanel panel) {
 		GSPanel parent = panel.getParent();
 		if (parent != null) {
 			parent = parent.getParent();
@@ -135,7 +142,7 @@ public final class GSPanelUtil {
 		}
 		return null;
 	}
-	
+
 	public static GSDimension getViewportSize(GSPanel panel) {
 		GSPanel parent = panel.getParent();
 		if (parent instanceof GSViewport)

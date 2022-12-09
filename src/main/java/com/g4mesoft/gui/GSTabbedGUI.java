@@ -189,7 +189,7 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 			renderer.fillRect(tab.getX(), VERTICAL_MARGIN, tab.getWidth(), tabHeight, SELECTED_BACKGROUND_COLOR);
 		}
 		
-		int xc = tab.getX() + tab.getWidth() / 2;
+		int xc = tab.getX() + (tab.getWidth() + 1) / 2;
 		int yc = VERTICAL_MARGIN + (tabHeight - renderer.getTextHeight()) / 2;
 		
 		int titleColor = selected ? SELECTED_TEXT_COLOR : TAB_TEXT_COLOR;

@@ -13,8 +13,6 @@ public abstract interface GSIRenderer {
 	public static final int QUADS          = GL11.GL_QUADS;
 	public static final int QUAD_STRIP     = GL11.GL_QUAD_STRIP;
 	
-	public static final float COLOR_DARKEN_FACTOR = 0.7f;
-	
 	public void build(int shape, VertexFormat format);
 
 	public GSIRenderer vert(float x, float y, float z);
@@ -39,39 +37,5 @@ public abstract interface GSIRenderer {
 	public GSIRenderer next();
 	
 	public void finish();
-	
-	public static int darkenColor(int color) {
-		int a = (color >>> 24) & 0xFF;
-		int r = (color >>> 16) & 0xFF;
-		int g = (color >>>  8) & 0xFF;
-		int b = (color >>>  0) & 0xFF;
-	
-		r = (int)(r * COLOR_DARKEN_FACTOR);
-		g = (int)(g * COLOR_DARKEN_FACTOR);
-		b = (int)(b * COLOR_DARKEN_FACTOR);
 
-		return (a << 24) | (r << 16) | (g << 8) | b;
-	}
-	
-	public static int brightenColor(int color) {
-		int a = (color >>> 24) & 0xFF;
-		int r = (color >>> 16) & 0xFF;
-		int g = (color >>>  8) & 0xFF;
-		int b = (color >>>  0) & 0xFF;
-	
-		int i = (int)(1.0f / (1.0f - COLOR_DARKEN_FACTOR));
-		if (r == 0 && g == 0 && b == 0) {
-			r = g = b = i;
-		} else {
-			if (r > 0 && r < i) r = i;
-			if (g > 0 && g < i) g = i;
-			if (b > 0 && b < i) b = i;
-			
-			r = Math.min((int)(r / COLOR_DARKEN_FACTOR), 0xFF);
-			g = Math.min((int)(g / COLOR_DARKEN_FACTOR), 0xFF);
-			b = Math.min((int)(b / COLOR_DARKEN_FACTOR), 0xFF);
-		}
-
-		return (a << 24) | (r << 16) | (g << 8) | b;
-	}
 }

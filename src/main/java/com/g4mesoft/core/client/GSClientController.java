@@ -25,6 +25,7 @@ import com.g4mesoft.gui.GSHotkeyGUI;
 import com.g4mesoft.gui.GSInfoGUI;
 import com.g4mesoft.gui.GSSettingsGUI;
 import com.g4mesoft.gui.GSTabbedGUI;
+import com.g4mesoft.gui.GSTableDebugTestingGUI;
 import com.g4mesoft.hotkey.GSEKeyEventType;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
@@ -104,6 +105,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 			tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSScrollPanel(new GSSettingsGUI(serverSettings)));
 			tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSScrollPanel(new GSHotkeyGUI(keyManager)));
 			tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
+			tabbedGUI.addTab("Table Debug Testing",  new GSTableDebugTestingGUI());
 			
 			contentHistoryGUI = new GSContentHistoryGUI(tabbedGUI, new GSKeyBindingButtonStroke(openGUIKey));
 			

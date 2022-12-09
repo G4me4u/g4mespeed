@@ -196,6 +196,8 @@ public class GSColorUtil {
 	private static final String RGB_HEX_FORMAT  = "%06X";
 	private static final String RGBA_HEX_FORMAT = "%08X";
 	
+	private static final float COLOR_DARKEN_FACTOR = 0.7f;
+	
 	/* @see https://en.wikipedia.org/wiki/SRGB#The_reverse_transformation */
 	public static double[] rgb2xyz(int r, int g, int b) {
 		double rf = toSRGB(r / 255.0);
@@ -413,5 +415,40 @@ public class GSColorUtil {
 		}
 		
 		return (str.length() <= 6) ? (rgba | 0xFF000000) : rgba;
+	}
+	
+	public static int darker(int color) {
+		int a = unpackA(color);
+		int r = unpackR(color);
+		int g = unpackG(color);
+		int b = unpackB(color);
+	
+		r = (int)(r * COLOR_DARKEN_FACTOR);
+		g = (int)(g * COLOR_DARKEN_FACTOR);
+		b = (int)(b * COLOR_DARKEN_FACTOR);
+
+		return packRGBA(r, g, b, a);
+	}
+	
+	public static int brighter(int color) {
+		int a = unpackA(color);
+		int r = unpackR(color);
+		int g = unpackG(color);
+		int b = unpackB(color);
+	
+		int i = (int)(1.0f / (1.0f - COLOR_DARKEN_FACTOR));
+		if (r == 0 && g == 0 && b == 0) {
+			r = g = b = i;
+		} else {
+			if (r > 0 && r < i) r = i;
+			if (g > 0 && g < i) g = i;
+			if (b > 0 && b < i) b = i;
+			
+			r = Math.min((int)(r / COLOR_DARKEN_FACTOR), 0xFF);
+			g = Math.min((int)(g / COLOR_DARKEN_FACTOR), 0xFF);
+			b = Math.min((int)(b / COLOR_DARKEN_FACTOR), 0xFF);
+		}
+
+		return packRGBA(r, g, b, a);
 	}
 }
