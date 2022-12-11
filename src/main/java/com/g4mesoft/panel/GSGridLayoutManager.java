@@ -22,15 +22,15 @@ public class GSGridLayoutManager implements GSILayoutManager {
 	public static final GSILayoutProperty<Float>       WEIGHT_X         = GSLayoutProperties.WEIGHT_X;
 	public static final GSILayoutProperty<Float>       WEIGHT_Y         = GSLayoutProperties.WEIGHT_Y;
 	
-	public static final GSILayoutProperty<GSEAnchor> ANCHOR             = GSLayoutProperties.ANCHOR;
-	public static final GSILayoutProperty<GSEFill>   FILL               = GSLayoutProperties.FILL;
+	public static final GSILayoutProperty<GSEAnchor>   ANCHOR           = GSLayoutProperties.ANCHOR;
+	public static final GSILayoutProperty<GSEFill>     FILL             = GSLayoutProperties.FILL;
 
-	public static final GSILayoutProperty<Integer> TOP_MARGIN           = GSLayoutProperties.TOP_MARGIN;
-	public static final GSILayoutProperty<Integer> LEFT_MARGIN          = GSLayoutProperties.LEFT_MARGIN;
-	public static final GSILayoutProperty<Integer> BOTTOM_MARGIN        = GSLayoutProperties.BOTTOM_MARGIN;
-	public static final GSILayoutProperty<Integer> RIGHT_MARGIN         = GSLayoutProperties.RIGHT_MARGIN;
+	public static final GSILayoutProperty<Integer>     TOP_MARGIN       = GSLayoutProperties.TOP_MARGIN;
+	public static final GSILayoutProperty<Integer>     LEFT_MARGIN      = GSLayoutProperties.LEFT_MARGIN;
+	public static final GSILayoutProperty<Integer>     BOTTOM_MARGIN    = GSLayoutProperties.BOTTOM_MARGIN;
+	public static final GSILayoutProperty<Integer>     RIGHT_MARGIN     = GSLayoutProperties.RIGHT_MARGIN;
 
-	public static final GSILayoutProperty<GSMargin> MARGIN              = GSLayoutProperties.MARGIN;
+	public static final GSILayoutProperty<GSMargin>    MARGIN           = GSLayoutProperties.MARGIN;
 	
 	@Override
 	public GSDimension getMinimumSize(GSParentPanel parent) {
@@ -63,9 +63,10 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		int deltaH = parent.getHeight() - size.getHeight();
 
 		// Distribute the width weighted to all columns
-		int remW = 0;
+		int remW = 0; // remaining width to take when columns do not fit
 		float remWx = layoutInfo.columnWeight;
-		for (int c = 0; remWx >= GSMathUtil.EPSILON_F && c < layoutInfo.columnCount; c++) {
+		int c;
+		for (c = 0; remWx >= GSMathUtil.EPSILON_F && c < layoutInfo.columnCount; c++) {
 			float wx = layoutInfo.columnWeights[c];
 			int dw = (int)(deltaW * wx / remWx);
 			// Ensure that we do not get negative width
@@ -77,11 +78,14 @@ public class GSGridLayoutManager implements GSILayoutManager {
 			remWx -= wx;
 			deltaW -= dw;
 		}
+		// Accumulate remainder of column widths
+		for ( ; c < layoutInfo.columnCount; c++)
+			remW += layoutInfo.minColumnWidths[c];
 		
 		if (deltaW < 0) {
 			// The weighted columns did not have enough width to give,
 			// take it equally from the columns with no weight.
-			for (int c = 0; c < layoutInfo.columnCount; c++) {
+			for (c = 0; c < layoutInfo.columnCount; c++) {
 				remW -= layoutInfo.minColumnWidths[c];
 				int dw = deltaW / (layoutInfo.columnCount - c);
 				if (layoutInfo.minColumnWidths[c] + dw < 0) {
@@ -100,9 +104,10 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		int xo = deltaW / 2;
 		
 		// Distribute the height weighted to all rows
-		int remH = 0;
+		int remH = 0; // remaining height to take when rows do not fit
 		float remWy = layoutInfo.rowWeight;
-		for (int r = 0; remWy >= GSMathUtil.EPSILON_F && r < layoutInfo.rowCount; r++) {
+		int r;
+		for (r = 0; remWy >= GSMathUtil.EPSILON_F && r < layoutInfo.rowCount; r++) {
 			float wy = layoutInfo.rowWeights[r];
 			int dh = (int)(deltaH * wy / remWy);
 			// Ensure that we do not get negative height
@@ -114,11 +119,14 @@ public class GSGridLayoutManager implements GSILayoutManager {
 			remWy -= wy;
 			deltaH -= dh;
 		}
-
+		// Accumulate remainder of row heights
+		for ( ; r < layoutInfo.rowCount; r++)
+			remH += layoutInfo.minRowHeights[r];
+		
 		if (deltaH < 0) {
 			// The weighted rows did not have enough height to give,
 			// take it equally from the rows with no weight.
-			for (int r = 0; r < layoutInfo.rowCount; r++) {
+			for (r = 0; r < layoutInfo.rowCount; r++) {
 				remH -= layoutInfo.minRowHeights[r];
 				int dh = deltaH / (layoutInfo.rowCount - r);
 				if (layoutInfo.minRowHeights[r] + dh < 0) {
@@ -140,11 +148,11 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		int[] columnXs = new int[layoutInfo.columnCount];
 		int[] rowYs = new int[layoutInfo.rowCount];
 		
-		for (int c = 0; c < layoutInfo.columnCount; c++) {
+		for (c = 0; c < layoutInfo.columnCount; c++) {
 			columnXs[c] = xo;
 			xo += layoutInfo.minColumnWidths[c];
 		}
-		for (int r = 0; r < layoutInfo.rowCount; r++) {
+		for (r = 0; r < layoutInfo.rowCount; r++) {
 			rowYs[r] = yo;
 			yo += layoutInfo.minRowHeights[r];
 		}
@@ -165,10 +173,10 @@ public class GSGridLayoutManager implements GSILayoutManager {
 			displayBounds.y = rowYs[gy];
 			
 			displayBounds.width = 0;
-			for (int c = gx; c < gx + gw; c++)
+			for (c = gx; c < gx + gw; c++)
 				displayBounds.width += layoutInfo.minColumnWidths[c];
 			displayBounds.height = 0;
-			for (int r = gy; r < gy + gh; r++)
+			for (r = gy; r < gy + gh; r++)
 				displayBounds.height += layoutInfo.minRowHeights[r];
 			
 			// Layout panel inside of available display bounds

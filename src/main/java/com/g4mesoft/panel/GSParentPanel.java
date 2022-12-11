@@ -20,7 +20,8 @@ public class GSParentPanel extends GSPanel {
 	public GSParentPanel(GSILayoutManager layoutManager) {
 		children = new ArrayList<>();
 		
-		setLayoutManager(layoutManager);
+		if (layoutManager != null)
+			setLayoutManager(layoutManager);
 	}
 	
 	@Override

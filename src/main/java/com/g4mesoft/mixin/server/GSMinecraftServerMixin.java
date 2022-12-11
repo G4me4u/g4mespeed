@@ -28,6 +28,7 @@ import net.minecraft.util.Util;
 public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
 	@Shadow private long timeReference;
+	@Shadow private long nextTickTimestamp;
 
 	@Unique
 	private float gs_msAccum = 0.0f;
@@ -46,19 +47,58 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		gs_msPerTick = GSTpsModule.MS_PER_SEC / newTps;
 		gs_msAccum = gs_msPerTick;
 		
-		long now = Util.getMeasuringTimeMs();
-		long dt = timeReference - now;
-		long millisNextTick = (long)gs_msAccum;
+		// We want the change in tick-rate to be as smooth as
+		// possible (like on the client), however, the server
+		// does not use floating points for time. Instead, we
+		// have to perform, essentially, the same operation,
+		// but using the reference times that the server uses.
+		//
+		// Let the following represent the time line:
+		// <-------|------|-----|-------|------|------> t
+		//        t_p2   t_p1  t_n     t_r1   t_r2
+		// Where t_p1 is the time of the previous tick, t_n is
+		// current time, and t_r1 is the unadjusted reference
+		// time. We say that t_r2 is the reference time after
+		// the adjustment, which is what we want to find, and
+		// t_p2 is the time of the hypothetical previous tick
+		// that would result in the reference time of t_r2.
+		//
+		// As on the client, we want to interpolation progress
+		// to be equal before and after the adjustment:
+		//   a_1 = (t_n - t_p1) / (t_r1 - t_p1) = (t_n - t_p1) / D_1,
+		//   a_2 = (t_n - t_p2) / (t_r2 - t_p2) = (t_n - t_p2) / D_2,
+		// where D_1 and D_2 are time per tick before and after
+		// the adjustment. Therefore, we have that a_2 = a_1, and
+		// can thus solve for t_p2 as follows:
+		//   (t_n - t_p2) / D_2 = (t_n - t_p1) / D_1
+		//   <==>
+		//   t_p2 = t_n - D_2 * (t_n - t_p1) / D_1
+		// Since we are not interested in t_p2, but instead want
+		// to compute the adjusted reference t_r2, we can add
+		// the adjusted ms per tick, and simplify as follows:
+		//   t_r2 = t_n - D_2 * (t_n - t_p1) / D_1 + D_2
+		//        = t_n - D_2 * ((t_n - t_p1) / D_1 - 1)
+		//        = t_n - D_2 * (t_n - t_p1 - D_1) / D_1
+		//        = t_n - D_2 * (t_n - t_r1) / D_1
+		//        = t_n + D_2 * (t_r1 - t_n) / D_1
+		// Hence, we now know how to compute the adjusted time
+		// reference while preserving interpolation progress.
+		// Note that there might be some inaccuracies since we
+		// are using milliseconds.
+		
+		long now = Util.getMeasuringTimeMs();   // t_n
+		long dt = timeReference - now;          // t_r1 - t_n
+		long millisNextTick = (long)gs_msAccum; // D_2
 		
 		if (dt < millisPrevTick && millisPrevTick != 0L) {
-			// Interpolate the progress until next tick with the
-			// new milliseconds per tick. This ensures that the
-			// next tick will be very close to the client tick.
-			long delta = dt * millisNextTick / millisPrevTick;
+			// t_r2 = t_n + D_2 * (t_r1 - t_n) / D_1
+			long delta = millisNextTick * dt / millisPrevTick;
 			timeReference = now + GSMathUtil.clamp(delta, 0L, millisNextTick);
 		} else {
 			timeReference = now + millisNextTick;
 		}
+		// Also reset wait timer for tasks.
+		nextTickTimestamp = timeReference;
 	}
 
 	@Inject(method = "runServer", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
