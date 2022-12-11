@@ -14,6 +14,8 @@ import net.minecraft.network.PacketByteBuf;
 
 public class GSFileUtil {
 
+	public static final Object IGNORE = null;
+	
 	public static void ensureDirectoryExists(File dir) throws IOException {
 		if (dir != null && !dir.exists())
 			dir.mkdirs();
@@ -25,7 +27,7 @@ public class GSFileUtil {
 			file.createNewFile();
 		}
 	}
-	
+
 	public static <E> E readFile(File file, GSFileDecoder<E> decoder) throws IOException {
 		if (!file.isFile())
 			throw new IOException("File does not exist, or is a directory.");
@@ -46,7 +48,7 @@ public class GSFileUtil {
 		
 		return element;
 	}
-	
+
 	public static <E> void writeFile(File file, E element, GSFileEncoder<E> encoder) throws IOException {
 		GSFileUtil.ensureFileExists(file);
 		

@@ -46,7 +46,7 @@ public class GSViewportLayoutManager implements GSILayoutManager {
 			int offsetX = viewport.getOffsetX();
 			int offsetY = viewport.getOffsetY();
 
-			GSDimension prefSize = getPreferredSize(parent);
+			GSDimension prefSize = content.getProperty(GSPanel.PREFERRED_SIZE);
 			int prefW = prefSize.getWidth();
 			int prefH = prefSize.getHeight();
 			

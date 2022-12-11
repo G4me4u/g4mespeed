@@ -214,6 +214,11 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	public Collection<ServerPlayerEntity> getAllPlayers() {
 		return server.getPlayerManager().getPlayerList();
 	}
+	
+	@Override
+	public MinecraftServer getServer() {
+		return server;
+	}
 
 	@Override
 	public File getCacheFile() {
@@ -254,10 +259,6 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		sendPacket(new GSSettingPermissionPacket(isAllowedSettingChange(player)), player);
 	}
 	
-	public MinecraftServer getServer() {
-		return server;
-	}
-
 	public static GSServerController getInstance() {
 		return instance;
 	}

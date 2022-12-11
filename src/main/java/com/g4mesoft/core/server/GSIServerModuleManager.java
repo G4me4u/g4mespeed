@@ -9,6 +9,7 @@ import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.packet.GSIPacket;
 
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 public interface GSIServerModuleManager extends GSIModuleManager {
@@ -40,5 +41,7 @@ public interface GSIServerModuleManager extends GSIModuleManager {
 	public ServerPlayerEntity getPlayer(UUID playerUUID);
 	
 	public Collection<ServerPlayerEntity> getAllPlayers();
+	
+	public MinecraftServer getServer();
 	
 }
