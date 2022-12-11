@@ -30,15 +30,15 @@ public class GSServerTickTimer implements GSITickTimer {
 	
 		millisPerTick = DEFAULT_MILLIS_PER_TICK;
 	}
-	
+
 	@Override
-	public void init0(long initialTimeMillis) {
+	public synchronized void init0(long initialTimeMillis) {
 		prevTimeMillis = initialTimeMillis;
 		tickDelta = 0.0f;
 		ticksSinceLastPacket = 0;
 		tickCount = 0;
 	}
-
+	
 	@Override
 	public synchronized void update0(long timeMillis) {
 		long deltaMillis = timeMillis - prevTimeMillis;
@@ -71,26 +71,26 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	@Override
-	public float getTickDelta0() {
+	public synchronized float getTickDelta0() {
 		return tickDelta;
 	}
 
 	@Override
-	public void setTickDelta0(float tickDelta) {
+	public synchronized void setTickDelta0(float tickDelta) {
 		this.tickDelta = tickDelta;
 	}
 
 	@Override
-	public int getTickCount0() {
+	public synchronized int getTickCount0() {
 		return tickCount;
 	}
 	
 	@Override
-	public void setTickCount0(int tickCount) {
+	public synchronized void setTickCount0(int tickCount) {
 		this.tickCount = tickCount;
 	}
 	
-	public void syncTimer(GSITickTimer timer) {
+	public synchronized void syncTimer(GSITickTimer timer) {
 		if (tpsModule.cSyncTick.getValue() && shouldAdjustTickDelta())
 			adjustTickDelta(timer);
 	}
@@ -154,5 +154,4 @@ public class GSServerTickTimer implements GSITickTimer {
 
 		init0(Util.getMeasuringTimeMs());
 	}
-
 }

@@ -41,6 +41,9 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 		horizontalScrollBarPolicy = GSEScrollBarPolicy.SCROLLBAR_AS_NEEDED;
 
 		contentLayoutListener = new GSContentLayoutListener();
+
+		// Ensure content is always added first.
+		add(contentViewport);
 		
 		setVerticalScrollBar(new GSScrollBar());
 		setHorizontalScrollBar(new GSScrollBar());

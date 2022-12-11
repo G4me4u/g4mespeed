@@ -9,12 +9,33 @@ public final class GSVersion {
 
 	private static final String RELEASE_FORMAT = "%d.%d.%d";
 	private static final String BETA_FORMAT    = "%d.%d.%d-beta";
+	private static final String ALPHA_FORMAT   = "%d.%d.%d-alpha";
 	
 	private final int majorVersion;
 	private final int minorVersion;
 	private final int patchVersion;
 
 	private String versionStringCache;
+
+	public GSVersion(String versionString) throws IllegalArgumentException {
+		int dashIndex = versionString.indexOf('-');
+		if (dashIndex != -1)
+			versionString = versionString.substring(0, dashIndex);
+		
+		String[] args = versionString.split("\\.");
+		if (args.length != 3)
+			throw new IllegalArgumentException("Invalid version string");
+		
+		try {
+			majorVersion = Integer.parseInt(args[0]);
+			minorVersion = Integer.parseInt(args[1]);
+			patchVersion = Integer.parseInt(args[2]);
+		} catch (NumberFormatException e) {
+			throw new IllegalArgumentException("Invalid version string");
+		}
+
+		versionStringCache = null;
+	}
 
 	public GSVersion(int majorVersion, int minorVersion, int patchVersion) {
 		this.majorVersion = majorVersion;
@@ -38,7 +59,7 @@ public final class GSVersion {
 	
 	public String getVersionString() {
 		if (versionStringCache == null) {
-			String format = (majorVersion != 0) ? RELEASE_FORMAT : BETA_FORMAT;
+			String format = (majorVersion != 0) ? RELEASE_FORMAT : ((minorVersion != 0) ? BETA_FORMAT : ALPHA_FORMAT);
 			versionStringCache = String.format(format, majorVersion, minorVersion, patchVersion);
 		}
 		
