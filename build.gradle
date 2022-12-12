@@ -1,22 +1,20 @@
 plugins {
 	id 'fabric-loom' version '0.11-SNAPSHOT'
+	id 'maven-publish'
 }
 
 repositories {
-    flatDir {
-        dirs "./compat-mods"
-    }
-    maven {
-        name = 'TerraformersMC'
-        url = 'https://maven.terraformersmc.com/'
-    }
+	maven {
+		name = 'TerraformersMC'
+		url = 'https://maven.terraformersmc.com/'
+	}
 }
 
 sourceCompatibility = JavaVersion.VERSION_16
 targetCompatibility = JavaVersion.VERSION_16
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version + "-mc" + project.minecraft_version
+version = "${project.mod_version}-mc${project.minecraft_version}"
 group = project.maven_group
 
 dependencies {
@@ -25,15 +23,8 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-    // ModMenu integration
-	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
-
-	// Test mod compatibility in dev environment.
-	//modImplementation ":sodium-fabric:mc1.16.1:0.1.0"
-	//modImplementation ":optifabric:1.9.2"
-	
-	// Fabric API. This is technically optional, but you probably want it anyway.
-    //modImplementation "net.fabricmc.fabric-api:fabric-api:0.31.0+1.16"
+	// ModMenu integration
+	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 
 processResources {
@@ -54,7 +45,45 @@ tasks.withType(JavaCompile).configureEach {
 	it.options.release = 16
 }
 
-jar {
-	from "LICENSE"
+java {
+	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+	// if it is present.
+	// If you remove this line, sources will not be generated.
+	withSourcesJar()
 }
 
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
+}
+
+// configure the maven publication
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+
+	setupRepositories(repositories)
+}
+
+void setupRepositories(RepositoryHandler repositories) {
+	//repositories.mavenLocal() // uncomment for testing
+	def ENV = System.getenv()
+	if (ENV.MAVEN_URL && ENV.MAVEN_ALIAS && ENV.MAVEN_TOKEN) {
+		repositories.maven {
+			url "${ENV.MAVEN_URL}/releases"
+			credentials {
+				username ENV.MAVEN_ALIAS
+				password ENV.MAVEN_TOKEN
+			}
+			authentication {
+				basic(BasicAuthentication)
+			}
+		}
+	} else {
+		println "No Maven credentials specified"
+	}
+}
