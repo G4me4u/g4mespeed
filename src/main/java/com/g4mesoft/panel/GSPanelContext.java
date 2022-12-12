@@ -26,7 +26,7 @@ import net.minecraft.util.Identifier;
 
 public final class GSPanelContext {
 
-	private static final Identifier UI_TEXTURE_IDENTIFIER = new Identifier("g4mespeed/textures/ui.png");
+	private static final Identifier UI_TEXTURE_IDENTIFIER = new Identifier("g4mespeed", "textures/ui.png");
 	
 	private static GSPanelContext instance;
 	
