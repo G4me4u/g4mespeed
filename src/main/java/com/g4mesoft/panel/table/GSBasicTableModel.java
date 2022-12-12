@@ -108,12 +108,12 @@ public class GSBasicTableModel implements GSITableModel {
 	
 	private void checkColumnRange(int columnIndex) {
 		if (columnIndex < 0 || columnIndex >= columnCount)
-			throw new IndexOutOfBoundsException(columnIndex);
+			throw new IndexOutOfBoundsException("Column index out of bounds: " + columnIndex);
 	}
 
 	private void checkRowRange(int rowIndex) {
 		if (rowIndex < 0 || rowIndex >= rowCount)
-			throw new IndexOutOfBoundsException(rowIndex);
+			throw new IndexOutOfBoundsException("Row index out of bounds: " + rowIndex);
 	}
 
 	private void checkCellRange(int columnIndex, int rowIndex) {
