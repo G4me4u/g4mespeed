@@ -21,7 +21,7 @@ public final class GSTextTableCellRenderer implements GSITableCellRenderer<Text>
 	}
 	
 	@Override
-	public GSDimension getPreferredSize(Text value) {
+	public GSDimension getMinimumSize(Text value) {
 		return GSPanelUtil.labelPreferredSize(null, value, 0);
 	}
 }

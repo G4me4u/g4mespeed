@@ -190,8 +190,8 @@ public class GSBasicTableModel implements GSITableModel {
 		
 		private GSDimension minimumSize;
 		private boolean minimumSizeSet;
-		private GSDimension preferredSize;
-		private boolean preferredSizeSet;
+		private GSDimension maximumSize;
+		private boolean maximumSizeSet;
 		
 		public GSAbstractHeaderElement(int index) {
 			this.index = index;
@@ -200,8 +200,8 @@ public class GSBasicTableModel implements GSITableModel {
 			
 			minimumSize = null;
 			minimumSizeSet = false;
-			preferredSize = null;
-			preferredSizeSet = false;
+			maximumSize = null;
+			maximumSizeSet = false;
 		}
 		
 		@Override
@@ -220,8 +220,8 @@ public class GSBasicTableModel implements GSITableModel {
 		void invalidate() {
 			if (!minimumSizeSet)
 				minimumSize = null;
-			if (!preferredSizeSet)
-				preferredSize = null;
+			if (!maximumSizeSet)
+				maximumSize = null;
 		}
 		
 		@Override
@@ -232,10 +232,8 @@ public class GSBasicTableModel implements GSITableModel {
 		}
 
 		private <T> GSDimension calculateMinimumSize(T value) {
-			if (table != null) {
-				GSITableCellRenderer<T> cellRenderer = table.getCellRenderer(value);
-				return cellRenderer.getMinimumSize(value);
-			}
+			if (table != null)
+				return table.getCellRenderer(value).getMinimumSize(value);
 			return null;
 		}
 		
@@ -249,26 +247,24 @@ public class GSBasicTableModel implements GSITableModel {
 		}
 
 		@Override
-		public GSDimension getPreferredSize() {
-			if (preferredSize == null)
-				preferredSize = calculatePreferredSize(value);
-			return (preferredSize != null) ? preferredSize : GSDimension.ZERO;
+		public GSDimension getMaximumSize() {
+			if (maximumSize == null)
+				maximumSize = calculateMaximumSize(value);
+			return (maximumSize != null) ? maximumSize : GSDimension.ZERO;
 		}
 
-		private <T> GSDimension calculatePreferredSize(T value) {
-			if (table != null) {
-				GSITableCellRenderer<T> cellRenderer = table.getCellRenderer(value);
-				return cellRenderer.getPreferredSize(value);
-			}
+		private <T> GSDimension calculateMaximumSize(T value) {
+			if (table != null)
+				return table.getCellRenderer(value).getMaximumSize(value);
 			return null;
 		}
 		
 		@Override
-		public void setPreferredSize(GSDimension preferredSize) {
-			if (preferredSize == null)
-				throw new IllegalArgumentException("preferredSize is null!");
-			this.preferredSize = preferredSize;
-			preferredSizeSet = true;
+		public void setMaximumSize(GSDimension maximumSize) {
+			if (maximumSize == null)
+				throw new IllegalArgumentException("maximumSize is null!");
+			this.maximumSize = maximumSize;
+			maximumSizeSet = true;
 			dispatchSizeChanged();
 		}
 		

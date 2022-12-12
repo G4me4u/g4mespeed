@@ -45,7 +45,7 @@ public class GSTableDebugTestingGUI extends GSParentPanel {
 			model.getColumn(c).setHeaderValue("Column " + (c + 1));
 		for (int r = 0; r < model.getRowCount(); r++)
 			model.getRow(r).setHeaderValue("Row " + (r + 1));
-		table.setPreferredRowCount(6);
+		table.setPreferredRowCount(15);
 		table.setPreferredColumnCount(4);
 		
 		for (int c = 0; c < model.getColumnCount(); c++) {

@@ -12,8 +12,8 @@ public interface GSITableHeaderElement {
 	
 	public void setMinimumSize(GSDimension minimumSize);
 	
-	public GSDimension getPreferredSize();
+	public GSDimension getMaximumSize();
 	
-	public void setPreferredSize(GSDimension preferredSize);
+	public void setMaximumSize(GSDimension preferredSize);
 
 }

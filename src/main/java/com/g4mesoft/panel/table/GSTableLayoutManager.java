@@ -28,19 +28,20 @@ public class GSTableLayoutManager implements GSILayoutManager {
 		GSITableModel model = table.getModel();
 		// Compute width (accumulative column width), height (maximum of column headers).
 		int w = 0, h = 0;
-		int c = 0;
-		for ( ; c < model.getColumnCount(); c++) {
+		for (int c = 0; c < model.getColumnCount(); c++) {
 			GSITableColumn column = model.getColumn(c);
-			GSDimension size = preferred ? column.getPreferredSize() : column.getMinimumSize();
+			GSDimension size = column.getMinimumSize();
 			// Adjust visible column count for scrollable content
-			if (!scrollable || c < table.getPreferredColumnCount())
-				w += Math.max(size.getWidth(), table.getMinimumColumnWidth());
+			if (!scrollable || c < table.getPreferredColumnCount()) {
+				// Respect the current width of the column.
+				int rw = Math.max(size.getWidth(), column.getWidth());
+				w += Math.max(rw, table.getMinimumColumnWidth());
+			}
 			h = Math.max(size.getHeight(), h);
 		}
 		if (preferred && scrollable) {
 			// Fill in remaining empty columns
-			for ( ; c < table.getPreferredColumnCount(); c++)
-				w += table.getMinimumColumnWidth();
+			w = Math.max(w, table.getMinimumColumnWidth() * table.getPreferredColumnCount());
 		}
 		return new GSDimension(w, h);
 	}
@@ -49,19 +50,20 @@ public class GSTableLayoutManager implements GSILayoutManager {
 		GSITableModel model = table.getModel();
 		// Compute width (maximum of row headers), height (accumulative row height).
 		int w = 0, h = 0;
-		int r = 0;
-		for ( ; r < model.getRowCount(); r++) {
+		for (int r = 0; r < model.getRowCount(); r++) {
 			GSITableRow row = model.getRow(r);
-			GSDimension size = preferred ? row.getPreferredSize() : row.getMinimumSize();
+			GSDimension size = row.getMinimumSize();
 			w = Math.max(size.getWidth(), w);
 			// Adjust visible row count for scrollable content
-			if (!scrollable || r < table.getPreferredRowCount())
-				h += Math.max(size.getHeight(), table.getMinimumRowHeight());
+			if (!scrollable || r < table.getPreferredRowCount()) {
+				// Respect the current height of the row.
+				int rh = Math.max(size.getHeight(), row.getHeight());
+				h += Math.max(rh, table.getMinimumRowHeight());
+			}
 		}
 		if (preferred && scrollable) {
 			// Fill in remaining empty rows
-			for ( ; r < table.getPreferredRowCount(); r++)
-				h += table.getMinimumRowHeight();
+			h = Math.max(h, table.getMinimumRowHeight() * table.getPreferredRowCount());
 		}
 		return new GSDimension(w, h);
 	}
@@ -71,35 +73,141 @@ public class GSTableLayoutManager implements GSILayoutManager {
 		GSTablePanel table = (GSTablePanel)parent;
 		GSITableModel model = table.getModel();
 		
-		// TODO: respect resize policy!
-		int remW = table.getWidth(), remH = table.getHeight();
-		
-		boolean preferred = true;
-		GSDimension targetSize = getTableSize(table, true, false);
-		if (targetSize.getWidth() > remW || targetSize.getHeight() > remH) {
-			targetSize = getTableSize(table, false, false);
-			preferred = false;
-		}
-		
-		remW -= targetSize.getWidth();
-		remH -= targetSize.getHeight();
-
+		// Phase 1: ensure columns and rows have at least minimum size
+		int remW = table.getWidth();
 		for (int c = 0; c < model.getColumnCount(); c++) {
 			GSITableColumn column = model.getColumn(c);
-			int cw = (preferred ? column.getPreferredSize() : column.getMinimumSize()).getWidth();
-			cw = Math.max(table.getMinimumColumnWidth(), cw);
-			int aw = Math.max(remW / (model.getColumnCount() - c), -cw);
-			column.setWidth(cw + aw);
-			remW -= aw;
+			int mnw = column.getMinimumSize().getWidth();
+			mnw = Math.max(mnw, table.getMinimumColumnWidth());
+			column.setWidth(mnw);
+			remW -= mnw;
 		}
-
+		// Phase 2: distribute remaining width according to resize policy
+		int resizingColumnIndex = table.getResizingColumnIndex();
+		int c0 = model.getColumnCount(), c1 = model.getColumnCount();
+		switch (table.getColumnHeaderResizePolicy()) {
+		case RESIZE_LAST:
+			c0 = c1 - 1;
+			break;
+		case RESIZE_SUBSEQUENT:
+			if (resizingColumnIndex != -1)
+				c0 = resizingColumnIndex + 1;
+			break;
+		case RESIZE_NEXT:
+			if (resizingColumnIndex != -1) {
+				c0 = resizingColumnIndex + 1;
+				// Note: ensure we have a next column.
+				c1 = Math.min(resizingColumnIndex + 2, c1);
+			}
+			break;
+		case RESIZE_OFF:
+			break;
+		case RESIZE_ALL:
+		default:
+			c0 = 0;
+			break;
+		}
+		remW = distributeWidth(table, remW, c0, c1, true);
+		// Only resize if we can not fit or resize policy is not off.
+		if (remW < 0 || table.getColumnHeaderResizePolicy() != GSEHeaderResizePolicy.RESIZE_OFF) {
+			// Phase 3: take remaining size from resizing column and/or row.
+			if (resizingColumnIndex != -1 && remW != 0)
+				remW = distributeWidth(table, remW, resizingColumnIndex, resizingColumnIndex + 1, true);
+			// Phase 4: distribute remaining width among all remaining columns and rows
+			if (remW < 0)
+				distributeWidth(table, remW, 0, model.getColumnCount(), false);
+		}
+		
+		// Below is the same code but for rows...
+		// Phase 1
+		int remH = table.getHeight();
 		for (int r = 0; r < model.getRowCount(); r++) {
 			GSITableRow row = model.getRow(r);
-			int rh = (preferred ? row.getPreferredSize() : row.getMinimumSize()).getHeight();
-			rh = Math.max(table.getMinimumRowHeight(), rh);
-			int ah = Math.max(remH / (model.getRowCount() - r), -rh);
-			row.setHeight(rh + ah);
+			int mnh = row.getMinimumSize().getHeight();
+			mnh = Math.max(mnh, table.getMinimumRowHeight());
+			row.setHeight(mnh);
+			remH -= mnh;
+		}
+		// Phase 2
+		int resizingRowIndex = table.getResizingRowIndex();
+		int r0 = model.getRowCount(), r1 = model.getRowCount();
+		switch (table.getRowHeaderResizePolicy()) {
+		case RESIZE_LAST:
+			r0 = r1 - 1;
+			break;
+		case RESIZE_SUBSEQUENT:
+			if (resizingRowIndex != -1)
+				r0 = resizingRowIndex + 1;
+			break;
+		case RESIZE_NEXT:
+			if (resizingRowIndex != -1) {
+				r0 = resizingRowIndex + 1;
+				// Note: ensure we have a next row.
+				r1 = Math.min(resizingRowIndex + 2, r1);
+			}
+			break;
+		case RESIZE_OFF:
+			break;
+		case RESIZE_ALL:
+		default:
+			r0 = 0;
+			break;
+		}
+		remH = distributeHeight(table, remH, r0, r1, true);
+		// Only resize if we can not fit or resize policy is not off.
+		if (remH < 0 || table.getRowHeaderResizePolicy() != GSEHeaderResizePolicy.RESIZE_OFF) {
+			// Phase 3
+			if (resizingRowIndex != -1 && remH != 0)
+				remH = distributeHeight(table, remH, resizingRowIndex, resizingRowIndex + 1, true);
+			// Phase 4
+			if (remH < 0)
+				distributeHeight(table, remH, 0, model.getRowCount(), false);
+		}
+	}
+	
+	private int distributeWidth(GSTablePanel table, int remW, int c0, int c1, boolean respectMinWidth) {
+		GSITableModel model = table.getModel();
+		for (int c = c0; c < c1; c++) {
+			GSITableColumn column = model.getColumn(c);
+			// Respect minimum width
+			int mnw = 0;
+			if (respectMinWidth) {
+				mnw = column.getMinimumSize().getWidth();
+				mnw = Math.max(mnw, table.getMinimumColumnWidth());
+			}
+			// Always respect maximum width
+			int mxw = column.getMaximumSize().getWidth();
+			// Compute width distributed to current column
+			int aw = remW / (c1 - c);
+			aw = Math.min(aw, mxw - column.getWidth());
+			aw = Math.max(aw, mnw - column.getWidth());
+			// Update
+			column.setWidth(column.getWidth() + aw);
+			remW -= aw;
+		}
+		return remW;
+	}
+	
+	private int distributeHeight(GSTablePanel table, int remH, int r0, int r1, boolean respectMinHeight) {
+		GSITableModel model = table.getModel();
+		for (int r = r0; r < r1; r++) {
+			GSITableRow row = model.getRow(r);
+			// Respect minimum height
+			int mnh = 0;
+			if (respectMinHeight) {
+				mnh = row.getMinimumSize().getHeight();
+				mnh = Math.max(mnh, table.getMinimumRowHeight());
+			}
+			// Always respect maximum height
+			int mxh = row.getMaximumSize().getHeight();
+			// Compute height distributed to current row
+			int ah = remH / (r1 - r);
+			ah = Math.min(ah, mxh - row.getHeight());
+			ah = Math.max(ah, mnh - row.getHeight());
+			// Update
+			row.setHeight(row.getHeight() + ah);
 			remH -= ah;
 		}
+		return remH;
 	}
 }

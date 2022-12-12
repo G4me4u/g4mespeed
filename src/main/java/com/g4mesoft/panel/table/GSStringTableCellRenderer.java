@@ -19,7 +19,7 @@ public final class GSStringTableCellRenderer implements GSITableCellRenderer<Str
 	}
 	
 	@Override
-	public GSDimension getPreferredSize(String value) {
-		return GSTextTableCellRenderer.INSTANCE.getPreferredSize(new LiteralText(value));
+	public GSDimension getMinimumSize(String value) {
+		return GSTextTableCellRenderer.INSTANCE.getMinimumSize(new LiteralText(value));
 	}
 }

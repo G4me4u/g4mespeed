@@ -32,8 +32,8 @@ public final class GSDateTableCellRenderer implements GSITableCellRenderer<Date>
 	}
 	
 	@Override
-	public GSDimension getPreferredSize(Date value) {
-		return GSStringTableCellRenderer.INSTANCE.getPreferredSize(formatDate(value));
+	public GSDimension getMinimumSize(Date value) {
+		return GSStringTableCellRenderer.INSTANCE.getMinimumSize(formatDate(value));
 	}
 	
 	private static String formatDate(Date value) {

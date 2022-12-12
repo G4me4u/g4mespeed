@@ -17,7 +17,7 @@ public final class GSEmptyCellRenderer implements GSITableCellRenderer<Object> {
 	}
 	
 	@Override
-	public GSDimension getPreferredSize(Object value) {
+	public GSDimension getMinimumSize(Object value) {
 		return GSDimension.ZERO;
 	}
 }

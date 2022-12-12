@@ -74,7 +74,7 @@ public class GSTableRowHeaderPanel extends GSPanel implements GSIScrollable {
 	}
 
 	@Override
-	public boolean isScrollableWidthFilled() {
+	public boolean isScrollableHeightFilled() {
 		return true;
 	}
 }

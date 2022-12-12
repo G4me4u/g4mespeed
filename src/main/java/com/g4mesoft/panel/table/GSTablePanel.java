@@ -44,6 +44,9 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	private int backgroundColor;
 	private int textColor;
 
+	private int resizingColumnIndex;
+	private int resizingRowIndex;
+
 	private GSTableColumnHeaderPanel columnHeader;
 	private GSTableRowHeaderPanel rowHeader;
 	
@@ -64,10 +67,15 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 		minimumColumnWidth = DEFAULT_MINIMUM_COLUMN_WIDTH;
 		minimumRowHeight = GSPanelContext.getRenderer().getLineHeight();
 		
+		columnHeaderResizePolicy = GSEHeaderResizePolicy.RESIZE_SUBSEQUENT;
+		rowHeaderResizePolicy = GSEHeaderResizePolicy.RESIZE_OFF;
+		
 		cellRendererByClass = new IdentityHashMap<>();
 
 		backgroundColor = DEFAULT_BACKGROUND_COLOR;
 		textColor = DEFAULT_TEXT_COLOR;
+		
+		resizingColumnIndex = resizingRowIndex = -1;
 		
 		initDefaultCellRenderers();
 	}
@@ -196,23 +204,43 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	}
 	
 	public int getColumnIndexAtX(int x) {
-		int columnIndex = -1, accumulatedX = 0;
-		while (accumulatedX < x) {
-			columnIndex++;
-			GSITableColumn column = model.getColumn(columnIndex);
-			accumulatedX += column.getWidth();
+		int index = -1, accX = 0;
+		while (accX <= x) {
+			index++;
+			if (index >= model.getColumnCount())
+				return -1;
+			accX += model.getColumn(index).getWidth();
 		}
-		return columnIndex;
+		return index;
+	}
+	
+	public int getColumnX(int index) {
+		int accX = 0;
+		// Compute first index that we do not consider
+		int cmx = Math.min(index, model.getColumnCount());
+		for (int c = 0; c < cmx; c++)
+			accX += model.getColumn(c).getWidth();
+		return accX;
 	}
 
 	public int getRowIndexAtY(int y) {
-		int rowIndex = -1, accY = 0;
-		while (accY < y) {
-			rowIndex++;
-			GSITableRow row = model.getRow(rowIndex);
-			accY += row.getHeight();
+		int index = -1, accY = 0;
+		while (accY <= y) {
+			index++;
+			if (index >= model.getRowCount())
+				return -1;
+			accY += model.getRow(index).getHeight();
 		}
-		return rowIndex;
+		return index;
+	}
+	
+	public int getRowY(int index) {
+		int accY = 0;
+		// Compute first index that we do not consider
+		int rmx = Math.min(index, model.getRowCount());
+		for (int r = 0; r < rmx; r++)
+			accY += model.getRow(r).getHeight();
+		return accY;
 	}
 	
 	public GSITableModel getModel() {
@@ -330,6 +358,14 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 		return rowHeader;
 	}
 	
+	public int getResizingColumnIndex() {
+		return resizingColumnIndex;
+	}
+
+	public int getResizingRowIndex() {
+		return resizingRowIndex;
+	}
+	
 	@Override
 	public GSDimension getMinimumScrollableSize() {
 		return GSTableLayoutManager.getTableSize(this, false, true);
@@ -352,13 +388,37 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	
 	@Override
 	public float getIncrementalScrollX(int sign) {
-		// TODO Auto-generated method stub
+		int scrollX = GSPanelUtil.getScrollX(this);
+		int columnIndex = getColumnIndexAtX(scrollX);
+		if (columnIndex != -1) {
+			// Translate by a single column depending on sign
+			int delta = scrollX - getColumnX(columnIndex);
+			if (sign > 0) {
+				GSITableColumn column = model.getColumn(columnIndex);
+				return column.getWidth() - delta;
+			} else if (columnIndex > 0) {
+				GSITableColumn prevColumn = model.getColumn(columnIndex - 1);
+				return prevColumn.getWidth() + delta;
+			}
+		}
 		return GSIScrollable.super.getIncrementalScrollX(sign);
 	}
 
 	@Override
 	public float getIncrementalScrollY(int sign) {
-		// TODO Auto-generated method stub
+		int scrollY = GSPanelUtil.getScrollY(this);
+		int rowIndex = getRowIndexAtY(scrollY);
+		if (rowIndex != -1) {
+			// Translate by a single row depending on sign
+			int delta = scrollY - getRowY(rowIndex);
+			if (sign > 0) {
+				GSITableRow row = model.getRow(rowIndex);
+				return row.getHeight() - delta;
+			} else if (rowIndex > 0) {
+				GSITableRow prevRow = model.getRow(rowIndex - 1);
+				return prevRow.getHeight() + delta;
+			}
+		}
 		return GSIScrollable.super.getIncrementalScrollY(sign);
 	}
 	
@@ -373,7 +433,10 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	}
 
 	public void columnSizeChanged(int columnIndex) {
-		// TODO: figure out how to handle model change
+		if (!isValidating()) {
+			// column#setWidth is invoked from the layout manager.
+			invalidate();
+		}
 	}
 
 	@Override
@@ -383,7 +446,10 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 
 	@Override
 	public void rowSizeChanged(int rowIndex) {
-		// TODO: figure out how to handle model change
+		if (!isValidating()) {
+			// row#setHeight is invoked from the layout manager.
+			invalidate();
+		}
 	}
 	
 	@Override

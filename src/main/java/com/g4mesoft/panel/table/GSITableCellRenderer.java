@@ -8,10 +8,9 @@ public interface GSITableCellRenderer<T> {
 
 	public void render(GSIRenderer2D renderer, T value, GSRectangle bounds, GSTablePanel table);
 	
-	default public GSDimension getMinimumSize(T value) {
-		return getPreferredSize(value);
-	}
+	public GSDimension getMinimumSize(T value);
 
-	public GSDimension getPreferredSize(T value);
-	
+	default public GSDimension getMaximumSize(T value) {
+		return GSDimension.MAX_VALUE;
+	}
 }
