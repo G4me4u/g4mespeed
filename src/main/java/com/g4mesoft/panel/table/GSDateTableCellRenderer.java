@@ -40,30 +40,27 @@ public final class GSDateTableCellRenderer implements GSITableCellRenderer<Date>
 		StringBuffer buffer = new StringBuffer();
 		// Format date. Check if the date is today or yesterday,
 		// and replace with corresponding replacement strings.
+		String dateReplacement = null;
 		Calendar calendar = Calendar.getInstance();
 		if (calendar.fieldDifference(value, Calendar.YEAR) == 0) {
-			String dateTranslation;
 			switch (calendar.fieldDifference(value, Calendar.DAY_OF_YEAR)) {
 			case 0:
 				if (todayTranslation == null)
 					todayTranslation = GSPanelContext.i18nTranslate(TODAY_TRANSLATION_KEY);
-				dateTranslation = todayTranslation;
+				dateReplacement = todayTranslation;
 				break;
 			case -1:
 				if (yesterdayTranslation == null)
 					yesterdayTranslation = GSPanelContext.i18nTranslate(YESTERDAY_TRANSLATION_KEY);
-				dateTranslation = yesterdayTranslation;
-				break;
-			default:
-				dateTranslation = null;
+				dateReplacement = yesterdayTranslation;
 				break;
 			}
-			if (dateTranslation != null) {
-				// Replace the date in the formatted string
-				buffer.append(dateTranslation);
-			} else {
-				DATE_FORMAT.format(value, buffer, GSDontCareFieldPosition.INSTANCE);
-			}
+		}
+		if (dateReplacement != null) {
+			// Replace the date in the formatted string
+			buffer.append(dateReplacement);
+		} else {
+			DATE_FORMAT.format(value, buffer, GSDontCareFieldPosition.INSTANCE);
 		}
 		// Format time.
 		buffer.append(' ');
