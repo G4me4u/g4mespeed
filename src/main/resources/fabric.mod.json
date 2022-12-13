@@ -9,7 +9,8 @@
     "G4me4u"
   ],
   "contact": {
-    "homepage": "https://youtube.com/user/G4me4u"
+    "homepage": "https://youtube.com/user/G4me4u",
+    "sources": "https://github.com/G4me4u/g4mespeed"
   },
 
   "license": "CC-BY-ND-4.0",
