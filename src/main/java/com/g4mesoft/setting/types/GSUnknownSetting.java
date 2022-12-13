@@ -2,7 +2,16 @@ package com.g4mesoft.setting.types;
 
 import com.g4mesoft.setting.GSSetting;
 
-public class GSUnknownSetting extends GSSetting<Object> {
+/**
+ * Internally used to store setting types which have not been registered. This
+ * allows the setting values to be restored if the type is later registered again,
+ * by writing the original data to disk. This way if an extension (which registers
+ * custom setting types) is at some point uninstalled and then later reinstalled,
+ * we ensure that the setting values are not lost.
+ * 
+ * @author Christian
+ */
+public final class GSUnknownSetting extends GSSetting<Object> {
 
 	private final String type;
 	private final byte[] data;

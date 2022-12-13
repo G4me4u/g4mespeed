@@ -1,5 +1,6 @@
 package com.g4mesoft.setting.decoder;
 
+import com.g4mesoft.setting.GSISettingDecoder;
 import com.g4mesoft.setting.types.GSBooleanSetting;
 
 import net.minecraft.network.PacketByteBuf;
