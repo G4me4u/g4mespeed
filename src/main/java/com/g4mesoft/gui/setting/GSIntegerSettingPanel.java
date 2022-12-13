@@ -1,4 +1,4 @@
-package com.g4mesoft.gui;
+package com.g4mesoft.gui.setting;
 
 import java.util.Locale;
 
@@ -9,12 +9,12 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-public class GSIntegerSettingElementGUI extends GSNumberSettingElementGUI<GSIntegerSetting> {
+public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntegerSetting> {
 
 	private static final int MAX_DEF_INTERVAL_FOR_SLIDER = 100;
 
-	public GSIntegerSettingElementGUI(GSSettingsGUI settingsGUI, GSIntegerSetting setting, GSSettingCategory category) {
-		super(settingsGUI, setting, category);
+	public GSIntegerSettingPanel(GSSettingCategory category, GSIntegerSetting setting) {
+		super(category, setting);
 	}
 
 	@Override

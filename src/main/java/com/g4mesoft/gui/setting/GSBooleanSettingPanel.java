@@ -1,4 +1,4 @@
-package com.g4mesoft.gui;
+package com.g4mesoft.gui.setting;
 
 import com.g4mesoft.panel.legend.GSToggleSwitchPanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
@@ -8,7 +8,7 @@ import com.g4mesoft.setting.types.GSBooleanSetting;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSetting> {
+public class GSBooleanSettingPanel extends GSSettingPanel<GSBooleanSetting> {
 
 	private static final int SETTING_HEIGHT = Math.max(16, GSToggleSwitchPanel.SWITCH_HEIGHT);
 	private static final int TEXT_MAX_WIDTH = 140;
@@ -19,8 +19,8 @@ public class GSBooleanSettingElementGUI extends GSSettingElementGUI<GSBooleanSet
 	
 	private final GSToggleSwitchPanel switchWidget;
 	
-	public GSBooleanSettingElementGUI(GSSettingsGUI settingsGUI, GSBooleanSetting setting, GSSettingCategory category) {
-		super(settingsGUI, setting, category);
+	public GSBooleanSettingPanel(GSSettingCategory category, GSBooleanSetting setting) {
+		super(category, setting);
 		
 		switchWidget = new GSToggleSwitchPanel(this::updateSettingValue, setting.getValue());
 		add(switchWidget);

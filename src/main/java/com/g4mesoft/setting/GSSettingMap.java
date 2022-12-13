@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import com.g4mesoft.setting.decoder.GSISettingDecoder;
 import com.g4mesoft.setting.types.GSUnknownSetting;
 import com.g4mesoft.util.GSBufferUtil;
 import com.google.common.base.Predicates;
@@ -116,7 +115,7 @@ public final class GSSettingMap {
 			
 			GSSetting<?> setting;
 			
-			GSISettingDecoder<?> decoder = GSSettingManager.getSettingDecoder(type);
+			GSISettingDecoder<?> decoder = GSSettingManager.getDecoder(type);
 			if (decoder == null) {
 				byte[] data = new byte[sizeInBytes];
 				buffer.readBytes(data);
@@ -168,7 +167,7 @@ public final class GSSettingMap {
 			buffer.writeString(setting.getName());
 			
 			@SuppressWarnings("rawtypes")
-			GSISettingDecoder decoder = GSSettingManager.getSettingDecoder(setting.getClass());
+			GSISettingDecoder decoder = GSSettingManager.getDecoder(setting);
 			if (decoder == null) {
 				if (setting instanceof GSUnknownSetting) {
 					GSUnknownSetting unknSetting = ((GSUnknownSetting)setting);

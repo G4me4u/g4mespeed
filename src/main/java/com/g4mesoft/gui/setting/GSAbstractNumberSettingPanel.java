@@ -1,4 +1,4 @@
-package com.g4mesoft.gui;
+package com.g4mesoft.gui.setting;
 
 import com.g4mesoft.panel.field.GSTextField;
 import com.g4mesoft.panel.legend.GSButtonPanel;
@@ -9,7 +9,7 @@ import com.g4mesoft.setting.GSSettingCategory;
 
 import net.minecraft.text.Text;
 
-public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends GSSettingElementGUI<T> {
+public abstract class GSAbstractNumberSettingPanel<T extends GSSetting<?>> extends GSSettingPanel<T> {
 
 	private static final int SETTING_HEIGHT = 16;
 	private static final int TEXT_FIELD_HEIGHT = 20;
@@ -26,8 +26,8 @@ public abstract class GSNumberSettingElementGUI<T extends GSSetting<?>> extends 
 	
 	protected String prevTextFieldValue;
 	
-	public GSNumberSettingElementGUI(GSSettingsGUI settingsGUI, T setting, GSSettingCategory category) {
-		super(settingsGUI, setting, category);
+	public GSAbstractNumberSettingPanel(GSSettingCategory category, T setting) {
+		super(category, setting);
 	}
 	
 	@Override

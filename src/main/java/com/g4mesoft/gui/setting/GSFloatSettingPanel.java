@@ -1,4 +1,4 @@
-package com.g4mesoft.gui;
+package com.g4mesoft.gui.setting;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -10,14 +10,14 @@ import com.g4mesoft.setting.types.GSFloatSetting;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-public class GSFloatSettingElementGUI extends GSNumberSettingElementGUI<GSFloatSetting> {
+public class GSFloatSettingPanel extends GSAbstractNumberSettingPanel<GSFloatSetting> {
 
 	private static final float MAX_DEF_INTERVAL_FOR_SLIDER = 100.0f;
 
 	private static final DecimalFormat FORMATTER = new DecimalFormat("#0.00", new DecimalFormatSymbols(Locale.ENGLISH));
 	
-	public GSFloatSettingElementGUI(GSSettingsGUI settingsGUI, GSFloatSetting setting, GSSettingCategory category) {
-		super(settingsGUI, setting, category);
+	public GSFloatSettingPanel(GSSettingCategory category, GSFloatSetting setting) {
+		super(category, setting);
 	}
 
 	@Override

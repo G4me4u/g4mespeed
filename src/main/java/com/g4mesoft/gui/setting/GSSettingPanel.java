@@ -1,4 +1,4 @@
-package com.g4mesoft.gui;
+package com.g4mesoft.gui.setting;
 
 import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.panel.legend.GSButtonPanel;
@@ -8,7 +8,8 @@ import com.g4mesoft.setting.GSSettingCategory;
 
 import net.minecraft.text.Text;
 
-public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSParentPanel {
+/* TODO: rewrite this using the modern panel API */
+public abstract class GSSettingPanel<T extends GSSetting<?>> extends GSParentPanel {
 
 	public static final int HOVERED_BACKGROUND = 0x80000000;//0x66EDEDFF;
 	
@@ -22,19 +23,17 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	private static final int ENABLED_TEXT_COLOR = 0xFFFFFFFF;
 	private static final int DISABLED_TEXT_COLOR = 0xFFAAAAAA;
 	
-	protected final GSSettingsGUI settingsGUI;
-	protected final T setting;
 	protected final GSSettingCategory category;
+	protected final T setting;
 	
 	protected final String nameTextKey;
 	protected final Text nameText;
 	
 	private final GSButtonPanel resetButton;
 	
-	public GSSettingElementGUI(GSSettingsGUI settingsGUI, T setting, GSSettingCategory category) {
-		this.settingsGUI = settingsGUI;
-		this.setting = setting;
+	public GSSettingPanel(GSSettingCategory category, T setting) {
 		this.category = category;
+		this.setting = setting;
 		
 		nameTextKey = "setting." + category.getName() + "." + setting.getName();
 		nameText = Text.translatable(nameTextKey);
@@ -101,5 +100,9 @@ public abstract class GSSettingElementGUI<T extends GSSetting<?>> extends GSPare
 	
 	public String getNameTextKey() {
 		return nameTextKey;
+	}
+
+	public GSSetting<?> getSetting() {
+		return setting;
 	}
 }
