@@ -5,7 +5,6 @@ import java.io.IOException;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;
-import com.g4mesoft.setting.decoder.GSISettingDecoder;
 import com.g4mesoft.util.GSBufferUtil;
 
 import net.fabricmc.api.EnvType;
@@ -35,7 +34,7 @@ public class GSSettingChangePacket implements GSIPacket {
 		String decoderType = buf.readString(16);
 		String settingName = buf.readString(GSBufferUtil.MAX_STRING_LENGTH);
 		
-		GSISettingDecoder<?> decoder = GSSettingManager.getSettingDecoder(decoderType);
+		GSISettingDecoder<?> decoder = GSSettingManager.getDecoder(decoderType);
 		if (decoder == null)
 			throw new IOException("No valid decoder found");
 		setting = decoder.decodeSetting(settingName, buf);
@@ -45,7 +44,7 @@ public class GSSettingChangePacket implements GSIPacket {
 	@SuppressWarnings("unchecked")
 	public void write(PacketByteBuf buf) throws IOException {
 		@SuppressWarnings("rawtypes")
-		GSISettingDecoder decoder = GSSettingManager.getSettingDecoder(setting.getClass());
+		GSISettingDecoder decoder = GSSettingManager.getDecoder(setting);
 		if (decoder == null)
 			throw new IOException("No valid decoder found");
 
