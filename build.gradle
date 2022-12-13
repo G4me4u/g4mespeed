@@ -17,11 +17,20 @@ archivesBaseName = project.archives_base_name
 version = "${project.mod_version}-mc${project.minecraft_version}"
 group = project.maven_group
 
+// See https://github.com/TerraformersMC/GradleScripts/blob/2.5/ferry.gradle
+
+ext.includeMod = { Object dep ->
+    dependencies.modImplementation dep
+    dependencies.include dep
+}
+
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	// Include resource loader for loading custom ui textures
+	includeMod fabricApi.module("fabric-resource-loader-v0", project.fabric_version)
 
 	// ModMenu integration
 	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
