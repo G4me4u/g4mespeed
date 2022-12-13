@@ -1,4 +1,4 @@
-package com.g4mesoft.gui;
+package com.g4mesoft.gui.setting;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -13,13 +13,11 @@ import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.panel.scroll.GSIScrollable;
 import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.setting.GSISettingChangeListener;
+import com.g4mesoft.setting.GSISettingPanelSupplier;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.GSSettingMap;
-import com.g4mesoft.setting.types.GSBooleanSetting;
-import com.g4mesoft.setting.types.GSFloatSetting;
-import com.g4mesoft.setting.types.GSIntegerSetting;
 import com.g4mesoft.util.GSMathUtil;
 
 import net.fabricmc.api.EnvType;
@@ -37,7 +35,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	private static final int CATEGORY_TITLE_MARGIN_BOTTOM = 2;
 	private static final int CATEGORY_TITLE_COLOR = 0xFFFFFFFF;
 	
-	private static final int DESC_BACKGROUND_COLOR = GSSettingElementGUI.HOVERED_BACKGROUND;
+	private static final int DESC_BACKGROUND_COLOR = GSSettingPanel.HOVERED_BACKGROUND;
 	private static final int DESC_LINE_SPACING = 5;
 	private static final int DESC_LINE_MARGIN = 10;
 	private static final int DESC_TEXT_COLOR = 0xFFFFFFFF;
@@ -47,7 +45,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	private final Map<GSSettingCategory, GSSettingCategoryElement> settingCategories;
 	private int settingsWidth;
 	
-	private GSSettingElementGUI<?> hoveredElement;
+	private GSSettingPanel<?> hoveredElement;
 	private List<OrderedText> descLines;
 	private int startDescHeight;
 	private int targetDescHeight;
@@ -66,16 +64,20 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 		settingManager.addChangeListener(this);
 	}
 
-	private void addSettingElement(GSSettingCategory category, GSSetting<?> setting) {
+	private <T extends GSSetting<?>> void addSettingElement(GSSettingCategory category, T setting) {
 		if (setting.isActive() && setting.isVisibleInGui()) {
-			GSSettingCategoryElement categoryElement = settingCategories.get(category);
-			if (categoryElement == null) {
-				categoryElement = new GSSettingCategoryElement(category);
-				settingCategories.put(category, categoryElement);
+			GSISettingPanelSupplier<T> supplier = GSSettingManager.getPanelSupplier(setting);
+
+			if (supplier != null) {
+				GSSettingCategoryElement categoryElement = settingCategories.get(category);
+				if (categoryElement == null) {
+					categoryElement = new GSSettingCategoryElement(category);
+					settingCategories.put(category, categoryElement);
+				}
+				
+				categoryElement.addSettingPanel(supplier.create(category, setting));
+				invalidate();
 			}
-			
-			categoryElement.addSetting(setting);
-			invalidate();
 		}
 	}
 	
@@ -126,7 +128,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 		int mouseX = renderer.getMouseX();
 		int mouseY = renderer.getMouseY();
 		
-		GSSettingElementGUI<?> hoveredElement = null;
+		GSSettingPanel<?> hoveredElement = null;
 		for (GSSettingCategoryElement element : settingCategories.values()) {
 			if (hoveredElement == null)
 				hoveredElement = element.getHoveredElement(mouseX, mouseY);
@@ -162,7 +164,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			renderHoveredDesc(renderer, this.hoveredElement);
 	}
 	
-	private void renderHoveredDesc(GSIRenderer2D renderer, GSSettingElementGUI<?> hoveredElement) {
+	private void renderHoveredDesc(GSIRenderer2D renderer, GSSettingPanel<?> hoveredElement) {
 		long delta = Util.getMeasuringTimeMs() - descAnimStart;
 
 		float progress = Math.min(1.0f, delta / DESC_ANIMATION_TIME);
@@ -212,10 +214,9 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	
 	private class GSSettingCategoryElement {
 		
-		private final GSSettingCategory category;
 		private final Text titleText;
 		
-		private final List<GSSettingElementGUI<?>> settings;
+		private final List<GSSettingPanel<?>> settings;
 		
 		private int x;
 		private int y;
@@ -223,8 +224,6 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 		private int height;
 		
 		public GSSettingCategoryElement(GSSettingCategory category) {
-			this.category = category;
-			
 			titleText = new TranslatableText("setting." + category.getName());
 			
 			settings = new LinkedList<>();
@@ -232,7 +231,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 		
 		public int getPreferredWidth() {
 			int minimumWidth = 0;
-			for (GSSettingElementGUI<?> element : settings) {
+			for (GSSettingPanel<?> element : settings) {
 				if (element.getPreferredWidth() > minimumWidth)
 					minimumWidth = element.getPreferredWidth();
 			}
@@ -246,32 +245,22 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			h += renderer.getTextHeight();
 			h += CATEGORY_TITLE_MARGIN_BOTTOM;
 
-			for (GSSettingElementGUI<?> element : settings)
+			for (GSSettingPanel<?> element : settings)
 				h += element.getPreferredHeight();
 			
 			return h;
 		}
 
-		public void addSetting(GSSetting<?> setting) {
-			GSSettingElementGUI<?> panel = null;
-			if (setting instanceof GSBooleanSetting) {
-				panel = new GSBooleanSettingElementGUI(GSSettingsGUI.this, (GSBooleanSetting)setting, category);
-			} else if (setting instanceof GSFloatSetting) {
-				panel = new GSFloatSettingElementGUI(GSSettingsGUI.this, (GSFloatSetting)setting, category);
-			} else if (setting instanceof GSIntegerSetting) {
-				panel = new GSIntegerSettingElementGUI(GSSettingsGUI.this, (GSIntegerSetting)setting, category);
-			}
-			
+		public void addSettingPanel(GSSettingPanel<?> panel) {
 			settings.add(panel);
-			
 			GSSettingsGUI.this.add(panel);
 		}
 
 		public void removeSetting(GSSetting<?> setting) {
-			Iterator<GSSettingElementGUI<?>> settingItr = settings.iterator();
+			Iterator<GSSettingPanel<?>> settingItr = settings.iterator();
 			while (settingItr.hasNext()) {
-				GSSettingElementGUI<?> panel = settingItr.next();
-				if (panel.setting == setting) {
+				GSSettingPanel<?> panel = settingItr.next();
+				if (panel.getSetting() == setting) {
 					GSSettingsGUI.this.remove(panel);
 					settingItr.remove();
 				}
@@ -279,8 +268,8 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 		}
 		
 		public void onSettingChanged(GSSetting<?> setting) {
-			for (GSSettingElementGUI<?> element : settings) {
-				if (element.setting.getName().equals(setting.getName())) {
+			for (GSSettingPanel<?> element : settings) {
+				if (element.getSetting().getName().equals(setting.getName())) {
 					element.onSettingChanged();
 					break;
 				}
@@ -298,7 +287,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			y += renderer.getTextHeight();
 			y += CATEGORY_TITLE_MARGIN_BOTTOM;
 
-			for (GSSettingElementGUI<?> element : settings) {
+			for (GSSettingPanel<?> element : settings) {
 				element.setPreferredBounds(x, y, width);
 				y += element.height;
 			}
@@ -308,11 +297,11 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			return y;
 		}
 		
-		public GSSettingElementGUI<?> getHoveredElement(int mouseX, int mouseY) {
+		public GSSettingPanel<?> getHoveredElement(int mouseX, int mouseY) {
 			if (!isHovered(mouseX, mouseY))
 				return null;
 
-			for (GSSettingElementGUI<?> element : settings) {
+			for (GSSettingPanel<?> element : settings) {
 				if (element.isInBounds(mouseX, mouseY))
 					return element;
 			}
