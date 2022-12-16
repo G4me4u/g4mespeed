@@ -253,7 +253,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	@Override
 	public void sendPacket(GSIPacket packet, GSVersion minExtensionVersion) {
 		if (networkHandler != null) {
-			GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
+			GSPacketManager packetManager = G4mespeedMod.getPacketManager();
 			GSExtensionUID extensionUid = packetManager.getPacketExtensionUniqueId(packet);
 			
 			if (extensionUid != null && isServerExtensionInstalled(extensionUid, minExtensionVersion)) {

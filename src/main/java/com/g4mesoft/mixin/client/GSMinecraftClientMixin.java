@@ -87,7 +87,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		gs_controller = GSClientController.getInstance();
 		gs_controller.init((MinecraftClient)(Object)this);
 		gs_tpsModule = gs_controller.getTpsModule();
-		gs_tweakerooCompat = G4mespeedMod.getInstance().getTweakerooCompat();
+		gs_tweakerooCompat = G4mespeedMod.getTweakerooCompat();
 	}
 	
 	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))

@@ -92,7 +92,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 	
 	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
 	private void onCustomPayload(CustomPayloadC2SPacket packet, CallbackInfo ci) {
-		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
+		GSPacketManager packetManger = G4mespeedMod.getPacketManager();
 		
 		@SuppressWarnings("unchecked")
 		GSICustomPayloadPacket<ServerPlayPacketListener> payload = (GSICustomPayloadPacket<ServerPlayPacketListener>)packet;

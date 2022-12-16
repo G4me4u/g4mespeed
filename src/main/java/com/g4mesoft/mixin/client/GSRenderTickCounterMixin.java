@@ -82,7 +82,7 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 
 	@Override
 	public void init(long initialTimeMillis) {
-		gs_carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
+		gs_carpetCompat = G4mespeedMod.getCarpetCompat();
 		gs_tpsModule = GSClientController.getInstance().getTpsModule();
 		gs_serverTimer = gs_tpsModule.getServerTimer();
 		

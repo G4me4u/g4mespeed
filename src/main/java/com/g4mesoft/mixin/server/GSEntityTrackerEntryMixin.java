@@ -60,7 +60,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 				GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getEntityId(), gs_fixedMovement);
 				// Encode packet to a vanilla packet. This is required for sending to all nearby
 				// players. Note that vanilla players will not react to the packet.
-				GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
+				GSPacketManager packetManager = G4mespeedMod.getPacketManager();
 				receiver.accept(packetManager.encodePacket(packet, GSServerController.getInstance()));
 			}
 		}

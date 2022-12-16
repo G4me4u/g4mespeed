@@ -15,6 +15,9 @@ public abstract class GSSetting<T> {
 	private boolean allowedChange;
 	
 	public GSSetting(String name, T defaultValue, boolean visibleInGui) {
+		if (name == null)
+			throw new IllegalArgumentException("name is null");
+		
 		this.name = name;
 		this.defaultValue = defaultValue;
 		this.visibleInGui = visibleInGui;

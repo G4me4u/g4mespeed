@@ -15,6 +15,9 @@ public class GSStringSetting extends GSSetting<String> {
 	public GSStringSetting(String name, String defaultValue, boolean visibleInGui) {
 		super(name, defaultValue, visibleInGui);
 		
+		if (defaultValue == null)
+			throw new IllegalArgumentException("GSStringSetting does not permit null values.");
+		
 		this.value = defaultValue;
 	}
 	

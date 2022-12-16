@@ -146,7 +146,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	
 	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
 	private void onCustomPayload(CustomPayloadS2CPacket packet, CallbackInfo ci) {
-		GSPacketManager packetManger = G4mespeedMod.getInstance().getPacketManager();
+		GSPacketManager packetManger = G4mespeedMod.getPacketManager();
 		
 		@SuppressWarnings("unchecked")
 		GSICustomPayloadPacket<ClientPlayPacketListener> payload = (GSICustomPayloadPacket<ClientPlayPacketListener>)packet;
