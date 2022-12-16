@@ -167,7 +167,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		resetTps();
 		serverTpsMonitor.reset();
 		
-		G4mespeedMod.getInstance().getCarpetCompat().addCarpetTickrateListener(this);
+		G4mespeedMod.getCarpetCompat().addCarpetTickrateListener(this);
 		
 		manager.runOnServer(managerServer -> {
 			if (sRestoreTickrate.getValue()) {
@@ -184,7 +184,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public void onClose() {
 		clearTpsListeners();
 		
-		G4mespeedMod.getInstance().getCarpetCompat().removeCarpetTickrateListener(this);
+		G4mespeedMod.getCarpetCompat().removeCarpetTickrateListener(this);
 
 		manager.runOnServer(serverManager -> {
 			if (sRestoreTickrate.getValue()) {
@@ -201,20 +201,22 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	@Override
 	public void registerClientSettings(GSSettingManager settings) {
-		settings.registerSetting(TPS_CATEGORY, cShiftPitch);
-		settings.registerSetting(TPS_CATEGORY, cSyncTick);
-		if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
-			settings.registerSetting(TPS_CATEGORY, cForceCarpetTickrate);
-		settings.registerSetting(TPS_CATEGORY, cNormalMovement);
-		if (G4mespeedMod.getInstance().getTweakerooCompat().isCameraEntityRetreived()) {
-			settings.registerSetting(TPS_CATEGORY, cTweakerooFreecamHack);
-			cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.getValue());
-		}
-		settings.registerSetting(TPS_CATEGORY, cTpsLabel);
+		settings.registerSettings(TPS_CATEGORY,
+			cShiftPitch,
+			cSyncTick,
+			G4mespeedMod.getCarpetCompat().isTickrateLinked() ? cForceCarpetTickrate : null,
+			cNormalMovement,
+			G4mespeedMod.getTweakerooCompat().isCameraEntityRetreived() ? cTweakerooFreecamHack : null,
+			cTpsLabel
+		);
+		// Tweakeroo hack is only enabled for normal movement setting.
+		cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.getValue());
 
-		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonAnimationType);
-		settings.registerSetting(BETTER_PISTONS_CATEGORY, cCorrectPistonPushing);
-		settings.registerSetting(BETTER_PISTONS_CATEGORY, cPistonRenderDistance);
+		settings.registerSettings(BETTER_PISTONS_CATEGORY,
+			cPistonAnimationType,
+			cCorrectPistonPushing,
+			cPistonRenderDistance
+		);
 		
 		settings.addChangeListener(this);
 	}
@@ -239,16 +241,19 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	@Override
 	public void registerServerSettings(GSSettingManager settings) {
-		settings.registerSetting(TPS_CATEGORY, sSyncPacketInterval);
-		settings.registerSetting(TPS_CATEGORY, sBroadcastTps);
-		settings.registerSetting(TPS_CATEGORY, sTpsHotkeyMode);
-		settings.registerSetting(TPS_CATEGORY, sTpsHotkeyFeedback);
-		settings.registerSetting(TPS_CATEGORY, sRestoreTickrate);
-		settings.registerSetting(TPS_CATEGORY, sPrettySand);
-
-		settings.registerSetting(BETTER_PISTONS_CATEGORY, sBlockEventDistance);
-		settings.registerSetting(BETTER_PISTONS_CATEGORY, sParanoidMode);
-		settings.registerSetting(BETTER_PISTONS_CATEGORY, sImmediateBlockBroadcast);
+		settings.registerSettings(TPS_CATEGORY, 
+			sSyncPacketInterval,
+			sBroadcastTps,
+			sTpsHotkeyMode,
+			sTpsHotkeyFeedback,
+			sRestoreTickrate,
+			sPrettySand
+		);
+		settings.registerSettings(BETTER_PISTONS_CATEGORY,
+			sBlockEventDistance,
+			sParanoidMode,
+			sImmediateBlockBroadcast
+		);
 	}
 	
 	@Override
@@ -285,7 +290,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			}
 		});
 		
-		GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
+		GSCarpetCompat carpetCompat = G4mespeedMod.getCarpetCompat();
 		if (carpetCompat.isCarpetDetected() && carpetCompat.isOutdatedCompatMode()) {
 			// With older versions of carpet we have to poll the current tps
 			// manually since we don't receive an event directly when it changes.
@@ -507,7 +512,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				lastServerTpsTime = Util.getMeasuringTimeMs();
 			});
 			
-			GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
+			GSCarpetCompat carpetCompat = G4mespeedMod.getCarpetCompat();
 			if (carpetCompat.isCarpetDetected() && carpetCompat.isTickrateLinked())
 				carpetCompat.notifyTickrateChange(tps);
 		}
@@ -533,8 +538,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
 		if (setting == cNormalMovement) {
 			sendFixedMovementPacket();
-			if (G4mespeedMod.getInstance().getTweakerooCompat().isCameraEntityRetreived())
-				cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.getValue());
+			cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.getValue());
 		}
 	}
 	
@@ -612,7 +616,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			if (player != null && !player.hasVehicle()) {
 				// Carpet allows clients to have different tps than the server,
 				// do not enable fixed movement if carpet is in this mode.
-				if (G4mespeedMod.getInstance().getCarpetCompat().isTickrateLinked())
+				if (G4mespeedMod.getCarpetCompat().isTickrateLinked())
 					return cForceCarpetTickrate.getValue();
 				return true;
 			}

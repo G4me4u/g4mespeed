@@ -9,6 +9,9 @@ public final class GSSettingCategory {
 	private final String name;
 	
 	public GSSettingCategory(String name) {
+		if (name == null)
+			throw new IllegalArgumentException("name is null");
+		
 		this.name = name;
 	}
 	

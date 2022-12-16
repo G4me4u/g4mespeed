@@ -222,7 +222,28 @@ public class GSSettingManager {
 		return (categorySettings != null) ? categorySettings.getSetting(name) : null;
 	}
 	
+	/**
+	 * Register a setting to a given category. After an invocation to this method,
+	 * the setting manager owns the given setting, and will update it accordingly
+	 * when it is modified externally. This includes updates on the server and/or
+	 * updates when reading settings from a file.
+	 * <br><br>
+	 * <i>Note: when registering a custom setting (not a default implementation),
+	 *          it is important to also register a decoder/encoder for the setting.
+	 *          Otherwise, the changes made to the setting will not be persistent
+	 *          between sessions.</i>
+	 * 
+	 * @param category - the category in which to register the setting
+	 * @param setting - the setting to be registered
+	 * 
+	 * @see #registerSettings(GSSettingCategory, GSSetting...)
+	 * @see #registerDecoder(GSISettingDecoder)
+	 * @see #registerType(GSISettingDecoder, GSISettingPanelSupplier)
+	 */
 	public void registerSetting(GSSettingCategory category, GSSetting<?> setting) {
+		if (setting == null)
+			throw new IllegalArgumentException("setting is null");
+		
 		GSSettingMap categorySettings = settings.get(category);
 		if (categorySettings == null) {
 			categorySettings = new GSSettingMap(category, this);
@@ -230,6 +251,49 @@ public class GSSettingManager {
 		}
 		
 		categorySettings.registerSetting(setting);
+	}
+
+	/**
+	 * More efficient implementation for adding multiple settings to a single setting
+	 * category. An invocation of this method replaces the following code snippet:
+	 * <pre>
+	 *     // Registering multiple settings to the same category
+	 *     registerSetting(category, setting1);
+	 *     registerSetting(category, setting2);
+	 *     registerSetting(category, setting3);
+	 *     if (condition)
+	 *         registerSetting(category, setting4);
+	 *     ...
+	 *     // Becomes
+	 *     registerSettings(category,
+	 *         setting1,
+	 *         setting2,
+	 *         setting3,
+	 *         condition ? setting4 : null,
+	 *         ...
+	 *     );
+	 * </pre>
+	 * A slight difference between this implementation and the single-setting variant is
+	 * that a {@code null} setting is permitted here, and will simply be ignored. This
+	 * way one can conditionally register some settings to a category.
+	 * 
+	 * @param category - the category in which to register the settings
+	 * @param settingArgs - the settings to be registered
+	 * 
+	 * @see #registerSetting(GSSettingCategory, GSSetting)
+	 */
+	public void registerSettings(GSSettingCategory category, GSSetting<?>... settingArgs) {
+		GSSettingMap categorySettings = settings.get(category);
+		if (categorySettings == null) {
+			categorySettings = new GSSettingMap(category, this);
+			settings.put(category, categorySettings);
+		}
+		
+		for (GSSetting<?> setting : settingArgs) {
+			// Allow conditional settings
+			if (setting != null)
+				categorySettings.registerSetting(setting);
+		}
 	}
 	
 	public void removeSetting(GSSettingCategory category, String name) {

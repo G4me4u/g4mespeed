@@ -18,6 +18,13 @@ public interface GSIServerModule extends GSIModule {
 		init((GSIServerModuleManager)manager);
 	}
 	
+	/**
+	 * Invoked during initialization of the <b>server</b>. This method is invoked <i>just
+	 * before</i> the main game loop, and might be invoked several times but not before a
+	 * matching invocation of {@link #onClose()}.
+	 * 
+	 * @param manager - the server manager which this module is installed on.
+	 */
 	public void init(GSIServerModuleManager manager);
 	
 	@Environment(EnvType.CLIENT)

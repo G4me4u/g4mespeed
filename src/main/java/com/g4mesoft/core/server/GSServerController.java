@@ -2,6 +2,7 @@ package com.g4mesoft.core.server;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -169,7 +170,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	@Override
 	public void sendPacket(GSIPacket packet, ServerPlayerEntity player, GSVersion minExtensionVersion) {
 		if (server != null) {
-			GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
+			GSPacketManager packetManager = G4mespeedMod.getPacketManager();
 			GSExtensionUID extensionUid = packetManager.getPacketExtensionUniqueId(packet);
 			
 			if (extensionUid != null && isExtensionInstalled(player, extensionUid, minExtensionVersion)) {
@@ -189,7 +190,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	@Override
 	public void sendPacketToAllExcept(GSIPacket packet, GSVersion minExtensionVersion, ServerPlayerEntity exceptPlayer) {
 		if (server != null) {
-			GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
+			GSPacketManager packetManager = G4mespeedMod.getPacketManager();
 			GSExtensionUID extensionUid = packetManager.getPacketExtensionUniqueId(packet);
 			
 			if (extensionUid != null) {
@@ -212,7 +213,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	@Override
 	public Collection<ServerPlayerEntity> getAllPlayers() {
-		return server.getPlayerManager().getPlayerList();
+		return Collections.unmodifiableCollection(server.getPlayerManager().getPlayerList());
 	}
 	
 	@Override

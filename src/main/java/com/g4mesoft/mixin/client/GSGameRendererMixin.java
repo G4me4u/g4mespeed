@@ -31,7 +31,7 @@ public class GSGameRendererMixin {
 				return oldTickDelta;
 		}
 		if (tpsModule.cTweakerooFreecamHack.getValue()) {
-			GSTweakerooCompat tweakerooCompat = G4mespeedMod.getInstance().getTweakerooCompat();
+			GSTweakerooCompat tweakerooCompat = G4mespeedMod.getTweakerooCompat();
 			if (tweakerooCompat.isCameraEntityRetreived() && tweakerooCompat.isCameraEntityInstance(focusedEntity) && tpsModule.isMainPlayerFixedMovement())
 				return oldTickDelta;
 		}
