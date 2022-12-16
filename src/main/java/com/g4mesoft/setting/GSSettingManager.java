@@ -302,6 +302,10 @@ public class GSSettingManager {
 			categorySettings.removeSetting(name);
 	}
 	
+	public GSSettingMap getSettings(GSSettingCategory category) {
+		return settings.get(category);
+	}
+	
 	public Collection<GSSettingMap> getSettings() {
 		return Collections.unmodifiableCollection(settings.values());
 	}
