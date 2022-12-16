@@ -1,0 +1,187 @@
+# Translation version 0
+:0
+
+############ ModMenu Translations ############
+
+g4mespeed.modmenu.discord=Entra nel Discord di G4mespeed!
+g4mespeed.modmenu.done=Fatto
+g4mespeed.modmenu.title=Configurazione di G4mespeed
+
+############ GUI Elements ############
+
+gui.tab.clientSettings=Impostazioni Client
+gui.tab.serverSettings=Impostazioni Server
+gui.tab.info=Informazioni
+gui.tab.hotkeys=Tasti
+
+gui.info.serverExtensionsTitle=Estensioni Server:
+gui.info.clientExtensionsTitle=Estensioni Client:
+gui.info.extensionName=%s:
+gui.info.invalidVersion=Non Installato
+
+setting.default=Default è %s.
+setting.button.reset=Ripristina
+setting.button.set=Imposta
+
+setting.tps=Velocità dei Tick
+setting.betterPistons=Pistoni Migliorati
+
+############ Panels ############
+
+panel.textfield.cut=Taglia
+panel.textfield.copy=Copia
+panel.textfield.paste=Incolla
+panel.textfield.selectall=Seleziona Tutto
+
+panel.scrollbar.scrollhere=Scrolla Qui
+panel.scrollbar.top=Sopra
+panel.scrollbar.bottom=Sotto
+panel.scrollbar.pageup=Pagina Sopra
+panel.scrollbar.pagedown=Pagina Sotto
+panel.scrollbar.scrollup=Scrolla Sopra
+panel.scrollbar.scrolldown=Scrolla Sotto
+panel.scrollbar.leftedge=Lato Sinistro
+panel.scrollbar.rightedge=Lato Destro
+panel.scrollbar.pageleft=Pagina Sinistra
+panel.scrollbar.pageright=Pagina Destra
+panel.scrollbar.scrollleft=Scrolla Sinistra
+panel.scrollbar.scrollright=Scrolla Destra
+
+panel.date.todayAt=Oggi alle
+panel.date.yesterdayAt=Ieri alle
+
+############ Client Settings ############
+
+setting.tps.shiftPitch=Cambia il Volume
+setting.tps.shiftPitch.desc=Modifica il Pitch dei suoni per essere corrispondente alla velocità a cui il gioco sta andando.
+
+setting.tps.syncTick=Tick Sincronizzati
+setting.tps.syncTick.desc=Sincronizza i tick tra Client e Server per migliorare le animazioni dei pistoni. Questo è fatto approssimando il ciclo dei tick del server.
+
+setting.tps.syncTickAggression=Aggressione della Sincronizzazione
+setting.tps.syncTickAggression.desc=L'aggressione della Sincronizzazione. Un valore di 1.0 seguirà il ciclo dei tick esattamente. Un valore di 0.0 disabiliterà la sincronizzazione.
+
+setting.tps.forceCarpetTickrate=Forza la velocità dei tick di Carpet
+setting.tps.forceCarpetTickrate.desc=Forza il client ad usare la velocità dei tick impostata da G4mespeed e Carped Mod si adatterà. Questa funzionalità sostituisce smoothClientAnimations di Carpet mod. Se vuoi che Carpet mod si occupi della velocità dei tick disabilita questa opzione.
+
+setting.tps.tpsLabel=Informazioni TPS
+setting.tps.tpsLabel.desc=Mostra i TPS del server nella posizione specificata. Se il server non ha G4mespeed installato il Client cercherà di approssimare.
+setting.tps.tpsLabel.0=Nascosto
+setting.tps.tpsLabel.1=In alto a sinistra
+setting.tps.tpsLabel.2=Al Centro
+setting.tps.tpsLabel.3=In alto a destra
+
+setting.tps.normalMovement=Velocità di movimento Aggiustata
+setting.tps.normalMovement.desc=Permette al giocatore di muoversi a 20TPS senza modificare la velocità dei tick del server.
+
+setting.tps.tweakerooFreecamHack=Compatibilità con Free Camera di Tweakeroo
+setting.tps.tweakerooFreecamHack.desc=Permette di utilizzare la Free Camera di Tweakeroo a 20TPS. Disabilita se noti dei bug.
+
+setting.betterPistons.cullMovingBlocks=Nascondi le facce dei blocchi che si muovono
+setting.betterPistons.cullMovingBlocks.desc=Nasconde la faccia dei blocchi quando non visibile. Questa opzione agisce soprattutto sui blocchi trasparenti.
+
+setting.betterPistons.pistonAnimationType=Tipo di animazione dei Pistoni
+setting.betterPistons.pistonAnimationType.0=Pausa alla fine
+setting.betterPistons.pistonAnimationType.1=Pausa in mezzo
+setting.betterPistons.pistonAnimationType.2=Pausa all'inizio
+setting.betterPistons.pistonAnimationType.3=Niente pausa
+setting.betterPistons.pistonAnimationType.desc=Specifica se l'animazione del pistone deve avere una pausa all'inizio, in mezzo o alla fine.
+
+setting.betterPistons.correctPistonPushing=Spinta corretta delle entità
+setting.betterPistons.correctPistonPushing.desc=Corregge in modo visivo il movimento delle entità quando spinte da pistoni.
+
+setting.betterPistons.pistonRenderDistance=Render distance dei Pistoni
+setting.betterPistons.pistonRenderDistance.desc=Render distanace dei blocchi mossi dai pistoni. Dato che non ha effetto se superiore alla render distance del server, usa Automatica.
+setting.betterPistons.pistonRenderDistance.-1=Automatica
+setting.betterPistons.pistonRenderDistance.1=1 chunk
+setting.betterPistons.pistonRenderDistance.x=%s chunk
+
+############ Hotkeys ############
+
+hotkey.gs.title=G4mespeed
+hotkey.gs.opengui=Apri GUI
+
+hotkey.tps.title=Velocità dei Tick
+hotkey.tps.reset=Reimposta TPS
+hotkey.tps.increment=Aumenta TPS
+hotkey.tps.decrement=Diminuisci TPS
+hotkey.tps.double=Raddoppia TPS
+hotkey.tps.halve=Dimezza TPS
+
+gui.hotkey.reset=Reimposta
+gui.hotkey.cancel=Cancella
+gui.hotkey.resetAll=Reimposta tutto
+gui.hotkey.unbindAll=Rimuovi tutti i tasti
+
+###########   Game Information    ############
+
+play.info.clientTpsChanged=Tps del Client impostati a %s
+play.info.tpsLabelTarget=tps (%s)
+
+# Translation version 4 (v1.1.0)
+# The older translation versions are deprecated.
+:4
+
+###########   Commands    ############
+
+command.gs.info=La versione di G4mespeed è %s
+
+command.tps.get=I Tps sono %s
+command.tps.set=I Tps sono stati impostati su %s
+
+command.tps.getn=I Tps sono %s, %sn
+command.tps.geton=I Tps sono %s, %so %sn
+
+###########   Server Settings    ############
+
+setting.tps.syncPacketInterval=Intervallo di sincronizzazione
+setting.tps.syncPacketInterval.desc=L'intervallo, in tick, a quale il server manda un packet di sincronizzazione. Un valore di 1 renderà i Client più sincronizzati ma ci sarà più trasmissione di dati.
+
+setting.tps.hotkeyMode=Gamemodes consentite per i tasti
+setting.tps.hotkeyMode.desc=Specifica in quali modalità di gioco il giocatore può usare G4mespeed. Se è tutto selezionato non ci saranno restrizioni sulla modalità di gioco.
+setting.tps.hotkeyMode.0=Nessuna
+setting.tps.hotkeyMode.1=Creativa e Spettatore
+setting.tps.hotkeyMode.2=Tutte
+
+setting.tps.broadcastTps=Invia TPS
+setting.tps.broadcastTps.desc=Invia i TPS ogni due secondi per permettere ai giocatori di monitorare la performance del server.
+
+setting.betterPistons.blockEventDistance=Distanza degli eventi dei blocchi
+setting.betterPistons.blockEventDistance.1=1 chunk
+setting.betterPistons.blockEventDistance.x=%s chunk
+setting.betterPistons.blockEventDistance.desc=Il raggio di trasmissione, in chunk, nel quale gli eventi dei pistoni saranno trasmessi ai giocatori. Questo modificherà anche la massima distanza di visualizzazione dei blocchi in movimento.
+
+setting.betterPistons.paranoidMode=Modalità Paranoica
+setting.betterPistons.paranoidMode.desc=Invia diversi packets di pistoni ai giocatori. Questo fa in modo che tutti i giocatori saranno sincronizzati correnttamente. È consigliato usare questa opzione con la trasmissione immediata dei blocchi.
+
+setting.betterPistons.immediateBlockBroadcast=Trasmissione immediata dei blocchi
+setting.betterPistons.immediateBlockBroadcast.desc=Invia tutti i cambiamenti dei blocchi della redstone nello stesso tick in cui accadono. È consigliato usare questa opzione con la Modalità Paranoica e la distanza degli eventi dei blocchi impostata a 0.
+
+###########   Game Information    ############
+
+play.info.tpsChanged=%s Camdiati i tps del gioco su %s
+play.info.hotkeysDisallowed=Devi essere in creativa o spettatore per usare i tasti
+
+# Translation version 5 (v1.1.1)
+:5
+
+setting.tps.hotkeyFeedback=Feedback dei tasti
+setting.tps.hotkeyFeedback.desc=Specifica quando il feedback dei tasti è attivato. Se il feedback dei tasti è disattivato il giocatore non riceverà nessun avviso di quando i TPS cambiano.
+setting.tps.hotkeyFeedback.0=Disabilitato
+setting.tps.hotkeyFeedback.1=Info Bar
+setting.tps.hotkeyFeedback.2=Chat
+
+# Translation version 6 (v1.1.5)
+:6
+
+setting.tps.restoreTickrate=Ripristina velocità dei Tick
+setting.tps.restoreTickrate.desc=Ripristina la velocità dei tick una volta riavviato il server.
+
+# Translation version 7 (v1.2.0)
+:7
+
+setting.tps.prettySand=Sabbia Migliorata
+setting.tps.prettySand.0=Disabilitato
+setting.tps.prettySand.1=Performance
+setting.tps.prettySand.2=Fedeltà
+setting.tps.prettySand.desc=Migliora l'aspetto dei blocchi che cadono. Performance invia pochi packets, ma il client potrebbe rimanere non sincronizzato. La migliore sincronizzazione is ha con Fedeltà, ma trasmette molti più packets e non è consigliato per uso qualunque.
