@@ -91,6 +91,6 @@ void setupRepositories(RepositoryHandler repositories) {
 			}
 		}
 	} else {
-		println "No Maven credentials specified"
+		throw GradleException("No Maven credentials specified")
 	}
 }
