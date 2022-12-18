@@ -30,14 +30,10 @@ public class GSTableLayoutManager implements GSILayoutManager {
 		int w = 0, h = 0;
 		for (int c = 0; c < model.getColumnCount(); c++) {
 			GSITableColumn column = model.getColumn(c);
-			GSDimension size = column.getMinimumSize();
 			// Adjust visible column count for scrollable content
-			if (!scrollable || c < table.getPreferredColumnCount()) {
-				// Respect the current width of the column.
-				int rw = Math.max(size.getWidth(), column.getWidth());
-				w += Math.max(rw, table.getMinimumColumnWidth());
-			}
-			h = Math.max(size.getHeight(), h);
+			if (!scrollable || c < table.getPreferredColumnCount())
+				w += computeMinimumColumnWidth(table, column);
+			h = Math.max(column.getMinimumSize().getHeight(), h);
 		}
 		if (preferred && scrollable) {
 			// Fill in remaining empty columns
@@ -52,14 +48,10 @@ public class GSTableLayoutManager implements GSILayoutManager {
 		int w = 0, h = 0;
 		for (int r = 0; r < model.getRowCount(); r++) {
 			GSITableRow row = model.getRow(r);
-			GSDimension size = row.getMinimumSize();
-			w = Math.max(size.getWidth(), w);
+			w = Math.max(row.getMinimumSize().getWidth(), w);
 			// Adjust visible row count for scrollable content
-			if (!scrollable || r < table.getPreferredRowCount()) {
-				// Respect the current height of the row.
-				int rh = Math.max(size.getHeight(), row.getHeight());
-				h += Math.max(rh, table.getMinimumRowHeight());
-			}
+			if (!scrollable || r < table.getPreferredRowCount())
+				h += computeMinimumRowHeight(table, row);
 		}
 		if (preferred && scrollable) {
 			// Fill in remaining empty rows
@@ -77,10 +69,10 @@ public class GSTableLayoutManager implements GSILayoutManager {
 		int remW = table.getWidth();
 		for (int c = 0; c < model.getColumnCount(); c++) {
 			GSITableColumn column = model.getColumn(c);
-			int mnw = column.getMinimumSize().getWidth();
-			mnw = Math.max(mnw, table.getMinimumColumnWidth());
-			column.setWidth(mnw);
-			remW -= mnw;
+			int mnw = computeMinimumColumnWidth(table, column);
+			if (mnw > column.getWidth())
+				column.setWidth(mnw);
+			remW -= column.getWidth();
 		}
 		// Phase 2: distribute remaining width according to resize policy
 		int resizingColumnIndex = table.getResizingColumnIndex();
@@ -114,7 +106,7 @@ public class GSTableLayoutManager implements GSILayoutManager {
 			if (resizingColumnIndex != -1 && remW != 0)
 				remW = distributeWidth(table, remW, resizingColumnIndex, resizingColumnIndex + 1, true);
 			// Phase 4: distribute remaining width among all remaining columns and rows
-			if (remW < 0)
+			if (remW != 0)
 				distributeWidth(table, remW, 0, model.getColumnCount(), false);
 		}
 		
@@ -123,10 +115,10 @@ public class GSTableLayoutManager implements GSILayoutManager {
 		int remH = table.getHeight();
 		for (int r = 0; r < model.getRowCount(); r++) {
 			GSITableRow row = model.getRow(r);
-			int mnh = row.getMinimumSize().getHeight();
-			mnh = Math.max(mnh, table.getMinimumRowHeight());
-			row.setHeight(mnh);
-			remH -= mnh;
+			int mnh = computeMinimumRowHeight(table, row);
+			if (mnh > row.getHeight())
+				row.setHeight(mnh);
+			remH -= row.getHeight();
 		}
 		// Phase 2
 		int resizingRowIndex = table.getResizingRowIndex();
@@ -160,21 +152,17 @@ public class GSTableLayoutManager implements GSILayoutManager {
 			if (resizingRowIndex != -1 && remH != 0)
 				remH = distributeHeight(table, remH, resizingRowIndex, resizingRowIndex + 1, true);
 			// Phase 4
-			if (remH < 0)
+			if (remH != 0)
 				distributeHeight(table, remH, 0, model.getRowCount(), false);
 		}
 	}
 	
-	private int distributeWidth(GSTablePanel table, int remW, int c0, int c1, boolean respectMinWidth) {
+	private static int distributeWidth(GSTablePanel table, int remW, int c0, int c1, boolean respectMinWidth) {
 		GSITableModel model = table.getModel();
 		for (int c = c0; c < c1; c++) {
 			GSITableColumn column = model.getColumn(c);
 			// Respect minimum width
-			int mnw = 0;
-			if (respectMinWidth) {
-				mnw = column.getMinimumSize().getWidth();
-				mnw = Math.max(mnw, table.getMinimumColumnWidth());
-			}
+			int mnw = respectMinWidth ? computeMinimumColumnWidth(table, column) : 0;
 			// Always respect maximum width
 			int mxw = column.getMaximumSize().getWidth();
 			// Compute width distributed to current column
@@ -188,16 +176,16 @@ public class GSTableLayoutManager implements GSILayoutManager {
 		return remW;
 	}
 	
-	private int distributeHeight(GSTablePanel table, int remH, int r0, int r1, boolean respectMinHeight) {
+	private static int computeMinimumColumnWidth(GSTablePanel table, GSITableColumn column) {
+		return Math.max(table.getMinimumColumnWidth(), column.getMinimumSize().getWidth());
+	}
+	
+	private static int distributeHeight(GSTablePanel table, int remH, int r0, int r1, boolean respectMinHeight) {
 		GSITableModel model = table.getModel();
 		for (int r = r0; r < r1; r++) {
 			GSITableRow row = model.getRow(r);
 			// Respect minimum height
-			int mnh = 0;
-			if (respectMinHeight) {
-				mnh = row.getMinimumSize().getHeight();
-				mnh = Math.max(mnh, table.getMinimumRowHeight());
-			}
+			int mnh = respectMinHeight ? computeMinimumRowHeight(table, row) : 0;
 			// Always respect maximum height
 			int mxh = row.getMaximumSize().getHeight();
 			// Compute height distributed to current row
@@ -209,5 +197,9 @@ public class GSTableLayoutManager implements GSILayoutManager {
 			remH -= ah;
 		}
 		return remH;
+	}
+	
+	private static int computeMinimumRowHeight(GSTablePanel table, GSITableRow row) {
+		return Math.max(table.getMinimumRowHeight(), row.getMinimumSize().getHeight());
 	}
 }
