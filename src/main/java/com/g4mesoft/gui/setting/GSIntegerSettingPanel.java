@@ -2,6 +2,7 @@ package com.g4mesoft.gui.setting;
 
 import java.util.Locale;
 
+import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 
@@ -55,9 +56,9 @@ public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntege
 		String nameTranslationKey = nameText.getKey();
 		
 		String key;
-		if (hasI18nTranslation(key = nameTranslationKey + "." + valueText))
+		if (GSPanelContext.hasI18nTranslation(key = nameTranslationKey + "." + valueText))
 			return new TranslatableText(key, valueText);
-		if (hasI18nTranslation(key = nameTranslationKey + ".x"))
+		if (GSPanelContext.hasI18nTranslation(key = nameTranslationKey + ".x"))
 			return new TranslatableText(key, valueText);
 		
 		return new LiteralText(valueText);

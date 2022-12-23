@@ -46,12 +46,14 @@ public class GSBasicTableModel implements GSITableModel {
 		table = null;
 	}
 	
+	@Override
 	public void install(GSTablePanel table) {
 		if (this.table != null)
 			throw new IllegalStateException("Model already installed");
 		this.table = table;
 	}
 
+	@Override
 	public void uninstall(GSTablePanel table) {
 		if (table == null || this.table != table)
 			throw new IllegalStateException("Model not installed on given table");

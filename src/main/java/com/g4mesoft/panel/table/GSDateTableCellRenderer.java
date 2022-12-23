@@ -17,9 +17,6 @@ public final class GSDateTableCellRenderer implements GSITableCellRenderer<Date>
 	
 	private static final String TODAY_TRANSLATION_KEY = "panel.date.todayAt";
 	private static final String YESTERDAY_TRANSLATION_KEY = "panel.date.yesterdayAt";
-	/* Cache for today and yesterday translations... */
-	private static String todayTranslation = null;
-	private static String yesterdayTranslation = null;
 	
 	public static final GSDateTableCellRenderer INSTANCE = new GSDateTableCellRenderer();
 	
@@ -45,14 +42,10 @@ public final class GSDateTableCellRenderer implements GSITableCellRenderer<Date>
 		if (calendar.fieldDifference(value, Calendar.YEAR) == 0) {
 			switch (calendar.fieldDifference(value, Calendar.DAY_OF_YEAR)) {
 			case 0:
-				if (todayTranslation == null)
-					todayTranslation = GSPanelContext.i18nTranslate(TODAY_TRANSLATION_KEY);
-				dateReplacement = todayTranslation;
+				dateReplacement = GSPanelContext.i18nTranslate(TODAY_TRANSLATION_KEY);
 				break;
 			case -1:
-				if (yesterdayTranslation == null)
-					yesterdayTranslation = GSPanelContext.i18nTranslate(YESTERDAY_TRANSLATION_KEY);
-				dateReplacement = yesterdayTranslation;
+				dateReplacement = GSPanelContext.i18nTranslate(YESTERDAY_TRANSLATION_KEY);
 				break;
 			}
 		}

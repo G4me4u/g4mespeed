@@ -93,7 +93,7 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 		tabHeight = renderer.getTextHeight() + TAB_VERTICAL_PADDING * 2;
 
 		for (GSTabEntry tab : tabs) {
-			String title = i18nTranslate(tab.getTitle());
+			String title = GSPanelContext.i18nTranslate(tab.getTitle());
 			int titleWidth = (int)Math.ceil(renderer.getTextWidth(title));
 
 			tab.setDisplayTitle(title);

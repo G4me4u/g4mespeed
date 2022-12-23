@@ -630,18 +630,6 @@ public class GSPanel {
 		}
 	}
 	
-	public boolean hasI18nTranslation(String key) {
-		return GSPanelContext.hasI18nTranslation(key);
-	}
-	
-	public String i18nTranslate(String key) {
-		return GSPanelContext.i18nTranslate(key);
-	}
-
-	public String i18nTranslateFormatted(String key, Object... args) {
-		return GSPanelContext.i18nTranslateFormatted(key, args);
-	}
-	
 	public void populateRightClickMenu(GSDropdown dropdown, int x, int y) {
 	}
 	
