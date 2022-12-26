@@ -165,7 +165,7 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	
 	@Override
 	public void onRemoved(GSPanel parent) {
-		updateHeaderVisibility(false, false);
+		updateHeaderVisibility(true, true);
 		
 		super.onRemoved(parent);
 	}
