@@ -20,4 +20,10 @@ public final class GSEmptyCellRenderer implements GSITableCellRenderer<Object> {
 	public GSDimension getMinimumSize(Object value) {
 		return GSDimension.ZERO;
 	}
+
+	public static <T> GSITableCellRenderer<T> getInstance() {
+		@SuppressWarnings("unchecked")
+		GSITableCellRenderer<T> instance = (GSITableCellRenderer<T>)INSTANCE;
+		return instance;
+	}
 }

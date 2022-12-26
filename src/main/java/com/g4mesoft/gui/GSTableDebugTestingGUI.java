@@ -12,6 +12,8 @@ import com.g4mesoft.panel.scroll.GSViewport;
 import com.g4mesoft.panel.table.GSITableModel;
 import com.g4mesoft.panel.table.GSTablePanel;
 
+import net.minecraft.text.LiteralText;
+
 public class GSTableDebugTestingGUI extends GSParentPanel {
 
 	private static final int COLUMN_COUNT = 10;
@@ -50,7 +52,7 @@ public class GSTableDebugTestingGUI extends GSParentPanel {
 		
 		for (int c = 0; c < model.getColumnCount(); c++) {
 			for (int r = 0; r < model.getRowCount(); r++)
-				model.setCellValue(c, r, String.format("(%d, %d)", r + 1, c + 1));
+				model.setCellValue(c, r, new LiteralText(String.format("(%d, %d)", r + 1, c + 1)));
 		}
 
 		boolean withScroll = true;
