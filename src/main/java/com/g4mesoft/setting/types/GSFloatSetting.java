@@ -5,7 +5,7 @@ import com.g4mesoft.util.GSMathUtil;
 
 public class GSFloatSetting extends GSSetting<Float> {
 
-	private float value;
+	private volatile float value;
 	
 	private final float minValue;
 	private final float maxValue;
@@ -53,13 +53,13 @@ public class GSFloatSetting extends GSSetting<Float> {
 	}
 	
 	@Override
-	public Float getValue() {
+	public Float get() {
 		return Float.valueOf(value);
 	}
 
 	@Override
-	public GSFloatSetting setValue(Float value) {
-		return setValue(value.floatValue());
+	public GSFloatSetting set(Float value) {
+		return set(value.floatValue());
 	}
 	
 	/**
@@ -71,7 +71,7 @@ public class GSFloatSetting extends GSSetting<Float> {
 	 * 
 	 * @return this float setting
 	 */
-	public GSFloatSetting setValue(float value) {
+	public GSFloatSetting set(float value) {
 		float newValue = adjustValue(value);
 		if (newValue != this.value) {
 			this.value = newValue;
@@ -127,7 +127,7 @@ public class GSFloatSetting extends GSSetting<Float> {
 		float newValue = value + interval * count;
 		if (newValue > maxValue)
 			newValue = minValue;
-		return setValue(newValue);
+		return set(newValue);
 	}
 
 	/**
@@ -163,11 +163,11 @@ public class GSFloatSetting extends GSSetting<Float> {
 		float newValue = value - interval * count;
 		if (newValue < minValue)
 			newValue = maxValue;
-		return setValue(newValue);
+		return set(newValue);
 	}
 	
 	@Override
-	public boolean isDefaultValue() {
+	public boolean isDefault() {
 		return GSMathUtil.equalsApproximate(defaultValue.floatValue(), value);
 	}
 
@@ -180,11 +180,11 @@ public class GSFloatSetting extends GSSetting<Float> {
 	public boolean isSameSetting(GSSetting<?> other) {
 		if (other instanceof GSFloatSetting) {
 			GSFloatSetting floatSetting = (GSFloatSetting)other;
-			if (!GSMathUtil.equalsApproximate(defaultValue, floatSetting.getDefaultValue()))
+			if (!GSMathUtil.equalsApproximate(defaultValue, floatSetting.getDefault()))
 				return false;
-			if (!GSMathUtil.equalsApproximate(minValue, floatSetting.getMinValue()))
+			if (!GSMathUtil.equalsApproximate(minValue, floatSetting.getMin()))
 				return false;
-			if (!GSMathUtil.equalsApproximate(maxValue, floatSetting.getMaxValue()))
+			if (!GSMathUtil.equalsApproximate(maxValue, floatSetting.getMax()))
 				return false;
 			if (!GSMathUtil.equalsApproximate(interval, floatSetting.getInterval()))
 				return false;
@@ -194,20 +194,52 @@ public class GSFloatSetting extends GSSetting<Float> {
 		return false;
 	}
 	
-	public float getMinValue() {
+	/**
+	 * @return the minimum value this setting can have
+	 */
+	public float getMin() {
 		return minValue;
 	}
 	
-	public float getMaxValue() {
+	/**
+	 * @return the maximum value this setting can have
+	 */
+	public float getMax() {
 		return maxValue;
 	}
 
+	/**
+	 * @deprecated Replaced by {@link #getMin()}
+	 * 
+	 * @return the minimum value this setting can have
+	 */
+	@Deprecated
+	public final float getMinValue() {
+		return getMin();
+	}
+	
+	/**
+	 * @deprecated Replaced by {@link #getMax()}
+	 * 
+	 * @return the maximum value this setting can have
+	 */
+	@Deprecated
+	public final float getMaxValue() {
+		return getMax();
+	}
+
+	/**
+	 * @return The interval which determines which values this setting can
+	 *         take. The setting is always a multiple of the interval, unless
+	 *         it is either the maximum or minimum value and those are not a
+	 *         multiple of the interval.
+	 */
 	public float getInterval() {
 		return interval;
 	}
 
 	@Override
 	public GSSetting<Float> copySetting() {
-		return new GSFloatSetting(name, defaultValue, minValue, maxValue, interval, visibleInGui).setValue(value).setEnabledInGui(isEnabledInGui());
+		return new GSFloatSetting(name, defaultValue, minValue, maxValue, interval, visibleInGui).set(value).setEnabledInGui(isEnabledInGui());
 	}
 }

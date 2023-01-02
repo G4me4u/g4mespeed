@@ -35,14 +35,14 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 	@Inject(method = "tick", at = @At(value = "INVOKE", ordinal = 0, shift = Shift.AFTER,
 			target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
 	private void onTickRemoveBlock(CallbackInfo ci) {
-		if (!world.isClient && GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED)
+		if (!world.isClient && GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
 			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_updateBlockImmediately(getBlockPos());
 	}
 	
 	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.BEFORE,
 			target = "Lnet/minecraft/entity/FallingBlockEntity;discard()V"))
 	private void onTickBeforeRemove(CallbackInfo ci) {
-		if (!world.isClient && !isRemoved() && GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED) {
+		if (!world.isClient && !isRemoved() && GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_setTrackerTickedFromFallingBlock(this, true);
 			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_tickEntityTracker(this);
 		}
@@ -51,13 +51,13 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 	@Redirect(method = "tick", expect = 1, require = 1, allow = 1, at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage;sendToOtherNearbyPlayers(Lnet/minecraft/entity/Entity;Lnet/minecraft/network/Packet;)V"))
 	private void redirectSendToOtherNearbyPlayers(ThreadedAnvilChunkStorage chunkStorage, Entity entity, Packet<?> packet) {
-		if (world.isClient || GSServerController.getInstance().getTpsModule().sPrettySand.getValue() == GSTpsModule.PRETTY_SAND_DISABLED)
+		if (world.isClient || GSServerController.getInstance().getTpsModule().sPrettySand.get() == GSTpsModule.PRETTY_SAND_DISABLED)
 			chunkStorage.sendToOtherNearbyPlayers(entity, packet);
 	}
 	
 	@Inject(method = "createSpawnPacket", cancellable = true, at = @At("HEAD"))
 	private void onCreateSpawnPacket(CallbackInfoReturnable<Packet<?>> cir) {
-		if (!world.isClient && GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED) {
+		if (!world.isClient && GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			// Calculate offset applied to position (falling block entity is not 1.0 tall)
 			double yOffs = (double)((1.0F - getHeight()) / 2.0F);
 			
@@ -76,7 +76,7 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 	@Inject(method = "onSpawnPacket", at = @At(value = "INVOKE", shift = Shift.AFTER,
 			target = "Lnet/minecraft/entity/FallingBlockEntity;setFallingBlockPos(Lnet/minecraft/util/math/BlockPos;)V"))
 	public void onOnSpawnPacket(EntitySpawnS2CPacket packet, CallbackInfo ci) {
-		if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED)
+		if (GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
 			resetPosition();
 	}
 }

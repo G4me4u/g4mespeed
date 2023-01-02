@@ -48,7 +48,7 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 	private void onGetAdjustedPitch(SoundInstance soundInstance, CallbackInfoReturnable<Float> cir) {
 		float pitch = MathHelper.clamp(soundInstance.getPitch(), 0.5f, 2.0f);
 		
-		if (gs_tpsModule.cShiftPitch.getValue()) {
+		if (gs_tpsModule.cShiftPitch.get()) {
 			// Scale pitch by relative tps difference to the default.
 			pitch *= gs_tpsModule.getTps() / GSTpsModule.DEFAULT_TPS;
 		}

@@ -63,13 +63,13 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 				GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getId(), gs_fixedMovement);
 				// Encode packet to a vanilla packet. This is required for sending to all nearby
 				// players. Note that vanilla players will not react to the packet.
-				GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
+				GSPacketManager packetManager = G4mespeedMod.getPacketManager();
 				receiver.accept(packetManager.encodePacket(packet, GSServerController.getInstance()));
 			}
 		}
 		
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
 			if (gs_tickedFromFallingBlock) {
 				Vec3d currentVelocity = entity.getVelocity();
 				double dvx = currentVelocity.getX() - gs_lastFallingBlockVelocity.getX() * FALLING_BLOCK_FRICTION;
@@ -77,7 +77,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 				double dvz = currentVelocity.getZ() - gs_lastFallingBlockVelocity.getZ() * FALLING_BLOCK_FRICTION;
 				gs_lastFallingBlockVelocity = currentVelocity;
 				
-				if (tpsModule.sPrettySand.getValue() == GSTpsModule.PRETTY_SAND_FIDELITY ||
+				if (tpsModule.sPrettySand.get() == GSTpsModule.PRETTY_SAND_FIDELITY ||
 				    gs_fallingBlockTrackingTick == 0 ||
 				    !GSMathUtil.equalsApproximate(dvx, 0.0) ||
 				    !GSMathUtil.equalsApproximate(dvy, FALLING_BLOCK_GRAVITY * FALLING_BLOCK_FRICTION) ||
@@ -118,7 +118,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 			target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"))
 	private void onStopTracking(ServerPlayerEntity player, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
 			((GSIServerPlayerEntity)player).gs_onStopTrackingFallingSand(entity);
 			ci.cancel();
 		}

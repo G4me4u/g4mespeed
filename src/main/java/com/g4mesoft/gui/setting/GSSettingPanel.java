@@ -76,7 +76,7 @@ public abstract class GSSettingPanel<T extends GSSetting<?>> extends GSParentPan
 	}
 	
 	private void updateResetActive() {
-		resetButton.setEnabled(!setting.isDefaultValue() && isSettingEnabled());
+		resetButton.setEnabled(!setting.isDefault() && isSettingEnabled());
 	}
 
 	public abstract Text getFormattedDefault();
