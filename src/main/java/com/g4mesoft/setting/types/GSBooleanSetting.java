@@ -4,7 +4,7 @@ import com.g4mesoft.setting.GSSetting;
 
 public class GSBooleanSetting extends GSSetting<Boolean> {
 
-	private boolean value;
+	private volatile boolean value;
 
 	public GSBooleanSetting(String name, boolean defaultValue) {
 		this(name, defaultValue, true);
@@ -17,13 +17,13 @@ public class GSBooleanSetting extends GSSetting<Boolean> {
 	}
 	
 	@Override
-	public Boolean getValue() {
+	public Boolean get() {
 		return Boolean.valueOf(value);
 	}
 
 	@Override
-	public GSBooleanSetting setValue(Boolean value) {
-		return setValue(value.booleanValue());
+	public GSBooleanSetting set(Boolean value) {
+		return set(value.booleanValue());
 	}
 	
 	/**
@@ -33,7 +33,7 @@ public class GSBooleanSetting extends GSSetting<Boolean> {
 	 * 
 	 * @return this boolean setting.
 	 */
-	public GSBooleanSetting setValue(boolean value) {
+	public GSBooleanSetting set(boolean value) {
 		if (value != this.value) {
 			this.value = value;
 			notifyOwnerChange();
@@ -56,11 +56,11 @@ public class GSBooleanSetting extends GSSetting<Boolean> {
 	 * @see #setValue(boolean)
 	 */
 	public GSBooleanSetting toggle() {
-		return setValue(!value);
+		return set(!value);
 	}
 	
 	@Override
-	public boolean isDefaultValue() {
+	public boolean isDefault() {
 		return defaultValue.booleanValue() == value;
 	}
 
@@ -71,6 +71,6 @@ public class GSBooleanSetting extends GSSetting<Boolean> {
 
 	@Override
 	public GSSetting<Boolean> copySetting() {
-		return new GSBooleanSetting(name, defaultValue, visibleInGui).setValue(value).setEnabledInGui(isEnabledInGui());
+		return new GSBooleanSetting(name, defaultValue, visibleInGui).set(value).setEnabledInGui(isEnabledInGui());
 	}
 }

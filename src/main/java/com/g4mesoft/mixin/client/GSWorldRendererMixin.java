@@ -147,7 +147,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	@Redirect(method = "render", allow = 1, require = 1, expect = 1,
 	          at = @At(value = "FIELD", target="Lnet/minecraft/entity/Entity;age:I", opcode = Opcodes.GETFIELD))
 	private int onRenderGetEntityAge(Entity entity) {
-		if (gs_tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (gs_tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
 			// We do not want the render positions to be modified when
 			// using pretty sand (already done by position packets).
 			return (entity.age == 0) ? -1 : entity.age;

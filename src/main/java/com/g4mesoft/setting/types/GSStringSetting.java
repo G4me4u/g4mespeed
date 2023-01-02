@@ -6,7 +6,7 @@ import com.g4mesoft.setting.GSSetting;
 
 public class GSStringSetting extends GSSetting<String> {
 
-	private String value;
+	private volatile String value;
 
 	public GSStringSetting(String name, String defaultValue) {
 		super(name, defaultValue, true);
@@ -15,16 +15,19 @@ public class GSStringSetting extends GSSetting<String> {
 	public GSStringSetting(String name, String defaultValue, boolean visibleInGui) {
 		super(name, defaultValue, visibleInGui);
 		
+		if (defaultValue == null)
+			throw new IllegalArgumentException("GSStringSetting does not permit null values.");
+		
 		this.value = defaultValue;
 	}
 	
 	@Override
-	public String getValue() {
+	public String get() {
 		return value;
 	}
 
 	@Override
-	public GSStringSetting setValue(String value) {
+	public GSStringSetting set(String value) {
 		if (!value.equals(this.value)) {
 			this.value = value;
 			notifyOwnerChange();
@@ -34,7 +37,7 @@ public class GSStringSetting extends GSSetting<String> {
 	}
 	
 	@Override
-	public boolean isDefaultValue() {
+	public boolean isDefault() {
 		return Objects.equals(defaultValue, value);
 	}
 
@@ -45,6 +48,6 @@ public class GSStringSetting extends GSSetting<String> {
 
 	@Override
 	public GSSetting<String> copySetting() {
-		return new GSStringSetting(name, defaultValue, visibleInGui).setValue(value).setEnabledInGui(isEnabledInGui());
+		return new GSStringSetting(name, defaultValue, visibleInGui).set(value).setEnabledInGui(isEnabledInGui());
 	}
 }

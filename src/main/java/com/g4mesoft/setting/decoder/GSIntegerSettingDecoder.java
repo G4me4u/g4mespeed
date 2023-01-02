@@ -19,7 +19,7 @@ public class GSIntegerSettingDecoder implements GSISettingDecoder<GSIntegerSetti
 		boolean visibleInGui = buffer.readBoolean();
 		
 		GSIntegerSetting setting = new GSIntegerSetting(name, defaultValue, minValue, maxValue, interval, visibleInGui);
-		setting.setValue(value);
+		setting.set(value);
 
 		if (buffer.isReadable(1)) {
 			// Only read when available to ensure backwards compatability
@@ -31,10 +31,10 @@ public class GSIntegerSettingDecoder implements GSISettingDecoder<GSIntegerSetti
 
 	@Override
 	public void encodeSetting(PacketByteBuf buffer, GSIntegerSetting setting) {
-		buffer.writeInt(setting.getValue());
-		buffer.writeInt(setting.getDefaultValue());
-		buffer.writeInt(setting.getMinValue());
-		buffer.writeInt(setting.getMaxValue());
+		buffer.writeInt(setting.get());
+		buffer.writeInt(setting.getDefault());
+		buffer.writeInt(setting.getMin());
+		buffer.writeInt(setting.getMax());
 		buffer.writeInt(setting.getInterval());
 		buffer.writeBoolean(setting.isVisibleInGui());
 		buffer.writeBoolean(setting.isEnabledInGui());

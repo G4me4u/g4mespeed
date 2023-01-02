@@ -87,7 +87,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		gs_controller = GSClientController.getInstance();
 		gs_controller.init((MinecraftClient)(Object)this);
 		gs_tpsModule = gs_controller.getTpsModule();
-		gs_tweakerooCompat = G4mespeedMod.getInstance().getTweakerooCompat();
+		gs_tweakerooCompat = G4mespeedMod.getTweakerooCompat();
 	}
 	
 	@Inject(method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V", at = @At("HEAD"))
@@ -163,7 +163,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	
 	@Inject(method = "tick", at = @At(value = "RETURN", shift = Shift.BEFORE))
 	private void onTickBeforeReturn(CallbackInfo ci) {
-		if (gs_tpsModule.cTweakerooFreecamHack.getValue()) {
+		if (gs_tpsModule.cTweakerooFreecamHack.get()) {
 			// The malilib tick handler is invoked at return. Disable tweakeroo camera here.
 			if (gs_tweakerooCompat.isCameraEntityRetreived() && gs_tpsModule.isMainPlayerFixedMovement()) {
 				gs_tweakerooWasCameraEntityEnabled = gs_tweakerooCompat.isCameraEntityEnabled();
@@ -199,7 +199,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 			for (int i = 0; i < tickCount; i++) {
 				if (gs_tpsModule.isMainPlayerFixedMovement()) {
 					onTickCorrection();
-					if (gs_tpsModule.cTweakerooFreecamHack.getValue() && gs_tweakerooCompat.isCameraEntityRetreived())
+					if (gs_tpsModule.cTweakerooFreecamHack.get() && gs_tweakerooCompat.isCameraEntityRetreived())
 						gs_tweakerooCompat.tickCameraEntityMovement();
 				}
 				if (!paused && world != null)

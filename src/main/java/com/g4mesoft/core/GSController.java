@@ -21,7 +21,7 @@ import net.minecraft.util.Identifier;
 
 public abstract class GSController implements GSIModuleManager, GSIExtensionListener {
 
-	private static final String SETTINGS_PATH = "settings.cfg";
+	protected static final String SETTINGS_FILE_NAME = "settings.cfg";
 	
 	protected static final String CACHE_DIR_NAME = "g4mespeed/cache";
 	protected static final String INTEGRATED_CACHE_DIR_NAME = "g4mespeed/integrated/cache";
@@ -113,13 +113,13 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 		return modules;
 	}
 	
+	private File getSettingsFile() {
+		return new File(getCacheFile(), SETTINGS_FILE_NAME);
+	}
+	
 	@Override
 	public GSSettingManager getSettingManager() {
 		return settings;
-	}
-
-	private File getSettingsFile() {
-		return new File(getCacheFile(), SETTINGS_PATH);
 	}
 	
 	public static GSController getInstanceOnThread() {

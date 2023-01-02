@@ -92,7 +92,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		float val;
 		
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		switch (tpsModule.cPistonAnimationType.getValue()) {
+		switch (tpsModule.cPistonAnimationType.get()) {
 		default:
 		case GSTpsModule.PISTON_ANIM_PAUSE_END:
 			// Will be clamped by the return statement.
@@ -231,7 +231,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		World world = blockEntity.getWorld();
 		if (world == null || !world.isClient)
 			return false;
-		return GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.getValue();
+		return GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get();
 	}
 
 	@Inject(method = "readNbt", at = @At("RETURN"))

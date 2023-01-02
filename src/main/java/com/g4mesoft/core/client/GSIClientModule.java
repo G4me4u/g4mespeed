@@ -17,6 +17,13 @@ public interface GSIClientModule extends GSIModule {
 		init((GSIClientModuleManager)manager);
 	}
 	
+	/**
+	 * Invoked during initialization of the <b>client</b>. This method is invoked <i>just
+	 * before</i> the main game loop, and is only invoked once. A matching invocation of
+	 * {@link #onClose()} always follows (unless the application is force terminated).
+	 * 
+	 * @param manager - the client manager which this module is installed on.
+	 */
 	public void init(GSIClientModuleManager manager);
 	
 	@Override
