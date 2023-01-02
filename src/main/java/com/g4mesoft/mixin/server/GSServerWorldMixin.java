@@ -43,7 +43,7 @@ public abstract class GSServerWorldMixin extends World {
 
 	@Inject(method = "tick", at = @At("RETURN"))
 	private void onTickReturn(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-		if (GSServerController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED) {
+		if (GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			ServerChunkManager chunkManager = (ServerChunkManager)getChunkManager();
 			
 			for (Entity entity : entitiesById.values()) {
@@ -58,7 +58,7 @@ public abstract class GSServerWorldMixin extends World {
 	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.AFTER, 
 			target = "Lnet/minecraft/server/world/ServerWorld;processSyncedBlockEvents()V"))
 	private void onTickImmediateUpdates(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-		if (GSServerController.getInstance().getTpsModule().sImmediateBlockBroadcast.getValue()) {
+		if (GSServerController.getInstance().getTpsModule().sImmediateBlockBroadcast.get()) {
 			getProfiler().swap("chunkSource");
 			((GSIServerChunkManagerAccess) getChunkManager()).gs_flushAndSendChunkUpdates();
 		}
@@ -71,7 +71,7 @@ public abstract class GSServerWorldMixin extends World {
 		
 		if (block == Blocks.PISTON || block == Blocks.STICKY_PISTON) {
 			GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
-			dist = tpsModule.sBlockEventDistance.getValue() * 16.0;
+			dist = tpsModule.sBlockEventDistance.get() * 16.0;
 		}
 		
 		return dist;

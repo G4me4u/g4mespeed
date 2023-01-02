@@ -120,7 +120,8 @@ public class GSClientController extends GSController implements GSIClientModuleM
 		module.registerHotkeys(keyManager);
 		
 		// Register shadow server settings
-		module.registerServerSettings(serverSettings);
+		module.registerGlobalServerSettings(serverSettings);
+		module.registerWorldServerSettings(serverSettings);
 
 		super.addModule(module);
 		

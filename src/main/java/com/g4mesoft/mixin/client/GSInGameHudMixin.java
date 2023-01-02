@@ -56,7 +56,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE,
 	        target = "Lnet/minecraft/client/gui/hud/BossBarHud;render(Lnet/minecraft/client/util/math/MatrixStack;)V"))
 	private void onRenderBeforeBossBar(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
-		if (GSClientController.getInstance().getTpsModule().cTpsLabel.getValue() == GSTpsModule.TPS_LABEL_TOP_CENTER) {
+		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER) {
 			matrixStack.push();
 			matrixStack.translate(0.0, client.textRenderer.fontHeight + 5, 0.0);
 		}
@@ -65,7 +65,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.AFTER,
 	        target = "Lnet/minecraft/client/gui/hud/BossBarHud;render(Lnet/minecraft/client/util/math/MatrixStack;)V"))
 	private void onRenderAfterBossBar(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
-		if (GSClientController.getInstance().getTpsModule().cTpsLabel.getValue() == GSTpsModule.TPS_LABEL_TOP_CENTER)
+		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER)
 			matrixStack.pop();
 	}
 	
@@ -75,7 +75,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 		GSClientController controller = GSClientController.getInstance();
 		GSTpsModule tpsModule = controller.getTpsModule();
 		
-		int labelLocation = tpsModule.cTpsLabel.getValue();
+		int labelLocation = tpsModule.cTpsLabel.get();
 		if (!client.options.debugEnabled && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
 			TextRenderer font = getFontRenderer();
 			GSTranslationModule translationModule = controller.getTranslationModule();

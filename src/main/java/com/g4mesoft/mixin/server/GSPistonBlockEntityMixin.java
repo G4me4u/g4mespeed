@@ -38,7 +38,7 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 	@Inject(method = "toTag", at = @At("RETURN"))
 	private void onToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
 		GSController controller = GSController.getInstanceOnThread();
-		if (controller != null && controller.getTpsModule().sImmediateBlockBroadcast.getValue())
+		if (controller != null && controller.getTpsModule().sImmediateBlockBroadcast.get())
 			tag.putBoolean("ticked", gs_ticked);
 	}
 }

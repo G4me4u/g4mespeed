@@ -8,6 +8,7 @@ import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.packet.GSIPacket;
+import com.g4mesoft.setting.GSSettingManager;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -161,5 +162,23 @@ public interface GSIServerModuleManager extends GSIModuleManager {
 	 * @return The instance of the {@link MinecraftServer} which is currently running.
 	 */
 	public MinecraftServer getServer();
+	
+	/**
+	 * @return The global (across worlds) setting manager of this module manager.
+	 */
+	default public GSSettingManager getGlobalSettingManager() {
+		return getSettingManager();
+	}
+	
+	/**
+	 * @return The global (across worlds) setting manager of this module manager.
+	 */
+	@Override
+	public GSSettingManager getSettingManager();
+
+	/**
+	 * @return The world specific setting manager of this module manager.
+	 */
+	public GSSettingManager getWorldSettingManager();
 	
 }

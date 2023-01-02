@@ -23,12 +23,12 @@ public class GSBooleanSettingPanel extends GSSettingPanel<GSBooleanSetting> {
 	public GSBooleanSettingPanel(GSSettingCategory category, GSBooleanSetting setting) {
 		super(category, setting);
 		
-		switchWidget = new GSToggleSwitchPanel(this::updateSettingValue, setting.getValue());
+		switchWidget = new GSToggleSwitchPanel(this::updateSettingValue, setting.get());
 		add(switchWidget);
 	}
 	
 	public void updateSettingValue() {
-		setting.setValue(switchWidget.isToggled());
+		setting.set(switchWidget.isToggled());
 	}
 
 	@Override
@@ -61,12 +61,12 @@ public class GSBooleanSettingPanel extends GSSettingPanel<GSBooleanSetting> {
 	public void onSettingChanged() {
 		super.onSettingChanged();
 		
-		switchWidget.setToggled(setting.getValue());
+		switchWidget.setToggled(setting.get());
 		switchWidget.setEnabled(isSettingEnabled());
 	}
 
 	@Override
 	public Text getFormattedDefault() {
-		return (setting.getDefaultValue() ? ENABLED_TEXT : DISABLED_TEXT);
+		return (setting.getDefault() ? ENABLED_TEXT : DISABLED_TEXT);
 	}
 }

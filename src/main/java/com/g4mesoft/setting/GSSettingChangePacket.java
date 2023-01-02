@@ -62,9 +62,14 @@ public class GSSettingChangePacket implements GSIPacket {
 			return;
 		
 		if (controller.isAllowedSettingChange(player)) {
-			GSSetting<?> currentSetting = controller.getSettingManager().getSetting(category, setting.getName());
+			// Select the appropriate setting manager
+			GSSettingManager settingManager = controller.getGlobalSettingManager();
+			if (!settingManager.isRegistered(category, setting.getName()))
+				settingManager = controller.getWorldSettingManager();
+			// Update the setting value
+			GSSetting<?> currentSetting = settingManager.getSetting(category, setting.getName());
 			if (currentSetting != null && currentSetting.isActive() && currentSetting.isVisibleInGui() && currentSetting.isEnabledInGui())
-				currentSetting.setValueIfSameType(setting);
+				currentSetting.setIfSameType(setting);
 		}
 	}
 

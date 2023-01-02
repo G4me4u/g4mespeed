@@ -69,13 +69,34 @@ public interface GSIModule {
 
 	/**
 	 * Invoked on the <b>client and server</b> after initialization to allow modules to
-	 * register their own settings. On the client this will register <i>shadow</i> settings
-	 * that will automatically be updated to match the settings stored on the server and
-	 * vice versa if the client changes them.
+	 * register their global (across worlds) settings. On the client this will register
+	 * <i>shadow</i> settings that will automatically be updated to match the settings
+	 * stored on the server and vice versa if the client changes them.
 	 * 
-	 * @param settings - the server settings manager, or a remote shadow setting manager
-	 *                   when invoked from the client.
+	 * @param settings - the global server settings manager, or a remote shadow setting
+	 *                   manager when invoked from the client.
 	 */
+	default public void registerGlobalServerSettings(GSSettingManager settings) {
+		registerServerSettings(settings);
+	}
+
+	/**
+	 * Invoked on the <b>client and server</b> after initialization to allow modules to
+	 * register their world specific settings. On the client this will register <i>shadow</i>
+	 * settings that will automatically be updated to match the settings stored on the
+	 * server and vice versa if the client changes them.
+	 * 
+	 * @param settings - the world server settings manager, or a remote shadow setting
+	 *                   manager when invoked from the client.
+	 */
+	default public void registerWorldServerSettings(GSSettingManager settings) { }
+
+	/**
+	 * @deprecated Replaced by {@link #registerGlobalServerSettings(GSSettingManager)}.
+	 * 
+	 * @param settings - the setting manager for global settings.
+	 */
+	@Deprecated
 	default public void registerServerSettings(GSSettingManager settings) { }
 
 	/**
