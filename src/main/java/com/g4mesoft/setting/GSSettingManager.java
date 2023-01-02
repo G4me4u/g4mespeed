@@ -217,12 +217,57 @@ public class GSSettingManager {
 	
 	/* Methods for registering and querying settings */
 	
+	/**
+	 * Checks whether the setting is registered in this setting manager.
+	 * 
+	 * @param category - the category of the setting
+	 * @param name - the name of the setting
+	 * 
+	 * @return True if the setting is registered, false otherwise.
+	 * 
+	 * @see #registerSetting(GSSettingCategory, GSSetting)
+	 */
+	public boolean isRegistered(GSSettingCategory category, String name) {
+		GSSettingMap categorySettings = settings.get(category);
+		return categorySettings != null && categorySettings.isRegistered(name);
+	}
+	
+	/**
+	 * Retrieves the setting with the given category and name.
+	 * 
+	 * @param category - the category of the setting
+	 * @param name - the name of the setting
+	 * 
+	 * @return The setting with the given category and name, or null if the
+	 *         setting is not registered in this setting manager.
+	 */
 	public GSSetting<?> getSetting(GSSettingCategory category, String name) {
 		GSSettingMap categorySettings = settings.get(category);
 		return (categorySettings != null) ? categorySettings.getSetting(name) : null;
 	}
 	
+	/**
+	 * Register a setting to a given category. After an invocation to this method,
+	 * the setting manager owns the given setting, and will update it accordingly
+	 * when it is modified externally. This includes updates on the server and/or
+	 * updates when reading settings from a file.
+	 * <br><br>
+	 * <i>Note: when registering a custom setting (not a default implementation),
+	 *          it is important to also register a decoder/encoder for the setting.
+	 *          Otherwise, the changes made to the setting will not be persistent
+	 *          between sessions.</i>
+	 * 
+	 * @param category - the category in which to register the setting
+	 * @param setting - the setting to be registered
+	 * 
+	 * @see #registerSettings(GSSettingCategory, GSSetting...)
+	 * @see #registerDecoder(GSISettingDecoder)
+	 * @see #registerType(GSISettingDecoder, GSISettingPanelSupplier)
+	 */
 	public void registerSetting(GSSettingCategory category, GSSetting<?> setting) {
+		if (setting == null)
+			throw new IllegalArgumentException("setting is null");
+		
 		GSSettingMap categorySettings = settings.get(category);
 		if (categorySettings == null) {
 			categorySettings = new GSSettingMap(category, this);
@@ -231,11 +276,65 @@ public class GSSettingManager {
 		
 		categorySettings.registerSetting(setting);
 	}
+
+	/**
+	 * More efficient implementation for adding multiple settings to a single setting
+	 * category. An invocation of this method replaces the following code snippet:
+	 * <pre>
+	 *     // Registering multiple settings to the same category
+	 *     registerSetting(category, setting1);
+	 *     registerSetting(category, setting2);
+	 *     registerSetting(category, setting3);
+	 *     if (condition)
+	 *         registerSetting(category, setting4);
+	 *     ...
+	 *     // Becomes
+	 *     registerSettings(category,
+	 *         setting1,
+	 *         setting2,
+	 *         setting3,
+	 *         condition ? setting4 : null,
+	 *         ...
+	 *     );
+	 * </pre>
+	 * A slight difference between this implementation and the single-setting variant is
+	 * that a {@code null} setting is permitted here, and will simply be ignored. This
+	 * way one can conditionally register some settings to a category.
+	 * 
+	 * @param category - the category in which to register the settings
+	 * @param settingArgs - the settings to be registered
+	 * 
+	 * @see #registerSetting(GSSettingCategory, GSSetting)
+	 */
+	public void registerSettings(GSSettingCategory category, GSSetting<?>... settingArgs) {
+		GSSettingMap categorySettings = settings.get(category);
+		if (categorySettings == null) {
+			categorySettings = new GSSettingMap(category, this);
+			settings.put(category, categorySettings);
+		}
+		
+		for (GSSetting<?> setting : settingArgs) {
+			// Allow conditional settings
+			if (setting != null)
+				categorySettings.registerSetting(setting);
+		}
+	}
 	
+	/**
+	 * Removes the setting with the given category and name from this setting manager,
+	 * or does nothing if the setting is not registered.
+	 * 
+	 * @param category - the category of the setting
+	 * @param name - the name of the setting
+	 */
 	public void removeSetting(GSSettingCategory category, String name) {
 		GSSettingMap categorySettings = settings.get(category);
 		if (categorySettings != null)
 			categorySettings.removeSetting(name);
+	}
+	
+	public GSSettingMap getSettings(GSSettingCategory category) {
+		return settings.get(category);
 	}
 	
 	public Collection<GSSettingMap> getSettings() {
@@ -255,6 +354,34 @@ public class GSSettingManager {
 	public void resetSettings() {
 		for (GSSettingMap settingMap : settings.values())
 			settingMap.resetSettings();
+	}
+	
+	/**
+	 * Checks whether this setting manager shares any registered settings with the
+	 * given setting manager. I.e. if this setting manager and the given are disjoint.
+	 * 
+	 * @param other - the other setting manager
+	 * 
+	 * @return True if the setting managers are disjoint, false otherwise.
+	 */
+	public boolean isDisjoint(GSSettingManager other) {
+		for (Map.Entry<GSSettingCategory, GSSettingMap> entry : settings.entrySet()) {
+			GSSettingMap settingMap = other.getSettings(entry.getKey());
+			if (settingMap != null && !entry.getValue().isDisjoint(settingMap))
+				return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * @return True if there are no currently registered settings, false otherwise.
+	 */
+	public boolean isEmpty() {
+		for (GSSettingMap settingMap : settings.values()) {
+			if (!settingMap.isEmpty())
+				return false;
+		}
+		return true;
 	}
 	
 	/* Methods for dispatching events */

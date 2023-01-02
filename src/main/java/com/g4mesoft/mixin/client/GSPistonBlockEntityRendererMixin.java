@@ -23,15 +23,15 @@ public class GSPistonBlockEntityRendererMixin {
 	@Inject(method = "getRenderDistance", cancellable = true, at = @At("HEAD"))
 	private void onGetRenderDistance(CallbackInfoReturnable<Integer> cir) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		int chunkDist = tpsModule.cPistonRenderDistance.getValue();
+		int chunkDist = tpsModule.cPistonRenderDistance.get();
 		if (chunkDist == GSTpsModule.AUTOMATIC_PISTON_RENDER_DISTANCE) {
-			if (tpsModule.sParanoidMode.getValue()) {
+			if (tpsModule.sParanoidMode.get()) {
 				// When using paranoid mode there is no limit to where
 				// the piston block entities might occur. So we just
 				// render all of the ones within maximum view distance.
-				chunkDist = tpsModule.cPistonRenderDistance.getMaxValue();
+				chunkDist = tpsModule.cPistonRenderDistance.getMax();
 			} else {
-				chunkDist = tpsModule.sBlockEventDistance.getValue();
+				chunkDist = tpsModule.sBlockEventDistance.get();
 			}
 		}
 		

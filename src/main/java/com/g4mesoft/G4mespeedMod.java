@@ -134,19 +134,31 @@ public class G4mespeedMod implements ModInitializer {
 		return extensionInfoList;
 	}
 	
-	public GSPacketManager getPacketManager() {
-		return packetManager;
+	/**
+	 * Must be invoked after {@link #onInitialize()} has been called.
+	 * @return the packet manager
+	 */
+	public static GSPacketManager getPacketManager() {
+		return getInstance().packetManager;
 	}
 
-	public GSCarpetCompat getCarpetCompat() {
-		return carpetCompat;
+	/**
+	 * Must be invoked after {@link #onInitialize()} has been called.
+	 * @return the Carpet compatibility handler
+	 */
+	public static GSCarpetCompat getCarpetCompat() {
+		return getInstance().carpetCompat;
 	}
 
-	public GSTweakerooCompat getTweakerooCompat() {
-		return tweakerooCompat;
+	/**
+	 * Must be invoked after {@link #onInitialize()} has been called.
+	 * @return the Tweakeroo compatibility handler
+	 */
+	public static GSTweakerooCompat getTweakerooCompat() {
+		return getInstance().tweakerooCompat;
 	}
 
-	public static G4mespeedMod getInstance() {
+	private static G4mespeedMod getInstance() {
 		return instance;
 	}
 }

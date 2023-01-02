@@ -91,7 +91,7 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 	
 	public synchronized void syncTimer(GSITickTimer timer) {
-		if (tpsModule.cSyncTick.getValue() && shouldAdjustTickDelta())
+		if (tpsModule.cSyncTick.get() && shouldAdjustTickDelta())
 			adjustTickDelta(timer);
 	}
 	
@@ -100,8 +100,8 @@ public class GSServerTickTimer implements GSITickTimer {
 			// When Fabric Carpet tickrate is linked, it is possible
 			// to use their client tickrate. Make sure to only enforce
 			// synchronization when using G4mespeed tickrate.
-			GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
-			if (!carpetCompat.isTickrateLinked() || tpsModule.cForceCarpetTickrate.getValue())
+			GSCarpetCompat carpetCompat = G4mespeedMod.getCarpetCompat();
+			if (!carpetCompat.isTickrateLinked() || tpsModule.cForceCarpetTickrate.get())
 				return true;
 		}
 

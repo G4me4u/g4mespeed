@@ -2,6 +2,7 @@ package com.g4mesoft.core.server;
 
 import java.io.File;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -23,6 +24,7 @@ import com.g4mesoft.setting.GSServerSettingMapPacket;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingChangePacket;
+import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.GSSettingChangePacket.GSESettingChangeType;
 import com.g4mesoft.setting.GSSettingMap;
 import com.g4mesoft.setting.GSSettingPermissionPacket;
@@ -35,6 +37,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.WorldSavePath;
 
 public class GSServerController extends GSController implements GSIServerModuleManager, GSISettingChangeListener {
 
@@ -42,14 +45,19 @@ public class GSServerController extends GSController implements GSIServerModuleM
 
 	private static final GSServerController instance = new GSServerController();
 	
+	protected final GSSettingManager worldSettings;
+
 	private CommandDispatcher<ServerCommandSource> dispatcher;
 	
 	private MinecraftServer server;
 
 	public GSServerController() {
+		worldSettings = new GSSettingManager();
+		
 		server = null;
 		
 		settings.addChangeListener(this);
+		worldSettings.addChangeListener(this);
 	}
 	
 	@Override
@@ -57,7 +65,11 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		if (!module.isServerSide())
 			throw new IllegalArgumentException("Not a server module.");
 		
-		module.registerServerSettings(settings);
+		module.registerGlobalServerSettings(settings);
+		module.registerWorldServerSettings(worldSettings);
+		
+		if (!worldSettings.isDisjoint(settings))
+			throw new IllegalStateException("The global- and world settings are not disjoint!");
 		
 		if (dispatcher != null)
 			module.registerCommands(dispatcher);
@@ -70,7 +82,23 @@ public class GSServerController extends GSController implements GSIServerModuleM
 
 		onStart();
 	}
+	
+	@Override
+	protected void onStart() {
+		worldSettings.loadSettings(getWorldSettingsFile());
 
+		super.onStart();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		
+		if (!worldSettings.isEmpty())
+			worldSettings.saveSettings(getWorldSettingsFile());
+		worldSettings.clearSettings();
+	}
+	
 	public void setCommandDispatcher(CommandDispatcher<ServerCommandSource> dispatcher) {
 		GSInfoCommand.registerCommand(dispatcher);
 		
@@ -112,11 +140,17 @@ public class GSServerController extends GSController implements GSIServerModuleM
 			for (GSIModule module : modules)
 				module.onG4mespeedClientJoin(player, coreInfo);
 			
-			sendSettingPermissionPacket(player);
-	
-			for (GSSettingMap settingMap : settings.getSettings())
-				sendPacket(new GSServerSettingMapPacket(settingMap), player);
+			sendSettings(player);
 		}
+	}
+	
+	private void sendSettings(ServerPlayerEntity player) {
+		sendSettingPermissionPacket(player);
+		
+		for (GSSettingMap settingMap : settings.getSettings())
+			sendPacket(new GSServerSettingMapPacket(settingMap), player);
+		for (GSSettingMap settingMap : worldSettings.getSettings())
+			sendPacket(new GSServerSettingMapPacket(settingMap), player);
 	}
 
 	public void onPlayerLeave(ServerPlayerEntity player) {
@@ -169,7 +203,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	@Override
 	public void sendPacket(GSIPacket packet, ServerPlayerEntity player, GSVersion minExtensionVersion) {
 		if (server != null) {
-			GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
+			GSPacketManager packetManager = G4mespeedMod.getPacketManager();
 			GSExtensionUID extensionUid = packetManager.getPacketExtensionUniqueId(packet);
 			
 			if (extensionUid != null && isExtensionInstalled(player, extensionUid, minExtensionVersion)) {
@@ -189,7 +223,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	@Override
 	public void sendPacketToAllExcept(GSIPacket packet, GSVersion minExtensionVersion, ServerPlayerEntity exceptPlayer) {
 		if (server != null) {
-			GSPacketManager packetManager = G4mespeedMod.getInstance().getPacketManager();
+			GSPacketManager packetManager = G4mespeedMod.getPacketManager();
 			GSExtensionUID extensionUid = packetManager.getPacketExtensionUniqueId(packet);
 			
 			if (extensionUid != null) {
@@ -212,7 +246,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	@Override
 	public Collection<ServerPlayerEntity> getAllPlayers() {
-		return server.getPlayerManager().getPlayerList();
+		return Collections.unmodifiableCollection(server.getPlayerManager().getPlayerList());
 	}
 	
 	@Override
@@ -227,6 +261,14 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		
 		// Assume we're running on integrated server
 		return new File(server.getRunDirectory(), INTEGRATED_CACHE_DIR_NAME);
+	}
+	
+	private File getWorldCacheFile() {
+		return new File(server.getSavePath(WorldSavePath.ROOT).toFile(), CACHE_DIR_NAME);
+	}
+	
+	private File getWorldSettingsFile() {
+		return new File(getWorldCacheFile(), SETTINGS_FILE_NAME);
 	}
 
 	@Override
@@ -257,6 +299,11 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	private void sendSettingPermissionPacket(ServerPlayerEntity player) {
 		sendPacket(new GSSettingPermissionPacket(isAllowedSettingChange(player)), player);
+	}
+	
+	@Override
+	public GSSettingManager getWorldSettingManager() {
+		return worldSettings;
 	}
 	
 	public static GSServerController getInstance() {

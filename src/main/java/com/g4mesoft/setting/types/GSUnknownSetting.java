@@ -24,17 +24,17 @@ public final class GSUnknownSetting extends GSSetting<Object> {
 	}
 	
 	@Override
-	public Object getValue() {
+	public Object get() {
 		return null;
 	}
 
 	@Override
-	public GSUnknownSetting setValue(Object value) {
+	public GSUnknownSetting set(Object value) {
 		return this;
 	}
 
 	@Override
-	public boolean isDefaultValue() {
+	public boolean isDefault() {
 		return false;
 	}
 	

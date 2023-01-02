@@ -5,7 +5,7 @@ import com.g4mesoft.util.GSMathUtil;
 
 public class GSIntegerSetting extends GSSetting<Integer> {
 
-	private int value;
+	private volatile int value;
 	
 	private final int minValue;
 	private final int maxValue;
@@ -49,15 +49,15 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 	}
 	
 	@Override
-	public Integer getValue() {
+	public Integer get() {
 		return Integer.valueOf(value);
 	}
 
 	@Override
-	public GSIntegerSetting setValue(Integer value) {
-		return setValue(value.intValue());
+	public GSIntegerSetting set(Integer value) {
+		return set(value.intValue());
 	}
-
+	
 	/**
 	 * Changes the value of this setting to the new value specified. If the value
 	 * is not on an exact value between two intervals, it will be rounded to the
@@ -67,7 +67,7 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 	 * 
 	 * @return this integer setting
 	 */
-	public GSIntegerSetting setValue(int value) {
+	public GSIntegerSetting set(int value) {
 		int newValue = adjustValue(value);
 		if (newValue != this.value) {
 			this.value = newValue;
@@ -125,7 +125,7 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 		if (newValue > maxValue)
 			newValue = minValue;
 		// No overflow since we have the above check.
-		return setValue((int)newValue);
+		return set((int)newValue);
 	}
 
 	/**
@@ -163,11 +163,11 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 		if (newValue < minValue)
 			newValue = maxValue;
 		// No underflow since we have the above check.
-		return setValue((int)newValue);
+		return set((int)newValue);
 	}
 	
 	@Override
-	public boolean isDefaultValue() {
+	public boolean isDefault() {
 		return defaultValue.intValue() == value;
 	}
 	
@@ -180,11 +180,11 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 	public boolean isSameSetting(GSSetting<?> other) {
 		if (other instanceof GSIntegerSetting) {
 			GSIntegerSetting integerSetting = (GSIntegerSetting)other;
-			if (defaultValue != integerSetting.getDefaultValue())
+			if (defaultValue != integerSetting.getDefault())
 				return false;
-			if (minValue != integerSetting.getMinValue())
+			if (minValue != integerSetting.getMin())
 				return false;
-			if (maxValue != integerSetting.getMaxValue())
+			if (maxValue != integerSetting.getMax())
 				return false;
 			if (interval != integerSetting.getInterval())
 				return false;
@@ -194,20 +194,52 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 		return false;
 	}
 	
-	public int getMinValue() {
+	/**
+	 * @return the minimum value this setting can have
+	 */
+	public int getMin() {
 		return minValue;
 	}
-
-	public int getMaxValue() {
+	
+	/**
+	 * @return the maximum value this setting can have
+	 */
+	public int getMax() {
 		return maxValue;
 	}
 
+	/**
+	 * @deprecated Replaced by {@link #getMin()}
+	 * 
+	 * @return the minimum value this setting can have
+	 */
+	@Deprecated
+	public final int getMinValue() {
+		return getMin();
+	}
+	
+	/**
+	 * @deprecated Replaced by {@link #getMax()}
+	 * 
+	 * @return the maximum value this setting can have
+	 */
+	@Deprecated
+	public final int getMaxValue() {
+		return getMax();
+	}
+
+	/**
+	 * @return The interval which determines which values this setting can
+	 *         take. The setting is always a multiple of the interval, unless
+	 *         it is either the maximum or minimum value and those are not a
+	 *         multiple of the interval.
+	 */
 	public int getInterval() {
 		return interval;
 	}
 
 	@Override
 	public GSSetting<Integer> copySetting() {
-		return new GSIntegerSetting(name, defaultValue, minValue, maxValue, interval, visibleInGui).setValue(value).setEnabledInGui(isEnabledInGui());
+		return new GSIntegerSetting(name, defaultValue, minValue, maxValue, interval, visibleInGui).set(value).setEnabledInGui(isEnabledInGui());
 	}
 }

@@ -32,7 +32,7 @@ public class GSPistonBlockMixin {
 	
 	@Inject(method = "move", locals = LocalCapture.CAPTURE_FAILEXCEPTION, at = @At(value = "RETURN", ordinal = 0, shift = Shift.BEFORE))
 	private void onMoveReturn0(World world, BlockPos pos, Direction dir, boolean retract, CallbackInfoReturnable<Boolean> cir) {
-		if (!world.isClient && GSServerController.getInstance().getTpsModule().sParanoidMode.getValue())
+		if (!world.isClient && GSServerController.getInstance().getTpsModule().sParanoidMode.get())
 			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_markBlockUpdate(pos.offset(dir));
 	}
 	
@@ -50,7 +50,7 @@ public class GSPistonBlockMixin {
 	
 	@Unique
 	private void markBlockEntityForUpdate(World world, BlockPos pos) {
-		if (!world.isClient && GSServerController.getInstance().getTpsModule().sParanoidMode.getValue())
+		if (!world.isClient && GSServerController.getInstance().getTpsModule().sParanoidMode.get())
 			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_markBlockEntityUpdate(pos);
 	}
 }

@@ -15,6 +15,9 @@ public abstract class GSSetting<T> {
 	private boolean allowedChange;
 	
 	public GSSetting(String name, T defaultValue, boolean visibleInGui) {
+		if (name == null)
+			throw new IllegalArgumentException("name is null");
+		
 		this.name = name;
 		this.defaultValue = defaultValue;
 		this.visibleInGui = visibleInGui;
@@ -41,16 +44,61 @@ public abstract class GSSetting<T> {
 			settingOwner.settingChanged(this);
 	}
 	
-	public abstract T getValue();
+	/**
+	 * @return the value of this setting
+	 */
+	public abstract T get();
 	
-	public abstract GSSetting<T> setValue(T value);
+	/**
+	 * @param value - the new value of this setting
+	 * 
+	 * @return this setting
+	 */
+	public abstract GSSetting<T> set(T value);
 
-	public abstract boolean isDefaultValue();
+	/**
+	 * @deprecated Replaced by {@link #get()}
+	 * 
+	 * @return the value of this setting
+	 */
+	@Deprecated
+	public final T getValue() {
+		return get();
+	}
+	
+	/**
+	 * @deprecated Replaced by {@link #set(Object)}
+	 * 
+	 * @param value - the new value of this setting
+	 * 
+	 * @return this setting
+	 */
+	@Deprecated
+	public final GSSetting<T> setValue(T value) {
+		return set(value);
+	}
+
+	/**
+	 * @return True iff. the value of this setting is considered equal to
+	 *         that returned by {@link #getDefault()}. False otherwise.
+	 */
+	public abstract boolean isDefault();
+
+	/**
+	 * @deprecated Replaced by {@link #isDefault()}
+	 * 
+	 * @return True iff. the value of this setting is considered equal to
+	 *         that returned by {@link #getDefault()}. False otherwise.
+	 */
+	@Deprecated
+	public final boolean isDefaultValue() {
+		return isDefault();
+	}
 
 	public abstract boolean isSameType(GSSetting<?> other);
 
 	public boolean isSameSetting(GSSetting<?> other) {
-		return isSameType(other) && Objects.equals(defaultValue, other.getDefaultValue());
+		return isSameType(other) && Objects.equals(defaultValue, other.getDefault());
 	}
 	
 	public abstract GSSetting<T> copySetting();
@@ -59,16 +107,29 @@ public abstract class GSSetting<T> {
 		setValue(defaultValue);
 	}
 	
-	void setValueIfSameType(GSSetting<?> other) {
+	void setIfSameType(GSSetting<?> other) {
 		if (isSameType(other)) {
 			@SuppressWarnings("unchecked")
-			T otherValue = (T)other.getValue();
-			setValue(otherValue);
+			T otherValue = (T)other.get();
+			set(otherValue);
 		}
 	}
 	
-	public T getDefaultValue() {
+	/**
+	 * @return the default value
+	 */
+	public T getDefault() {
 		return defaultValue;
+	}
+
+	/**
+	 * @deprecated Replaced by #getDefault()
+	 * 
+	 * @return the default value
+	 */
+	@Deprecated
+	public final T getDefaultValue() {
+		return getDefault();
 	}
 
 	void setActive(boolean active) {

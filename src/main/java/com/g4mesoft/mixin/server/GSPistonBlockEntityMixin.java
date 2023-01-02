@@ -39,7 +39,7 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 	@Inject(method = "writeNbt", at = @At("RETURN"))
 	private void onWriteNbt(NbtCompound tag, CallbackInfo ci) {
 		GSController controller = GSController.getInstanceOnThread();
-		if (controller != null && controller.getTpsModule().sImmediateBlockBroadcast.getValue())
+		if (controller != null && controller.getTpsModule().sImmediateBlockBroadcast.get())
 			tag.putBoolean("ticked", gs_ticked);
 	}
 }

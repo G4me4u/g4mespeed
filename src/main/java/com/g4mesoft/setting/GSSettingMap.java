@@ -30,6 +30,10 @@ public final class GSSettingMap {
 		settings = new LinkedHashMap<>();
 	}
 	
+	public boolean isRegistered(String name) {
+		return settings.containsKey(name);
+	}
+	
 	public GSSetting<?> getSetting(String name) {
 		return settings.get(name);
 	}
@@ -58,7 +62,7 @@ public final class GSSettingMap {
 	
 	private void setValueFromLoadedSetting(GSSetting<?> setting, GSSetting<?> loadedSetting) {
 		if (setting.isSameSetting(loadedSetting)) {
-			setting.setValueIfSameType(loadedSetting);
+			setting.setIfSameType(loadedSetting);
 			// Do not update the is enabled in GUI setting from file.
 			//setting.setEnabledInGui(loadedSetting.isEnabledInGui());
 		} else {
@@ -86,6 +90,19 @@ public final class GSSettingMap {
 	public void resetSettings() {
 		for (GSSetting<?> setting : settings.values())
 			setting.reset();
+	}
+	
+	
+	public boolean isDisjoint(GSSettingMap other) {
+		for (String name : settings.keySet()) {
+			if (other.isRegistered(name))
+				return false;
+		}
+		return true;
+	}
+
+	public boolean isEmpty() {
+		return settings.isEmpty();
 	}
 	
 	public Collection<GSSetting<?>> getSettings() {
