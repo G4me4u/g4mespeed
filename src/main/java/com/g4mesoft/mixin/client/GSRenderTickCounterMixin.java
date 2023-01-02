@@ -61,7 +61,7 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 			gs_serverTimer.setMillisPerTick(DEFAULT_MILLIS_PER_TICK);
 		}
 		
-		if (!gs_carpetCompat.isTickrateLinked() || gs_tpsModule.cForceCarpetTickrate.getValue())
+		if (!gs_carpetCompat.isTickrateLinked() || gs_tpsModule.cForceCarpetTickrate.get())
 			this.lastFrameDuration = (timeMillis - this.prevTimeMillis) / millisPerTick;
 	}
 

@@ -36,7 +36,7 @@ public class GSEntityMixin implements GSIEntityAccess {
 
 	@Redirect(method = "adjustMovementForPiston", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getTime()J"))
 	private long onAdjustMovementForPistonWorldGetTime(World world) {
-		if (world.isClient && GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.getValue()) {
+		if (world.isClient && GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			// Check if we are pushing entities from outside of the tick loop,
 			// meaning that the piston movement delta array from the previous
 			// tick should be used.

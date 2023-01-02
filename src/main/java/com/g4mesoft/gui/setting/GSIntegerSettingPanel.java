@@ -22,13 +22,13 @@ public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntege
 
 	@Override
 	protected void setValueFromSlider(float value) {
-		setting.setValue(Math.round(value * (setting.getMaxValue() - setting.getMinValue()) + setting.getMinValue()));
+		setting.set(Math.round(value * (setting.getMax() - setting.getMin()) + setting.getMin()));
 	}
 	
 	@Override
 	protected boolean setValueFromTextField(String str) {
 		try {
-			setting.setValue(Integer.parseInt(str));
+			setting.set(Integer.parseInt(str));
 		} catch (NumberFormatException e) {
 			return false;
 		}
@@ -38,16 +38,16 @@ public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntege
 
 	@Override
 	protected boolean shouldUseSlider() {
-		return setting.getMaxValue() - setting.getMinValue() < MAX_DEF_INTERVAL_FOR_SLIDER;
+		return setting.getMax() - setting.getMin() < MAX_DEF_INTERVAL_FOR_SLIDER;
 	}
 
 	@Override
 	protected void updateFieldValue() {
 		if (shouldUseSlider()) {
-			setSliderValue((float)(setting.getValue() - setting.getMinValue()) / (setting.getMaxValue() - setting.getMinValue()));
-			setSliderText(getFormattedValue(setting.getValue()));
+			setSliderValue((float)(setting.get() - setting.getMin()) / (setting.getMax() - setting.getMin()));
+			setSliderText(getFormattedValue(setting.get()));
 		} else {
-			setTextFieldValue(String.format(Locale.ENGLISH, "%d", setting.getValue()));
+			setTextFieldValue(String.format(Locale.ENGLISH, "%d", setting.get()));
 		}
 	}
 	
@@ -66,6 +66,6 @@ public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntege
 	
 	@Override
 	public Text getFormattedDefault() {
-		return getFormattedValue(setting.getDefaultValue()).formatted(Formatting.AQUA);
+		return getFormattedValue(setting.getDefault()).formatted(Formatting.AQUA);
 	}
 }

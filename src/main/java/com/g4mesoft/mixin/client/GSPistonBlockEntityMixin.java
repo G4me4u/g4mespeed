@@ -91,7 +91,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		float val;
 		
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		switch (tpsModule.cPistonAnimationType.getValue()) {
+		switch (tpsModule.cPistonAnimationType.get()) {
 		default:
 		case GSTpsModule.PISTON_ANIM_PAUSE_END:
 			// Will be clamped by the return statement.
@@ -220,7 +220,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	
 	@Unique
 	private boolean isPushCorrectionEnabled() {
-		return world.isClient && GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.getValue();
+		return world.isClient && GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get();
 	}
 
 	@Inject(method = "fromTag", at = @At("RETURN"))
@@ -238,15 +238,15 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@Environment(EnvType.CLIENT)
 	public double getSquaredRenderDistance() {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		int chunkDist = tpsModule.cPistonRenderDistance.getValue();
+		int chunkDist = tpsModule.cPistonRenderDistance.get();
 		if (chunkDist == GSTpsModule.AUTOMATIC_PISTON_RENDER_DISTANCE) {
-			if (tpsModule.sParanoidMode.getValue()) {
+			if (tpsModule.sParanoidMode.get()) {
 				// When using paranoid mode there is no limit to where
 				// the piston block entities might occur. So we just
 				// render all of the ones within maximum view distance.
-				chunkDist = tpsModule.cPistonRenderDistance.getMaxValue();
+				chunkDist = tpsModule.cPistonRenderDistance.getMax();
 			} else {
-				chunkDist = tpsModule.sBlockEventDistance.getValue();
+				chunkDist = tpsModule.sBlockEventDistance.get();
 			}
 		}
 		

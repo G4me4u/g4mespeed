@@ -170,7 +170,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		G4mespeedMod.getCarpetCompat().addCarpetTickrateListener(this);
 		
 		manager.runOnServer(managerServer -> {
-			if (sRestoreTickrate.getValue()) {
+			if (sRestoreTickrate.get()) {
 				try {
 					setTps(readTps(getTpsCacheFile()));
 				} catch (IOException e) {
@@ -187,7 +187,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		G4mespeedMod.getCarpetCompat().removeCarpetTickrateListener(this);
 
 		manager.runOnServer(serverManager -> {
-			if (sRestoreTickrate.getValue()) {
+			if (sRestoreTickrate.get()) {
 				try {
 					writeTps(tps, getTpsCacheFile());
 				} catch (IOException e) {
@@ -210,7 +210,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			cTpsLabel
 		);
 		// Tweakeroo hack is only enabled for normal movement setting.
-		cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.getValue());
+		cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.get());
 
 		settings.registerSettings(BETTER_PISTONS_CATEGORY,
 			cPistonAnimationType,
@@ -240,7 +240,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	@Override
-	public void registerServerSettings(GSSettingManager settings) {
+	public void registerGlobalServerSettings(GSSettingManager settings) {
 		settings.registerSettings(TPS_CATEGORY, 
 			sSyncPacketInterval,
 			sBroadcastTps,
@@ -267,7 +267,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			if (!paused) {
 				serverSyncTimer++;
 				
-				int syncInterval = sSyncPacketInterval.getValue();
+				int syncInterval = sSyncPacketInterval.get();
 				if (serverSyncTimer >= syncInterval) {
 					managerServer.sendPacketToAll(new GSServerSyncPacket(syncInterval));
 					serverSyncTimer = 0;
@@ -276,7 +276,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			
 			serverTpsMonitor.update(1);
 			
-			if (sBroadcastTps.getValue()) {
+			if (sBroadcastTps.get()) {
 				long now = Util.getMeasuringTimeMs();
 				
 				// Note that the interval may be less than zero in case of the
@@ -320,7 +320,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				boolean sneaking = client.options.keySneak.isPressed();
 				
 				if (managerClient.isG4mespeedServer()) {
-					if (sTpsHotkeyMode.getValue() != HOTKEY_MODE_DISABLED) {
+					if (sTpsHotkeyMode.get() != HOTKEY_MODE_DISABLED) {
 						// Only send the hotkey packet when the server
 						// allows us to use hotkey controls.
 						managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
@@ -343,7 +343,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	public void onPlayerHotkey(ServerPlayerEntity player, GSETpsHotkeyType type, boolean sneaking) {
-		if (sTpsHotkeyMode.getValue() != HOTKEY_MODE_DISABLED && isPlayerAllowedTpsChange(player)) {
+		if (sTpsHotkeyMode.get() != HOTKEY_MODE_DISABLED && isPlayerAllowedTpsChange(player)) {
 			if (isGameModeAllowingHotkeys(player.interactionManager.getGameMode())) {
 				float oldTps = tps;
 				performHotkeyAction(type, sneaking);
@@ -368,7 +368,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	private void sendHotkeyFeedback(ServerPlayerEntity player, Text feedbackText) {
-		switch (sTpsHotkeyFeedback.getValue()) {
+		switch (sTpsHotkeyFeedback.get()) {
 		case HOTKEY_FEEDBACK_DISABLED:
 			break;
 		case HOTKEY_FEEDBACK_STATUS:
@@ -502,7 +502,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				// Setup sync timer so it will send sync in the 
 				// next tick (this ensures that the client had
 				// time to react to the previous packet).
-				serverSyncTimer = sSyncPacketInterval.getValue();
+				serverSyncTimer = sSyncPacketInterval.get();
 
 				// Reset the tps monitor. This should only happen
 				// on the server, since it would otherwise create
@@ -519,7 +519,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	public boolean isGameModeAllowingHotkeys(GameMode gameMode) {
-		switch (sTpsHotkeyMode.getValue()) {
+		switch (sTpsHotkeyMode.get()) {
 		case HOTKEY_MODE_CREATIVE:
 			return (gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR);
 		case HOTKEY_MODE_ALL:
@@ -538,13 +538,13 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
 		if (setting == cNormalMovement) {
 			sendFixedMovementPacket();
-			cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.getValue());
+			cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.get());
 		}
 	}
 	
 	private void sendFixedMovementPacket() {
 		manager.runOnClient(clientManager -> {
-			clientManager.sendPacket(new GSPlayerFixedMovementPacket(cNormalMovement.getValue()));
+			clientManager.sendPacket(new GSPlayerFixedMovementPacket(cNormalMovement.get()));
 		});
 	}
 
@@ -597,7 +597,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	@Environment(EnvType.CLIENT)
 	public float getServerTps() {
-		if (sBroadcastTps.getValue() && Float.isFinite(serverTps))
+		if (sBroadcastTps.get() && Float.isFinite(serverTps))
 			return serverTps;
 		return serverTpsMonitor.getAverageTps();
 	}
@@ -609,7 +609,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 	@Environment(EnvType.CLIENT)
 	public boolean isMainPlayerFixedMovement() {
-		if (cNormalMovement.getValue() && (!isDefaultTps() || fixedMovementOnDefaultTps)) {
+		if (cNormalMovement.get() && (!isDefaultTps() || fixedMovementOnDefaultTps)) {
 			PlayerEntity player = GSClientController.getInstance().getPlayer();
 
 			// Do not enable fixed movement if player has a vehicle.
@@ -617,7 +617,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				// Carpet allows clients to have different tps than the server,
 				// do not enable fixed movement if carpet is in this mode.
 				if (G4mespeedMod.getCarpetCompat().isTickrateLinked())
-					return cForceCarpetTickrate.getValue();
+					return cForceCarpetTickrate.get();
 				return true;
 			}
 		}

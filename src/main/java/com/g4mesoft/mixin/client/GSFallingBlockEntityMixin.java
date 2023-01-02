@@ -26,7 +26,7 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 	@Redirect(method = "tick", at = @At(value = "INVOKE", ordinal = 0,
 	          target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
 	private boolean redirectTickRemoveBlock(World world, BlockPos pos, boolean move) {
-		if (!world.isClient || GSClientController.getInstance().getTpsModule().sPrettySand.getValue() == GSTpsModule.PRETTY_SAND_DISABLED) {
+		if (!world.isClient || GSClientController.getInstance().getTpsModule().sPrettySand.get() == GSTpsModule.PRETTY_SAND_DISABLED) {
 			// Do not remove the source block on the client when pretty sand is
 			// enabled. This might cause the client to remove the final position,
 			// if it is lagging behind, and desync the server and client world.
@@ -38,7 +38,7 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 	@GSCoreOverride
 	@Override
 	public void move(MovementType movementType, Vec3d movement) {
-		if (!world.isClient || GSClientController.getInstance().getTpsModule().sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_FIDELITY) {
+		if (!world.isClient || GSClientController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_FIDELITY) {
 			// Do not move on the client if the server has pretty sand in fidelity
 			// mode. (the positions are sent from the server every tick).
 			super.move(movementType, movement);

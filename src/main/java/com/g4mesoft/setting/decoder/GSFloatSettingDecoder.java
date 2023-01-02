@@ -19,7 +19,7 @@ public class GSFloatSettingDecoder implements GSISettingDecoder<GSFloatSetting> 
 		boolean visibleInGui = buffer.readBoolean();
 		
 		GSFloatSetting setting = new GSFloatSetting(name, defaultValue, minValue, maxValue, interval, visibleInGui);
-		setting.setValue(value);
+		setting.set(value);
 
 		if (buffer.isReadable(1)) {
 			// Only read when available to ensure backwards compatability
@@ -31,10 +31,10 @@ public class GSFloatSettingDecoder implements GSISettingDecoder<GSFloatSetting> 
 
 	@Override
 	public void encodeSetting(PacketByteBuf buffer, GSFloatSetting setting) {
-		buffer.writeFloat(setting.getValue());
-		buffer.writeFloat(setting.getDefaultValue());
-		buffer.writeFloat(setting.getMinValue());
-		buffer.writeFloat(setting.getMaxValue());
+		buffer.writeFloat(setting.get());
+		buffer.writeFloat(setting.getDefault());
+		buffer.writeFloat(setting.getMin());
+		buffer.writeFloat(setting.getMax());
 		buffer.writeFloat(setting.getInterval());
 		buffer.writeBoolean(setting.isVisibleInGui());
 		buffer.writeBoolean(setting.isEnabledInGui());

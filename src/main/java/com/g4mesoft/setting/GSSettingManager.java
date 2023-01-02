@@ -217,6 +217,30 @@ public class GSSettingManager {
 	
 	/* Methods for registering and querying settings */
 	
+	/**
+	 * Checks whether the setting is registered in this setting manager.
+	 * 
+	 * @param category - the category of the setting
+	 * @param name - the name of the setting
+	 * 
+	 * @return True if the setting is registered, false otherwise.
+	 * 
+	 * @see #registerSetting(GSSettingCategory, GSSetting)
+	 */
+	public boolean isRegistered(GSSettingCategory category, String name) {
+		GSSettingMap categorySettings = settings.get(category);
+		return categorySettings != null && categorySettings.isRegistered(name);
+	}
+	
+	/**
+	 * Retrieves the setting with the given category and name.
+	 * 
+	 * @param category - the category of the setting
+	 * @param name - the name of the setting
+	 * 
+	 * @return The setting with the given category and name, or null if the
+	 *         setting is not registered in this setting manager.
+	 */
 	public GSSetting<?> getSetting(GSSettingCategory category, String name) {
 		GSSettingMap categorySettings = settings.get(category);
 		return (categorySettings != null) ? categorySettings.getSetting(name) : null;
@@ -296,6 +320,13 @@ public class GSSettingManager {
 		}
 	}
 	
+	/**
+	 * Removes the setting with the given category and name from this setting manager,
+	 * or does nothing if the setting is not registered.
+	 * 
+	 * @param category - the category of the setting
+	 * @param name - the name of the setting
+	 */
 	public void removeSetting(GSSettingCategory category, String name) {
 		GSSettingMap categorySettings = settings.get(category);
 		if (categorySettings != null)
@@ -323,6 +354,34 @@ public class GSSettingManager {
 	public void resetSettings() {
 		for (GSSettingMap settingMap : settings.values())
 			settingMap.resetSettings();
+	}
+	
+	/**
+	 * Checks whether this setting manager shares any registered settings with the
+	 * given setting manager. I.e. if this setting manager and the given are disjoint.
+	 * 
+	 * @param other - the other setting manager
+	 * 
+	 * @return True if the setting managers are disjoint, false otherwise.
+	 */
+	public boolean isDisjoint(GSSettingManager other) {
+		for (Map.Entry<GSSettingCategory, GSSettingMap> entry : settings.entrySet()) {
+			GSSettingMap settingMap = other.getSettings(entry.getKey());
+			if (settingMap != null && !entry.getValue().isDisjoint(settingMap))
+				return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * @return True if there are no currently registered settings, false otherwise.
+	 */
+	public boolean isEmpty() {
+		for (GSSettingMap settingMap : settings.values()) {
+			if (!settingMap.isEmpty())
+				return false;
+		}
+		return true;
 	}
 	
 	/* Methods for dispatching events */

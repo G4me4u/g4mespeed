@@ -70,7 +70,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Inject(method = "onEntityPosition", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
 	        target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
 	private void onOnEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci) {
-		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.getValue()) {
+		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			Entity entity = world.getEntityById(packet.getId());
 			if (entity != null && isRecentlyMovedByPiston(entity)) {
 				// Update the tracked position such that the entity position
@@ -84,7 +84,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Inject(method = "onEntityUpdate", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
 	        target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
 	private void onOnEntityUpdate(EntityS2CPacket packet, CallbackInfo ci) {
-		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.getValue()) {
+		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			Entity entity = packet.getEntity(world);
 			if (entity != null && isRecentlyMovedByPiston(entity)) {
 				if (!entity.isLogicalSideForUpdatingMovement()) {
@@ -110,7 +110,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Inject(method = "onPlayerPositionLook", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
 	        target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
 	private void onOnPlayerPositionLook(PlayerPositionLookS2CPacket packet, CallbackInfo ci) {
-		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.getValue()) {
+		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			// The server will inherently detect that the player moved in an incorrect way, if the
 			// player was moved by a piston. In this case we ignore the update and send confirmation.
 			// The confirmation is important, since we do not want the server to teleport the player
@@ -191,7 +191,7 @@ public class GSClientPlayNetworkHandlerMixin {
 				// that the block entity has ticked if it is not a g4mespeed
 				// server or if the immediate block updates setting is not
 				// enabled.
-				if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked"))
+				if (!tpsModule.sImmediateBlockBroadcast.get() || !tag.contains("ticked") || tag.getBoolean("ticked"))
 					tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
 			}
 			
@@ -222,7 +222,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	private void onOnBlockEntityUpdate(BlockEntityUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		
-		if (tpsModule.sParanoidMode.getValue()) {
+		if (tpsModule.sParanoidMode.get()) {
 			BlockPos pos = packet.getPos();
 			
 			if (packet.getBlockEntityType() == 0 && world.isChunkLoaded(pos)) {
@@ -238,7 +238,7 @@ public class GSClientPlayNetworkHandlerMixin {
 					}
 					
 					// See above redirect method.
-					if (!tpsModule.sImmediateBlockBroadcast.getValue() || !tag.contains("ticked") || tag.getBoolean("ticked"))
+					if (!tpsModule.sImmediateBlockBroadcast.get() || !tag.contains("ticked") || tag.getBoolean("ticked"))
 						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
 					
 					if (blockEntity == null) {
@@ -261,7 +261,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Inject(method = "onBlockUpdate", at = @At("RETURN"))
 	private void onOnBlockUpdateReturn(BlockUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED)
+		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
 			scheduleRenderUpdateForFallingBlock(packet.getPos(), packet.getState());
 	}
 	
@@ -269,7 +269,7 @@ public class GSClientPlayNetworkHandlerMixin {
 			target = "Lnet/minecraft/network/packet/s2c/play/ChunkDeltaUpdateS2CPacket;visitUpdates(Ljava/util/function/BiConsumer;)V"))
 	private void onOnChunkDeltaUpdateReturn(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.getValue() != GSTpsModule.PRETTY_SAND_DISABLED)
+		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
 			packet.visitUpdates(this::scheduleRenderUpdateForFallingBlock);
 	}
 	

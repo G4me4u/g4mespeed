@@ -17,7 +17,7 @@ public class GSStringSettingDecoder implements GSISettingDecoder<GSStringSetting
 		boolean visibleInGui = buffer.readBoolean();
 		
 		GSStringSetting setting = new GSStringSetting(name, defaultValue, visibleInGui);
-		setting.setValue(value);
+		setting.set(value);
 
 		if (buffer.isReadable(1)) {
 			// Only read when available to ensure backwards compatability
@@ -29,8 +29,8 @@ public class GSStringSettingDecoder implements GSISettingDecoder<GSStringSetting
 
 	@Override
 	public void encodeSetting(PacketByteBuf buffer, GSStringSetting setting) {
-		buffer.writeString(setting.getValue());
-		buffer.writeString(setting.getDefaultValue());
+		buffer.writeString(setting.get());
+		buffer.writeString(setting.getDefault());
 		buffer.writeBoolean(setting.isVisibleInGui());
 		buffer.writeBoolean(setting.isEnabledInGui());
 	}
