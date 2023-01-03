@@ -37,9 +37,9 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	private GSEHeaderResizePolicy columnHeaderResizePolicy;
 	private GSEHeaderResizePolicy rowHeaderResizePolicy;
 	
-	private Map<Class<?>, GSITableCellRenderer<?>> cellRendererByClass;
+	private final Map<Class<?>, GSITableCellRenderer<?>> cellRendererByClass;
 	/* Cache for derived cell renderers (inherited from classes and interfaces) */
-	private Map<Class<?>, GSITableCellRenderer<?>> cellRendererCache;
+	private final Map<Class<?>, GSITableCellRenderer<?>> cellRendererCache;
 	
 	private int backgroundColor;
 	private int textColor;
@@ -51,14 +51,10 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	private GSTableRowHeaderPanel rowHeader;
 	
 	public GSTablePanel(int columnCount, int rowCount) {
-		init(new GSBasicTableModel(columnCount, rowCount));
+		this(new GSBasicTableModel(columnCount, rowCount));
 	}
 	
 	public GSTablePanel(GSITableModel model) {
-		init(model);
-	}
-	
-	private void init(GSITableModel model) {
 		super.setLayoutManager(new GSTableLayoutManager());
 		
 		setModel(model);

@@ -146,7 +146,7 @@ public class GSTableLayoutManager implements GSILayoutManager {
 		}
 		
 		int sign = rem < 0 ? -1 : 1;
-		if (remCnt < QUADRATIC_DISTRIBUTION_ALG_THRESHOLD || (rem < 0 && !mnsFlag)) {
+		if (remCnt <= QUADRATIC_DISTRIBUTION_ALG_THRESHOLD || (rem < 0 && !mnsFlag)) {
 			// Use a simple O(n^2) worst-case algorithm to distribute the size.
 			// Although the algorithm is worst-case quadratic, many instances will
 			// incur close to linear time. In particular, if the table has Q headers
@@ -205,7 +205,7 @@ public class GSTableLayoutManager implements GSILayoutManager {
 			//       constant time determine if an element will reach its threshold).
 			
 			// 1. Compute the maximum (absolute) size delta for each of the header elements.
-			int[] thresholds = new int[i1 - i0];
+			int[] thresholds = new int[remCnt];
 			for (int i = i0; i < i1; i++) {
 				T e = accessor.getElement(i);
 				int s = accessor.getSize(e);

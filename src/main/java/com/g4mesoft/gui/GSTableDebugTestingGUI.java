@@ -16,7 +16,7 @@ import net.minecraft.text.LiteralText;
 
 public class GSTableDebugTestingGUI extends GSParentPanel {
 
-	private static final int COLUMN_COUNT = 22;
+	private static final int COLUMN_COUNT = 10;
 	private static final int ROW_COUNT = 20;
 	
 	private GSPanel previousPanel;
