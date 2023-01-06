@@ -1,10 +1,11 @@
-package com.g4mesoft.panel.table;
+package com.g4mesoft.panel.cell;
 
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSRectangle;
+import com.g4mesoft.panel.table.GSTablePanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
-public final class GSEmptyCellRenderer implements GSITableCellRenderer<Object> {
+public final class GSEmptyCellRenderer implements GSICellRenderer<Object> {
 
 	public static final GSEmptyCellRenderer INSTANCE = new GSEmptyCellRenderer();
 	
@@ -21,9 +22,9 @@ public final class GSEmptyCellRenderer implements GSITableCellRenderer<Object> {
 		return GSDimension.ZERO;
 	}
 
-	public static <T> GSITableCellRenderer<T> getInstance() {
+	public static <T> GSICellRenderer<T> getInstance() {
 		@SuppressWarnings("unchecked")
-		GSITableCellRenderer<T> instance = (GSITableCellRenderer<T>)INSTANCE;
+		GSICellRenderer<T> instance = (GSICellRenderer<T>)INSTANCE;
 		return instance;
 	}
 }

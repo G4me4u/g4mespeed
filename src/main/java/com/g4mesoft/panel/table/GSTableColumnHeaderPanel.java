@@ -3,6 +3,7 @@ package com.g4mesoft.panel.table;
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSRectangle;
+import com.g4mesoft.panel.cell.GSICellRenderer;
 import com.g4mesoft.panel.scroll.GSIScrollable;
 import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.util.GSColorUtil;
@@ -49,7 +50,7 @@ public class GSTableColumnHeaderPanel extends GSPanel implements GSIScrollable {
 	}
 	
 	private <T> void renderHeader(GSIRenderer2D renderer, T value, GSRectangle bounds) {
-		GSITableCellRenderer<T> cellRenderer = table.getCellRenderer(value);
+		GSICellRenderer<T> cellRenderer = table.getCellRenderer(value);
 		cellRenderer.render(renderer, value, bounds, table);
 	}
 	

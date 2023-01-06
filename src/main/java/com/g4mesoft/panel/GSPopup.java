@@ -1,5 +1,7 @@
 package com.g4mesoft.panel;
 
+import com.g4mesoft.panel.event.GSILayoutEventListener;
+import com.g4mesoft.panel.event.GSLayoutEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.minecraft.client.render.VertexFormats;
@@ -12,13 +14,44 @@ public class GSPopup extends GSParentPanel {
 	private static final int SHADOW_COLOR = 0x80000000;
 	
 	protected final GSPanel content;
+	
 	protected GSPanel source;
+	private boolean relative;
+	private int relX;
+	private int relY;
+	
+	private GSILayoutEventListener sourceLayoutListener;
 	
 	public GSPopup(GSPanel content) {
 		if (content == null)
 			throw new IllegalArgumentException("content is null");
 		this.content = content;
+
 		source = null;
+		relative = false;
+		relX = relY = 0;
+		
+		sourceLayoutListener = null;
+	}
+	
+	@Override
+	protected void onShown() {
+		super.onShown();
+		
+		if (relative && source != null) {
+			sourceLayoutListener = new GSSourceLayoutListener();
+			source.addLayoutEventListener(sourceLayoutListener);
+		}
+	}
+
+	@Override
+	protected void onHidden() {
+		super.onHidden();
+		
+		if (relative && source != null) {
+			source.removeLayoutEventListener(sourceLayoutListener);
+			sourceLayoutListener = null;
+		}
 	}
 	
 	@Override
@@ -77,9 +110,25 @@ public class GSPopup extends GSParentPanel {
 	public void show(GSPanel source, int x, int y, boolean relative) {
 		if (getParent() != null)
 			return;
+
+		// Update source (root panel if not specified).
+		GSRootPanel rootPanel = GSPanelContext.getRootPanel();
+		this.source = source != null ? source : rootPanel;
 		
-		this.source = source;
+		this.relative = relative;
+		this.relX = x;
+		this.relY = y;
 		
+		updateBounds(x, y);
+		
+		super.add(content);
+	
+		rootPanel.add(this, GSRootPanel.POPUP_LAYER);
+		content.requestFocus();
+	}
+	
+	private void updateBounds(int x, int y) {
+		// Translate position relative to source.
 		if (relative && source != null) {
 			GSLocation viewLocation = GSPanelUtil.getViewLocation(source);
 			
@@ -89,12 +138,6 @@ public class GSPopup extends GSParentPanel {
 		
 		GSDimension pref = getProperty(PREFERRED_SIZE);
 		setBounds(adjustLocation(x, y, pref), pref);
-		
-		super.add(content);
-	
-		GSRootPanel rootPanel = GSPanelContext.getRootPanel();
-		rootPanel.add(this, GSRootPanel.POPUP_LAYER);
-		content.requestFocus();
 	}
 	
 	private GSLocation adjustLocation(int x, int y, GSDimension size) {
@@ -117,7 +160,7 @@ public class GSPopup extends GSParentPanel {
 		
 		super.remove(content);
 
-		if (source != null) {
+		if (source != null && source.isAdded() /* exclude root */) {
 			source.requestFocus();
 			source = null;
 		}
@@ -160,5 +203,21 @@ public class GSPopup extends GSParentPanel {
 
 		renderer.finish();
 		renderer.popMatrix();
+	}
+	
+	private class GSSourceLayoutListener implements GSILayoutEventListener {
+
+		@Override
+		public void panelMoved(GSLayoutEvent event) {
+			// TODO(Christian): also capture events further up in the tree
+			if (source != null && source.isVisible())
+				updateBounds(relX, relY);
+		}
+
+		@Override
+		public void panelResized(GSLayoutEvent event) {
+			if (source != null && source.isVisible())
+				updateBounds(relX, relY);
+		}
 	}
 }

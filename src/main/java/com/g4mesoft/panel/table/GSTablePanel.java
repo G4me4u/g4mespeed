@@ -1,11 +1,5 @@
 package com.g4mesoft.panel.table;
 
-import java.util.ArrayDeque;
-import java.util.Date;
-import java.util.Deque;
-import java.util.IdentityHashMap;
-import java.util.Map;
-
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSILayoutManager;
 import com.g4mesoft.panel.GSPanel;
@@ -13,11 +7,11 @@ import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.GSPanelUtil;
 import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.panel.GSRectangle;
+import com.g4mesoft.panel.cell.GSCellRendererRegistry;
+import com.g4mesoft.panel.cell.GSICellRenderer;
 import com.g4mesoft.panel.scroll.GSIScrollable;
 import com.g4mesoft.panel.scroll.GSScrollPanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
-
-import net.minecraft.text.Text;
 
 public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITableModelListener {
 
@@ -37,10 +31,8 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	private GSEHeaderResizePolicy columnHeaderResizePolicy;
 	private GSEHeaderResizePolicy rowHeaderResizePolicy;
 	
-	private final Map<Class<?>, GSITableCellRenderer<?>> cellRendererByClass;
-	/* Cache for derived cell renderers (inherited from classes and interfaces) */
-	private final Map<Class<?>, GSITableCellRenderer<?>> cellRendererCache;
-	
+	private final GSCellRendererRegistry cellRendererRegistry;
+
 	private int backgroundColor;
 	private int textColor;
 
@@ -66,80 +58,12 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 		columnHeaderResizePolicy = GSEHeaderResizePolicy.RESIZE_SUBSEQUENT;
 		rowHeaderResizePolicy = GSEHeaderResizePolicy.RESIZE_OFF;
 		
-		cellRendererByClass = new IdentityHashMap<>();
-		cellRendererCache = new IdentityHashMap<>();
-
+		cellRendererRegistry = new GSCellRendererRegistry();
+		
 		backgroundColor = DEFAULT_BACKGROUND_COLOR;
 		textColor = DEFAULT_TEXT_COLOR;
 		
 		resizingColumnIndex = resizingRowIndex = -1;
-		
-		initDefaultCellRenderers();
-	}
-	
-	private void initDefaultCellRenderers() {
-		setCellRenderer(String.class, GSStringTableCellRenderer.INSTANCE);
-		setCellRenderer(Text.class, GSTextTableCellRenderer.INSTANCE);
-		setCellRenderer(Date.class, GSDateTableCellRenderer.INSTANCE);
-	}
-	
-	public <T> void setCellRenderer(Class<? extends T> valueClazz, GSITableCellRenderer<T> cellRenderer) {
-		if (cellRenderer == null) {
-			cellRendererByClass.remove(valueClazz);
-		} else {
-			cellRendererByClass.put(valueClazz, cellRenderer);
-		}
-		// Clear the cell renderer cache
-		cellRendererCache.clear();
-	}
-	
-	public <T> GSITableCellRenderer<T> getCellRenderer(T value) {
-		return value == null ? GSEmptyCellRenderer.getInstance() : getCellRendererImpl(value.getClass());
-	}
-	
-	@SuppressWarnings("unchecked")
-	private <T> GSITableCellRenderer<T> getCellRendererImpl(Class<?> clazz) {
-		GSITableCellRenderer<?> cellRenderer = cellRendererCache.get(clazz);
-		if (cellRenderer == null) {
-			// Search for closest cell renderer, where:
-			//    1. A directly assigned cell renderer takes precedence
-			//    2. Then direct interfaces, by DFS order, take precedence.
-			//    3. Finally, if the direct interfaces do not derive a cell
-			//       renderer, we recursively return the cell renderer of
-			//       the super class.
-			Deque<Class<?>> s = new ArrayDeque<>();
-			// 1) The root of the DFS is clazz
-			s.push(clazz);
-			// Search through direct interfaces and their inherited
-			// interfaces using DFS.
-			// Note: no need to check for visited nodes, since inheritance
-			//       is always a DAG. We *might* visit the same node many
-			//       times, however this expensive operation happens once.
-			Class<?> c;
-			while ((c = s.poll()) != null) {
-				cellRenderer = cellRendererByClass.get(c);
-				if (cellRenderer != null)
-					break;
-				// 2) add direct interfaces to the stack
-				for (Class<?> ic : c.getInterfaces())
-					s.push(ic);
-			}
-			if (cellRenderer == null) {
-				// 3) Recursively search the super-class.
-				c = clazz.getSuperclass();
-				if (c != null) {
-					cellRenderer = getCellRendererImpl(c);
-				} else {
-					// clazz is primitive type or Object, and has no
-					// assigned cell renderer.
-					cellRenderer = GSEmptyCellRenderer.getInstance();
-				}
-			}
-			//assert cellRenderer != null
-			// Add the cell renderer to the cache
-			cellRendererCache.put(clazz, cellRenderer);
-		}
-		return (GSITableCellRenderer<T>)cellRenderer;
 	}
 	
 	@Override
@@ -366,6 +290,18 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 			throw new IllegalArgumentException("resizePolicy is null!");
 		rowHeaderResizePolicy = resizePolicy;
 		invalidate();
+	}
+
+	public GSCellRendererRegistry getCellRendererRegistry() {
+		return cellRendererRegistry;
+	}
+	
+	public <T> GSICellRenderer<T> getCellRenderer(T value) {
+		return cellRendererRegistry.getCellRenderer(value);
+	}
+	
+	public <T> void setCellRenderer(Class<? extends T> valueClazz, GSICellRenderer<T> cellRenderer) {
+		cellRendererRegistry.setCellRenderer(valueClazz, cellRenderer);
 	}
 
 	public int getBackgroundColor() {

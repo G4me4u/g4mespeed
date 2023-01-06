@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.g4mesoft.panel.GSIModelListener;
+import com.g4mesoft.panel.GSPanelUtil;
 import com.g4mesoft.panel.GSRectangle;
 import com.g4mesoft.panel.event.GSEvent;
 import com.g4mesoft.panel.event.GSFocusEvent;
@@ -187,7 +188,8 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 				setCaretLocation(Math.max(dot, mark));
 			}
 		} else if ((modifierFlags & WORD_NAVIGATION_MODIFIER) != 0) {
-			navigateToLocation(textField.getLocationAfterWord(dot, backward), modifierFlags);
+			CharSequence s = textModel.asCharSequence();
+			navigateToLocation(GSPanelUtil.getIndexAfterWord(s, dot, backward), modifierFlags);
 		} else {
 			navigateToLocation(backward ? (dot - 1) : (dot + 1), modifierFlags);
 		}
@@ -531,8 +533,9 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 					int nextDot = Math.min(dot + 1, textModel.getLength());
 					
 					// Double clicking selects current word
-					setSelection(textField.getLocationAfterWord(nextDot, true),
-					             textField.getLocationAfterWord(dot, false));
+					CharSequence s = textModel.asCharSequence();
+					setSelection(GSPanelUtil.getIndexAfterWord(s, nextDot, true),
+					             GSPanelUtil.getIndexAfterWord(s, dot, false));
 				} else if (clickCountMod2 != 0 && clickCount >= 3) {
 					// Triple clicking selects all
 					setSelection(0, textModel.getLength());

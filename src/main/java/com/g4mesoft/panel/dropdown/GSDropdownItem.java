@@ -18,10 +18,14 @@ public abstract class GSDropdownItem extends GSPanel {
 	public GSDropdownItem() {
 		// Drop-down menu items should never be focusable,
 		// since that would cause the drop-down to close.
-		setFocusable(false);
+		super.setFocusable(false);
 	}
 	
 	@Override
 	protected abstract GSDimension calculatePreferredSize();
 
+	@Override
+	public void setFocusable(boolean focusable) {
+		throw new UnsupportedOperationException("Dropdown items can not be focusable");
+	}
 }

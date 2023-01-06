@@ -10,6 +10,7 @@ import com.g4mesoft.panel.GSIChangeListener;
 import com.g4mesoft.panel.GSIModelListener;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
+import com.g4mesoft.panel.GSPanelUtil;
 import com.g4mesoft.panel.GSRectangle;
 import com.g4mesoft.panel.dropdown.GSDropdown;
 import com.g4mesoft.panel.dropdown.GSDropdownAction;
@@ -606,7 +607,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		case BACKSPACE_CONTROL_CHARACTER:
 			if (offset > 0) {
 				if ((modifiers & GSEvent.MODIFIER_CONTROL) != 0) {
-					removeTextRange(offset, getLocationAfterWord(offset, true));
+					CharSequence s = textModel.asCharSequence();
+					removeTextRange(offset, GSPanelUtil.getIndexAfterWord(s, offset, true));
 				} else {
 					removeTextRange(offset, offset - 1);
 				}
@@ -615,7 +617,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		case DELETE_CONTROL_CHARACTER:
 			if (offset < textModel.getLength()) {
 				if ((modifiers & GSEvent.MODIFIER_CONTROL) != 0) {
-					removeTextRange(offset, getLocationAfterWord(offset, false));
+					CharSequence s = textModel.asCharSequence();
+					removeTextRange(offset, GSPanelUtil.getIndexAfterWord(s, offset, false));
 				} else {
 					removeTextRange(offset, offset + 1);
 				}
@@ -667,81 +670,6 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	public void focusLost(GSFocusEvent event) {
 		if (!hasPopupVisible() && caret.hasCaretSelection())
 			caret.setCaretLocation(0);
-	}
-	
-	int getLocationAfterWord(int startLocation, boolean backward) {
-		int nextLocation = startLocation;
-		
-		if (backward) {
-			GSEWordCharacterType prevType = GSEWordCharacterType.OTHER;
-
-			for ( ; nextLocation > 0; nextLocation--) {
-				GSEWordCharacterType type = getWordCharacterTypeAt(nextLocation - 1);
-				if (type != prevType && prevType != GSEWordCharacterType.OTHER)
-					break;
-				
-				prevType = type;
-			}
-		} else {
-			GSEWordCharacterType prevType = getWordCharacterTypeAt(startLocation);
-
-			for ( ; nextLocation < textModel.getLength(); nextLocation++) {
-				GSEWordCharacterType type = getWordCharacterTypeAt(nextLocation);
-				if (type != prevType && type != GSEWordCharacterType.OTHER)
-					break;
-				
-				prevType = type;
-			}
-		}
-		
-		return nextLocation;
-	}
-	
-	private GSEWordCharacterType getWordCharacterTypeAt(int location) {
-		if (location >= 0 && location < textModel.getLength()) {
-			char c = textModel.getChar(location);
-			
-			switch (Character.getType(c)) {
-			case Character.UPPERCASE_LETTER:
-			case Character.LOWERCASE_LETTER:
-			case Character.TITLECASE_LETTER:
-			case Character.MODIFIER_LETTER:
-			case Character.OTHER_LETTER:
-			case Character.DECIMAL_DIGIT_NUMBER:
-			case Character.OTHER_NUMBER:
-				return GSEWordCharacterType.LETTER_OR_DIGIT;
-	
-			case Character.LETTER_NUMBER:
-			case Character.DASH_PUNCTUATION:
-			case Character.START_PUNCTUATION:
-			case Character.END_PUNCTUATION:
-			case Character.CONNECTOR_PUNCTUATION:
-			case Character.OTHER_PUNCTUATION:
-			case Character.MATH_SYMBOL:
-			case Character.CURRENCY_SYMBOL:
-			case Character.MODIFIER_SYMBOL:
-			case Character.OTHER_SYMBOL:
-			case Character.INITIAL_QUOTE_PUNCTUATION:
-			case Character.FINAL_QUOTE_PUNCTUATION:
-				return GSEWordCharacterType.SYMBOL;
-			
-			case Character.UNASSIGNED:
-			case Character.NON_SPACING_MARK:
-			case Character.ENCLOSING_MARK:
-			case Character.COMBINING_SPACING_MARK:
-			case Character.SPACE_SEPARATOR:
-			case Character.LINE_SEPARATOR:
-			case Character.PARAGRAPH_SEPARATOR:
-			case Character.CONTROL:
-			case Character.FORMAT:
-			case Character.PRIVATE_USE:
-			case Character.SURROGATE:
-			default:
-				return GSEWordCharacterType.OTHER;
-			}
-		}
-
-		return null;
 	}
 	
 	public void addModelListener(GSIModelListener listener) {
@@ -798,7 +726,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	}
 	
 	public String getText() {
-		return textModel.getText(0, textModel.getLength());
+		return textModel.getText();
 	}
 
 	public int getBackgroundColor() {
@@ -916,11 +844,5 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			throw new IllegalArgumentException("horizontalMargin must be non-negative!");
 		
 		this.horizontalMargin = horizontalMargin;
-	}
-	
-	private enum GSEWordCharacterType {
-		
-		LETTER_OR_DIGIT, SYMBOL, OTHER;
-		
 	}
 }
