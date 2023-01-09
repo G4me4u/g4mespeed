@@ -57,43 +57,10 @@ public abstract class GSSetting<T> {
 	public abstract GSSetting<T> set(T value);
 
 	/**
-	 * @deprecated Replaced by {@link #get()}
-	 * 
-	 * @return the value of this setting
-	 */
-	@Deprecated
-	public final T getValue() {
-		return get();
-	}
-	
-	/**
-	 * @deprecated Replaced by {@link #set(Object)}
-	 * 
-	 * @param value - the new value of this setting
-	 * 
-	 * @return this setting
-	 */
-	@Deprecated
-	public final GSSetting<T> setValue(T value) {
-		return set(value);
-	}
-
-	/**
 	 * @return True iff. the value of this setting is considered equal to
 	 *         that returned by {@link #getDefault()}. False otherwise.
 	 */
 	public abstract boolean isDefault();
-
-	/**
-	 * @deprecated Replaced by {@link #isDefault()}
-	 * 
-	 * @return True iff. the value of this setting is considered equal to
-	 *         that returned by {@link #getDefault()}. False otherwise.
-	 */
-	@Deprecated
-	public final boolean isDefaultValue() {
-		return isDefault();
-	}
 
 	public abstract boolean isSameType(GSSetting<?> other);
 
@@ -104,7 +71,7 @@ public abstract class GSSetting<T> {
 	public abstract GSSetting<T> copySetting();
 
 	public void reset() {
-		setValue(defaultValue);
+		set(defaultValue);
 	}
 	
 	void setIfSameType(GSSetting<?> other) {
@@ -120,16 +87,6 @@ public abstract class GSSetting<T> {
 	 */
 	public T getDefault() {
 		return defaultValue;
-	}
-
-	/**
-	 * @deprecated Replaced by #getDefault()
-	 * 
-	 * @return the default value
-	 */
-	@Deprecated
-	public final T getDefaultValue() {
-		return getDefault();
 	}
 
 	void setActive(boolean active) {
