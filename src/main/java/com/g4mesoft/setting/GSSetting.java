@@ -33,6 +33,7 @@ public abstract class GSSetting<T> {
 		return name;
 	}
 	
+	/* Visible for GSSettingMap */
 	void setSettingOwner(GSSettingMap changeListener) {
 		if (changeListener != null && this.settingOwner != null)
 			throw new IllegalStateException("Change listener already set!");
@@ -89,6 +90,7 @@ public abstract class GSSetting<T> {
 		return defaultValue;
 	}
 
+	/* Visible for GSSettingMap */
 	void setActive(boolean active) {
 		this.active = active;
 	}
