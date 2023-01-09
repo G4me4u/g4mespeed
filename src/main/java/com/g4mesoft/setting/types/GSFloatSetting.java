@@ -56,7 +56,7 @@ public class GSFloatSetting extends GSSetting<Float> {
 	public Float get() {
 		return Float.valueOf(value);
 	}
-
+	
 	@Override
 	public GSFloatSetting set(Float value) {
 		return set(value.floatValue());
@@ -98,15 +98,15 @@ public class GSFloatSetting extends GSSetting<Float> {
 	 * Increments this setting by approximately one interval. Invoking this method
 	 * is equivalent to the following code snippet:
 	 * <pre>
-	 *     setting.incrementValue(1);
+	 *     setting.increment(1);
 	 * </pre>
 	 * 
 	 * @return this float setting
 	 * 
-	 * @see #incrementValue(int)
+	 * @see #increment(int)
 	 */
-	public GSFloatSetting incrementValue() {
-		return incrementValue(1);
+	public GSFloatSetting increment() {
+		return increment(1);
 	}
 	
 	/**
@@ -120,10 +120,12 @@ public class GSFloatSetting extends GSSetting<Float> {
 	 * 
 	 * @return this float setting
 	 * 
-	 * @see #decrementValue(int)
+	 * @see #decrement(int)
 	 * @see #setValue(float)
 	 */
-	public GSFloatSetting incrementValue(int count) {
+	public GSFloatSetting increment(int count) {
+		if (count <= 0)
+			throw new IllegalArgumentException("count must be positive!");
 		float newValue = value + interval * count;
 		if (newValue > maxValue)
 			newValue = minValue;
@@ -134,15 +136,15 @@ public class GSFloatSetting extends GSSetting<Float> {
 	 * Decrements this setting by approximately one interval. Invoking this method
 	 * is equivalent to the following code snippet:
 	 * <pre>
-	 *     setting.decrementValue(1);
+	 *     setting.decrement(1);
 	 * </pre>
 	 * 
 	 * @return this float setting
 	 * 
-	 * @see #decrementValue(int)
+	 * @see #decrement(int)
 	 */
-	public GSFloatSetting decrementValue() {
-		return decrementValue(1);
+	public GSFloatSetting decrement() {
+		return decrement(1);
 	}
 
 	/**
@@ -156,10 +158,12 @@ public class GSFloatSetting extends GSSetting<Float> {
 	 * 
 	 * @return this float setting
 	 * 
-	 * @see #incrementValue(int)
+	 * @see #increment(int)
 	 * @see #setValue(float)
 	 */
-	public GSFloatSetting decrementValue(int count) {
+	public GSFloatSetting decrement(int count) {
+		if (count <= 0)
+			throw new IllegalArgumentException("count must be positive!");
 		float newValue = value - interval * count;
 		if (newValue < minValue)
 			newValue = maxValue;
@@ -206,26 +210,6 @@ public class GSFloatSetting extends GSSetting<Float> {
 	 */
 	public float getMax() {
 		return maxValue;
-	}
-
-	/**
-	 * @deprecated Replaced by {@link #getMin()}
-	 * 
-	 * @return the minimum value this setting can have
-	 */
-	@Deprecated
-	public final float getMinValue() {
-		return getMin();
-	}
-	
-	/**
-	 * @deprecated Replaced by {@link #getMax()}
-	 * 
-	 * @return the maximum value this setting can have
-	 */
-	@Deprecated
-	public final float getMaxValue() {
-		return getMax();
 	}
 
 	/**

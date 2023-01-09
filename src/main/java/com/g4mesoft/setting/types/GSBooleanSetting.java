@@ -20,10 +20,32 @@ public class GSBooleanSetting extends GSSetting<Boolean> {
 	public Boolean get() {
 		return Boolean.valueOf(value);
 	}
+	
+	/**
+	 * @deprecated Replaced by {@link #get()}
+	 * 
+	 * @return the value of this setting
+	 */
+	@Deprecated
+	public Boolean getValue() {
+		return get();
+	}
 
 	@Override
 	public GSBooleanSetting set(Boolean value) {
 		return set(value.booleanValue());
+	}
+	
+	/**
+	 * @deprecated Replaced by {@link #set(Object)}
+	 * 
+	 * @param value - the new value of this setting
+	 * 
+	 * @return this setting
+	 */
+	@Deprecated
+	public GSBooleanSetting setValue(Boolean value) {
+		return set(value);
 	}
 	
 	/**
