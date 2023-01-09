@@ -2,7 +2,7 @@ package com.g4mesoft.core;
 
 import net.minecraft.network.PacketByteBuf;
 
-public final class GSVersion {
+public final class GSVersion implements Comparable<GSVersion> {
 
 	public static final GSVersion INVALID = new GSVersion(-1, -1, -1);
 	public static final GSVersion MINIMUM_VERSION = new GSVersion(0, 0, 0);
@@ -38,11 +38,19 @@ public final class GSVersion {
 	}
 
 	public GSVersion(int majorVersion, int minorVersion, int patchVersion) {
-		this.majorVersion = majorVersion;
-		this.minorVersion = minorVersion;
-		this.patchVersion = patchVersion;
+		this.majorVersion = checkVersion(majorVersion);
+		this.minorVersion = checkVersion(minorVersion);
+		this.patchVersion = checkVersion(patchVersion);
 
 		versionStringCache = null;
+	}
+	
+	private static int checkVersion(int version) {
+		// Ensure that we can encode the version in a 2-byte value. See
+		// #write(PacketByteBuf, GSVersion) for encoding requirements.
+		if (version < -1 || version > Short.MAX_VALUE)
+			throw new IllegalArgumentException("version must be between -1 (invalid) and 0x7FFF.");
+		return version;
 	}
 	
 	public int getMajorVersion() {
@@ -112,14 +120,29 @@ public final class GSVersion {
 	public static GSVersion read(PacketByteBuf buf) {
 		int major = buf.readShort();
 		int minor = buf.readShort();
-		int update = buf.readShort();
-		return new GSVersion(major, minor, update);
+		int patch = buf.readShort();
+		return new GSVersion(major, minor, patch);
 	}
 
 	public static void write(PacketByteBuf buf, GSVersion version) {
 		buf.writeShort((short)version.majorVersion);
 		buf.writeShort((short)version.minorVersion);
 		buf.writeShort((short)version.patchVersion);
+	}
+	
+	@Override
+	public int compareTo(GSVersion other) {
+		// Natural sorting is ascending order
+		return isEqual(other) ? 0 : (isGreaterThan(other) ? 1 : -1);
+	}
+	
+	@Override
+	public int hashCode() {
+		int hash = 0;
+		hash += 31 * hash + majorVersion;
+		hash += 31 * hash + minorVersion;
+		hash += 31 * hash + patchVersion;
+		return hash;
 	}
 	
 	@Override
