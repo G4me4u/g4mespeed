@@ -37,7 +37,7 @@ public class GSBooleanSetting extends GSSetting<Boolean> {
 	}
 	
 	/**
-	 * @deprecated Replaced by {@link #set(Object)}
+	 * @deprecated Replaced by {@link #set(Boolean)}
 	 * 
 	 * @param value - the new value of this setting
 	 * 
