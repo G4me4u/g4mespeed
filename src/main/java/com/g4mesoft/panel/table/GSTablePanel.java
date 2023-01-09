@@ -1,7 +1,11 @@
 package com.g4mesoft.panel.table;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSILayoutManager;
+import com.g4mesoft.panel.GSIModelListener;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.GSPanelUtil;
@@ -42,6 +46,8 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	private GSTableColumnHeaderPanel columnHeader;
 	private GSTableRowHeaderPanel rowHeader;
 	
+	private final List<GSIModelListener> modelListeners;
+	
 	public GSTablePanel(int columnCount, int rowCount) {
 		this(new GSBasicTableModel(columnCount, rowCount));
 	}
@@ -49,7 +55,6 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	public GSTablePanel(GSITableModel model) {
 		super.setLayoutManager(new GSTableLayoutManager());
 		
-		setModel(model);
 		preferredColumnCount = DEFAULT_PREFERRED_COLUMN_COUNT;
 		preferredRowCount = DEFAULT_PREFERRED_ROW_COUNT;
 		minimumColumnWidth = DEFAULT_MINIMUM_COLUMN_WIDTH;
@@ -64,6 +69,10 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 		textColor = DEFAULT_TEXT_COLOR;
 		
 		resizingColumnIndex = resizingRowIndex = -1;
+
+		modelListeners = new ArrayList<>();
+		
+		setModel(model);
 	}
 	
 	@Override
@@ -224,6 +233,20 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 		
 		updateHeaderVisibility();
 		invalidate();
+		
+		dispatchModelChangedEvent();
+	}
+	
+	public void addModelListener(GSIModelListener listener) {
+		modelListeners.add(listener);
+	}
+
+	public void removeModelListener(GSIModelListener listener) {
+		modelListeners.remove(listener);
+	}
+	
+	private void dispatchModelChangedEvent() {
+		modelListeners.forEach(GSIModelListener::modelChanged);
 	}
 	
 	public int getPreferredColumnCount() {
