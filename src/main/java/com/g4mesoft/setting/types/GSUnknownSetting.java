@@ -27,7 +27,7 @@ public final class GSUnknownSetting extends GSSetting<Object> {
 	public Object get() {
 		return null;
 	}
-
+	
 	@Override
 	public GSUnknownSetting set(Object value) {
 		return this;

@@ -53,9 +53,31 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 		return Integer.valueOf(value);
 	}
 
+	/**
+	 * @deprecated Replaced by {@link #get()}
+	 * 
+	 * @return the value of this setting
+	 */
+	@Deprecated
+	public Integer getValue() {
+		return get();
+	}
+	
 	@Override
 	public GSIntegerSetting set(Integer value) {
 		return set(value.intValue());
+	}
+	
+	/**
+	 * @deprecated Replaced by {@link #set(Object)}
+	 * 
+	 * @param value - the new value of this setting
+	 * 
+	 * @return this setting
+	 */
+	@Deprecated
+	public GSIntegerSetting setValue(Integer value) {
+		return set(value);
 	}
 	
 	/**
@@ -94,15 +116,15 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 	 * Increments this setting by exactly one interval. Invoking this method is
 	 * equivalent to the following code snippet:
 	 * <pre>
-	 *     setting.incrementValue(1);
+	 *     setting.increment(1);
 	 * </pre>
 	 * 
 	 * @return this integer setting
 	 * 
-	 * @see #incrementValue(int)
+	 * @see #increment(int)
 	 */
-	public GSIntegerSetting incrementValue() {
-		return incrementValue(1);
+	public GSIntegerSetting increment() {
+		return increment(1);
 	}
 	
 	/**
@@ -116,10 +138,12 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 	 * 
 	 * @return this integer setting
 	 * 
-	 * @see #decrementValue(int)
+	 * @see #decrement(int)
 	 * @see #setValue(int)
 	 */
-	public GSIntegerSetting incrementValue(int count) {
+	public GSIntegerSetting increment(int count) {
+		if (count <= 0)
+			throw new IllegalArgumentException("count must be positive!");
 		// Store new value in long to ensure no overflow.
 		long newValue = value + interval * count;
 		if (newValue > maxValue)
@@ -132,15 +156,15 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 	 * Decrements this setting by exactly one interval. Invoking this method is
 	 * equivalent to the following code snippet:
 	 * <pre>
-	 *     setting.decrementValue(1);
+	 *     setting.decrement(1);
 	 * </pre>
 	 * 
 	 * @return this integer setting
 	 * 
-	 * @see #decrementValue(int)
+	 * @see #decrement(int)
 	 */
-	public GSIntegerSetting decrementValue() {
-		return decrementValue(1);
+	public GSIntegerSetting decrement() {
+		return decrement(1);
 	}
 
 	/**
@@ -154,10 +178,12 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 	 * 
 	 * @return this integer setting
 	 * 
-	 * @see #incrementValue(int)
+	 * @see #increment(int)
 	 * @see #setValue(int)
 	 */
-	public GSIntegerSetting decrementValue(int count) {
+	public GSIntegerSetting decrement(int count) {
+		if (count <= 0)
+			throw new IllegalArgumentException("count must be positive!");
 		// Store new value in long to ensure no underflow.
 		long newValue = value - interval * count;
 		if (newValue < minValue)
