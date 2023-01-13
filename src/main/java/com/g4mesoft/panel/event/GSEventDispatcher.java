@@ -3,6 +3,7 @@ package com.g4mesoft.panel.event;
 import java.util.function.BiConsumer;
 
 import com.g4mesoft.panel.GSECursorType;
+import com.g4mesoft.panel.GSEPopupPlacement;
 import com.g4mesoft.panel.GSLocation;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
@@ -130,8 +131,8 @@ public class GSEventDispatcher {
 		
 		if (!dropdown.isEmpty()) {
 			GSPopup popup = new GSPopup(dropdown);
-			// The location is relative to the root panel
-			popup.show(panel, x, y, true);
+			// The location is relative to the panel
+			popup.show(panel, x, y, GSEPopupPlacement.RELATIVE);
 		}
 	}
 	

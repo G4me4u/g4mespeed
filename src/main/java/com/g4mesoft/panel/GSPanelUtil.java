@@ -368,6 +368,27 @@ public final class GSPanelUtil {
 		return TIME_FORMAT.format(time);
 	}
 	
+	/**
+	 * Checks whether the user focus is somewhere within the sub-tree of panels
+	 * with the given panel as root. Worst case requires a search through the
+	 * entire tree in order to determine if one of the children or grand-children
+	 * are focused.
+	 * 
+	 * @param panel - the panel to check
+	 * 
+	 * @return True, if the focus lies somewhere within the subtree of the given
+	 *         panel, false otherwise.
+	 */
+	public static boolean isFocusWithin(GSPanel panel) {
+		if (panel.isFocused())
+			return true;
+		for (GSPanel child : panel.getChildren()) {
+			if (isFocusWithin(child))
+				return true;
+		}
+		return false;
+	}
+	
 	public static GSLocation getViewLocation(GSPanel panel) {
 		int x = 0, y = 0;
 		while (panel != null) {

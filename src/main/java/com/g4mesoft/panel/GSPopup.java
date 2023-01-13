@@ -16,9 +16,10 @@ public class GSPopup extends GSParentPanel {
 	protected final GSPanel content;
 	
 	protected GSPanel source;
-	private boolean relative;
+	private GSEPopupPlacement placement;
 	private int relX;
 	private int relY;
+	private boolean sourceFocusedOnHide;
 	
 	private GSILayoutEventListener sourceLayoutListener;
 	
@@ -28,8 +29,9 @@ public class GSPopup extends GSParentPanel {
 		this.content = content;
 
 		source = null;
-		relative = false;
+		placement = GSEPopupPlacement.ABSOLUTE;
 		relX = relY = 0;
+		sourceFocusedOnHide = true;
 		
 		sourceLayoutListener = null;
 	}
@@ -38,7 +40,7 @@ public class GSPopup extends GSParentPanel {
 	protected void onShown() {
 		super.onShown();
 		
-		if (relative && source != null) {
+		if (placement != GSEPopupPlacement.ABSOLUTE && source != null) {
 			sourceLayoutListener = new GSSourceLayoutListener();
 			source.addLayoutEventListener(sourceLayoutListener);
 		}
@@ -48,7 +50,7 @@ public class GSPopup extends GSParentPanel {
 	protected void onHidden() {
 		super.onHidden();
 		
-		if (relative && source != null) {
+		if (placement != GSEPopupPlacement.ABSOLUTE && source != null) {
 			source.removeLayoutEventListener(sourceLayoutListener);
 			sourceLayoutListener = null;
 		}
@@ -96,18 +98,20 @@ public class GSPopup extends GSParentPanel {
 	}
 
 	public void show(GSPanel source, GSLocation location) {
-		show(source, location, false);
+		show(source, location, GSEPopupPlacement.ABSOLUTE);
 	}
 
-	public void show(GSPanel source, GSLocation location, boolean relative) {
-		show(source, location.getX(), location.getY(), relative);
+	public void show(GSPanel source, GSLocation location, GSEPopupPlacement placement) {
+		show(source, location.getX(), location.getY(), placement);
 	}
 
 	public void show(GSPanel source, int x, int y) {
-		show(source, x, y, false);
+		show(source, x, y, GSEPopupPlacement.ABSOLUTE);
 	}
 
-	public void show(GSPanel source, int x, int y, boolean relative) {
+	public void show(GSPanel source, int x, int y, GSEPopupPlacement placement) {
+		if (placement == null)
+			throw new IllegalArgumentException("placement is null");
 		if (getParent() != null)
 			return;
 
@@ -115,7 +119,7 @@ public class GSPopup extends GSParentPanel {
 		GSRootPanel rootPanel = GSPanelContext.getRootPanel();
 		this.source = source != null ? source : rootPanel;
 		
-		this.relative = relative;
+		this.placement = placement;
 		this.relX = x;
 		this.relY = y;
 		
@@ -128,16 +132,59 @@ public class GSPopup extends GSParentPanel {
 	}
 	
 	private void updateBounds(int x, int y) {
-		// Translate position relative to source.
-		if (relative && source != null) {
+		GSDimension ps = getProperty(PREFERRED_SIZE);
+
+		if (source != null) {
 			GSLocation viewLocation = GSPanelUtil.getViewLocation(source);
 			
-			x += viewLocation.getX();
-			y += viewLocation.getY();
+			int dw = source.getWidth() - ps.getWidth();
+			switch (placement) {
+			case RELATIVE:
+				x += viewLocation.getX();
+				break;
+			case NORTHWEST:
+			case WEST:
+			case SOUTHWEST:
+				x = viewLocation.getX();
+			case NORTH:
+			case CENTER:
+			case SOUTH:
+				x = viewLocation.getX() + dw / 2;
+				break;
+			case NORTHEAST:
+			case EAST:
+			case SOUTHEAST:
+				x = viewLocation.getX() + dw;
+			case ABSOLUTE:
+			default:
+				break;
+			}
+
+			int dh = source.getHeight() - ps.getHeight();
+			switch (placement) {
+			case RELATIVE:
+				y += viewLocation.getY();
+				break;
+			case NORTHWEST:
+			case NORTH:
+			case NORTHEAST:
+				y = viewLocation.getY();
+			case WEST:
+			case CENTER:
+			case EAST:
+				y = viewLocation.getY() + dh / 2;
+				break;
+			case SOUTHWEST:
+			case SOUTH:
+			case SOUTHEAST:
+				y = viewLocation.getY() + dh;
+			case ABSOLUTE:
+			default:
+				break;
+			}
 		}
 		
-		GSDimension pref = getProperty(PREFERRED_SIZE);
-		setBounds(adjustLocation(x, y, pref), pref);
+		setBounds(adjustLocation(x, y, ps), ps);
 	}
 	
 	private GSLocation adjustLocation(int x, int y, GSDimension size) {
@@ -160,8 +207,9 @@ public class GSPopup extends GSParentPanel {
 		
 		super.remove(content);
 
-		if (source != null && source.isAdded() /* exclude root */) {
-			source.requestFocus();
+		if (source != null) {
+			if (sourceFocusedOnHide && source.isAdded())
+				source.requestFocus();
 			source = null;
 		}
 	}
@@ -203,6 +251,14 @@ public class GSPopup extends GSParentPanel {
 
 		renderer.finish();
 		renderer.popMatrix();
+	}
+	
+	public boolean isSourceFocusedOnHide() {
+		return sourceFocusedOnHide;
+	}
+	
+	public void setSourceFocusedOnHide(boolean focusedOnHide) {
+		this.sourceFocusedOnHide = focusedOnHide;
 	}
 	
 	private class GSSourceLayoutListener implements GSILayoutEventListener {

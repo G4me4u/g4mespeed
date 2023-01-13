@@ -6,6 +6,7 @@ import java.util.List;
 import com.g4mesoft.panel.GSColorPicker;
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSECursorType;
+import com.g4mesoft.panel.GSEPopupPlacement;
 import com.g4mesoft.panel.GSIActionListener;
 import com.g4mesoft.panel.GSIcon;
 import com.g4mesoft.panel.GSPanel;
@@ -154,7 +155,7 @@ public class GSColorPickerField extends GSParentPanel {
 			picker.setColor(color);
 			
 			GSPopup popup = new GSPopup(picker);
-			popup.show(this, 0, height, true);
+			popup.show(this, 0, height, GSEPopupPlacement.RELATIVE);
 		}
 	}
 	
