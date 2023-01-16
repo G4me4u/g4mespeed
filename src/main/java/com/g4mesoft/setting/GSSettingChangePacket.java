@@ -5,12 +5,12 @@ import java.io.IOException;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;
-import com.g4mesoft.util.GSBufferUtil;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.network.PacketByteBuf;
 
 public class GSSettingChangePacket implements GSIPacket {
 
@@ -28,11 +28,11 @@ public class GSSettingChangePacket implements GSIPacket {
 	}
 
 	@Override
-	public void read(PacketByteBuf buf) throws IOException {
+	public void read(GSDecodeBuffer buf) throws IOException {
 		category = GSSettingCategory.read(buf);
-		type = GSESettingChangeType.fromIndex(buf.readVarInt());
-		String decoderType = buf.readString(16);
-		String settingName = buf.readString(GSBufferUtil.MAX_STRING_LENGTH);
+		type = GSESettingChangeType.fromIndex(buf.readUnsignedByte());
+		String decoderType = buf.readString(GSSettingMap.MAX_TYPESTRING_LENGTH);
+		String settingName = buf.readString();
 		
 		GSISettingDecoder<?> decoder = GSSettingManager.getDecoder(decoderType);
 		if (decoder == null)
@@ -42,15 +42,15 @@ public class GSSettingChangePacket implements GSIPacket {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void write(PacketByteBuf buf) throws IOException {
+	public void write(GSEncodeBuffer buf) throws IOException {
 		@SuppressWarnings("rawtypes")
 		GSISettingDecoder decoder = GSSettingManager.getDecoder(setting);
 		if (decoder == null)
 			throw new IOException("No valid decoder found");
 
 		category.write(buf);
-		buf.writeVarInt(type.getIndex());
-		buf.writeString(decoder.getTypeString());
+		buf.writeUnsignedByte((short)type.getIndex());
+		buf.writeString(decoder.getTypeString(), GSSettingMap.MAX_TYPESTRING_LENGTH);
 		buf.writeString(setting.getName());
 		
 		decoder.encodeSetting(buf, setting);

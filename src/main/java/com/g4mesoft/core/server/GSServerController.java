@@ -182,7 +182,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	}
 
 	@Override
-	public Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer) {
+	public Packet<?> createCustomPayload(Identifier identifier, PacketByteBuf buffer) {
 		return new CustomPayloadS2CPacket(identifier, buffer);
 	}
 

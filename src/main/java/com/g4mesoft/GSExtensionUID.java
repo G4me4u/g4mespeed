@@ -2,7 +2,8 @@ package com.g4mesoft;
 
 import java.io.IOException;
 
-import net.minecraft.network.PacketByteBuf;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 
 public final class GSExtensionUID {
 
@@ -16,11 +17,11 @@ public final class GSExtensionUID {
 		return value;
 	}
 	
-	public static void write(PacketByteBuf buf, GSExtensionUID uid) throws IOException {
+	public static void write(GSEncodeBuffer buf, GSExtensionUID uid) throws IOException {
 		buf.writeInt(uid.getValue());
 	}
 
-	public static GSExtensionUID read(PacketByteBuf buf) throws IOException {
+	public static GSExtensionUID read(GSDecodeBuffer buf) throws IOException {
 		return new GSExtensionUID(buf.readInt());
 	}
 

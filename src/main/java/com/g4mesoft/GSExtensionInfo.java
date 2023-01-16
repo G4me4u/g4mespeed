@@ -3,9 +3,8 @@ package com.g4mesoft;
 import java.io.IOException;
 
 import com.g4mesoft.core.GSVersion;
-import com.g4mesoft.util.GSBufferUtil;
-
-import net.minecraft.network.PacketByteBuf;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 
 public class GSExtensionInfo {
 
@@ -31,14 +30,14 @@ public class GSExtensionInfo {
 		return version;
 	}
 
-	public static GSExtensionInfo read(PacketByteBuf buf) throws IOException {
-		String name = buf.readString(GSBufferUtil.MAX_STRING_LENGTH);
+	public static GSExtensionInfo read(GSDecodeBuffer buf) throws IOException {
+		String name = buf.readString();
 		GSExtensionUID uid = GSExtensionUID.read(buf);
 		GSVersion version = GSVersion.read(buf);
 		return new GSExtensionInfo(name, uid, version);
 	}
 
-	public static void write(PacketByteBuf buf, GSExtensionInfo info) throws IOException {
+	public static void write(GSEncodeBuffer buf, GSExtensionInfo info) throws IOException {
 		buf.writeString(info.name);
 		GSExtensionUID.write(buf, info.uid);
 		GSVersion.write(buf, info.version);
