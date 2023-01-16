@@ -1,12 +1,13 @@
 package com.g4mesoft.setting;
 
-import net.minecraft.network.PacketByteBuf;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 
 public interface GSISettingDecoder<T extends GSSetting<?>> {
 
-	public T decodeSetting(String name, PacketByteBuf buffer);
+	public T decodeSetting(String name, GSDecodeBuffer buf);
 
-	public void encodeSetting(PacketByteBuf buffer, T setting);
+	public void encodeSetting(GSEncodeBuffer buf, T setting);
 
 	public String getTypeString();
 	

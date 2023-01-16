@@ -1,6 +1,7 @@
 package com.g4mesoft.core;
 
-import net.minecraft.network.PacketByteBuf;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 
 public final class GSVersion {
 
@@ -109,14 +110,14 @@ public final class GSVersion {
 		       patchVersion == other.patchVersion;
 	}
 	
-	public static GSVersion read(PacketByteBuf buf) {
+	public static GSVersion read(GSDecodeBuffer buf) {
 		int major = buf.readShort();
 		int minor = buf.readShort();
 		int update = buf.readShort();
 		return new GSVersion(major, minor, update);
 	}
 
-	public static void write(PacketByteBuf buf, GSVersion version) {
+	public static void write(GSEncodeBuffer buf, GSVersion version) {
 		buf.writeShort((short)version.majorVersion);
 		buf.writeShort((short)version.minorVersion);
 		buf.writeShort((short)version.patchVersion);

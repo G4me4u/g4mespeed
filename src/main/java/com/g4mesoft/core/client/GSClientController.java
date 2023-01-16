@@ -226,7 +226,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	}
 	
 	@Override
-	public Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer) {
+	public Packet<?> createCustomPayload(Identifier identifier, PacketByteBuf buffer) {
 		return new CustomPayloadC2SPacket(identifier, buffer);
 	}
 
