@@ -9,7 +9,10 @@ import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.registry.GSSupplierRegistry;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.NetworkThreadUtils;
 import net.minecraft.network.Packet;
@@ -49,17 +52,16 @@ public class GSPacketManager {
 		if (packetId == -1)
 			return null;
 		
-		PacketByteBuf buffer = new PacketByteBuf(Unpooled.buffer());
-		
-		buffer.writeLong(packetId);
+		ByteBuf buf = Unpooled.buffer();
+		buf.writeLong(packetId);
 		
 		try {
-			packet.write(buffer);
+			packet.write(GSEncodeBuffer.wrap(buf));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		return controller.encodeCustomPayload(GS_IDENTIFIER, buffer);
+		return controller.createCustomPayload(GS_IDENTIFIER, new PacketByteBuf(buf));
 	}
 	
 	public <T extends PacketListener> GSIPacket decodePacket(GSICustomPayloadPacket<T> customPayload,
@@ -71,28 +73,26 @@ public class GSPacketManager {
 		
 		PacketByteBuf buffer = customPayload.getData0();
 
+		GSIPacket packet = registryList.createNewPacket(buffer.readLong());
+		if (packet == null) {
+			buffer.release();
+			return null;
+		}
+		if (packet.shouldForceMainThread())
+		      NetworkThreadUtils.forceMainThread(customPayload, packetListener, executor);
+			
+		GSExtensionUID extensionUid = getPacketExtensionUniqueId(packet);
+		GSExtensionInfo extensionInfo = extensionInfoList.getInfo(extensionUid);
+
 		try {
-			GSIPacket packet = registryList.createNewPacket(buffer.readLong());
-
-			if (packet == null)
-				return null;
-			
-			if (packet.shouldForceMainThread())
-			      NetworkThreadUtils.forceMainThread(customPayload, packetListener, executor);
-				
-			GSExtensionUID extensionUid = getPacketExtensionUniqueId(packet);
-			GSExtensionInfo extensionInfo = extensionInfoList.getInfo(extensionUid);
-
-			try {
-				packet.read(buffer, extensionInfo);
-			} catch (IOException e) {
-				return null;
-			}
-			
-			return packet;
+			packet.read(GSDecodeBuffer.wrap(buffer), extensionInfo);
+		} catch (IOException e) {
+			return null;
 		} finally {
 			buffer.release();
 		}
+		
+		return packet;
 	}
 	
 	private void registerPackets(GSIExtension extension) {

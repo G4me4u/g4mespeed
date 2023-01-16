@@ -9,8 +9,8 @@ import org.apache.commons.io.IOUtils;
 
 import com.g4mesoft.core.GSCoreOverride;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.PacketByteBuf;
 
 public class GSFileUtil {
 
@@ -34,11 +34,11 @@ public class GSFileUtil {
 
 		E element;
 		
-		PacketByteBuf buffer = null;
+		ByteBuf buffer = null;
 		try (FileInputStream fis = new FileInputStream(file)) {
 			byte[] data = IOUtils.toByteArray(fis);
-			buffer = new PacketByteBuf(Unpooled.wrappedBuffer(data));
-			element = decoder.decode(buffer);
+			buffer = Unpooled.wrappedBuffer(data);
+			element = decoder.decode(GSDecodeBuffer.wrap(buffer));
 		} catch (Throwable throwable) {
 			throw new IOException("Unable to read file", throwable);
 		} finally {
@@ -52,10 +52,10 @@ public class GSFileUtil {
 	public static <E> void writeFile(File file, E element, GSFileEncoder<E> encoder) throws IOException {
 		GSFileUtil.ensureFileExists(file);
 		
-		PacketByteBuf buffer = null;
+		ByteBuf buffer = null;
 		try (FileOutputStream fos = new FileOutputStream(file)) {
-			buffer = new PacketByteBuf(Unpooled.buffer());
-			encoder.encode(buffer, element);
+			buffer = Unpooled.buffer();
+			encoder.encode(GSEncodeBuffer.wrap(buffer), element);
 			if (buffer.hasArray()) {
 				fos.write(buffer.array(), buffer.arrayOffset(), buffer.writerIndex());
 			} else {
@@ -72,14 +72,14 @@ public class GSFileUtil {
 	public static interface GSFileDecoder<E> {
 		
 		@GSCoreOverride
-		public E decode(PacketByteBuf buf) throws Exception;
+		public E decode(GSDecodeBuffer buf) throws Exception;
 		
 	}
 
 	public static interface GSFileEncoder<E> {
 		
 		@GSCoreOverride
-		public void encode(PacketByteBuf buf, E element) throws Exception;
+		public void encode(GSEncodeBuffer buf, E element) throws Exception;
 		
 	}
 }
