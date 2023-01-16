@@ -5,11 +5,12 @@ import java.io.IOException;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.network.PacketByteBuf;
 
 public class GSServerSyncPacket implements GSIPacket {
 
@@ -19,17 +20,19 @@ public class GSServerSyncPacket implements GSIPacket {
 	}
 
 	public GSServerSyncPacket(int packetInterval) {
+		if (packetInterval > 0xFF)
+			throw new IllegalArgumentException("packetInterval too large");
 		this.packetInterval = packetInterval;
 	}
 	
 	@Override
-	public void read(PacketByteBuf buf) throws IOException {
-		packetInterval = buf.readVarInt();
+	public void read(GSDecodeBuffer buf) throws IOException {
+		packetInterval = buf.readUnsignedByte();
 	}
 
 	@Override
-	public void write(PacketByteBuf buf) throws IOException {
-		buf.writeVarInt(packetInterval);
+	public void write(GSEncodeBuffer buf) throws IOException {
+		buf.writeUnsignedByte((short)packetInterval);
 	}
 
 	@Override

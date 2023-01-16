@@ -139,7 +139,7 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 	
 	public abstract boolean isThreadOwner();
 		
-	public abstract Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer);
+	public abstract Packet<?> createCustomPayload(Identifier identifier, PacketByteBuf buffer);
 
 	public abstract boolean isClient();
 

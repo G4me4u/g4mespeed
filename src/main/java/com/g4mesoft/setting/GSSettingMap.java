@@ -9,15 +9,18 @@ import java.util.Map;
 import java.util.function.Predicate;
 
 import com.g4mesoft.setting.types.GSUnknownSetting;
-import com.g4mesoft.util.GSBufferUtil;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 import com.google.common.base.Predicates;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.DecoderException;
-import net.minecraft.network.PacketByteBuf;
 
 public final class GSSettingMap {
 
+	public static final int MAX_TYPESTRING_LENGTH = 16;
+	
 	private final GSSettingCategory category;
 	private final Map<String, GSSetting<?>> settings;
 	
@@ -118,33 +121,33 @@ public final class GSSettingMap {
 		return category;
 	}
 
-	public void readSettings(PacketByteBuf buffer) throws DecoderException {
-		int remaining = buffer.readInt();
+	public void readSettings(GSDecodeBuffer buf) throws DecoderException {
+		int remaining = buf.readInt();
 		while (remaining-- > 0) {
-			String name = buffer.readString(GSBufferUtil.MAX_STRING_LENGTH);
-			String type = buffer.readString(16);
-			int sizeInBytes = buffer.readInt();
+			String name = buf.readString();
+			String type = buf.readString(MAX_TYPESTRING_LENGTH);
 
-			if (buffer.readableBytes() < sizeInBytes)
+			int sizeInBytes = buf.readInt();
+			if (!buf.isReadable(sizeInBytes))
 				throw new DecoderException("Not enough bytes in buffer!");
 				
-			int settingEnd = buffer.readerIndex() + sizeInBytes;
+			int settingEnd = buf.getLocation() + sizeInBytes;
 			
 			GSSetting<?> setting;
 			
 			GSISettingDecoder<?> decoder = GSSettingManager.getDecoder(type);
 			if (decoder == null) {
 				byte[] data = new byte[sizeInBytes];
-				buffer.readBytes(data);
+				buf.readBytes(data);
 				setting = new GSUnknownSetting(name, type, data);
 			} else {
-				setting = decoder.decodeSetting(name, buffer);
+				setting = decoder.decodeSetting(name, buf);
 
-				int off = settingEnd - buffer.readerIndex();
+				int off = settingEnd - buf.getLocation();
 				if (off > 0) {
-					buffer.skipBytes(off);
+					buf.skipBytes(off);
 				} else {
-					buffer.readerIndex(settingEnd);
+					buf.setLocation(settingEnd);
 				}
 			}
 			
@@ -165,13 +168,13 @@ public final class GSSettingMap {
 		}
 	}
 
-	public void writeSettings(PacketByteBuf buffer) throws DecoderException {
-		writeSettings(buffer, Predicates.alwaysTrue());
+	public void writeSettings(GSEncodeBuffer buf) throws DecoderException {
+		writeSettings(buf, Predicates.alwaysTrue());
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void writeSettings(PacketByteBuf buffer, Predicate<GSSetting<?>> settingFilter) throws DecoderException {
-		PacketByteBuf settingBuffer = new PacketByteBuf(Unpooled.buffer());
+	public void writeSettings(GSEncodeBuffer buf, Predicate<GSSetting<?>> settingFilter) throws DecoderException {
+		ByteBuf settingBuffer = Unpooled.buffer();
 		
 		List<GSSetting<?>> settingsToWrite = new ArrayList<GSSetting<?>>(settings.size());
 		for (GSSetting<?> setting : settings.values()) {
@@ -179,28 +182,28 @@ public final class GSSettingMap {
 				settingsToWrite.add(setting);
 		}
 		
-		buffer.writeInt(settingsToWrite.size());
+		buf.writeInt(settingsToWrite.size());
 		for (GSSetting<?> setting : settingsToWrite) {
-			buffer.writeString(setting.getName());
+			buf.writeString(setting.getName());
 			
 			@SuppressWarnings("rawtypes")
 			GSISettingDecoder decoder = GSSettingManager.getDecoder(setting);
 			if (decoder == null) {
 				if (setting instanceof GSUnknownSetting) {
 					GSUnknownSetting unknSetting = ((GSUnknownSetting)setting);
-					buffer.writeString(unknSetting.getType());
-					buffer.writeInt(unknSetting.getData().length);
-					buffer.writeBytes(unknSetting.getData());
+					buf.writeString(unknSetting.getType(), MAX_TYPESTRING_LENGTH);
+					buf.writeInt(unknSetting.getData().length);
+					buf.writeBytes(unknSetting.getData());
 				} else {
-					buffer.writeString(GSSettingManager.UNKNOWN_SETTING_TYPE);
-					buffer.writeInt(0);
+					buf.writeString(GSSettingManager.UNKNOWN_SETTING_TYPE);
+					buf.writeInt(0);
 				}
 			} else {
-				decoder.encodeSetting(settingBuffer, setting);
+				decoder.encodeSetting(GSEncodeBuffer.wrap(settingBuffer), setting);
 
-				buffer.writeString(decoder.getTypeString());
-				buffer.writeInt(settingBuffer.writerIndex() - settingBuffer.readerIndex());
-				buffer.writeBytes(settingBuffer);
+				buf.writeString(decoder.getTypeString());
+				buf.writeInt(settingBuffer.readableBytes());
+				buf.writeBytes(settingBuffer);
 				settingBuffer.clear();
 			}
 		}
