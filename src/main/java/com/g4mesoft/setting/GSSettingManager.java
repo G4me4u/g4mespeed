@@ -1,8 +1,6 @@
 package com.g4mesoft.setting;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,8 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
-
+import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.gui.setting.GSBooleanSettingPanel;
 import com.g4mesoft.gui.setting.GSFloatSettingPanel;
 import com.g4mesoft.gui.setting.GSIntegerSettingPanel;
@@ -23,11 +20,9 @@ import com.g4mesoft.setting.decoder.GSFloatSettingDecoder;
 import com.g4mesoft.setting.decoder.GSIntegerSettingDecoder;
 import com.g4mesoft.setting.decoder.GSStringSettingDecoder;
 import com.g4mesoft.setting.types.GSUnknownSetting;
-import com.g4mesoft.util.GSBufferUtil;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 import com.g4mesoft.util.GSFileUtil;
-
-import io.netty.buffer.Unpooled;
-import net.minecraft.network.PacketByteBuf;
 
 public class GSSettingManager {
 
@@ -148,70 +143,46 @@ public class GSSettingManager {
 	/* Methods for reading and writing settings */
 	
 	public void loadSettings(File settingsFile) {
-		try (FileInputStream is = new FileInputStream(settingsFile)) {
-			readSettings(is);
+		try {
+			GSFileUtil.readFile(settingsFile, (buf) -> {
+				readSettings(buf);
+				return GSFileUtil.IGNORE;
+			});
 		} catch (IOException e) {
+			G4mespeedMod.GS_LOGGER.warn("Unable to load settings file", e);
 		}
 	}
 	
 	public void saveSettings(File settingsFile) {
 		try {
-			GSFileUtil.ensureFileExists(settingsFile);
-			
-			try (FileOutputStream os = new FileOutputStream(settingsFile)) {
-				writeSettings(os);
-			}
+			GSFileUtil.writeFile(settingsFile, GSFileUtil.IGNORE, (buf, ignore) -> {
+				writeSettings(buf);
+			});
 		} catch (IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 	
-	private void readSettings(FileInputStream is) throws IOException {
-		byte[] data = IOUtils.toByteArray(is);
-		PacketByteBuf buffer = new PacketByteBuf(Unpooled.wrappedBuffer(data));
-		readSettings(buffer);
-		buffer.release();
-	}
-
-	private void writeSettings(FileOutputStream os) throws IOException {
-		PacketByteBuf buffer = new PacketByteBuf(Unpooled.buffer());
-		writeSettings(buffer);
-		if (buffer.hasArray()) {
-			os.write(buffer.array(), buffer.arrayOffset(), buffer.writerIndex());
-		} else {
-			os.getChannel().write(buffer.nioBuffer());
-		}
-		buffer.release();
-	}
-	
-	public void readSettings(PacketByteBuf buffer) throws IOException {
-		while (buffer.isReadable()) {
-			if (buffer.readByte() == CATEGORY_ENTRY_CODE) {
-				GSSettingCategory category = new GSSettingCategory(buffer.readString(GSBufferUtil.MAX_STRING_LENGTH));
+	public void readSettings(GSDecodeBuffer buf) throws IOException {
+		while (buf.isReadable()) {
+			if (buf.readByte() == CATEGORY_ENTRY_CODE) {
+				GSSettingCategory category = new GSSettingCategory(buf.readString());
 				GSSettingMap map = settings.get(category);
-				
 				if (map == null) {
 					map = new GSSettingMap(category, this);
 					settings.put(category, map);
 				}
-				
-				try {
-					map.readSettings(buffer);
-				} catch (Exception e) {
-				}
+				map.readSettings(buf);
 			}
 		}
 	}
 	
-	public void writeSettings(PacketByteBuf buffer) throws IOException {
+	public void writeSettings(GSEncodeBuffer buf) throws IOException {
 		for (GSSettingMap map : settings.values()) {
 			GSSettingCategory category = map.getCategory();
-			buffer.writeByte(CATEGORY_ENTRY_CODE);
-			buffer.writeString(category.getName());
-			
-			try {
-				map.writeSettings(buffer);
-			} catch (Exception e) {
-			}
+			buf.writeByte(CATEGORY_ENTRY_CODE);
+			buf.writeString(category.getName());
+			map.writeSettings(buf);
 		}
 	}
 	

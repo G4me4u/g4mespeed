@@ -40,6 +40,11 @@ public class GSRemoteSettingManager extends GSSettingManager {
 	}
 	
 	@Override
+	public void registerSettings(GSSettingCategory category, GSSetting<?>... settingArgs) {
+		shadowSettings.registerSettings(category, settingArgs);
+	}
+	
+	@Override
 	public void removeSetting(GSSettingCategory category, String name) {
 		shadowSettings.removeSetting(category, name);
 	}
@@ -52,11 +57,14 @@ public class GSRemoteSettingManager extends GSSettingManager {
 		GSSetting<?> shadowSetting = getShadowSetting(category, setting.getName());
 		if (shadowSetting != null) {
 			shadowSettingChanging = true;
-			shadowSetting.setIfSameType(setting);
-			// Make sure client knows whether a remote setting is enabled in GUI.
-			shadowSetting.setEnabledInGui(setting.isEnabledInGui());
-			shadowSetting.setAllowedChange(setting.isAllowedChange());
-			shadowSettingChanging = false;
+			try {
+				shadowSetting.setIfSameType(setting);
+				// Make sure client knows whether a remote setting is enabled in GUI.
+				shadowSetting.setEnabledInGui(setting.isEnabledInGui());
+				shadowSetting.setAllowedChange(setting.isAllowedChange());
+			} finally {
+				shadowSettingChanging = false;
+			}
 		}
 	}
 	
@@ -102,9 +110,12 @@ public class GSRemoteSettingManager extends GSSettingManager {
 		
 		if (currentSetting != null) {
 			remoteSettingChanging = true;
-			currentSetting.setIfSameType(setting);
-			currentSetting.setEnabledInGui(setting.isEnabledInGui());
-			remoteSettingChanging = false;
+			try {
+				currentSetting.setIfSameType(setting);
+				currentSetting.setEnabledInGui(setting.isEnabledInGui());
+			} finally {
+				remoteSettingChanging = false;
+			}
 		}
 	}
 
@@ -124,11 +135,14 @@ public class GSRemoteSettingManager extends GSSettingManager {
 			this.allowedSettingChange = allowedSettingChange;
 	
 			remoteSettingChanging = true;
-			for (GSSettingMap settingMap : settings.values()) {
-				for (GSSetting<?> setting : settingMap.getSettings())
-					setting.setAllowedChange(allowedSettingChange);
+			try {
+				for (GSSettingMap settingMap : settings.values()) {
+					for (GSSetting<?> setting : settingMap.getSettings())
+						setting.setAllowedChange(allowedSettingChange);
+				}
+			} finally {
+				remoteSettingChanging = false;
 			}
-			remoteSettingChanging = false;
 		}
 	}
 	
