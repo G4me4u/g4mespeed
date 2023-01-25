@@ -102,7 +102,12 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	}
 	
 	private void addExtensionTranslations(GSIExtension extension) {
-		URL url = GSTranslationModule.class.getResource(extension.getTranslationPath());
+		String path = extension.getTranslationPath();
+		if (path == null || path.isEmpty()) {
+			// Extension does not have translations.
+			return;
+		}
+		URL url = GSTranslationModule.class.getResource(path);
 		if (url != null) {
 			try (InputStream is = url.openStream()) {
 				loadTranslations(is, extension.getInfo().getUniqueId(), false);
