@@ -1,7 +1,7 @@
 package com.g4mesoft.panel;
 
+import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
@@ -39,7 +39,7 @@ public final class GSPanelContext {
 	private final GSTexture sheetTexture;
 	private final Map<Integer, Long> standardCursors;
 	
-	private final Queue<GSPanel> validationQueue;
+	private final Queue<Runnable> taskQueue;
 	
 	private GSPanelContext(MinecraftClient client) {
 		this.client = client;
@@ -52,7 +52,7 @@ public final class GSPanelContext {
 		sheetTexture = new GSTexture(UI_TEXTURE_IDENTIFIER, 512, 512);
 		standardCursors = new HashMap<>();
 	
-		validationQueue = new LinkedList<>();
+		taskQueue = new ArrayDeque<>();
 	}
 
 	public static void init(MinecraftClient client) {
@@ -152,13 +152,17 @@ public final class GSPanelContext {
 	public static GSIcon getIcon(int rx, int ry, int rw, int rh) {
 		return getContext().getIconImpl(rx, ry, rw, rh);
 	}
+
+	public static boolean schedule(Runnable task) {
+		return getContext().scheduleImpl(task);
+	}
 	
 	public static boolean scheduleValidation(GSPanel panel) {
 		return getContext().scheduleValidationImpl(panel);
 	}
 	
-	static void validateAll() {
-		getContext().validateAllImpl();
+	static void executeScheduledTasks() {
+		getContext().executeScheduledTasksImpl();
 	}
 	
 	private void disposeImpl() {
@@ -312,26 +316,31 @@ public final class GSPanelContext {
 		return new GSTexturedIcon(getTexture(rx, ry, rw, rh));
 	}
 	
-	private boolean scheduleValidationImpl(GSPanel panel) {
-		validationQueue.add(panel);
+	private boolean scheduleImpl(Runnable task) {
+		taskQueue.add(task);
 		return true;
 	}
-	
-	private void validateAllImpl() {
-		GSPanel panel;
-		while ((panel = validationQueue.poll()) != null) {
-			if (requiresScheduledValidation(panel))
+
+	private boolean scheduleValidationImpl(GSPanel panel) {
+		return scheduleImpl(() -> {
+			if (requiresValidation(panel))
 				panel.revalidate();
-		}
+		});
 	}
-	
-	private boolean requiresScheduledValidation(GSPanel panel) {
+
+	private boolean requiresValidation(GSPanel panel) {
 		if (panel.isValid())
 			return false;
 		GSPanel parent = panel.getParent();
 		if (parent == null)
 			return (panel == getRootPanel());
 		return parent.isValid();
+	}
+	
+	private void executeScheduledTasksImpl() {
+		Runnable task;
+		while ((task = taskQueue.poll()) != null)
+			task.run();
 	}
 	
 	private static GSPanelContext getContext() {

@@ -59,8 +59,9 @@ final class GSScreen extends Screen {
 	@Override
 	@GSCoreOverride
 	public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
-		// Validate panels before rendering
-		GSPanelContext.validateAll();
+		// Execute scheduled tasks (validate panels etc.)
+		// before rendering.
+		GSPanelContext.executeScheduledTasks();
 		
 		RenderSystem.disableTexture();
 		RenderSystem.disableAlphaTest();
