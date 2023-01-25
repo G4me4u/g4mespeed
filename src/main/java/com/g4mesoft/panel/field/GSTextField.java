@@ -6,6 +6,7 @@ import java.util.List;
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.panel.GSETextAlignment;
+import com.g4mesoft.panel.GSIActionListener;
 import com.g4mesoft.panel.GSIChangeListener;
 import com.g4mesoft.panel.GSIModelListener;
 import com.g4mesoft.panel.GSPanel;
@@ -20,6 +21,7 @@ import com.g4mesoft.panel.event.GSIFocusEventListener;
 import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.util.GSColorUtil;
 import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.client.gui.screen.Screen;
@@ -57,6 +59,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	private GSITextModel textModel;
 	private final List<GSIModelListener> modelListeners;
 	private final List<GSIChangeListener> changeListeners;
+	private final List<GSIActionListener> actionListeners;
 
 	private int backgroundColor;
 	
@@ -97,6 +100,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		
 		modelListeners = new ArrayList<>();
 		changeListeners = new ArrayList<>();
+		actionListeners = new ArrayList<>();
 		
 		backgroundColor = DEFAULT_BACKGROUND_COLOR;
 		
@@ -285,7 +289,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			renderer.fillRect(width - borderWidth, 0, borderWidth, height - borderWidth, borderColor);
 		}
 		
-		if (((backgroundColor >>> 24) & 0xFF) != 0x00)
+		if (GSColorUtil.unpackA(backgroundColor) != 0x00)
 			renderer.fillRect(borderWidth, borderWidth, width - bw2, height - bw2, backgroundColor);
 	}
 	
@@ -494,30 +498,40 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	@Override
 	public void keyPressed(GSKeyEvent event) {
-		if (!event.isRepeating() && Screen.isCopy(event.getKeyCode())) {
-			copyToClipboard();
+		if (Screen.isCopy(event.getKeyCode())) {
+			if (!event.isRepeating())
+				copyToClipboard();
 			event.consume();
-		} else if (isEditingText()) {
-			if (!event.isRepeating() && Screen.isCut(event.getKeyCode())) {
+		} else if (Screen.isCut(event.getKeyCode())) {
+			if (isEditingText() && !event.isRepeating())
 				cutToClipboard();
-				event.consume();
-			} else if (Screen.isPaste(event.getKeyCode())) {
+			event.consume();
+		} else if (Screen.isPaste(event.getKeyCode())) {
+			if (isEditingText())
 				pasteFromClipboard();
+			event.consume();
+		} else {
+			switch (event.getKeyCode()) {
+			case GSKeyEvent.KEY_BACKSPACE:
+				handleTypedCodePoint(BACKSPACE_CONTROL_CHARACTER, event.getModifiers());
+				break;
+			case GSKeyEvent.KEY_DELETE:
+				handleTypedCodePoint(DELETE_CONTROL_CHARACTER, event.getModifiers());
+				break;
+			case GSKeyEvent.KEY_ENTER:
+			case GSKeyEvent.KEY_KP_ENTER:
+			case GSKeyEvent.KEY_ESCAPE:
+				// Note: event is invoked at focusLost
+				//dispatchActionPerformed();
+				GSPanel parent = getParent();
+				if (parent != null) {
+					parent.requestFocus();
+				} else {
+					unfocus();
+				}
 				event.consume();
-			} else {
-				checkTypedControlCharacter(event.getKeyCode(), event.getModifiers());
+				break;
 			}
-		}
-	}
-	
-	private void checkTypedControlCharacter(int key, int modifiers) {
-		switch (key) {
-		case GSKeyEvent.KEY_BACKSPACE:
-			handleTypedCodePoint(BACKSPACE_CONTROL_CHARACTER, modifiers);
-			break;
-		case GSKeyEvent.KEY_DELETE:
-			handleTypedCodePoint(DELETE_CONTROL_CHARACTER, modifiers);
-			break;
 		}
 	}
 	
@@ -668,8 +682,12 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	@Override
 	public void focusLost(GSFocusEvent event) {
-		if (!hasPopupVisible() && caret.hasCaretSelection())
-			caret.setCaretLocation(0);
+		if (!hasPopupVisible()) {
+			if (caret.hasCaretSelection())
+				caret.setCaretLocation(0);
+			if (isEditable())
+				dispatchActionPerformed();
+		}
 	}
 	
 	public void addModelListener(GSIModelListener listener) {
@@ -709,6 +727,18 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 
 	private void dispatchValueChanged() {
 		changeListeners.forEach(GSIChangeListener::valueChanged);
+	}
+
+	public void addActionListener(GSIActionListener listener) {
+		actionListeners.add(listener);
+	}
+	
+	public void removeActionListener(GSIActionListener listener) {
+		actionListeners.remove(listener);
+	}
+	
+	private void dispatchActionPerformed() {
+		actionListeners.forEach(GSIActionListener::actionPerformed);
 	}
 	
 	public void setText(String text) {
