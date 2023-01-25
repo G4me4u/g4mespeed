@@ -1,5 +1,6 @@
 package com.g4mesoft.core.server;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.UUID;
 
@@ -180,5 +181,11 @@ public interface GSIServerModuleManager extends GSIModuleManager {
 	 * @return The world specific setting manager of this module manager.
 	 */
 	public GSSettingManager getWorldSettingManager();
+
+	/**
+	 * @return The local directory where world-related cached files should be stored.
+	 *         Note that this directory depends on the currently open world.
+	 */
+	public File getWorldCacheFile();
 	
 }

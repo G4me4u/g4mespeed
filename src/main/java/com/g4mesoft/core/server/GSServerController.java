@@ -263,7 +263,13 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		return new File(server.getRunDirectory(), INTEGRATED_CACHE_DIR_NAME);
 	}
 	
-	private File getWorldCacheFile() {
+	@Override
+	public GSSettingManager getWorldSettingManager() {
+		return worldSettings;
+	}
+	
+	@Override
+	public File getWorldCacheFile() {
 		return new File(server.getSavePath(WorldSavePath.ROOT).toFile(), CACHE_DIR_NAME);
 	}
 	
@@ -299,11 +305,6 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	private void sendSettingPermissionPacket(ServerPlayerEntity player) {
 		sendPacket(new GSSettingPermissionPacket(isAllowedSettingChange(player)), player);
-	}
-	
-	@Override
-	public GSSettingManager getWorldSettingManager() {
-		return worldSettings;
 	}
 	
 	public static GSServerController getInstance() {
