@@ -17,6 +17,7 @@ import com.g4mesoft.panel.event.GSIMouseListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.util.GSColorUtil;
 
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvent;
@@ -151,7 +152,7 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 			renderer.fillRect(width - borderWidth, 0, borderWidth, height - borderWidth, bc);
 		}
 		
-		if (((bgc >>> 24) & 0xFF) != 0x00)
+		if (GSColorUtil.unpackA(bgc) != 0x00)
 			renderer.fillRect(borderWidth, borderWidth, width - bw2, height - bw2, bgc);
 	}
 

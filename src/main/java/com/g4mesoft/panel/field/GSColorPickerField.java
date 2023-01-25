@@ -118,7 +118,7 @@ public class GSColorPickerField extends GSParentPanel {
 			renderer.fillRect(width - borderWidth, 0, borderWidth, height - borderWidth, borderColor);
 		}
 		
-		if (((backgroundColor >>> 24) & 0xFF) != 0x00)
+		if (GSColorUtil.unpackA(backgroundColor) != 0x00)
 			renderer.fillRect(borderWidth, borderWidth, width - bw2, height - bw2, backgroundColor);
 	}
 	

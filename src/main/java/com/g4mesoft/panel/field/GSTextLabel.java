@@ -7,6 +7,7 @@ import com.g4mesoft.panel.GSIcon;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelUtil;
 import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.util.GSColorUtil;
 
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -59,7 +60,7 @@ public class GSTextLabel extends GSPanel {
 	public void render(GSIRenderer2D renderer) {
 		super.render(renderer);
 
-		if (((backgroundColor >>> 24) & 0xFF) != 0x00)
+		if (GSColorUtil.unpackA(backgroundColor) != 0x00)
 			renderer.fillRect(0, 0, width, height, backgroundColor);
 
 		GSPanelUtil.drawLabel(renderer, icon, iconSpacing, text,
