@@ -51,6 +51,7 @@ public class GSBasicTableModel implements GSITableModel {
 		if (this.table != null)
 			throw new IllegalStateException("Model already installed");
 		this.table = table;
+		invalidateHeaders();
 	}
 
 	@Override
@@ -190,20 +191,22 @@ public class GSBasicTableModel implements GSITableModel {
 		
 		private Object value;
 		
-		private GSDimension minimumSize;
-		private boolean minimumSizeSet;
-		private GSDimension maximumSize;
-		private boolean maximumSizeSet;
+		private GSDimension minimumSizeCache;
+		private int minimumWidth;
+		private int minimumHeight;
+		private GSDimension maximumSizeCache;
+		private int maximumWidth;
+		private int maximumHeight;
 		
 		public GSAbstractHeaderElement(int index) {
 			this.index = index;
 			
 			value = null;
 			
-			minimumSize = null;
-			minimumSizeSet = false;
-			maximumSize = null;
-			maximumSizeSet = false;
+			minimumSizeCache = null;
+			minimumWidth = minimumHeight = -1;
+			maximumSizeCache = null;
+			maximumWidth = maximumHeight = -1;
 		}
 		
 		@Override
@@ -220,17 +223,26 @@ public class GSBasicTableModel implements GSITableModel {
 		
 		/* Visible for GSBasicTableModel */
 		void invalidate() {
-			if (!minimumSizeSet)
-				minimumSize = null;
-			if (!maximumSizeSet)
-				maximumSize = null;
+			minimumSizeCache = null;
+			maximumSizeCache = null;
 		}
 		
 		@Override
 		public GSDimension getMinimumSize() {
-			if (minimumSize == null)
-				minimumSize = calculateMinimumSize(value);
-			return (minimumSize != null) ? minimumSize : GSDimension.ZERO;
+			if (minimumSizeCache == null) {
+				// Check if we have manually set minimum size
+				if (minimumWidth != -1 && minimumHeight != -1) {
+					minimumSizeCache = new GSDimension(minimumWidth, minimumHeight);
+				} else {
+					GSDimension mns = calculateMinimumSize(value);
+					if (mns == null)
+						mns = GSDimension.ZERO;
+					int w = minimumWidth  != -1 ? minimumWidth  : mns.getWidth();
+					int h = minimumHeight != -1 ? minimumHeight : mns.getHeight();
+					minimumSizeCache = new GSDimension(w, h);
+				}
+			}
+			return minimumSizeCache;
 		}
 
 		private <T> GSDimension calculateMinimumSize(T value) {
@@ -240,19 +252,58 @@ public class GSBasicTableModel implements GSITableModel {
 		}
 		
 		@Override
-		public void setMinimumSize(GSDimension minimumSize) {
+		public GSITableHeaderElement setMinimumSize(GSDimension minimumSize) {
 			if (minimumSize == null)
 				throw new IllegalArgumentException("minimumSize is null!");
-			this.minimumSize = minimumSize;
-			minimumSizeSet = true;
-			dispatchSizeChanged();
+			if (minimumSize.getWidth() != minimumWidth || minimumSize.getHeight() != minimumHeight) {
+				minimumSizeCache = minimumSize;
+				minimumWidth = minimumSize.getWidth();
+				minimumHeight = minimumSize.getHeight();
+				dispatchSizeChanged();
+			}
+			return this;
 		}
 
 		@Override
+		public GSITableHeaderElement setMinimumWidth(int width) {
+			if (width < 0)
+				throw new IllegalArgumentException("width must be non-negative!");
+			if (width != minimumHeight) {
+				minimumSizeCache = null;
+				minimumWidth = width;
+				dispatchSizeChanged();
+			}
+			return this;
+		}
+		
+		@Override
+		public GSITableHeaderElement setMinimumHeight(int height) {
+			if (height < 0)
+				throw new IllegalArgumentException("height must be non-negative!");
+			if (height != minimumHeight) {
+				minimumSizeCache = null;
+				minimumHeight = height;
+				dispatchSizeChanged();
+			}
+			return this;
+		}
+		
+		@Override
 		public GSDimension getMaximumSize() {
-			if (maximumSize == null)
-				maximumSize = calculateMaximumSize(value);
-			return (maximumSize != null) ? maximumSize : GSDimension.ZERO;
+			if (maximumSizeCache == null) {
+				// Check if we have manually set minimum size
+				if (maximumWidth != -1 && maximumHeight != -1) {
+					maximumSizeCache = new GSDimension(maximumWidth, maximumHeight);
+				} else {
+					GSDimension mxs = calculateMaximumSize(value);
+					if (mxs == null)
+						mxs = GSDimension.ZERO;
+					int w = maximumWidth  != -1 ? maximumWidth  : mxs.getWidth();
+					int h = maximumHeight != -1 ? maximumHeight : mxs.getHeight();
+					maximumSizeCache = new GSDimension(w, h);
+				}
+			}
+			return maximumSizeCache;
 		}
 
 		private <T> GSDimension calculateMaximumSize(T value) {
@@ -262,12 +313,40 @@ public class GSBasicTableModel implements GSITableModel {
 		}
 		
 		@Override
-		public void setMaximumSize(GSDimension maximumSize) {
+		public GSITableHeaderElement setMaximumSize(GSDimension maximumSize) {
 			if (maximumSize == null)
 				throw new IllegalArgumentException("maximumSize is null!");
-			this.maximumSize = maximumSize;
-			maximumSizeSet = true;
-			dispatchSizeChanged();
+			if (maximumSize.getWidth() != maximumWidth || maximumSize.getHeight() != maximumHeight) {
+				maximumSizeCache = maximumSize;
+				maximumWidth = maximumSize.getWidth();
+				maximumHeight = maximumSize.getHeight();
+				dispatchSizeChanged();
+			}
+			return this;
+		}
+
+		@Override
+		public GSITableHeaderElement setMaximumWidth(int width) {
+			if (width < 0)
+				throw new IllegalArgumentException("width must be non-negative!");
+			if (width != maximumHeight) {
+				maximumSizeCache = null;
+				maximumWidth = width;
+				dispatchSizeChanged();
+			}
+			return this;
+		}
+		
+		@Override
+		public GSITableHeaderElement setMaximumHeight(int height) {
+			if (height < 0)
+				throw new IllegalArgumentException("height must be non-negative!");
+			if (height != maximumHeight) {
+				maximumSizeCache = null;
+				maximumHeight = height;
+				dispatchSizeChanged();
+			}
+			return this;
 		}
 		
 		protected abstract void dispatchHeaderChanged();

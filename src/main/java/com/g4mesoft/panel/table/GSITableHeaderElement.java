@@ -10,10 +10,18 @@ public interface GSITableHeaderElement {
 	
 	public GSDimension getMinimumSize();
 	
-	public void setMinimumSize(GSDimension minimumSize);
+	public GSITableHeaderElement setMinimumSize(GSDimension minimumSize);
+
+	public GSITableHeaderElement setMinimumWidth(int width);
+	
+	public GSITableHeaderElement setMinimumHeight(int height);
 	
 	public GSDimension getMaximumSize();
 	
-	public void setMaximumSize(GSDimension preferredSize);
+	public GSITableHeaderElement setMaximumSize(GSDimension maximumSize);
+	
+	public GSITableHeaderElement setMaximumWidth(int width);
+	
+	public GSITableHeaderElement setMaximumHeight(int height);
 
 }

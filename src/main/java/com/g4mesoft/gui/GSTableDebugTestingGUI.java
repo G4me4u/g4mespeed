@@ -55,7 +55,7 @@ public class GSTableDebugTestingGUI extends GSParentPanel {
 				model.setCellValue(c, r, new LiteralText(String.format("(%d, %d)", r + 1, c + 1)));
 		}
 
-		boolean withScroll = false;
+		boolean withScroll = true;
 		if (withScroll) {
 			previousPanel = new GSScrollPanel(table);
 		} else {

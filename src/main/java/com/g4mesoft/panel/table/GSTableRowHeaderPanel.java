@@ -39,13 +39,13 @@ public class GSTableRowHeaderPanel extends GSPanel implements GSIScrollable {
 		GSRectangle bounds = new GSRectangle();
 		bounds.x = clipBounds.x;
 		bounds.width = clipBounds.width;
-		bounds.y = 0;
+		bounds.y = table.getHorizontalBorderHeight();
 		for (int r = 0; r < model.getRowCount() && bounds.y < clipBounds.y + clipBounds.height; r++) {
 			GSITableRow row = model.getRow(r);
 			bounds.height = row.getHeight();
 			if (bounds.y + bounds.height >= clipBounds.y)
 				renderHeader(renderer, row.getHeaderValue(), bounds);
-			bounds.y += bounds.height;
+			bounds.y += bounds.height + table.getHorizontalBorderHeight();
 		}
 	}
 	

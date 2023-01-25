@@ -49,6 +49,12 @@ public class GSTableLayoutManager implements GSILayoutManager {
 			// Fill in remaining empty columns
 			w = Math.max(w, table.getMinimumColumnWidth() * table.getPreferredColumnCount());
 		}
+		// Adjust for number of border lines shown
+		if (!scrollable || (!preferred && model.getColumnCount() < table.getPreferredColumnCount())) {
+			w += table.getVerticalBorderWidth() * (model.getColumnCount() + 1);
+		} else {
+			w += table.getVerticalBorderWidth() * (table.getPreferredColumnCount() + 1);
+		}
 		return new GSDimension(w, h);
 	}
 	
@@ -71,6 +77,12 @@ public class GSTableLayoutManager implements GSILayoutManager {
 			// Fill in remaining empty rows
 			h = Math.max(h, table.getMinimumRowHeight() * table.getPreferredRowCount());
 		}
+		// Adjust for number of border lines shown
+		if (!scrollable || (!preferred && model.getRowCount() < table.getPreferredRowCount())) {
+			h += table.getHorizontalBorderHeight() * (model.getRowCount() + 1);
+		} else {
+			h += table.getHorizontalBorderHeight() * (table.getPreferredRowCount() + 1);
+		}
 		return new GSDimension(w, h);
 	}
 	
@@ -88,6 +100,9 @@ public class GSTableLayoutManager implements GSILayoutManager {
 	}
 	
 	private static <T extends GSITableHeaderElement> void layoutHeaders(GSIAccessor<T> accessor, int rem) {
+		// Adjust for number of border lines
+		rem = Math.max(0, rem - accessor.getBorderSize() * (accessor.getCount() + 1));
+		
 		// Phase 1: perform basic bounds check to ensure that the
 		//          the headers have at most maximum and at least
 		//          minimum size (important for later algorithms)
@@ -274,6 +289,8 @@ public class GSTableLayoutManager implements GSILayoutManager {
 		public int getMaximumSize(T element);
 		
 		public int getResizingIndex();
+
+		public int getBorderSize();
 		
 		public GSEHeaderResizePolicy getResizePolicy();
 		
@@ -327,6 +344,11 @@ public class GSTableLayoutManager implements GSILayoutManager {
 		}
 
 		@Override
+		public int getBorderSize() {
+			return table.getVerticalBorderWidth();
+		}
+		
+		@Override
 		public GSEHeaderResizePolicy getResizePolicy() {
 			return table.getColumnHeaderResizePolicy();
 		}
@@ -377,6 +399,11 @@ public class GSTableLayoutManager implements GSILayoutManager {
 		@Override
 		public int getResizingIndex() {
 			return table.getResizingRowIndex();
+		}
+		
+		@Override
+		public int getBorderSize() {
+			return table.getHorizontalBorderHeight();
 		}
 		
 		@Override

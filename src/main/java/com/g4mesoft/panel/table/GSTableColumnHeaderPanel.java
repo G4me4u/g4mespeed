@@ -28,7 +28,7 @@ public class GSTableColumnHeaderPanel extends GSPanel implements GSIScrollable {
 	}
 	
 	private void renderBackground(GSIRenderer2D renderer, GSRectangle clipBounds) {
-		if (table.getBackgroundColor() != 0) {
+		if (GSColorUtil.unpackA(table.getBackgroundColor()) != 0x00) {
 			int backgroundColor = GSColorUtil.darker(table.getBackgroundColor());
 			renderer.fillRect(clipBounds.x, clipBounds.y, clipBounds.width, clipBounds.height, backgroundColor);
 		}
@@ -37,7 +37,7 @@ public class GSTableColumnHeaderPanel extends GSPanel implements GSIScrollable {
 	private void renderHeaders(GSIRenderer2D renderer, GSRectangle clipBounds) {
 		GSITableModel model = table.getModel();
 		GSRectangle bounds = new GSRectangle();
-		bounds.x = 0;
+		bounds.x = table.getVerticalBorderWidth();
 		bounds.y = clipBounds.y;
 		bounds.height = clipBounds.height;
 		for (int c = 0; c < model.getColumnCount() && bounds.x < clipBounds.x + clipBounds.width; c++) {
@@ -45,7 +45,7 @@ public class GSTableColumnHeaderPanel extends GSPanel implements GSIScrollable {
 			bounds.width = column.getWidth();
 			if (bounds.x + bounds.width >= clipBounds.x)
 				renderHeader(renderer, column.getHeaderValue(), bounds);
-			bounds.x += bounds.width;
+			bounds.x += bounds.width + table.getVerticalBorderWidth();
 		}
 	}
 	

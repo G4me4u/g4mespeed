@@ -16,6 +16,7 @@ import com.g4mesoft.panel.cell.GSICellRenderer;
 import com.g4mesoft.panel.scroll.GSIScrollable;
 import com.g4mesoft.panel.scroll.GSScrollPanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.util.GSColorUtil;
 
 public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITableModelListener {
 
@@ -24,6 +25,8 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	private static final int DEFAULT_MINIMUM_COLUMN_WIDTH   = 30;
 	private static final int DEFAULT_BACKGROUND_COLOR       = 0xFF202020;
 	private static final int DEFAULT_TEXT_COLOR             = 0xFFE0E0E0;
+	private static final int DEFAULT_BORDER_WIDTH           = 1;
+	private static final int DEFAULT_BORDER_COLOR           = 0xFF161616;
 	
 	private GSITableModel model;
 	
@@ -42,6 +45,10 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 
 	private int resizingColumnIndex;
 	private int resizingRowIndex;
+	
+	private int verticalBorderWidth;
+	private int horizontalBorderHeight;
+	private int borderColor;
 
 	private GSTableColumnHeaderPanel columnHeader;
 	private GSTableRowHeaderPanel rowHeader;
@@ -70,6 +77,9 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 		
 		resizingColumnIndex = resizingRowIndex = -1;
 
+		verticalBorderWidth = horizontalBorderHeight = DEFAULT_BORDER_WIDTH;
+		borderColor = DEFAULT_BORDER_COLOR;
+		
 		modelListeners = new ArrayList<>();
 		
 		setModel(model);
@@ -137,27 +147,29 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	public void render(GSIRenderer2D renderer) {
 		super.render(renderer);
 
-		if ((backgroundColor & 0xFF000000) != 0)
+		if (GSColorUtil.unpackA(backgroundColor) != 0x00)
 			renderer.fillRect(0, 0, width, height, backgroundColor);
 		
-		int cx = 0;
-		for (int c = 0; c < model.getColumnCount(); c++) {
+		int cx = verticalBorderWidth;
+		for (int c = 0; c < model.getColumnCount() && cx < width; c++) {
 			GSITableColumn column = model.getColumn(c);
 			drawColumn(renderer, c, cx, column.getWidth());
-			cx += column.getWidth();
+			cx += column.getWidth() + verticalBorderWidth;
 		}
+		
+		drawBorder(renderer);
 	}
 	
 	private void drawColumn(GSIRenderer2D renderer, int columnIndex, int columnX, int columnWidth) {
 		GSRectangle bounds = new GSRectangle();
 		bounds.x = columnX;
 		bounds.width = columnWidth;
-		bounds.y = 0;
-		for (int r = 0; r < model.getRowCount(); r++) {
+		bounds.y = horizontalBorderHeight;
+		for (int r = 0; r < model.getRowCount() && bounds.y < height; r++) {
 			GSITableRow row = model.getRow(r);
 			bounds.height = row.getHeight();
 			drawCell(renderer, columnIndex, r, bounds);
-			bounds.y += bounds.height;
+			bounds.y += bounds.height + horizontalBorderHeight;
 		}
 	}
 	
@@ -167,6 +179,43 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 
 	private <T> void drawCell(GSIRenderer2D renderer, T cellValue, GSRectangle bounds) {
 		getCellRenderer(cellValue).render(renderer, cellValue, bounds, this);
+	}
+
+	private void drawBorder(GSIRenderer2D renderer) {
+		if (GSColorUtil.unpackA(borderColor) != 0x00) {
+			if (verticalBorderWidth != 0) {
+				// Compute total height of rows
+				int h = horizontalBorderHeight * (model.getRowCount() + 1);
+				for (int c = 0; c < model.getRowCount(); c++)
+					h += model.getRow(c).getHeight();
+				h = Math.min(height, h);
+				// Draw border lines
+				int x = 0;
+				for (int c = 0; c <= model.getColumnCount() && x < width; c++) {
+					renderer.fillRect(x, 0, verticalBorderWidth, h, borderColor);
+					x += verticalBorderWidth;
+					// The last line does not have a following column.
+					if (c != model.getColumnCount())
+						x += model.getColumn(c).getWidth();
+				}
+			}
+			if (horizontalBorderHeight != 0) {
+				// Compute total width of columns
+				int w = verticalBorderWidth * (model.getColumnCount() + 1);
+				for (int c = 0; c < model.getColumnCount(); c++)
+					w += model.getColumn(c).getWidth();
+				w = Math.min(width, w);
+				// Draw border lines
+				int y = 0;
+				for (int r = 0; r <= model.getRowCount() && y < height; r++) {
+					renderer.fillRect(0, y, w, horizontalBorderHeight, borderColor);
+					y += horizontalBorderHeight;
+					// The last line does not have a following row.
+					if (r != model.getRowCount())
+						y += model.getRow(r).getHeight();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -361,6 +410,34 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 
 	public int getResizingRowIndex() {
 		return resizingRowIndex;
+	}
+	
+	public int getVerticalBorderWidth() {
+		return verticalBorderWidth;
+	}
+
+	public int getHorizontalBorderHeight() {
+		return horizontalBorderHeight;
+	}
+	
+	public void setBorderWidth(int verticalBorderWidth, int horizontalBorderHeight) {
+		if (verticalBorderWidth < 0 || horizontalBorderHeight < 0)
+			throw new IllegalArgumentException("borderWidth must be non-negative!");
+		if (verticalBorderWidth != this.verticalBorderWidth ||
+				horizontalBorderHeight != this.horizontalBorderHeight) {
+
+			this.verticalBorderWidth = verticalBorderWidth;
+			this.horizontalBorderHeight = horizontalBorderHeight;
+			invalidate();
+		}
+	}
+	
+	public int getCellBorderColor() {
+		return borderColor;
+	}
+	
+	public void setCellBorderColor(int cellBorderColor) {
+		this.borderColor = cellBorderColor;
 	}
 	
 	@Override
