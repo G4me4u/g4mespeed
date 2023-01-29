@@ -278,6 +278,13 @@ public class GSSingleLineTextModel extends GSAbstractTextModel {
 	
 	@Override
 	public CharSequence getCharSequence(int offset, int count) {
+		if (offset == 0 && count == 0) {
+			// Special case for when the text model is empty,
+			// which ensures symmetry with the #getText(...)
+			// variant.
+			return "";
+		}
+		
 		if (offset < 0 || offset >= length)
 			throw new GSTextModelIndexOutOfBoundsException(offset);
 		if (count < 0)
@@ -290,6 +297,11 @@ public class GSSingleLineTextModel extends GSAbstractTextModel {
 
 	@Override
 	public void getChars(int offset, int count, char[] charBuffer, int bufferOffset) {
+		if (offset == 0 && count == 0) {
+			// Same special case as above.
+			return;
+		}
+		
 		if (offset < 0 || offset >= length)
 			throw new GSTextModelIndexOutOfBoundsException(offset);
 		if (count < 0)
