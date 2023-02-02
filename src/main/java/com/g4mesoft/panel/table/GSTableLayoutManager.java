@@ -37,25 +37,29 @@ public class GSTableLayoutManager implements GSILayoutManager {
 	public static GSDimension getColumnHeaderSize(GSTablePanel table, boolean preferred, boolean scrollable) {
 		GSITableModel model = table.getModel();
 		// Compute width (accumulative column width), height (maximum of column headers).
-		int w = 0, h = 0;
+		long wl = 0L;
+		int h = 0;
+		int prefCount = table.getPreferredColumnCount();
+		if (prefCount == GSTablePanel.PREFERRED_COUNT_UNSPECIFIED)
+			prefCount = model.getColumnCount();
 		for (int c = 0; c < model.getColumnCount(); c++) {
 			GSITableColumn column = model.getColumn(c);
 			// Adjust visible column count for scrollable content
-			if (!scrollable || c < table.getPreferredColumnCount())
-				w += computeMinimumColumnWidth(table, column);
+			if (!scrollable || c < prefCount)
+				wl += computeMinimumColumnWidth(table, column);
 			h = Math.max(column.getMinimumSize().getHeight(), h);
 		}
 		if (preferred && scrollable) {
 			// Fill in remaining empty columns
-			w = Math.max(w, table.getMinimumColumnWidth() * table.getPreferredColumnCount());
+			wl = Math.max(wl, table.getMinimumColumnWidth() * (long)prefCount);
 		}
 		// Adjust for number of border lines shown
-		if (!scrollable || (!preferred && model.getColumnCount() < table.getPreferredColumnCount())) {
-			w += table.getVerticalBorderWidth() * (model.getColumnCount() + 1);
+		if (!scrollable || (!preferred && model.getColumnCount() < prefCount)) {
+			wl += table.getVerticalBorderWidth() * ((long)model.getColumnCount() + 1L);
 		} else {
-			w += table.getVerticalBorderWidth() * (table.getPreferredColumnCount() + 1);
+			wl += table.getVerticalBorderWidth() * ((long)prefCount + 1L);
 		}
-		return new GSDimension(w, h);
+		return new GSDimension((int)Math.min(Integer.MAX_VALUE, wl), h);
 	}
 	
 	private static int computeMinimumColumnWidth(GSTablePanel table, GSITableColumn column) {
@@ -65,25 +69,29 @@ public class GSTableLayoutManager implements GSILayoutManager {
 	public static GSDimension getRowHeaderSize(GSTablePanel table, boolean preferred, boolean scrollable) {
 		GSITableModel model = table.getModel();
 		// Compute width (maximum of row headers), height (accumulative row height).
-		int w = 0, h = 0;
+		int w = 0;
+		long hl = 0;
+		int prefCount = table.getPreferredRowCount();
+		if (prefCount == GSTablePanel.PREFERRED_COUNT_UNSPECIFIED)
+			prefCount = model.getRowCount();
 		for (int r = 0; r < model.getRowCount(); r++) {
 			GSITableRow row = model.getRow(r);
 			w = Math.max(row.getMinimumSize().getWidth(), w);
 			// Adjust visible row count for scrollable content
-			if (!scrollable || r < table.getPreferredRowCount())
-				h += computeMinimumRowHeight(table, row);
+			if (!scrollable || r < prefCount)
+				hl += computeMinimumRowHeight(table, row);
 		}
 		if (preferred && scrollable) {
 			// Fill in remaining empty rows
-			h = Math.max(h, table.getMinimumRowHeight() * table.getPreferredRowCount());
+			hl = Math.max(hl, table.getMinimumRowHeight() * (long)prefCount);
 		}
 		// Adjust for number of border lines shown
-		if (!scrollable || (!preferred && model.getRowCount() < table.getPreferredRowCount())) {
-			h += table.getHorizontalBorderHeight() * (model.getRowCount() + 1);
+		if (!scrollable || (!preferred && model.getRowCount() < prefCount)) {
+			hl += table.getHorizontalBorderHeight() * ((long)model.getRowCount() + 1L);
 		} else {
-			h += table.getHorizontalBorderHeight() * (table.getPreferredRowCount() + 1);
+			hl += table.getHorizontalBorderHeight() * ((long)prefCount + 1L);
 		}
-		return new GSDimension(w, h);
+		return new GSDimension(w, (int)Math.min(Integer.MAX_VALUE, hl));
 	}
 	
 	private static int computeMinimumRowHeight(GSTablePanel table, GSITableRow row) {
