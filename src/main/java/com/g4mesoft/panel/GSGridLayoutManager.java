@@ -41,6 +41,27 @@ public class GSGridLayoutManager implements GSILayoutManager {
 	public GSDimension getPreferredSize(GSParentPanel parent) {
 		return getMinimumSize(calculateLayoutInfo(parent, PREFERRED_SIZE));
 	}
+	
+	private GSDimension getMinimumSize(GSGridLayoutInfo layoutInfo) {
+		// Handle 32-bit integer overflow
+		int w = (int)Math.min(computeAccumWidth(layoutInfo), Integer.MAX_VALUE);
+		int h = (int)Math.min(computeAccumHeight(layoutInfo), Integer.MAX_VALUE);
+		return new GSDimension(w, h);
+	}
+	
+	private long computeAccumWidth(GSGridLayoutInfo layoutInfo) {
+		long wl = 0L;
+		for (int c = 0; c < layoutInfo.columnCount; c++)
+			wl += layoutInfo.minColumnWidths[c];
+		return wl;
+	}
+
+	private long computeAccumHeight(GSGridLayoutInfo layoutInfo) {
+		long hl = 0L;
+		for (int r = 0; r < layoutInfo.rowCount; r++)
+			hl += layoutInfo.minRowHeights[r];
+		return hl;
+	}
 
 	@Override
 	public void layoutChildren(GSParentPanel parent) {
@@ -52,25 +73,27 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		
 		// Figure out if the layout can fit in preferred size or minimum size.
 		GSGridLayoutInfo layoutInfo = calculateLayoutInfo(parent, PREFERRED_SIZE);
-		GSDimension size = getMinimumSize(layoutInfo);
+		long wl = computeAccumWidth(layoutInfo);
+		long hl = computeAccumHeight(layoutInfo);
 
-		if (size.getWidth() > parent.getWidth() || size.getHeight() > parent.getHeight()) {
+		if (wl > parent.getWidth() || hl > parent.getHeight()) {
 			calculateLayoutInfo(parent, MINIMUM_SIZE);
-			size = getMinimumSize(layoutInfo);
+			wl = computeAccumWidth(layoutInfo);
+			hl = computeAccumHeight(layoutInfo);
 		}
 		
-		int deltaW = parent.getWidth()  - size.getWidth();
-		int deltaH = parent.getHeight() - size.getHeight();
+		long deltaW = (long)parent.getWidth() - wl;
+		long deltaH = (long)parent.getHeight() - hl;
 
 		// Distribute the width weighted to all columns
-		int remW = 0; // remaining width to take when columns do not fit
-		float remWx = layoutInfo.columnWeight;
+		long remW = 0L; // remaining width to take when columns do not fit
+		double remWx = layoutInfo.columnWeight;
 		int c;
 		for (c = 0; remWx >= GSMathUtil.EPSILON_F && c < layoutInfo.columnCount; c++) {
-			float wx = layoutInfo.columnWeights[c];
-			int dw = (int)(deltaW * wx / remWx);
+			double wx = layoutInfo.columnWeights[c];
+			long dw = (long)(deltaW * wx / remWx);
 			// Ensure that we do not get negative width
-			if (layoutInfo.minColumnWidths[c] + dw < 0)
+			if (layoutInfo.minColumnWidths[c] + dw < 0L)
 				dw = -layoutInfo.minColumnWidths[c];
 			layoutInfo.minColumnWidths[c] += dw;
 			// Accumulate the total width of the updated column widths
@@ -82,13 +105,13 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		for ( ; c < layoutInfo.columnCount; c++)
 			remW += layoutInfo.minColumnWidths[c];
 		
-		if (deltaW < 0) {
+		if (deltaW < 0L) {
 			// The weighted columns did not have enough width to give,
 			// take it equally from the columns with no weight.
 			for (c = 0; c < layoutInfo.columnCount; c++) {
 				remW -= layoutInfo.minColumnWidths[c];
-				int dw = deltaW / (layoutInfo.columnCount - c);
-				if (layoutInfo.minColumnWidths[c] + dw < 0) {
+				long dw = deltaW / (layoutInfo.columnCount - c);
+				if (layoutInfo.minColumnWidths[c] + dw < 0L) {
 					dw = -layoutInfo.minColumnWidths[c];
 				} else if (remW + deltaW < dw) {
 					// Ensure there is enough width to take from in
@@ -101,17 +124,17 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		}
 		
 		// Offset grid to the center of the viewport
-		int xo = deltaW / 2;
+		int xo = (int)(deltaW / 2L);
 		
 		// Distribute the height weighted to all rows
-		int remH = 0; // remaining height to take when rows do not fit
-		float remWy = layoutInfo.rowWeight;
+		long remH = 0; // remaining height to take when rows do not fit
+		double remWy = layoutInfo.rowWeight;
 		int r;
 		for (r = 0; remWy >= GSMathUtil.EPSILON_F && r < layoutInfo.rowCount; r++) {
-			float wy = layoutInfo.rowWeights[r];
-			int dh = (int)(deltaH * wy / remWy);
+			double wy = layoutInfo.rowWeights[r];
+			long dh = (long)(deltaH * wy / remWy);
 			// Ensure that we do not get negative height
-			if (layoutInfo.minRowHeights[r] + dh < 0)
+			if (layoutInfo.minRowHeights[r] + dh < 0L)
 				dh = -layoutInfo.minRowHeights[r];
 			layoutInfo.minRowHeights[r] += dh;
 			// Accumulate the total height of the updated row heights
@@ -123,13 +146,13 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		for ( ; r < layoutInfo.rowCount; r++)
 			remH += layoutInfo.minRowHeights[r];
 		
-		if (deltaH < 0) {
+		if (deltaH < 0L) {
 			// The weighted rows did not have enough height to give,
 			// take it equally from the rows with no weight.
 			for (r = 0; r < layoutInfo.rowCount; r++) {
 				remH -= layoutInfo.minRowHeights[r];
-				int dh = deltaH / (layoutInfo.rowCount - r);
-				if (layoutInfo.minRowHeights[r] + dh < 0) {
+				long dh = deltaH / (layoutInfo.rowCount - r);
+				if (layoutInfo.minRowHeights[r] + dh < 0L) {
 					dh = -layoutInfo.minRowHeights[r];
 				} else if (remH + deltaH < dh) {
 					// Ensure there is enough height to take from in
@@ -142,7 +165,10 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		}
 		
 		// Offset grid to the center of the viewport
-		int yo = deltaH / 2;
+		int yo = (int)(deltaH / 2L);
+		// Note: from this point forward all dimensions can be
+		//       evaluated as 32-bit integers since their sum
+		//       is bounded by width and height of the parent.
 		
 		// Calculate x- and y-offsets of columns and rows
 		int[] columnXs = new int[layoutInfo.columnCount];
@@ -150,11 +176,11 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		
 		for (c = 0; c < layoutInfo.columnCount; c++) {
 			columnXs[c] = xo;
-			xo += layoutInfo.minColumnWidths[c];
+			xo += (int)layoutInfo.minColumnWidths[c];
 		}
 		for (r = 0; r < layoutInfo.rowCount; r++) {
 			rowYs[r] = yo;
-			yo += layoutInfo.minRowHeights[r];
+			yo += (int)layoutInfo.minRowHeights[r];
 		}
 		
 		// Finally layout the components according to cell sizes
@@ -174,10 +200,10 @@ public class GSGridLayoutManager implements GSILayoutManager {
 			
 			displayBounds.width = 0;
 			for (c = gx; c < gx + gw; c++)
-				displayBounds.width += layoutInfo.minColumnWidths[c];
+				displayBounds.width += (int)layoutInfo.minColumnWidths[c];
 			displayBounds.height = 0;
 			for (r = gy; r < gy + gh; r++)
-				displayBounds.height += layoutInfo.minRowHeights[r];
+				displayBounds.height += (int)layoutInfo.minRowHeights[r];
 			
 			// Layout panel inside of available display bounds
 			layoutChild(child, displayBounds);
@@ -297,8 +323,8 @@ public class GSGridLayoutManager implements GSILayoutManager {
 			int gh = layout.get(GRID_HEIGHT);
 
 			// Calculate the average weight for each cell
-			float avgWx = layout.get(WEIGHT_X) / gw;
-			float avgWy = layout.get(WEIGHT_Y) / gh;
+			double avgWx = (double)layout.get(WEIGHT_X) / gw;
+			double avgWy = (double)layout.get(WEIGHT_Y) / gh;
 			
 			for (int c = gx; c < gx + gw; c++) {
 				if (avgWx > layoutInfo.columnWeights[c])
@@ -312,10 +338,10 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		}
 		
 		// Compute total column and row weights
-		layoutInfo.columnWeight = 0.0f;
+		layoutInfo.columnWeight = 0.0;
 		for (int c = 0; c < layoutInfo.columnCount; c++)
 			layoutInfo.columnWeight += layoutInfo.columnWeights[c];
-		layoutInfo.rowWeight = 0.0f;
+		layoutInfo.rowWeight = 0.0;
 		for (int r = 0; r < layoutInfo.rowCount; r++)
 			layoutInfo.rowWeight += layoutInfo.rowWeights[r];
 	}
@@ -328,22 +354,22 @@ public class GSGridLayoutManager implements GSILayoutManager {
 			// Get the minimum size of the panel
 			GSDimension size = layout.get(sizeProperty);
 			// Add margin, to get the required display size
-			int w = size.getWidth()  + layout.get(LEFT_MARGIN) + layout.get(RIGHT_MARGIN);
-			int h = size.getHeight() + layout.get(TOP_MARGIN)  + layout.get(BOTTOM_MARGIN);
+			long wl = (long)size.getWidth()  + layout.get(LEFT_MARGIN) + layout.get(RIGHT_MARGIN);
+			long hl = (long)size.getHeight() + layout.get(TOP_MARGIN)  + layout.get(BOTTOM_MARGIN);
 			
 			// Distribute the minimum width over each column
 			int gx = layout.get(GRID_X);
 			int gw = layout.get(GRID_WIDTH);
 
-			float remWx = 0.0f;
+			double remWx = 0.0;
 			for (int c = gx; c < gx + gw; c++)
 				remWx += layoutInfo.columnWeights[c];
 			
 			if (remWx < GSMathUtil.EPSILON_F) {
 				// Distribute equally over columns
-				int remW = w;
+				long remW = wl;
 				for (int c = gx; c < gx + gw; c++) {
-					int dw = remW / (gx + gw - c);
+					long dw = remW / (gx + gw - c);
 					if (dw > layoutInfo.minColumnWidths[c])
 						layoutInfo.minColumnWidths[c] = dw;
 					remW -= dw;
@@ -354,15 +380,15 @@ public class GSGridLayoutManager implements GSILayoutManager {
 			int gy = layout.get(GRID_Y);
 			int gh = layout.get(GRID_HEIGHT);
 
-			float remWy = 0.0f;
+			double remWy = 0.0;
 			for (int r = gy; r < gy + gh; r++)
 				remWy += layoutInfo.rowWeights[r];
 
 			if (remWy < GSMathUtil.EPSILON_F) {
 				// Distribute equally over rows
-				int remH = h;
+				long remH = hl;
 				for (int r = gy; r < gy + gh; r++) {
-					int dh = remH / (gy + gh - r);
+					long dh = remH / (gy + gh - r);
 					if (dh > layoutInfo.minRowHeights[r])
 						layoutInfo.minRowHeights[r] = dh;
 					remH -= dh;
@@ -377,15 +403,15 @@ public class GSGridLayoutManager implements GSILayoutManager {
 			// Get the minimum size of the panel
 			GSDimension size = layout.get(sizeProperty);
 			// Add margin, to get the required display size
-			int w = size.getWidth()  + layout.get(LEFT_MARGIN) + layout.get(RIGHT_MARGIN);
-			int h = size.getHeight() + layout.get(TOP_MARGIN)  + layout.get(BOTTOM_MARGIN);
+			long wl = (long)size.getWidth()  + layout.get(LEFT_MARGIN) + layout.get(RIGHT_MARGIN);
+			long hl = (long)size.getHeight() + layout.get(TOP_MARGIN)  + layout.get(BOTTOM_MARGIN);
 			
 			// Distribute the minimum width over each column
 			int gx = layout.get(GRID_X);
 			int gw = layout.get(GRID_WIDTH);
 
-			int remW = w;
-			float remWx = 0.0f;
+			long remW = wl;
+			double remWx = 0.0;
 			for (int c = gx; c < gx + gw; c++) {
 				if (layoutInfo.columnWeights[c] < GSMathUtil.EPSILON_F) {
 					// Subtract width from already distributed columns
@@ -397,9 +423,9 @@ public class GSGridLayoutManager implements GSILayoutManager {
 			
 			if (remW > 0) {
 				// Distribute weighted over columns
-				for (int c = gx; remWx > 0.0f && c < gx + gw; c++) {
-					float wx = layoutInfo.columnWeights[c];
-					int dw = (int)(remW * wx / remWx);
+				for (int c = gx; remWx > 0.0 && c < gx + gw; c++) {
+					double wx = layoutInfo.columnWeights[c];
+					long dw = (long)(remW * wx / remWx);
 					if (dw > layoutInfo.minColumnWidths[c])
 						layoutInfo.minColumnWidths[c] = dw;
 					remWx -= wx;
@@ -411,8 +437,8 @@ public class GSGridLayoutManager implements GSILayoutManager {
 			int gy = layout.get(GRID_Y);
 			int gh = layout.get(GRID_HEIGHT);
 
-			int remH = h;
-			float remWy = 0.0f;
+			long remH = hl;
+			double remWy = 0.0;
 			for (int r = gy; r < gy + gh; r++) {
 				if (layoutInfo.rowWeights[r] < GSMathUtil.EPSILON_F) {
 					// Subtract height from already distributed rows
@@ -424,9 +450,9 @@ public class GSGridLayoutManager implements GSILayoutManager {
 
 			if (remH > 0) {
 				// Distribute weighted over rows
-				for (int r = gy; remWy > 0.0f && r < gy + gh; r++) {
-					float wy = layoutInfo.rowWeights[r];
-					int dh = (int)(remH * wy / remWy);
+				for (int r = gy; remWy > 0.0 && r < gy + gh; r++) {
+					double wy = layoutInfo.rowWeights[r];
+					long dh = (long)(remH * wy / remWy);
 					if (dh > layoutInfo.minRowHeights[r])
 						layoutInfo.minRowHeights[r] = dh;
 					remWy -= wy;
@@ -436,45 +462,30 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		}
 	}
 	
-	private GSDimension getMinimumSize(GSGridLayoutInfo layoutInfo) {
-		long wl = 0L, hl = 0L;
-		
-		for (int c = 0; c < layoutInfo.columnCount; c++)
-			wl += layoutInfo.minColumnWidths[c];
-		for (int r = 0; r < layoutInfo.rowCount; r++)
-			hl += layoutInfo.minRowHeights[r];
-	
-		// Handle 32-bit integer overflow
-		int w = (int)Math.min(wl, Integer.MAX_VALUE);
-		int h = (int)Math.min(hl, Integer.MAX_VALUE);
-		
-		return new GSDimension(w, h);
-	}
-	
 	private class GSGridLayoutInfo {
 		
 		private int columnCount;
 		private int rowCount;
 		
-		private float[] columnWeights;
-		private float[] rowWeights;
-		private float columnWeight;
-		private float rowWeight;
+		private double[] columnWeights;
+		private double[] rowWeights;
+		private double columnWeight;
+		private double rowWeight;
 		
-		private int[] minColumnWidths;
-		private int[] minRowHeights;
+		private long[] minColumnWidths;
+		private long[] minRowHeights;
 
 		public GSGridLayoutInfo(int columnCount, int rowCount) {
 			this.columnCount = columnCount;
 			this.rowCount = rowCount;
 			
-			columnWeights = new float[columnCount];
-			rowWeights = new float[rowCount];
-			columnWeight = 0.0f;
-			rowWeight = 0.0f;
+			columnWeights = new double[columnCount];
+			rowWeights = new double[rowCount];
+			columnWeight = 0.0;
+			rowWeight = 0.0;
 			
-			minColumnWidths = new int[columnCount];
-			minRowHeights = new int[rowCount];
+			minColumnWidths = new long[columnCount];
+			minRowHeights = new long[rowCount];
 		}
 	}
 }
