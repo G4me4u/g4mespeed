@@ -425,6 +425,46 @@ public final class GSPanelUtil {
 		if (scrollPanel != null)
 			scrollPanel.getVerticalScrollBar().setScroll(scrollY);
 	}
+
+	public static void scrollToVisible(GSPanel panel, GSRectangle bounds) {
+		GSScrollPanel scrollPanel = getScrollPanel(panel);
+		if (scrollPanel != null) {
+			GSDimension viewportSize = getViewportSize(panel);
+
+			// Compute the current viewport bounds
+			int x0 = scrollPanel.getViewportOffsetX();
+			int y0 = scrollPanel.getViewportOffsetY();
+			int x1 = x0 + viewportSize.getWidth();
+			int y1 = y0 + viewportSize.getHeight();
+		
+			int xOffset = x0;
+			if (bounds.width > x1 - x0) {
+				// Place bounds in the center of viewport.
+				xOffset = bounds.x + ((x1 - x0) - bounds.width) / 2;
+			} else if (bounds.x < x0) {
+				// Left side of bounds becomes x0.
+				xOffset = bounds.x;
+			} else if (bounds.x + bounds.width > x1) {
+				// Right side of bounds becomes x1.
+				xOffset += bounds.x + bounds.width - x1;
+			}
+
+			int yOffset = y0;
+			if (bounds.height > y1 - y0) {
+				// Place bounds in the center of viewport.
+				yOffset = bounds.y + ((y1 - y0) - bounds.height) / 2;
+			} else if (bounds.y < y0) {
+				// Top side of bounds becomes y0.
+				yOffset = bounds.y;
+			} else if (bounds.y + bounds.height > y1) {
+				// Bottom side of bounds becomes y1.
+				yOffset += bounds.y + bounds.height - y1;
+			}
+			
+			scrollPanel.getHorizontalScrollBar().setScroll(xOffset);
+			scrollPanel.getVerticalScrollBar().setScroll(yOffset);
+		}
+	}
 	
 	public static GSScrollPanel getScrollPanel(GSPanel panel) {
 		GSPanel parent = panel.getParent();
@@ -442,7 +482,7 @@ public final class GSPanelUtil {
 			return ((GSViewport)parent).getSize();
 		return panel.getSize();
 	}
-	
+
 	private static enum GSEWordCharacterType {
 		
 		LETTER_OR_DIGIT, SYMBOL, OTHER;
