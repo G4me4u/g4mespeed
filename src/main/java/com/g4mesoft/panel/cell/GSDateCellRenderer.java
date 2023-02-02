@@ -4,8 +4,6 @@ import java.util.Date;
 
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSPanelUtil;
-import com.g4mesoft.panel.GSRectangle;
-import com.g4mesoft.panel.table.GSTablePanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 public final class GSDateCellRenderer implements GSICellRenderer<Date> {
@@ -16,8 +14,8 @@ public final class GSDateCellRenderer implements GSICellRenderer<Date> {
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer, Date value, GSRectangle bounds, GSTablePanel table) {
-		GSStringCellRenderer.INSTANCE.render(renderer, GSPanelUtil.formatDate(value), bounds, table);
+	public void render(GSIRenderer2D renderer, Date value, GSCellContext context) {
+		GSStringCellRenderer.INSTANCE.render(renderer, GSPanelUtil.formatDate(value), context);
 	}
 	
 	@Override

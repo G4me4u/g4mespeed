@@ -1,10 +1,7 @@
 package com.g4mesoft.panel.cell;
 
 import com.g4mesoft.panel.GSDimension;
-import com.g4mesoft.panel.GSETextAlignment;
 import com.g4mesoft.panel.GSPanelUtil;
-import com.g4mesoft.panel.GSRectangle;
-import com.g4mesoft.panel.table.GSTablePanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.minecraft.text.Text;
@@ -17,8 +14,9 @@ public final class GSTextCellRenderer implements GSICellRenderer<Text> {
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer, Text value, GSRectangle bounds, GSTablePanel table) {
-		GSPanelUtil.drawLabel(renderer, null, 0, value, table.getTextColor(), true, null, GSETextAlignment.CENTER, bounds);
+	public void render(GSIRenderer2D renderer, Text value, GSCellContext context) {
+		GSPanelUtil.drawLabel(renderer, null, 0, value, context.textColor,
+				true, null, context.textAlignment, context.bounds);
 	}
 	
 	@Override

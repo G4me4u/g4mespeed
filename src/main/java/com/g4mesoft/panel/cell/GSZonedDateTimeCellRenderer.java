@@ -4,8 +4,6 @@ import java.time.ZonedDateTime;
 
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSPanelUtil;
-import com.g4mesoft.panel.GSRectangle;
-import com.g4mesoft.panel.table.GSTablePanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 public final class GSZonedDateTimeCellRenderer implements GSICellRenderer<ZonedDateTime> {
@@ -16,8 +14,8 @@ public final class GSZonedDateTimeCellRenderer implements GSICellRenderer<ZonedD
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer, ZonedDateTime value, GSRectangle bounds, GSTablePanel table) {
-		GSStringCellRenderer.INSTANCE.render(renderer, GSPanelUtil.formatZonedDateTime(value), bounds, table);
+	public void render(GSIRenderer2D renderer, ZonedDateTime value, GSCellContext context) {
+		GSStringCellRenderer.INSTANCE.render(renderer, GSPanelUtil.formatZonedDateTime(value), context);
 	}
 	
 	@Override

@@ -1,8 +1,6 @@
 package com.g4mesoft.panel.cell;
 
 import com.g4mesoft.panel.GSDimension;
-import com.g4mesoft.panel.GSRectangle;
-import com.g4mesoft.panel.table.GSTablePanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 import net.minecraft.text.LiteralText;
@@ -15,8 +13,8 @@ public final class GSStringCellRenderer implements GSICellRenderer<String> {
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer, String value, GSRectangle bounds, GSTablePanel table) {
-		GSTextCellRenderer.INSTANCE.render(renderer, new LiteralText(value), bounds, table);
+	public void render(GSIRenderer2D renderer, String value, GSCellContext context) {
+		GSTextCellRenderer.INSTANCE.render(renderer, new LiteralText(value), context);
 	}
 	
 	@Override

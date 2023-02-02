@@ -4,8 +4,6 @@ import java.time.Instant;
 
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSPanelUtil;
-import com.g4mesoft.panel.GSRectangle;
-import com.g4mesoft.panel.table.GSTablePanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
 public final class GSInstantCellRenderer implements GSICellRenderer<Instant> {
@@ -16,8 +14,8 @@ public final class GSInstantCellRenderer implements GSICellRenderer<Instant> {
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer, Instant value, GSRectangle bounds, GSTablePanel table) {
-		GSStringCellRenderer.INSTANCE.render(renderer, GSPanelUtil.formatInstant(value), bounds, table);
+	public void render(GSIRenderer2D renderer, Instant value, GSCellContext context) {
+		GSStringCellRenderer.INSTANCE.render(renderer, GSPanelUtil.formatInstant(value), context);
 	}
 	
 	@Override

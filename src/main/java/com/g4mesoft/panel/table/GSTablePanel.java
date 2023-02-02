@@ -10,7 +10,7 @@ import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.GSPanelUtil;
 import com.g4mesoft.panel.GSParentPanel;
-import com.g4mesoft.panel.GSRectangle;
+import com.g4mesoft.panel.cell.GSCellContext;
 import com.g4mesoft.panel.cell.GSCellRendererRegistry;
 import com.g4mesoft.panel.cell.GSICellRenderer;
 import com.g4mesoft.panel.scroll.GSIScrollable;
@@ -18,16 +18,25 @@ import com.g4mesoft.panel.scroll.GSScrollPanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.util.GSColorUtil;
 
-public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITableModelListener {
+public class GSTablePanel extends GSParentPanel implements GSIScrollable,
+                                                           GSITableModelListener {
 
-	private static final int DEFAULT_PREFERRED_COLUMN_COUNT = Integer.MAX_VALUE;
+	public static final int PREFERRED_COUNT_UNSPECIFIED = 0;
+	
+	private static final int DEFAULT_PREFERRED_COLUMN_COUNT = PREFERRED_COUNT_UNSPECIFIED;
 	private static final int DEFAULT_PREFERRED_ROW_COUNT    = 10;
 	private static final int DEFAULT_MINIMUM_COLUMN_WIDTH   = 30;
-	private static final int DEFAULT_BACKGROUND_COLOR       = 0xFF202020;
+
+	private static final int DEFAULT_BACKGROUND_COLOR          = 0xFF202020;
+	private static final int DEFAULT_DISABLED_BACKGROUND_COLOR = 0xFF0A0A0A;
+
 	private static final int DEFAULT_TEXT_COLOR             = 0xFFE0E0E0;
+	private static final int DEFAULT_DISABLED_TEXT_COLOR    = 0xFF707070;
+
 	private static final int DEFAULT_BORDER_WIDTH           = 1;
 	private static final int DEFAULT_BORDER_COLOR           = 0xFF161616;
-	
+	private static final int DEFAULT_DISABLED_BORDER_COLOR  = 0xFF060606;
+
 	private GSITableModel model;
 	
 	private int preferredColumnCount;
@@ -41,14 +50,18 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	private final GSCellRendererRegistry cellRendererRegistry;
 
 	private int backgroundColor;
+	private int disabledBackgroundColor;
+	
 	private int textColor;
-
+	private int disabledTextColor;
+	
 	private int resizingColumnIndex;
 	private int resizingRowIndex;
 	
 	private int verticalBorderWidth;
 	private int horizontalBorderHeight;
 	private int borderColor;
+	private int disabledBorderColor;
 
 	private GSTableColumnHeaderPanel columnHeader;
 	private GSTableRowHeaderPanel rowHeader;
@@ -73,12 +86,16 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 		cellRendererRegistry = new GSCellRendererRegistry();
 		
 		backgroundColor = DEFAULT_BACKGROUND_COLOR;
+		disabledBackgroundColor = DEFAULT_DISABLED_BACKGROUND_COLOR;
+		
 		textColor = DEFAULT_TEXT_COLOR;
+		disabledTextColor = DEFAULT_DISABLED_TEXT_COLOR;
 		
 		resizingColumnIndex = resizingRowIndex = -1;
 
 		verticalBorderWidth = horizontalBorderHeight = DEFAULT_BORDER_WIDTH;
 		borderColor = DEFAULT_BORDER_COLOR;
+		disabledBorderColor = DEFAULT_DISABLED_BORDER_COLOR;
 		
 		modelListeners = new ArrayList<>();
 		
@@ -147,42 +164,57 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 	public void render(GSIRenderer2D renderer) {
 		super.render(renderer);
 
-		if (GSColorUtil.unpackA(backgroundColor) != 0x00)
-			renderer.fillRect(0, 0, width, height, backgroundColor);
+		GSCellContext context = createCellContext();
+		
+		drawBackground(renderer, context);
 		
 		int cx = verticalBorderWidth;
 		for (int c = 0; c < model.getColumnCount() && cx < width; c++) {
 			GSITableColumn column = model.getColumn(c);
-			drawColumn(renderer, c, cx, column.getWidth());
+			drawColumn(renderer, c, cx, column.getWidth(), context);
 			cx += column.getWidth() + verticalBorderWidth;
 		}
 		
 		drawBorder(renderer);
 	}
 	
-	private void drawColumn(GSIRenderer2D renderer, int columnIndex, int columnX, int columnWidth) {
-		GSRectangle bounds = new GSRectangle();
-		bounds.x = columnX;
-		bounds.width = columnWidth;
-		bounds.y = horizontalBorderHeight;
-		for (int r = 0; r < model.getRowCount() && bounds.y < height; r++) {
+	/* Visible for GSTableColumnHeaderPanel and GSTableRowHeaderPanel */
+	GSCellContext createCellContext() {
+		GSCellContext context = new GSCellContext();
+		context.backgroundColor = isEnabled() ? backgroundColor : disabledBackgroundColor;
+		context.textColor = isEnabled() ? textColor : disabledTextColor;
+		// TODO: modify context text alignment.
+		return context;
+	}
+
+	private void drawBackground(GSIRenderer2D renderer, GSCellContext context) {
+		if (GSColorUtil.unpackA(context.backgroundColor) != 0x00)
+			renderer.fillRect(0, 0, width, height, context.backgroundColor);
+	}
+
+	private void drawColumn(GSIRenderer2D renderer, int columnIndex, int columnX, int columnWidth, GSCellContext context) {
+		context.bounds.x = columnX;
+		context.bounds.width = columnWidth;
+		context.bounds.y = horizontalBorderHeight;
+		for (int r = 0; r < model.getRowCount() && context.bounds.y < height; r++) {
 			GSITableRow row = model.getRow(r);
-			bounds.height = row.getHeight();
-			drawCell(renderer, columnIndex, r, bounds);
-			bounds.y += bounds.height + horizontalBorderHeight;
+			context.bounds.height = row.getHeight();
+			drawCell(renderer, columnIndex, r, context);
+			context.bounds.y += context.bounds.height + horizontalBorderHeight;
 		}
 	}
 	
-	private void drawCell(GSIRenderer2D renderer, int columnIndex, int rowIndex, GSRectangle bounds) {
-		drawCell(renderer, model.getCellValue(columnIndex, rowIndex), bounds);
+	private void drawCell(GSIRenderer2D renderer, int columnIndex, int rowIndex, GSCellContext context) {
+		drawCell(renderer, model.getCellValue(columnIndex, rowIndex), context);
 	}
 
-	private <T> void drawCell(GSIRenderer2D renderer, T cellValue, GSRectangle bounds) {
-		getCellRenderer(cellValue).render(renderer, cellValue, bounds, this);
+	private <T> void drawCell(GSIRenderer2D renderer, T cellValue, GSCellContext context) {
+		getCellRenderer(cellValue).render(renderer, cellValue, context);
 	}
 
 	private void drawBorder(GSIRenderer2D renderer) {
-		if (GSColorUtil.unpackA(borderColor) != 0x00) {
+		int color = isEnabled() ? borderColor : disabledBorderColor;
+		if (GSColorUtil.unpackA(color) != 0x00) {
 			if (verticalBorderWidth != 0) {
 				// Compute total height of rows
 				int h = horizontalBorderHeight * (model.getRowCount() + 1);
@@ -192,7 +224,7 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 				// Draw border lines
 				int x = 0;
 				for (int c = 0; c <= model.getColumnCount() && x < width; c++) {
-					renderer.fillRect(x, 0, verticalBorderWidth, h, borderColor);
+					renderer.fillRect(x, 0, verticalBorderWidth, h, color);
 					x += verticalBorderWidth;
 					// The last line does not have a following column.
 					if (c != model.getColumnCount())
@@ -208,7 +240,7 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 				// Draw border lines
 				int y = 0;
 				for (int r = 0; r <= model.getRowCount() && y < height; r++) {
-					renderer.fillRect(0, y, w, horizontalBorderHeight, borderColor);
+					renderer.fillRect(0, y, w, horizontalBorderHeight, color);
 					y += horizontalBorderHeight;
 					// The last line does not have a following row.
 					if (r != model.getRowCount())
@@ -380,18 +412,34 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 		return backgroundColor;
 	}
 
-	public void setBackgroundColor(int backgroundColor) {
-		this.backgroundColor = backgroundColor;
+	public void setBackgroundColor(int color) {
+		backgroundColor = color;
+	}
+
+	public int getDisabledBackgroundColor() {
+		return disabledBackgroundColor;
+	}
+	
+	public void setDisabledBackgroundColor(int color) {
+		disabledBackgroundColor = color;
 	}
 	
 	public int getTextColor() {
 		return textColor;
 	}
 
-	public void setTextColor(int textColor) {
-		this.textColor = textColor;
+	public void setTextColor(int color) {
+		textColor = color;
+	}
+
+	public int getDisabledTextColor() {
+		return disabledTextColor;
 	}
 	
+	public void setDisabledTextColor(int color) {
+		disabledTextColor = color;
+	}
+
 	public GSTableColumnHeaderPanel getColumnHeader() {
 		if (columnHeader == null)
 			columnHeader = new GSTableColumnHeaderPanel(this);
@@ -432,12 +480,20 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable, GSITab
 		}
 	}
 	
-	public int getCellBorderColor() {
+	public int getBorderColor() {
 		return borderColor;
 	}
 	
-	public void setCellBorderColor(int cellBorderColor) {
-		this.borderColor = cellBorderColor;
+	public void setBorderColor(int color) {
+		borderColor = color;
+	}
+
+	public int getDisabledBorderColor() {
+		return disabledBorderColor;
+	}
+	
+	public void setDisabledBorderColor(int color) {
+		disabledBorderColor = color;
 	}
 	
 	@Override

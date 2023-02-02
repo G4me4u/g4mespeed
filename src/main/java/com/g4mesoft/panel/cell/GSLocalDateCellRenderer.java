@@ -4,10 +4,7 @@ import java.time.LocalDate;
 
 import com.g4mesoft.panel.GSDimension;
 import com.g4mesoft.panel.GSPanelUtil;
-import com.g4mesoft.panel.GSRectangle;
-import com.g4mesoft.panel.table.GSTablePanel;
 import com.g4mesoft.renderer.GSIRenderer2D;
-
 public final class GSLocalDateCellRenderer implements GSICellRenderer<LocalDate> {
 
 	public static final GSLocalDateCellRenderer INSTANCE = new GSLocalDateCellRenderer();
@@ -16,8 +13,8 @@ public final class GSLocalDateCellRenderer implements GSICellRenderer<LocalDate>
 	}
 	
 	@Override
-	public void render(GSIRenderer2D renderer, LocalDate value, GSRectangle bounds, GSTablePanel table) {
-		GSStringCellRenderer.INSTANCE.render(renderer, GSPanelUtil.formatLocalDate(value), bounds, table);
+	public void render(GSIRenderer2D renderer, LocalDate value, GSCellContext context) {
+		GSStringCellRenderer.INSTANCE.render(renderer, GSPanelUtil.formatLocalDate(value), context);
 	}
 	
 	@Override
