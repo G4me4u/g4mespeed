@@ -17,6 +17,10 @@ public interface GSIRenderer2D extends GSIRenderer {
 
 	public int getMouseY();
 
+	default public boolean isMouseInside(GSRectangle bounds) {
+		return isMouseInside(bounds.x, bounds.y, bounds.width, bounds.height);
+	}
+
 	default public boolean isMouseInside(int x, int y, int width, int height) {
 		if (getMouseX() < x || getMouseX() >= x + width)
 			return false;
