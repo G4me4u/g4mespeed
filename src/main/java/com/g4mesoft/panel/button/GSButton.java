@@ -135,11 +135,11 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 
 		boolean hovered = renderer.isMouseInside(0, 0, width, height);
 
-		renderBorderAndBackground(renderer, hovered);
-		renderForeground(renderer, hovered);
+		drawBorderAndBackground(renderer, hovered);
+		drawForeground(renderer, hovered);
 	}
 	
-	protected void renderBorderAndBackground(GSIRenderer2D renderer, boolean hovered) {
+	protected void drawBorderAndBackground(GSIRenderer2D renderer, boolean hovered) {
 		int bgc = isEnabled() ? (hovered ? hoveredBackgroundColor : backgroundColor) : disabledBackgroundColor;
 		int bc  = isEnabled() ? (hovered ? hoveredBorderColor : borderColor) : disabledBorderColor;
 
@@ -156,7 +156,7 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 			renderer.fillRect(borderWidth, borderWidth, width - bw2, height - bw2, bgc);
 	}
 
-	protected void renderForeground(GSIRenderer2D renderer, boolean hovered) {
+	protected void drawForeground(GSIRenderer2D renderer, boolean hovered) {
 		// Available bounds for drawing text and icon.
 		int x = borderWidth + horizontalMargin;
 		int y = borderWidth + verticalMargin;
@@ -234,7 +234,7 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	}
 
 	public void setText(String text) {
-		setText(new LiteralText(text));
+		setText((text != null) ? new LiteralText(text) : null);
 	}
 	
 	public void setText(Text text) {
@@ -376,6 +376,8 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	}
 
 	public void setVerticalMargin(int verticalMargin) {
+		if (verticalMargin < 0)
+			throw new IllegalArgumentException("verticalMargin must be non-negative!");
 		this.verticalMargin = verticalMargin;
 	}
 
@@ -384,6 +386,8 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	}
 	
 	public void setHorizontalMargin(int horizontalMargin) {
+		if (horizontalMargin < 0)
+			throw new IllegalArgumentException("horizontalMargin must be non-negative!");
 		this.horizontalMargin = horizontalMargin;
 	}
 
@@ -392,6 +396,8 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	}
 	
 	public void setIconSpacing(int iconSpacing) {
+		if (iconSpacing < 0)
+			throw new IllegalArgumentException("iconSpacing must be non-negative!");
 		this.iconSpacing = iconSpacing;
 	}
 	

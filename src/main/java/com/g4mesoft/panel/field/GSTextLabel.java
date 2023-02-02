@@ -85,7 +85,7 @@ public class GSTextLabel extends GSPanel {
 	}
 
 	public void setText(String text) {
-		setText(new LiteralText(text));
+		setText((text != null) ? new LiteralText(text) : null);
 	}
 	
 	public void setText(Text text) {
@@ -133,6 +133,8 @@ public class GSTextLabel extends GSPanel {
 	}
 	
 	public void setIconSpacing(int iconSpacing) {
+		if (iconSpacing < 0)
+			throw new IllegalArgumentException("iconSpacing must be non-negative!");
 		this.iconSpacing = iconSpacing;
 	}
 }
