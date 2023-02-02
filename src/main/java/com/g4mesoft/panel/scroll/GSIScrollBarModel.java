@@ -14,7 +14,7 @@ public interface GSIScrollBarModel {
 	
 	public float getScroll();
 
-	public void setScroll(float scroll);
+	public boolean setScroll(float scroll);
 
 	public float getMinScroll();
 

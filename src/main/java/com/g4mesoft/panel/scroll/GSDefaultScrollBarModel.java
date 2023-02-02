@@ -36,13 +36,22 @@ public class GSDefaultScrollBarModel extends GSAbstractScrollBarModel {
 	}
 
 	@Override
-	public void setScroll(float scroll) {
-		if (Float.isNaN(scroll))
+	public boolean setScroll(float scroll) {
+		// Ensure new scroll value is within expected bounds. Here,
+		// we also ensure that values are always valid, i.e. not NaN.
+		if (Float.isNaN(scroll)) {
 			scroll = minScroll;
-		
-		this.scroll = GSMathUtil.clamp(scroll, minScroll, maxScroll);
-		dispatchScrollChanged(this.scroll);
-		dispatchValueChanged();
+		} else {
+			scroll = GSMathUtil.clamp(scroll, minScroll, maxScroll);
+		}
+
+		if (!GSMathUtil.equalsApproximate(scroll, this.scroll)) {
+			this.scroll = scroll;
+			dispatchScrollChanged(this.scroll);
+			dispatchValueChanged();
+			return true;
+		}
+		return false;
 	}
 
 	@Override

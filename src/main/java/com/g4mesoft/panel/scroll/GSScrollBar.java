@@ -314,8 +314,8 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 		return model.getScroll();
 	}
 	
-	public void setScroll(float scroll) {
-		model.setScroll(scroll);
+	public boolean setScroll(float scroll) {
+		return model.setScroll(scroll);
 	}
 	
 	public GSIScrollBarModel getModel() {

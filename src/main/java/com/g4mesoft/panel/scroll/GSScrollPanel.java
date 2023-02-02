@@ -315,16 +315,23 @@ public class GSScrollPanel extends GSParentPanel implements GSIMouseListener, GS
 			int mx = event.getX();
 			int my = event.getY();
 			
+			boolean changed = false;
 			if (!columnHeaderViewport.isEmpty() && columnHeaderViewport.isInBounds(mx, my)) {
 				// The user is hovering over the column header. Ignore
 				// scrollY to make scrolling more intuitive.
-				horizontalScrollBar.setScroll(newScrollX);
+				changed = horizontalScrollBar.setScroll(newScrollX);
 			} else if (!rowHeaderViewport.isEmpty() && rowHeaderViewport.isInBounds(mx, my)) {
 				// Similarly, ignore scrollX when hovering the row header.
-				verticalScrollBar.setScroll(newScrollY);
+				changed = verticalScrollBar.setScroll(newScrollY);
 			} else {
-				horizontalScrollBar.setScroll(newScrollX);
-				verticalScrollBar.setScroll(newScrollY);
+				// Note: not a short-circuit evaluation...
+				changed |= horizontalScrollBar.setScroll(newScrollX);
+				changed |= verticalScrollBar.setScroll(newScrollY);
+			}
+			if (changed) {
+				// Ensure that the scroll event does not trickle to other
+				// scroll panels further up the tree.
+				event.consume();
 			}
 		}
 	}
