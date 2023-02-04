@@ -11,6 +11,8 @@ public class GSScrollPanelCorner extends GSPanel {
 	
 	public GSScrollPanelCorner() {
 		this(DEFAULT_BACKGROUND_COLOR);
+		
+		super.setFocusable(false);
 	}
 
 	public GSScrollPanelCorner(int backgroundColor) {
@@ -23,6 +25,11 @@ public class GSScrollPanelCorner extends GSPanel {
 			renderer.fillRect(0, 0, width, height, backgroundColor);
 
 		super.render(renderer);
+	}
+
+	@Override
+	public final void setFocusable(boolean focusable) {
+		// Do nothing
 	}
 	
 	public int getBackgroundColor() {

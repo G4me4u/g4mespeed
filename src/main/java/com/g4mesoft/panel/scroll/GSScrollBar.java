@@ -78,6 +78,7 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 
 		scrollDragActive = false;
 		
+		setFocusable(false);
 		addMouseEventListener(this);
 		
 		setModel(model);
