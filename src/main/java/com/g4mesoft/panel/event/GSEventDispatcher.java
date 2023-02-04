@@ -81,7 +81,12 @@ public class GSEventDispatcher {
 			if (button != GSMouseEvent.UNKNOWN_BUTTON) {
 				// Focus the top-most focusable ancestor of the panel
 				// that was clicked (or the panel itself if focusable).
-				setFocusedPanel(getTopFocusableAncestor(panel));
+				GSPanel ancestor = getTopFocusableAncestor(panel);
+				if (ancestor != null && ancestor != rootPanel) {
+					// Remove focus from currently focused panel unless
+					// we actually have a focusable ancestor.
+					setFocusedPanel(ancestor);
+				}
 				// Set dragged panel for dragging events.
 				draggedPanel = panel;
 			}
@@ -106,8 +111,8 @@ public class GSEventDispatcher {
 		GSPanel hoveredPanel = getTopPanelAt(x, y);
 		GSPanel panel = isChildOf(hoveredPanel, focusedPanel) ? hoveredPanel : focusedPanel;
 		
-		if (panel != null) {
-			GSMouseEvent event = GSMouseEvent.createMouseReleasedEvent(x, y, button, modifiers);
+		GSMouseEvent event = GSMouseEvent.createMouseReleasedEvent(x, y, button, modifiers);
+		if (panel != null && panel.isVisible()) {
 			translateMouseEvent(panel, event, TRANSLATE_FROM_ROOT);
 
 			int panelX = event.getX();
@@ -118,9 +123,21 @@ public class GSEventDispatcher {
 			if (!event.isConsumed() && event.getButton() == GSMouseEvent.BUTTON_RIGHT) {
 				// Only create right click menu if the hovered panel is a 
 				// child of the focused panel (i.e. if panel = hoveredPanel).
-				if (panel == hoveredPanel)
+				if (panel == hoveredPanel) {
 					showRightClickMenu(panel, panelX, panelY);
+					event.consume();
+				}
 			}
+		}
+		
+		// Finally, check if the dragged panel needs the release event.
+		if (!event.isConsumed() && panel != draggedPanel && draggedPanel.isVisible()) {
+			// The position is likely to have changed above.
+			event.setX(x);
+			event.setY(y);
+			translateMouseEvent(draggedPanel, event, TRANSLATE_FROM_ROOT);
+			
+			distributeMouseEvent(draggedPanel, event, GSIMouseListener::mouseReleased);
 		}
 	}
 	
@@ -219,18 +236,20 @@ public class GSEventDispatcher {
 
 		if (panel != oldFocusedPanel) {
 			focusedPanel = panel;
-
-			if (oldFocusedPanel != null) {
+			
+			// Update focused state before sending out events.
+			if (oldFocusedPanel != null)
 				oldFocusedPanel.setFocused(false);
+			if (panel != null)
+				panel.setFocused(true);
 
+			// Invoke panels with focus lost and gained events.
+			if (oldFocusedPanel != null) {
 				GSFocusEvent event = GSFocusEvent.createFocusLostEvent();
 				invokeFocusEventListeners(oldFocusedPanel, event, GSIFocusEventListener::focusLost);
 			}
-			
 			// The focused panel might have changed from the focus lost event
 			if (panel != null && focusedPanel == panel && !panel.isFocused()) {
-				panel.setFocused(true);
-
 				GSFocusEvent event = GSFocusEvent.createFocusGainedEvent();
 				invokeFocusEventListeners(panel, event, GSIFocusEventListener::focusGained);
 			}

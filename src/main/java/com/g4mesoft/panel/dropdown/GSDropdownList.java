@@ -19,6 +19,8 @@ import com.g4mesoft.panel.GSRectangle;
 import com.g4mesoft.panel.cell.GSCellContext;
 import com.g4mesoft.panel.cell.GSCellRendererRegistry;
 import com.g4mesoft.panel.cell.GSICellRenderer;
+import com.g4mesoft.panel.event.GSFocusEvent;
+import com.g4mesoft.panel.event.GSIFocusEventListener;
 import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSILayoutEventListener;
 import com.g4mesoft.panel.event.GSIMouseListener;
@@ -64,6 +66,8 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 	private static final int DEFAULT_VERTICAL_MARGIN   = 2;
 	private static final int DEFAULT_HORIZONTAL_MARGIN = 2;
 
+	private static final int DEFAULT_PREFERRED_ROW_COUNT = 5;
+	
 	private static final int MINIMUM_SELECTED_ITEM_WIDTH = 100;
 	private static final int VERTICAL_PADDING = 2;
 	
@@ -92,11 +96,12 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 	private int verticalMargin;
 	private int horizontalMargin;
 	
+	private int preferredItemListRowCount;
+	
 	private int iconWidth;
 	private int selectedItemWidth;
 
 	private GSPopup popup;
-	private GSILayoutEventListener popupLayoutListener;
 	
 	private final List<GSIModelListener> modelListeners;
 	private final List<GSIChangeListener> changeListeners;
@@ -138,6 +143,8 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 
 		verticalMargin = DEFAULT_VERTICAL_MARGIN;
 		horizontalMargin = DEFAULT_HORIZONTAL_MARGIN;
+		
+		preferredItemListRowCount = DEFAULT_PREFERRED_ROW_COUNT;
 		
 		modelListeners = new ArrayList<>();
 		changeListeners = new ArrayList<>();
@@ -239,6 +246,24 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 	
 	@Override
 	protected GSDimension calculatePreferredSize() {
+		GSDimension is = preferredItemSize();
+		int iw = is.getWidth() + horizontalMargin * 2;
+		int ih = is.getHeight() + (verticalMargin + VERTICAL_PADDING) * 2;
+
+		// Compute the icon preferred size.
+		int icnW = DOWN_ARROW_ICON.getWidth();
+		int icnH = DOWN_ARROW_ICON.getHeight();
+		// Use the default margin for the icon.
+		icnW += DEFAULT_HORIZONTAL_MARGIN * 2;
+		icnH += (DEFAULT_VERTICAL_MARGIN + VERTICAL_PADDING) * 2;
+		
+		int w = icnW + iw + borderWidth * 2;
+		int h = Math.max(icnH, ih) + borderWidth * 2;
+		
+		return new GSDimension(w, h);
+	}
+	
+	private GSDimension preferredItemSize() {
 		int iw = MINIMUM_SELECTED_ITEM_WIDTH, ih = 0;
 		if (preferredFromItems) {
 			// Compute maximum item minimum-size.
@@ -255,20 +280,7 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 			// Compute expected item height (i.e. text height).
 			ih = GSPanelContext.getRenderer().getTextHeight();
 		}
-		iw += horizontalMargin * 2;
-		ih += (verticalMargin + VERTICAL_PADDING) * 2;
-
-		// Compute the icon preferred size.
-		int icnW = DOWN_ARROW_ICON.getWidth();
-		int icnH = DOWN_ARROW_ICON.getHeight();
-		// Use the default margin for the icon.
-		icnW += DEFAULT_HORIZONTAL_MARGIN * 2;
-		icnH += (DEFAULT_VERTICAL_MARGIN + VERTICAL_PADDING) * 2;
-		
-		int w = icnW + iw + borderWidth * 2;
-		int h = Math.max(icnH, ih) + borderWidth * 2;
-		
-		return new GSDimension(w, h);
+		return new GSDimension(iw, ih);
 	}
 
 	@Override
@@ -440,7 +452,10 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 	public void setBorderWidth(int borderWidth) {
 		if (borderWidth < 0)
 			throw new IllegalArgumentException("borderWidth must be non-negative!");
-		this.borderWidth = borderWidth;
+		if (borderWidth != this.borderWidth) {
+			this.borderWidth = borderWidth;
+			invalidate();
+		}
 	}
 	
 	public int getBorderColor() {
@@ -474,7 +489,10 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 	public void setVerticalMargin(int verticalMargin) {
 		if (verticalMargin < 0)
 			throw new IllegalArgumentException("verticalMargin must be non-negative!");
-		this.verticalMargin = verticalMargin;
+		if (verticalMargin != this.verticalMargin) {
+			this.verticalMargin = verticalMargin;
+			invalidate();
+		}
 	}
 
 	public int getHorizontalMargin() {
@@ -484,7 +502,20 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 	public void setHorizontalMargin(int horizontalMargin) {
 		if (horizontalMargin < 0)
 			throw new IllegalArgumentException("horizontalMargin must be non-negative!");
-		this.horizontalMargin = horizontalMargin;
+		if (horizontalMargin != this.horizontalMargin) {
+			this.horizontalMargin = horizontalMargin;
+			invalidate();
+		}
+	}
+	
+	public void setPreferredItemListRowCount(int preferredRowCount) {
+		if (preferredRowCount <= 0)
+			throw new IllegalArgumentException("preferredRowCount must be positive!");
+		this.preferredItemListRowCount = preferredRowCount;
+	}
+	
+	public int getPreferredItemListRowCount() {
+		return preferredItemListRowCount;
 	}
 	
 	public void addModelListener(GSIModelListener listener) {
@@ -546,37 +577,39 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 	
 	@Override
 	public void mouseReleased(GSMouseEvent event) {
-		if (isEnabled() && event.getButton() == GSMouseEvent.BUTTON_LEFT) {
-			onDropdownClicked();
+		if (!isEnabled() || event.getButton() != GSMouseEvent.BUTTON_LEFT) {
+			// Only consider events from left mouse button.
+			return;
+		}
+		
+		if (popup != null) {
+			closeDropdownPopup();
+		} else if (isInBounds(x + event.getX(), y + event.getY())) {
+			openDropdownPopup();
 			event.consume();
 		}
 	}
 
-	private void onDropdownClicked() {
-		if (popup != null) {
-			closeDropdownPopup();
-		} else {
-			openDropdownPopup();
-		}
-	}
-	
 	private void openDropdownPopup() {
-		if (popup == null) {
+		if (this.popup == null) {
 			GSPanel itemList = new GSItemSelectionList<T>(this);
-			popup = new GSPopup(new GSScrollPanel(itemList));
-			popup.show(this, 0, height, GSEPopupPlacement.RELATIVE);
+			GSPopup popup = new GSPopup(new GSScrollPanel(itemList));
+			popup.show(this, 0, height - borderWidth, GSEPopupPlacement.RELATIVE);
 			// Note: The popup attempts to focus the scroll panel, but
 			//       we want focus to the item list.
 			itemList.requestFocus();
 			// Listen for cases where the popup is closed for other some
 			// reason. E.g. when losing focus or similar.
-			popupLayoutListener = new GSILayoutEventListener() {
+			popup.addLayoutEventListener(new GSILayoutEventListener() {
 				@Override
 				public void panelHidden(GSLayoutEvent event) {
-					closeDropdownPopup();
+					// Invoking #closeDropdownPopup also removes this
+					// listener, which results in modification of the
+					// collection during iteration of event listeners.
+					GSPanelContext.schedule(GSDropdownList.this::closeDropdownPopup);
 				}
-			};
-			popup.removeLayoutEventListener(popupLayoutListener);
+			});
+			this.popup = popup;
 		}
 	}
 	
@@ -585,14 +618,8 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 			// Keep local in order to not hide the popup twice.
 			GSPopup popup = this.popup;
 			this.popup = null;
-			if (popupLayoutListener != null) {
-				popup.removeLayoutEventListener(popupLayoutListener);
-				popupLayoutListener = null;
-			}
 			popup.hide();
 			popup = null;
-
-			System.out.println("hi!");
 		}
 	}
 	
@@ -655,9 +682,8 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 	                                                                       GSIModelListener,
 	                                                                       GSIDropdownListModelListener,
 	                                                                       GSIMouseListener,
-	                                                                       GSIKeyListener {
-		
-		private static final int SCROLLABLE_ROW_COUNT = 5;
+	                                                                       GSIKeyListener,
+	                                                                       GSIFocusEventListener {
 		
 		private final GSDropdownList<T> dropdown;
 		private int selectedIndex;
@@ -670,8 +696,11 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 			this.dropdown = dropdown;
 			this.model = dropdown.getModel();
 			
+			selectedIndex = Integer.MIN_VALUE;
+			
 			addMouseEventListener(this);
 			addKeyEventListener(this);
+			addFocusEventListener(this);
 		}
 		
 		@Override
@@ -707,43 +736,51 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 		public void render(GSIRenderer2D renderer) {
 			super.render(renderer);
 
-			drawBackground(renderer);
-			drawItemList(renderer);
+			GSRectangle clipBounds = renderer.getClipBounds()
+					.intersection(0, 0, width, height);
+			
+			drawBackground(renderer, clipBounds);
+			drawItemList(renderer, clipBounds);
 		}
 		
-		private void drawBackground(GSIRenderer2D renderer) {
+		private void drawBackground(GSIRenderer2D renderer, GSRectangle clipBounds) {
 			// Note: no need to handle disabled background color, since
 			//       this popup UI is never shown when that is the case.
 			int color = dropdown.getBackgroundColor();
 			if (GSColorUtil.unpackA(color) != 0x00)
-				renderer.fillRect(0, 0, width, height, color);
+				renderer.fillRect(clipBounds.x, clipBounds.y,
+						clipBounds.width, clipBounds.height, color);
 		}
 		
-		private void drawItemList(GSIRenderer2D renderer) {
+		private void drawItemList(GSIRenderer2D renderer, GSRectangle clipBounds) {
 			GSCellContext context = new GSCellContext();
-			context.bounds.x = context.bounds.y = 0;
-			context.bounds.width = width;
+			context.bounds.x = dropdown.getBorderWidth() + dropdown.getHorizontalMargin();
+			context.bounds.y = 0;
+			context.bounds.width = width - context.bounds.x * 2;
 			context.textAlignment = dropdown.getTextAlignment();
 			
 			int remH = height;
 			int i = dropdown.isEmptySelectionAllowed() ? EMPTY_SELECTION : 0;
-			for (int cnt = model.getCount(); i < cnt; i++) {
+			for (int cnt = model.getCount(); i < cnt && context.bounds.y < clipBounds.y + clipBounds.height; i++) {
 				// Note: EMPTY_SELECTION is -1, so this will result in
 				//       dividing by count + 1, when empty is allowed.
 				context.bounds.height = remH / (cnt - i);
 				remH -= context.bounds.height;
-				if (i == selectedIndex || renderer.isMouseInside(context.bounds)) {
-					// Draw the selected background
-					context.backgroundColor = dropdown.getHoveredBackgroundColor();
-					context.textColor = dropdown.getHoveredTextColor();
-					renderer.fillRect(0, context.bounds.y, width, context.bounds.height, context.backgroundColor);
-				} else {
-					context.backgroundColor = dropdown.getBackgroundColor();
-					context.textColor = dropdown.getTextColor();
-				}
-				if (i != EMPTY_SELECTION) {
-					T item = model.getItem(i);
-					dropdown.getCellRenderer(item).render(renderer, item, context);
+				if (context.bounds.y + context.bounds.height >= clipBounds.y) {
+					if (i == selectedIndex || renderer.isMouseInside(context.bounds)) {
+						// Draw the selected background
+						context.backgroundColor = dropdown.getHoveredBackgroundColor();
+						context.textColor = dropdown.getHoveredTextColor();
+						renderer.fillRect(0, context.bounds.y, width,
+								context.bounds.height, context.backgroundColor);
+					} else {
+						context.backgroundColor = dropdown.getBackgroundColor();
+						context.textColor = dropdown.getTextColor();
+					}
+					if (i != EMPTY_SELECTION) {
+						T item = model.getItem(i);
+						dropdown.getCellRenderer(item).render(renderer, item, context);
+					}
 				}
 				context.bounds.y += context.bounds.height;
 			}
@@ -755,26 +792,20 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 		}
 		
 		private GSDimension calculatePreferredSize(int rowCount) {
-			int iw = 0, ih = 0;
-			// Compute maximum item minimum-size.
+			GSDimension is = dropdown.preferredItemSize();
+			// Include the border width and horizontal margin in order to
+			// align the items to the selected item shown in the dropdown
+			// list that owns this popup item list.
+			int iw = is.getWidth() + (dropdown.getBorderWidth() +
+					dropdown.getHorizontalMargin()) * 2;
 			int cnt = Math.min(rowCount, model.getCount());
-			for (int i = 0; i < cnt; i++) {
-				T item = model.getItem(i);
-				GSICellRenderer<T> renderer = dropdown.getCellRenderer(item);
-				GSDimension mns = renderer.getMinimumSize(item);
-				if (mns.getWidth() > iw)
-					iw = mns.getWidth();
-				if (mns.getHeight() > ih)
-					ih = mns.getHeight();
-			}
 			if (dropdown.isEmptySelectionAllowed() && cnt + 1 < rowCount) {
 				// Include the empty element.
 				cnt++;
 			}
 			// Every item should receive the same height.
-			long hl = (long)(ih + VERTICAL_PADDING * 2) * cnt;
+			long hl = (long)(is.getHeight() + VERTICAL_PADDING * 2) * cnt;
 			int h = (int)Math.min(Integer.MAX_VALUE, hl);
-			
 			return new GSDimension(iw, h);
 		}
 
@@ -838,7 +869,8 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 
 		@Override
 		public GSDimension getPreferredScrollableSize() {
-			GSDimension ps = calculatePreferredSize(SCROLLABLE_ROW_COUNT);
+			int prefRowCount = dropdown.getPreferredItemListRowCount();
+			GSDimension ps = calculatePreferredSize(prefRowCount);
 			// Attempt to receive the same width as the dropdown.
 			int w = Math.max(dropdown.getWidth(), ps.getWidth());
 			return new GSDimension(w, ps.getHeight());
@@ -868,7 +900,13 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 		
 		@Override
 		public void mouseReleased(GSMouseEvent event) {
-			if (event.getButton() == GSMouseEvent.BUTTON_LEFT) {
+			if (event.getButton() != GSMouseEvent.BUTTON_LEFT) {
+				// Only consider events from left mouse button.
+				return;
+			}
+			// Ensure that the event is in bounds. Since this is the only
+			// focusable panel in the popup, this is essential.
+			if (isInBounds(x + event.getX(), y + event.getY())) {
 				int index = getItemIndexAtY(event.getY());
 				if (dropdown.isEmptySelectionAllowed() || index != EMPTY_SELECTION) {
 					setSelectedIndex(index);
@@ -935,6 +973,16 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 		private void selectAndClose() {
 			dropdown.setSelectedIndex(selectedIndex);
 			dropdown.closeDropdownPopup();
+		}
+		
+		@Override
+		public void focusLost(GSFocusEvent event) {
+			// When the dropdown is focused, this is handled by the
+			// mouse released event.
+			if (!dropdown.isFocused()) {
+				dropdown.closeDropdownPopup();
+				event.consume();
+			}
 		}
 	}
 }
