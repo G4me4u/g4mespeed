@@ -10,6 +10,7 @@ import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.GSPanelUtil;
 import com.g4mesoft.panel.GSParentPanel;
+import com.g4mesoft.panel.GSRectangle;
 import com.g4mesoft.panel.cell.GSCellContext;
 import com.g4mesoft.panel.cell.GSCellRendererRegistry;
 import com.g4mesoft.panel.cell.GSICellRenderer;
@@ -164,17 +165,12 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable,
 	public void render(GSIRenderer2D renderer) {
 		super.render(renderer);
 
+		GSRectangle clipBounds = renderer.getClipBounds()
+				.intersection(0, 0, width, height);
 		GSCellContext context = createCellContext();
 		
-		drawBackground(renderer, context);
-		
-		int cx = verticalBorderWidth;
-		for (int c = 0; c < model.getColumnCount() && cx < width; c++) {
-			GSITableColumn column = model.getColumn(c);
-			drawColumn(renderer, c, cx, column.getWidth(), context);
-			cx += column.getWidth() + verticalBorderWidth;
-		}
-		
+		drawBackground(renderer, clipBounds, context);
+		drawColumns(renderer, clipBounds, context);
 		drawBorder(renderer);
 	}
 	
@@ -187,19 +183,33 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable,
 		return context;
 	}
 
-	private void drawBackground(GSIRenderer2D renderer, GSCellContext context) {
+	private void drawBackground(GSIRenderer2D renderer, GSRectangle clipBounds, GSCellContext context) {
 		if (GSColorUtil.unpackA(context.backgroundColor) != 0x00)
-			renderer.fillRect(0, 0, width, height, context.backgroundColor);
+			renderer.fillRect(clipBounds.x, clipBounds.y, clipBounds.width,
+					clipBounds.height, context.backgroundColor);
+	}
+	
+	private void drawColumns(GSIRenderer2D renderer, GSRectangle clipBounds, GSCellContext context) {
+		int cx = verticalBorderWidth;
+		for (int c = 0; c < model.getColumnCount() && cx < clipBounds.x + clipBounds.width; c++) {
+			GSITableColumn column = model.getColumn(c);
+			if (cx + column.getWidth() >= clipBounds.x)
+				drawColumn(renderer, c, cx, column.getWidth(), clipBounds, context);
+			cx += column.getWidth() + verticalBorderWidth;
+		}
 	}
 
-	private void drawColumn(GSIRenderer2D renderer, int columnIndex, int columnX, int columnWidth, GSCellContext context) {
+	private void drawColumn(GSIRenderer2D renderer, int columnIndex, int columnX,
+			int columnWidth, GSRectangle clipBounds, GSCellContext context) {
+		
 		context.bounds.x = columnX;
 		context.bounds.width = columnWidth;
 		context.bounds.y = horizontalBorderHeight;
-		for (int r = 0; r < model.getRowCount() && context.bounds.y < height; r++) {
+		for (int r = 0; r < model.getRowCount() && context.bounds.y < clipBounds.y + clipBounds.height; r++) {
 			GSITableRow row = model.getRow(r);
 			context.bounds.height = row.getHeight();
-			drawCell(renderer, columnIndex, r, context);
+			if (context.bounds.y + context.bounds.height >= clipBounds.y)
+				drawCell(renderer, columnIndex, r, context);
 			context.bounds.y += context.bounds.height + horizontalBorderHeight;
 		}
 	}
@@ -217,10 +227,7 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable,
 		if (GSColorUtil.unpackA(color) != 0x00) {
 			if (verticalBorderWidth != 0) {
 				// Compute total height of rows
-				int h = horizontalBorderHeight * (model.getRowCount() + 1);
-				for (int c = 0; c < model.getRowCount(); c++)
-					h += model.getRow(c).getHeight();
-				h = Math.min(height, h);
+				int h = Math.min(height, getRowY(model.getRowCount()));
 				// Draw border lines
 				int x = 0;
 				for (int c = 0; c <= model.getColumnCount() && x < width; c++) {
@@ -233,10 +240,7 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable,
 			}
 			if (horizontalBorderHeight != 0) {
 				// Compute total width of columns
-				int w = verticalBorderWidth * (model.getColumnCount() + 1);
-				for (int c = 0; c < model.getColumnCount(); c++)
-					w += model.getColumn(c).getWidth();
-				w = Math.min(width, w);
+				int w = Math.min(width, getColumnX(model.getColumnCount()));
 				// Draw border lines
 				int y = 0;
 				for (int r = 0; r <= model.getRowCount() && y < height; r++) {
@@ -261,6 +265,7 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable,
 			index++;
 			if (index >= model.getColumnCount())
 				return -1;
+			accX += verticalBorderWidth;
 			accX += model.getColumn(index).getWidth();
 		}
 		return index;
@@ -270,8 +275,15 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable,
 		int accX = 0;
 		// Compute first index that we do not consider
 		int cmx = Math.min(index, model.getColumnCount());
-		for (int c = 0; c < cmx; c++)
+		int c = 0;
+		for ( ; c < cmx; c++) {
+			accX += verticalBorderWidth;
 			accX += model.getColumn(c).getWidth();
+		}
+		if (c >= model.getColumnCount()) {
+			// Include the last border line
+			accX += verticalBorderWidth;
+		}
 		return accX;
 	}
 
@@ -281,6 +293,7 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable,
 			index++;
 			if (index >= model.getRowCount())
 				return -1;
+			accY += horizontalBorderHeight;
 			accY += model.getRow(index).getHeight();
 		}
 		return index;
@@ -290,8 +303,15 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable,
 		int accY = 0;
 		// Compute first index that we do not consider
 		int rmx = Math.min(index, model.getRowCount());
-		for (int r = 0; r < rmx; r++)
+		int r = 0;
+		for ( ; r < rmx; r++) {
+			accY += horizontalBorderHeight;
 			accY += model.getRow(r).getHeight();
+		}
+		if (r >= model.getRowCount()) {
+			// Include the last border line
+			accY += horizontalBorderHeight;
+		}
 		return accY;
 	}
 	
@@ -525,10 +545,12 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable,
 			int delta = scrollX - getColumnX(columnIndex);
 			if (sign > 0) {
 				GSITableColumn column = model.getColumn(columnIndex);
-				return column.getWidth() - delta;
+				int w = column.getWidth() + verticalBorderWidth;
+				return w - delta;
 			} else if (columnIndex > 0) {
 				GSITableColumn prevColumn = model.getColumn(columnIndex - 1);
-				return prevColumn.getWidth() + delta;
+				int w = prevColumn.getWidth() + verticalBorderWidth;
+				return w + delta;
 			}
 		}
 		return GSIScrollable.super.getIncrementalScrollX(sign);
@@ -543,10 +565,12 @@ public class GSTablePanel extends GSParentPanel implements GSIScrollable,
 			int delta = scrollY - getRowY(rowIndex);
 			if (sign > 0) {
 				GSITableRow row = model.getRow(rowIndex);
-				return row.getHeight() - delta;
+				int h = row.getHeight() + horizontalBorderHeight;
+				return h - delta;
 			} else if (rowIndex > 0) {
 				GSITableRow prevRow = model.getRow(rowIndex - 1);
-				return prevRow.getHeight() + delta;
+				int h = prevRow.getHeight() + + horizontalBorderHeight;
+				return h + delta;
 			}
 		}
 		return GSIScrollable.super.getIncrementalScrollY(sign);
