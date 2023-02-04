@@ -279,6 +279,16 @@ public class GSPanel {
 		renderer.popMatrix();
 	}
 	
+	/**
+	 * Whether the given x- and y-coordinates are in the bounds specified
+	 * by this panel. Note that the coordinates considered are relative
+	 * to the parent panel.
+	 * 
+	 * @param x - the x-coordinate relative to the parent
+	 * @param y - the y-coordinate relative to the parent
+	 * 
+	 * @return True, if the coordinates are in bounds, false otherwise.
+	 */
 	public boolean isInBounds(int x, int y) {
 		if (x < this.x || x >= this.x + width)
 			return false;
