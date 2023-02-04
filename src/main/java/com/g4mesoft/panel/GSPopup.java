@@ -34,6 +34,8 @@ public class GSPopup extends GSParentPanel {
 		sourceFocusedOnHide = true;
 		
 		sourceLayoutListener = null;
+		
+		setFocusable(false);
 	}
 	
 	@Override
