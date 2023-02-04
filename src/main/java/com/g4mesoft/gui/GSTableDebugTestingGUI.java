@@ -7,6 +7,7 @@ import com.g4mesoft.panel.GSGridLayoutManager;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.panel.button.GSButton;
+import com.g4mesoft.panel.dropdown.GSDropdownList;
 import com.g4mesoft.panel.scroll.GSScrollPanel;
 import com.g4mesoft.panel.scroll.GSViewport;
 import com.g4mesoft.panel.table.GSITableModel;
@@ -33,6 +34,26 @@ public class GSTableDebugTestingGUI extends GSParentPanel {
 		button.addActionListener(this::reset);
 		add(button);
 		
+		GSDropdownList<String> dropdown = new GSDropdownList<>(
+			new String[] { 
+				"One value",
+				"Two values",
+				"Three",
+				"A",
+				"B",
+				"C"
+			}
+		);
+		dropdown.getLayout()
+			.set(GSGridLayoutManager.GRID_X, 0)
+			.set(GSGridLayoutManager.GRID_Y, 2)
+			.set(GSGridLayoutManager.ANCHOR, GSEAnchor.CENTER)
+			.set(GSGridLayoutManager.FILL, GSEFill.NONE);
+		dropdown.addChangeListener(() -> {
+			System.out.println(dropdown.getSelectedItem());
+		});
+		add(dropdown);
+		
 		reset();
 	}
 	
@@ -48,7 +69,7 @@ public class GSTableDebugTestingGUI extends GSParentPanel {
 		for (int r = 0; r < model.getRowCount(); r++)
 			model.getRow(r).setHeaderValue("Row " + (r + 1));
 		table.setPreferredRowCount(15);
-		table.setPreferredColumnCount(4);
+		table.setPreferredColumnCount(Integer.MAX_VALUE);
 		
 		for (int c = 0; c < model.getColumnCount(); c++) {
 			for (int r = 0; r < model.getRowCount(); r++)
