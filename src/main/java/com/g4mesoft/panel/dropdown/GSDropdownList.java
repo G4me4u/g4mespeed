@@ -68,7 +68,7 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 
 	private static final int DEFAULT_PREFERRED_ROW_COUNT = 5;
 	
-	private static final int MINIMUM_SELECTED_ITEM_WIDTH = 100;
+	private static final int MINIMUM_SELECTED_ITEM_WIDTH = 70;
 	private static final int VERTICAL_PADDING = 2;
 	
 	private GSIDropdownListModel<T> model;
