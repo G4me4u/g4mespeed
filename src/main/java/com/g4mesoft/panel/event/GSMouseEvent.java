@@ -79,6 +79,7 @@ public final class GSMouseEvent extends GSEvent {
 		return x;
 	}
 
+	/* Visible for GSEventDispatcher */
 	void setX(int x) {
 		this.x = x;
 	}
@@ -87,6 +88,7 @@ public final class GSMouseEvent extends GSEvent {
 		return y;
 	}
 
+	/* Visible for GSEventDispatcher */
 	void setY(int y) {
 		this.y = y;
 	}
@@ -95,6 +97,7 @@ public final class GSMouseEvent extends GSEvent {
 		return new GSLocation(x, y);
 	}
 
+	/* Visible for GSEventDispatcher */
 	void setLocation(GSLocation location) {
 		setX(location.getX());
 		setY(location.getY());

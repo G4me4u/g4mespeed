@@ -11,6 +11,7 @@ import com.g4mesoft.panel.GSIChangeListener;
 import com.g4mesoft.panel.GSILayoutManager;
 import com.g4mesoft.panel.GSIModelListener;
 import com.g4mesoft.panel.GSIcon;
+import com.g4mesoft.panel.GSLocation;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.GSPanelUtil;
@@ -19,8 +20,6 @@ import com.g4mesoft.panel.GSRectangle;
 import com.g4mesoft.panel.cell.GSCellContext;
 import com.g4mesoft.panel.cell.GSCellRendererRegistry;
 import com.g4mesoft.panel.cell.GSICellRenderer;
-import com.g4mesoft.panel.event.GSFocusEvent;
-import com.g4mesoft.panel.event.GSIFocusEventListener;
 import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSILayoutEventListener;
 import com.g4mesoft.panel.event.GSIMouseListener;
@@ -595,7 +594,7 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 			GSPanel itemList = new GSItemSelectionList<T>(this);
 			GSPopup popup = new GSPopup(new GSScrollPanel(itemList));
 			popup.show(this, 0, height - borderWidth, GSEPopupPlacement.RELATIVE);
-			// Note: The popup attempts to focus the scroll panel, but
+			// Note: the popup attempts to focus the scroll panel, but
 			//       we want focus to the item list.
 			itemList.requestFocus();
 			// Listen for cases where the popup is closed for other some
@@ -603,10 +602,7 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 			popup.addLayoutEventListener(new GSILayoutEventListener() {
 				@Override
 				public void panelHidden(GSLayoutEvent event) {
-					// Invoking #closeDropdownPopup also removes this
-					// listener, which results in modification of the
-					// collection during iteration of event listeners.
-					GSPanelContext.schedule(GSDropdownList.this::closeDropdownPopup);
+					closeDropdownPopup();
 				}
 			});
 			this.popup = popup;
@@ -682,54 +678,61 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 	                                                                       GSIModelListener,
 	                                                                       GSIDropdownListModelListener,
 	                                                                       GSIMouseListener,
-	                                                                       GSIKeyListener,
-	                                                                       GSIFocusEventListener {
+	                                                                       GSIKeyListener {
 		
 		private final GSDropdownList<T> dropdown;
+		private GSIDropdownListModel<T> model;
 		private int selectedIndex;
 		
-		private GSIDropdownListModel<T> model;
+		private GSPopup parentPopup;
 		
 		public GSItemSelectionList(GSDropdownList<T> dropdown) {
 			if (dropdown == null)
 				throw new IllegalArgumentException("dropdown is null!");
 			this.dropdown = dropdown;
-			this.model = dropdown.getModel();
-			
+			model = dropdown.getModel();
 			selectedIndex = Integer.MIN_VALUE;
 			
-			addMouseEventListener(this);
-			addKeyEventListener(this);
-			addFocusEventListener(this);
+			parentPopup = null;
 		}
 		
 		@Override
 		protected void onShown() {
 			super.onShown();
 
+			parentPopup = GSPanelUtil.getPopup(this);
+			if (parentPopup == null)
+				throw new IllegalArgumentException("Expected a popup grandparent!");
+			// Install the mouse and key listeners on the popup panel
+			// to avoid issues with stolen focus (e.g. scroll bar).
+			parentPopup.addMouseEventListener(this);
+			parentPopup.addKeyEventListener(this);
+
 			dropdown.addModelListener(this);
 			installModel();
 		}
-
+		
 		private void installModel() {
-			if (model != null)
-				model.addListener(this);
-
+			model.addListener(this);
 			// The selected index likely changed as well.
 			setSelectedIndex(dropdown.getSelectedIndex());
 		}
-		
+
 		@Override
 		protected void onHidden() {
 			super.onHidden();
 			
 			uninstallModel();
 			dropdown.removeModelListener(this);
+
+			//assert(parentPopup != null);
+			parentPopup.removeMouseEventListener(this);
+			parentPopup.removeKeyEventListener(this);
+			parentPopup = null;
 		}
 
 		private void uninstallModel() {
-			if (model != null)
-				model.removeListener(this);
+			model.removeListener(this);
 		}
 		
 		@Override
@@ -904,10 +907,15 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 				// Only consider events from left mouse button.
 				return;
 			}
-			// Ensure that the event is in bounds. Since this is the only
-			// focusable panel in the popup, this is essential.
-			if (isInBounds(x + event.getX(), y + event.getY())) {
-				int index = getItemIndexAtY(event.getY());
+			// Note: event coordinates are in the popup coordinate space.
+			GSLocation offset = GSPanelUtil.getRelativeLocation(this, parentPopup);
+			int relX = event.getX() - offset.getX();
+			int relY = event.getY() - offset.getY();
+			// Ensure that the event is in bounds. Since we are listening to
+			// events from the popup, this is essential. Note that the
+			// location here is relative to the parent.
+			if (isInBounds(x + relX, y + relY)) {
+				int index = getItemIndexAtY(relY);
 				if (dropdown.isEmptySelectionAllowed() || index != EMPTY_SELECTION) {
 					setSelectedIndex(index);
 					selectAndClose();
@@ -931,7 +939,7 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 				break;
 			case GSKeyEvent.KEY_HOME:
 			case GSKeyEvent.KEY_PAGE_UP:
-				// Note: Will be clamped to 0 if empty selection
+				// Note: will be clamped to 0 if empty selection
 				//       is disallowed by the dropdown list.
 				setSelectedIndex(EMPTY_SELECTION);
 				event.consume();
@@ -973,16 +981,6 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 		private void selectAndClose() {
 			dropdown.setSelectedIndex(selectedIndex);
 			dropdown.closeDropdownPopup();
-		}
-		
-		@Override
-		public void focusLost(GSFocusEvent event) {
-			// When the dropdown is focused, this is handled by the
-			// mouse released event.
-			if (!dropdown.isFocused()) {
-				dropdown.closeDropdownPopup();
-				event.consume();
-			}
 		}
 	}
 }

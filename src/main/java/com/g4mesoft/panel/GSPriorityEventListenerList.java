@@ -6,23 +6,47 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class GSPriorityEventListenerList<L> {
 
 	private final List<GSEntry> listenerEntries;
+	
+	private List<L> listenersToRemove;
+	private List<GSEntry> listenersToAdd;
+	
 	private boolean dirty;
+	private int iteratingCount;
 	
 	public GSPriorityEventListenerList() {
 		listenerEntries = new ArrayList<>();
+		// Lazy initialization
+		listenersToRemove = null;
+		listenersToAdd = null;
+
 		dirty = false;
+		iteratingCount = 0;
 	}
 	
 	public void add(L listener, int priority) {
-		listenerEntries.add(new GSEntry(listener, priority));
-		dirty = true;
+		if (isIterating()) {
+			if (listenersToRemove != null)
+				listenersToRemove.remove(listener);
+			if (listenersToAdd == null)
+				listenersToAdd = new ArrayList<>();
+			listenersToAdd.add(new GSEntry(listener, priority));
+		} else {
+			listenerEntries.add(new GSEntry(listener, priority));
+			dirty = true;
+		}
 	}
 
+	public void addAll(Collection<GSEntry> entries) {
+		listenerEntries.addAll(entries);
+		dirty = true;
+	}
+	
 	private int indexOf(Object o) {
 		for (int i = 0; i < listenerEntries.size(); i++) {
 			if (listenerEntries.get(i).listener == o)
@@ -32,9 +56,22 @@ public class GSPriorityEventListenerList<L> {
 	}
 	
 	public void remove(L listener) {
-		int index = indexOf(listener);
-		if (index != -1)
-			listenerEntries.remove(index);
+		if (isIterating()) {
+			// The following line is not required, since we
+			// remove after adding in the #iterate(...) method.
+			//listenersToAdd.remove(listener)
+			if (listenersToRemove == null)
+				listenersToRemove = new ArrayList<>();
+			listenersToRemove.add(listener);
+		} else {
+			int index = indexOf(listener);
+			if (index != -1)
+				listenerEntries.remove(index);
+		}
+	}
+
+	public void removeAll(Collection<L> listeners) {
+		listeners.forEach(this::remove);
 	}
 
 	public boolean isEmpty() {
@@ -52,6 +89,32 @@ public class GSPriorityEventListenerList<L> {
 	private void sort() {
 		// Use standard sorting algorithm
 		Collections.sort(listenerEntries);
+	}
+	
+	public void iterate(Consumer<L> action) {
+		if (dirty) {
+			sort();
+			dirty = false;
+		}
+		
+		iteratingCount++;
+		try {
+			Iterator<L> itr = new GSListenerIterator();
+			itr.forEachRemaining(action);
+		} finally {
+			//assert(iteratingCount > 0)
+			iteratingCount--;
+			if (!isIterating()) {
+				if (listenersToAdd != null && !listenersToAdd.isEmpty())
+					addAll(listenersToAdd);
+				if (listenersToRemove != null && !listenersToRemove.isEmpty())
+					removeAll(listenersToRemove);
+			}
+		}
+	}
+	
+	private boolean isIterating() {
+		return iteratingCount != 0;
 	}
 	
 	private class GSEntry implements Comparable<GSEntry> {

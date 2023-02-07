@@ -81,12 +81,7 @@ public class GSEventDispatcher {
 			if (button != GSMouseEvent.UNKNOWN_BUTTON) {
 				// Focus the top-most focusable ancestor of the panel
 				// that was clicked (or the panel itself if focusable).
-				GSPanel ancestor = getTopFocusableAncestor(panel);
-				if (ancestor != null && ancestor != rootPanel) {
-					// Remove focus from currently focused panel unless
-					// we actually have a focusable ancestor.
-					setFocusedPanel(ancestor);
-				}
+				setFocusedPanel(getTopFocusableAncestor(panel));
 				// Set dragged panel for dragging events.
 				draggedPanel = panel;
 			}
@@ -111,8 +106,8 @@ public class GSEventDispatcher {
 		GSPanel hoveredPanel = getTopPanelAt(x, y);
 		GSPanel panel = isChildOf(hoveredPanel, focusedPanel) ? hoveredPanel : focusedPanel;
 		
-		GSMouseEvent event = GSMouseEvent.createMouseReleasedEvent(x, y, button, modifiers);
-		if (panel != null && panel.isVisible()) {
+		if (panel != null) {
+			GSMouseEvent event = GSMouseEvent.createMouseReleasedEvent(x, y, button, modifiers);
 			translateMouseEvent(panel, event, TRANSLATE_FROM_ROOT);
 
 			int panelX = event.getX();
@@ -128,16 +123,6 @@ public class GSEventDispatcher {
 					event.consume();
 				}
 			}
-		}
-		
-		// Finally, check if the dragged panel needs the release event.
-		if (!event.isConsumed() && panel != draggedPanel && draggedPanel.isVisible()) {
-			// The position is likely to have changed above.
-			event.setX(x);
-			event.setY(y);
-			translateMouseEvent(draggedPanel, event, TRANSLATE_FROM_ROOT);
-			
-			distributeMouseEvent(draggedPanel, event, GSIMouseListener::mouseReleased);
 		}
 	}
 	
@@ -237,19 +222,17 @@ public class GSEventDispatcher {
 		if (panel != oldFocusedPanel) {
 			focusedPanel = panel;
 			
-			// Update focused state before sending out events.
-			if (oldFocusedPanel != null)
-				oldFocusedPanel.setFocused(false);
-			if (panel != null)
-				panel.setFocused(true);
-
 			// Invoke panels with focus lost and gained events.
 			if (oldFocusedPanel != null) {
+				oldFocusedPanel.setFocused(false);
+
 				GSFocusEvent event = GSFocusEvent.createFocusLostEvent();
 				invokeFocusEventListeners(oldFocusedPanel, event, GSIFocusEventListener::focusLost);
 			}
 			// The focused panel might have changed from the focus lost event
 			if (panel != null && focusedPanel == panel && !panel.isFocused()) {
+				panel.setFocused(true);
+
 				GSFocusEvent event = GSFocusEvent.createFocusGainedEvent();
 				invokeFocusEventListeners(panel, event, GSIFocusEventListener::focusGained);
 			}
@@ -402,29 +385,33 @@ public class GSEventDispatcher {
 	private void invokeMouseEventListeners(GSPanel panel, GSMouseEvent event, BiConsumer<GSIMouseListener, GSMouseEvent> method) {
 		if (panel.isEnabled()) {
 			event.setPanel(panel);
-			for (GSIMouseListener listener : panel.getMouseEventListeners())
+			panel.iterateMouseEventListeners((listener) -> {
 				method.accept(listener, event);
+			});
 		}
 	}
 	
 	private void invokeKeyEventListeners(GSPanel panel, GSKeyEvent event, BiConsumer<GSIKeyListener, GSKeyEvent> method) {
 		if (panel.isEnabled()) {
 			event.setPanel(panel);
-			for (GSIKeyListener listener : panel.getKeyEventListeners())
+			panel.iterateKeyEventListeners((listener) -> {
 				method.accept(listener, event);
+			});
 		}
 	}
 
 	private void invokeFocusEventListeners(GSPanel panel, GSFocusEvent event, BiConsumer<GSIFocusEventListener, GSFocusEvent> method) {
 		event.setPanel(panel);
-		for (GSIFocusEventListener listener : panel.getFocusEventListeners())
+		panel.iterateFocusEventListeners((listener) -> {
 			method.accept(listener, event);
+		});
 	}
 
 	private void invokeLayoutEventListeners(GSPanel panel, GSLayoutEvent event, BiConsumer<GSILayoutEventListener, GSLayoutEvent> method) {
 		event.setPanel(panel);
-		for (GSILayoutEventListener listener : panel.getLayoutEventListeners())
+		panel.iterateLayoutEventListeners((listener) -> {
 			method.accept(listener, event);
+		});
 	}
 	
 	private int convertMouseX(float mouseX) {

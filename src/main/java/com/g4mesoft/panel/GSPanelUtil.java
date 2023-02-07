@@ -399,6 +399,25 @@ public final class GSPanelUtil {
 		
 		return new GSLocation(x, y);
 	}
+
+	/**
+	 * Computes the view location of {@code panel} relative to the {@code other}
+	 * panel. The location returned by this method is equivalent to computing the
+	 * difference between view locations, i.e. the view location of {@code panel}
+	 * minus the view location of {@code other}.
+	 * 
+	 * @param panel - the panel whose relative location is returned.
+	 * @param other - the panel which is used as reference to compute the relative
+	 *                location.
+	 * 
+	 * @return The location of {@code panel} relative to {@code other}.
+	 */
+	public static GSLocation getRelativeLocation(GSPanel panel, GSPanel other) {
+		GSLocation panelLocation = getViewLocation(panel);
+		GSLocation otherLocation = getViewLocation(other);
+		return new GSLocation(panelLocation.getX() - otherLocation.getX(),
+		                      panelLocation.getY() - otherLocation.getY());
+	}
 	
 	public static int getScrollX(GSPanel panel) {
 		GSPanel parent = panel.getParent();
@@ -483,6 +502,23 @@ public final class GSPanelUtil {
 		return panel.getSize();
 	}
 
+	/**
+	 * Traverses through parent and grandparents until the first popup is reached,
+	 * in which case the popup is returned. A returned value of null indicates that
+	 * there exists no popup that is a grandparent of the given panel.
+	 * 
+	 * @param panel - the panel to search
+	 * 
+	 * @return The closest grandparent that is also a popup, or null if no grandparent
+	 *         is a popup.
+	 */
+	public static GSPopup getPopup(GSPanel panel) {
+		GSPanel parent = panel;
+		while (parent != null && !(parent instanceof GSPopup))
+			parent = parent.getParent();
+		return (GSPopup)parent;
+	}
+	
 	private static enum GSEWordCharacterType {
 		
 		LETTER_OR_DIGIT, SYMBOL, OTHER;

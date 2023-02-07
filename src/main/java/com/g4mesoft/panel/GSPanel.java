@@ -1,10 +1,10 @@
 package com.g4mesoft.panel;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import com.g4mesoft.panel.dropdown.GSDropdown;
 import com.g4mesoft.panel.event.GSEvent;
@@ -316,11 +316,11 @@ public class GSPanel {
 				mouseEventListeners = null;
 		}
 	}
-
-	public Collection<GSIMouseListener> getMouseEventListeners() {
-		if (mouseEventListeners == null)
-			return Collections.emptyList();
-		return mouseEventListeners.asCollection();
+	
+	/* Visible for GSEventDispatcher */
+	public void iterateMouseEventListeners(Consumer<GSIMouseListener> action) {
+		if (mouseEventListeners != null)
+			mouseEventListeners.iterate(action);
 	}
 
 	public void addKeyEventListener(GSIKeyListener eventListener) {
@@ -342,11 +342,11 @@ public class GSPanel {
 				keyEventListeners = null;
 		}
 	}
-
-	public Collection<GSIKeyListener> getKeyEventListeners() {
-		if (keyEventListeners == null)
-			return Collections.emptyList();
-		return keyEventListeners.asCollection();
+	
+	/* Visible for GSEventDispatcher */
+	public void iterateKeyEventListeners(Consumer<GSIKeyListener> action) {
+		if (keyEventListeners != null)
+			keyEventListeners.iterate(action);
 	}
 
 	public void addFocusEventListener(GSIFocusEventListener eventListener) {
@@ -369,10 +369,10 @@ public class GSPanel {
 		}
 	}
 
-	public Collection<GSIFocusEventListener> getFocusEventListeners() {
-		if (focusEventListeners == null)
-			return Collections.emptyList();
-		return focusEventListeners.asCollection();
+	/* Visible for GSEventDispatcher */
+	public void iterateFocusEventListeners(Consumer<GSIFocusEventListener> action) {
+		if (focusEventListeners != null)
+			focusEventListeners.iterate(action);
 	}
 	
 	public void addLayoutEventListener(GSILayoutEventListener eventListener) {
@@ -395,10 +395,10 @@ public class GSPanel {
 		}
 	}
 
-	public Collection<GSILayoutEventListener> getLayoutEventListeners() {
-		if (layoutEventListeners == null)
-			return Collections.emptyList();
-		return layoutEventListeners.asCollection();
+	/* Visible for GSEventDispatcher */
+	public void iterateLayoutEventListeners(Consumer<GSILayoutEventListener> action) {
+		if (layoutEventListeners != null)
+			layoutEventListeners.iterate(action);
 	}
 	
 	public boolean isPassingEvents() {
