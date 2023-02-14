@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.access.client.GSIClientWorldAccess;
 import com.g4mesoft.access.client.GSIEntityAccess;
 import com.g4mesoft.access.client.GSIWorldRendererAccess;
 import com.g4mesoft.core.client.GSClientController;
@@ -184,7 +185,7 @@ public class GSClientPlayNetworkHandlerMixin {
 				
 				if (!blockState.isOf(Blocks.MOVING_PISTON)) {
 					blockState = Blocks.MOVING_PISTON.getDefaultState();
-					world.setBlockState(pos, blockState, Block.NO_REDRAW | Block.MOVED);
+					((GSIClientWorldAccess)world).gs_setBlockStateImmediate(pos, blockState, Block.NO_REDRAW | Block.MOVED);
 				}
 				
 				NbtCompound tag = packet.getNbt();
