@@ -1,4 +1,4 @@
-package com.g4mesoft.mixin.server;
+package com.g4mesoft.mixin.common;
 
 import java.util.List;
 
@@ -31,7 +31,11 @@ public abstract class GSTranslatableTextMixin {
 	@Unique
 	private long gs_lastTranslationTimestamp = -1L;
 	
-	@Inject(method = "updateTranslations", at = @At("HEAD"), cancellable = true)
+	@Inject(
+		method = "updateTranslations",
+		cancellable = true,
+		at = @At("HEAD")
+	)
 	private void onUpdateTranslations(CallbackInfo ci) {
 		GSController threadController = GSController.getInstanceOnThread();
 		

@@ -1,4 +1,4 @@
-package com.g4mesoft.mixin.server;
+package com.g4mesoft.mixin.common;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -25,17 +25,26 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 		super(type);
 	}
 
-	@Inject(method = "tick", at = @At("HEAD"))
+	@Inject(
+		method = "tick",
+		at = @At("HEAD")
+	)
 	private void onTick(CallbackInfo ci) {
 		gs_ticked = true;
 	}
 	
-	@Inject(method = "fromTag", at = @At("RETURN"))
+	@Inject(
+		method = "fromTag",
+		at = @At("RETURN")
+	)
 	private void onFromTag(BlockState state, CompoundTag tag, CallbackInfo ci) {
 		gs_ticked = !tag.contains("ticked") || tag.getBoolean("ticked");
 	}
 
-	@Inject(method = "toTag", at = @At("RETURN"))
+	@Inject(
+		method = "toTag",
+		at = @At("RETURN")
+	)
 	private void onToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
 		GSController controller = GSController.getInstanceOnThread();
 		if (controller != null && controller.getTpsModule().sImmediateBlockBroadcast.get())

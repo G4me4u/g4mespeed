@@ -1,4 +1,4 @@
-package com.g4mesoft.mixin.server;
+package com.g4mesoft.mixin.common;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,7 +19,10 @@ public class GSCommandManagerMixin {
 	
 	@Shadow @Final private CommandDispatcher<ServerCommandSource> dispatcher;
 	
-	@Inject(method="<init>", at = @At("RETURN"))
+	@Inject(
+		method="<init>",
+		at = @At("RETURN")
+	)
 	private void registerCommands(RegistrationEnvironment environment, CallbackInfo ci) {
 		GSServerController.getInstance().setCommandDispatcher(dispatcher);
 	}

@@ -1,4 +1,4 @@
-package com.g4mesoft.mixin.server;
+package com.g4mesoft.mixin.common;
 
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
@@ -58,7 +58,10 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	@Unique
 	private boolean gs_pendingBlockEntityUpdates;
 	
-	@Inject(method = "<init>", at = @At("RETURN"))
+	@Inject(
+		method = "<init>",
+		at = @At("RETURN")
+	)
 	private void onInit(ChunkPos pos, int level, LightingProvider lightingProvider, ChunkHolder.LevelUpdateListener levelUpdateListener,
 	                    ChunkHolder.PlayersWatchingChunkProvider playersWatchingChunkProvider, CallbackInfo ci) {
 		
@@ -66,7 +69,10 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 		gs_pendingBlockEntityUpdates = false;
 	}
 	
-	@Inject(method = "flushUpdates", at = @At("HEAD"))
+	@Inject(
+		method = "flushUpdates",
+		at = @At("HEAD")
+	)
 	private void onFlushUpdates(WorldChunk chunk, CallbackInfo ci) {
 		gs_loopSectionIndex = 0;
 		
@@ -82,17 +88,35 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 		}
 	}
 	
-	@Inject(method = "flushUpdates", slice = @Slice(
-	        from = @At(value = "FIELD", shift = Shift.AFTER, opcode = Opcodes.PUTFIELD,
-	        target = "Lnet/minecraft/server/world/ChunkHolder;blockLightUpdateBits:I")),
-	        at = @At(value = "FIELD", ordinal = 1, shift = Shift.BEFORE, opcode = Opcodes.GETFIELD,
-	        target = "Lnet/minecraft/server/world/ChunkHolder;blockUpdatesBySection:[Lit/unimi/dsi/fastutil/shorts/ShortSet;"))
+	@Inject(
+		method = "flushUpdates",
+		slice = @Slice(
+			from = @At(
+				value = "FIELD",
+				shift = Shift.AFTER,
+				opcode = Opcodes.PUTFIELD,
+				target = "Lnet/minecraft/server/world/ChunkHolder;blockLightUpdateBits:I"
+			)
+		),
+		at = @At(
+			value = "FIELD",
+			ordinal = 1,
+			shift = Shift.BEFORE,
+			opcode = Opcodes.GETFIELD,
+			target =
+				"Lnet/minecraft/server/world/ChunkHolder;blockUpdatesBySection" +
+				":[Lit/unimi/dsi/fastutil/shorts/ShortSet;"
+		)
+	)
 	private void onFlushUpdatesBlockUpdateLoop(WorldChunk chunk, CallbackInfo ci) {
 		if (gs_loopSectionIndex < gs_blockEntityUpdatesBySection.length)
 			sendBlockEntityUpdates(chunk, gs_loopSectionIndex++);
 	}
 	
-	@Inject(method = "flushUpdates", at = @At("RETURN"))
+	@Inject(
+		method = "flushUpdates",
+		at = @At("RETURN")
+	)
 	private void onFlushUpdatesReturn(CallbackInfo ci) {
 		if (gs_pendingBlockEntityUpdates) {
 			GSServerController.getInstance().sendPacketToAll(new GSFlushingBlockEntityUpdatesPacket(false), CORRECTED_PUSHING_VERSION);

@@ -1,4 +1,4 @@
-package com.g4mesoft.mixin.server;
+package com.g4mesoft.mixin.common;
 
 import java.util.UUID;
 
@@ -21,22 +21,34 @@ public abstract class GSPlayerManagerMixin {
 
 	@Shadow public abstract ServerPlayerEntity getPlayer(UUID uuid);
 	
-	@Inject(method = "onPlayerConnect", at = @At("RETURN"))
+	@Inject(
+		method = "onPlayerConnect",
+		at = @At("RETURN")
+	)
 	private void onPlayerJoin(ClientConnection clientConnection, ServerPlayerEntity player, CallbackInfo ci) {
 		GSServerController.getInstance().onPlayerJoin(player);
 	}
 
-	@Inject(method = "remove", at = @At("HEAD"))
+	@Inject(
+		method = "remove",
+		at = @At("HEAD")
+	)
 	private void onPlayerLeave(ServerPlayerEntity player, CallbackInfo ci) {
 		GSServerController.getInstance().onPlayerLeave(player);
 	}
 
-	@Inject(method = "addToOperators", at = @At("RETURN"))
+	@Inject(
+		method = "addToOperators",
+		at = @At("RETURN")
+	)
 	private void onAddToOperators(GameProfile gameProfile, CallbackInfo ci) {
 		onPlayerPermissionChanged(gameProfile);
 	}
 
-	@Inject(method = "removeFromOperators", at = @At("RETURN"))
+	@Inject(
+		method = "removeFromOperators",
+		at = @At("RETURN")
+	)
 	private void onRemoveFromOperators(GameProfile gameProfile, CallbackInfo ci) {
 		onPlayerPermissionChanged(gameProfile);
 	}

@@ -1,4 +1,4 @@
-package com.g4mesoft.mixin.server;
+package com.g4mesoft.mixin.common;
 
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -41,7 +41,10 @@ public abstract class GSServerWorldMixin extends World {
 		super(properties, registryKey, dimensionType, supplier, bl, bl2, l);
 	}
 
-	@Inject(method = "tick", at = @At("RETURN"))
+	@Inject(
+		method = "tick",
+		at = @At("RETURN")
+	)
 	private void onTickReturn(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
 		if (GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			ServerChunkManager chunkManager = (ServerChunkManager)getChunkManager();
@@ -55,8 +58,14 @@ public abstract class GSServerWorldMixin extends World {
 		}
 	}
 
-	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.AFTER, 
-			target = "Lnet/minecraft/server/world/ServerWorld;processSyncedBlockEvents()V"))
+	@Inject(
+		method = "tick",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER, 
+			target = "Lnet/minecraft/server/world/ServerWorld;processSyncedBlockEvents()V"
+		)
+	)
 	private void onTickImmediateUpdates(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
 		if (GSServerController.getInstance().getTpsModule().sImmediateBlockBroadcast.get()) {
 			getProfiler().swap("chunkSource");
@@ -64,8 +73,21 @@ public abstract class GSServerWorldMixin extends World {
 		}
 	}
 	
-	@ModifyArg(method = "processSyncedBlockEvents", allow = 1, index = 4, at = @At(value = "INVOKE", 
-			target = "Lnet/minecraft/server/PlayerManager;sendToAround(Lnet/minecraft/entity/player/PlayerEntity;DDDDLnet/minecraft/util/registry/RegistryKey;Lnet/minecraft/network/Packet;)V"))
+	@ModifyArg(
+		method = "processSyncedBlockEvents",
+		allow = 1,
+		index = 4,
+		at = @At(
+			value = "INVOKE", 
+			target =
+				"Lnet/minecraft/server/PlayerManager;sendToAround(" +
+					"Lnet/minecraft/entity/player/PlayerEntity;" +
+					"DDDD" +
+					"Lnet/minecraft/util/registry/RegistryKey;" +
+					"Lnet/minecraft/network/Packet;" +
+				")V"
+		)
+	)
 	private double blockEventDistance(PlayerEntity player, double x, double y, double z, double dist, RegistryKey<World> dimensionKey, Packet<?> packet) {
 		Block block = ((GSIBlockEventS2CPacketAccess)packet).getBlock2();
 		

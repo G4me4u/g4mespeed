@@ -1,4 +1,4 @@
-package com.g4mesoft.mixin.server;
+package com.g4mesoft.mixin.common;
 
 import java.util.function.BooleanSupplier;
 
@@ -113,8 +113,17 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		field_19248 = timeReference;
 	}
 
-	@Inject(method = "runServer", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
-			target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V"))
+	@Inject(
+		method = "runServer",
+		at = @At(
+			value = "INVOKE",
+			shift = At.Shift.BEFORE, 
+			target =
+				"Lnet/minecraft/server/MinecraftServer;setFavicon(" +
+					"Lnet/minecraft/server/ServerMetadata;" +
+				")V"
+		)
+	)
 	private void onInitialized(CallbackInfo ci) {
 		// Some mods might also modify the run loop...
 		// in this case just make sure that the init
@@ -128,8 +137,17 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	 * Ensure that we set require = 0. Some mods might change the overall structure of the mod. For 
 	 * example carpet modifies the loop and changes this.running to just be false.
 	 */
-	@Inject(method = "runServer", require = 0, allow = 1, at = @At(value = "FIELD", shift = Shift.BEFORE,
-			opcode = Opcodes.GETFIELD, target = "Lnet/minecraft/server/MinecraftServer;running:Z"))
+	@Inject(
+		method = "runServer",
+		require = 0,
+		allow = 1,
+		at = @At(
+			value = "FIELD",
+			shift = Shift.BEFORE,
+			opcode = Opcodes.GETFIELD,
+			target = "Lnet/minecraft/server/MinecraftServer;running:Z"
+		)
+	)
 	private void onModifiedRunLoop(CallbackInfo ci) {
 		while (this.running) {
 			long msThisTick = (long)gs_msAccum;
@@ -172,14 +190,20 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		}
 	}
 	
-	@Inject(method = "tick", at = @At("HEAD"))
+	@Inject(
+		method = "tick",
+		at = @At("HEAD")
+	)
 	private void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
 		GSDebug.onServerTick();
 		
 		GSServerController.getInstance().tick(false);
 	}
 	
-	@Inject(method = "shutdown", at = @At("RETURN"))
+	@Inject(
+		method = "shutdown",
+		at = @At("RETURN")
+	)
 	private void onShutdown(CallbackInfo ci) {
 		GSServerController.getInstance().onServerShutdown();
 	}

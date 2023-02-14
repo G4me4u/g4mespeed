@@ -27,7 +27,10 @@ public class GSMouseMixin implements GSIMouseAccess {
 	@Unique
 	private float gs_prevEventScrollX;
 
-	@Inject(method="onMouseButton(JIII)V", at = @At(value = "HEAD"))
+	@Inject(
+		method="onMouseButton(JIII)V",
+		at = @At("HEAD")
+	)
 	private void onMouseEvent(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
 			gs_prevEventModifiers = mods;
@@ -43,8 +46,18 @@ public class GSMouseMixin implements GSIMouseAccess {
 		}
 	}
 
-	@Inject(method="onMouseButton(JIII)V", at = @At(value = "INVOKE", shift = At.Shift.AFTER, 
-			target = "Lnet/minecraft/client/options/KeyBinding;setKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;Z)V"))
+	@Inject(
+		method="onMouseButton(JIII)V",
+		at = @At(
+			value = "INVOKE",
+			shift = At.Shift.AFTER, 
+			target =
+				"Lnet/minecraft/client/options/KeyBinding;setKeyPressed(" +
+					"Lnet/minecraft/client/util/InputUtil$Key;" +
+					"Z" +
+				")V"
+		)
+	)
 	private void onMouseEventHandled(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
 		GSKeyManager keyManager = GSClientController.getInstance().getKeyManager();
 
@@ -55,7 +68,10 @@ public class GSMouseMixin implements GSIMouseAccess {
 		}
 	}
 	
-	@Inject(method="onMouseScroll", at = @At(value = "HEAD"))
+	@Inject(
+		method="onMouseScroll",
+		at = @At("HEAD")
+	)
 	private void onOnMouseScroll(long windowHandle, double scrollX, double scrollY, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
 			gs_prevEventScrollX = (float)(client.options.discreteMouseScroll ? Math.signum(scrollX) : scrollX);

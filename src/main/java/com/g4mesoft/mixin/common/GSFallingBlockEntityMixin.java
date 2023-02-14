@@ -1,4 +1,4 @@
-package com.g4mesoft.mixin.server;
+package com.g4mesoft.mixin.common;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,15 +30,32 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 		super(type, world);
 	}
 	
-	@Inject(method = "tick", at = @At(value = "INVOKE", ordinal = 0, shift = Shift.AFTER,
-			target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
+	@Inject(
+		method = "tick",
+		at = @At(
+			value = "INVOKE",
+			ordinal = 0,
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/world/World;removeBlock(" +
+					"Lnet/minecraft/util/math/BlockPos;" +
+					"Z" +
+				")Z"
+		)
+	)
 	private void onTickRemoveBlock(CallbackInfo ci) {
 		if (!world.isClient && GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
 			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_updateBlockImmediately(getBlockPos());
 	}
 	
-	@Inject(method = "tick", at = @At(value = "INVOKE", shift = Shift.BEFORE,
-			target = "Lnet/minecraft/entity/FallingBlockEntity;remove()V"))
+	@Inject(
+		method = "tick",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.BEFORE,
+			target = "Lnet/minecraft/entity/FallingBlockEntity;remove()V"
+		)
+	)
 	private void onTickBeforeRemove(CallbackInfo ci) {
 		if (!world.isClient && !removed && GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_setTrackerTickedFromFallingBlock(this, true);
@@ -46,7 +63,11 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 		}
 	}
 	
-	@Inject(method = "createSpawnPacket", cancellable = true, at = @At("HEAD"))
+	@Inject(
+		method = "createSpawnPacket",
+		cancellable = true,
+		at = @At("HEAD")
+	)
 	private void onCreateSpawnPacket(CallbackInfoReturnable<Packet<?>> cir) {
 		if (!world.isClient && GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			// Calculate offset applied to position (falling block entity is not 1.0 tall)

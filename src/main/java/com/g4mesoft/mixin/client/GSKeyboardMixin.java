@@ -25,7 +25,10 @@ public class GSKeyboardMixin implements GSIKeyboardAccess {
 	@Unique
 	private boolean gs_prevEventRepeating;
 	
-	@Inject(method = "onKey(JIIII)V", at = @At("HEAD"))
+	@Inject(
+		method = "onKey(JIIII)V",
+		at = @At("HEAD")
+	)
 	private void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
 			gs_prevEventRepeating = (action == GLFW.GLFW_REPEAT);
@@ -42,14 +45,34 @@ public class GSKeyboardMixin implements GSIKeyboardAccess {
 	}
 
 	
-	@Inject(method="onKey(JIIII)V", at = @At(value = "INVOKE", ordinal = 0, shift = At.Shift.AFTER, 
-			target = "Lnet/minecraft/client/options/KeyBinding;setKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;Z)V"))
+	@Inject(
+		method="onKey(JIIII)V",
+		at = @At(
+			value = "INVOKE",
+			ordinal = 0,
+			shift = At.Shift.AFTER, 
+			target =
+				"Lnet/minecraft/client/options/KeyBinding;setKeyPressed(" +
+					"Lnet/minecraft/client/util/InputUtil$Key;" +
+					"Z" +
+				")V"
+		)
+	)
 	private void onKeyReleased(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		GSClientController.getInstance().getKeyManager().dispatchEvents(GSEKeyEventType.RELEASE);
 	}
 
-	@Inject(method="onKey(JIIII)V", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
-			target = "Lnet/minecraft/client/options/KeyBinding;onKeyPressed(Lnet/minecraft/client/util/InputUtil$Key;)V"))
+	@Inject(
+		method="onKey(JIIII)V",
+		at = @At(
+			value = "INVOKE",
+			shift = At.Shift.BEFORE, 
+			target =
+				"Lnet/minecraft/client/options/KeyBinding;onKeyPressed(" +
+					"Lnet/minecraft/client/util/InputUtil$Key;" +
+				")V"
+		)
+	)
 	private void onKeyPressRepeat(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
 		if (action == GLFW.GLFW_PRESS)
 			GSClientController.getInstance().getKeyManager().dispatchEvents(GSEKeyEventType.PRESS);

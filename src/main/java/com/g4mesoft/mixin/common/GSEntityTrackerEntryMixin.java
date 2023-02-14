@@ -1,4 +1,4 @@
-package com.g4mesoft.mixin.server;
+package com.g4mesoft.mixin.common;
 
 import java.util.function.Consumer;
 
@@ -51,7 +51,11 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	@Unique
 	private Vec3d gs_lastFallingBlockVelocity = Vec3d.ZERO;
 	
-	@Inject(method = "tick", cancellable = true, at = @At("HEAD"))
+	@Inject(
+		method = "tick",
+		cancellable = true,
+		at = @At("HEAD")
+	)
 	private void onTick(CallbackInfo ci) {
 		if (gs_fixedMovement != gs_lastFixedMovement) {
 			gs_lastFixedMovement = gs_fixedMovement;
@@ -98,8 +102,17 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 		}
 	}
 	
-	@Inject(method = "startTracking", at = @At(value = "INVOKE", shift = Shift.AFTER,
-			target = "Lnet/minecraft/server/network/EntityTrackerEntry;sendPackets(Ljava/util/function/Consumer;)V"))
+	@Inject(
+		method = "startTracking",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/server/network/EntityTrackerEntry;sendPackets(" +
+					"Ljava/util/function/Consumer;" +
+				")V"
+		)
+	)
 	private void onStartTracking(ServerPlayerEntity player, CallbackInfo ci) {
 		if (entity.getType() == EntityType.PLAYER) {
 			GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getEntityId(), gs_fixedMovement);

@@ -32,7 +32,10 @@ public class GSBufferBuilderMixin implements GSIBufferBuilderAccess {
 	@Unique
 	private final GSClipAdjuster gs_adjuster = new GSClipAdjuster();
 
-	@Inject(method = "next", at = @At("RETURN"))
+	@Inject(
+		method = "next", 
+		at = @At("RETURN")
+	)
 	public void onNextReturn(CallbackInfo ci) {
 		if (building && (vertexCount & 0x3 /* % 4 */) == 0)
 			gs_adjuster.clipPreviousShape((BufferBuilder)(Object)this);

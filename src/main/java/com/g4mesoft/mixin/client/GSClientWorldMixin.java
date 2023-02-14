@@ -33,17 +33,27 @@ public abstract class GSClientWorldMixin implements GSIClientWorldAccess {
 	
 	@Shadow public abstract void tickEntity(Entity entity);
 	
-	@Inject(method = "tickEntities", at = @At("HEAD"))
+	@Inject(
+		method = "tickEntities",
+		at = @At("HEAD")
+	)
 	private void onTickEntitiesHead(CallbackInfo ci) {
 		gs_tickingEntities = true;
 	}
 
-	@Inject(method = "tickEntities", at = @At("RETURN"))
+	@Inject(
+		method = "tickEntities",
+		at = @At("RETURN")
+	)
 	private void onTickEntitiesReturn(CallbackInfo ci) {
 		gs_tickingEntities = false;
 	}
 	
-	@Inject(method = "tickEntity", cancellable = true, at = @At("HEAD"))
+	@Inject(
+		method = "tickEntity",
+		cancellable = true,
+		at = @At("HEAD")
+	)
 	private void onTickEntity(Entity entity, CallbackInfo ci) {
 		if (gs_tickingEntities && (entity instanceof AbstractClientPlayerEntity)) {
 			if (gs_tpsModule.isPlayerFixedMovement((AbstractClientPlayerEntity)entity))

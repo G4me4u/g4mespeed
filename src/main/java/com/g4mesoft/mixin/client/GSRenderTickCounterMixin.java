@@ -40,13 +40,23 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	@Unique
 	private GSServerTickTimer gs_serverTimer;
 	
-	@Inject(method = "<init>", at = @At("RETURN"))
+	@Inject(
+		method = "<init>",
+		at = @At("RETURN")
+	)
 	private void onInit(float ticksPerSecond, long initialTimeMillis, CallbackInfo ci) {
 		gs_firstUpdate = true;
 	}
 
-	@Inject(method = "beginRenderTick", at = @At(value = "FIELD", shift = Shift.AFTER, opcode = Opcodes.PUTFIELD,
-			target = "Lnet/minecraft/client/render/RenderTickCounter;lastFrameDuration:F"))
+	@Inject(
+		method = "beginRenderTick",
+		at = @At(
+			value = "FIELD",
+			shift = Shift.AFTER,
+			opcode = Opcodes.PUTFIELD,
+			target = "Lnet/minecraft/client/render/RenderTickCounter;lastFrameDuration:F"
+		)
+	)
 	private void onModifyTickrate(long timeMillis, CallbackInfoReturnable<Boolean> cir) {
 		if (gs_firstUpdate) {
 			init(prevTimeMillis);
@@ -65,13 +75,24 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 			this.lastFrameDuration = (timeMillis - this.prevTimeMillis) / millisPerTick;
 	}
 
-	@Inject(method = "beginRenderTick", at = @At(value = "FIELD", shift = Shift.BEFORE, opcode = Opcodes.GETFIELD,
-			target = "Lnet/minecraft/client/render/RenderTickCounter;tickDelta:F"))
+	@Inject(
+		method = "beginRenderTick",
+		at = @At(
+			value = "FIELD",
+			shift = Shift.BEFORE,
+			opcode = Opcodes.GETFIELD,
+			target = "Lnet/minecraft/client/render/RenderTickCounter;tickDelta:F"
+		)
+	)
 	private void onGetTicksThisFrame(long currentTimeMillis, CallbackInfoReturnable<Integer> cir) {
 		gs_ticksThisFrame = (int)tickDelta;
 	}
 
-	@Inject(method = "beginRenderTick", cancellable = true, at = @At("RETURN"))
+	@Inject(
+		method = "beginRenderTick",
+		cancellable = true,
+		at = @At("RETURN")
+	)
 	private void onBeginRenderTick(long timeMillis, CallbackInfoReturnable<Integer> cir) {
 		update(timeMillis);
 		cir.setReturnValue(gs_ticksThisFrame);

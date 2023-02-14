@@ -1,4 +1,4 @@
-package com.g4mesoft.mixin.server;
+package com.g4mesoft.mixin.common;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,7 +13,10 @@ import net.minecraft.network.ClientConnection;
 @Mixin(ClientConnection.class)
 public class GSClientConnectionMixin {
 
-	@Inject(method = "exceptionCaught", at = @At("HEAD"))
+	@Inject(
+		method = "exceptionCaught",
+		at = @At("HEAD")
+	)
 	private void onExceptionCaught(ChannelHandlerContext channelHandlerContext, Throwable throwable, CallbackInfo ci) {
 		if (GSDebug.GS_DEBUG)
 			throwable.printStackTrace();

@@ -55,17 +55,44 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	@Unique
 	private GSBasicRenderer3D gs_renderer3d;
 
-	@Inject(method = "<init>", at = @At("RETURN"))
+	@Inject(
+		method = "<init>",
+		at = @At("RETURN")
+	)
 	private void onInit(MinecraftClient client, BufferBuilderStorage builderStorage, CallbackInfo ci) {
 		gs_controller = GSClientController.getInstance();
 		gs_tpsModule = gs_controller.getTpsModule();
 		gs_renderer3d = new GSBasicRenderer3D();
 	}
 	
-	@Inject(method = "render", slice = @Slice(
-			from = @At(value = "INVOKE", ordinal = 0, shift = Shift.BEFORE, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V"),
-			to = @At(value = "INVOKE", ordinal = 1, shift = Shift.AFTER, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V")), 
-			at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/client/gl/ShaderEffect;render(F)V"))
+	@Inject(
+		method = "render",
+		slice = @Slice(
+			from = @At(
+				value = "INVOKE",
+				ordinal = 0,
+				shift = Shift.BEFORE,
+				target =
+					"Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(" +
+						"Lnet/minecraft/client/render/Camera;" +
+					")V"
+			),
+			to = @At(
+				value = "INVOKE",
+				ordinal = 1,
+				shift = Shift.AFTER,
+				target =
+					"Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(" +
+						"Lnet/minecraft/client/render/Camera;" +
+					")V"
+			)
+		), 
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.BEFORE,
+			target = "Lnet/minecraft/client/gl/ShaderEffect;render(F)V"
+		)
+	)
 	private void onRenderTransparentLastFabulous(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
 		if (MinecraftClient.isFabulousGraphicsOrBetter())
 			client.worldRenderer.getTranslucentFramebuffer().beginWrite(false);
@@ -76,7 +103,18 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
             client.getFramebuffer().beginWrite(false);
 	}
 	
-	@Inject(method = "render", at = @At(value = "INVOKE", ordinal = 1, shift = Shift.AFTER, target = "Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(Lnet/minecraft/client/render/Camera;)V"))
+	@Inject(
+		method = "render",
+		at = @At(
+			value = "INVOKE",
+			ordinal = 1,
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/client/render/WorldRenderer;renderWorldBorder(" +
+					"Lnet/minecraft/client/render/Camera;" +
+				")V"
+		)
+	)
 	private void onRenderTransparentLastDefault(MatrixStack matrixStack, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f matrix4f, CallbackInfo ci) {
 		handleOnRenderTransparentLast(matrixStack);
 	}
@@ -133,8 +171,20 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 		return false;
 	}
 	
-	@ModifyArg(method = "render", index = 4, at = @At(value = "INVOKE", 
-			target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
+	@ModifyArg(
+		method = "render",
+		index = 4,
+		at = @At(
+			value = "INVOKE", 
+			target =
+				"Lnet/minecraft/client/render/WorldRenderer;renderEntity(" +
+					"Lnet/minecraft/entity/Entity;" +
+					"DDDF" +
+					"Lnet/minecraft/client/util/math/MatrixStack;" +
+					"Lnet/minecraft/client/render/VertexConsumerProvider;" +
+				")V"
+		)
+	)
 	private float onRenderEntityModifyDeltaTick(Entity entity, double cameraX, double cameraY, double cameraZ, float deltaTick, MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
 		if (!client.isPaused() && (entity instanceof AbstractClientPlayerEntity)) {
 			if (gs_tpsModule.isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
@@ -144,8 +194,17 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 		return deltaTick;
 	}
 	
-	@Redirect(method = "render", allow = 1, require = 1, expect = 1,
-			at = @At(value = "FIELD", target="Lnet/minecraft/entity/Entity;age:I", opcode = Opcodes.GETFIELD))
+	@Redirect(
+		method = "render",
+		allow = 1,
+		require = 1,
+		expect = 1,
+		at = @At(
+			value = "FIELD",
+			opcode = Opcodes.GETFIELD,
+			target="Lnet/minecraft/entity/Entity;age:I"
+		)
+	)
 	private int onRenderGetEntityAge(Entity entity) {
 		if (gs_tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
 			// We do not want the render positions to be modified when

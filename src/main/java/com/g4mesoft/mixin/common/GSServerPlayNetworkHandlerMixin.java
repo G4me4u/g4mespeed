@@ -1,4 +1,4 @@
-package com.g4mesoft.mixin.server;
+package com.g4mesoft.mixin.common;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -59,16 +59,41 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 			floatingTicks--;
 	}
 	
-	@ModifyConstant(method = "onPlayerMove", allow = 1, constant = @Constant(intValue = 5), slice = @Slice(
-		from = @At(value = "FIELD", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;movePacketsCount:I", opcode = Opcodes.PUTFIELD),
-		to = @At(value = "CONSTANT", args = "stringValue={} is sending move packets too frequently ({} packets since last tick)")))
+	@ModifyConstant(
+		method = "onPlayerMove",
+		allow = 1,
+		constant = @Constant(
+			intValue = 5
+		), slice = @Slice(
+			from = @At(
+				value = "FIELD",
+				opcode = Opcodes.PUTFIELD,
+				target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;movePacketsCount:I"
+			),
+			to = @At(
+				value = "CONSTANT",
+				args = "stringValue={} is sending move packets too frequently ({} packets since last tick)"
+			)
+		)
+	)
 	private int onPlayerMoveModifyConstant5(int oldValue) {
 		// Allow for "infinite" packets between ticks when using fixed movement.
 		return gs_fixedMovement ? Integer.MAX_VALUE : oldValue;
 	}
 	
-	@Inject(method = "onPlayerMove", at = @At(value = "INVOKE", shift = Shift.AFTER,
-			target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"))
+	@Inject(
+		method = "onPlayerMove",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
+					"Lnet/minecraft/network/Packet;" +
+					"Lnet/minecraft/network/listener/PacketListener;" +
+					"Lnet/minecraft/server/world/ServerWorld;" +
+				")V"
+		)
+	)
 	private void onPlayerMove(PlayerMoveC2SPacket packet, CallbackInfo ci) {
 		boolean trackerFixedMovement = false;
 		// Only send movement packets if the server is not running 20 ticks per second.
@@ -82,15 +107,28 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).gs_setTrackerFixedMovement(player, trackerFixedMovement);
 	}
 
-	@Inject(method = "onPlayerMove", at = @At(value = "INVOKE", shift = Shift.AFTER,
-			target = "Lnet/minecraft/server/network/ServerPlayerEntity;increaseTravelMotionStats(DDD)V"))
+	@Inject(
+		method = "onPlayerMove",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/server/network/ServerPlayerEntity;increaseTravelMotionStats(" +
+					"DDD" +
+				")V"
+		)
+	)
 	private void onPlayerMoveUpdateCameraPosition(PlayerMoveC2SPacket packet, CallbackInfo ci) {
 		if (gs_trackerFixedMovement)
 			((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).gs_tickEntityTracker(player);
 	}
 
 	
-	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
+	@Inject(
+		method = "onCustomPayload",
+		cancellable = true,
+		at = @At("HEAD")
+	)
 	private void onCustomPayload(CustomPayloadC2SPacket packet, CallbackInfo ci) {
 		GSPacketManager packetManger = G4mespeedMod.getPacketManager();
 		

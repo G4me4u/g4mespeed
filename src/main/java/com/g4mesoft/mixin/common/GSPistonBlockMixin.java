@@ -1,4 +1,4 @@
-package com.g4mesoft.mixin.server;
+package com.g4mesoft.mixin.common;
 
 import java.util.List;
 import java.util.Map;
@@ -24,26 +24,68 @@ import net.minecraft.world.World;
 @Mixin(PistonBlock.class)
 public class GSPistonBlockMixin {
 
-	@Inject(method = "onSyncedBlockEvent", at = @At(value = "INVOKE", shift = Shift.AFTER,
-	        target = "Lnet/minecraft/world/World;setBlockEntity(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/entity/BlockEntity;)V"))
+	@Inject(
+		method = "onSyncedBlockEvent",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/world/World;setBlockEntity(" +
+					"Lnet/minecraft/util/math/BlockPos;" +
+					"Lnet/minecraft/block/entity/BlockEntity;" +
+				")V"
+		)
+	)
 	private void onOnSyncedBlockEventBlockEntityChanged(BlockState state, World world, BlockPos pos, int type, int data, CallbackInfoReturnable<Boolean> cir) {
 		markBlockEntityForUpdate(world, pos);
 	}
 	
-	@Inject(method = "move", locals = LocalCapture.CAPTURE_FAILEXCEPTION, at = @At(value = "RETURN", ordinal = 0, shift = Shift.BEFORE))
+	@Inject(
+		method = "move",
+		locals = LocalCapture.CAPTURE_FAILEXCEPTION,
+		at = @At(
+			value = "RETURN",
+			ordinal = 0,
+			shift = Shift.BEFORE
+		)
+	)
 	private void onMoveReturn0(World world, BlockPos pos, Direction dir, boolean retract, CallbackInfoReturnable<Boolean> cir) {
 		if (!world.isClient && GSServerController.getInstance().getTpsModule().sParanoidMode.get())
 			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_markBlockUpdate(pos.offset(dir));
 	}
 	
-	@Inject(method = "move", locals = LocalCapture.CAPTURE_FAILEXCEPTION, at = @At(value = "INVOKE", ordinal = 0, shift = Shift.AFTER,
-	        target = "Lnet/minecraft/world/World;setBlockEntity(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/entity/BlockEntity;)V"))
+	@Inject(
+		method = "move",
+		locals = LocalCapture.CAPTURE_FAILEXCEPTION,
+		at = @At(
+			value = "INVOKE",
+			ordinal = 0,
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/world/World;setBlockEntity(" +
+					"Lnet/minecraft/util/math/BlockPos;" +
+					"Lnet/minecraft/block/entity/BlockEntity;" +
+				")V"
+		)
+	)
 	private void onMoveBlockEntityChanged0(World world, BlockPos pos, Direction dir, boolean retract, CallbackInfoReturnable<Boolean> cir, BlockPos blockPos, PistonHandler pistonHandler, Map<?, ?> map, List<?> list, List<?> list2, List<?> list3, BlockState blockStates[], Direction direction, int j, int l, BlockPos blockPos4) {
 		markBlockEntityForUpdate(world, blockPos4);
 	}
 
-	@Inject(method = "move", locals = LocalCapture.CAPTURE_FAILEXCEPTION, at = @At(value = "INVOKE", ordinal = 1, shift = Shift.AFTER,
-	        target = "Lnet/minecraft/world/World;setBlockEntity(Lnet/	minecraft/util/math/BlockPos;Lnet/minecraft/block/entity/BlockEntity;)V"))
+	@Inject(
+		method = "move",
+		locals = LocalCapture.CAPTURE_FAILEXCEPTION,
+		at = @At(
+			value = "INVOKE",
+			ordinal = 1,
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/world/World;setBlockEntity(" +
+					"Lnet/minecraft/util/math/BlockPos;" +
+					"Lnet/minecraft/block/entity/BlockEntity;" +
+				")V"
+		)
+	)
 	private void onMoveBlockEntityChanged1(World world, BlockPos pos, Direction dir, boolean retract, CallbackInfoReturnable<Boolean> cir, BlockPos blockPos) {
 		markBlockEntityForUpdate(world, blockPos);
 	}

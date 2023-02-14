@@ -21,8 +21,18 @@ public class GSWorldChunkMixin {
 	
 	@Shadow @Final private World world;
 	
-	@Inject(method = "setBlockEntity", at = @At(value = "INVOKE", shift = Shift.AFTER,
-	        target = "Ljava/util/Map;put(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;"))
+	@Inject(
+		method = "setBlockEntity",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Ljava/util/Map;put(" +
+					"Ljava/lang/Object;" +
+					"Ljava/lang/Object;" +
+				")Ljava/lang/Object;"
+		)
+	)
 	private void onSetBlockEntityAfterPut(BlockPos pos, BlockEntity blockEntity, CallbackInfo ci) {
 		if (blockEntity instanceof PistonBlockEntity)
 			((GSIPistonBlockEntityAccess)blockEntity).gs_onAdded();
