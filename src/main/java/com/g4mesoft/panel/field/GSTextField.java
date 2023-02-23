@@ -122,7 +122,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		verticalMargin = DEFAULT_VERTICAL_MARGIN;
 		horizontalMargin = DEFAULT_HORIZONTAL_MARGIN;
 		
-		focusLostOnConfirm = true;
+		focusLostOnConfirm = false;
 		
 		textModel.addTextModelListener(this);
 		
@@ -527,7 +527,7 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 				if (!isFocusLostOnConfirm()) {
 					if (isEditable())
 						dispatchActionPerformed();
-					event.consume();
+					// Do not consume event.
 					break;
 				} else {
 					// pass-through
