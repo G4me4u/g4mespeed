@@ -593,6 +593,7 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 		if (this.popup == null) {
 			GSPanel itemList = new GSItemSelectionList<T>(this);
 			GSPopup popup = new GSPopup(new GSScrollPanel(itemList), true);
+			popup.setHiddenOnFocusLost(true);
 			popup.show(this, 0, height - borderWidth, GSEPopupPlacement.RELATIVE);
 			// Note: the popup attempts to focus the scroll panel, but
 			//       we want focus to the item list.

@@ -14,7 +14,9 @@ public class GSPopup extends GSParentPanel {
 	private static final int SHADOW_COLOR = 0x80000000;
 	
 	protected final GSPanel content;
-	protected final boolean hiddenOnFocusLost;
+	protected final boolean stealingFocus;
+	
+	private boolean hiddenOnFocusLost;
 	
 	protected GSPanel source;
 	private GSEPopupPlacement placement;
@@ -25,14 +27,16 @@ public class GSPopup extends GSParentPanel {
 	private GSILayoutEventListener sourceLayoutListener;
 
 	public GSPopup(GSPanel content) {
-		this(content, false);
+		this(content, true);
 	}
 	
-	public GSPopup(GSPanel content, boolean hiddenOnFocusLost) {
+	public GSPopup(GSPanel content, boolean stealingFocus) {
 		if (content == null)
 			throw new IllegalArgumentException("content is null");
 		this.content = content;
-		this.hiddenOnFocusLost = hiddenOnFocusLost;
+		this.stealingFocus =  stealingFocus;
+		
+		hiddenOnFocusLost = false;
 
 		source = null;
 		placement = GSEPopupPlacement.ABSOLUTE;
@@ -40,8 +44,6 @@ public class GSPopup extends GSParentPanel {
 		sourceFocusedOnHide = true;
 		
 		sourceLayoutListener = null;
-		
-		setFocusable(false);
 	}
 	
 	@Override
@@ -138,8 +140,10 @@ public class GSPopup extends GSParentPanel {
 		super.add(content);
 	
 		rootPanel.add(this, GSRootPanel.POPUP_LAYER);
-		GSPanelContext.getEventDispatcher().pushTopMostPopup(this);
-		content.requestFocus();
+		GSPanelContext.getEventDispatcher().pushTopPopup(this);
+		
+		if (isStealingFocus())
+			content.requestFocus();
 	}
 	
 	private void updateBounds(int x, int y) {
@@ -212,7 +216,7 @@ public class GSPopup extends GSParentPanel {
 	}
 	
 	public void hide() {
-		GSPanelContext.getEventDispatcher().popTopMostPopup(this);
+		GSPanelContext.getEventDispatcher().popTopPopup(this);
 		
 		// Transfer focus before losing it due to being removed from parent.
 		if (this.source != null) {
@@ -276,8 +280,21 @@ public class GSPopup extends GSParentPanel {
 		this.sourceFocusedOnHide = focusedOnHide;
 	}
 	
+	public boolean isStealingFocus() {
+		return stealingFocus;
+	}
+	
 	public boolean isHiddenOnFocusLost() {
 		return hiddenOnFocusLost;
+	}
+	
+	public void setHiddenOnFocusLost(boolean flag) {
+		if (flag != hiddenOnFocusLost) {
+			hiddenOnFocusLost = flag;
+			
+			if (flag && isAdded() && !GSPanelUtil.isFocusWithin(this))
+				hide();
+		}
 	}
 
 	private class GSSourceLayoutListener implements GSILayoutEventListener {

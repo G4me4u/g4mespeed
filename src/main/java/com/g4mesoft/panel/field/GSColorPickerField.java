@@ -145,6 +145,7 @@ public class GSColorPickerField extends GSParentPanel {
 			picker.setColor(color);
 			
 			GSPopup popup = new GSPopup(picker, true);
+			popup.setHiddenOnFocusLost(true);
 			popup.show(this, 0, height, GSEPopupPlacement.RELATIVE);
 		}
 	}

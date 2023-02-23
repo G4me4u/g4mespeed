@@ -134,7 +134,9 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 	}
 	
 	private void showSubMenu() {
-		popup = new GSPopup(dropdown, true);
+		popup = new GSPopup(dropdown, false);
+		popup.setHiddenOnFocusLost(true);
+		popup.setSourceFocusedOnHide(false);
 		popup.show(getParent(), getPopupLocation());
 		dropdown.addActionListener(actionListener);
 	}
@@ -156,6 +158,11 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 
 	private void hideSubMenu() {
 		dropdown.removeActionListener(actionListener);
+		GSPanel parent = getParent();
+		if (parent != null && GSPanelUtil.isFocusWithin(popup)) {
+			// Ensure we do close due to losing focus.
+			parent.requestFocus();
+		}
 		popup.hide();
 		popup = null;
 	}
