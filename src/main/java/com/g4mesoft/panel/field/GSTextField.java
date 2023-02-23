@@ -86,6 +86,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	
 	private int oldCaretPointX;
 	
+	private boolean focusLostOnConfirm;
+	
 	public GSTextField() {
 		this(null);
 	}
@@ -119,6 +121,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 		
 		verticalMargin = DEFAULT_VERTICAL_MARGIN;
 		horizontalMargin = DEFAULT_HORIZONTAL_MARGIN;
+		
+		focusLostOnConfirm = true;
 		
 		textModel.addTextModelListener(this);
 		
@@ -520,6 +524,14 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 				break;
 			case GSKeyEvent.KEY_ENTER:
 			case GSKeyEvent.KEY_KP_ENTER:
+				if (!isFocusLostOnConfirm()) {
+					if (isEditable())
+						dispatchActionPerformed();
+					event.consume();
+					break;
+				} else {
+					// pass-through
+				}
 			case GSKeyEvent.KEY_ESCAPE:
 				// Note: event is invoked at focusLost
 				//dispatchActionPerformed();
@@ -874,5 +886,13 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 			throw new IllegalArgumentException("horizontalMargin must be non-negative!");
 		
 		this.horizontalMargin = horizontalMargin;
+	}
+	
+	public boolean isFocusLostOnConfirm() {
+		return focusLostOnConfirm;
+	}
+
+	public void setFocusLostOnConfirm(boolean flag) {
+		focusLostOnConfirm = flag;
 	}
 }
