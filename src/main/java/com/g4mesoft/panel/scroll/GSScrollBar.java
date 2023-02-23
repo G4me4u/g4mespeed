@@ -9,6 +9,8 @@ import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSPanelContext;
 import com.g4mesoft.panel.dropdown.GSDropdown;
 import com.g4mesoft.panel.dropdown.GSDropdownAction;
+import com.g4mesoft.panel.event.GSFocusEvent;
+import com.g4mesoft.panel.event.GSIFocusEventListener;
 import com.g4mesoft.panel.event.GSIMouseListener;
 import com.g4mesoft.panel.event.GSMouseEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
@@ -17,7 +19,8 @@ import com.g4mesoft.renderer.GSITextureRegion;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 
-public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeListener, GSIScrollListener {
+public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIFocusEventListener,
+                                                    GSIChangeListener, GSIScrollListener {
 
 	private static final GSITextureRegion SCROLL_BUTTON_TEXTURE = GSPanelContext.getTexture(0, 32, 30, 40);
 	
@@ -79,6 +82,7 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 		scrollDragActive = false;
 		
 		addMouseEventListener(this);
+		addFocusEventListener(this);
 		
 		setModel(model);
 	}
@@ -190,7 +194,8 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 		float vs = viewSize;
 		
 		dropdown.addItem(new GSDropdownAction(SCROLL_HERE_TEXT, () -> {
-			setScroll(mns + getScrollDelta(isVertical() ? y : x) - vs * 0.5f);
+			int rel = (isVertical() ? y : x) - getButtonHeight();
+			setScroll(mns + getScrollDelta(rel) - vs * 0.5f);
 		}));
 		dropdown.separate();
 		dropdown.addItem(new GSDropdownAction(isVertical() ? TOP_TEXT : LEFT_EDGE_TEXT, () -> {
@@ -300,6 +305,11 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIChangeL
 			delta *= scrollInterval / complementaryAreaSize;
 		}
 		return delta;
+	}
+	
+	@Override
+	public void focusLost(GSFocusEvent event) {
+		scrollDragActive = false;
 	}
 	
 	public boolean isVertical() {
