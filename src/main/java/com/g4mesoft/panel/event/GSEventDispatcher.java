@@ -477,8 +477,19 @@ public class GSEventDispatcher {
 		
 		if (popup != null && !popup.isStealingFocus()) {
 			Iterator<GSPopup> itr = topPopupStack.iterator();
-			while (itr.hasNext() && !popup.isStealingFocus())
+			// Iterate to last known point (i.e. after head).
+			itr.next();
+			// Perform more expensive iteration of remaining
+			// popups to find one that is stealing focus.
+			while (itr.hasNext() && !popup.isStealingFocus()) {
 				popup = itr.next();
+				if (!isChildOf(popup, rootPanel)) {
+					itr.remove();
+					// We need any replacement popup that is not
+					// stealing focus, but is also not null.
+					popup = next;
+				}
+			}
 			if (!popup.isStealingFocus()) {
 				// No popup is stealing focus.
 				popup = null;
