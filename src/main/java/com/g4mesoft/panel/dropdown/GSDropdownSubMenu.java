@@ -134,7 +134,7 @@ public class GSDropdownSubMenu extends GSDropdownItem {
 	}
 	
 	private void showSubMenu() {
-		popup = new GSPopup(dropdown);
+		popup = new GSPopup(dropdown, true);
 		popup.show(getParent(), getPopupLocation());
 		dropdown.addActionListener(actionListener);
 	}

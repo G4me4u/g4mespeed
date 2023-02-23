@@ -9,7 +9,6 @@ import com.g4mesoft.panel.GSECursorType;
 import com.g4mesoft.panel.GSEPopupPlacement;
 import com.g4mesoft.panel.GSIActionListener;
 import com.g4mesoft.panel.GSIcon;
-import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.panel.GSPopup;
 import com.g4mesoft.panel.button.GSButton;
@@ -53,15 +52,6 @@ public class GSColorPickerField extends GSParentPanel {
 			public void focusLost(GSFocusEvent event) {
 				if (!textModel.isValidRGBColor())
 					setFieldColor(color);
-			}
-		});
-		
-		picker.addFocusEventListener(new GSIFocusEventListener() {
-			@Override
-			public void focusLost(GSFocusEvent event) {
-				GSPanel parent = picker.getParent();
-				if (parent instanceof GSPopup)
-					((GSPopup)parent).hide();
 			}
 		});
 		
@@ -154,7 +144,7 @@ public class GSColorPickerField extends GSParentPanel {
 		if (isEditable()) {
 			picker.setColor(color);
 			
-			GSPopup popup = new GSPopup(picker);
+			GSPopup popup = new GSPopup(picker, true);
 			popup.show(this, 0, height, GSEPopupPlacement.RELATIVE);
 		}
 	}

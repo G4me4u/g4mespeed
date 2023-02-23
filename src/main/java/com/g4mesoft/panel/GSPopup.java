@@ -14,6 +14,7 @@ public class GSPopup extends GSParentPanel {
 	private static final int SHADOW_COLOR = 0x80000000;
 	
 	protected final GSPanel content;
+	protected final boolean hiddenOnFocusLost;
 	
 	protected GSPanel source;
 	private GSEPopupPlacement placement;
@@ -22,11 +23,16 @@ public class GSPopup extends GSParentPanel {
 	private boolean sourceFocusedOnHide;
 	
 	private GSILayoutEventListener sourceLayoutListener;
-	
+
 	public GSPopup(GSPanel content) {
+		this(content, false);
+	}
+	
+	public GSPopup(GSPanel content, boolean hiddenOnFocusLost) {
 		if (content == null)
 			throw new IllegalArgumentException("content is null");
 		this.content = content;
+		this.hiddenOnFocusLost = hiddenOnFocusLost;
 
 		source = null;
 		placement = GSEPopupPlacement.ABSOLUTE;
@@ -46,6 +52,7 @@ public class GSPopup extends GSParentPanel {
 			sourceLayoutListener = new GSSourceLayoutListener();
 			source.addLayoutEventListener(sourceLayoutListener);
 		}
+
 	}
 
 	@Override
@@ -56,6 +63,7 @@ public class GSPopup extends GSParentPanel {
 			source.removeLayoutEventListener(sourceLayoutListener);
 			sourceLayoutListener = null;
 		}
+
 	}
 	
 	@Override
@@ -130,6 +138,7 @@ public class GSPopup extends GSParentPanel {
 		super.add(content);
 	
 		rootPanel.add(this, GSRootPanel.POPUP_LAYER);
+		GSPanelContext.getEventDispatcher().pushTopMostPopup(this);
 		content.requestFocus();
 	}
 	
@@ -203,17 +212,21 @@ public class GSPopup extends GSParentPanel {
 	}
 	
 	public void hide() {
+		GSPanelContext.getEventDispatcher().popTopMostPopup(this);
+		
+		// Transfer focus before losing it due to being removed from parent.
+		if (this.source != null) {
+			GSPanel source = this.source;
+			this.source = null;
+			if (sourceFocusedOnHide && source.isAdded())
+				source.requestFocus();
+		}
+
+		super.remove(content);
+
 		GSPanel parent = getParent();
 		if (parent != null)
 			parent.remove(this);
-		
-		super.remove(content);
-
-		if (source != null) {
-			if (sourceFocusedOnHide && source.isAdded())
-				source.requestFocus();
-			source = null;
-		}
 	}
 	
 	@Override
@@ -263,6 +276,10 @@ public class GSPopup extends GSParentPanel {
 		this.sourceFocusedOnHide = focusedOnHide;
 	}
 	
+	public boolean isHiddenOnFocusLost() {
+		return hiddenOnFocusLost;
+	}
+
 	private class GSSourceLayoutListener implements GSILayoutEventListener {
 
 		@Override

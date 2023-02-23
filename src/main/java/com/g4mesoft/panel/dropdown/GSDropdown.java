@@ -9,13 +9,11 @@ import com.g4mesoft.panel.GSILayoutProperty;
 import com.g4mesoft.panel.GSPanel;
 import com.g4mesoft.panel.GSParentPanel;
 import com.g4mesoft.panel.GSPopup;
-import com.g4mesoft.panel.event.GSFocusEvent;
-import com.g4mesoft.panel.event.GSIFocusEventListener;
 import com.g4mesoft.panel.event.GSIKeyListener;
 import com.g4mesoft.panel.event.GSKeyEvent;
 import com.g4mesoft.renderer.GSIRenderer2D;
 
-public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocusEventListener {
+public class GSDropdown extends GSParentPanel implements GSIKeyListener {
 
 	protected static final int BACKGROUND_COLOR = 0xFF252526;
 	protected static final int VERTICAL_PADDING = 4;
@@ -28,7 +26,6 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 		actionListeners = new ArrayList<>();
 		
 		addKeyEventListener(this);
-		addFocusEventListener(this);
 	}
 	
 	@Override
@@ -134,14 +131,6 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener, GSIFocu
 			break;
 		default:
 			break;
-		}
-	}
-	
-	@Override
-	public void focusLost(GSFocusEvent event) {
-		if (!hasPopupVisible()) {
-			hide();
-			event.consume();
 		}
 	}
 }

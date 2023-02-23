@@ -1,5 +1,7 @@
 package com.g4mesoft.panel.event;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.function.BiConsumer;
 
 import com.g4mesoft.panel.GSECursorType;
@@ -23,11 +25,19 @@ public class GSEventDispatcher {
 	private GSPanel draggedPanel;
 	private GSECursorType cursor;
 
+	private GSPanel bottomMostFocusablePanel;
+	private GSILayoutEventListener bottomMostLayoutListener;
+	private final Deque<GSPopup> topMostPopupStack;
+	
 	public GSEventDispatcher(GSRootPanel rootPanel) {
 		this.rootPanel = rootPanel;
 		
-		focusedPanel = null;
+		focusedPanel = draggedPanel = null;
 		cursor = GSECursorType.DEFAULT;
+	
+		bottomMostFocusablePanel = rootPanel;
+		bottomMostLayoutListener = null;
+		topMostPopupStack = new ArrayDeque<>();
 	}
 	
 	public void reset() {
@@ -76,16 +86,16 @@ public class GSEventDispatcher {
 		int y = convertMouseY(mouseY);
 		
 		GSPanel panel = getTopPanelAt(x, y);
+
+		if (button != GSMouseEvent.UNKNOWN_BUTTON) {
+			// Focus the top-most focusable ancestor of the panel
+			// that was clicked (or the panel itself if focusable).
+			setFocusedPanel(getTopFocusableAncestor(panel));
+			// Set dragged panel for dragging events.
+			draggedPanel = panel;
+		}
 		
 		if (panel != null) {
-			if (button != GSMouseEvent.UNKNOWN_BUTTON) {
-				// Focus the top-most focusable ancestor of the panel
-				// that was clicked (or the panel itself if focusable).
-				setFocusedPanel(getTopFocusableAncestor(panel));
-				// Set dragged panel for dragging events.
-				draggedPanel = panel;
-			}
-
 			GSMouseEvent event = GSMouseEvent.createMousePressedEvent(x, y, button, modifiers);
 			translateMouseEvent(panel, event, TRANSLATE_FROM_ROOT);
 			
@@ -94,8 +104,14 @@ public class GSEventDispatcher {
 	}
 	
 	private GSPanel getTopFocusableAncestor(GSPanel panel) {
-		while (panel != null && !panel.isFocusable())
+		while (panel != null && !panel.isFocusable()) {
+			if (panel == bottomMostFocusablePanel) {
+				// The loop is only entered if panel is
+				// not focusable. Thus, return null.
+				return null;
+			}
 			panel = panel.getParent();
+		}
 		return panel;
 	}
 
@@ -132,7 +148,7 @@ public class GSEventDispatcher {
 		populateRightClickMenu(dropdown, panel, x, y);
 		
 		if (!dropdown.isEmpty()) {
-			GSPopup popup = new GSPopup(dropdown);
+			GSPopup popup = new GSPopup(dropdown, true);
 			// The location is relative to the panel
 			popup.show(panel, x, y, GSEPopupPlacement.RELATIVE);
 		}
@@ -144,6 +160,10 @@ public class GSEventDispatcher {
 			dropdown.separate();
 			x += panel.getX();
 			y += panel.getY();
+			if (panel == bottomMostFocusablePanel) {
+				// Do not go beyond bottom-most focusable panel.
+				break;
+			}
 			panel = panel.getParent();
 		} while (panel != null);
 	}
@@ -197,7 +217,7 @@ public class GSEventDispatcher {
 	}
 	
 	public void requestFocus(GSPanel panel) {
-		if (panel.isFocusable() && isChildOf(panel, rootPanel))
+		if (panel.isFocusable() && isChildOf(panel, bottomMostFocusablePanel))
 			setFocusedPanel(panel);
 	}
 	
@@ -221,7 +241,7 @@ public class GSEventDispatcher {
 
 		if (panel != oldFocusedPanel) {
 			focusedPanel = panel;
-			
+
 			// Invoke panels with focus lost and gained events.
 			if (oldFocusedPanel != null) {
 				oldFocusedPanel.setFocused(false);
@@ -229,7 +249,18 @@ public class GSEventDispatcher {
 				GSFocusEvent event = GSFocusEvent.createFocusLostEvent();
 				invokeFocusEventListeners(oldFocusedPanel, event, GSIFocusEventListener::focusLost);
 			}
-			// The focused panel might have changed from the focus lost event
+			
+			// Iterate through popups, and hide those that should be hidden due
+			// to change of focus. Note that we only hide the top of the stack.
+			GSPopup popup;
+			while (focusedPanel == panel && (popup = topMostPopupStack.peek()) != null) {
+				if (!popup.isHiddenOnFocusLost() || isChildOf(panel, popup))
+					break;
+				popup.hide();
+			}
+			
+			// The focused panel might have changed from the focus lost event, or due
+			// to the popup focusing its source after being hidden.
 			if (panel != null && focusedPanel == panel && !panel.isFocused()) {
 				panel.setFocused(true);
 
@@ -252,8 +283,8 @@ public class GSEventDispatcher {
 	private GSPanel getTopPanelAt(int x, int y) {
 		GSPanel panel = null;
 		
-		if (rootPanel.isInBounds(x, y)) {
-			GSPanel child = rootPanel;
+		if (bottomMostFocusablePanel.isInBounds(x, y)) {
+			GSPanel child = bottomMostFocusablePanel;
 			do {
 				panel = child;
 				
@@ -357,6 +388,74 @@ public class GSEventDispatcher {
 		}
 	}
 	
+	public void pushTopMostPopup(GSPopup popup) {
+		if (popup != null && isChildOf(popup, rootPanel)) {
+			topMostPopupStack.push(popup);
+			setBottomMostFocusablePopup(popup);
+			// Ensure focused and dragged panel are children.
+			if (!isChildOf(focusedPanel, popup))
+				setFocusedPanel(popup);
+			if (!isChildOf(draggedPanel, popup))
+				draggedPanel = null;
+		}
+	}
+
+	public void popTopMostPopup(GSPopup popup) {
+		if (popup == null)
+			throw new IllegalStateException("popup is null!");
+		
+		if (topMostPopupStack.peek() != popup) {
+			if (popup == bottomMostFocusablePanel) {
+				topMostPopupStack.remove(popup);
+				// The bottom-most focusable panel is updated
+				// below.
+			} else {
+				// Removed later during traversal below.
+				return;
+			}
+		}
+		
+		// Find first popup in top-most popup stack that
+		// is also visible (i.e. child of root panel).
+		GSPopup next = topMostPopupStack.peek();
+		while (next != null && (popup == next || !isChildOf(next, rootPanel))) {
+			topMostPopupStack.poll();
+			next = topMostPopupStack.peek();
+		}
+		// Note: next is head of stack.
+		popup = next;
+		
+		// Ensure we found a popup.
+		if (popup == null) {
+			if (rootPanel != bottomMostFocusablePanel)
+				setBottomMostFocusablePanel(rootPanel);
+		} else {
+			if (popup != bottomMostFocusablePanel)
+				setBottomMostFocusablePopup(popup);
+		}
+	}
+
+	private void setBottomMostFocusablePopup(GSPopup popup) {
+		setBottomMostFocusablePanel((GSPanel)popup);
+		
+		bottomMostLayoutListener = new GSILayoutEventListener() {
+			@Override
+			public void panelRemoved(GSLayoutEvent event) {
+				popTopMostPopup(popup);
+			}
+		};
+		popup.addLayoutEventListener(bottomMostLayoutListener);
+	}
+	
+	private void setBottomMostFocusablePanel(GSPanel panel) {
+		if (bottomMostLayoutListener != null) {
+			bottomMostFocusablePanel.removeLayoutEventListener(bottomMostLayoutListener);
+			bottomMostLayoutListener = null;
+		}
+		
+		bottomMostFocusablePanel = panel;
+	}
+	
 	private void distributeMouseEvent(GSPanel panel, GSMouseEvent event, BiConsumer<GSIMouseListener, GSMouseEvent> method) {
 		while (panel != null && !event.isConsumed()) {
 			if (!panel.isPassingEvents())
@@ -365,6 +464,10 @@ public class GSEventDispatcher {
 			event.setX(event.getX() + panel.getX());
 			event.setY(event.getY() + panel.getY());
 			
+			if (panel == bottomMostFocusablePanel) {
+				// Do not go beyond bottom-most focusable panel.
+				break;
+			}
 			panel = panel.getParent();
 		}
 	}
@@ -378,6 +481,10 @@ public class GSEventDispatcher {
 					event.consume();
 			}
 			
+			if (panel == bottomMostFocusablePanel) {
+				// Do not go beyond bottom-most focusable panel.
+				break;
+			}
 			panel = panel.getParent();
 		}
 	}
