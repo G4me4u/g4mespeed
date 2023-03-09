@@ -76,6 +76,10 @@ public final class GSRectangle {
 		this.height = height;
 	}
 	
+	public void setBounds(GSRectangle bounds) {
+		setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+	}
+	
 	public void setBounds(int x, int y, int width, int height) {
 		this.x = x;
 		this.y = y;
