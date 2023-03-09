@@ -1,7 +1,7 @@
 package com.g4mesoft.panel.button;
 
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,8 +13,8 @@ public class GSRadioButtonGroup {
 	private final Map<GSRadioButton, GSIActionListener> actionListeners;
 
 	public GSRadioButtonGroup() {
-		buttons = new HashSet<>();
-		actionListeners = new HashMap<>();
+		buttons = Collections.newSetFromMap(new IdentityHashMap<>());
+		actionListeners = new IdentityHashMap<>();
 	}
 	
 	public void addRadioButton(GSRadioButton button) {
