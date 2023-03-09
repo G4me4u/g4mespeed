@@ -16,7 +16,7 @@ public final class GSTextCellRenderer implements GSICellRenderer<Text> {
 	@Override
 	public void render(GSIRenderer2D renderer, Text value, GSCellContext context) {
 		GSPanelUtil.drawLabel(renderer, null, 0, value, context.textColor,
-				true, null, context.textAlignment, context.bounds);
+				false, null, context.textAlignment, context.bounds);
 	}
 	
 	@Override
