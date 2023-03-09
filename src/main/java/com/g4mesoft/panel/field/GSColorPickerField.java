@@ -81,13 +81,24 @@ public class GSColorPickerField extends GSParentPanel {
 	
 	@Override
 	public void layout() {
-		int h = height - 2 * borderWidth;
-		int w = width - 2 * borderWidth;
-		
-		int bs = h - 2 * BUTTON_MARGIN;
-		
-		colorButton.setBounds(borderWidth + BUTTON_MARGIN, borderWidth + BUTTON_MARGIN, bs, bs);
-		textField.setBounds(borderWidth + bs + 2 * BUTTON_MARGIN, borderWidth, w - bs - 2 * BUTTON_MARGIN, h);
+		int m = 2 * (borderWidth + BUTTON_MARGIN);
+		if (width > m && height > m) {
+			int bs = Math.min(width - m, height - m);
+			colorButton.setBounds(
+					borderWidth + BUTTON_MARGIN,
+					(height - bs) / 2,
+					bs,
+					bs);
+			textField.setBounds(
+					borderWidth + bs + 2 * BUTTON_MARGIN,
+					borderWidth,
+					width - m - bs,
+					height - 2 * borderWidth);
+		} else {
+			// Entire size taken up by border and margin.
+			colorButton.setBounds(0, 0, 0, 0);
+			textField.setBounds(0, 0, 0, 0);
+		}
 	}
 	
 	@Override
@@ -157,6 +168,8 @@ public class GSColorPickerField extends GSParentPanel {
 	}
 
 	public void addActionListener(GSIActionListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null!");
 		listeners.add(listener);
 	}
 
