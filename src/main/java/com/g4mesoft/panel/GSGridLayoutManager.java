@@ -91,7 +91,7 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		int c;
 		for (c = 0; remWx >= GSMathUtil.EPSILON_F && c < layoutInfo.columnCount; c++) {
 			double wx = layoutInfo.columnWeights[c];
-			long dw = (long)(deltaW * wx / remWx);
+			long dw = Math.round(deltaW * wx / remWx);
 			// Ensure that we do not get negative width
 			if (layoutInfo.minColumnWidths[c] + dw < 0L)
 				dw = -layoutInfo.minColumnWidths[c];
@@ -132,7 +132,7 @@ public class GSGridLayoutManager implements GSILayoutManager {
 		int r;
 		for (r = 0; remWy >= GSMathUtil.EPSILON_F && r < layoutInfo.rowCount; r++) {
 			double wy = layoutInfo.rowWeights[r];
-			long dh = (long)(deltaH * wy / remWy);
+			long dh = Math.round(deltaH * wy / remWy);
 			// Ensure that we do not get negative height
 			if (layoutInfo.minRowHeights[r] + dh < 0L)
 				dh = -layoutInfo.minRowHeights[r];
@@ -425,7 +425,7 @@ public class GSGridLayoutManager implements GSILayoutManager {
 				// Distribute weighted over columns
 				for (int c = gx; remWx > 0.0 && c < gx + gw; c++) {
 					double wx = layoutInfo.columnWeights[c];
-					long dw = (long)(remW * wx / remWx);
+					long dw = Math.round(remW * wx / remWx);
 					if (dw > layoutInfo.minColumnWidths[c])
 						layoutInfo.minColumnWidths[c] = dw;
 					remWx -= wx;
@@ -452,7 +452,7 @@ public class GSGridLayoutManager implements GSILayoutManager {
 				// Distribute weighted over rows
 				for (int r = gy; remWy > 0.0 && r < gy + gh; r++) {
 					double wy = layoutInfo.rowWeights[r];
-					long dh = (long)(remH * wy / remWy);
+					long dh = Math.round(remH * wy / remWy);
 					if (dh > layoutInfo.minRowHeights[r])
 						layoutInfo.minRowHeights[r] = dh;
 					remWy -= wy;
