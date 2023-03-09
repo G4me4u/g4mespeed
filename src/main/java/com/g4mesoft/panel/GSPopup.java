@@ -114,7 +114,7 @@ public class GSPopup extends GSParentPanel {
 		// Update source (root panel if not specified).
 		GSRootPanel rootPanel = GSPanelContext.getRootPanel();
 		this.source = source != null ? source : rootPanel;
-		source.incrementPopupCount();
+		this.source.incrementPopupCount();
 		
 		this.placement = placement;
 		this.relX = x;
