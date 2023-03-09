@@ -69,22 +69,6 @@ public class GSPopup extends GSParentPanel {
 	}
 	
 	@Override
-	public void onAdded(GSPanel parent) {
-		super.onAdded(parent);
-
-		if (source != null)
-			source.incrementPopupCount();
-	}
-
-	@Override
-	public void onRemoved(GSPanel parent) {
-		super.onRemoved(parent);
-		
-		if (source != null)
-			source.decrementPopupCount();
-	}
-	
-	@Override
 	public void add(GSPanel panel) {
 		throw new UnsupportedOperationException("Popups can only have one child");
 	}
@@ -130,6 +114,7 @@ public class GSPopup extends GSParentPanel {
 		// Update source (root panel if not specified).
 		GSRootPanel rootPanel = GSPanelContext.getRootPanel();
 		this.source = source != null ? source : rootPanel;
+		source.incrementPopupCount();
 		
 		this.placement = placement;
 		this.relX = x;
@@ -222,6 +207,7 @@ public class GSPopup extends GSParentPanel {
 		if (this.source != null) {
 			GSPanel source = this.source;
 			this.source = null;
+			source.decrementPopupCount();
 			if (sourceFocusedOnHide && source.isAdded())
 				source.requestFocus();
 		}
