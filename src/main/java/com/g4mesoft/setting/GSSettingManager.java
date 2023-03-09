@@ -373,6 +373,8 @@ public class GSSettingManager {
 	}
 
 	public void addChangeListener(GSISettingChangeListener changeListener) {
+		if (changeListener == null)
+			throw new IllegalArgumentException("changeListener is null!");
 		listeners.add(changeListener);
 	}
 

@@ -70,6 +70,8 @@ public class GSColorPicker extends GSParentPanel {
 	}
 	
 	public void addActionListener(GSIActionListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null!");
 		listeners.add(listener);
 	}
 

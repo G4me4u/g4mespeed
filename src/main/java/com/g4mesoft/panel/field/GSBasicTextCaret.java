@@ -151,15 +151,11 @@ public class GSBasicTextCaret implements GSITextCaret, GSITextModelListener, GSI
 	public void addTextCaretListener(GSITextCaretListener listener) {
 		if (listener == null)
 			throw new IllegalArgumentException("listener is null!");
-		
 		caretListeners.add(listener);
 	}
 
 	@Override
 	public void removeTextCaretListener(GSITextCaretListener listener) {
-		if (listener == null)
-			throw new IllegalArgumentException("listener is null!");
-
 		caretListeners.remove(listener);
 	}
 	

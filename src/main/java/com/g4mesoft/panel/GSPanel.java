@@ -302,9 +302,10 @@ public class GSPanel {
 	}
 	
 	public void addMouseEventListener(GSIMouseListener eventListener, int priority) {
+		if (eventListener == null)
+			throw new IllegalArgumentException("eventListener is null!");
 		if (mouseEventListeners == null)
 			mouseEventListeners = new GSPriorityEventListenerList<GSIMouseListener>();
-		
 		mouseEventListeners.add(eventListener, priority);
 	}
 
@@ -328,9 +329,10 @@ public class GSPanel {
 	}
 	
 	public void addKeyEventListener(GSIKeyListener eventListener, int priority) {
+		if (eventListener == null)
+			throw new IllegalArgumentException("eventListener is null!");
 		if (keyEventListeners == null)
 			keyEventListeners = new GSPriorityEventListenerList<GSIKeyListener>();
-		
 		keyEventListeners.add(eventListener, priority);
 	}
 	
@@ -354,9 +356,10 @@ public class GSPanel {
 	}
 
 	public void addFocusEventListener(GSIFocusEventListener eventListener, int priority) {
+		if (eventListener == null)
+			throw new IllegalArgumentException("eventListener is null!");
 		if (focusEventListeners == null)
 			focusEventListeners = new GSPriorityEventListenerList<GSIFocusEventListener>();
-		
 		focusEventListeners.add(eventListener, priority);
 	}
 	
@@ -380,9 +383,10 @@ public class GSPanel {
 	}
 
 	public void addLayoutEventListener(GSILayoutEventListener eventListener, int priority) {
+		if (eventListener == null)
+			throw new IllegalArgumentException("eventListener is null!");
 		if (layoutEventListeners == null)
 			layoutEventListeners = new GSPriorityEventListenerList<GSILayoutEventListener>();
-		
 		layoutEventListeners.add(eventListener, priority);
 	}
 	

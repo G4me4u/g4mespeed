@@ -17,6 +17,8 @@ public abstract class GSAbstractScrollBarModel implements GSIScrollBarModel {
 	
 	@Override
 	public void addChangeListener(GSIChangeListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null!");
 		changeListeners.add(listener);
 	}
 
@@ -31,6 +33,8 @@ public abstract class GSAbstractScrollBarModel implements GSIScrollBarModel {
 
 	@Override
 	public void addScrollListener(GSIScrollListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null!");
 		scrollListeners.add(listener);
 	}
 	

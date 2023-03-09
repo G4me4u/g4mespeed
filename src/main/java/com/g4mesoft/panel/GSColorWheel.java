@@ -135,6 +135,8 @@ public class GSColorWheel extends GSPanel implements GSIMouseListener {
 	}
 	
 	public void addActionListener(GSIActionListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null!");
 		listeners.add(listener);
 	}
 

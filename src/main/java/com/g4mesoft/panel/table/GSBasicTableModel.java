@@ -71,6 +71,8 @@ public class GSBasicTableModel implements GSITableModel {
 
 	@Override
 	public void addListener(GSITableModelListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null!");
 		listeners.add(listener);
 	}
 

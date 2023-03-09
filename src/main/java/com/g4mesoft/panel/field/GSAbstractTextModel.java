@@ -33,8 +33,8 @@ public abstract class GSAbstractTextModel implements GSITextModel {
 	
 	@Override
 	public void addTextModelListener(GSITextModelListener textModelListener) {
-		if (modelListeners.contains(textModelListener))
-			return;
+		if (textModelListener == null)
+			throw new IllegalArgumentException("textModelListener is null");
 		modelListeners.add(textModelListener);
 	}
 

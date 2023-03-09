@@ -78,6 +78,8 @@ public final class GSCarpetCompat extends GSAbstractCompat {
 	}
 
 	public void addCarpetTickrateListener(GSICarpetCompatTickrateListener tickrateListener) {
+		if (tickrateListener == null)
+			throw new IllegalArgumentException("tickrateListener is null");
 		synchronized (tickrateListeners) {
 			tickrateListeners.add(tickrateListener);
 		}

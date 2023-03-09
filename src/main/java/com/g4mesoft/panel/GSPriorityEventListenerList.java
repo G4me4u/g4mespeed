@@ -30,6 +30,8 @@ public class GSPriorityEventListenerList<L> {
 	}
 	
 	public void add(L listener, int priority) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null!");
 		if (isIterating()) {
 			if (listenersToRemove != null)
 				listenersToRemove.remove(listener);
@@ -42,7 +44,7 @@ public class GSPriorityEventListenerList<L> {
 		}
 	}
 
-	public void addAll(Collection<GSEntry> entries) {
+	private void addAll(Collection<GSEntry> entries) {
 		listenerEntries.addAll(entries);
 		dirty = true;
 	}
@@ -70,7 +72,7 @@ public class GSPriorityEventListenerList<L> {
 		}
 	}
 
-	public void removeAll(Collection<L> listeners) {
+	private void removeAll(Collection<L> listeners) {
 		listeners.forEach(this::remove);
 	}
 

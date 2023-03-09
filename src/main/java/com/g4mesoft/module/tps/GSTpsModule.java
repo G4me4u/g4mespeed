@@ -462,6 +462,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 
 	public void addTpsListener(GSITpsDependant listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null");
 		synchronized(listeners) {
 			listeners.add(listener);
 			listener.tpsChanged(tps, 0.0f);
