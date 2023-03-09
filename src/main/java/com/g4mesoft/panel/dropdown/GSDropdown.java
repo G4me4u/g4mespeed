@@ -15,7 +15,7 @@ import com.g4mesoft.renderer.GSIRenderer2D;
 
 public class GSDropdown extends GSParentPanel implements GSIKeyListener {
 
-	protected static final int BACKGROUND_COLOR = 0xFF252526;
+	protected static final int BACKGROUND_COLOR = 0xFF202020;
 	protected static final int VERTICAL_PADDING = 4;
 	
 	private final List<GSIActionListener> actionListeners;
@@ -100,6 +100,8 @@ public class GSDropdown extends GSParentPanel implements GSIKeyListener {
 	
 	/* Visible for GSDropdownSubMenu */
 	void addActionListener(GSIActionListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null");
 		actionListeners.add(listener);
 	}
 

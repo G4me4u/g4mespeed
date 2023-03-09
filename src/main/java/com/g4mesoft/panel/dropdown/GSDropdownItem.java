@@ -10,8 +10,9 @@ public abstract class GSDropdownItem extends GSPanel {
 	protected static final int PADDING          = 2;
 	
 	protected static final int BACKGROUND_COLOR         = GSDropdown.BACKGROUND_COLOR;
-	protected static final int TEXT_COLOR               = 0xFFCCCCCC;
 	protected static final int HOVERED_BACKGROUND_COLOR = 0xFF094771;
+
+	protected static final int TEXT_COLOR               = 0xFFCCCCCC;
 	protected static final int HOVERED_TEXT_COLOR       = 0xFFF3F6F8;
 	protected static final int DISABLED_TEXT_COLOR      = 0xFF686869;
 	

@@ -33,9 +33,9 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 
 	private static final int DEFAULT_BACKGROUND_COLOR = 0xFF202020;
 
-	private static final int DEFAULT_EDITABLE_TEXT_COLOR        = 0xFFE0E0E0;
-	private static final int DEFAULT_UNEDITABLE_TEXT_COLOR      = 0xFF707070;
-	private static final int DEFAULT_SELECTION_TEXT_COLOR       = 0xFFFFFFFF;
+	private static final int DEFAULT_EDITABLE_TEXT_COLOR        = 0xFFCCCCCC;
+	private static final int DEFAULT_UNEDITABLE_TEXT_COLOR      = 0xFF686869;
+	private static final int DEFAULT_SELECTION_TEXT_COLOR       = 0xFFF3F6F8;
 	private static final int DEFAULT_SELECTION_BACKGROUND_COLOR = 0xFF0E6CDC;
 	
 	private static final int DEFAULT_BORDER_WIDTH = 1;
@@ -703,6 +703,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	}
 	
 	public void addModelListener(GSIModelListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null!");
 		modelListeners.add(listener);
 	}
 
@@ -730,6 +732,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	}
 	
 	public void addChangeListener(GSIChangeListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null!");
 		changeListeners.add(listener);
 	}
 
@@ -742,6 +746,8 @@ public class GSTextField extends GSPanel implements GSITextCaretListener, GSITex
 	}
 
 	public void addActionListener(GSIActionListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null!");
 		actionListeners.add(listener);
 	}
 	

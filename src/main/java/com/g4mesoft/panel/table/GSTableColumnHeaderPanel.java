@@ -23,30 +23,50 @@ public class GSTableColumnHeaderPanel extends GSPanel implements GSIScrollable {
 		GSRectangle clipBounds = renderer.getClipBounds()
 				.intersection(0, 0, width, height);
 		
-		GSCellContext context = table.createCellContext();
-		context.backgroundColor = GSColorUtil.darker(context.backgroundColor);
-		
-		drawBackground(renderer, clipBounds, context);
-		drawHeaders(renderer, clipBounds, context);
+		drawBackground(renderer, clipBounds);
+		drawHeaders(renderer, clipBounds);
 	}
 	
-	private void drawBackground(GSIRenderer2D renderer, GSRectangle clipBounds, GSCellContext context) {
-		if (GSColorUtil.unpackA(context.backgroundColor) != 0x00)
+	private GSCellContext initCellContext(GSCellContext context, int columnIndex, GSRectangle bounds) {
+		context = table.initCellContext(context, columnIndex, GSTablePanel.INVALID_HEADER_INDEX, bounds);
+		context.backgroundColor = GSColorUtil.darker(context.backgroundColor);
+		return context;
+	}
+	
+	private void drawBackground(GSIRenderer2D renderer, GSRectangle clipBounds) {
+		GSCellContext context = initCellContext(null, GSTablePanel.INVALID_HEADER_INDEX, null);
+		if (GSColorUtil.unpackA(context.backgroundColor) != 0x00) {
 			renderer.fillRect(clipBounds.x, clipBounds.y, clipBounds.width,
 					clipBounds.height, context.backgroundColor);
+		}
+		// Check if we have a selection and draw its background
+		if (table.getColumnSelectionPolicy() != GSEHeaderSelectionPolicy.DISABLED &&
+				table.hasSelection()) {
+			GSRectangle bounds = new GSRectangle();
+			bounds.y = 0;
+			bounds.height = height;
+			table.computeColumnSelectionBounds(bounds);
+			int selectionColor = GSColorUtil.darker(table.getSelectionBackgroundColor());
+			renderer.fillRect(bounds.x, bounds.y, bounds.width, bounds.height,
+					selectionColor);
+		}
 	}
 	
-	private void drawHeaders(GSIRenderer2D renderer, GSRectangle clipBounds, GSCellContext context) {
+	private void drawHeaders(GSIRenderer2D renderer, GSRectangle clipBounds) {
 		GSITableModel model = table.getModel();
-		context.bounds.x = table.getVerticalBorderWidth();
-		context.bounds.y = clipBounds.y;
-		context.bounds.height = clipBounds.height;
-		for (int c = 0; c < model.getColumnCount() && context.bounds.x < clipBounds.x + clipBounds.width; c++) {
+		GSCellContext context = new GSCellContext();
+		GSRectangle bounds = new GSRectangle();
+		bounds.x = table.getVerticalBorderWidth();
+		bounds.y = clipBounds.y;
+		bounds.height = clipBounds.height;
+		for (int c = 0; c < model.getColumnCount() && bounds.x < clipBounds.x + clipBounds.width; c++) {
 			GSITableColumn column = model.getColumn(c);
-			context.bounds.width = column.getWidth();
-			if (context.bounds.x + context.bounds.width >= clipBounds.x)
+			bounds.width = column.getWidth();
+			if (bounds.x + bounds.width >= clipBounds.x) {
+				initCellContext(context, c, bounds);
 				renderHeader(renderer, column.getHeaderValue(), context);
-			context.bounds.x += context.bounds.width + table.getVerticalBorderWidth();
+			}
+			bounds.x += bounds.width + table.getVerticalBorderWidth();
 		}
 	}
 	

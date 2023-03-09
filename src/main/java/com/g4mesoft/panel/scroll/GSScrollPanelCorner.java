@@ -5,7 +5,7 @@ import com.g4mesoft.renderer.GSIRenderer2D;
 
 public class GSScrollPanelCorner extends GSPanel {
 
-	private static final int DEFAULT_BACKGROUND_COLOR = 0xFF000000;
+	private static final int DEFAULT_BACKGROUND_COLOR = 0xFF060606;
 	
 	private int backgroundColor;
 	

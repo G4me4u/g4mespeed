@@ -22,13 +22,13 @@ import net.minecraft.text.Text;
 
 public class GSRadioButton extends GSPanel implements GSIMouseListener, GSIKeyListener {
 
-	private static final int DEFAULT_ICON_COLOR = 0xFF9E9E9E;
-	private static final int DEFAULT_HOVERED_ICON_COLOR = 0xFFDDDDDD;
-	private static final int DEFAULT_DISABLED_ICON_COLOR = 0xFF707070;
+	private static final int DEFAULT_ICON_COLOR = 0xFFCACACA;
+	private static final int DEFAULT_HOVERED_ICON_COLOR = 0xFFF0F3F5;
+	private static final int DEFAULT_DISABLED_ICON_COLOR = 0xFF676768;
 	
-	private static final int DEFAULT_TEXT_COLOR = 0xFFE0E0E0;
-	private static final int DEFAULT_HOVERED_TEXT_COLOR = 0xFFFFFFFF;
-	private static final int DEFAULT_DISABLED_TEXT_COLOR = 0xFF707070;
+	private static final int DEFAULT_TEXT_COLOR = 0xFFCCCCCC;
+	private static final int DEFAULT_HOVERED_TEXT_COLOR = 0xFFF3F6F8;
+	private static final int DEFAULT_DISABLED_TEXT_COLOR = 0xFF686869;
 	
 	private static final int DEFAULT_ICON_SIZE = 6;
 	
@@ -241,6 +241,8 @@ public class GSRadioButton extends GSPanel implements GSIMouseListener, GSIKeyLi
 	}
 	
 	public void addActionListener(GSIActionListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null");
 		actionListeners.add(listener);
 	}
 

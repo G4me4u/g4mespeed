@@ -130,14 +130,14 @@ public class GSTableLayoutManager implements GSILayoutManager {
 			i0 = i1 - 1;
 			break;
 		case RESIZE_SUBSEQUENT:
-			if (resizingIndex != -1)
+			if (resizingIndex != GSTablePanel.INVALID_HEADER_INDEX)
 				i0 = resizingIndex + 1;
 			break;
 		case RESIZE_NEXT:
-			if (resizingIndex != -1) {
+			if (resizingIndex != GSTablePanel.INVALID_HEADER_INDEX) {
 				i0 = resizingIndex + 1;
 				// Note: ensure we have a next header element.
-				i1 = Math.min(resizingIndex + 2, i1);
+				i1 = Math.min(i0 + 1, i1);
 			}
 			break;
 		case RESIZE_OFF:
@@ -151,7 +151,7 @@ public class GSTableLayoutManager implements GSILayoutManager {
 		// Only resize if we can not fit or resize policy is not off.
 		if (rem < 0 || accessor.getResizePolicy() != GSEHeaderResizePolicy.RESIZE_OFF) {
 			// Phase 3: take remaining size from resizing element.
-			if (resizingIndex != -1)
+			if (resizingIndex != GSTablePanel.INVALID_HEADER_INDEX)
 				rem = distributeSize(accessor, rem, resizingIndex, resizingIndex + 1, true);
 			// Phase 4: distribute remaining size among all remaining header elements
 			rem = distributeSize(accessor, rem, 0, accessor.getCount(), true);

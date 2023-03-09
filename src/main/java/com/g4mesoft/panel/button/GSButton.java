@@ -28,16 +28,16 @@ import net.minecraft.text.Text;
 public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListener {
 
 	private static final int DEFAULT_BACKGROUND_COLOR = 0xFF202020;
-	private static final int DEFAULT_HOVERED_BACKGROUND_COLOR = 0xFF2E2E2E;
+	private static final int DEFAULT_HOVERED_BACKGROUND_COLOR = 0xFF094771;
 	private static final int DEFAULT_DISABLED_BACKGROUND_COLOR = 0xFF0A0A0A;
 	
-	private static final int DEFAULT_TEXT_COLOR = 0xFFE0E0E0;
-	private static final int DEFAULT_HOVERED_TEXT_COLOR = 0xFFFFFFFF;
-	private static final int DEFAULT_DISABLED_TEXT_COLOR = 0xFF707070;
+	private static final int DEFAULT_TEXT_COLOR = 0xFFCCCCCC;
+	private static final int DEFAULT_HOVERED_TEXT_COLOR = 0xFFF3F6F8;
+	private static final int DEFAULT_DISABLED_TEXT_COLOR = 0xFF686869;
  
 	private static final int DEFAULT_BORDER_WIDTH = 1;
 	private static final int DEFAULT_BORDER_COLOR = 0xFF171717;
-	private static final int DEFAULT_HOVERED_BORDER_COLOR = 0xFF262626;
+	private static final int DEFAULT_HOVERED_BORDER_COLOR = 0xFF06314F;
 	private static final int DEFAULT_DISABLED_BORDER_COLOR = 0xFF060606;
 	
 	private static final int DEFAULT_VERTICAL_MARGIN   = 2;
@@ -258,6 +258,8 @@ public class GSButton extends GSPanel implements GSIMouseListener, GSIKeyListene
 	}
 	
 	public void addActionListener(GSIActionListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null");
 		actionListeners.add(listener);
 	}
 

@@ -15,7 +15,7 @@ import net.minecraft.text.Text;
 public class GSTextLabel extends GSPanel {
 
 	private static final int DEFAULT_BACKGROUND_COLOR = 0x00000000;
-	private static final int DEFAULT_TEXT_COLOR = 0xFFE0E0E0;
+	private static final int DEFAULT_TEXT_COLOR = 0xFFCCCCCC;
 	private static final int DEFAULT_ICON_SPACING = 2;
 	
 	private GSIcon icon;

@@ -5,7 +5,7 @@ import com.g4mesoft.renderer.GSIRenderer2D;
 
 public class GSDropdownSeparator extends GSDropdownItem {
 
-	private static final int SEPARATOR_COLOR = 0xFF616162;
+	private static final int SEPARATOR_COLOR = 0xFF4D4D4D;
 	
 	@Override
 	public void render(GSIRenderer2D renderer) {

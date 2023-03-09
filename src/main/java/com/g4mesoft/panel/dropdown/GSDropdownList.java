@@ -50,16 +50,16 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 	private static final GSIcon DISABLED_DOWN_ARROW_ICON = GSPanelContext.getIcon(50, 62, 10, 10);
 	
 	private static final int DEFAULT_BACKGROUND_COLOR = 0xFF202020;
-	private static final int DEFAULT_HOVERED_BACKGROUND_COLOR = 0xFF2E2E2E;
+	private static final int DEFAULT_HOVERED_BACKGROUND_COLOR = 0xFF094771;
 	private static final int DEFAULT_DISABLED_BACKGROUND_COLOR = 0xFF0A0A0A;
 	
-	private static final int DEFAULT_TEXT_COLOR = 0xFFE0E0E0;
-	private static final int DEFAULT_HOVERED_TEXT_COLOR = 0xFFFFFFFF;
-	private static final int DEFAULT_DISABLED_TEXT_COLOR = 0xFF707070;
+	private static final int DEFAULT_TEXT_COLOR = 0xFFCCCCCC;
+	private static final int DEFAULT_HOVERED_TEXT_COLOR = 0xFFF3F6F8;
+	private static final int DEFAULT_DISABLED_TEXT_COLOR = 0xFF686869;
  
 	private static final int DEFAULT_BORDER_WIDTH = 1;
 	private static final int DEFAULT_BORDER_COLOR = 0xFF171717;
-	private static final int DEFAULT_HOVERED_BORDER_COLOR = 0xFF262626;
+	private static final int DEFAULT_HOVERED_BORDER_COLOR = 0xFF06314F;
 	private static final int DEFAULT_DISABLED_BORDER_COLOR = 0xFF060606;
 	
 	private static final int DEFAULT_VERTICAL_MARGIN   = 2;
@@ -591,13 +591,14 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 
 	private void openDropdownPopup() {
 		if (this.popup == null) {
-			GSPanel itemList = new GSItemSelectionList<T>(this);
+			GSItemSelectionList<T> itemList = new GSItemSelectionList<>(this);
 			GSPopup popup = new GSPopup(new GSScrollPanel(itemList), true);
 			popup.setHiddenOnFocusLost(true);
 			popup.show(this, 0, height - borderWidth, GSEPopupPlacement.RELATIVE);
 			// Note: the popup attempts to focus the scroll panel, but
 			//       we want focus to the item list.
 			itemList.requestFocus();
+			GSPanelContext.schedule(itemList::scrollToSelection);
 			// Listen for cases where the popup is closed for other some
 			// reason. E.g. when losing focus or similar.
 			popup.addLayoutEventListener(new GSILayoutEventListener() {
@@ -680,7 +681,7 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 	                                                                       GSIDropdownListModelListener,
 	                                                                       GSIMouseListener,
 	                                                                       GSIKeyListener {
-		
+
 		private final GSDropdownList<T> dropdown;
 		private GSIDropdownListModel<T> model;
 		private int selectedIndex;
@@ -869,6 +870,20 @@ public class GSDropdownList<T> extends GSPanel implements GSIDropdownListModelLi
 			if (rowIndex > count - rem)
 				y += (rowIndex - (count - rem)) * (ih + 1);
 			return y;
+		}
+		
+		private GSRectangle getItemBounds(int index) {
+			GSRectangle bounds = new GSRectangle();
+			bounds.x = dropdown.getBorderWidth() + dropdown.getHorizontalMargin();
+			bounds.y = getItemY(index);
+			bounds.width = width - bounds.x * 2;
+			bounds.height = getItemY(index + 1) - bounds.y;
+			return bounds;
+		}
+		
+		private void scrollToSelection() {
+			if (isVisible() && selectedIndex != Integer.MIN_VALUE)
+				GSPanelUtil.scrollToVisible(this, getItemBounds(selectedIndex));
 		}
 
 		@Override

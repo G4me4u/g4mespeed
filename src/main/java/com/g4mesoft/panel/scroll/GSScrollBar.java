@@ -25,7 +25,7 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIFocusEv
 	private static final GSITextureRegion SCROLL_BUTTON_TEXTURE = GSPanelContext.getTexture(0, 32, 30, 40);
 	
 	private static final int KNOB_AREA_COLOR = 0xFF171717;
-	private static final int DISABLED_KNOB_AREA_COLOR = 0xFF000000;
+	private static final int DISABLED_KNOB_AREA_COLOR = 0xFF060606;
 	
 	private static final int KNOB_COLOR = 0xFF4D4D4D;
 	private static final int HOVERED_KNOB_COLOR = 0xFF7A7A7A;
@@ -141,10 +141,10 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIFocusEv
 		int bh = getButtonHeight();
 		
 		if (isVertical()) {
-			renderer.fillRect(0, bh, width    , height - 2 * bh, 0xFF000000);
+			renderer.fillRect(0, bh, width    , height - 2 * bh, 0xFF060606);
 			renderer.fillRect(1, bh, width - 2, height - 2 * bh, getKnobAreaColor());
 		} else {
-			renderer.fillRect(bh, 0, width - 2 * bh, height    , 0xFF000000);
+			renderer.fillRect(bh, 0, width - 2 * bh, height    , 0xFF060606);
 			renderer.fillRect(bh, 1, width - 2 * bh, height - 2, getKnobAreaColor());
 		}
 	}
@@ -361,6 +361,8 @@ public class GSScrollBar extends GSPanel implements GSIMouseListener, GSIFocusEv
 	}
 	
 	public void addScrollListener(GSIScrollListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null!");
 		if (scrollListeners == null)
 			scrollListeners = new ArrayList<>();
 		scrollListeners.add(listener);
