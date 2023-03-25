@@ -103,7 +103,6 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 			} else {
 				RenderSystem.defaultBlendFunc();
 			}
-			RenderSystem.disableTexture();
 			
 			// View matrix is already uploaded to shader uniform
 			matrixStack.push();
@@ -118,7 +117,6 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 
 			matrixStack.pop();
 	
-			RenderSystem.enableTexture();
 			RenderSystem.disableBlend();
 		}
 	}

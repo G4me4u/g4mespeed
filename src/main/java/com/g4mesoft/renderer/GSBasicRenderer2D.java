@@ -274,7 +274,6 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 
 		RenderSystem.setShaderTexture(0, texture.getTexture().getIdentifier());
 		RenderSystem.setShaderColor(r, g, b, opacity);
-		RenderSystem.enableTexture();
 		
 		float x0 = (float)x;
 		float y0 = (float)y;
@@ -289,7 +288,6 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 		finish();
 
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-		RenderSystem.disableTexture();
 	}
 
 	@Override
@@ -389,7 +387,6 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 			client.textRenderer.draw(matrixStack, text, x, y, color);
 		}
 
-		RenderSystem.disableTexture();
 		RenderSystem.enableBlend();
 	}
 	
@@ -417,7 +414,6 @@ public class GSBasicRenderer2D implements GSIRenderer2D {
 			client.textRenderer.draw(matrixStack, text, x, y, color);
 		}
 		
-		RenderSystem.disableTexture();
 		RenderSystem.enableBlend();
 	}
 	

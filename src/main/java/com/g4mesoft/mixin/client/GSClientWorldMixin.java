@@ -14,6 +14,7 @@ import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.network.PendingUpdateManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.EntityList;
@@ -24,7 +25,8 @@ public abstract class GSClientWorldMixin implements GSIClientWorldAccess {
 
 	@Shadow @Final private MinecraftClient client;
 	@Shadow @Final EntityList entityList;
-
+    @Shadow @Final private PendingUpdateManager pendingUpdateManager;
+	
 	@Unique
 	private boolean gs_tickingEntities;
 	@Unique
@@ -59,5 +61,10 @@ public abstract class GSClientWorldMixin implements GSIClientWorldAccess {
 					((World)(Object)this).tickEntity(this::tickEntity, player);
 			}
 		});
+	}
+	
+	@Override
+	public PendingUpdateManager gs_getPendingUpdateManager() {
+		return pendingUpdateManager;
 	}
 }

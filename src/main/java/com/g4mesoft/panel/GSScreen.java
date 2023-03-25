@@ -57,7 +57,6 @@ final class GSScreen extends Screen {
 		// Validate panels before rendering
 		GSPanelContext.validateAll();
 		
-		RenderSystem.disableTexture();
 		RenderSystem.enableBlend();
 		RenderSystem.defaultBlendFunc();
 		
@@ -73,7 +72,6 @@ final class GSScreen extends Screen {
 		((GSBasicRenderer2D)renderer).end();
 		
 		RenderSystem.disableBlend();
-		RenderSystem.enableTexture();
 	}
 
 	@Override

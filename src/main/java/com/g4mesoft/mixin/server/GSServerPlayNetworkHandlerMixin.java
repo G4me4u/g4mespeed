@@ -68,7 +68,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 	}
 	
 	@Inject(method = "onPlayerMove", at = @At(value = "INVOKE", shift = Shift.AFTER,
-			target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"))
+			target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/packet/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/server/world/ServerWorld;)V"))
 	private void onPlayerMove(PlayerMoveC2SPacket packet, CallbackInfo ci) {
 		boolean trackerFixedMovement = false;
 		// Only send movement packets if the server is not running 20 ticks per second.
