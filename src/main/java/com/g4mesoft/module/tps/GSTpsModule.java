@@ -33,7 +33,7 @@ import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.types.GSBooleanSetting;
 import com.g4mesoft.setting.types.GSIntegerSetting;
-import com.g4mesoft.util.GSMathUtil;
+import com.g4mesoft.ui.util.GSMathUtil;
 import com.mojang.brigadier.CommandDispatcher;
 
 import net.fabricmc.api.EnvType;

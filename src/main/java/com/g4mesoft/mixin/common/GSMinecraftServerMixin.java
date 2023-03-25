@@ -17,7 +17,7 @@ import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
-import com.g4mesoft.util.GSMathUtil;
+import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.TickDurationMonitor;

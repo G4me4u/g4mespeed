@@ -4,17 +4,20 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.g4mesoft.panel.GSPanel;
-import com.g4mesoft.panel.GSPanelContext;
-import com.g4mesoft.panel.GSParentPanel;
-import com.g4mesoft.panel.event.GSIMouseListener;
-import com.g4mesoft.panel.event.GSMouseEvent;
-import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.ui.panel.GSPanel;
+import com.g4mesoft.ui.panel.GSPanelContext;
+import com.g4mesoft.ui.panel.GSParentPanel;
+import com.g4mesoft.ui.panel.event.GSIMouseListener;
+import com.g4mesoft.ui.panel.event.GSMouseEvent;
+import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.OrderedText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 @Environment(EnvType.CLIENT)
 public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
@@ -57,8 +60,8 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 		addMouseEventListener(this);
 	}
 
-	public void addTab(String title, GSPanel tabContent) {
-		tabs.add(new GSTabEntry(title, tabContent));
+	public void addTab(String titleKey, GSPanel tabContent) {
+		tabs.add(new GSTabEntry(new TranslatableText(titleKey), tabContent));
 
 		if (selectedTabIndex == -1)
 			setSelectedTabIndex(0);
@@ -93,10 +96,8 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 		tabHeight = renderer.getTextHeight() + TAB_VERTICAL_PADDING * 2;
 
 		for (GSTabEntry tab : tabs) {
-			String title = GSPanelContext.i18nTranslate(tab.getTitle());
+			Text title = tab.getTitle();
 			int titleWidth = (int)Math.ceil(renderer.getTextWidth(title));
-
-			tab.setDisplayTitle(title);
 			tab.setWidth(titleWidth + TAB_HORIZONTAL_PADDING * 2);
 		}
 
@@ -135,9 +136,8 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 		}
 
 		for (GSTabEntry tab : sortedTabs) {
-			String title = tab.getDisplayTitle();
-			title = renderer.trimString(title, tab.getWidth());
-			tab.setDisplayTitle(title);
+			// Update display title based on tab width
+			tab.setDisplayTitle(renderer.trimString(tab.getTitle(), tab.getWidth()));
 		}
 
 		int tabOffsetX = HORIZONTAL_MARGIN;
@@ -223,19 +223,19 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 
 	private class GSTabEntry {
 
-		private final String title;
+		private final Text title;
 		private final GSPanel tabContent;
 
-		private String displayTitle;
+		private OrderedText displayTitle;
 		private int x;
 		private int width;
 
-		public GSTabEntry(String title, GSPanel tabContent) {
+		public GSTabEntry(Text title, GSPanel tabContent) {
 			this.title = title;
 			this.tabContent = tabContent;
 		}
 
-		public String getTitle() {
+		public Text getTitle() {
 			return title;
 		}
 		
@@ -243,11 +243,11 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 			return tabContent;
 		}
 		
-		public void setDisplayTitle(String displayTitle) {
+		public void setDisplayTitle(OrderedText displayTitle) {
 			this.displayTitle = displayTitle;
 		}
 
-		public String getDisplayTitle() {
+		public OrderedText getDisplayTitle() {
 			return displayTitle;
 		}
 		

@@ -19,7 +19,7 @@ import com.g4mesoft.module.tps.GSServerPlayerFixedMovementPacket;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
-import com.g4mesoft.util.GSMathUtil;
+import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;

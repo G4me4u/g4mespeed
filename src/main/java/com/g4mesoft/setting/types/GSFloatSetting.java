@@ -1,7 +1,7 @@
 package com.g4mesoft.setting.types;
 
 import com.g4mesoft.setting.GSSetting;
-import com.g4mesoft.util.GSMathUtil;
+import com.g4mesoft.ui.util.GSMathUtil;
 
 public class GSFloatSetting extends GSSetting<Float> {
 

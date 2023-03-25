@@ -1,6 +1,10 @@
-package com.g4mesoft.panel.event;
+package com.g4mesoft.gui;
 
 import com.g4mesoft.hotkey.GSKeyBinding;
+import com.g4mesoft.ui.panel.event.GSEvent;
+import com.g4mesoft.ui.panel.event.GSIButtonStroke;
+import com.g4mesoft.ui.panel.event.GSKeyEvent;
+import com.g4mesoft.ui.panel.event.GSMouseEvent;
 
 import net.minecraft.client.util.InputUtil;
 

@@ -45,9 +45,6 @@
     "client.GSPistonBlockEntityRendererMixin",
     "client.GSPistonBlockEntityMixin",
     
-    "client.GSBufferBuilderMixin",
-    "client.GSIVertexFormatElementAccess",
-    
     "client.GSInGameHudMixin",
     
     "client.GSWorldRendererMixin",

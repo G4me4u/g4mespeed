@@ -1,10 +1,6 @@
 package com.g4mesoft.core.client;
 
 import java.io.File;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.function.Consumer;
 
 import org.lwjgl.glfw.GLFW;
@@ -23,19 +19,19 @@ import com.g4mesoft.core.server.GSIServerModuleManager;
 import com.g4mesoft.gui.GSContentHistoryGUI;
 import com.g4mesoft.gui.GSHotkeyGUI;
 import com.g4mesoft.gui.GSInfoGUI;
+import com.g4mesoft.gui.GSKeyBindingButtonStroke;
 import com.g4mesoft.gui.GSTabbedGUI;
-import com.g4mesoft.gui.GSTableDebugTestingGUI;
 import com.g4mesoft.gui.setting.GSSettingsGUI;
 import com.g4mesoft.hotkey.GSEKeyEventType;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
-import com.g4mesoft.panel.GSPanelContext;
-import com.g4mesoft.panel.event.GSKeyBindingButtonStroke;
-import com.g4mesoft.panel.scroll.GSScrollPanel;
-import com.g4mesoft.renderer.GSIRenderable3D;
 import com.g4mesoft.setting.GSRemoteSettingManager;
+import com.g4mesoft.ui.G4mespeedUIMod;
+import com.g4mesoft.ui.panel.GSPanelContext;
+import com.g4mesoft.ui.panel.scroll.GSScrollPanel;
+import com.g4mesoft.ui.renderer.GSIRenderable3D;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -75,15 +71,11 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	private GSTabbedGUI tabbedGUI;
 	private GSContentHistoryGUI contentHistoryGUI;
 	
-	private List<GSIRenderable3D> renderables;
-	
 	public GSClientController() {
 		serverExtensionInfoList = new GSExtensionInfoList();
 		
 		serverSettings = new GSRemoteSettingManager(this);
 		keyManager = new GSKeyManager();
-		
-		renderables = new LinkedList<>();
 	}
 
 	public void init(MinecraftClient minecraft) {
@@ -98,14 +90,11 @@ public class GSClientController extends GSController implements GSIClientModuleM
 					GSPanelContext.openContent(contentHistoryGUI);
 			}, GSEKeyEventType.PRESS, false);
 	
-			GSPanelContext.init(minecraft);
-			
 			tabbedGUI = new GSTabbedGUI();
 			tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSScrollPanel(new GSSettingsGUI(settings)));
 			tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSScrollPanel(new GSSettingsGUI(serverSettings)));
 			tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSScrollPanel(new GSHotkeyGUI(keyManager)));
 			tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
-			tabbedGUI.addTab("Table Debug Testing",  new GSTableDebugTestingGUI());
 			
 			contentHistoryGUI = new GSContentHistoryGUI(tabbedGUI, new GSKeyBindingButtonStroke(openGUIKey));
 			
@@ -200,8 +189,6 @@ public class GSClientController extends GSController implements GSIClientModuleM
 
 	public void onClientClose() {
 		if (minecraft != null) {
-			GSPanelContext.dispose();
-
 			keyManager.saveKeys(getHotkeySettingsFile());
 			keyManager.dispose();
 
@@ -273,16 +260,12 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	
 	@Override
 	public void addRenderable(GSIRenderable3D renderable) {
-		renderables.add(renderable);
+		G4mespeedUIMod.addRenderable(renderable);
 	}
 
 	@Override
 	public void removeRenderable(GSIRenderable3D renderable) {
-		renderables.remove(renderable);
-	}
-	
-	public Collection<GSIRenderable3D> getRenderables() {
-		return Collections.unmodifiableCollection(renderables);
+		G4mespeedUIMod.removeRenderable(renderable);
 	}
 	
 	public ClientPlayerEntity getPlayer() {

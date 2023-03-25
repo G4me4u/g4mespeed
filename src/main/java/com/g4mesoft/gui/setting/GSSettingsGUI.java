@@ -6,19 +6,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.g4mesoft.panel.GSDimension;
-import com.g4mesoft.panel.GSPanelContext;
-import com.g4mesoft.panel.GSPanelUtil;
-import com.g4mesoft.panel.GSParentPanel;
-import com.g4mesoft.panel.scroll.GSIScrollable;
-import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.setting.GSISettingChangeListener;
 import com.g4mesoft.setting.GSISettingPanelSupplier;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.GSSettingMap;
-import com.g4mesoft.util.GSMathUtil;
+import com.g4mesoft.ui.panel.GSDimension;
+import com.g4mesoft.ui.panel.GSPanelContext;
+import com.g4mesoft.ui.panel.GSPanelUtil;
+import com.g4mesoft.ui.panel.GSParentPanel;
+import com.g4mesoft.ui.panel.scroll.GSIScrollable;
+import com.g4mesoft.ui.renderer.GSIRenderer2D;
+import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

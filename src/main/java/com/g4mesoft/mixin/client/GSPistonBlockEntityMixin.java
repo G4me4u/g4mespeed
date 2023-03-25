@@ -22,7 +22,7 @@ import com.g4mesoft.access.client.GSIPistonBlockEntityAccess;
 import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
-import com.g4mesoft.util.GSMathUtil;
+import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

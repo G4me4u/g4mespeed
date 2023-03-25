@@ -2,15 +2,15 @@ package com.g4mesoft.gui;
 
 import java.util.LinkedList;
 
-import com.g4mesoft.panel.GSClosableParentPanel;
-import com.g4mesoft.panel.GSPanel;
-import com.g4mesoft.panel.event.GSCompoundButtonStroke;
-import com.g4mesoft.panel.event.GSEvent;
-import com.g4mesoft.panel.event.GSIButtonStroke;
-import com.g4mesoft.panel.event.GSKeyButtonStroke;
-import com.g4mesoft.panel.event.GSKeyEvent;
-import com.g4mesoft.panel.event.GSMouseButtonStroke;
-import com.g4mesoft.panel.event.GSMouseEvent;
+import com.g4mesoft.ui.panel.GSClosableParentPanel;
+import com.g4mesoft.ui.panel.GSPanel;
+import com.g4mesoft.ui.panel.event.GSCompoundButtonStroke;
+import com.g4mesoft.ui.panel.event.GSEvent;
+import com.g4mesoft.ui.panel.event.GSIButtonStroke;
+import com.g4mesoft.ui.panel.event.GSKeyButtonStroke;
+import com.g4mesoft.ui.panel.event.GSKeyEvent;
+import com.g4mesoft.ui.panel.event.GSMouseButtonStroke;
+import com.g4mesoft.ui.panel.event.GSMouseEvent;
 
 public class GSContentHistoryGUI extends GSClosableParentPanel {
 
