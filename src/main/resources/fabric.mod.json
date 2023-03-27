@@ -13,7 +13,7 @@
     "sources": "https://github.com/G4me4u/g4mespeed"
   },
 
-  "license": "CC-BY-ND-4.0",
+  "license": "GNU-GPLv2",
   "icon": "assets/g4mespeed/icon.png",
 
   "environment": "*",
