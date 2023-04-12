@@ -10,7 +10,7 @@ repositories {
 	}
 	maven {
 		name = 'G4me4u Maven'
-		url = 'https://maven.g4mesoft.com/snapshots'
+		url = 'https://maven.g4mesoft.com/releases'
 	}
 }
 
@@ -18,7 +18,7 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = project.archives_base_name
-version = "${project.mod_version}-mc${project.minecraft_version}-SNAPSHOT"
+version = "${project.mod_version}-mc${project.minecraft_version}"
 group = project.maven_group
 
 // See https://github.com/TerraformersMC/GradleScripts/blob/2.5/ferry.gradle
@@ -34,7 +34,7 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	// Include G4mespeed UI
-	includeMod "com.g4mesoft.ui:g4mespeed-ui:${project.g4mespeed_ui_version}-mc${project.minecraft_version}-SNAPSHOT"
+	includeMod "com.g4mesoft.ui:g4mespeed-ui:${project.g4mespeed_ui_version}-mc${project.minecraft_version}"
 
 	// ModMenu integration
 	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
@@ -85,7 +85,7 @@ void setupRepositories(RepositoryHandler repositories) {
 	def ENV = System.getenv()
 	if (ENV.MAVEN_URL && ENV.MAVEN_ALIAS && ENV.MAVEN_TOKEN) {
 		repositories.maven {
-			url "${ENV.MAVEN_URL}/snapshots"
+			url "${ENV.MAVEN_URL}/releases"
 			credentials {
 				username ENV.MAVEN_ALIAS
 				password ENV.MAVEN_TOKEN
