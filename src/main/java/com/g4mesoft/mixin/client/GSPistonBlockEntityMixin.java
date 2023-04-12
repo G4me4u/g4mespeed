@@ -21,7 +21,7 @@ import com.g4mesoft.access.client.GSIMinecraftClientAccess;
 import com.g4mesoft.access.client.GSIPistonBlockEntityAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
-import com.g4mesoft.util.GSMathUtil;
+import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -77,7 +77,11 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		super(type, pos, state);
 	}
 
-	@Inject(method = "getProgress", cancellable = true, at = @At("HEAD"))
+	@Inject(
+		method = "getProgress",
+		cancellable = true,
+		at = @At("HEAD")
+	)
 	private void onGetProgressHead(float tickDelta, CallbackInfoReturnable<Float> cir) {
 		if (world.isClient)
 			cir.setReturnValue(gs_getOffsetForProgress(progress, gs_actualLastProgress, tickDelta));
@@ -118,25 +122,58 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		return Math.min(1.0f, val);
 	}
 
-	@Inject(method = {"pushEntities", "moveEntitiesInHoneyBlock"}, at = @At("HEAD"))
+	@Inject(
+		method = {"pushEntities", "moveEntitiesInHoneyBlock"},
+		at = @At("HEAD")
+	)
 	private static void onMoveEntitiesHead(World world, BlockPos pos, float nextProgress, PistonBlockEntity blockEntity, CallbackInfo ci) {
 		((GSIPistonBlockEntityAccess)blockEntity).gs_setNextProgress(nextProgress);
 	}
 	
-	@ModifyVariable(method = "pushEntities", argsOnly = false, ordinal = 0, at = @At(value = "INVOKE", shift = Shift.BEFORE,
-	                target = "Lnet/minecraft/block/entity/PistonBlockEntity;getHeadBlockState()Lnet/minecraft/block/BlockState;"))
+	@ModifyVariable(
+		method = "pushEntities",
+		argsOnly = false,
+		ordinal = 0,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.BEFORE,
+			target =
+				"Lnet/minecraft/block/entity/PistonBlockEntity;getHeadBlockState(" +
+				")Lnet/minecraft/block/BlockState;"
+		)
+	)
 	private static double onPushEntitiesModifyDeltaProgress(double oldDeltaProgress, World world, BlockPos pos, float nextProgress, PistonBlockEntity blockEntity) {
 		return getDeltaProgress(oldDeltaProgress, blockEntity);
 	}
 	
-	@Inject(method = "pushEntities", locals = LocalCapture.CAPTURE_FAILSOFT, at = @At(value = "INVOKE", shift = Shift.AFTER,
-	        target = "Lnet/minecraft/entity/Entity;setVelocity(DDD)V"))
+	@Inject(
+		method = "pushEntities",
+		locals = LocalCapture.CAPTURE_FAILSOFT,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target = "Lnet/minecraft/entity/Entity;setVelocity(DDD)V"
+		)
+	)
 	private static void onPushEntitiesAfterEntitySetVelocity(World world, BlockPos pos, float nextProgress, PistonBlockEntity blockEntity, CallbackInfo ci, Direction direction, double d, VoxelShape voxelShape, Box box, List<?> list, List<?> list2, boolean bl, Iterator<?> var12, Entity entity) {
 		((GSIEntityAccess)entity).gs_setMovedByPiston(true);
 	}
 
-	@ModifyVariable(method = "moveEntitiesInHoneyBlock", argsOnly = false, ordinal = 1, at = @At(value = "INVOKE", shift = Shift.BEFORE,
-	                target = "Lnet/minecraft/world/World;getOtherEntities(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/Box;Ljava/util/function/Predicate;)Ljava/util/List;"))
+	@ModifyVariable(
+			method = "moveEntitiesInHoneyBlock",
+			argsOnly = false,
+			ordinal = 1,
+			at = @At(
+				value = "INVOKE",
+				shift = Shift.BEFORE,
+				target =
+					"Lnet/minecraft/world/World;getOtherEntities(" +
+						"Lnet/minecraft/entity/Entity;" +
+						"Lnet/minecraft/util/math/Box;" +
+						"Ljava/util/function/Predicate;" +
+					")Ljava/util/List;"
+			)
+	)
 	private static double onMethod_23674ModifyDeltaProgress(double oldDeltaProgress, World world, BlockPos pos, float nextProgress, PistonBlockEntity blockEntity) {
 		return getDeltaProgress(oldDeltaProgress, blockEntity);
 	}
@@ -152,8 +189,14 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		return oldDeltaProgress;
 	}
 	
-	@Redirect(method = "offsetHeadBox", at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
-	          target = "Lnet/minecraft/block/entity/PistonBlockEntity;progress:F"))
+	@Redirect(
+		method = "offsetHeadBox",
+		at = @At(
+			value = "FIELD",
+			opcode = Opcodes.GETFIELD,
+			target = "Lnet/minecraft/block/entity/PistonBlockEntity;progress:F"
+		)
+	)
 	private static float onOffsetBoxRedirectProgress(PistonBlockEntity blockEntity) {
 		if (shouldCorrectPushEntities(blockEntity)) {
 			float progress = ((GSIPistonBlockEntityAccess)blockEntity).gs_getProgress();
@@ -164,8 +207,14 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		return ((GSIPistonBlockEntityAccess)blockEntity).gs_getProgress();
 	}
 
-	@Redirect(method = { "getHeadBlockState", "getCollisionShape" }, at = @At(value = "FIELD", opcode = Opcodes.GETFIELD,
-	          target = "Lnet/minecraft/block/entity/PistonBlockEntity;progress:F"))
+	@Redirect(
+		method = { "getHeadBlockState", "getCollisionShape" },
+		at = @At(
+			value = "FIELD",
+			opcode = Opcodes.GETFIELD,
+			target = "Lnet/minecraft/block/entity/PistonBlockEntity;progress:F"
+		)
+	)
 	private float onGetCollisionShapeRedirectProgress(PistonBlockEntity blockEntity) {
 		if (shouldCorrectPushEntities(blockEntity))
 			return getProgress(1.0f);
@@ -234,17 +283,36 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		return GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get();
 	}
 
-	@Inject(method = "readNbt", at = @At("RETURN"))
+	@Inject(
+		method = "readNbt",
+		at = @At("RETURN")
+	)
 	private void onReadNbt(NbtCompound tag, CallbackInfo ci) {
 		gs_actualLastProgress = Math.max(0.0f, this.lastProgress - 1.0f / gs_numberOfSteps);
 	}
 	
-	@Inject(method = "tick", at = @At(value = "FIELD", target="Lnet/minecraft/block/entity/PistonBlockEntity;lastProgress:F", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
+	@Inject(
+		method = "tick",
+		at = @At(
+			value = "FIELD",
+			shift = Shift.AFTER,
+			opcode = Opcodes.PUTFIELD,
+			target="Lnet/minecraft/block/entity/PistonBlockEntity;lastProgress:F"
+		)
+	)
 	private static void onTickProgressChanged(World world, BlockPos pos, BlockState state, PistonBlockEntity blockEntity, CallbackInfo ci) {
 		((GSPistonBlockEntityMixin)(Object)blockEntity).gs_actualLastProgress = ((GSPistonBlockEntityMixin)(Object)blockEntity).lastProgress;
 	}
 
-	@Inject(method = "finish", at = @At(value = "FIELD", target="Lnet/minecraft/block/entity/PistonBlockEntity;lastProgress:F", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
+	@Inject(
+		method = "finish",
+		at = @At(
+			value = "FIELD",
+			shift = Shift.AFTER,
+			opcode = Opcodes.PUTFIELD,
+			target="Lnet/minecraft/block/entity/PistonBlockEntity;lastProgress:F"
+		)
+	)
 	private void onFinishProgressChanged(CallbackInfo ci) {
 		gs_actualLastProgress = this.lastProgress;
 	}

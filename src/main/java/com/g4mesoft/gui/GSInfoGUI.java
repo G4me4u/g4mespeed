@@ -7,8 +7,8 @@ import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionInfoList;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSClientController;
-import com.g4mesoft.panel.GSParentPanel;
-import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.ui.panel.GSParentPanel;
+import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;

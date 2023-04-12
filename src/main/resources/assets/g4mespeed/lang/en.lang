@@ -47,6 +47,13 @@ panel.scrollbar.pageright=Page Right
 panel.scrollbar.scrollleft=Scroll Left
 panel.scrollbar.scrollright=Scroll Right
 
+panel.date.todayAt=Today at
+panel.date.yesterdayAt=Yesterday at
+panel.date.tomorrowAt=Tomorrow at
+panel.date.today=Today
+panel.date.yesterday=Yesterday
+panel.date.tomorrow=Tomorrow
+
 ############ Client Settings ############
 
 setting.tps.shiftPitch=Shift Sound Pitch

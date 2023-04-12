@@ -26,7 +26,7 @@ import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.GSIExtensionListener;
-import com.g4mesoft.access.server.GSIServerPlayNetworkHandlerAccess;
+import com.g4mesoft.access.common.GSIServerPlayNetworkHandlerAccess;
 import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
@@ -102,7 +102,12 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	}
 	
 	private void addExtensionTranslations(GSIExtension extension) {
-		URL url = GSTranslationModule.class.getResource(extension.getTranslationPath());
+		String path = extension.getTranslationPath();
+		if (path == null || path.isEmpty()) {
+			// Extension does not have translations.
+			return;
+		}
+		URL url = GSTranslationModule.class.getResource(path);
 		if (url != null) {
 			try (InputStream is = url.openStream()) {
 				loadTranslations(is, extension.getInfo().getUniqueId(), false);

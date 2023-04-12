@@ -22,19 +22,37 @@ public class GSEntityMixin implements GSIEntityAccess {
 	@Unique
 	private boolean gs_movedByPiston = false;
 	
-	@Inject(method = "move", at = @At(value = "INVOKE", shift = Shift.BEFORE,
-	        target = "Lnet/minecraft/entity/Entity;adjustMovementForPiston(Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/Vec3d;"))
+	@Inject(
+		method = "move",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.BEFORE,
+			target =
+				"Lnet/minecraft/entity/Entity;adjustMovementForPiston(" +
+					"Lnet/minecraft/util/math/Vec3d;" +
+				")Lnet/minecraft/util/math/Vec3d;"
+		)
+	)
 	private void onMoveBeforeAdjustMovementForPiston(CallbackInfo ci) {
 		gs_movedByPiston = true;
 	}
 
-	@Inject(method = "resetPosition", at = @At("HEAD"))
+	@Inject(
+		method = "resetPosition",
+		at = @At("HEAD")
+	)
 	private void onResetPosition(CallbackInfo ci) {
 		gs_wasMovedByPiston = gs_movedByPiston;
 		gs_movedByPiston = false;
 	}
 
-	@Redirect(method = "adjustMovementForPiston", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;getTime()J"))
+	@Redirect(
+		method = "adjustMovementForPiston",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/world/World;getTime()J"
+		)
+	)
 	private long onAdjustMovementForPistonWorldGetTime(World world) {
 		if (world.isClient && GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			// Check if we are pushing entities from outside of the tick loop,

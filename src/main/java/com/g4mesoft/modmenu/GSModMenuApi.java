@@ -1,7 +1,7 @@
 package com.g4mesoft.modmenu;
 
 import com.g4mesoft.core.GSCoreOverride;
-import com.g4mesoft.panel.GSPanelContext;
+import com.g4mesoft.ui.panel.GSPanelContext;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 

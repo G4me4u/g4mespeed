@@ -15,7 +15,12 @@ import net.minecraft.client.render.block.entity.PistonBlockEntityRenderer;
 @Mixin(PistonBlockEntityRenderer.class)
 public class GSPistonBlockEntityRendererMixin {
 
-	@ModifyConstant(method = "render", constant = @Constant(floatValue = 4.0f))
+	@ModifyConstant(
+		method = "render",
+		constant = @Constant(
+			floatValue = 4.0f
+		)
+	)
 	private float fixShortArm(float shortArmCutoff) {
 		return 0.5f;
 	}
