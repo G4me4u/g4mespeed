@@ -62,7 +62,8 @@
     "client.GSEntityMixin",
     "client.GSIWorldAccess",
     
-    "client.GSClientPlayerInteractionManagerMixin"
+    "client.GSClientPlayerInteractionManagerMixin",
+    "client.GSPendingUpdateManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

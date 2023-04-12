@@ -102,7 +102,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 
 	@Inject(method = "runServer", at = @At(value = "INVOKE", shift = At.Shift.BEFORE, 
-			target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V"))
+			target = "Lnet/minecraft/server/MinecraftServer;createMetadata()Lnet/minecraft/server/ServerMetadata;"))
 	private void onInitialized(CallbackInfo ci) {
 		// Some mods might also modify the run loop...
 		// in this case just make sure that the init
@@ -114,7 +114,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
 	@Inject(method = "runServer", slice = @Slice(
 			from = @At(value = "INVOKE", shift = At.Shift.AFTER, 
-			target = "Lnet/minecraft/server/MinecraftServer;setFavicon(Lnet/minecraft/server/ServerMetadata;)V")),
+			target = "Lnet/minecraft/server/MinecraftServer;createMetadata()Lnet/minecraft/server/ServerMetadata;")),
 			at = @At(value = "INVOKE", shift = Shift.BEFORE, ordinal = 0,
 			target = "Lnet/minecraft/util/Util;getMeasuringTimeMs()J"))
 	private void onRunServerLoopBeginning(CallbackInfo ci) {

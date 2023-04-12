@@ -20,6 +20,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.PendingUpdateManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
@@ -34,21 +35,22 @@ public abstract class GSClientWorldMixin extends World implements GSIClientWorld
 
 	@Shadow @Final private MinecraftClient client;
 	@Shadow @Final EntityList entityList;
-	
 	@Shadow @Final private PendingUpdateManager pendingUpdateManager;
-
+	
 	@Unique
 	private boolean gs_tickingEntities;
 	@Unique
 	private GSTpsModule gs_tpsModule = GSClientController.getInstance().getTpsModule();
-
-	protected GSClientWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef,
-			RegistryEntry<DimensionType> dimension, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld,
-			long seed, int maxChainedNeighborUpdates) {
-		super(properties, registryRef, dimension, profiler, isClient, debugWorld, seed, maxChainedNeighborUpdates);
-	}
 	
 	@Shadow public abstract void tickEntity(Entity entity);
+
+	protected GSClientWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef,
+			DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry,
+			Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess,
+			int maxChainedNeighborUpdates) {
+		super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess,
+				maxChainedNeighborUpdates);
+	}
 	
 	@Inject(method = "tickEntities", at = @At("HEAD"))
 	private void onTickEntitiesHead(CallbackInfo ci) {
@@ -87,5 +89,9 @@ public abstract class GSClientWorldMixin extends World implements GSIClientWorld
 		//       not override changes to states.
 		pendingUpdateManager.hasPendingUpdate(pos, state);
 		return super.setBlockState(pos, state, flags);
+	}
+	
+	public PendingUpdateManager gs_getPendingUpdateManager() {
+		return pendingUpdateManager;
 	}
 }

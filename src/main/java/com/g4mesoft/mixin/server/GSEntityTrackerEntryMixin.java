@@ -24,7 +24,7 @@ import com.g4mesoft.util.GSMathUtil;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -115,7 +115,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	}
 	
 	@Inject(method = "stopTracking", require = 1, allow = 1, expect = 1, cancellable = true, at = @At(value = "INVOKE", shift = Shift.BEFORE,
-			target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"))
+			target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V"))
 	private void onStopTracking(ServerPlayerEntity player, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
 		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {

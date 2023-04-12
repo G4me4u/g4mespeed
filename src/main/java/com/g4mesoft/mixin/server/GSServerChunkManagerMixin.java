@@ -12,7 +12,7 @@ import com.g4mesoft.access.server.GSIServerChunkManagerAccess;
 import com.g4mesoft.access.server.GSIThreadedAnvilChunkStorageAccess;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ServerChunkManager;

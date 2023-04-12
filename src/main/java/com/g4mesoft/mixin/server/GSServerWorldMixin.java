@@ -20,7 +20,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerChunkManager;
@@ -34,13 +35,16 @@ import net.minecraft.world.dimension.DimensionType;
 @Mixin(ServerWorld.class)
 public abstract class GSServerWorldMixin extends World {
 
+	protected GSServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef,
+			DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry,
+			Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess,
+			int maxChainedNeighborUpdates) {
+		super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess,
+				maxChainedNeighborUpdates);
+	}
+
 	@Shadow @Final EntityList entityList;
 
-	protected GSServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef,
-			RegistryEntry<DimensionType> dimension, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld,
-			long seed, int maxChainedNeighborUpdates) {
-		super(properties, registryRef, dimension, profiler, isClient, debugWorld, seed, maxChainedNeighborUpdates);
-	}
 
 	@Inject(method = "tick", at = @At("RETURN"))
 	private void onTickReturn(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
@@ -66,7 +70,7 @@ public abstract class GSServerWorldMixin extends World {
 	}
 	
 	@ModifyArg(method = "processSyncedBlockEvents", allow = 1, index = 4, at = @At(value = "INVOKE", 
-			target = "Lnet/minecraft/server/PlayerManager;sendToAround(Lnet/minecraft/entity/player/PlayerEntity;DDDDLnet/minecraft/registry/RegistryKey;Lnet/minecraft/network/Packet;)V"))
+			target = "Lnet/minecraft/server/PlayerManager;sendToAround(Lnet/minecraft/entity/player/PlayerEntity;DDDDLnet/minecraft/registry/RegistryKey;Lnet/minecraft/network/packet/Packet;)V"))
 	private double blockEventDistance(PlayerEntity player, double x, double y, double z, double dist, RegistryKey<World> dimensionKey, Packet<?> packet) {
 		Block block = ((GSIBlockEventS2CPacketAccess)packet).getBlock2();
 		

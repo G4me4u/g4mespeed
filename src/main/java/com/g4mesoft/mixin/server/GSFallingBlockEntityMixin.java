@@ -16,7 +16,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.world.World;
@@ -40,7 +40,7 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 	}
 	
 	@Redirect(method = "tick", expect = 1, require = 1, allow = 1, at = @At(value = "INVOKE",
-			target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage;sendToOtherNearbyPlayers(Lnet/minecraft/entity/Entity;Lnet/minecraft/network/Packet;)V"))
+			target = "Lnet/minecraft/server/world/ThreadedAnvilChunkStorage;sendToOtherNearbyPlayers(Lnet/minecraft/entity/Entity;Lnet/minecraft/network/packet/Packet;)V"))
 	private void redirectSendToOtherNearbyPlayers(ThreadedAnvilChunkStorage chunkStorage, Entity entity, Packet<?> packet) {
 		if (world.isClient || GSServerController.getInstance().getTpsModule().sPrettySand.get() == GSTpsModule.PRETTY_SAND_DISABLED)
 			chunkStorage.sendToOtherNearbyPlayers(entity, packet);
