@@ -17,7 +17,10 @@ public class GSIntegratedServerMixin {
 
 	@Shadow private boolean paused;
 	
-	@Inject(method = "tick", at = @At("RETURN"))
+	@Inject(
+		method = "tick",
+		at = @At("RETURN")
+	)
 	private void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
 		if (this.paused) {
 			// At this point the client is paused and the tick method of

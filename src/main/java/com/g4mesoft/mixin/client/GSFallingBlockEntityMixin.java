@@ -23,8 +23,18 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 		super(type, world);
 	}
 
-	@Redirect(method = "tick", at = @At(value = "INVOKE", ordinal = 0,
-	          target = "Lnet/minecraft/world/World;removeBlock(Lnet/minecraft/util/math/BlockPos;Z)Z"))
+	@Redirect(
+		method = "tick",
+		at = @At(
+			value = "INVOKE",
+			ordinal = 0,
+			target =
+				"Lnet/minecraft/world/World;removeBlock(" +
+					"Lnet/minecraft/util/math/BlockPos;" +
+					"Z" +
+				")Z"
+		)
+	)
 	private boolean redirectTickRemoveBlock(World world, BlockPos pos, boolean move) {
 		if (!world.isClient || GSClientController.getInstance().getTpsModule().sPrettySand.get() == GSTpsModule.PRETTY_SAND_DISABLED) {
 			// Do not remove the source block on the client when pretty sand is

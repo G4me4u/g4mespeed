@@ -8,12 +8,12 @@ import java.util.Map;
 import com.g4mesoft.hotkey.GSIKeyBindingRegisterListener;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
-import com.g4mesoft.panel.GSDimension;
-import com.g4mesoft.panel.GSPanelContext;
-import com.g4mesoft.panel.GSParentPanel;
-import com.g4mesoft.panel.legend.GSButtonPanel;
-import com.g4mesoft.panel.scroll.GSIScrollable;
-import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.ui.panel.GSDimension;
+import com.g4mesoft.ui.panel.GSPanelContext;
+import com.g4mesoft.ui.panel.GSParentPanel;
+import com.g4mesoft.ui.panel.legacy.GSButtonPanel;
+import com.g4mesoft.ui.panel.scroll.GSIScrollable;
+import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;

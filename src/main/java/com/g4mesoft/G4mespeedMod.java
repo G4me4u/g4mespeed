@@ -101,6 +101,8 @@ public class G4mespeedMod implements ModInitializer {
 	}
 	
 	public static void addExtensionListener(GSIExtensionListener listener) {
+		if (listener == null)
+			throw new IllegalArgumentException("listener is null!");
 		synchronized (extensionListeners) {
 			extensionListeners.add(listener);
 		}

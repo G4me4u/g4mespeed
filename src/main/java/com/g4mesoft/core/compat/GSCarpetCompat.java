@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.module.tps.GSTpsModule;
-import com.g4mesoft.util.GSMathUtil;
+import com.g4mesoft.ui.util.GSMathUtil;
 
 public final class GSCarpetCompat extends GSAbstractCompat {
 
@@ -78,6 +78,8 @@ public final class GSCarpetCompat extends GSAbstractCompat {
 	}
 
 	public void addCarpetTickrateListener(GSICarpetCompatTickrateListener tickrateListener) {
+		if (tickrateListener == null)
+			throw new IllegalArgumentException("tickrateListener is null");
 		synchronized (tickrateListeners) {
 			tickrateListeners.add(tickrateListener);
 		}

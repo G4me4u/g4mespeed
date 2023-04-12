@@ -2,7 +2,7 @@ package com.g4mesoft.module.tps;
 
 import java.io.IOException;
 
-import com.g4mesoft.access.server.GSIServerPlayNetworkHandlerAccess;
+import com.g4mesoft.access.common.GSIServerPlayNetworkHandlerAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;

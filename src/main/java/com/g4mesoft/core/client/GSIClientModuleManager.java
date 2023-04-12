@@ -7,8 +7,8 @@ import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.packet.GSIPacket;
-import com.g4mesoft.renderer.GSIRenderable3D;
-import com.g4mesoft.renderer.GSIRenderer3D;
+import com.g4mesoft.ui.renderer.GSIRenderable3D;
+import com.g4mesoft.ui.renderer.GSIRenderer3D;
 
 public interface GSIClientModuleManager extends GSIModuleManager {
 

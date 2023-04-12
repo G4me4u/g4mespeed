@@ -1,10 +1,10 @@
 package com.g4mesoft.gui.setting;
 
-import com.g4mesoft.panel.GSParentPanel;
-import com.g4mesoft.panel.legend.GSButtonPanel;
-import com.g4mesoft.renderer.GSIRenderer2D;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
+import com.g4mesoft.ui.panel.GSParentPanel;
+import com.g4mesoft.ui.panel.legacy.GSButtonPanel;
+import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;

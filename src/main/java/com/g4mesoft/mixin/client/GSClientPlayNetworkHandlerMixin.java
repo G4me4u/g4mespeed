@@ -58,18 +58,36 @@ public class GSClientPlayNetworkHandlerMixin {
 	private static final int WORLD_TIME_UPDATE_INTERVAL = 20;
 	private static final double IGNORE_TELEPORT_MAX_DISTANCE = 1.0; /* Must be > 0.51 */
 	
-	@Inject(method = "<init>", at = @At("RETURN"))
+	@Inject(
+		method = "<init>",
+		at = @At("RETURN")
+	)
 	private void onInit(CallbackInfo ci) {
 		GSClientController.getInstance().setNetworkHandler((ClientPlayNetworkHandler)(Object)this);
 	}
 	
-	@Inject(method = "onGameJoin", at = @At("RETURN"))
+	@Inject(
+		method = "onGameJoin",
+		at = @At("RETURN")
+	)
 	private void onOnGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
 		GSClientController.getInstance().onJoinServer();
 	}
 	
-	@Inject(method = "onEntityPosition", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
-	        target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
+	@Inject(
+		method = "onEntityPosition",
+		cancellable = true,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target = 
+				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
+					"Lnet/minecraft/network/Packet;" +
+					"Lnet/minecraft/network/listener/PacketListener;" +
+					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+				")V"
+		)
+	)
 	private void onOnEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			Entity entity = world.getEntityById(packet.getId());
@@ -82,8 +100,20 @@ public class GSClientPlayNetworkHandlerMixin {
 		}
 	}
 	
-	@Inject(method = "onEntityUpdate", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
-	        target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
+	@Inject(
+		method = "onEntityUpdate",
+		cancellable = true,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
+					"Lnet/minecraft/network/Packet;" +
+					"Lnet/minecraft/network/listener/PacketListener;" +
+					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+				")V"
+		)
+	)
 	private void onOnEntityUpdate(EntityS2CPacket packet, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			Entity entity = packet.getEntity(world);
@@ -108,8 +138,20 @@ public class GSClientPlayNetworkHandlerMixin {
 		}
 	}
 	
-	@Inject(method = "onPlayerPositionLook", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
-	        target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
+	@Inject(
+		method = "onPlayerPositionLook",
+		cancellable = true,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
+					"Lnet/minecraft/network/Packet;" +
+					"Lnet/minecraft/network/listener/PacketListener;" +
+					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+				")V"
+		)
+	)
 	private void onOnPlayerPositionLook(PlayerPositionLookS2CPacket packet, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			// The server will inherently detect that the player moved in an incorrect way, if the
@@ -145,7 +187,11 @@ public class GSClientPlayNetworkHandlerMixin {
 		return (((GSIEntityAccess)entity).gs_isMovedByPiston() || ((GSIEntityAccess)entity).gs_wasMovedByPiston());
 	}
 	
-	@Inject(method = "onCustomPayload", at = @At("HEAD"), cancellable = true)
+	@Inject(
+		method = "onCustomPayload",
+		cancellable = true,
+		at = @At("HEAD")
+	)
 	private void onCustomPayload(CustomPayloadS2CPacket packet, CallbackInfo ci) {
 		GSPacketManager packetManger = G4mespeedMod.getPacketManager();
 		
@@ -160,7 +206,10 @@ public class GSClientPlayNetworkHandlerMixin {
 		}
 	}
 
-	@Inject(method = "onWorldTimeUpdate", at = @At("HEAD"))
+	@Inject(
+		method = "onWorldTimeUpdate",
+		at = @At("HEAD")
+	)
 	private void onWorldTimeSync(WorldTimeUpdateS2CPacket worldTimePacket, CallbackInfo ci) {
 		// Check if handled by GSServerSyncPacket (gs server)
 		GSClientController controller = GSClientController.getInstance();
@@ -168,7 +217,13 @@ public class GSClientPlayNetworkHandlerMixin {
 			controller.getTpsModule().onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
 	}
 	
-	@Redirect(method = "onChunkData", at = @At(value = "INVOKE", target = "Ljava/util/Iterator;hasNext()Z"))
+	@Redirect(
+		method = "onChunkData",
+		at = @At(
+			value = "INVOKE",
+			target = "Ljava/util/Iterator;hasNext()Z"
+		)
+	)
 	private boolean replaceChunkDataBlockEntityLoop(Iterator<NbtCompound> itr) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 
@@ -214,8 +269,20 @@ public class GSClientPlayNetworkHandlerMixin {
 		return false;
 	}
 	
-	@Inject(method = "onBlockEntityUpdate", cancellable = true, at = @At(value = "INVOKE", shift = Shift.AFTER,
-		target = "Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(Lnet/minecraft/network/Packet;Lnet/minecraft/network/listener/PacketListener;Lnet/minecraft/util/thread/ThreadExecutor;)V"))
+	@Inject(
+		method = "onBlockEntityUpdate",
+		cancellable = true,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
+					"Lnet/minecraft/network/Packet;" +
+					"Lnet/minecraft/network/listener/PacketListener;" +
+					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+				")V"
+		)
+	)
 	private void onOnBlockEntityUpdate(BlockEntityUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		
@@ -253,15 +320,27 @@ public class GSClientPlayNetworkHandlerMixin {
 		}
 	}
 
-	@Inject(method = "onBlockUpdate", at = @At("RETURN"))
+	@Inject(
+		method = "onBlockUpdate",
+		at = @At("RETURN")
+	)
 	private void onOnBlockUpdateReturn(BlockUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
 			scheduleRenderUpdateForFallingBlock(packet.getPos(), packet.getState());
 	}
 	
-	@Inject(method = "onChunkDeltaUpdate", at = @At(value = "INVOKE", shift = Shift.AFTER,
-			target = "Lnet/minecraft/network/packet/s2c/play/ChunkDeltaUpdateS2CPacket;visitUpdates(Ljava/util/function/BiConsumer;)V"))
+	@Inject(
+		method = "onChunkDeltaUpdate",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/network/packet/s2c/play/ChunkDeltaUpdateS2CPacket;visitUpdates(" +
+					"Ljava/util/function/BiConsumer;" +
+				")V"
+		)
+	)
 	private void onOnChunkDeltaUpdateReturn(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
