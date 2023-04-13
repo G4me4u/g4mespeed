@@ -36,7 +36,10 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 	@Unique
 	private GSTpsModule gs_tpsModule;
 	
-	@Inject(method = "<init>", at = @At("RETURN"))
+	@Inject(
+		method = "<init>",
+		at = @At("RETURN")
+	)
 	private void onInit(SoundManager loader, GameOptions settings, ResourceFactory resourceFactory, CallbackInfo ci) {
 		GSClientController client = GSClientController.getInstance();
 		gs_tpsModule = client.getTpsModule();
@@ -45,7 +48,11 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 		client.getSettingManager().addChangeListener(this);
 	}
 	
-	@Inject(method = "getAdjustedPitch", cancellable = true, at = @At("HEAD"))
+	@Inject(
+		method = "getAdjustedPitch",
+		cancellable = true,
+		at = @At("HEAD")
+	)
 	private void onGetAdjustedPitch(SoundInstance soundInstance, CallbackInfoReturnable<Float> cir) {
 		float pitch = MathHelper.clamp(soundInstance.getPitch(), 0.5f, 2.0f);
 		

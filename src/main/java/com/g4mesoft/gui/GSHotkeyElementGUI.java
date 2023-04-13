@@ -6,14 +6,14 @@ import java.util.Set;
 
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyCode;
-import com.g4mesoft.panel.GSPanel;
-import com.g4mesoft.panel.GSParentPanel;
-import com.g4mesoft.panel.event.GSIKeyListener;
-import com.g4mesoft.panel.event.GSIMouseListener;
-import com.g4mesoft.panel.event.GSKeyEvent;
-import com.g4mesoft.panel.event.GSMouseEvent;
-import com.g4mesoft.panel.legend.GSButtonPanel;
-import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.ui.panel.GSPanel;
+import com.g4mesoft.ui.panel.GSParentPanel;
+import com.g4mesoft.ui.panel.event.GSIKeyListener;
+import com.g4mesoft.ui.panel.event.GSIMouseListener;
+import com.g4mesoft.ui.panel.event.GSKeyEvent;
+import com.g4mesoft.ui.panel.event.GSMouseEvent;
+import com.g4mesoft.ui.panel.legacy.GSButtonPanel;
+import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.InputUtil.Key;

@@ -2,6 +2,8 @@ package com.g4mesoft.gui.setting;
 
 import java.util.Locale;
 
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 
@@ -49,12 +51,15 @@ public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntege
 	}
 	
 	private MutableText getFormattedValue(int value) {
-		String valueText = String.format(Locale.ENGLISH, "%d", value);
+		String valueText = Integer.toString(value);
+		
+		GSTranslationModule translationModule =
+				GSClientController.getInstance().getTranslationModule();
 		
 		String key;
-		if (hasI18nTranslation(key = nameTextKey + "." + valueText))
+		if (translationModule.hasTranslation(key = nameTextKey + "." + valueText))
 			return Text.translatable(key, valueText);
-		if (hasI18nTranslation(key = nameTextKey + ".x"))
+		if (translationModule.hasTranslation(key = nameTextKey + ".x"))
 			return Text.translatable(key, valueText);
 		
 		return Text.literal(valueText);

@@ -10,7 +10,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
-import com.g4mesoft.access.server.GSIServerPlayNetworkHandlerAccess;
+import com.g4mesoft.access.common.GSIServerPlayNetworkHandlerAccess;
 import com.g4mesoft.core.GSConnectionPacket;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSCoreExtension;
@@ -24,8 +24,8 @@ import com.g4mesoft.setting.GSServerSettingMapPacket;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingChangePacket;
-import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.GSSettingChangePacket.GSESettingChangeType;
+import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.GSSettingMap;
 import com.g4mesoft.setting.GSSettingPermissionPacket;
 import com.mojang.brigadier.CommandDispatcher;
@@ -263,7 +263,13 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		return new File(server.getRunDirectory(), INTEGRATED_CACHE_DIR_NAME);
 	}
 	
-	private File getWorldCacheFile() {
+	@Override
+	public GSSettingManager getWorldSettingManager() {
+		return worldSettings;
+	}
+	
+	@Override
+	public File getWorldCacheFile() {
 		return new File(server.getSavePath(WorldSavePath.ROOT).toFile(), CACHE_DIR_NAME);
 	}
 	
@@ -299,11 +305,6 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	private void sendSettingPermissionPacket(ServerPlayerEntity player) {
 		sendPacket(new GSSettingPermissionPacket(isAllowedSettingChange(player)), player);
-	}
-	
-	@Override
-	public GSSettingManager getWorldSettingManager() {
-		return worldSettings;
 	}
 	
 	public static GSServerController getInstance() {

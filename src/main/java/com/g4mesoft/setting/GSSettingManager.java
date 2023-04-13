@@ -149,7 +149,7 @@ public class GSSettingManager {
 				return GSFileUtil.IGNORE;
 			});
 		} catch (IOException e) {
-			G4mespeedMod.GS_LOGGER.warn("Unable to load settings file", e);
+			G4mespeedMod.GS_LOGGER.warn("Unable to load settings file '{}'", e.getMessage());
 		}
 	}
 	
@@ -373,6 +373,8 @@ public class GSSettingManager {
 	}
 
 	public void addChangeListener(GSISettingChangeListener changeListener) {
+		if (changeListener == null)
+			throw new IllegalArgumentException("changeListener is null!");
 		listeners.add(changeListener);
 	}
 

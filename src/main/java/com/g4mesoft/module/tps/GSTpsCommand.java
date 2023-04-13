@@ -1,7 +1,7 @@
 package com.g4mesoft.module.tps;
 
 import com.g4mesoft.core.server.GSServerController;
-import com.g4mesoft.util.GSMathUtil;
+import com.g4mesoft.ui.util.GSMathUtil;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;

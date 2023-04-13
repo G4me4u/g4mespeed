@@ -3,32 +3,32 @@
   "package": "com.g4mesoft.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "server.GSMinecraftServerMixin",
+    "common.GSMinecraftServerMixin",
     
-    "server.GSServerWorldMixin",
+    "common.GSServerWorldMixin",
 
-    "server.GSCommandManagerMixin",
+    "common.GSCommandManagerMixin",
     
-    "server.GSServerPlayNetworkHandlerMixin",
-    "server.GSCustomPayloadS2CPacketMixin",
-    "server.GSCustomPayloadC2SPacketMixin",
+    "common.GSServerPlayNetworkHandlerMixin",
+    "common.GSCustomPayloadS2CPacketMixin",
+    "common.GSCustomPayloadC2SPacketMixin",
     
-    "server.GSPlayerManagerMixin",
-    "server.GSClientConnectionMixin",
+    "common.GSPlayerManagerMixin",
+    "common.GSClientConnectionMixin",
     
-    "server.GSTranslatableTextMixin",
+    "common.GSTranslatableTextMixin",
     
-    "server.GSPistonBlockEntityMixin",
-    "server.GSPistonBlockMixin",
+    "common.GSPistonBlockEntityMixin",
+    "common.GSPistonBlockMixin",
     
-    "server.GSThreadedAnvilChunkStorageMixin",
-    "server.GSIThreadedAnvilChunkStorageEntityTrackerAccess",
-    "server.GSEntityTrackerEntryMixin",
-    "server.GSServerChunkManagerMixin",
-    "server.GSIBlockEventS2CPacketAccess",
-    "server.GSChunkHolderMixin",
-    "server.GSFallingBlockEntityMixin",
-    "server.GSServerPlayerEntityMixin"
+    "common.GSThreadedAnvilChunkStorageMixin",
+    "common.GSIThreadedAnvilChunkStorageEntityTrackerAccess",
+    "common.GSEntityTrackerEntryMixin",
+    "common.GSServerChunkManagerMixin",
+    "common.GSIBlockEventS2CPacketAccess",
+    "common.GSChunkHolderMixin",
+    "common.GSFallingBlockEntityMixin",
+    "common.GSServerPlayerEntityMixin"
   ],
   "client": [
     "client.GSMinecraftClientMixin",
@@ -45,9 +45,6 @@
     
     "client.GSPistonBlockEntityRendererMixin",
     "client.GSPistonBlockEntityMixin",
-    
-    "client.GSBufferBuilderMixin",
-    "client.GSIVertexFormatElementAccess",
     
     "client.GSInGameHudMixin",
     

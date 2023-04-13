@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.module.translation.GSTranslationModule;
-import com.g4mesoft.util.GSMathUtil;
+import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -53,8 +53,17 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 	
 	@Shadow public abstract TextRenderer getTextRenderer();
 
-	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE,
-	        target = "Lnet/minecraft/client/gui/hud/BossBarHud;render(Lnet/minecraft/client/util/math/MatrixStack;)V"))
+	@Inject(
+		method = "render",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.BEFORE,
+			target =
+				"Lnet/minecraft/client/gui/hud/BossBarHud;render(" +
+					"Lnet/minecraft/client/util/math/MatrixStack;" +
+				")V"
+		)
+	)
 	private void onRenderBeforeBossBar(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER) {
 			matrixStack.push();
@@ -62,15 +71,33 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 		}
 	}
 
-	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.AFTER,
-	        target = "Lnet/minecraft/client/gui/hud/BossBarHud;render(Lnet/minecraft/client/util/math/MatrixStack;)V"))
+	@Inject(
+		method = "render",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/client/gui/hud/BossBarHud;render(" +
+					"Lnet/minecraft/client/util/math/MatrixStack;" +
+				")V"
+		)
+	)
 	private void onRenderAfterBossBar(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER)
 			matrixStack.pop();
 	}
 	
-	@Inject(method = "render", at = @At(value = "INVOKE", shift = Shift.BEFORE, 
-			target = "Lnet/minecraft/client/gui/hud/SubtitlesHud;render(Lnet/minecraft/client/util/math/MatrixStack;)V"))
+	@Inject(
+		method = "render",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.BEFORE, 
+			target =
+				"Lnet/minecraft/client/gui/hud/SubtitlesHud;render(" +
+					"Lnet/minecraft/client/util/math/MatrixStack;" +
+				")V"
+		)
+	)
 	private void onRenderBeforeSubtitles(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
 		GSClientController controller = GSClientController.getInstance();
 		GSTpsModule tpsModule = controller.getTpsModule();
