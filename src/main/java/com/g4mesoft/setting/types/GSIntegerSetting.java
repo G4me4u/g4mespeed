@@ -69,11 +69,7 @@ public class GSIntegerSetting extends GSSetting<Integer> {
 	}
 	
 	/**
-<<<<<<< HEAD
-	 * @deprecated Replaced by {@link #set(Object)}
-=======
 	 * @deprecated Replaced by {@link #set(Integer)}
->>>>>>> 9c5d50f8c0adf045472579d7cc59d5268c81cbfd
 	 * 
 	 * @param value - the new value of this setting
 	 * 
