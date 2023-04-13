@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.1-SNAPSHOT'
+	id 'fabric-loom' version '0.13-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -35,7 +35,6 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	// Include G4mespeed UI
 	includeMod "com.g4mesoft.ui:g4mespeed-ui:${project.g4mespeed_ui_version}-mc${project.minecraft_version}-SNAPSHOT"
-
 	// ModMenu integration
 	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
