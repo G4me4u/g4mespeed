@@ -7,6 +7,8 @@ import com.g4mesoft.G4mespeedMod;
 
 import net.minecraft.entity.Entity;
 
+import static com.g4mesoft.core.compat.GSCompatUtil.*;
+
 public class GSTweakerooCompat extends GSAbstractCompat {
 
 	private static final String CAMERA_ENTITY_CLASSPATH = "fi.dy.masa.tweakeroo.util.CameraEntity";
