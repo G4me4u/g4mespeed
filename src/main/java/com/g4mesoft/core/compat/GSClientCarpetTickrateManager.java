@@ -22,7 +22,7 @@ public class GSClientCarpetTickrateManager extends GSAbstractCarpetTickrateManag
 	private static final String TICKRATE_METHOD_NAME = "tickrate";
 	private static final String RUNS_NORMALLY_METHOD_NAME = "runsNormally";
 	private static final String LEVEL_INTERFACE_CLASSPATH = "carpet.fakes.LevelInterface";
-	private static final String GET_TRM_METHOD_NAME = "getTickRateManager";
+	private static final String GET_TRM_METHOD_NAME = "tickRateManager";
 
 	private Method getTRMMethod;
 	
@@ -55,7 +55,7 @@ public class GSClientCarpetTickrateManager extends GSAbstractCarpetTickrateManag
 		if (getTRMMethod == null) {
 			// Nothing else really matters here, but return true,
 			// since we did detect the tickrate manager class.
-			G4mespeedMod.GS_LOGGER.info("Unable to find level getTickRateManager method.");
+			G4mespeedMod.GS_LOGGER.info("Unable to find level tickRateManager method.");
 			return true;
 		}
 
