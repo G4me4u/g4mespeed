@@ -52,6 +52,18 @@ public interface GSIModuleManager {
 	public void runOnServer(Consumer<GSIServerModuleManager> consumer);
 	
 	/**
+	 * @return True, if this is a {@link GSIClientModuleManager}, false otherwise.
+	 */
+	public boolean isClient();
+	
+	/**
+	 * @return True, if this is a {@link GSIServerModuleManager}, false otherwise.
+	 */
+	default public boolean isServer() {
+		return !isClient();
+	}
+	
+	/**
 	 * @return The local setting manager of this module manager.
 	 */
 	public GSSettingManager getSettingManager();
