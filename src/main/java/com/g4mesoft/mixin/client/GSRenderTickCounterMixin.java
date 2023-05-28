@@ -11,9 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.client.GSClientController;
-import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.module.tps.GSITickTimer;
 import com.g4mesoft.module.tps.GSServerTickTimer;
 import com.g4mesoft.module.tps.GSTpsModule;
@@ -33,8 +31,6 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	
 	@Unique
 	private boolean gs_firstUpdate;
-	@Unique
-	private GSCarpetCompat gs_carpetCompat;
 	@Unique
 	private GSTpsModule gs_tpsModule;
 	@Unique
@@ -71,7 +67,7 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 			gs_serverTimer.setMillisPerTick(DEFAULT_MILLIS_PER_TICK);
 		}
 		
-		if (!gs_carpetCompat.isTickrateLinked() || gs_tpsModule.cForceCarpetTickrate.get())
+		if (!gs_tpsModule.isCarpetTickrateLinked(true) || gs_tpsModule.cForceCarpetTickrate.get())
 			this.lastFrameDuration = (timeMillis - this.prevTimeMillis) / millisPerTick;
 	}
 
@@ -103,7 +99,6 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 
 	@Override
 	public void init0(long initialTimeMillis) {
-		gs_carpetCompat = G4mespeedMod.getCarpetCompat();
 		gs_tpsModule = GSClientController.getInstance().getTpsModule();
 		gs_serverTimer = gs_tpsModule.getServerTimer();
 		
