@@ -1,6 +1,7 @@
 package com.g4mesoft.mixin.common;
 
 import java.util.BitSet;
+import java.util.List;
 
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
@@ -26,6 +27,7 @@ import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 import net.minecraft.server.world.ChunkHolder.LevelUpdateListener;
 import net.minecraft.server.world.ChunkHolder.PlayersWatchingChunkProvider;
@@ -40,16 +42,19 @@ import net.minecraft.world.chunk.light.LightingProvider;
 @Mixin(ChunkHolder.class)
 public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 
-    @Shadow @Final private HeightLimitView world;
+	@Shadow @Final private HeightLimitView world;
 	@Shadow @Final private ShortSet[] blockUpdatesBySection;
 
+	@Shadow @Final private PlayersWatchingChunkProvider playersWatchingChunkProvider;
+	@Shadow @Final ChunkPos pos;
+	
 	@Shadow private boolean pendingBlockUpdates;
 	@Shadow @Final private BitSet blockLightUpdateBits;
 	@Shadow @Final private BitSet skyLightUpdateBits;
 
-	@Shadow protected abstract void sendPacketToPlayersWatching(Packet<?> packet, boolean boolean_1);
-
-	@Shadow protected abstract void tryUpdateBlockEntityAt(World world, BlockPos blockPos, BlockState blockState);
+	@Shadow protected abstract void tryUpdateBlockEntityAt(List<ServerPlayerEntity> players, World world, BlockPos pos, BlockState state);
+	
+	@Shadow protected abstract void sendPacketToPlayers(List<ServerPlayerEntity> players, Packet<?> packet);
 	
 	@Shadow public abstract WorldChunk getWorldChunk();
 	
@@ -136,7 +141,8 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 		if (markedUpdates != null) {
 			int sectionCoord = this.world.sectionIndexToCoord(sectionIndex);
 			ChunkSectionPos sectionPos = ChunkSectionPos.from(chunk.getPos(), sectionCoord);
-
+			
+			List<ServerPlayerEntity> players = playersWatchingChunkProvider.getPlayersWatchingChunk(this.pos, false);
 			for (short coord : markedUpdates) {
 				BlockPos pos = sectionPos.unpackBlockPos(coord);
 				BlockEntity blockEntity = chunk.getBlockEntity(pos);
@@ -144,11 +150,11 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 				if (blockEntity != null) {
 					Packet<?> packet;
 					if (blockEntity instanceof PistonBlockEntity) {
-						sendPacketToPlayersWatching(BlockEntityUpdateS2CPacket.create(blockEntity, BlockEntity::createNbt), false);
+						sendPacketToPlayers(players, BlockEntityUpdateS2CPacket.create(blockEntity, BlockEntity::createNbt));
 					} else {
 						packet = blockEntity.toUpdatePacket();
 						if (packet != null)
-							sendPacketToPlayersWatching(packet, false);
+							sendPacketToPlayers(players, packet);
 					}
 				}
 			}
@@ -165,7 +171,8 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	
 	@Override
 	public void gs_updateBlockEntityImmediately(World world, BlockPos pos) {
-		tryUpdateBlockEntityAt(world, pos, world.getBlockState(pos));
+		List<ServerPlayerEntity> players = playersWatchingChunkProvider.getPlayersWatchingChunk(this.pos, false);
+		tryUpdateBlockEntityAt(players, world, pos, world.getBlockState(pos));
 	}
 	
 	@Override
@@ -185,5 +192,10 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	@Override
 	public void gs_sendToNearbyPlayers0(Packet<?> packet) {
 		sendPacketToPlayersWatching(packet, false);
+	}
+	
+	@Unique
+	private void sendPacketToPlayersWatching(Packet<?> packet, boolean includeLazy) {
+		sendPacketToPlayers(playersWatchingChunkProvider.getPlayersWatchingChunk(pos, includeLazy), packet);
 	}
 }

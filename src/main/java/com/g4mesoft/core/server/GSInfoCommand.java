@@ -20,7 +20,7 @@ public final class GSInfoCommand {
 	}
 
 	private static int informCoreVersion(ServerCommandSource source) {
-		source.sendFeedback(Text.translatable("command.gs.info", GSCoreExtension.VERSION), false);
+		source.sendFeedback(() -> Text.translatable("command.gs.info", GSCoreExtension.VERSION), false);
 		
 		return Command.SINGLE_SUCCESS;
 	}

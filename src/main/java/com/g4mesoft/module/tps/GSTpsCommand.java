@@ -48,13 +48,15 @@ public final class GSTpsCommand {
 				n += 12;
 			}
 			
+			Text feedback;
 			if (o != 0) {
-				source.sendFeedback(Text.translatable("command.tps.geton", tpsFormatted, formatSign(o), formatSign(n)), false);
+				feedback = Text.translatable("command.tps.geton", tpsFormatted, formatSign(o), formatSign(n));
 			} else {
-				source.sendFeedback(Text.translatable("command.tps.getn", tpsFormatted, formatSign(n)), false);
+				feedback = Text.translatable("command.tps.getn", tpsFormatted, formatSign(n));
 			}
+			source.sendFeedback(() -> feedback, false);
 		} else {
-			source.sendFeedback(Text.translatable("command.tps.get", tpsFormatted), false);
+			source.sendFeedback(() -> Text.translatable("command.tps.get", tpsFormatted), false);
 		}
 		
 		return Command.SINGLE_SUCCESS;
@@ -69,7 +71,7 @@ public final class GSTpsCommand {
 	private static int setCurrentTps(ServerCommandSource source, float newTps) throws CommandSyntaxException {
 		GSServerController.getInstance().getTpsModule().setTps(newTps);
 		
-		source.sendFeedback(Text.translatable("command.tps.set", newTps), true);
+		source.sendFeedback(() -> Text.translatable("command.tps.set", newTps), true);
 		
 		return Command.SINGLE_SUCCESS;
 	}

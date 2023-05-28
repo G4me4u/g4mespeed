@@ -309,14 +309,12 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		if (itemUseCooldown > 0)
 			itemUseCooldown--;
 
-		if (!paused) {
-			inGameHud.tick(this.paused);
-		
-			if (world != null)
-				interactionManager.tick();
-		}
+		inGameHud.tick(this.paused);
 
-		if (overlay == null && (currentScreen == null || currentScreen.passEvents)) {
+		if (!paused && world != null)
+			interactionManager.tick();
+
+		if (overlay == null && currentScreen == null) {
 			handleInputEvents();
 			if (attackCooldown > 0)
 				attackCooldown--;

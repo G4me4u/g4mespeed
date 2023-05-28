@@ -20,12 +20,12 @@ import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.util.math.MatrixStack;
 
 @Mixin(InGameHud.class)
-public abstract class GSInGameHudMixin extends DrawableHelper {
+public abstract class GSInGameHudMixin {
 
 	private static final int TPS_LABEL_MAGIN = 5;
 
@@ -60,12 +60,13 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 			shift = Shift.BEFORE,
 			target =
 				"Lnet/minecraft/client/gui/hud/BossBarHud;render(" +
-					"Lnet/minecraft/client/util/math/MatrixStack;" +
+					"Lnet/minecraft/client/gui/DrawContext;" +
 				")V"
 		)
 	)
-	private void onRenderBeforeBossBar(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
+	private void onRenderBeforeBossBar(DrawContext context, float tickDelta, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER) {
+			MatrixStack matrixStack = context.getMatrices();
 			matrixStack.push();
 			matrixStack.translate(0.0, client.textRenderer.fontHeight + 5, 0.0);
 		}
@@ -78,13 +79,13 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 			shift = Shift.AFTER,
 			target =
 				"Lnet/minecraft/client/gui/hud/BossBarHud;render(" +
-					"Lnet/minecraft/client/util/math/MatrixStack;" +
+						"Lnet/minecraft/client/gui/DrawContext;" +
 				")V"
 		)
 	)
-	private void onRenderAfterBossBar(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
+	private void onRenderAfterBossBar(DrawContext context, float tickDelta, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER)
-			matrixStack.pop();
+			context.getMatrices().pop();
 	}
 	
 	@Inject(
@@ -94,11 +95,11 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 			shift = Shift.BEFORE, 
 			target =
 				"Lnet/minecraft/client/gui/hud/SubtitlesHud;render(" +
-					"Lnet/minecraft/client/util/math/MatrixStack;" +
+						"Lnet/minecraft/client/gui/DrawContext;" +
 				")V"
 		)
 	)
-	private void onRenderBeforeSubtitles(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
+	private void onRenderBeforeSubtitles(DrawContext context, float tickDelta, CallbackInfo ci) {
 		GSClientController controller = GSClientController.getInstance();
 		GSTpsModule tpsModule = controller.getTpsModule();
 		
@@ -133,10 +134,10 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 				break;
 			}
 			
-			fill(matrixStack, lx - 1, ly - 1, lx + lw, ly + lh, LABEL_BACKGROUND_COLOR);
+			context.fill(lx - 1, ly - 1, lx + lw, ly + lh, LABEL_BACKGROUND_COLOR);
 			
-			float tx = font.draw(matrixStack, current, lx, ly, getTpsLabelColor(averageTps, targetTps));
-			font.draw(matrixStack, targetText, tx + font.getWidth(" "), ly, LABEL_TARGET_COLOR);
+			int tx = context.drawText(font, current, lx, ly, getTpsLabelColor(averageTps, targetTps), false);
+			context.drawText(font, targetText, tx + font.getWidth(" "), ly, LABEL_TARGET_COLOR, false);
 		}
 	}
 	

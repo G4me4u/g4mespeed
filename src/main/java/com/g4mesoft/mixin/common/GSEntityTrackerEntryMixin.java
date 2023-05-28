@@ -112,6 +112,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 			shift = Shift.AFTER,
 			target =
 				"Lnet/minecraft/server/network/EntityTrackerEntry;sendPackets(" +
+					"Lnet/minecraft/server/network/ServerPlayerEntity;" +
 					"Ljava/util/function/Consumer;" +
 				")V"
 		)
@@ -127,8 +128,21 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 		}
 	}
 	
-	@Inject(method = "stopTracking", require = 1, allow = 1, expect = 1, cancellable = true, at = @At(value = "INVOKE", shift = Shift.BEFORE,
-			target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V"))
+	@Inject(
+		method = "stopTracking",
+		require = 1,
+		allow = 1,
+		expect = 1,
+		cancellable = true,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.BEFORE,
+			target =
+				"Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(" +
+					"Lnet/minecraft/network/packet/Packet;" +
+				")V"
+		)
+	)
 	private void onStopTracking(ServerPlayerEntity player, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
 		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
