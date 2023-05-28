@@ -47,6 +47,7 @@ public class GSServerCarpetTickrateManager extends GSAbstractCarpetTickrateManag
 	@Override
 	public void onClose() {
 		tickrateManager = null;
+		carpetTickrateListener = null;
 	}
 	
 	private boolean detect() {
