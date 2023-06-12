@@ -162,11 +162,11 @@ public class GSEncodeBuffer implements ReferenceCounted {
 	}
 
 	public void writeString(String str, Charset charset, int encodedLimit) {
-        byte[] buf = str.getBytes(charset);
-        if (buf.length > encodedLimit)
-        	throw new EncoderException("encoded length exceeds limit");
-        writeVarInt(buf.length);
-        writeBytes(buf);
+		byte[] buf = str.getBytes(charset);
+		if (buf.length > encodedLimit)
+			throw new EncoderException("encoded length exceeds limit");
+		writeVarInt(buf.length);
+		writeBytes(buf);
 	}
 	
 	public void writeIdentifier(Identifier value) {
@@ -214,11 +214,11 @@ public class GSEncodeBuffer implements ReferenceCounted {
 		//   - section y stored in bits <0:19>
 		//   - section z stored in bits <20:41>
 		//   - section x stored in bits <42:63>
-        long value = 0L;
-        value |= ((long)x & BIT_MASK_SECTION_X) << BIT_SHIFT_SECTION_X;
-        value |= ((long)y & BIT_MASK_SECTION_Y) << BIT_SHIFT_SECTION_Y;
-        value |= ((long)z & BIT_MASK_SECTION_Z) << BIT_SHIFT_SECTION_Z;
-        writeLong(value);
+		long value = 0L;
+		value |= ((long)x & BIT_MASK_SECTION_X) << BIT_SHIFT_SECTION_X;
+		value |= ((long)y & BIT_MASK_SECTION_Y) << BIT_SHIFT_SECTION_Y;
+		value |= ((long)z & BIT_MASK_SECTION_Z) << BIT_SHIFT_SECTION_Z;
+		writeLong(value);
 	}
 	
 	public void setBoolean(int location, boolean value) {

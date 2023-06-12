@@ -109,6 +109,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	private final GSServerTickTimer serverTimer = new GSServerTickTimer(this);
 
 	private GSIModuleManager manager;
+	private GSCarpetCompat carpetCompat;
 
 	public final GSBooleanSetting cShiftPitch;
 	public final GSBooleanSetting cSyncTick;
@@ -165,6 +166,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public void init(GSIModuleManager manager) {
 		this.manager = manager;
 		
+		carpetCompat = G4mespeedMod.getCarpetCompat();
+		
 		resetTps();
 		serverTpsMonitor.reset();
 		
@@ -176,10 +179,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 					G4mespeedMod.GS_LOGGER.warn("Unable to read tps from cache.");
 				}
 			}
-			initCarpetTickrateManager(G4mespeedMod.getCarpetCompat().getServerTickrateManager());
+			initCarpetTickrateManager(carpetCompat.getServerTickrateManager());
 		});
 		manager.runOnClient(managerClient -> {
-			initCarpetTickrateManager(G4mespeedMod.getCarpetCompat().getClientTickrateManager());
+			initCarpetTickrateManager(carpetCompat.getClientTickrateManager());
 		});
 	}
 
@@ -195,10 +198,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 					G4mespeedMod.GS_LOGGER.warn("Unable to write tps to cache.");
 				}
 			}
-			closeCarpetTickrateManager(G4mespeedMod.getCarpetCompat().getServerTickrateManager());
+			closeCarpetTickrateManager(carpetCompat.getServerTickrateManager());
 		});
 		manager.runOnClient(managerClient -> {
-			closeCarpetTickrateManager(G4mespeedMod.getCarpetCompat().getClientTickrateManager());
+			closeCarpetTickrateManager(carpetCompat.getClientTickrateManager());
 		});
 		
 		manager = null;
@@ -209,7 +212,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		settings.registerSettings(TPS_CATEGORY,
 			cShiftPitch,
 			cSyncTick,
-			isCarpetTickrateLinked(true) ? cForceCarpetTickrate : null,
+			G4mespeedMod.getCarpetCompat().getClientTickrateManager().isTickrateLinked() ? cForceCarpetTickrate : null,
 			cNormalMovement,
 			G4mespeedMod.getTweakerooCompat().isCameraEntityRetreived() ? cTweakerooFreecamHack : null,
 			cTpsLabel
@@ -293,10 +296,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 					lastServerTpsTime = now;
 				}
 			}
-			pollCarpetTickrate(G4mespeedMod.getCarpetCompat().getServerTickrateManager());
+			pollCarpetTickrate(carpetCompat.getServerTickrateManager());
 		});
 		manager.runOnClient(managerClient -> {
-			pollCarpetTickrate(G4mespeedMod.getCarpetCompat().getClientTickrateManager());
+			pollCarpetTickrate(carpetCompat.getClientTickrateManager());
 		});
 	}
 	
@@ -512,10 +515,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				serverTpsMonitor.reset();
 
 				lastServerTpsTime = Util.getMeasuringTimeMs();
-				setCarpetTickrate(G4mespeedMod.getCarpetCompat().getServerTickrateManager());
+				carpetCompat.getServerTickrateManager().setTickrate(this.tps);
 			});
 			manager.runOnClient(managerClient -> {
-				setCarpetTickrate(G4mespeedMod.getCarpetCompat().getClientTickrateManager());
+				carpetCompat.getClientTickrateManager().setTickrate(this.tps);
 			});
 		}
 	}
@@ -553,18 +556,14 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	/* Carpet compatibility methods */
 	
 	public void initCarpetTickrateManager(GSICarpetTickrateManager tickrateManager) {
-		if (tickrateManager != null) {
-			tickrateManager.onInit(manager);
-			if (tickrateManager.isTickrateLinked())
-				tickrateManager.addListener(this);
-		}
+		tickrateManager.onInit(manager);
+		if (tickrateManager.isTickrateLinked())
+			tickrateManager.addListener(this);
 	}
 
 	public void closeCarpetTickrateManager(GSICarpetTickrateManager tickrateManager) {
-		if (tickrateManager != null) {
-			tickrateManager.removeListener(this);
-			tickrateManager.onClose();
-		}
+		tickrateManager.removeListener(this);
+		tickrateManager.onClose();
 	}
 	
 	@Override
@@ -573,29 +572,13 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 	
 	private void pollCarpetTickrate(GSICarpetTickrateManager tickrateManager) {
-		if (tickrateManager != null && tickrateManager.isPollingCompatMode()) {
+		if (tickrateManager.isPollingCompatMode()) {
 			// With older versions of carpet we have to poll the current tps
 			// manually since we don't receive an event directly when it changes.
-			float carpetTickrate = tickrateManager.getTickrate();
-			if (!GSMathUtil.equalsApproximate(carpetTickrate, tps))
-				setTps(carpetTickrate);
+			float tickrate = tickrateManager.getTickrate();
+			if (!GSMathUtil.equalsApproximate(tickrate, tps))
+				setTps(tickrate);
 		}
-	}
-	
-	private void setCarpetTickrate(GSICarpetTickrateManager tickrateManager) {
-		if (tickrateManager != null && tickrateManager.isTickrateLinked())
-			tickrateManager.setTickrate(tps);
-	}
-
-	public boolean isCarpetTickrateLinked(boolean clientside) {
-		GSCarpetCompat carpetCompat = G4mespeedMod.getCarpetCompat();
-		GSICarpetTickrateManager tickrateManager;
-		if (clientside) {
-			tickrateManager = carpetCompat.getClientTickrateManager();
-		} else {
-			tickrateManager = carpetCompat.getServerTickrateManager();
-		}
-		return tickrateManager != null && tickrateManager.isTickrateLinked();
 	}
 	
 	public float getMsPerTick() {
@@ -661,7 +644,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			if (player != null && !player.hasVehicle()) {
 				// Carpet allows clients to have different tps than the server,
 				// do not enable fixed movement if carpet is in this mode.
-				if (isCarpetTickrateLinked(true))
+				if (carpetCompat.getClientTickrateManager().isTickrateLinked())
 					return cForceCarpetTickrate.get();
 				return true;
 			}
