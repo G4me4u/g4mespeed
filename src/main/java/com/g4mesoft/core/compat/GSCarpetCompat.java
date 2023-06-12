@@ -1,5 +1,9 @@
 package com.g4mesoft.core.compat;
 
+import com.g4mesoft.core.GSController;
+import com.g4mesoft.core.GSIModuleManager;
+import com.g4mesoft.module.tps.GSTpsModule;
+
 public final class GSCarpetCompat extends GSAbstractCompat {
 
 	/* Visible for GSOutdatedCarpetTickrateManager */
@@ -22,6 +26,11 @@ public final class GSCarpetCompat extends GSAbstractCompat {
 		} else {
 			clientTRM = GSClientCarpetTickrateManager.create();
 		}
+		// Fallback to not installed manager...
+		if (serverTRM == null)
+			serverTRM = new GSNotInstalledCarpetTickrateManager();
+		if (clientTRM == null)
+			clientTRM = new GSNotInstalledCarpetTickrateManager();
 	}
 
 	public GSICarpetTickrateManager getServerTickrateManager() {
@@ -30,5 +39,52 @@ public final class GSCarpetCompat extends GSAbstractCompat {
 
 	public GSICarpetTickrateManager getClientTickrateManager() {
 		return clientTRM;
+	}
+	
+	private class GSNotInstalledCarpetTickrateManager implements GSICarpetTickrateManager {
+
+		@Override
+		public void onInit(GSIModuleManager manager) {
+			// Do nothing
+		}
+
+		@Override
+		public void onClose() {
+			// Do nothing
+		}
+
+		@Override
+		public boolean isTickrateLinked() {
+			return false;
+		}
+
+		@Override
+		public boolean runsNormally() {
+			return true;
+		}
+
+		@Override
+		public float getTickrate() {
+			// Just return the GS tickrate.
+			return GSController.getInstanceOnThread()
+					.getModule(GSTpsModule.class).getTps();
+		}
+
+		@Override
+		public void setTickrate(float tickrate) {
+		}
+
+		@Override
+		public boolean isPollingCompatMode() {
+			return false;
+		}
+
+		@Override
+		public void addListener(GSICarpetTickrateListener listener) {
+		}
+
+		@Override
+		public void removeListener(GSICarpetTickrateListener listener) {
+		}
 	}
 }
