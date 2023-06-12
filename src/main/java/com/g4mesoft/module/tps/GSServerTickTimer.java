@@ -1,6 +1,8 @@
 package com.g4mesoft.module.tps;
 
+import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.compat.GSICarpetTickrateManager;
 
 import net.minecraft.util.Util;
 
@@ -95,10 +97,11 @@ public class GSServerTickTimer implements GSITickTimer {
 	
 	private boolean shouldAdjustTickDelta() {
 		if (GSClientController.getInstance().isG4mespeedServer()) {
-			// When Fabric Carpet tickrate is linked, it is possible
-			// to use their client tickrate. Make sure to only enforce
-			// synchronization when using G4mespeed tickrate.
-			if (!tpsModule.isCarpetTickrateLinked(true) || tpsModule.cForceCarpetTickrate.get())
+			// When Fabric Carpet tickrate is linked, it is possible to use
+			// their client tickrate. Make sure to only enforce synchronization
+			// when using G4mespeed tickrate.
+			GSICarpetTickrateManager carpetTRM = G4mespeedMod.getCarpetCompat().getClientTickrateManager();
+			if (!carpetTRM.isTickrateLinked() || tpsModule.cForceCarpetTickrate.get())
 				return true;
 		}
 
