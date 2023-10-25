@@ -25,6 +25,7 @@ import com.g4mesoft.gui.setting.GSSettingsGUI;
 import com.g4mesoft.hotkey.GSEKeyEventType;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
+import com.g4mesoft.packet.GSCustomPayload;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 import com.g4mesoft.setting.GSRemoteSettingManager;
@@ -33,15 +34,14 @@ import com.g4mesoft.ui.panel.GSPanelContext;
 import com.g4mesoft.ui.panel.scroll.GSScrollPanel;
 import com.g4mesoft.ui.renderer.GSIRenderable3D;
 
+import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
 
 @Environment(EnvType.CLIENT)
 public class GSClientController extends GSController implements GSIClientModuleManager {
@@ -215,8 +215,8 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	}
 	
 	@Override
-	public Packet<?> createCustomPayload(Identifier identifier, PacketByteBuf buffer) {
-		return new CustomPayloadC2SPacket(identifier, buffer);
+	public Packet<?> createCustomPayload(ByteBuf buffer) {
+		return new CustomPayloadC2SPacket(GSCustomPayload.create(buffer));
 	}
 
 	@Override

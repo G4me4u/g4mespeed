@@ -21,6 +21,7 @@ import com.g4mesoft.ui.util.GSMathUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.util.math.MatrixStack;
 
@@ -48,6 +49,7 @@ public abstract class GSInGameHudMixin {
 
 	@Shadow private int scaledWidth;
 	@Shadow private int scaledHeight;
+	@Shadow @Final private DebugHud debugHud;
 
 	@Shadow @Final private MinecraftClient client;
 	
@@ -104,7 +106,7 @@ public abstract class GSInGameHudMixin {
 		GSTpsModule tpsModule = controller.getTpsModule();
 		
 		int labelLocation = tpsModule.cTpsLabel.get();
-		if (!client.options.debugEnabled && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
+		if (!debugHud.shouldShowDebugHud() && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
 			TextRenderer font = getTextRenderer();
 			GSTranslationModule translationModule = controller.getTranslationModule();
 			

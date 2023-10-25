@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionInfoList;
 import com.g4mesoft.GSExtensionUID;
@@ -25,12 +24,7 @@ import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.translation.GSTranslationModule;
-import com.g4mesoft.packet.GSICustomPayloadPacket;
-import com.g4mesoft.packet.GSIPacket;
-import com.g4mesoft.packet.GSPacketManager;
 
-import net.minecraft.network.listener.ServerPlayPacketListener;
-import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -40,8 +34,6 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 
 	@Shadow public ServerPlayerEntity player;
 	@Shadow private int floatingTicks;
-
-	@Shadow protected abstract boolean isHost();
 
 	@Unique
 	private final GSExtensionInfoList gs_extensionInfoList = new GSExtensionInfoList();
@@ -122,26 +114,6 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		if (gs_trackerFixedMovement)
 			((GSIServerChunkManagerAccess)player.getWorld().getChunkManager()).gs_tickEntityTracker(player);
 	}
-
-	
-	@Inject(
-		method = "onCustomPayload",
-		cancellable = true,
-		at = @At("HEAD")
-	)
-	private void onCustomPayload(CustomPayloadC2SPacket packet, CallbackInfo ci) {
-		GSPacketManager packetManger = G4mespeedMod.getPacketManager();
-		
-		@SuppressWarnings("unchecked")
-		GSICustomPayloadPacket<ServerPlayPacketListener> payload = (GSICustomPayloadPacket<ServerPlayPacketListener>)packet;
-		
-		GSServerController controllerServer = GSServerController.getInstance();
-		GSIPacket gsPacket = packetManger.decodePacket(payload, gs_extensionInfoList, (ServerPlayNetworkHandler)(Object)this, controllerServer.getServer());
-		if (gsPacket != null) {
-			gsPacket.handleOnServer(controllerServer, player);
-			ci.cancel();
-		}
-	}
 	
 	@Override
 	public boolean gs_isExtensionInstalled(GSExtensionUID extensionUid) {
@@ -193,4 +165,13 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		this.gs_fixedMovement = fixedMovement;
 	}
 	
+	@Override
+	public GSExtensionInfoList gs_getExtensionInfoList() {
+		return gs_extensionInfoList;
+	}
+	
+	@Override
+	public ServerPlayerEntity gs_getPlayer() {
+		return player;
+	}
 }

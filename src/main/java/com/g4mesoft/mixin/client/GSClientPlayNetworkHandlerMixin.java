@@ -1,6 +1,5 @@
 package com.g4mesoft.mixin.client;
 
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -9,16 +8,12 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.client.GSIClientWorldAccess;
 import com.g4mesoft.access.client.GSIEntityAccess;
 import com.g4mesoft.access.client.GSIPendingUpdateManagerAccess;
 import com.g4mesoft.access.client.GSIWorldRendererAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
-import com.g4mesoft.packet.GSICustomPayloadPacket;
-import com.g4mesoft.packet.GSIPacket;
-import com.g4mesoft.packet.GSPacketManager;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -28,6 +23,8 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientCommonNetworkHandler;
+import net.minecraft.client.network.ClientConnectionState;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.PendingUpdateManager;
 import net.minecraft.client.world.ClientWorld;
@@ -36,12 +33,10 @@ import net.minecraft.entity.TrackedPosition;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.ClientConnection;
-import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
@@ -53,14 +48,16 @@ import net.minecraft.util.math.Vec3d;
 
 /* Use priority -1001 to ensure we have priority over MultiConnect */
 @Mixin(value = ClientPlayNetworkHandler.class, priority = -1001)
-public class GSClientPlayNetworkHandlerMixin {
+public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetworkHandler {
 
-	@Shadow @Final private ClientConnection connection;
-	@Shadow private MinecraftClient client;
 	@Shadow private ClientWorld world;
 
 	private static final int WORLD_TIME_UPDATE_INTERVAL = 20;
 	private static final double IGNORE_TELEPORT_MAX_DISTANCE = 1.0; /* Must be > 0.51 */
+
+	protected GSClientPlayNetworkHandlerMixin(MinecraftClient client, ClientConnection connection, ClientConnectionState connectionState) {
+		super(client, connection, connectionState);
+	}
 	
 	@Inject(
 		method = "<init>",
@@ -134,7 +131,7 @@ public class GSClientPlayNetworkHandlerMixin {
 						// Do not ignore rotation changes.
 						float yaw   = (float)(packet.getYaw()   * 360) / 256.0f;
 						float pitch = (float)(packet.getPitch() * 360) / 256.0f;
-						entity.updateTrackedPositionAndAngles(entity.getX(), entity.getY(), entity.getZ(), yaw, pitch, 3, false);
+						entity.updateTrackedPositionAndAngles(entity.getLerpTargetX(), entity.getLerpTargetY(), entity.getLerpTargetZ(), yaw, pitch, 3);
 					}
 					
 					entity.setOnGround(packet.isOnGround());
@@ -193,25 +190,6 @@ public class GSClientPlayNetworkHandlerMixin {
 		return (((GSIEntityAccess)entity).gs_isMovedByPiston() || ((GSIEntityAccess)entity).gs_wasMovedByPiston());
 	}
 	
-	@Inject(
-		method = "onCustomPayload",
-		cancellable = true,
-		at = @At("HEAD")
-	)
-	private void onCustomPayload(CustomPayloadS2CPacket packet, CallbackInfo ci) {
-		GSPacketManager packetManger = G4mespeedMod.getPacketManager();
-		
-		@SuppressWarnings("unchecked")
-		GSICustomPayloadPacket<ClientPlayPacketListener> payload = (GSICustomPayloadPacket<ClientPlayPacketListener>)packet;
-		
-		GSClientController controllerClient = GSClientController.getInstance();
-		GSIPacket gsPacket = packetManger.decodePacket(payload, controllerClient.getServerExtensionInfoList(), (ClientPlayNetworkHandler)(Object)this, this.client);
-		if (gsPacket != null) {
-			gsPacket.handleOnClient(controllerClient);
-			ci.cancel();
-		}
-	}
-
 	@Inject(
 		method = "onWorldTimeUpdate",
 		at = @At("HEAD")

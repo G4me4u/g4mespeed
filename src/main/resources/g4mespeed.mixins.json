@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "com.g4mesoft.mixin",
-  "compatibilityLevel": "JAVA_16",
+  "compatibilityLevel": "JAVA_17",
   "mixins": [
     "common.GSMinecraftServerMixin",
     
@@ -28,7 +28,8 @@
     "common.GSIBlockEventS2CPacketAccess",
     "common.GSChunkHolderMixin",
     "common.GSFallingBlockEntityMixin",
-    "common.GSServerPlayerEntityMixin"
+    "common.GSServerPlayerEntityMixin",
+    "common.GSServerCommonNetworkHandlerMixin"
   ],
   "client": [
     "client.GSMinecraftClientMixin",
@@ -60,7 +61,8 @@
     "client.GSIWorldAccess",
     
     "client.GSClientPlayerInteractionManagerMixin",
-    "client.GSPendingUpdateManagerMixin"
+    "client.GSPendingUpdateManagerMixin",
+    "client.GSClientCommonNetworkHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

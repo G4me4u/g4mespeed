@@ -15,9 +15,8 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSSettingManager;
 
-import net.minecraft.network.PacketByteBuf;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.util.Identifier;
 
 public abstract class GSController implements GSIModuleManager, GSIExtensionListener {
 
@@ -139,7 +138,7 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 	
 	public abstract boolean isThreadOwner();
 		
-	public abstract Packet<?> createCustomPayload(Identifier identifier, PacketByteBuf buffer);
+	public abstract Packet<?> createCustomPayload(ByteBuf buffer);
 
 	public abstract boolean isClient();
 

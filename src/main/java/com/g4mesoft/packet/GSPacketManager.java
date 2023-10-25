@@ -1,6 +1,7 @@
 package com.g4mesoft.packet;
 
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
@@ -14,17 +15,14 @@ import com.g4mesoft.util.GSEncodeBuffer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.NetworkThreadUtils;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.PacketListener;
+import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.util.Identifier;
+import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.thread.ThreadExecutor;
 
 public class GSPacketManager {
 
-	private static final Identifier GS_IDENTIFIER = new Identifier("mod/g4mespeed");
-	
 	private final GSPacketRegistryList registryList;
 	private boolean initialized;
 	
@@ -61,26 +59,21 @@ public class GSPacketManager {
 			e.printStackTrace();
 		}
 		
-		return controller.createCustomPayload(GS_IDENTIFIER, new PacketByteBuf(buf));
+		return controller.createCustomPayload(buf);
 	}
 	
-	public <T extends PacketListener> GSIPacket decodePacket(GSICustomPayloadPacket<T> customPayload,
-	                                                         GSExtensionInfoList extensionInfoList, 
-	                                                         T packetListener, ThreadExecutor<?> executor) {
-		
-		if (!GS_IDENTIFIER.equals(customPayload.getChannel0()))
+	public <T extends PacketListener> GSIPacket decodePacket(CustomPayload payload, GSExtensionInfoList extensionInfoList) {
+		if (!(payload instanceof GSCustomPayload))
 			return null;
 		
-		PacketByteBuf buffer = customPayload.getData0();
-
+		ByteBuf buffer = ((GSCustomPayload)payload).getBuffer();
+		
 		GSIPacket packet = registryList.createNewPacket(buffer.readLong());
 		if (packet == null) {
 			buffer.release();
 			return null;
 		}
-		if (packet.shouldForceMainThread())
-		      NetworkThreadUtils.forceMainThread(customPayload, packetListener, executor);
-			
+		
 		GSExtensionUID extensionUid = getPacketExtensionUniqueId(packet);
 		GSExtensionInfo extensionInfo = extensionInfoList.getInfo(extensionUid);
 
@@ -93,6 +86,31 @@ public class GSPacketManager {
 		}
 		
 		return packet;
+	}
+	
+	public <T extends PacketListener> void handlePacket(GSIPacket packet, T packetListener, ThreadExecutor<?> executor, Consumer<GSIPacket> handler) {
+		if (packet.shouldForceMainThread() && !executor.isOnThread()) {
+			// Schedule the handler on the main thread.
+			executor.executeSync(() -> {
+				if (packetListener.isConnectionOpen()) {
+					try {
+						handler.accept(packet);
+					} catch (Exception e) {
+						// Throw exception if we are out of memory, or if the
+						// packet listener should crash on packet exceptions.
+						if ((e instanceof CrashException && ((CrashException)e).getCause() instanceof OutOfMemoryError) || packetListener.shouldCrashOnException())
+							throw e;
+						// Ignore exception and continue.
+						G4mespeedMod.GS_LOGGER.error("Failed to handle packet {}, suppressing error", packet, e);
+					}
+				} else {
+					G4mespeedMod.GS_LOGGER.debug("Ignoring packet due to disconnection: {}", packet);
+				}
+			});
+		} else {
+			// Otherwise, handle packet now.
+			handler.accept(packet);
+		}
 	}
 	
 	private void registerPackets(GSIExtension extension) {
