@@ -29,7 +29,11 @@
     "common.GSChunkHolderMixin",
     "common.GSFallingBlockEntityMixin",
     "common.GSServerPlayerEntityMixin",
-    "common.GSServerCommonNetworkHandlerMixin"
+    "common.GSServerCommonNetworkHandlerMixin",
+    
+    "common.GSServerTickManagerMixin",
+    "common.GSTickManagerMixin",
+    "common.GSTickCommandMixin"
   ],
   "client": [
     "client.GSMinecraftClientMixin",

@@ -18,13 +18,11 @@ import org.lwjgl.glfw.GLFW;
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.access.client.GSIAbstractClientPlayerEntityAccess;
+import com.g4mesoft.access.common.GSIServerTickManagerAccess;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.core.client.GSIClientModuleManager;
-import com.g4mesoft.core.compat.GSCarpetCompat;
-import com.g4mesoft.core.compat.GSICarpetTickrateListener;
-import com.g4mesoft.core.compat.GSICarpetTickrateManager;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.hotkey.GSEKeyEventType;
 import com.g4mesoft.hotkey.GSKeyManager;
@@ -42,13 +40,16 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.ServerTickManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
 import net.minecraft.world.GameMode;
+import net.minecraft.world.tick.TickManager;
 
-public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarpetTickrateListener {
+public class GSTpsModule implements GSIModule, GSISettingChangeListener {
 
 	public static final float DEFAULT_TPS = 20.0f;
 	public static final float MIN_TPS = 0.01f;
@@ -103,13 +104,13 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	private boolean fixedMovementOnDefaultTps = false;
 	private float serverTps = Float.NaN;
 	private final GSServerTickTimer serverTimer = new GSServerTickTimer(this);
+	
+	private boolean sprinting = false;
 
 	private GSIModuleManager manager;
-	private GSCarpetCompat carpetCompat;
 
 	public final GSBooleanSetting cShiftPitch;
 	public final GSBooleanSetting cSyncTick;
-	public final GSBooleanSetting cForceCarpetTickrate;
 	public final GSIntegerSetting sSyncPacketInterval;
 	public final GSIntegerSetting sTpsHotkeyMode;
 	public final GSIntegerSetting sTpsHotkeyFeedback;
@@ -139,7 +140,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	
 		cShiftPitch = new GSBooleanSetting("shiftPitch", true);
 		cSyncTick = new GSBooleanSetting("syncTick", true);
-		cForceCarpetTickrate = new GSBooleanSetting("forceCarpetTickrate", true);
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
 		sTpsHotkeyMode = new GSIntegerSetting("hotkeyMode", HOTKEY_MODE_CREATIVE, 0, 2);
 		sTpsHotkeyFeedback = new GSIntegerSetting("hotkeyFeedback", HOTKEY_FEEDBACK_STATUS, 0, 2);
@@ -162,8 +162,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public void init(GSIModuleManager manager) {
 		this.manager = manager;
 		
-		carpetCompat = G4mespeedMod.getCarpetCompat();
-		
 		resetTps();
 		serverTpsMonitor.reset();
 		
@@ -175,10 +173,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 					G4mespeedMod.GS_LOGGER.warn("Unable to read tps from cache.");
 				}
 			}
-			initCarpetTickrateManager(carpetCompat.getServerTickrateManager());
-		});
-		manager.runOnClient(managerClient -> {
-			initCarpetTickrateManager(carpetCompat.getClientTickrateManager());
 		});
 	}
 
@@ -194,10 +188,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 					G4mespeedMod.GS_LOGGER.warn("Unable to write tps to cache.");
 				}
 			}
-			closeCarpetTickrateManager(carpetCompat.getServerTickrateManager());
-		});
-		manager.runOnClient(managerClient -> {
-			closeCarpetTickrateManager(carpetCompat.getClientTickrateManager());
 		});
 		
 		manager = null;
@@ -208,7 +198,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		settings.registerSettings(TPS_CATEGORY,
 			cShiftPitch,
 			cSyncTick,
-			G4mespeedMod.getCarpetCompat().getClientTickrateManager().isTickrateLinked() ? cForceCarpetTickrate : null,
 			cNormalMovement,
 			G4mespeedMod.getTweakerooCompat().isCameraEntityRetreived() ? cTweakerooFreecamHack : null,
 			cTpsLabel
@@ -268,7 +257,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Override
 	public void tick(boolean paused) {
 		manager.runOnServer(managerServer -> {
-			if (!paused) {
+			if (!paused && !isSprinting()) {
 				serverSyncTimer++;
 				
 				int syncInterval = sSyncPacketInterval.get();
@@ -292,10 +281,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 					lastServerTpsTime = now;
 				}
 			}
-			pollCarpetTickrate(carpetCompat.getServerTickrateManager());
-		});
-		manager.runOnClient(managerClient -> {
-			pollCarpetTickrate(carpetCompat.getClientTickrateManager());
 		});
 	}
 	
@@ -453,11 +438,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		resetTps();
 		
 		serverTps = Float.NaN;
-	}
-
-	@Override
-	public void onG4mespeedClientJoin(ServerPlayerEntity player, GSExtensionInfo coreInfo) {
-		manager.runOnServer(managerServer -> managerServer.sendPacket(new GSTpsChangePacket(tps), player));
+		sprinting = false;
 	}
 
 	public void addTpsListener(GSITpsDependant listener) {
@@ -497,8 +478,14 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 					listener.tpsChanged(tps, oldTps);
 			}
 			
-			manager.runOnServer(managerServer -> { 
-				managerServer.sendPacketToAll(new GSTpsChangePacket(this.tps));
+			manager.runOnServer(managerServer -> {
+				MinecraftServer server = managerServer.getServer();
+				ServerTickManager tickManager = server.getTickManager();
+				
+				if (!((GSIServerTickManagerAccess)tickManager).gs_isUpdatingTps()) {
+					// Actually update the tps. This also sends a packet to the clients.
+					tickManager.setTickRate(this.tps);
+				}
 				
 				// Setup sync timer so it will send sync in the 
 				// next tick (this ensures that the client had
@@ -511,10 +498,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				serverTpsMonitor.reset();
 
 				lastServerTpsTime = Util.getMeasuringTimeMs();
-				carpetCompat.getServerTickrateManager().setTickrate(this.tps);
-			});
-			manager.runOnClient(managerClient -> {
-				carpetCompat.getClientTickrateManager().setTickrate(this.tps);
 			});
 		}
 	}
@@ -549,34 +532,6 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		});
 	}
 
-	/* Carpet compatibility methods */
-	
-	public void initCarpetTickrateManager(GSICarpetTickrateManager tickrateManager) {
-		tickrateManager.onInit(manager);
-		if (tickrateManager.isTickrateLinked())
-			tickrateManager.addListener(this);
-	}
-
-	public void closeCarpetTickrateManager(GSICarpetTickrateManager tickrateManager) {
-		tickrateManager.removeListener(this);
-		tickrateManager.onClose();
-	}
-	
-	@Override
-	public void carpetTickrateChanged(float tickrate) {
-		setTps(tickrate);
-	}
-	
-	private void pollCarpetTickrate(GSICarpetTickrateManager tickrateManager) {
-		if (tickrateManager.isPollingCompatMode()) {
-			// With older versions of carpet we have to poll the current tps
-			// manually since we don't receive an event directly when it changes.
-			float tickrate = tickrateManager.getTickrate();
-			if (!GSMathUtil.equalsApproximate(tickrate, tps))
-				setTps(tickrate);
-		}
-	}
-	
 	public float getMsPerTick() {
 		return MS_PER_SEC / tps;
 	}
@@ -589,6 +544,42 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		return GSMathUtil.equalsApproximate(tps, DEFAULT_TPS);
 	}
 
+	@Environment(EnvType.CLIENT)
+	private TickManager getClientTickManager() {
+		if (!manager.isClient())
+			throw new IllegalStateException();
+		MinecraftClient client = MinecraftClient.getInstance();
+		return (client.world != null) ? client.world.getTickManager() : null;
+	}
+	
+	@Environment(EnvType.CLIENT)
+	private float getVanillaClientTps() {
+		TickManager tm = getClientTickManager();
+		return (tm != null) ? tm.getTickRate() : DEFAULT_TPS;
+	}
+	
+	public boolean isSameTpsAsServer() {
+		return GSMathUtil.equalsApproximate(tps, getVanillaClientTps());
+	}
+	
+	public boolean isFrozen() {
+		TickManager tm = getClientTickManager();
+		if (tm == null)
+			return false;
+		return tm.isFrozen();
+	}
+
+	public boolean isStepping() {
+		TickManager tm = getClientTickManager();
+		if (tm == null)
+			return false;
+		return tm.isStepping();
+	}
+
+	public boolean isSprinting() {
+		return sprinting;
+	}
+	
 	private float readTps(File file) throws IOException {
 		try (BufferedReader br = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
 			String line;
@@ -635,15 +626,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public boolean isMainPlayerFixedMovement() {
 		if (cNormalMovement.get() && (!isDefaultTps() || fixedMovementOnDefaultTps)) {
 			PlayerEntity player = GSClientController.getInstance().getPlayer();
-
 			// Do not enable fixed movement if player has a vehicle.
-			if (player != null && !player.hasVehicle()) {
-				// Carpet allows clients to have different tps than the server,
-				// do not enable fixed movement if carpet is in this mode.
-				if (carpetCompat.getClientTickrateManager().isTickrateLinked())
-					return cForceCarpetTickrate.get();
+			if (player != null && !player.hasVehicle())
 				return true;
-			}
 		}
 		
 		return false;
@@ -660,7 +645,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 				return isMainPlayerFixedMovement();
 		
 			if (!controller.isG4mespeedServer())
-				return GSMathUtil.equalsApproximate(getServerTps(), DEFAULT_TPS);
+				return GSMathUtil.equalsApproximate(getVanillaClientTps(), DEFAULT_TPS);
 			return ((GSIAbstractClientPlayerEntityAccess)player).gs_isFixedMovement();
 		}
 		
@@ -683,7 +668,17 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			// User is connected to a non-g4mespeed server, and changed to a game mode that
 			// does not allow client tps changes. Ensure that the player can not cheat by
 			// resetting to default tps here.
-			setTps(DEFAULT_TPS);
+			setTps(getVanillaClientTps());
+		}
+	}
+
+	public void onTickSprintChanged(boolean sprinting) {
+		if (sprinting != this.sprinting) {
+			this.sprinting = sprinting;
+			
+			manager.runOnServer((managerServer) -> {
+				managerServer.sendPacketToAll(new GSTickSprintUpdatePacket(sprinting));
+			});
 		}
 	}
 }

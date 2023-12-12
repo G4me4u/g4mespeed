@@ -11,7 +11,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSCoreOverride;
-import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.core.compat.GSTweakerooCompat;
 import com.g4mesoft.packet.GSPacketManager;
 
@@ -29,7 +28,6 @@ public class G4mespeedMod implements ModInitializer {
 	private static boolean initialized = false;
 	
 	private GSPacketManager packetManager;
-	private GSCarpetCompat carpetCompat;
 	private GSTweakerooCompat tweakerooCompat;
 	
 	private static final List<GSIExtension> extensions = new ArrayList<>();
@@ -48,8 +46,6 @@ public class G4mespeedMod implements ModInitializer {
 
 		packetManager = new GSPacketManager();
 		
-		carpetCompat = new GSCarpetCompat();
-		carpetCompat.detect();
 		tweakerooCompat = new GSTweakerooCompat();
 		tweakerooCompat.detect();
 		
@@ -142,14 +138,6 @@ public class G4mespeedMod implements ModInitializer {
 	 */
 	public static GSPacketManager getPacketManager() {
 		return getInstance().packetManager;
-	}
-
-	/**
-	 * Must be invoked after {@link #onInitialize()} has been called.
-	 * @return the Carpet compatibility handler
-	 */
-	public static GSCarpetCompat getCarpetCompat() {
-		return getInstance().carpetCompat;
 	}
 
 	/**
