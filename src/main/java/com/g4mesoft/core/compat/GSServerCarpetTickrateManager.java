@@ -3,6 +3,7 @@ package com.g4mesoft.core.compat;
 import static com.g4mesoft.core.compat.GSCarpetCompat.G4MESPEED_INTERFACE_NAME;
 import static com.g4mesoft.core.compat.GSCompatUtil.findClassByName;
 import static com.g4mesoft.core.compat.GSCompatUtil.findDeclaredMethod;
+import static com.g4mesoft.core.compat.GSCompatUtil.findMethod;
 import static com.g4mesoft.core.compat.GSCompatUtil.get;
 
 import java.lang.reflect.Method;
@@ -72,7 +73,7 @@ public class GSServerCarpetTickrateManager extends GSAbstractCarpetTickrateManag
 			if (carpetAddTickrateListener == null)
 				G4mespeedMod.GS_LOGGER.info("Unable to establish server link to carpet mod.");
 			
-			runsNormallyMethod = findDeclaredMethod(sTRMClazz, RUNS_NORMALLY_METHOD_NAME);
+			runsNormallyMethod = findMethod(sTRMClazz, RUNS_NORMALLY_METHOD_NAME);
 		}
 		
 		return true;
