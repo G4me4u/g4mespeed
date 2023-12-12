@@ -100,11 +100,8 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	private GSTpsMonitor serverTpsMonitor;
 	private long lastServerTpsTime;
 	
-	@Environment(EnvType.CLIENT)
 	private boolean fixedMovementOnDefaultTps = false;
-	@Environment(EnvType.CLIENT)
 	private float serverTps = Float.NaN;
-	@Environment(EnvType.CLIENT)
 	private final GSServerTickTimer serverTimer = new GSServerTickTimer(this);
 
 	private GSIModuleManager manager;
@@ -670,12 +667,10 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		return false;
 	}
 	
-	@Environment(EnvType.CLIENT)
 	public boolean isFixedMovementOnDefaultTps() {
 		return fixedMovementOnDefaultTps;
 	}
 
-	@Environment(EnvType.CLIENT)
 	public void setFixedMovementOnDefaultTps(boolean fixedMovementOnDefaultTps) {
 		this.fixedMovementOnDefaultTps = fixedMovementOnDefaultTps;
 	}
