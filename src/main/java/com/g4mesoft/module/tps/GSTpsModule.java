@@ -42,6 +42,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.PlayerManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -49,7 +50,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
 import net.minecraft.world.GameMode;
 
-public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarpetTickrateListener {
+public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 
 	public static final float DEFAULT_TPS = 20.0f;
 	public static final float MIN_TPS = 0.01f;
@@ -114,6 +115,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	public final GSIntegerSetting sSyncPacketInterval;
 	public final GSIntegerSetting sTpsHotkeyMode;
 	public final GSIntegerSetting sTpsHotkeyFeedback;
+	public final GSBooleanSetting sRequireOP;
 	public final GSBooleanSetting cNormalMovement;
 	public final GSBooleanSetting cTweakerooFreecamHack;
 	public final GSIntegerSetting cTpsLabel;
@@ -144,6 +146,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 		sSyncPacketInterval = new GSIntegerSetting("syncPacketInterval", 10, 1, 20);
 		sTpsHotkeyMode = new GSIntegerSetting("hotkeyMode", HOTKEY_MODE_CREATIVE, 0, 2);
 		sTpsHotkeyFeedback = new GSIntegerSetting("hotkeyFeedback", HOTKEY_FEEDBACK_STATUS, 0, 2);
+		sRequireOP = new GSBooleanSetting("requireOP", true);
 		cNormalMovement = new GSBooleanSetting("normalMovement", true);
 		cTweakerooFreecamHack = new GSBooleanSetting("tweakerooFreecamHack", true);
 		cTpsLabel = new GSIntegerSetting("tpsLabel", TPS_LABEL_DISABLED, 0, 3);
@@ -214,16 +217,22 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			G4mespeedMod.getTweakerooCompat().isCameraEntityRetreived() ? cTweakerooFreecamHack : null,
 			cTpsLabel
 		);
-		// Tweakeroo hack is only enabled for normal movement setting.
-		cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.get());
-
 		settings.registerSettings(BETTER_PISTONS_CATEGORY,
 			cPistonAnimationType,
 			cCorrectPistonPushing,
 			cPistonRenderDistance
 		);
-		
-		settings.addChangeListener(this);
+		settings.addChangeListener(new GSISettingChangeListener() {
+			@Override
+			public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
+				if (setting == cNormalMovement) {
+					sendFixedMovementPacket();
+					cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.get());
+				}
+			}
+		});
+		// Tweakeroo hack is only enabled for normal movement setting.
+		cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.get());
 	}
 
 	@Override
@@ -247,6 +256,7 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	@Override
 	public void registerGlobalServerSettings(GSSettingManager settings) {
 		settings.registerSettings(TPS_CATEGORY, 
+			sRequireOP,
 			sSyncPacketInterval,
 			sBroadcastTps,
 			sTpsHotkeyMode,
@@ -259,6 +269,23 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 			sParanoidMode,
 			sImmediateBlockBroadcast
 		);
+		settings.addChangeListener(new GSISettingChangeListener() {
+			@Override
+			public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
+				if (setting == sRequireOP) {
+					// Send the command tree, since the tps command might no
+					// longer be available an vice versa.
+					manager.runOnServer(managerServer -> {
+						PlayerManager playerManager = managerServer.getServer().getPlayerManager();
+						for (ServerPlayerEntity player : playerManager.getPlayerList()) {
+							// The command tree can only change for non-OP players.
+							if (!player.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL))
+								playerManager.sendCommandTree(player);
+						}
+					});
+				}
+			}
+		});
 	}
 	
 	@Override
@@ -533,15 +560,9 @@ public class GSTpsModule implements GSIModule, GSISettingChangeListener, GSICarp
 	}
 
 	public boolean isPlayerAllowedTpsChange(PlayerEntity player) {
-		return player.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL);
-	}
-	
-	@Override
-	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
-		if (setting == cNormalMovement) {
-			sendFixedMovementPacket();
-			cTweakerooFreecamHack.setEnabledInGui(cNormalMovement.get());
-		}
+		if (sRequireOP.get())
+			return player.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL);
+		return true;
 	}
 	
 	private void sendFixedMovementPacket() {
