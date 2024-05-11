@@ -13,6 +13,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -38,7 +39,7 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 		method = "readNbt",
 		at = @At("RETURN")
 	)
-	private void onReadNbt(NbtCompound tag, CallbackInfo ci) {
+	private void onReadNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
 		gs_ticked = !tag.contains("ticked") || tag.getBoolean("ticked");
 	}
 
@@ -46,7 +47,7 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 		method = "writeNbt",
 		at = @At("RETURN")
 	)
-	private void onWriteNbt(NbtCompound tag, CallbackInfo ci) {
+	private void onWriteNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
 		GSController controller = GSController.getInstanceOnThread();
 		if (controller != null && controller.getTpsModule().sImmediateBlockBroadcast.get())
 			tag.putBoolean("ticked", gs_ticked);

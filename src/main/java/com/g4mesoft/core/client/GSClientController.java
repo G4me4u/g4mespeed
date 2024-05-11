@@ -246,7 +246,6 @@ public class GSClientController extends GSController implements GSIClientModuleM
 			
 			if (extensionUid != null && isServerExtensionInstalled(extensionUid, minExtensionVersion)) {
 				Packet<?> customPayload = packetManager.encodePacket(packet, this);
-				
 				if (customPayload != null)
 					networkHandler.sendPacket(customPayload);
 			}

@@ -1,6 +1,13 @@
 plugins {
-	id 'fabric-loom' version '0.13-SNAPSHOT'
+	id 'fabric-loom' version '1.6-SNAPSHOT'
 	id 'maven-publish'
+}
+
+version = "${project.mod_version}-mc${project.minecraft_version}"
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
 }
 
 repositories {
@@ -13,13 +20,6 @@ repositories {
 		url = 'https://maven.g4mesoft.com/releases'
 	}
 }
-
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
-
-archivesBaseName = project.archives_base_name
-version = "${project.mod_version}-mc${project.minecraft_version}"
-group = project.maven_group
 
 // See https://github.com/TerraformersMC/GradleScripts/blob/2.5/ferry.gradle
 
@@ -37,24 +37,22 @@ dependencies {
 	includeMod "com.g4mesoft.ui:g4mespeed-ui:${project.g4mespeed_ui_version}-mc${project.minecraft_version}"
     // ModMenu integration
 	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+	// ModMenu requires some fabric api modules
+	modCompileOnly(fabricApi.module("fabric-screen-api-v1", project.fabric_version))
+	modCompileOnly(fabricApi.module("fabric-key-binding-api-v1", project.fabric_version))
+	modCompileOnly(fabricApi.module("fabric-lifecycle-events-v1", project.fabric_version))
 }
 
 processResources {
 	inputs.property "version", project.version
 
 	filesMatching("fabric.mod.json") {
-		expand "version": project.mod_version
+		expand "version": project.version
 	}
 }
+
 tasks.withType(JavaCompile).configureEach {
-	// ensure that the encoding is set to UTF-8, no matter what the system default is
-	// this fixes some edge cases with special characters not displaying correctly
-	// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-	// If Javadoc is generated, this must be specified in that task too.
-	it.options.encoding = "UTF-8"
-
-	// Minecraft 1.18 (1.18-pre2) upwards uses Java 17.
-	it.options.release = 17
+	it.options.release = 21
 }
 
 java {
@@ -62,25 +60,22 @@ java {
 	// if it is present.
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
-}
 
-java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
-	withSourcesJar()
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
 }
 
 jar {
 	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
+		rename { "${it}_${project.base.archivesName.get()}"}
 	}
 }
 
 // configure the maven publication
 publishing {
 	publications {
-		mavenJava(MavenPublication) {
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
 			from components.java
 		}
 	}

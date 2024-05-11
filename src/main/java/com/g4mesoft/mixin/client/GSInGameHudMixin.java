@@ -47,8 +47,6 @@ public abstract class GSInGameHudMixin {
 	@Unique
 	private static final DecimalFormat LOW_PRECISION_TPS_FORMAT = new DecimalFormat("0.0", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	@Shadow private int scaledWidth;
-	@Shadow private int scaledHeight;
 	@Shadow @Final private DebugHud debugHud;
 
 	@Shadow @Final private MinecraftClient client;
@@ -56,7 +54,7 @@ public abstract class GSInGameHudMixin {
 	@Shadow public abstract TextRenderer getTextRenderer();
 
 	@Inject(
-		method = "render",
+		method = "method_55808",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.BEFORE,
@@ -75,7 +73,7 @@ public abstract class GSInGameHudMixin {
 	}
 
 	@Inject(
-		method = "render",
+		method = "method_55808",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
@@ -91,7 +89,7 @@ public abstract class GSInGameHudMixin {
 	}
 	
 	@Inject(
-		method = "render",
+		method = "method_55806",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.BEFORE, 
@@ -125,10 +123,10 @@ public abstract class GSInGameHudMixin {
 
 			switch (labelLocation) {
 			case GSTpsModule.TPS_LABEL_TOP_CENTER:
-				lx = (scaledWidth - lw) / 2;
+				lx = (context.getScaledWindowWidth() - lw) / 2;
 				break;
 			case GSTpsModule.TPS_LABEL_TOP_RIGHT:
-				lx = scaledWidth - lw - TPS_LABEL_MAGIN + 1;
+				lx = context.getScaledWindowWidth() - lw - TPS_LABEL_MAGIN + 1;
 				break;
 			case GSTpsModule.TPS_LABEL_TOP_LEFT:
 			default:

@@ -1,7 +1,5 @@
 package com.g4mesoft.mixin.common;
 
-import java.util.Optional;
-
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -51,26 +49,21 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 	@Override
 	public void gs_flushAndSendChunkUpdates() {
 		world.getProfiler().push("chunks");
-		
 		if (!world.isDebugWorld()) {
 			world.getProfiler().push("pollingChunks");
-			
 			// The vanilla implementation actually shuffles the chunks before
 			// processing them. This is to ensure that random ticks are being
 			// processed randomly. Since we don't process those here, we can
 			// broadcast without having to shuffle the chunk holders.
+			world.getProfiler().push("broadcast");
 			((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).gs_getEntryIterator().forEach((chunkHolder) -> {
-				Optional<WorldChunk> optional = chunkHolder.getEntityTickingFuture().getNow(ChunkHolder.UNLOADED_WORLD_CHUNK).left();
-				if (optional.isPresent()) {
-					world.getProfiler().push("broadcast");
-					chunkHolder.flushUpdates(optional.get());
-					world.getProfiler().pop();
-				}
+				WorldChunk chunk = chunkHolder.getWorldChunk();
+				if (chunk != null)
+					chunkHolder.flushUpdates(chunk);
 			});
-
+			world.getProfiler().pop();
 			world.getProfiler().pop();
 		}
-		
 		world.getProfiler().pop();
 	}
 

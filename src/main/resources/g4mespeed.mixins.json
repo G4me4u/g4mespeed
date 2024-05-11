@@ -29,7 +29,6 @@
     "common.GSChunkHolderMixin",
     "common.GSFallingBlockEntityMixin",
     "common.GSServerPlayerEntityMixin",
-    "common.GSServerCommonNetworkHandlerMixin",
     
     "common.GSServerTickManagerMixin",
     "common.GSTickManagerMixin",

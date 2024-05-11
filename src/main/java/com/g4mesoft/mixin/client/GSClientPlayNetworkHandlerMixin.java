@@ -1,5 +1,6 @@
 package com.g4mesoft.mixin.client;
 
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -43,6 +44,7 @@ import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.network.packet.s2c.play.PositionFlag;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
@@ -52,6 +54,8 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 
 	@Shadow private ClientWorld world;
 
+	@Shadow @Final private DynamicRegistryManager.Immutable combinedDynamicRegistries;
+	
 	private static final int WORLD_TIME_UPDATE_INTERVAL = 20;
 	private static final double IGNORE_TELEPORT_MAX_DISTANCE = 1.0; /* Must be > 0.51 */
 
@@ -220,8 +224,9 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 		
 		if (tpsModule.sParanoidMode.get()) {
 			BlockPos pos = packet.getPos();
+			NbtCompound tag = packet.getNbt();
 			
-			if (packet.getBlockEntityType() == BlockEntityType.PISTON) {
+			if (!tag.isEmpty() && packet.getBlockEntityType() == BlockEntityType.PISTON) {
 				BlockState blockState = world.getBlockState(pos);
 				BlockEntity blockEntity = world.getBlockEntity(pos);
 				
@@ -234,7 +239,6 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 					world.handleBlockUpdate(pos, blockState, Block.NO_REDRAW | Block.MOVED);
 				}
 				
-				NbtCompound tag = packet.getNbt();
 				// Because of a weird issue where the progress saved
 				// by a piston is actually 1 gametick old we have to
 				// increment the progress by 0.5.
@@ -249,10 +253,10 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 				
 				if (blockEntity == null) {
 					blockEntity = new PistonBlockEntity(pos, blockState);
-					blockEntity.readNbt(tag);
+					blockEntity.read(tag, combinedDynamicRegistries);
 					world.addBlockEntity(blockEntity);
 				} else {
-					blockEntity.readNbt(tag);
+					blockEntity.read(tag, combinedDynamicRegistries);
 				}
 
 				// Cancel vanilla handling of the packet.

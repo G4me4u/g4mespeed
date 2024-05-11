@@ -96,10 +96,9 @@ public class GSPacketManager {
 					try {
 						handler.accept(packet);
 					} catch (Exception e) {
-						// Throw exception if we are out of memory, or if the
-						// packet listener should crash on packet exceptions.
-						if ((e instanceof CrashException && ((CrashException)e).getCause() instanceof OutOfMemoryError) || packetListener.shouldCrashOnException())
-							throw e;
+						// Throw exception if we are out of memory
+                        if (e instanceof CrashException && ((CrashException)e).getCause() instanceof OutOfMemoryError)
+                            throw e;
 						// Ignore exception and continue.
 						G4mespeedMod.GS_LOGGER.error("Failed to handle packet {}, suppressing error", packet, e);
 					}

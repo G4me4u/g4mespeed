@@ -33,6 +33,7 @@ import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -287,7 +288,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		method = "readNbt",
 		at = @At("RETURN")
 	)
-	private void onReadNbt(NbtCompound tag, CallbackInfo ci) {
+	private void onReadNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
 		gs_actualLastProgress = Math.max(0.0f, this.lastProgress - 1.0f / gs_numberOfSteps);
 	}
 	
