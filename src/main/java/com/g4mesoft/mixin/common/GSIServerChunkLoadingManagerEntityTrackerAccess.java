@@ -5,8 +5,8 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import net.minecraft.server.network.EntityTrackerEntry;
 
-@Mixin(targets = "net/minecraft/server/world/ThreadedAnvilChunkStorage$EntityTracker")
-public interface GSIThreadedAnvilChunkStorageEntityTrackerAccess {
+@Mixin(targets = "net/minecraft/server/world/ServerChunkLoadingManager$EntityTracker")
+public interface GSIServerChunkLoadingManagerEntityTrackerAccess {
 	
 	@Accessor("entry")
 	public EntityTrackerEntry getEntry();

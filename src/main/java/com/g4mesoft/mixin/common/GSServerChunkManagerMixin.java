@@ -7,15 +7,15 @@ import org.spongepowered.asm.mixin.Unique;
 
 import com.g4mesoft.access.common.GSIChunkHolderAccess;
 import com.g4mesoft.access.common.GSIServerChunkManagerAccess;
-import com.g4mesoft.access.common.GSIThreadedAnvilChunkStorageAccess;
+import com.g4mesoft.access.common.GSIServerChunkLoadingManagerAccess;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
+import net.minecraft.server.world.ServerChunkLoadingManager;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.WorldChunk;
@@ -25,7 +25,7 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 
 	@Shadow @Final public ServerWorld world;
 	
-	@Shadow @Final public ThreadedAnvilChunkStorage threadedAnvilChunkStorage;
+	@Shadow @Final public ServerChunkLoadingManager chunkLoadingManager;
 
 	@Shadow protected abstract ChunkHolder getChunkHolder(long chunkId);
 	
@@ -33,17 +33,17 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 	
 	@Override
 	public void gs_tickEntityTracker(Entity entity) {
-		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).gs_tickEntityTracker(entity);
+		((GSIServerChunkLoadingManagerAccess)chunkLoadingManager).gs_tickEntityTracker(entity);
 	}
 	
 	@Override
 	public void gs_setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement) {
-		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).gs_setTrackerFixedMovement(player, trackerFixedMovement);
+		((GSIServerChunkLoadingManagerAccess)chunkLoadingManager).gs_setTrackerFixedMovement(player, trackerFixedMovement);
 	}
 	
 	@Override
 	public void gs_setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock) {
-		((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).gs_setTrackerTickedFromFallingBlock(entity, tickedFromFallingBlock);
+		((GSIServerChunkLoadingManagerAccess)chunkLoadingManager).gs_setTrackerTickedFromFallingBlock(entity, tickedFromFallingBlock);
 	}
 	
 	@Override
@@ -56,7 +56,7 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 			// processed randomly. Since we don't process those here, we can
 			// broadcast without having to shuffle the chunk holders.
 			world.getProfiler().push("broadcast");
-			((GSIThreadedAnvilChunkStorageAccess)threadedAnvilChunkStorage).gs_getEntryIterator().forEach((chunkHolder) -> {
+			((GSIServerChunkLoadingManagerAccess)chunkLoadingManager).gs_getEntryIterator().forEach((chunkHolder) -> {
 				WorldChunk chunk = chunkHolder.getWorldChunk();
 				if (chunk != null)
 					chunkHolder.flushUpdates(chunk);

@@ -23,6 +23,7 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.util.math.MatrixStack;
 
 @Mixin(InGameHud.class)
@@ -64,7 +65,7 @@ public abstract class GSInGameHudMixin {
 				")V"
 		)
 	)
-	private void onRenderBeforeBossBar(DrawContext context, float tickDelta, CallbackInfo ci) {
+	private void onRenderBeforeBossBar(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER) {
 			MatrixStack matrixStack = context.getMatrices();
 			matrixStack.push();
@@ -83,7 +84,7 @@ public abstract class GSInGameHudMixin {
 				")V"
 		)
 	)
-	private void onRenderAfterBossBar(DrawContext context, float tickDelta, CallbackInfo ci) {
+	private void onRenderAfterBossBar(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER)
 			context.getMatrices().pop();
 	}
@@ -99,7 +100,7 @@ public abstract class GSInGameHudMixin {
 				")V"
 		)
 	)
-	private void onRenderBeforeSubtitles(DrawContext context, float tickDelta, CallbackInfo ci) {
+	private void onRenderBeforeSubtitles(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
 		GSClientController controller = GSClientController.getInstance();
 		GSTpsModule tpsModule = controller.getTpsModule();
 		

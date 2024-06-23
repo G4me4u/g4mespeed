@@ -36,17 +36,17 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
 import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.AbstractChunkHolder;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
 
 @Mixin(ChunkHolder.class)
-public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
+public abstract class GSChunkHolderMixin extends AbstractChunkHolder implements GSIChunkHolderAccess {
 
 	@Shadow @Final private HeightLimitView world;
 	@Shadow @Final private ShortSet[] blockUpdatesBySection;
 
 	@Shadow @Final private PlayersWatchingChunkProvider playersWatchingChunkProvider;
-	@Shadow @Final ChunkPos pos;
 	
 	@Shadow private boolean pendingBlockUpdates;
 	@Shadow @Final private BitSet blockLightUpdateBits;
@@ -57,6 +57,10 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	@Shadow protected abstract void sendPacketToPlayers(List<ServerPlayerEntity> players, Packet<?> packet);
 	
 	@Shadow public abstract WorldChunk getWorldChunk();
+
+	public GSChunkHolderMixin(ChunkPos pos) {
+		super(pos);
+	}
 	
 	@Unique
 	private static final GSVersion CORRECTED_PUSHING_VERSION = new GSVersion(1, 2, 2);

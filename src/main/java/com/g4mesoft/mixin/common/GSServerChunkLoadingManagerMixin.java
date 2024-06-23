@@ -5,17 +5,17 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import com.g4mesoft.access.common.GSIEntityTrackerEntryAccess;
-import com.g4mesoft.access.common.GSIThreadedAnvilChunkStorageAccess;
+import com.g4mesoft.access.common.GSIServerChunkLoadingManagerAccess;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
-import net.minecraft.server.world.ThreadedAnvilChunkStorage;
+import net.minecraft.server.world.ServerChunkLoadingManager;
 
-@Mixin(ThreadedAnvilChunkStorage.class)
-public abstract class GSThreadedAnvilChunkStorageMixin implements GSIThreadedAnvilChunkStorageAccess {
+@Mixin(ServerChunkLoadingManager.class)
+public abstract class GSServerChunkLoadingManagerMixin implements GSIServerChunkLoadingManagerAccess {
 
 	@Shadow @Final private Int2ObjectMap<?> entityTrackers;
 	
@@ -25,14 +25,14 @@ public abstract class GSThreadedAnvilChunkStorageMixin implements GSIThreadedAnv
 	public void gs_tickEntityTracker(Entity entity) {
 		Object tracker = entityTrackers.get(entity.getId());
 		if (tracker != null)
-			((GSIThreadedAnvilChunkStorageEntityTrackerAccess)tracker).getEntry().tick();
+			((GSIServerChunkLoadingManagerEntityTrackerAccess)tracker).getEntry().tick();
 	}
 	
 	@Override
 	public void gs_setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement) {
 		Object tracker = entityTrackers.get(player.getId());
 		if (tracker != null) {
-			EntityTrackerEntry entry = ((GSIThreadedAnvilChunkStorageEntityTrackerAccess)tracker).getEntry();
+			EntityTrackerEntry entry = ((GSIServerChunkLoadingManagerEntityTrackerAccess)tracker).getEntry();
 			((GSIEntityTrackerEntryAccess)entry).gs_setFixedMovement(trackerFixedMovement);
 		}
 	}
@@ -41,7 +41,7 @@ public abstract class GSThreadedAnvilChunkStorageMixin implements GSIThreadedAnv
 	public void gs_setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock) {
 		Object tracker = entityTrackers.get(entity.getId());
 		if (tracker != null) {
-			EntityTrackerEntry entry = ((GSIThreadedAnvilChunkStorageEntityTrackerAccess)tracker).getEntry();
+			EntityTrackerEntry entry = ((GSIServerChunkLoadingManagerEntityTrackerAccess)tracker).getEntry();
 			((GSIEntityTrackerEntryAccess)entry).gs_setTickedFromFallingBlock(tickedFromFallingBlock);
 		}
 	}

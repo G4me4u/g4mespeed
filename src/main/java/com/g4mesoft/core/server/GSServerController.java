@@ -257,10 +257,9 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	@Override
 	public File getCacheFile() {
 		if (server.isDedicated())
-			return new File(server.getRunDirectory(), CACHE_DIR_NAME);
-		
+			return new File(server.getRunDirectory().toFile(), CACHE_DIR_NAME);
 		// Assume we're running on integrated server
-		return new File(server.getRunDirectory(), INTEGRATED_CACHE_DIR_NAME);
+		return new File(server.getRunDirectory().toFile(), INTEGRATED_CACHE_DIR_NAME);
 	}
 	
 	@Override

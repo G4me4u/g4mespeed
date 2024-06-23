@@ -14,6 +14,7 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.BlockView;
 
@@ -48,7 +49,7 @@ public class GSGameRendererMixin {
 				return oldTickDelta;
 		}
 		
-		return client.isPaused() ? oldTickDelta : client.getTickDelta();
+		return client.isPaused() ? oldTickDelta : client.getRenderTickCounter().getTickDelta(true);
 	}
 	
 	@ModifyArg(
@@ -58,7 +59,8 @@ public class GSGameRendererMixin {
 			value = "INVOKE", 
 			target =
 				"Lnet/minecraft/client/render/WorldRenderer;render(" +
-					"FJZ" +
+					"Lnet/minecraft/client/render/RenderTickCounter;" +
+					"Z" +
 					"Lnet/minecraft/client/render/Camera;" +
 					"Lnet/minecraft/client/render/GameRenderer;" +
 					"Lnet/minecraft/client/render/LightmapTextureManager;" +
@@ -67,7 +69,7 @@ public class GSGameRendererMixin {
 				")V"
 		)
 	)
-	private float modifyWorldRenderTickDelta(float oldTickDelta) {
-		return client.isPaused() ? oldTickDelta : client.getTickDelta();
+	private RenderTickCounter modifyWorldRenderTickDelta(RenderTickCounter oldTickCounter) {
+		return client.isPaused() ? oldTickCounter : client.getRenderTickCounter();
 	}
 }

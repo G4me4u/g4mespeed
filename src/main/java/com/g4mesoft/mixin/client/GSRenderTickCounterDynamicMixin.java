@@ -19,8 +19,8 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import it.unimi.dsi.fastutil.floats.FloatUnaryOperator;
 import net.minecraft.client.render.RenderTickCounter;
 
-@Mixin(RenderTickCounter.class)
-public class GSRenderTickCounterMixin implements GSITickTimer {
+@Mixin(RenderTickCounter.Dynamic.class)
+public class GSRenderTickCounterDynamicMixin implements GSITickTimer {
 
 	@Shadow public float tickDelta;
 	@Shadow public float lastFrameDuration;
@@ -46,15 +46,15 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	}
 
 	@Inject(
-		method = "beginRenderTick",
+		method = "beginRenderTick(J)I",
 		at = @At(
 			value = "FIELD",
 			shift = Shift.AFTER,
 			opcode = Opcodes.PUTFIELD,
-			target = "Lnet/minecraft/client/render/RenderTickCounter;lastFrameDuration:F"
+			target = "Lnet/minecraft/client/render/RenderTickCounter$Dynamic;lastFrameDuration:F"
 		)
 	)
-	private void onModifyTickrate(long timeMillis, CallbackInfoReturnable<Boolean> cir) {
+	private void onModifyTickrate(long timeMillis, CallbackInfoReturnable<Integer> cir) {
 		if (gs_firstUpdate) {
 			init0(prevTimeMillis);
 			gs_firstUpdate = false;
@@ -72,12 +72,12 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	}
 
 	@Inject(
-		method = "beginRenderTick",
+		method = "beginRenderTick(J)I",
 		at = @At(
 			value = "FIELD",
 			shift = Shift.BEFORE,
 			opcode = Opcodes.GETFIELD,
-			target = "Lnet/minecraft/client/render/RenderTickCounter;tickDelta:F"
+			target = "Lnet/minecraft/client/render/RenderTickCounter$Dynamic;tickDelta:F"
 		)
 	)
 	private void onGetTicksThisFrame(long currentTimeMillis, CallbackInfoReturnable<Integer> cir) {
@@ -85,7 +85,7 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	}
 
 	@Inject(
-		method = "beginRenderTick",
+		method = "beginRenderTick(J)I",
 		cancellable = true,
 		at = @At("RETURN")
 	)
@@ -137,5 +137,10 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	@Override
 	public void setTickCount0(int tickCount) {
 		this.gs_ticksThisFrame = tickCount;
+	}
+
+	@Override
+	public float getLastDuration0() {
+		return lastFrameDuration;
 	}
 }

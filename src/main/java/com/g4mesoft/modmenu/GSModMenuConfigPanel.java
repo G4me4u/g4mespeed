@@ -21,11 +21,11 @@ import net.minecraft.util.Identifier;
 
 public class GSModMenuConfigPanel extends GSClosableParentPanel {
 
-	private static final GSTexture LIST_BACKGROUND_TEXTURE = new GSTexture(new Identifier("textures/gui/menu_list_background.png"), 16, 16);
+	private static final GSTexture LIST_BACKGROUND_TEXTURE = new GSTexture(Identifier.of("textures/gui/menu_list_background.png"), 16, 16);
 	private static final GSTexture HEADER_SEPARATOR_TEXTURE = new GSTexture(Screen.HEADER_SEPARATOR_TEXTURE, 32, 2);
 	private static final GSTexture FOOTER_SEPARATOR_TEXTURE = new GSTexture(Screen.FOOTER_SEPARATOR_TEXTURE, 32, 2);
 	
-	private static final GSTexture INWORLD_LIST_BACKGROUND_TEXTURE = new GSTexture(new Identifier("textures/gui/inworld_menu_list_background.png"), 16, 16);
+	private static final GSTexture INWORLD_LIST_BACKGROUND_TEXTURE = new GSTexture(Identifier.of("textures/gui/inworld_menu_list_background.png"), 16, 16);
 	private static final GSTexture INWORLD_HEADER_SEPARATOR_TEXTURE = new GSTexture(Screen.INWORLD_HEADER_SEPARATOR_TEXTURE, 32, 2);
 	private static final GSTexture INWORLD_FOOTER_SEPARATOR_TEXTURE = new GSTexture(Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE, 32, 2);
 	

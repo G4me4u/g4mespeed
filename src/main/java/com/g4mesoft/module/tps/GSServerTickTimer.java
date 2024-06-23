@@ -15,6 +15,7 @@ public class GSServerTickTimer implements GSITickTimer {
 	
 	private float millisPerTick;
 	private long prevTimeMillis;
+	private float lastDuration;
 	private float tickDelta;
 	private int tickCount;
 	private int ticksSinceLastPacket;
@@ -32,6 +33,7 @@ public class GSServerTickTimer implements GSITickTimer {
 	@Override
 	public synchronized void init0(long initialTimeMillis) {
 		prevTimeMillis = initialTimeMillis;
+		lastDuration = 0.0f;
 		tickDelta = 0.0f;
 		ticksSinceLastPacket = 0;
 		tickCount = 0;
@@ -42,7 +44,8 @@ public class GSServerTickTimer implements GSITickTimer {
 		long deltaMillis = timeMillis - prevTimeMillis;
 		prevTimeMillis = timeMillis;
 		
-		tickDelta += deltaMillis / getMillisPerTick0();
+		lastDuration = deltaMillis / getMillisPerTick0();
+		tickDelta += lastDuration;
 		
 		tickCount = (int)tickDelta;
 		tickDelta -= tickCount;
@@ -86,6 +89,11 @@ public class GSServerTickTimer implements GSITickTimer {
 	@Override
 	public synchronized void setTickCount0(int tickCount) {
 		this.tickCount = tickCount;
+	}
+	
+	@Override
+	public synchronized float getLastDuration0() {
+		return lastDuration;
 	}
 	
 	public synchronized void syncTimer(GSITickTimer timer) {

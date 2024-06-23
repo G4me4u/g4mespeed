@@ -4,7 +4,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ChunkHolder;
 
-public interface GSIThreadedAnvilChunkStorageAccess {
+public interface GSIServerChunkLoadingManagerAccess {
 
 	public void gs_tickEntityTracker(Entity entity);
 	

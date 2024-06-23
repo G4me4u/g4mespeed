@@ -25,6 +25,7 @@ import com.g4mesoft.core.compat.GSTweakerooCompat;
 import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSBasicTickTimer;
 import com.g4mesoft.module.tps.GSITickTimer;
+import com.g4mesoft.module.tps.GSRenderTickCounterWrapper;
 import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.block.entity.BlockEntity;
@@ -45,7 +46,7 @@ import net.minecraft.util.math.BlockPos;
 @Mixin(MinecraftClient.class)
 public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess {
 
-	@Shadow @Final private RenderTickCounter renderTickCounter;
+	@Shadow @Final private RenderTickCounter.Dynamic renderTickCounter;
 	@Shadow private SoundManager soundManager;
 	@Shadow public ClientPlayerEntity player;
 	@Shadow public ClientWorld world;
@@ -63,7 +64,8 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Unique
 	private GSTpsModule gs_tpsModule;
 	
-	private final GSITickTimer gs_playerTimer = new GSBasicTickTimer(GSITickTimer.DEFAULT_MILLIS_PER_TICK);
+	private final GSRenderTickCounterWrapper gs_playerTimer =
+			new GSRenderTickCounterWrapper(new GSBasicTickTimer(GSITickTimer.DEFAULT_MILLIS_PER_TICK));
 	
 	@Unique
 	private boolean gs_flushingUpdates = false;
@@ -324,11 +326,22 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 			gameRenderer.tick();
 	}
 	
-	@ModifyArg(method = "render", index = 0, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;render(FJZ)V"))
-	private float onModifyGameRenderTickDelta(float oldTickDelta) {
+	@ModifyArg(
+		method = "render",
+		index = 0,
+		at = @At(
+			value = "INVOKE",
+			target =
+				"Lnet/minecraft/client/render/GameRenderer;render(" +
+					"Lnet/minecraft/client/render/RenderTickCounter;" +
+					"Z" +
+				")V"
+		)
+	)
+	private RenderTickCounter onModifyGameRenderTickDelta(RenderTickCounter oldRenderTickCounter) {
 		if (!paused && gs_tpsModule.isMainPlayerFixedMovement())
-			return gs_playerTimer.getTickDelta0();
-		return oldTickDelta;
+			return gs_playerTimer;
+		return oldRenderTickCounter;
 	}
 	
 	@Override

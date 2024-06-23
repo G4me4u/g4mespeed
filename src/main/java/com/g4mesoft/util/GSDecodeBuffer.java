@@ -193,7 +193,7 @@ public class GSDecodeBuffer implements ReferenceCounted {
 	}
 	
 	public Identifier readIdentifier() {
-		return new Identifier(readString());
+		return Identifier.of(readString());
 	}
 
 	public UUID readUUID() {

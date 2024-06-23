@@ -21,8 +21,8 @@
     "common.GSPistonBlockEntityMixin",
     "common.GSPistonBlockMixin",
     
-    "common.GSThreadedAnvilChunkStorageMixin",
-    "common.GSIThreadedAnvilChunkStorageEntityTrackerAccess",
+    "common.GSServerChunkLoadingManagerMixin",
+    "common.GSIServerChunkLoadingManagerEntityTrackerAccess",
     "common.GSEntityTrackerEntryMixin",
     "common.GSServerChunkManagerMixin",
     "common.GSIBlockEventS2CPacketAccess",
@@ -43,7 +43,7 @@
     "client.GSKeyboardMixin",
     "client.GSMouseMixin",
     
-    "client.GSRenderTickCounterMixin",
+    "client.GSRenderTickCounterDynamicMixin",
     
     "client.GSClientPlayNetworkHandlerMixin",
     
