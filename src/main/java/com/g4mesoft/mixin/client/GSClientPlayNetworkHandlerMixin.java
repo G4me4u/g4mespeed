@@ -95,7 +95,7 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 	)
 	private void onOnEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
-			Entity entity = world.getEntityById(packet.getId());
+			Entity entity = world.getEntityById(packet.getEntityId());
 			if (entity != null && isRecentlyMovedByPiston(entity)) {
 				// Update the tracked position such that the entity position
 				// does not get out of sync later.
