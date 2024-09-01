@@ -256,10 +256,11 @@ public class GSServerController extends GSController implements GSIServerModuleM
 
 	@Override
 	public File getCacheFile() {
+		File runDirectory = server.getRunDirectory().toAbsolutePath().toFile();
 		if (server.isDedicated())
-			return new File(server.getRunDirectory().toFile(), CACHE_DIR_NAME);
+			return new File(runDirectory, CACHE_DIR_NAME);
 		// Assume we're running on integrated server
-		return new File(server.getRunDirectory().toFile(), INTEGRATED_CACHE_DIR_NAME);
+		return new File(runDirectory, INTEGRATED_CACHE_DIR_NAME);
 	}
 	
 	@Override
@@ -269,7 +270,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	@Override
 	public File getWorldCacheFile() {
-		return new File(server.getSavePath(WorldSavePath.ROOT).toFile(), CACHE_DIR_NAME);
+		return new File(server.getSavePath(WorldSavePath.ROOT).toAbsolutePath().toFile(), CACHE_DIR_NAME);
 	}
 	
 	private File getWorldSettingsFile() {
