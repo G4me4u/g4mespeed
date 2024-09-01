@@ -96,6 +96,11 @@ public class GSServerTickTimer implements GSITickTimer {
 		return lastDuration;
 	}
 	
+	@Override
+	public long getPrevTimeMillis0() {
+		return prevTimeMillis;
+	}
+	
 	public synchronized void syncTimer(GSITickTimer timer) {
 		if (tpsModule.cSyncTick.get() && shouldAdjustTickDelta())
 			adjustTickDelta(timer);

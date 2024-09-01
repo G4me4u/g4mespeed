@@ -11,6 +11,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.g4mesoft.access.client.GSIRenderTickCounterDynamicAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSITickTimer;
 import com.g4mesoft.module.tps.GSServerTickTimer;
@@ -20,13 +21,17 @@ import it.unimi.dsi.fastutil.floats.FloatUnaryOperator;
 import net.minecraft.client.render.RenderTickCounter;
 
 @Mixin(RenderTickCounter.Dynamic.class)
-public class GSRenderTickCounterDynamicMixin implements GSITickTimer {
+public class GSRenderTickCounterDynamicMixin implements GSIRenderTickCounterDynamicAccess, GSITickTimer {
 
 	@Shadow public float tickDelta;
 	@Shadow public float lastFrameDuration;
 	@Shadow public long prevTimeMillis;
 	@Shadow @Final private float tickTime;
-	
+
+	@Shadow private float lastDuration;
+	@Shadow private float tickDeltaBeforePause;
+	@Shadow private long timeMillis;
+
 	@Unique
 	private int gs_ticksThisFrame;
 	
@@ -95,6 +100,16 @@ public class GSRenderTickCounterDynamicMixin implements GSITickTimer {
 		cir.cancel();
 	}
 
+	@Override
+	public void gs_setFromTimer(GSITickTimer timer) {
+		tickDelta = timer.getTickDelta0();
+		tickDeltaBeforePause = timer.getTickDelta0();
+		// Note: convert to Minecraft default tps.
+		lastDuration = timer.getLastDuration0() * timer.getMillisPerTick0() / tickTime;
+		lastFrameDuration = timer.getLastDuration0();
+		timeMillis = prevTimeMillis = timer.getPrevTimeMillis0();
+	}
+	
 	/* Following methods might add compatibility issues (if other mods have same names) */
 
 	@Override
@@ -142,5 +157,10 @@ public class GSRenderTickCounterDynamicMixin implements GSITickTimer {
 	@Override
 	public float getLastDuration0() {
 		return lastFrameDuration;
+	}
+
+	@Override
+	public long getPrevTimeMillis0() {
+		return prevTimeMillis;
 	}
 }

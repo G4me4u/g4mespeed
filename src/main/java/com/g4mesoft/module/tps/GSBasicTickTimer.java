@@ -64,4 +64,9 @@ public class GSBasicTickTimer implements GSITickTimer {
 	public float getLastDuration0() {
 		return lastDuration;
 	}
+
+	@Override
+	public long getPrevTimeMillis0() {
+		return prevTimeMillis;
+	}
 }

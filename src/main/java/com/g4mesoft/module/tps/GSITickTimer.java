@@ -23,5 +23,7 @@ public interface GSITickTimer {
 	public void setTickCount0(int tickCount);
 	
 	public float getLastDuration0();
+
+	public long getPrevTimeMillis0();
 	
 }
