@@ -14,7 +14,6 @@ import com.mojang.authlib.GameProfile;
 
 import net.minecraft.network.ClientConnection;
 import net.minecraft.server.PlayerManager;
-import net.minecraft.server.network.ConnectedClientData;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 @Mixin(PlayerManager.class)
@@ -26,7 +25,7 @@ public abstract class GSPlayerManagerMixin {
 		method = "onPlayerConnect",
 		at = @At("RETURN")
 	)
-	private void onPlayerJoin(ClientConnection connection, ServerPlayerEntity player, ConnectedClientData clientData, CallbackInfo ci) {
+	private void onPlayerJoin(ClientConnection clientConnection, ServerPlayerEntity player, CallbackInfo ci) {
 		GSServerController.getInstance().onPlayerJoin(player);
 	}
 

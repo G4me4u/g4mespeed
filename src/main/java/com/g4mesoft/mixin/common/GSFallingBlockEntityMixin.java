@@ -39,7 +39,6 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 		)
 	)
 	private void onTickBeforeRemove(CallbackInfo ci) {
-		World world = getWorld();
 		if (!world.isClient && !isRemoved() && GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_setTrackerTickedFromFallingBlock(this, true);
 			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_tickEntityTracker(this);
@@ -61,7 +60,6 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 		)
 	)
 	private void redirectSendToOtherNearbyPlayers(ThreadedAnvilChunkStorage chunkStorage, Entity entity, Packet<?> packet) {
-		World world = getWorld();
 		if (world.isClient || GSServerController.getInstance().getTpsModule().sPrettySand.get() == GSTpsModule.PRETTY_SAND_DISABLED)
 			chunkStorage.sendToOtherNearbyPlayers(entity, packet);
 	}

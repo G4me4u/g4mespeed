@@ -25,29 +25,24 @@ import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.translation.GSTranslationModule;
+import com.g4mesoft.packet.GSICustomPayloadPacket;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
+import net.minecraft.network.listener.ServerPlayPacketListener;
+import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.network.ConnectedClientData;
-import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 
 @Mixin(ServerPlayNetworkHandler.class)
-public abstract class GSServerPlayNetworkHandlerMixin extends ServerCommonNetworkHandler implements GSIServerPlayNetworkHandlerAccess {
+public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNetworkHandlerAccess {
 
 	@Shadow public ServerPlayerEntity player;
 	@Shadow private int floatingTicks;
 
-	public GSServerPlayNetworkHandlerMixin(MinecraftServer server, ClientConnection connection,
-			ConnectedClientData clientData) {
-		super(server, connection, clientData);
-	}
-	
+	@Shadow protected abstract boolean isHost();
+
 	@Unique
 	private final GSExtensionInfoList gs_extensionInfoList = new GSExtensionInfoList();
 	@Unique
@@ -127,25 +122,23 @@ public abstract class GSServerPlayNetworkHandlerMixin extends ServerCommonNetwor
 		if (gs_trackerFixedMovement)
 			((GSIServerChunkManagerAccess)player.getWorld().getChunkManager()).gs_tickEntityTracker(player);
 	}
+
 	
 	@Inject(
 		method = "onCustomPayload",
 		cancellable = true,
 		at = @At("HEAD")
 	)
-	private void onCustomPayload(CustomPayloadC2SPacket customPayloadPacket, CallbackInfo ci) {
-		if (!(this instanceof GSIServerPlayNetworkHandlerAccess)) {
-			// We only accept packets during play.
-			return;
-		}
-		GSIServerPlayNetworkHandlerAccess access = (GSIServerPlayNetworkHandlerAccess)this;
-		
+	private void onCustomPayload(CustomPayloadC2SPacket packet, CallbackInfo ci) {
 		GSPacketManager packetManger = G4mespeedMod.getPacketManager();
-		GSIPacket packet = packetManger.decodePacket(customPayloadPacket.payload(), access.gs_getExtensionInfoList());
-		if (packet != null) {
-			packetManger.handlePacket(packet, (ServerPlayNetworkHandler)(Object)this, server, p -> {
-				p.handleOnServer(GSServerController.getInstance(), access.gs_getPlayer());
-			});
+		
+		@SuppressWarnings("unchecked")
+		GSICustomPayloadPacket<ServerPlayPacketListener> payload = (GSICustomPayloadPacket<ServerPlayPacketListener>)packet;
+		
+		GSServerController controllerServer = GSServerController.getInstance();
+		GSIPacket gsPacket = packetManger.decodePacket(payload, gs_extensionInfoList, (ServerPlayNetworkHandler)(Object)this, controllerServer.getServer());
+		if (gsPacket != null) {
+			gsPacket.handleOnServer(controllerServer, player);
 			ci.cancel();
 		}
 	}
@@ -200,13 +193,4 @@ public abstract class GSServerPlayNetworkHandlerMixin extends ServerCommonNetwor
 		this.gs_fixedMovement = fixedMovement;
 	}
 	
-	@Override
-	public GSExtensionInfoList gs_getExtensionInfoList() {
-		return gs_extensionInfoList;
-	}
-	
-	@Override
-	public ServerPlayerEntity gs_getPlayer() {
-		return player;
-	}
 }

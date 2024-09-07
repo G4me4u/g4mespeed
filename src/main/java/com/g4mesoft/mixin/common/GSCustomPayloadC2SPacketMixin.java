@@ -1,26 +1,28 @@
 package com.g4mesoft.mixin.common;
 
-import java.util.ArrayList;
-
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.Shadow;
 
-import com.g4mesoft.packet.GSCustomPayload;
+import com.g4mesoft.packet.GSICustomPayloadPacket;
 
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
+import net.minecraft.network.listener.ServerPlayPacketListener;
+import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
+import net.minecraft.util.Identifier;
 
 @Mixin(CustomPayloadC2SPacket.class)
-public abstract class GSCustomPayloadC2SPacketMixin {
+public abstract class GSCustomPayloadC2SPacketMixin implements GSICustomPayloadPacket<ServerPlayPacketListener> {
 
-	@Inject(
-		method = "method_58271",
-		at = @At("HEAD")
-	)
-	private static void onReadPayload(ArrayList<CustomPayload.Type<? extends PacketByteBuf, ? extends CustomPayload>> codecs, CallbackInfo ci) {
-		codecs.add(new CustomPayload.Type<>(GSCustomPayload.ID, GSCustomPayload.CODEC));
+	@Shadow private Identifier channel;
+	@Shadow private PacketByteBuf data;
+	
+	@Override
+	public Identifier getChannel0() {
+		return channel;
+	}
+
+	@Override
+	public PacketByteBuf getData0() {
+		return new PacketByteBuf(data.copy());
 	}
 }

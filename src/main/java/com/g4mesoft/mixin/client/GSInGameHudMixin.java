@@ -20,13 +20,12 @@ import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.hud.DebugHud;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.util.math.MatrixStack;
 
 @Mixin(InGameHud.class)
-public abstract class GSInGameHudMixin {
+public abstract class GSInGameHudMixin extends DrawableHelper {
 
 	private static final int TPS_LABEL_MAGIN = 5;
 
@@ -47,64 +46,64 @@ public abstract class GSInGameHudMixin {
 	@Unique
 	private static final DecimalFormat LOW_PRECISION_TPS_FORMAT = new DecimalFormat("0.0", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	@Shadow @Final private DebugHud debugHud;
+	@Shadow private int scaledWidth;
+	@Shadow private int scaledHeight;
 
 	@Shadow @Final private MinecraftClient client;
 	
 	@Shadow public abstract TextRenderer getTextRenderer();
 
 	@Inject(
-		method = "method_55808",
+		method = "render",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.BEFORE,
 			target =
 				"Lnet/minecraft/client/gui/hud/BossBarHud;render(" +
-					"Lnet/minecraft/client/gui/DrawContext;" +
+					"Lnet/minecraft/client/util/math/MatrixStack;" +
 				")V"
 		)
 	)
-	private void onRenderBeforeBossBar(DrawContext context, float tickDelta, CallbackInfo ci) {
+	private void onRenderBeforeBossBar(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER) {
-			MatrixStack matrixStack = context.getMatrices();
 			matrixStack.push();
 			matrixStack.translate(0.0, client.textRenderer.fontHeight + 5, 0.0);
 		}
 	}
 
 	@Inject(
-		method = "method_55808",
+		method = "render",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
 				"Lnet/minecraft/client/gui/hud/BossBarHud;render(" +
-						"Lnet/minecraft/client/gui/DrawContext;" +
+					"Lnet/minecraft/client/util/math/MatrixStack;" +
 				")V"
 		)
 	)
-	private void onRenderAfterBossBar(DrawContext context, float tickDelta, CallbackInfo ci) {
+	private void onRenderAfterBossBar(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER)
-			context.getMatrices().pop();
+			matrixStack.pop();
 	}
 	
 	@Inject(
-		method = "method_55806",
+		method = "render",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.BEFORE, 
 			target =
 				"Lnet/minecraft/client/gui/hud/SubtitlesHud;render(" +
-						"Lnet/minecraft/client/gui/DrawContext;" +
+					"Lnet/minecraft/client/util/math/MatrixStack;" +
 				")V"
 		)
 	)
-	private void onRenderBeforeSubtitles(DrawContext context, float tickDelta, CallbackInfo ci) {
+	private void onRenderBeforeSubtitles(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
 		GSClientController controller = GSClientController.getInstance();
 		GSTpsModule tpsModule = controller.getTpsModule();
 		
 		int labelLocation = tpsModule.cTpsLabel.get();
-		if (!debugHud.shouldShowDebugHud() && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
+		if (!client.options.debugEnabled && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
 			TextRenderer font = getTextRenderer();
 			GSTranslationModule translationModule = controller.getTranslationModule();
 			
@@ -123,10 +122,10 @@ public abstract class GSInGameHudMixin {
 
 			switch (labelLocation) {
 			case GSTpsModule.TPS_LABEL_TOP_CENTER:
-				lx = (context.getScaledWindowWidth() - lw) / 2;
+				lx = (scaledWidth - lw) / 2;
 				break;
 			case GSTpsModule.TPS_LABEL_TOP_RIGHT:
-				lx = context.getScaledWindowWidth() - lw - TPS_LABEL_MAGIN + 1;
+				lx = scaledWidth - lw - TPS_LABEL_MAGIN + 1;
 				break;
 			case GSTpsModule.TPS_LABEL_TOP_LEFT:
 			default:
@@ -134,10 +133,10 @@ public abstract class GSInGameHudMixin {
 				break;
 			}
 			
-			context.fill(lx - 1, ly - 1, lx + lw, ly + lh, LABEL_BACKGROUND_COLOR);
+			fill(matrixStack, lx - 1, ly - 1, lx + lw, ly + lh, LABEL_BACKGROUND_COLOR);
 			
-			int tx = context.drawText(font, current, lx, ly, getTpsLabelColor(averageTps, targetTps), false);
-			context.drawText(font, targetText, tx + font.getWidth(" "), ly, LABEL_TARGET_COLOR, false);
+			float tx = font.draw(matrixStack, current, lx, ly, getTpsLabelColor(averageTps, targetTps));
+			font.draw(matrixStack, targetText, tx + font.getWidth(" "), ly, LABEL_TARGET_COLOR);
 		}
 	}
 	

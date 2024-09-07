@@ -53,16 +53,16 @@ public class GSGameRendererMixin {
 	
 	@ModifyArg(
 		method = "renderWorld",
-		index = 0,
+		index = 1,
 		at = @At(
 			value = "INVOKE", 
 			target =
 				"Lnet/minecraft/client/render/WorldRenderer;render(" +
+					"Lnet/minecraft/client/util/math/MatrixStack;" +
 					"FJZ" +
 					"Lnet/minecraft/client/render/Camera;" +
 					"Lnet/minecraft/client/render/GameRenderer;" +
 					"Lnet/minecraft/client/render/LightmapTextureManager;" +
-					"Lorg/joml/Matrix4f;" +
 					"Lorg/joml/Matrix4f;" +
 				")V"
 		)
