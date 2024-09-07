@@ -10,7 +10,7 @@ import com.g4mesoft.module.tps.GSPlayerFixedMovementPacket;
 import com.g4mesoft.module.tps.GSServerPlayerFixedMovementPacket;
 import com.g4mesoft.module.tps.GSServerSyncPacket;
 import com.g4mesoft.module.tps.GSServerTpsPacket;
-import com.g4mesoft.module.tps.GSTpsChangePacket;
+import com.g4mesoft.module.tps.GSTickSprintUpdatePacket;
 import com.g4mesoft.module.tps.GSTpsHotkeyPacket;
 import com.g4mesoft.module.translation.GSTranslationCachePacket;
 import com.g4mesoft.module.translation.GSTranslationVersionsPacket;
@@ -39,7 +39,6 @@ public class GSCoreExtension implements GSIExtension {
 	@Override
 	public void registerPackets(GSSupplierRegistry<Integer, GSIPacket> registry) {
 		registry.register( 1, GSTpsHotkeyPacket.class, GSTpsHotkeyPacket::new);
-		registry.register( 2, GSTpsChangePacket.class, GSTpsChangePacket::new);
 		registry.register( 3, GSServerSyncPacket.class, GSServerSyncPacket::new);
 		
 		registry.register( 5, GSTranslationCachePacket.class, GSTranslationCachePacket::new);
@@ -55,6 +54,7 @@ public class GSCoreExtension implements GSIExtension {
 		registry.register(13, GSServerPlayerFixedMovementPacket.class, GSServerPlayerFixedMovementPacket::new);
 		
 		registry.register(14, GSFlushingBlockEntityUpdatesPacket.class, GSFlushingBlockEntityUpdatesPacket::new);
+		registry.register(15, GSTickSprintUpdatePacket.class, GSTickSprintUpdatePacket::new);
 	}
 
 	@Override

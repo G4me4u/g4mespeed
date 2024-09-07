@@ -20,12 +20,13 @@ import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.util.math.MatrixStack;
 
 @Mixin(InGameHud.class)
-public abstract class GSInGameHudMixin extends DrawableHelper {
+public abstract class GSInGameHudMixin {
 
 	private static final int TPS_LABEL_MAGIN = 5;
 
@@ -46,65 +47,65 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 	@Unique
 	private static final DecimalFormat LOW_PRECISION_TPS_FORMAT = new DecimalFormat("0.0", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	@Shadow private int scaledWidth;
-	@Shadow private int scaledHeight;
+	@Shadow @Final private DebugHud debugHud;
 
 	@Shadow @Final private MinecraftClient client;
 	
-	@Shadow public abstract TextRenderer getFontRenderer();
+	@Shadow public abstract TextRenderer getTextRenderer();
 
 	@Inject(
-		method = "render",
+		method = "method_55808",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.BEFORE,
 			target =
 				"Lnet/minecraft/client/gui/hud/BossBarHud;render(" +
-					"Lnet/minecraft/client/util/math/MatrixStack;" +
+					"Lnet/minecraft/client/gui/DrawContext;" +
 				")V"
 		)
 	)
-	private void onRenderBeforeBossBar(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
+	private void onRenderBeforeBossBar(DrawContext context, float tickDelta, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER) {
+			MatrixStack matrixStack = context.getMatrices();
 			matrixStack.push();
 			matrixStack.translate(0.0, client.textRenderer.fontHeight + 5, 0.0);
 		}
 	}
 
 	@Inject(
-		method = "render",
+		method = "method_55808",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
 				"Lnet/minecraft/client/gui/hud/BossBarHud;render(" +
-					"Lnet/minecraft/client/util/math/MatrixStack;" +
+						"Lnet/minecraft/client/gui/DrawContext;" +
 				")V"
 		)
 	)
-	private void onRenderAfterBossBar(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
+	private void onRenderAfterBossBar(DrawContext context, float tickDelta, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER)
-			matrixStack.pop();
+			context.getMatrices().pop();
 	}
 	
 	@Inject(
-		method = "render",
+		method = "method_55806",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.BEFORE, 
 			target =
 				"Lnet/minecraft/client/gui/hud/SubtitlesHud;render(" +
-					"Lnet/minecraft/client/util/math/MatrixStack;" +
+						"Lnet/minecraft/client/gui/DrawContext;" +
 				")V"
 		)
 	)
-	private void onRenderBeforeSubtitles(MatrixStack matrixStack, float partialTicks, CallbackInfo ci) {
+	private void onRenderBeforeSubtitles(DrawContext context, float tickDelta, CallbackInfo ci) {
 		GSClientController controller = GSClientController.getInstance();
 		GSTpsModule tpsModule = controller.getTpsModule();
 		
 		int labelLocation = tpsModule.cTpsLabel.get();
-		if (!client.options.debugEnabled && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
-			TextRenderer font = getFontRenderer();
+		if (!debugHud.shouldShowDebugHud() && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
+			TextRenderer font = getTextRenderer();
 			GSTranslationModule translationModule = controller.getTranslationModule();
 			
 			float averageTps = tpsModule.getServerTps();
@@ -122,10 +123,10 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 
 			switch (labelLocation) {
 			case GSTpsModule.TPS_LABEL_TOP_CENTER:
-				lx = (scaledWidth - lw) / 2;
+				lx = (context.getScaledWindowWidth() - lw) / 2;
 				break;
 			case GSTpsModule.TPS_LABEL_TOP_RIGHT:
-				lx = scaledWidth - lw - TPS_LABEL_MAGIN + 1;
+				lx = context.getScaledWindowWidth() - lw - TPS_LABEL_MAGIN + 1;
 				break;
 			case GSTpsModule.TPS_LABEL_TOP_LEFT:
 			default:
@@ -133,10 +134,10 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 				break;
 			}
 			
-			fill(matrixStack, lx - 1, ly - 1, lx + lw, ly + lh, LABEL_BACKGROUND_COLOR);
+			context.fill(lx - 1, ly - 1, lx + lw, ly + lh, LABEL_BACKGROUND_COLOR);
 			
-			float tx = font.draw(matrixStack, current, lx, ly, getTpsLabelColor(averageTps, targetTps));
-			font.draw(matrixStack, targetText, tx + font.getWidth(" "), ly, LABEL_TARGET_COLOR);
+			int tx = context.drawText(font, current, lx, ly, getTpsLabelColor(averageTps, targetTps), false);
+			context.drawText(font, targetText, tx + font.getWidth(" "), ly, LABEL_TARGET_COLOR, false);
 		}
 	}
 	

@@ -1,8 +1,11 @@
 package com.g4mesoft.access.common;
 
 import com.g4mesoft.GSExtensionInfo;
+import com.g4mesoft.GSExtensionInfoList;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.core.GSVersion;
+
+import net.minecraft.server.network.ServerPlayerEntity;
 
 public interface GSIServerPlayNetworkHandlerAccess {
 
@@ -25,5 +28,9 @@ public interface GSIServerPlayNetworkHandlerAccess {
 	public boolean gs_isFixedMovement();
 	
 	public void gs_setFixedMovement(boolean fixedMovement);
+	
+	public GSExtensionInfoList gs_getExtensionInfoList();
+
+	public ServerPlayerEntity gs_getPlayer();
 	
 }

@@ -17,30 +17,27 @@ import com.g4mesoft.ui.renderer.GSTexture;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
 
 public class GSModMenuConfigPanel extends GSClosableParentPanel {
 
-	private static final GSTexture BACKGROUND_TEXTURE = new GSTexture(Screen.OPTIONS_BACKGROUND_TEXTURE, 32, 32);
+	private static final GSTexture LIST_BACKGROUND_TEXTURE = new GSTexture(new Identifier("textures/gui/menu_list_background.png"), 16, 16);
+	private static final GSTexture HEADER_SEPARATOR_TEXTURE = new GSTexture(Screen.HEADER_SEPARATOR_TEXTURE, 32, 2);
+	private static final GSTexture FOOTER_SEPARATOR_TEXTURE = new GSTexture(Screen.FOOTER_SEPARATOR_TEXTURE, 32, 2);
 	
-	private static final float BACKGROUND_R = 64.0f / 255.0f;
-	private static final float BACKGROUND_G = 64.0f / 255.0f;
-	private static final float BACKGROUND_B = 64.0f / 255.0f;
-	
-	private static final float DARK_BACKGROUND_R = 32.0f / 255.0f;
-	private static final float DARK_BACKGROUND_G = 32.0f / 255.0f;
-	private static final float DARK_BACKGROUND_B = 32.0f / 255.0f;
+	private static final GSTexture INWORLD_LIST_BACKGROUND_TEXTURE = new GSTexture(new Identifier("textures/gui/inworld_menu_list_background.png"), 16, 16);
+	private static final GSTexture INWORLD_HEADER_SEPARATOR_TEXTURE = new GSTexture(Screen.INWORLD_HEADER_SEPARATOR_TEXTURE, 32, 2);
+	private static final GSTexture INWORLD_FOOTER_SEPARATOR_TEXTURE = new GSTexture(Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE, 32, 2);
 	
 	private static final int TOP_MARGIN    = 32;
 	private static final int BOTTOM_MARGIN = 32;
+	private static final int SEPARATOR_HEIGHT = 2;
 	
 	private static final int BUTTON_MARGIN = 5;
 	private static final int DONE_WIDTH    = 200;
 	
-	private static final int SHADOW_WIDTH  = 4;
-	
-	private static final Text DONE_TEXT = new TranslatableText("g4mespeed.modmenu.done");
-	private static final Text TITLE_TEXT = new TranslatableText("g4mespeed.modmenu.title");
+	private static final Text DONE_TEXT = Text.translatable("g4mespeed.modmenu.done");
+	private static final Text TITLE_TEXT = Text.translatable("g4mespeed.modmenu.title");
 	
 	private final Screen previous;
 	
@@ -82,39 +79,43 @@ public class GSModMenuConfigPanel extends GSClosableParentPanel {
 		
 		super.render(renderer);
 		
-		renderShadows(renderer);
+		renderSeparators(renderer);
+	}
+	
+	private boolean isInWorld() {
+		MinecraftClient client = MinecraftClient.getInstance();
+		return client.world != null;
 	}
 
 	private void renderBackground(GSIRenderer2D renderer) {
+		// Draw menu background
+		renderer.drawMenuBackground(x, y, width, height, isInWorld());
 		// Draw content background (scrollable)
 		int x = configGUI.getX();
 		int y = configGUI.getY();
-
 		// If the content is a scroll panel, offset the background.
 		GSPanel content = configGUI.getSelectedTabContent();
 		if (content instanceof GSScrollPanel) {
 			x += ((GSScrollPanel)content).getViewportOffsetX();
 			y += ((GSScrollPanel)content).getViewportOffsetY();
 		}
-		
+		GSTexture contentBackground = isInWorld() ? INWORLD_LIST_BACKGROUND_TEXTURE : LIST_BACKGROUND_TEXTURE;
 		// Draw content background
-		renderer.drawTexture(BACKGROUND_TEXTURE.getRegion(x, y, width, configGUI.getHeight()),
-				0, configGUI.getY(), DARK_BACKGROUND_R, DARK_BACKGROUND_G, DARK_BACKGROUND_B);
-		// Draw top margin
-		renderer.drawTexture(BACKGROUND_TEXTURE.getRegion(0, 0, width, TOP_MARGIN),
-				0, 0, BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
-		// Draw bottom margin
-		renderer.drawTexture(BACKGROUND_TEXTURE.getRegion(0, height - BOTTOM_MARGIN, width, BOTTOM_MARGIN),
-				0, height - BOTTOM_MARGIN, BACKGROUND_R, BACKGROUND_G, BACKGROUND_B);
+		renderer.drawTexture(contentBackground.getRegion(x, y, width, configGUI.getHeight()), 0, configGUI.getY());
 	}
 	
-	private void renderShadows(GSIRenderer2D renderer) {
-		renderer.fillVGradient(0, TOP_MARGIN, width, SHADOW_WIDTH, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		renderer.fillVGradient(0, height - BOTTOM_MARGIN - SHADOW_WIDTH, width, SHADOW_WIDTH, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
+	private void renderSeparators(GSIRenderer2D renderer) {
+		GSTexture headerSeparator = isInWorld() ? INWORLD_HEADER_SEPARATOR_TEXTURE : HEADER_SEPARATOR_TEXTURE;
+		GSTexture footerSeparator = isInWorld() ? INWORLD_FOOTER_SEPARATOR_TEXTURE : FOOTER_SEPARATOR_TEXTURE;
+		
+		// Draw header separator
+		renderer.drawTexture(headerSeparator.getRegion(0, 0, width, SEPARATOR_HEIGHT), 0, TOP_MARGIN - SEPARATOR_HEIGHT);
+		// Draw footer separator
+		renderer.drawTexture(footerSeparator.getRegion(0, 0, width, SEPARATOR_HEIGHT), 0, height - BOTTOM_MARGIN);
 	}
 	
 	@Override
 	public void close() {
-		MinecraftClient.getInstance().openScreen(previous);
+		MinecraftClient.getInstance().setScreen(previous);
 	}
 }

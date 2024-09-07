@@ -13,17 +13,14 @@ import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 @Environment(EnvType.CLIENT)
 public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
-	
-	private static final int BACKGROUND_TOP_COLOR    = 0xC0101010;
-	private static final int BACKGROUND_BOTTOM_COLOR = 0xD0101010;
 	
 	private static final int TAB_VERTICAL_PADDING = 5;
 	private static final int TAB_HORIZONTAL_PADDING = 5;
@@ -61,7 +58,7 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 	}
 
 	public void addTab(String titleKey, GSPanel tabContent) {
-		tabs.add(new GSTabEntry(new TranslatableText(titleKey), tabContent));
+		tabs.add(new GSTabEntry(Text.translatable(titleKey), tabContent));
 
 		if (selectedTabIndex == -1)
 			setSelectedTabIndex(0);
@@ -164,8 +161,13 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 		renderTabs(renderer);
 	}
 	
+	private boolean isInWorld() {
+		MinecraftClient client = MinecraftClient.getInstance();
+		return client.world != null;
+	}
+	
 	protected void renderBackground(GSIRenderer2D renderer) {
-		renderer.fillVGradient(0, 0, width, height, BACKGROUND_TOP_COLOR, BACKGROUND_BOTTOM_COLOR);
+		renderer.drawMenuBackground(0, 0, width, height, isInWorld());
 	}
 
 	private void renderTabs(GSIRenderer2D renderer) {

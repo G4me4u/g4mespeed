@@ -11,13 +11,12 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.client.GSClientController;
-import com.g4mesoft.core.compat.GSICarpetTickrateManager;
 import com.g4mesoft.module.tps.GSITickTimer;
 import com.g4mesoft.module.tps.GSServerTickTimer;
 import com.g4mesoft.module.tps.GSTpsModule;
 
+import it.unimi.dsi.fastutil.floats.FloatUnaryOperator;
 import net.minecraft.client.render.RenderTickCounter;
 
 @Mixin(RenderTickCounter.class)
@@ -36,15 +35,13 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	@Unique
 	private GSTpsModule gs_tpsModule;
 	@Unique
-	private GSICarpetTickrateManager gs_carpetTickrateManager;
-	@Unique
 	private GSServerTickTimer gs_serverTimer;
 	
 	@Inject(
 		method = "<init>",
 		at = @At("RETURN")
 	)
-	private void onInit(float ticksPerSecond, long initialTimeMillis, CallbackInfo ci) {
+	private void onInit(float ticksPerSecond, long initialTimeMillis, FloatUnaryOperator targetMillisPerTick, CallbackInfo ci) {
 		gs_firstUpdate = true;
 	}
 
@@ -59,11 +56,11 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	)
 	private void onModifyTickrate(long timeMillis, CallbackInfoReturnable<Boolean> cir) {
 		if (gs_firstUpdate) {
-			init(prevTimeMillis);
+			init0(prevTimeMillis);
 			gs_firstUpdate = false;
 		}
 		
-		float millisPerTick = getMillisPerTick();
+		float millisPerTick = getMillisPerTick0();
 		
 		if (GSClientController.getInstance().isG4mespeedServer()) {
 			gs_serverTimer.setMillisPerTick(millisPerTick);
@@ -71,8 +68,7 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 			gs_serverTimer.setMillisPerTick(DEFAULT_MILLIS_PER_TICK);
 		}
 		
-		if (!gs_carpetTickrateManager.isTickrateLinked() || gs_tpsModule.cForceCarpetTickrate.get())
-			this.lastFrameDuration = (timeMillis - this.prevTimeMillis) / millisPerTick;
+		this.lastFrameDuration = (timeMillis - this.prevTimeMillis) / millisPerTick;
 	}
 
 	@Inject(
@@ -94,7 +90,7 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 		at = @At("RETURN")
 	)
 	private void onBeginRenderTick(long timeMillis, CallbackInfoReturnable<Integer> cir) {
-		update(timeMillis);
+		update0(timeMillis);
 		cir.setReturnValue(gs_ticksThisFrame);
 		cir.cancel();
 	}
@@ -102,22 +98,21 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	/* Following methods might add compatibility issues (if other mods have same names) */
 
 	@Override
-	public void init(long initialTimeMillis) {
+	public void init0(long initialTimeMillis) {
 		gs_tpsModule = GSClientController.getInstance().getTpsModule();
-		gs_carpetTickrateManager = G4mespeedMod.getCarpetCompat().getClientTickrateManager();
 		gs_serverTimer = gs_tpsModule.getServerTimer();
 		
-		gs_serverTimer.init(initialTimeMillis);
+		gs_serverTimer.init0(initialTimeMillis);
 	}
 
 	@Override
-	public void update(long timeMillis) {
-		gs_serverTimer.update(timeMillis);
+	public void update0(long timeMillis) {
+		gs_serverTimer.update0(timeMillis);
 		gs_serverTimer.syncTimer(this);
 	}
 	
 	@Override
-	public float getMillisPerTick() {
+	public float getMillisPerTick0() {
 		// Other mods such as the ReplayMod modify the timeScale value
 		// of the timer. To ensure that the functionality stays as expected,
 		// scale the milliseconds per tick by that value.
@@ -135,12 +130,12 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	}
 
 	@Override
-	public int getTickCount() {
+	public int getTickCount0() {
 		return gs_ticksThisFrame;
 	}
 
 	@Override
-	public void setTickCount(int tickCount) {
+	public void setTickCount0(int tickCount) {
 		this.gs_ticksThisFrame = tickCount;
 	}
 }

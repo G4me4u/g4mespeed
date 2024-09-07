@@ -1,6 +1,7 @@
 package com.g4mesoft.mixin.common;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,20 +14,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.translation.GSTranslationModule;
+import com.google.common.collect.ImmutableList;
 
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.StringVisitable;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.text.TranslationException;
 import net.minecraft.util.Language;
 
-@Mixin(TranslatableText.class)
+@Mixin(TranslatableTextContent.class)
 public abstract class GSTranslatableTextMixin {
 
-	@Shadow private Language languageCache;
 	@Shadow @Final private String key;
-	@Shadow @Final protected List<Text> translations;
+	@Shadow private Language languageCache;
+	@Shadow private List<StringVisitable> translations;
 	
-	@Shadow protected abstract void setTranslation(String translation);
+	@Shadow protected abstract void forEachPart(String translation, Consumer<StringVisitable> partsConsumer);
 
 	@Unique
 	private long gs_lastTranslationTimestamp = -1L;
@@ -55,14 +57,15 @@ public abstract class GSTranslatableTextMixin {
 			}
 			
 			gs_lastTranslationTimestamp = timestamp;
-			this.translations.clear();
+			this.languageCache = language;
 			
 			try {
-				this.setTranslation(translationModule.getTranslation(key));
-				this.languageCache = language;
+				ImmutableList.Builder<StringVisitable> builder = ImmutableList.builder();
+				this.forEachPart(translationModule.getTranslation(key), builder::add);
+				this.translations = builder.build();
 				ci.cancel();
 			} catch (TranslationException e) {
-				this.translations.clear();
+				this.translations = ImmutableList.of();
 				
 				// Make sure we fallback to default
 				this.languageCache = null;

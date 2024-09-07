@@ -1,8 +1,6 @@
 package com.g4mesoft.module.tps;
 
-import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.client.GSClientController;
-import com.g4mesoft.core.compat.GSICarpetTickrateManager;
 
 import net.minecraft.util.Util;
 
@@ -32,7 +30,7 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	@Override
-	public synchronized void init(long initialTimeMillis) {
+	public synchronized void init0(long initialTimeMillis) {
 		prevTimeMillis = initialTimeMillis;
 		tickDelta = 0.0f;
 		ticksSinceLastPacket = 0;
@@ -40,11 +38,11 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 	
 	@Override
-	public synchronized void update(long timeMillis) {
+	public synchronized void update0(long timeMillis) {
 		long deltaMillis = timeMillis - prevTimeMillis;
 		prevTimeMillis = timeMillis;
 		
-		tickDelta += deltaMillis / getMillisPerTick();
+		tickDelta += deltaMillis / getMillisPerTick0();
 		
 		tickCount = (int)tickDelta;
 		tickDelta -= tickCount;
@@ -62,7 +60,7 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	@Override
-	public float getMillisPerTick() {
+	public float getMillisPerTick0() {
 		return millisPerTick;
 	}
 	
@@ -81,12 +79,12 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	@Override
-	public synchronized int getTickCount() {
+	public synchronized int getTickCount0() {
 		return tickCount;
 	}
 	
 	@Override
-	public synchronized void setTickCount(int tickCount) {
+	public synchronized void setTickCount0(int tickCount) {
 		this.tickCount = tickCount;
 	}
 	
@@ -97,29 +95,21 @@ public class GSServerTickTimer implements GSITickTimer {
 	
 	private boolean shouldAdjustTickDelta() {
 		if (GSClientController.getInstance().isG4mespeedServer()) {
-			// When Fabric Carpet tickrate is linked, it is possible to use
-			// their client tickrate. Make sure to only enforce synchronization
-			// when using G4mespeed tickrate.
-			GSICarpetTickrateManager carpetTRM = G4mespeedMod.getCarpetCompat().getClientTickrateManager();
-			if (!carpetTRM.isTickrateLinked() || tpsModule.cForceCarpetTickrate.get())
-				return true;
+			// Sync if the server is NOT freezing/stepping/sprinting.
+			return !tpsModule.isFrozen() && !tpsModule.isStepping() && !tpsModule.isSprinting();
 		}
-
-		if (!syncReceived)
-			return false;
-		
-		return tpsModule.isDefaultTps();
+		return syncReceived && tpsModule.isSameTpsAsServer();
 	}
 
 	private void adjustTickDelta(GSITickTimer timer) {
-		float targetTickDelta = tickDelta + syncDelay / timer.getMillisPerTick();
+		float targetTickDelta = tickDelta + syncDelay / timer.getMillisPerTick0();
 		
 		targetTickDelta %= 1.0f;
 		if (targetTickDelta < 0.0f)
 			targetTickDelta++;
 		
 		float syncTickDelta = timer.getTickDelta0();
-		int syncTickCount = timer.getTickCount();
+		int syncTickCount = timer.getTickCount0();
 		
 		// Check if we have to cross tick border
 		// and adjust target value accordingly.
@@ -145,13 +135,13 @@ public class GSServerTickTimer implements GSITickTimer {
 		}
 		
 		timer.setTickDelta0(syncTickDelta);
-		timer.setTickCount(syncTickCount);
+		timer.setTickCount0(syncTickCount);
 	}
 	
 	public synchronized void onSyncPacket(int syncTickInterval) {
 		this.syncTickInterval = syncTickInterval;
 		syncReceived = true;
 
-		init(Util.getMeasuringTimeMs());
+		init0(Util.getMeasuringTimeMs());
 	}
 }

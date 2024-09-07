@@ -11,12 +11,13 @@ import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.access.common.GSIServerPlayNetworkHandlerAccess;
+import com.g4mesoft.core.GSConnectionPacket;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSCoreExtension;
-import com.g4mesoft.core.GSConnectionPacket;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.client.GSIClientModuleManager;
+import com.g4mesoft.packet.GSCustomPayload;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 import com.g4mesoft.setting.GSISettingChangeListener;
@@ -24,19 +25,18 @@ import com.g4mesoft.setting.GSServerSettingMapPacket;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.GSSettingChangePacket;
-import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.GSSettingChangePacket.GSESettingChangeType;
+import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.GSSettingMap;
 import com.g4mesoft.setting.GSSettingPermissionPacket;
 import com.mojang.brigadier.CommandDispatcher;
 
-import net.minecraft.network.Packet;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.WorldSavePath;
 
 public class GSServerController extends GSController implements GSIServerModuleManager, GSISettingChangeListener {
@@ -182,8 +182,8 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	}
 
 	@Override
-	public Packet<?> createCustomPayload(Identifier identifier, PacketByteBuf buffer) {
-		return new CustomPayloadS2CPacket(identifier, buffer);
+	public Packet<?> createCustomPayload(ByteBuf buffer) {
+		return new CustomPayloadS2CPacket(GSCustomPayload.create(buffer));
 	}
 
 	@Override

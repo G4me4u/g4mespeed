@@ -85,7 +85,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		method = "run",
 		at = @At(
 			value = "FIELD",
-			shift = At.Shift.AFTER,
+			shift = Shift.AFTER,
 			opcode = Opcodes.PUTFIELD,
 			target = "Lnet/minecraft/client/MinecraftClient;thread:Ljava/lang/Thread;"
 		)
@@ -167,13 +167,13 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		method = "tick",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/gui/hud/InGameHud;tick()V"
+			target = "Lnet/minecraft/client/gui/hud/InGameHud;tick(Z)V"
 		)
 	)
-	private void onTickRedirectInteractionManagerTick(InGameHud inGameHud) {
+	private void onTickRedirectInteractionManagerTick(InGameHud inGameHud, boolean paused) {
 		// Tick is handled elsewhere when correcting movement.
 		if (!gs_tpsModule.isMainPlayerFixedMovement())
-			inGameHud.tick();
+			inGameHud.tick(paused);
 	}
 
 	@Redirect(
@@ -274,10 +274,10 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 			gs_forceScheduledPistonBlockEntityUpdates = false;
 		}
 
-		gs_playerTimer.update(Util.getMeasuringTimeMs());
+		gs_playerTimer.update0(Util.getMeasuringTimeMs());
 
 		if (!gs_tpsModule.isDefaultTps() || gs_tpsModule.isFixedMovementOnDefaultTps()) {
-			int tickCount = Math.min(gs_playerTimer.getTickCount(), 10);
+			int tickCount = Math.min(gs_playerTimer.getTickCount0(), 10);
 			for (int i = 0; i < tickCount; i++) {
 				if (gs_tpsModule.isMainPlayerFixedMovement()) {
 					onTickCorrection();
@@ -309,14 +309,12 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		if (itemUseCooldown > 0)
 			itemUseCooldown--;
 
-		if (!paused) {
-			inGameHud.tick();
-		
-			if (world != null)
-				interactionManager.tick();
-		}
+		inGameHud.tick(this.paused);
 
-		if (overlay == null && (currentScreen == null || currentScreen.passEvents)) {
+		if (!paused && world != null)
+			interactionManager.tick();
+
+		if (overlay == null && currentScreen == null) {
 			handleInputEvents();
 			if (attackCooldown > 0)
 				attackCooldown--;

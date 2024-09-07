@@ -21,6 +21,8 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.BufferBuilderStorage;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -42,7 +44,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 		method = "<init>",
 		at = @At("RETURN")
 	)
-	private void onInit(MinecraftClient client, BufferBuilderStorage builderStorage, CallbackInfo ci) {
+	private void onInit(MinecraftClient client, EntityRenderDispatcher entityRenderDispatcher, BlockEntityRenderDispatcher blockEntityRenderDispatcher, BufferBuilderStorage bufferBuilders, CallbackInfo ci) {
 		gs_controller = GSClientController.getInstance();
 		gs_tpsModule = gs_controller.getTpsModule();
 	}
@@ -78,7 +80,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 		at = @At(
 			value = "FIELD",
 			opcode = Opcodes.GETFIELD,
-			target="Lnet/minecraft/entity/Entity;age:I"
+			target = "Lnet/minecraft/entity/Entity;age:I"
 		)
 	)
 	private int onRenderGetEntityAge(Entity entity) {

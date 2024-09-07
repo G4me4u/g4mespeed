@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.common.GSIEntityTrackerEntryAccess;
+import com.g4mesoft.access.common.GSIServerPlayerEntity;
 import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSServerPlayerFixedMovementPacket;
@@ -23,9 +24,10 @@ import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 
 @Mixin(EntityTrackerEntry.class)
@@ -34,6 +36,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	private static final double FALLING_BLOCK_GRAVITY  = -0.04;
 	private static final double FALLING_BLOCK_FRICTION =  0.98;
 	
+	@Shadow @Final private ServerWorld world;
 	@Shadow @Final private Entity entity;
 	@Shadow @Final private Consumer<Packet<?>> receiver;
 	@Shadow private int trackingTick;
@@ -61,7 +64,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 			gs_lastFixedMovement = gs_fixedMovement;
 
 			if (entity.getType() == EntityType.PLAYER) {
-				GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getEntityId(), gs_fixedMovement);
+				GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getId(), gs_fixedMovement);
 				// Encode packet to a vanilla packet. This is required for sending to all nearby
 				// players. Note that vanilla players will not react to the packet.
 				GSPacketManager packetManager = G4mespeedMod.getPacketManager();
@@ -109,18 +112,44 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 			shift = Shift.AFTER,
 			target =
 				"Lnet/minecraft/server/network/EntityTrackerEntry;sendPackets(" +
+					"Lnet/minecraft/server/network/ServerPlayerEntity;" +
 					"Ljava/util/function/Consumer;" +
 				")V"
 		)
 	)
 	private void onStartTracking(ServerPlayerEntity player, CallbackInfo ci) {
 		if (entity.getType() == EntityType.PLAYER) {
-			GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getEntityId(), gs_fixedMovement);
+			GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getId(), gs_fixedMovement);
 			// Note that player might be tracking the entity after just joining
 			// in which case the extension versions will not yet have been sent.
 			GSServerController.getInstance().sendPacket(packet, player, GSVersion.INVALID);
+		} else if (entity.getType() == EntityType.FALLING_BLOCK) {
+			((GSIServerPlayerEntity)player).gs_onStartTrackingFallingSand(entity);
 		}
 	}
+	
+	@Inject(
+		method = "stopTracking",
+		require = 1,
+		allow = 1,
+		expect = 1,
+		cancellable = true,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.BEFORE,
+			target =
+				"Lnet/minecraft/server/network/ServerPlayNetworkHandler;sendPacket(" +
+					"Lnet/minecraft/network/packet/Packet;" +
+				")V"
+		)
+	)
+	private void onStopTracking(ServerPlayerEntity player, CallbackInfo ci) {
+		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
+		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
+			((GSIServerPlayerEntity)player).gs_onStopTrackingFallingSand(entity);
+			ci.cancel();
+		}
+	}	
 	
 	@Override
 	public boolean gs_isFixedMovement() {

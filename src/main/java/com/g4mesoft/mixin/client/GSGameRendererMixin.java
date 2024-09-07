@@ -17,7 +17,8 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.BlockView;
 
-@Mixin(GameRenderer.class)
+/* Priority <1000, compatibility fix for Apoli/Origins */
+@Mixin(value = GameRenderer.class, priority = 999)
 public class GSGameRendererMixin {
 
 	@Shadow @Final private MinecraftClient client;
@@ -52,17 +53,17 @@ public class GSGameRendererMixin {
 	
 	@ModifyArg(
 		method = "renderWorld",
-		index = 1,
+		index = 0,
 		at = @At(
 			value = "INVOKE", 
 			target =
 				"Lnet/minecraft/client/render/WorldRenderer;render(" +
-					"Lnet/minecraft/client/util/math/MatrixStack;" +
 					"FJZ" +
 					"Lnet/minecraft/client/render/Camera;" +
 					"Lnet/minecraft/client/render/GameRenderer;" +
 					"Lnet/minecraft/client/render/LightmapTextureManager;" +
-					"Lnet/minecraft/util/math/Matrix4f;" +
+					"Lorg/joml/Matrix4f;" +
+					"Lorg/joml/Matrix4f;" +
 				")V"
 		)
 	)

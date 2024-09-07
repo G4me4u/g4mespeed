@@ -16,17 +16,18 @@ import com.g4mesoft.access.common.GSIServerChunkManagerAccess;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.profiler.Profiler;
-import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.EntityList;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
@@ -34,12 +35,16 @@ import net.minecraft.world.dimension.DimensionType;
 @Mixin(ServerWorld.class)
 public abstract class GSServerWorldMixin extends World {
 
-	@Shadow @Final private Int2ObjectMap<Entity> entitiesById;
-	
-	protected GSServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryKey,
-			DimensionType dimensionType, Supplier<Profiler> supplier, boolean bl, boolean bl2, long l) {
-		super(properties, registryKey, dimensionType, supplier, bl, bl2, l);
+	protected GSServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef,
+			DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry,
+			Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess,
+			int maxChainedNeighborUpdates) {
+		super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess,
+				maxChainedNeighborUpdates);
 	}
+
+	@Shadow @Final EntityList entityList;
+
 
 	@Inject(
 		method = "tick",
@@ -48,13 +53,13 @@ public abstract class GSServerWorldMixin extends World {
 	private void onTickReturn(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
 		if (GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			ServerChunkManager chunkManager = (ServerChunkManager)getChunkManager();
-			
-			for (Entity entity : entitiesById.values()) {
-				if (!entity.removed && entity.getType() == EntityType.FALLING_BLOCK) {
+
+			entityList.forEach((entity) -> {
+				if (!entity.isRemoved() && entity.getType() == EntityType.FALLING_BLOCK) {
 					((GSIServerChunkManagerAccess)chunkManager).gs_setTrackerTickedFromFallingBlock(entity, true);
 					((GSIServerChunkManagerAccess)chunkManager).gs_tickEntityTracker(entity);
 				}
-			}
+			});
 		}
 	}
 
@@ -83,8 +88,8 @@ public abstract class GSServerWorldMixin extends World {
 				"Lnet/minecraft/server/PlayerManager;sendToAround(" +
 					"Lnet/minecraft/entity/player/PlayerEntity;" +
 					"DDDD" +
-					"Lnet/minecraft/util/registry/RegistryKey;" +
-					"Lnet/minecraft/network/Packet;" +
+					"Lnet/minecraft/registry/RegistryKey;" +
+					"Lnet/minecraft/network/packet/Packet;" +
 				")V"
 		)
 	)

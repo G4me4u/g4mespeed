@@ -25,7 +25,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
@@ -144,8 +143,8 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			if (hoveredElement != null) {
 				int descTextWidth = width - settingsWidth - DESC_LINE_MARGIN * 2;
 				
-				MutableText desc = new TranslatableText(hoveredElement.getSettingNameText().getKey() + ".desc");
-				Text def = new TranslatableText("setting.default", hoveredElement.getFormattedDefault());
+				MutableText desc = Text.translatable(hoveredElement.getNameTextKey() + ".desc");
+				Text def = Text.translatable("setting.default", hoveredElement.getFormattedDefault());
 				descLines = renderer.splitToLines(desc.append(" ").append(def), descTextWidth);
 				
 				int lineCount = descLines.size();
@@ -224,7 +223,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 		private int height;
 		
 		public GSSettingCategoryElement(GSSettingCategory category) {
-			titleText = new TranslatableText("setting." + category.getName());
+			titleText = Text.translatable("setting." + category.getName());
 			
 			settings = new LinkedList<>();
 		}

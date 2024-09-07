@@ -7,5 +7,11 @@ public interface GSIPistonBlockEntityAccess {
 	public void gs_onAdded();
 
 	public void gs_handleScheduledUpdate();
+
+	public float gs_getProgress();
+
+	public float gs_getNextProgress();
+
+	public void gs_setNextProgress(float nextProgress);
 	
 }
