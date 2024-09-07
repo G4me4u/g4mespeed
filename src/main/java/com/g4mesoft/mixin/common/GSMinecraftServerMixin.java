@@ -105,10 +105,11 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		method = "runServer",
 		at = @At(
 			value = "INVOKE",
-			shift = Shift.BEFORE, 
+			shift = At.Shift.BEFORE, 
 			target =
-				"Lnet/minecraft/server/MinecraftServer;createMetadata(" +
-				")Lnet/minecraft/server/ServerMetadata;"
+				"Lnet/minecraft/server/MinecraftServer;setFavicon(" +
+					"Lnet/minecraft/server/ServerMetadata;" +
+				")V"
 		)
 	)
 	private void onInitialized(CallbackInfo ci) {
@@ -125,10 +126,11 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		slice = @Slice(
 			from = @At(
 				value = "INVOKE",
-				shift = Shift.AFTER, 
+				shift = At.Shift.AFTER, 
 				target =
-					"Lnet/minecraft/server/MinecraftServer;createMetadata(" +
-					")Lnet/minecraft/server/ServerMetadata;"
+					"Lnet/minecraft/server/MinecraftServer;setFavicon(" +
+						"Lnet/minecraft/server/ServerMetadata;" +
+					")V"
 			)
 		),
 		at = @At(

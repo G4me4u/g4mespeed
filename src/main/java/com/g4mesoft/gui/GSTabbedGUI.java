@@ -17,6 +17,7 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 @Environment(EnvType.CLIENT)
 public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
@@ -60,7 +61,7 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 	}
 
 	public void addTab(String titleKey, GSPanel tabContent) {
-		tabs.add(new GSTabEntry(Text.translatable(titleKey), tabContent));
+		tabs.add(new GSTabEntry(new TranslatableText(titleKey), tabContent));
 
 		if (selectedTabIndex == -1)
 			setSelectedTabIndex(0);

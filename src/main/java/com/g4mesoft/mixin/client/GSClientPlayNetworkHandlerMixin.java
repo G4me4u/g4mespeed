@@ -10,9 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.access.client.GSIClientWorldAccess;
 import com.g4mesoft.access.client.GSIEntityAccess;
-import com.g4mesoft.access.client.GSIPendingUpdateManagerAccess;
 import com.g4mesoft.access.client.GSIWorldRendererAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
@@ -29,10 +27,8 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.PendingUpdateManager;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.TrackedPosition;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.ClientConnection;
@@ -46,10 +42,8 @@ import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
-import net.minecraft.network.packet.s2c.play.PositionFlag;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 
 /* Use priority -1001 to ensure we have priority over MultiConnect */
 @Mixin(value = ClientPlayNetworkHandler.class, priority = -1001)
@@ -84,9 +78,9 @@ public class GSClientPlayNetworkHandlerMixin {
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
-			target =
+			target = 
 				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
-					"Lnet/minecraft/network/packet/Packet;" +
+					"Lnet/minecraft/network/Packet;" +
 					"Lnet/minecraft/network/listener/PacketListener;" +
 					"Lnet/minecraft/util/thread/ThreadExecutor;" +
 				")V"
@@ -112,7 +106,7 @@ public class GSClientPlayNetworkHandlerMixin {
 			shift = Shift.AFTER,
 			target =
 				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
-					"Lnet/minecraft/network/packet/Packet;" +
+					"Lnet/minecraft/network/Packet;" +
 					"Lnet/minecraft/network/listener/PacketListener;" +
 					"Lnet/minecraft/util/thread/ThreadExecutor;" +
 				")V"
@@ -125,9 +119,7 @@ public class GSClientPlayNetworkHandlerMixin {
 				if (!entity.isLogicalSideForUpdatingMovement()) {
 					if (packet.isPositionChanged()) {
 						// See comment above.
-		                TrackedPosition trackedPosition = entity.getTrackedPosition();
-		                Vec3d pos = trackedPosition.withDelta(packet.getDeltaX(), packet.getDeltaY(), packet.getDeltaZ());
-		                trackedPosition.setPos(pos);
+						entity.updateTrackedPosition(packet.calculateDeltaPosition(entity.getTrackedPosition()));
 					}
 					
 					if (packet.hasRotation()) {
@@ -152,7 +144,7 @@ public class GSClientPlayNetworkHandlerMixin {
 			shift = Shift.AFTER,
 			target =
 				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
-					"Lnet/minecraft/network/packet/Packet;" +
+					"Lnet/minecraft/network/Packet;" +
 					"Lnet/minecraft/network/listener/PacketListener;" +
 					"Lnet/minecraft/util/thread/ThreadExecutor;" +
 				")V"
@@ -169,9 +161,9 @@ public class GSClientPlayNetworkHandlerMixin {
 			if (isRecentlyMovedByPiston(player)) {
 				// Note: there might be a few issues with an actual teleport, if the player was just moved
 				//       by a piston. But this should hopefully be solved by a simple distance check.
-				boolean isDeltaX = packet.getFlags().contains(PositionFlag.X);
-				boolean isDeltaY = packet.getFlags().contains(PositionFlag.Y);
-				boolean isDeltaZ = packet.getFlags().contains(PositionFlag.Z);
+				boolean isDeltaX = packet.getFlags().contains(PlayerPositionLookS2CPacket.Flag.X);
+				boolean isDeltaY = packet.getFlags().contains(PlayerPositionLookS2CPacket.Flag.Y);
+				boolean isDeltaZ = packet.getFlags().contains(PlayerPositionLookS2CPacket.Flag.Z);
 				
 				double dx = isDeltaX ? packet.getX() : (packet.getX() - player.getX());
 				double dy = isDeltaY ? packet.getY() : (packet.getY() - player.getY());
@@ -231,7 +223,7 @@ public class GSClientPlayNetworkHandlerMixin {
 			shift = Shift.AFTER,
 			target =
 				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
-					"Lnet/minecraft/network/packet/Packet;" +
+					"Lnet/minecraft/network/Packet;" +
 					"Lnet/minecraft/network/listener/PacketListener;" +
 					"Lnet/minecraft/util/thread/ThreadExecutor;" +
 				")V"
@@ -249,11 +241,7 @@ public class GSClientPlayNetworkHandlerMixin {
 				
 				if (!blockState.isOf(Blocks.MOVING_PISTON)) {
 					blockState = Blocks.MOVING_PISTON.getDefaultState();
-					// Fix for issue since 1.19.3 where placing a block might reappear
-					// due to the sequence being handled later.
-					PendingUpdateManager updateManager = ((GSIClientWorldAccess)world).gs_getPendingUpdateManager();
-					((GSIPendingUpdateManagerAccess)updateManager).gs_removePendingUpdate(pos);
-					world.handleBlockUpdate(pos, blockState, Block.NO_REDRAW | Block.MOVED);
+					world.setBlockState(pos, blockState, Block.NO_REDRAW | Block.MOVED);
 				}
 				
 				NbtCompound tag = packet.getNbt();

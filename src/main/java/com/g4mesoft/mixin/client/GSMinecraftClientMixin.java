@@ -85,7 +85,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		method = "run",
 		at = @At(
 			value = "FIELD",
-			shift = Shift.AFTER,
+			shift = At.Shift.AFTER,
 			opcode = Opcodes.PUTFIELD,
 			target = "Lnet/minecraft/client/MinecraftClient;thread:Ljava/lang/Thread;"
 		)

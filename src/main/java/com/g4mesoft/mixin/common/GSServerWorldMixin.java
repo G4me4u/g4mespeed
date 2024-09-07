@@ -20,13 +20,12 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.network.Packet;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.registry.RegistryEntry;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.EntityList;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
@@ -35,16 +34,13 @@ import net.minecraft.world.dimension.DimensionType;
 @Mixin(ServerWorld.class)
 public abstract class GSServerWorldMixin extends World {
 
-	protected GSServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef,
-			DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry,
-			Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess,
-			int maxChainedNeighborUpdates) {
-		super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess,
-				maxChainedNeighborUpdates);
-	}
-
 	@Shadow @Final EntityList entityList;
 
+	protected GSServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef,
+			RegistryEntry<DimensionType> registryEntry, Supplier<Profiler> profiler, boolean isClient,
+			boolean debugWorld, long seed) {
+		super(properties, registryRef, registryEntry, profiler, isClient, debugWorld, seed);
+	}
 
 	@Inject(
 		method = "tick",
@@ -88,8 +84,8 @@ public abstract class GSServerWorldMixin extends World {
 				"Lnet/minecraft/server/PlayerManager;sendToAround(" +
 					"Lnet/minecraft/entity/player/PlayerEntity;" +
 					"DDDD" +
-					"Lnet/minecraft/registry/RegistryKey;" +
-					"Lnet/minecraft/network/packet/Packet;" +
+					"Lnet/minecraft/util/registry/RegistryKey;" +
+					"Lnet/minecraft/network/Packet;" +
 				")V"
 		)
 	)

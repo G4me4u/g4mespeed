@@ -17,7 +17,9 @@ import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.InputUtil.Key;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListener, GSIKeyListener {
@@ -32,8 +34,8 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	private static final int FONT_COLOR = 0xFFFFFFFF;
 	private static final int HOVERED_BACKGROUND = 0x80000000;//0x66EDEDFF;
 	
-	private static final Text RESET_TEXT = Text.translatable("gui.hotkey.reset");
-	private static final Text CANCEL_TEXT = Text.translatable("gui.hotkey.cancel");
+	private static final Text RESET_TEXT = new TranslatableText("gui.hotkey.reset");
+	private static final Text CANCEL_TEXT = new TranslatableText("gui.hotkey.cancel");
 	
 	private final GSHotkeyGUI hotkeyGui;
 	private final GSKeyBinding keyBinding;
@@ -51,7 +53,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 		this.hotkeyGui = hotkeyGui;
 		this.keyBinding = keyBinding;
 		
-		nameText = Text.translatable("hotkey." + keyBinding.getCategory() + "." + keyBinding.getName());
+		nameText = new TranslatableText("hotkey." + keyBinding.getCategory() + "." + keyBinding.getName());
 	
 		resetButton = new GSButtonPanel(RESET_TEXT, () -> {
 			if (modifyingKeyCode) {
@@ -117,8 +119,9 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 		Text keyName = keyBinding.getLocalizedName();
 		
 		if (modifyingKeyCode) {
-			keyName = keyName.copy().formatted(Formatting.YELLOW);
-			modifyButton.setText(Text.literal("> ").append(keyName).append(" <"));
+			keyName = keyName.shallowCopy().formatted(Formatting.YELLOW);
+
+			modifyButton.setText(new LiteralText("> ").append(keyName).append(" <"));
 		} else {
 			modifyButton.setText(keyName);
 		}

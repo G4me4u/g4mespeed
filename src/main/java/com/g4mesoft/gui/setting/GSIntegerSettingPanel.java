@@ -7,8 +7,10 @@ import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
 public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntegerSetting> {
@@ -52,17 +54,18 @@ public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntege
 	
 	private MutableText getFormattedValue(int value) {
 		String valueText = Integer.toString(value);
+		String nameTranslationKey = nameText.getKey();
 		
 		GSTranslationModule translationModule =
 				GSClientController.getInstance().getTranslationModule();
 		
 		String key;
-		if (translationModule.hasTranslation(key = nameTextKey + "." + valueText))
-			return Text.translatable(key, valueText);
-		if (translationModule.hasTranslation(key = nameTextKey + ".x"))
-			return Text.translatable(key, valueText);
+		if (translationModule.hasTranslation(key = nameTranslationKey + "." + valueText))
+			return new TranslatableText(key, valueText);
+		if (translationModule.hasTranslation(key = nameTranslationKey + ".x"))
+			return new TranslatableText(key, valueText);
 		
-		return Text.literal(valueText);
+		return new LiteralText(valueText);
 	}
 	
 	@Override

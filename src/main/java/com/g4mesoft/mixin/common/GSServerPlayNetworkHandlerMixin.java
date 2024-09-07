@@ -88,7 +88,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 			shift = Shift.AFTER,
 			target =
 				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
-					"Lnet/minecraft/network/packet/Packet;" +
+					"Lnet/minecraft/network/Packet;" +
 					"Lnet/minecraft/network/listener/PacketListener;" +
 					"Lnet/minecraft/server/world/ServerWorld;" +
 				")V"

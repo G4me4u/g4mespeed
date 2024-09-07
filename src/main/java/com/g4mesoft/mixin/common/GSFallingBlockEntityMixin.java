@@ -16,7 +16,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.network.packet.Packet;
+import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.world.ThreadedAnvilChunkStorage;
 import net.minecraft.world.World;
@@ -55,7 +55,7 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 			target =
 				"Lnet/minecraft/server/world/ThreadedAnvilChunkStorage;sendToOtherNearbyPlayers(" +
 					"Lnet/minecraft/entity/Entity;" +
-					"Lnet/minecraft/network/packet/Packet;" +
+					"Lnet/minecraft/network/Packet;" +
 				")V"
 		)
 	)
