@@ -1,5 +1,7 @@
 package com.g4mesoft.mixin.client;
 
+import java.util.List;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,20 +18,19 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.world.EntityList;
 import net.minecraft.world.World;
 
 @Mixin(ClientWorld.class)
 public abstract class GSClientWorldMixin implements GSIClientWorldAccess {
 
 	@Shadow @Final private MinecraftClient client;
-	@Shadow @Final EntityList entityList;
-
+	@Shadow @Final private List<AbstractClientPlayerEntity> players;
+	
 	@Unique
 	private boolean gs_tickingEntities;
 	@Unique
 	private GSTpsModule gs_tpsModule = GSClientController.getInstance().getTpsModule();
-
+	
 	@Shadow public abstract void tickEntity(Entity entity);
 	
 	@Inject(
@@ -62,12 +63,9 @@ public abstract class GSClientWorldMixin implements GSIClientWorldAccess {
 	
 	@Override
 	public void gs_tickFixedMovementPlayers() {
-		entityList.forEach((entity) -> {
-			if (entity instanceof AbstractClientPlayerEntity) {
-				AbstractClientPlayerEntity player = (AbstractClientPlayerEntity)entity;
-				if (!player.hasVehicle() && !player.isRemoved() && gs_tpsModule.isPlayerFixedMovement(player))
-					((World)(Object)this).tickEntity(this::tickEntity, player);
-			}
-		});
+		for (AbstractClientPlayerEntity player : players) {
+			if (!player.hasVehicle() && !player.removed && gs_tpsModule.isPlayerFixedMovement(player))
+				((World)(Object)this).tickEntity(this::tickEntity, player);
+		}
 	}
 }

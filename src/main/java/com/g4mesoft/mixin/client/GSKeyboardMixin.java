@@ -44,7 +44,7 @@ public class GSKeyboardMixin {
 			ordinal = 0,
 			shift = At.Shift.AFTER, 
 			target =
-				"Lnet/minecraft/client/option/KeyBinding;setKeyPressed(" +
+				"Lnet/minecraft/client/options/KeyBinding;setKeyPressed(" +
 					"Lnet/minecraft/client/util/InputUtil$Key;" +
 					"Z" +
 				")V"
@@ -60,7 +60,7 @@ public class GSKeyboardMixin {
 			value = "INVOKE",
 			shift = At.Shift.BEFORE, 
 			target =
-				"Lnet/minecraft/client/option/KeyBinding;onKeyPressed(" +
+				"Lnet/minecraft/client/options/KeyBinding;onKeyPressed(" +
 					"Lnet/minecraft/client/util/InputUtil$Key;" +
 				")V"
 		)

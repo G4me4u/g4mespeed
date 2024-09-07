@@ -43,7 +43,7 @@ public class GSMouseMixin {
 			value = "INVOKE",
 			shift = At.Shift.AFTER, 
 			target =
-				"Lnet/minecraft/client/option/KeyBinding;setKeyPressed(" +
+				"Lnet/minecraft/client/options/KeyBinding;setKeyPressed(" +
 					"Lnet/minecraft/client/util/InputUtil$Key;" +
 					"Z" +
 				")V"

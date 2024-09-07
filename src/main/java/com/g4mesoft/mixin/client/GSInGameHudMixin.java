@@ -51,7 +51,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 
 	@Shadow @Final private MinecraftClient client;
 	
-	@Shadow public abstract TextRenderer getTextRenderer();
+	@Shadow public abstract TextRenderer getFontRenderer();
 
 	@Inject(
 		method = "render",
@@ -104,7 +104,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 		
 		int labelLocation = tpsModule.cTpsLabel.get();
 		if (!client.options.debugEnabled && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
-			TextRenderer font = getTextRenderer();
+			TextRenderer font = getFontRenderer();
 			GSTranslationModule translationModule = controller.getTranslationModule();
 			
 			float averageTps = tpsModule.getServerTps();

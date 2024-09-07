@@ -30,7 +30,8 @@ public class GSPistonBlockMixin {
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/world/World;addBlockEntity(" +
+				"Lnet/minecraft/world/World;setBlockEntity(" +
+					"Lnet/minecraft/util/math/BlockPos;" +
 					"Lnet/minecraft/block/entity/BlockEntity;" +
 				")V"
 		)
@@ -61,7 +62,8 @@ public class GSPistonBlockMixin {
 			ordinal = 0,
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/world/World;addBlockEntity(" +
+				"Lnet/minecraft/world/World;setBlockEntity(" +
+					"Lnet/minecraft/util/math/BlockPos;" +
 					"Lnet/minecraft/block/entity/BlockEntity;" +
 				")V"
 		)
@@ -78,7 +80,8 @@ public class GSPistonBlockMixin {
 			ordinal = 1,
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/world/World;addBlockEntity(" +
+				"Lnet/minecraft/world/World;setBlockEntity(" +
+					"Lnet/minecraft/util/math/BlockPos;" +
 					"Lnet/minecraft/block/entity/BlockEntity;" +
 				")V"
 		)

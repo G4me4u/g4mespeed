@@ -32,7 +32,7 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	@Override
-	public synchronized void init0(long initialTimeMillis) {
+	public synchronized void init(long initialTimeMillis) {
 		prevTimeMillis = initialTimeMillis;
 		tickDelta = 0.0f;
 		ticksSinceLastPacket = 0;
@@ -40,11 +40,11 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 	
 	@Override
-	public synchronized void update0(long timeMillis) {
+	public synchronized void update(long timeMillis) {
 		long deltaMillis = timeMillis - prevTimeMillis;
 		prevTimeMillis = timeMillis;
 		
-		tickDelta += deltaMillis / getMillisPerTick0();
+		tickDelta += deltaMillis / getMillisPerTick();
 		
 		tickCount = (int)tickDelta;
 		tickDelta -= tickCount;
@@ -62,7 +62,7 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	@Override
-	public float getMillisPerTick0() {
+	public float getMillisPerTick() {
 		return millisPerTick;
 	}
 	
@@ -81,12 +81,12 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	@Override
-	public synchronized int getTickCount0() {
+	public synchronized int getTickCount() {
 		return tickCount;
 	}
 	
 	@Override
-	public synchronized void setTickCount0(int tickCount) {
+	public synchronized void setTickCount(int tickCount) {
 		this.tickCount = tickCount;
 	}
 	
@@ -112,14 +112,14 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	private void adjustTickDelta(GSITickTimer timer) {
-		float targetTickDelta = tickDelta + syncDelay / timer.getMillisPerTick0();
+		float targetTickDelta = tickDelta + syncDelay / timer.getMillisPerTick();
 		
 		targetTickDelta %= 1.0f;
 		if (targetTickDelta < 0.0f)
 			targetTickDelta++;
 		
 		float syncTickDelta = timer.getTickDelta0();
-		int syncTickCount = timer.getTickCount0();
+		int syncTickCount = timer.getTickCount();
 		
 		// Check if we have to cross tick border
 		// and adjust target value accordingly.
@@ -145,13 +145,13 @@ public class GSServerTickTimer implements GSITickTimer {
 		}
 		
 		timer.setTickDelta0(syncTickDelta);
-		timer.setTickCount0(syncTickCount);
+		timer.setTickCount(syncTickCount);
 	}
 	
 	public synchronized void onSyncPacket(int syncTickInterval) {
 		this.syncTickInterval = syncTickInterval;
 		syncReceived = true;
 
-		init0(Util.getMeasuringTimeMs());
+		init(Util.getMeasuringTimeMs());
 	}
 }

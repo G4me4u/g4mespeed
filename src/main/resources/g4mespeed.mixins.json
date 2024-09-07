@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "com.g4mesoft.mixin",
-  "compatibilityLevel": "JAVA_16",
+  "compatibilityLevel": "JAVA_8",
   "mixins": [
     "common.GSMinecraftServerMixin",
     
@@ -27,8 +27,7 @@
     "common.GSServerChunkManagerMixin",
     "common.GSIBlockEventS2CPacketAccess",
     "common.GSChunkHolderMixin",
-    "common.GSFallingBlockEntityMixin",
-    "common.GSServerPlayerEntityMixin"
+    "common.GSFallingBlockEntityMixin"
   ],
   "client": [
     "client.GSMinecraftClientMixin",

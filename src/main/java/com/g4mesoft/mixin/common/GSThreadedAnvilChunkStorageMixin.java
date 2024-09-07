@@ -23,14 +23,14 @@ public abstract class GSThreadedAnvilChunkStorageMixin implements GSIThreadedAnv
 	
 	@Override
 	public void gs_tickEntityTracker(Entity entity) {
-		Object tracker = entityTrackers.get(entity.getId());
+		Object tracker = entityTrackers.get(entity.getEntityId());
 		if (tracker != null)
 			((GSIThreadedAnvilChunkStorageEntityTrackerAccess)tracker).getEntry().tick();
 	}
 	
 	@Override
 	public void gs_setTrackerFixedMovement(ServerPlayerEntity player, boolean trackerFixedMovement) {
-		Object tracker = entityTrackers.get(player.getId());
+		Object tracker = entityTrackers.get(player.getEntityId());
 		if (tracker != null) {
 			EntityTrackerEntry entry = ((GSIThreadedAnvilChunkStorageEntityTrackerAccess)tracker).getEntry();
 			((GSIEntityTrackerEntryAccess)entry).gs_setFixedMovement(trackerFixedMovement);
@@ -39,7 +39,7 @@ public abstract class GSThreadedAnvilChunkStorageMixin implements GSIThreadedAnv
 
 	@Override
 	public void gs_setTrackerTickedFromFallingBlock(Entity entity, boolean tickedFromFallingBlock) {
-		Object tracker = entityTrackers.get(entity.getId());
+		Object tracker = entityTrackers.get(entity.getEntityId());
 		if (tracker != null) {
 			EntityTrackerEntry entry = ((GSIThreadedAnvilChunkStorageEntityTrackerAccess)tracker).getEntry();
 			((GSIEntityTrackerEntryAccess)entry).gs_setTickedFromFallingBlock(tickedFromFallingBlock);

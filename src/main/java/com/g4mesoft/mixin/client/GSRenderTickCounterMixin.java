@@ -59,11 +59,11 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	)
 	private void onModifyTickrate(long timeMillis, CallbackInfoReturnable<Boolean> cir) {
 		if (gs_firstUpdate) {
-			init0(prevTimeMillis);
+			init(prevTimeMillis);
 			gs_firstUpdate = false;
 		}
 		
-		float millisPerTick = getMillisPerTick0();
+		float millisPerTick = getMillisPerTick();
 		
 		if (GSClientController.getInstance().isG4mespeedServer()) {
 			gs_serverTimer.setMillisPerTick(millisPerTick);
@@ -94,7 +94,7 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 		at = @At("RETURN")
 	)
 	private void onBeginRenderTick(long timeMillis, CallbackInfoReturnable<Integer> cir) {
-		update0(timeMillis);
+		update(timeMillis);
 		cir.setReturnValue(gs_ticksThisFrame);
 		cir.cancel();
 	}
@@ -102,22 +102,22 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	/* Following methods might add compatibility issues (if other mods have same names) */
 
 	@Override
-	public void init0(long initialTimeMillis) {
+	public void init(long initialTimeMillis) {
 		gs_tpsModule = GSClientController.getInstance().getTpsModule();
 		gs_carpetTickrateManager = G4mespeedMod.getCarpetCompat().getClientTickrateManager();
 		gs_serverTimer = gs_tpsModule.getServerTimer();
 		
-		gs_serverTimer.init0(initialTimeMillis);
+		gs_serverTimer.init(initialTimeMillis);
 	}
 
 	@Override
-	public void update0(long timeMillis) {
-		gs_serverTimer.update0(timeMillis);
+	public void update(long timeMillis) {
+		gs_serverTimer.update(timeMillis);
 		gs_serverTimer.syncTimer(this);
 	}
 	
 	@Override
-	public float getMillisPerTick0() {
+	public float getMillisPerTick() {
 		// Other mods such as the ReplayMod modify the timeScale value
 		// of the timer. To ensure that the functionality stays as expected,
 		// scale the milliseconds per tick by that value.
@@ -135,12 +135,12 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	}
 
 	@Override
-	public int getTickCount0() {
+	public int getTickCount() {
 		return gs_ticksThisFrame;
 	}
 
 	@Override
-	public void setTickCount0(int tickCount) {
+	public void setTickCount(int tickCount) {
 		this.gs_ticksThisFrame = tickCount;
 	}
 }
