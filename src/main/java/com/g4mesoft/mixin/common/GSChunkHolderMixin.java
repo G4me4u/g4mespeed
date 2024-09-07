@@ -18,11 +18,12 @@ import com.g4mesoft.core.GSVersion;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSFlushingBlockEntityUpdatesPacket;
 
-import it.unimi.dsi.fastutil.shorts.ShortOpenHashSet;
+import it.unimi.dsi.fastutil.shorts.ShortArraySet;
 import it.unimi.dsi.fastutil.shorts.ShortSet;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.PistonBlockEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
@@ -40,7 +41,6 @@ import net.minecraft.world.chunk.light.LightingProvider;
 @Mixin(ChunkHolder.class)
 public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 
-    @Shadow @Final private HeightLimitView world;
 	@Shadow @Final private ShortSet[] blockUpdatesBySection;
 
 	@Shadow private boolean pendingBlockUpdates;
@@ -134,8 +134,7 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 		ShortSet markedUpdates = gs_blockEntityUpdatesBySection[sectionIndex];
 
 		if (markedUpdates != null) {
-			int sectionCoord = this.world.sectionIndexToCoord(sectionIndex);
-			ChunkSectionPos sectionPos = ChunkSectionPos.from(chunk.getPos(), sectionCoord);
+			ChunkSectionPos sectionPos = ChunkSectionPos.from(chunk.getPos(), sectionIndex);
 
 			for (short coord : markedUpdates) {
 				BlockPos pos = sectionPos.unpackBlockPos(coord);
@@ -144,7 +143,8 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 				if (blockEntity != null) {
 					Packet<?> packet;
 					if (blockEntity instanceof PistonBlockEntity) {
-						sendPacketToPlayersWatching(BlockEntityUpdateS2CPacket.create(blockEntity, BlockEntity::createNbt), false);
+						NbtCompound tag = blockEntity.writeNbt(new NbtCompound());
+						sendPacketToPlayersWatching(new BlockEntityUpdateS2CPacket(pos, 0, tag), false);
 					} else {
 						packet = blockEntity.toUpdatePacket();
 						if (packet != null)
@@ -172,10 +172,10 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	public void gs_markBlockEntityUpdate(BlockPos blockPos) {
 		WorldChunk worldChunk = this.getWorldChunk();
 		if (worldChunk != null) {
-			int sectionIndex = this.world.getSectionIndex(blockPos.getY());
+			int sectionIndex = ChunkSectionPos.getSectionCoord(blockPos.getY());
 			if (gs_blockEntityUpdatesBySection[sectionIndex] == null) {
 				gs_pendingBlockEntityUpdates = true;
-				gs_blockEntityUpdatesBySection[sectionIndex] = new ShortOpenHashSet();
+				gs_blockEntityUpdatesBySection[sectionIndex] = new ShortArraySet();
 			}
 
 			gs_blockEntityUpdatesBySection[sectionIndex].add(ChunkSectionPos.packLocal(blockPos));

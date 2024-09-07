@@ -104,7 +104,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		
 		this.gs_trackerFixedMovement = trackerFixedMovement;
 		
-		((GSIServerChunkManagerAccess)player.getWorld().getChunkManager()).gs_setTrackerFixedMovement(player, trackerFixedMovement);
+		((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).gs_setTrackerFixedMovement(player, trackerFixedMovement);
 	}
 
 	@Inject(
@@ -120,7 +120,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 	)
 	private void onPlayerMoveUpdateCameraPosition(PlayerMoveC2SPacket packet, CallbackInfo ci) {
 		if (gs_trackerFixedMovement)
-			((GSIServerChunkManagerAccess)player.getWorld().getChunkManager()).gs_tickEntityTracker(player);
+			((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).gs_tickEntityTracker(player);
 	}
 
 	

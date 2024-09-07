@@ -1,5 +1,7 @@
 package com.g4mesoft.mixin.client;
 
+import java.util.Iterator;
+
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -7,6 +9,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
@@ -23,7 +26,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FallingBlock;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
@@ -99,7 +101,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	}
 	
 	@Inject(
-		method = "onEntity",
+		method = "onEntityUpdate",
 		cancellable = true,
 		at = @At(
 			value = "INVOKE",
@@ -215,6 +217,58 @@ public class GSClientPlayNetworkHandlerMixin {
 			controller.getTpsModule().onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
 	}
 	
+	@Redirect(
+		method = "onChunkData",
+		at = @At(
+			value = "INVOKE",
+			target = "Ljava/util/Iterator;hasNext()Z"
+		)
+	)
+	private boolean replaceChunkDataBlockEntityLoop(Iterator<NbtCompound> itr) {
+		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
+
+		// Note that Fabric Carpet changes parts of the loop, so we have
+		// to override the entirety of the loop by redirecting the condition.
+		
+		while(itr.hasNext()) {
+			NbtCompound tag = itr.next();
+			
+			BlockPos blockPos = new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
+			
+			boolean pistonType = "minecraft:piston".equals(tag.getString("id"));
+			
+			if (pistonType) {
+				// Because of a weird issue where the progress saved
+				// by a piston is actually 1 gametick old we have to
+				// increment the progress by 0.5.
+				//
+				// Make sure the block entity has actually ticked before
+				// we increment the progress. Note that it is guaranteed
+				// that the block entity has ticked if it is not a g4mespeed
+				// server or if the immediate block updates setting is not
+				// enabled.
+				if (!tpsModule.sImmediateBlockBroadcast.get() || !tag.contains("ticked") || tag.getBoolean("ticked"))
+					tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
+			}
+			
+			BlockEntity blockEntity = world.getBlockEntity(blockPos);
+			if (blockEntity != null) {
+				blockEntity.readNbt(tag);
+			} else if (pistonType) {
+				// Make sure we're actually supposed to put
+				// a moving piston block entity in this location...
+				BlockState blockState = world.getBlockState(blockPos);
+				if (blockState.getBlock() == Blocks.MOVING_PISTON) {
+					blockEntity = new PistonBlockEntity(blockPos, blockState);
+					blockEntity.readNbt(tag);
+					world.addBlockEntity(blockEntity);
+				}
+			}
+		}
+		
+		return false;
+	}
+	
 	@Inject(
 		method = "onBlockEntityUpdate",
 		cancellable = true,
@@ -235,38 +289,33 @@ public class GSClientPlayNetworkHandlerMixin {
 		if (tpsModule.sParanoidMode.get()) {
 			BlockPos pos = packet.getPos();
 			
-			if (packet.getBlockEntityType() == BlockEntityType.PISTON) {
-				BlockState blockState = world.getBlockState(pos);
-				BlockEntity blockEntity = world.getBlockEntity(pos);
-				
-				if (!blockState.isOf(Blocks.MOVING_PISTON)) {
-					blockState = Blocks.MOVING_PISTON.getDefaultState();
-					world.setBlockState(pos, blockState, Block.NO_REDRAW | Block.MOVED);
-				}
-				
+			if (packet.getBlockEntityType() == 0 && world.isChunkLoaded(pos)) {
 				NbtCompound tag = packet.getNbt();
-				// Because of a weird issue where the progress saved
-				// by a piston is actually 1 gametick old we have to
-				// increment the progress by 0.5.
-				//
-				// Make sure the block entity has actually ticked before
-				// we increment the progress. Note that it is guaranteed
-				// that the block entity has ticked if it is not a g4mespeed
-				// server or if the immediate block updates setting is not
-				// enabled.
-				if (!tpsModule.sImmediateBlockBroadcast.get() || !tag.contains("ticked") || tag.getBoolean("ticked"))
-					tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
-				
-				if (blockEntity == null) {
-					blockEntity = new PistonBlockEntity(pos, blockState);
-					blockEntity.readNbt(tag);
-					world.addBlockEntity(blockEntity);
-				} else {
-					blockEntity.readNbt(tag);
-				}
 
-				// Cancel vanilla handling of the packet.
-				ci.cancel();
+				if ("minecraft:piston".equals(tag.getString("id"))) {
+					BlockState blockState = world.getBlockState(pos);
+					BlockEntity blockEntity = world.getBlockEntity(pos);
+					
+					if (!blockState.isOf(Blocks.MOVING_PISTON)) {
+						blockState = Blocks.MOVING_PISTON.getDefaultState();
+						world.setBlockState(pos, blockState, Block.NO_REDRAW | Block.MOVED);
+					}
+					
+					// See above redirect method.
+					if (!tpsModule.sImmediateBlockBroadcast.get() || !tag.contains("ticked") || tag.getBoolean("ticked"))
+						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
+					
+					if (blockEntity == null) {
+						blockEntity = new PistonBlockEntity(pos, blockState);
+						blockEntity.readNbt(tag);
+						world.addBlockEntity(blockEntity);
+					} else {
+						blockEntity.readNbt(tag);
+					}
+
+					// Cancel vanilla handling of the packet.
+					ci.cancel();
+				}
 			}
 		}
 	}

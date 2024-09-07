@@ -4,7 +4,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import com.g4mesoft.G4mespeedMod;
+import com.g4mesoft.core.client.GSClientController;
 
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 
 import static com.g4mesoft.core.compat.GSCompatUtil.*;
@@ -43,7 +45,7 @@ public class GSTweakerooCompat extends GSAbstractCompat {
 		G4mespeedMod.GS_LOGGER.info("Tweakeroo mod detected!");
 		
 		cameraField = findDeclaredField(cameraEntityClazz, CAMERA_FIELD);
-		movementTickMethod = findDeclaredMethod(cameraEntityClazz, MOVEMENT_TICK_METHOD);
+		movementTickMethod = findDeclaredMethod(cameraEntityClazz, MOVEMENT_TICK_METHOD, Boolean.TYPE, Boolean.TYPE);
 		
 		if (cameraField == null || movementTickMethod == null) {
 			G4mespeedMod.GS_LOGGER.warn("Unable to retreive CameraEntity fields and methods.");
@@ -93,8 +95,11 @@ public class GSTweakerooCompat extends GSAbstractCompat {
 	}
 	
 	public void tickCameraEntityMovement() {
-		if (movementTickMethod != null)
-			invokeStatic(movementTickMethod);
+		if (movementTickMethod != null) {
+			ClientPlayerEntity player = GSClientController.getInstance().getPlayer();
+			if (player != null && player.input != null)
+				invokeStatic(movementTickMethod, player.input.sneaking, player.input.jumping);
+		}
 	}
 
 	public boolean isCameraEntityEnabled() {

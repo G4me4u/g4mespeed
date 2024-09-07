@@ -171,7 +171,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		at = @At(
 			value = "INVOKE",
 			target =
-				"Lorg/slf4j/Logger;warn(" +
+				"Lorg/apache/logging/log4j/Logger;warn(" +
 					"Ljava/lang/String;" +
 					"Ljava/lang/Object;" +
 					"Ljava/lang/Object;" +
@@ -189,7 +189,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
-				"Lorg/slf4j/Logger;warn(" +
+				"Lorg/apache/logging/log4j/Logger;warn(" +
 					"Ljava/lang/String;" +
 					"Ljava/lang/Object;" +
 					"Ljava/lang/Object;" +

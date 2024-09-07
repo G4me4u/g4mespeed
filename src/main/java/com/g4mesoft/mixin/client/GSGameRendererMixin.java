@@ -17,8 +17,7 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.world.BlockView;
 
-/* Priority <1000, compatibility fix for Apoli/Origins */
-@Mixin(value = GameRenderer.class, priority = 999)
+@Mixin(GameRenderer.class)
 public class GSGameRendererMixin {
 
 	@Shadow @Final private MinecraftClient client;
