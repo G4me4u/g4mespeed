@@ -13,7 +13,9 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 @Mixin(PistonBlockEntity.class)
 public class GSPistonBlockEntityMixin extends BlockEntity {
@@ -21,31 +23,31 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 	@Unique
 	private boolean gs_ticked;
 	
-	public GSPistonBlockEntityMixin(BlockEntityType<?> type) {
-		super(type);
+	public GSPistonBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+		super(type, pos, state);
 	}
 
 	@Inject(
 		method = "tick",
 		at = @At("HEAD")
 	)
-	private void onTick(CallbackInfo ci) {
-		gs_ticked = true;
+	private static void onTick(World world, BlockPos pos, BlockState state, PistonBlockEntity blockEntity, CallbackInfo ci) {
+		((GSPistonBlockEntityMixin)(Object)blockEntity).gs_ticked = true;
 	}
 	
 	@Inject(
-		method = "fromTag",
+		method = "readNbt",
 		at = @At("RETURN")
 	)
-	private void onFromTag(BlockState state, CompoundTag tag, CallbackInfo ci) {
+	private void onReadNbt(NbtCompound tag, CallbackInfo ci) {
 		gs_ticked = !tag.contains("ticked") || tag.getBoolean("ticked");
 	}
 
 	@Inject(
-		method = "toTag",
+		method = "writeNbt",
 		at = @At("RETURN")
 	)
-	private void onToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
+	private void onWriteNbt(NbtCompound tag, CallbackInfoReturnable<NbtCompound> cir) {
 		GSController controller = GSController.getInstanceOnThread();
 		if (controller != null && controller.getTpsModule().sImmediateBlockBroadcast.get())
 			tag.putBoolean("ticked", gs_ticked);

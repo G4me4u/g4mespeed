@@ -2,15 +2,17 @@ package com.g4mesoft.mixin.common;
 
 import java.util.function.BooleanSupplier;
 
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.core.server.GSServerController;
@@ -20,37 +22,23 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.TickDurationMonitor;
 import net.minecraft.util.Util;
-import net.minecraft.util.profiler.Profiler;
 
 @Mixin(MinecraftServer.class)
 public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
-	@Shadow @Final private static Logger LOGGER;
-	@Shadow private volatile boolean running;
 	@Shadow private long timeReference;
-	@Shadow private long lastTimeReference;
-	@Shadow private boolean profilerStartQueued;
-	@Shadow private Profiler profiler;
-	@Shadow private volatile boolean loading;
-	@Shadow private boolean waitingForNextTick;
-	@Shadow private long field_19248;
-
-	@Shadow protected abstract void tick(BooleanSupplier booleanSupplier);
-
-	@Shadow protected abstract boolean shouldKeepTicking();
-
-	@Shadow protected abstract void method_16208();
-
-	@Shadow protected abstract void startMonitor(TickDurationMonitor tickDurationMonitor);
-	
-	@Shadow protected abstract void endMonitor(TickDurationMonitor tickDurationMonitor);
+	@Shadow private long nextTickTimestamp;
 
 	@Unique
 	private float gs_msAccum = 0.0f;
 	@Unique
 	private float gs_msPerTick = GSTpsModule.MS_PER_SEC / GSTpsModule.DEFAULT_TPS;
+
+	@Unique
+	private long gs_msThisTick;
+	@Unique
+	private long gs_ticksBehind;
 	
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {
@@ -110,7 +98,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			timeReference = now + millisNextTick;
 		}
 		// Also reset wait timer for tasks.
-		field_19248 = timeReference;
+		nextTickTimestamp = timeReference;
 	}
 
 	@Inject(
@@ -133,61 +121,150 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		controllerServer.getTpsModule().addTpsListener(this);
 	}
 
-	/*
-	 * Ensure that we set require = 0. Some mods might change the overall structure of the mod. For 
-	 * example carpet modifies the loop and changes this.running to just be false.
-	 */
 	@Inject(
 		method = "runServer",
-		require = 0,
-		allow = 1,
+		slice = @Slice(
+			from = @At(
+				value = "INVOKE",
+				shift = At.Shift.AFTER, 
+				target =
+					"Lnet/minecraft/server/MinecraftServer;setFavicon(" +
+						"Lnet/minecraft/server/ServerMetadata;" +
+					")V"
+			)
+		),
 		at = @At(
-			value = "FIELD",
+			value = "INVOKE",
 			shift = Shift.BEFORE,
-			opcode = Opcodes.GETFIELD,
-			target = "Lnet/minecraft/server/MinecraftServer;running:Z"
+			ordinal = 0,
+			target = "Lnet/minecraft/util/Util;getMeasuringTimeMs()J"
 		)
 	)
-	private void onModifiedRunLoop(CallbackInfo ci) {
-		while (this.running) {
-			long msThisTick = (long)gs_msAccum;
-			gs_msAccum += gs_msPerTick - msThisTick;
+	private void onRunServerLoopBeginning(CallbackInfo ci) {
+		gs_msThisTick = (long)gs_msAccum;
+		gs_msAccum += gs_msPerTick - gs_msThisTick;
+	}
 
-			long msBehind = Util.getMeasuringTimeMs() - this.timeReference;
-			if (msBehind > 1000L + 20L * gs_msPerTick && this.timeReference - this.lastTimeReference >= 10000L + 100L * gs_msPerTick) {
-				// Handle cases where msPerTick is near zero (or actually zero)
-				if (GSMathUtil.equalsApproximate(gs_msPerTick, 0.0f)) {
-					LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or infinite ticks behind", msBehind);
-					this.timeReference += msBehind;
-					this.lastTimeReference = this.timeReference;
-				} else {
-					long ticksBehind = (long)(msBehind / gs_msPerTick);
-					LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", msBehind, ticksBehind);
-					this.timeReference += ticksBehind * gs_msPerTick;
-					this.lastTimeReference = this.timeReference;
-				}
-
-				this.gs_msAccum = gs_msPerTick;
-			}
-
-			this.timeReference += msThisTick;
-			
-			TickDurationMonitor tickDurationMonitor_1 = TickDurationMonitor.create("Server");
-			this.startMonitor(tickDurationMonitor_1);
-			
-			this.profiler.startTick();
-			this.profiler.push("tick");
-			this.tick(this::shouldKeepTicking);
-			this.profiler.swap("nextTickWait");
-			this.waitingForNextTick = true;
-			this.field_19248 = Math.max(Util.getMeasuringTimeMs() + msThisTick, this.timeReference);
-			this.method_16208();
-			this.profiler.pop();
-			this.profiler.endTick();
-			
-			this.endMonitor(tickDurationMonitor_1);
-			this.loading = true;
+	@ModifyConstant(
+		method = "runServer",
+		constant = @Constant(
+			longValue = 50L,
+			ordinal = 0
+		)
+	)
+	private long onRunServerModify50_0(long prevMsThisTick) {
+		if (GSMathUtil.equalsApproximate(gs_msPerTick, 0.0f)) {
+			gs_ticksBehind = Long.MAX_VALUE;
+		} else {
+			long deltaMs = Util.getMeasuringTimeMs() - timeReference;
+			gs_ticksBehind = (deltaMs > 0L) ? (long)(deltaMs / gs_msPerTick) : 0L;
 		}
+		
+		/* Does not matter what is returned here as long as it is non-zero */
+		return 1L;
+	}
+
+	@ModifyArg(
+		method = "runServer",
+		require = 0,
+		index = 2,
+		at = @At(
+			value = "INVOKE",
+			target =
+				"Lorg/apache/logging/log4j/Logger;warn(" +
+					"Ljava/lang/String;" +
+					"Ljava/lang/Object;" +
+					"Ljava/lang/Object;" +
+				")V"
+		)
+	)
+	private Object modifyRunServerWarnTicksBehind(Object ignore) {
+		// Modify debug message to account for "infinite" ticks per second
+		return (gs_ticksBehind == Long.MAX_VALUE) ? "infinite" : Long.valueOf(gs_ticksBehind);
+	}
+	
+	@Inject(
+		method = "runServer",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lorg/apache/logging/log4j/Logger;warn(" +
+					"Ljava/lang/String;" +
+					"Ljava/lang/Object;" +
+					"Ljava/lang/Object;" +
+				")V"
+		)
+	)
+	private void onRunServerAfterWarn(CallbackInfo ci) {
+		if (gs_ticksBehind == Long.MAX_VALUE) {
+			timeReference = Util.getMeasuringTimeMs();
+		} else {
+			timeReference += gs_ticksBehind * gs_msPerTick;
+		}
+	}
+
+	@ModifyConstant(
+		method = "runServer",
+		constant = @Constant(
+			longValue = 50L,
+			ordinal = 1
+		)
+	)
+	private long onRunServerModify50_1(long prevMsThisTick) {
+		// Modifying this constant to zero will ensure that no time is added to timeReference.
+		return 0L;
+	}
+	
+	@ModifyConstant(
+		method = "runServer",
+		constant = @Constant(
+			longValue = 50L
+		),
+		slice = @Slice(
+			from = @At(
+				value = "FIELD",
+				shift = Shift.AFTER,
+				opcode = Opcodes.GETFIELD,
+				target = "Lnet/minecraft/server/MinecraftServer;needsDebugSetup:Z"
+			)
+		)
+	)
+	private long onRunServerModify50AfterDebugSetup(long prevMsThisTick) {
+		return gs_msThisTick;
+	}
+	
+	@ModifyConstant(
+		method = "runServer",
+		constant = @Constant(
+			longValue = 2000L
+		)
+	)
+	private long onRunServerModify2000(long prevMsThisTick) {
+		return (long)(1000L + 20L * gs_msPerTick);
+	}
+
+	@ModifyConstant(
+		method = "runServer",
+		constant = @Constant(
+			longValue = 15000L
+		)
+	)
+	private long onRunServerModify15000(long prevMsThisTick) {
+		return (long)(10000L + 100L * gs_msPerTick);
+	}
+	
+	@Inject(
+		method = "runServer",
+		at = @At(
+			value = "FIELD",
+			shift = Shift.AFTER,
+			opcode = Opcodes.PUTFIELD,
+			target = "Lnet/minecraft/server/MinecraftServer;lastTimeReference:J"
+		)
+	)
+	private void onRunServerAfterOverloaded(CallbackInfo ci) {
+		this.gs_msAccum = gs_msPerTick;
 	}
 	
 	@Inject(

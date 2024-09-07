@@ -1,5 +1,7 @@
 package com.g4mesoft.mixin.common;
 
+import java.util.BitSet;
+
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -21,14 +23,17 @@ import it.unimi.dsi.fastutil.shorts.ShortSet;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.world.ChunkHolder;
+import net.minecraft.server.world.ChunkHolder.LevelUpdateListener;
+import net.minecraft.server.world.ChunkHolder.PlayersWatchingChunkProvider;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.world.HeightLimitView;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.chunk.light.LightingProvider;
@@ -39,8 +44,8 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	@Shadow @Final private ShortSet[] blockUpdatesBySection;
 
 	@Shadow private boolean pendingBlockUpdates;
-	@Shadow private int blockLightUpdateBits;
-	@Shadow private int skyLightUpdateBits;
+	@Shadow @Final private BitSet blockLightUpdateBits;
+	@Shadow @Final private BitSet skyLightUpdateBits;
 
 	@Shadow protected abstract void sendPacketToPlayersWatching(Packet<?> packet, boolean boolean_1);
 
@@ -62,8 +67,8 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 		method = "<init>",
 		at = @At("RETURN")
 	)
-	private void onInit(ChunkPos pos, int level, LightingProvider lightingProvider, ChunkHolder.LevelUpdateListener levelUpdateListener,
-	                    ChunkHolder.PlayersWatchingChunkProvider playersWatchingChunkProvider, CallbackInfo ci) {
+	private void onInit(ChunkPos pos, int level, HeightLimitView world, LightingProvider lightingProvider,
+	                    LevelUpdateListener levelUpdateListener, PlayersWatchingChunkProvider playersWatchingChunkProvider, CallbackInfo ci) {
 		
 		gs_blockEntityUpdatesBySection = new ShortSet[blockUpdatesBySection.length];
 		gs_pendingBlockEntityUpdates = false;
@@ -75,13 +80,13 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	)
 	private void onFlushUpdates(WorldChunk chunk, CallbackInfo ci) {
 		gs_loopSectionIndex = 0;
-		
+
 		if (gs_pendingBlockEntityUpdates) {
 			GSServerController.getInstance().sendPacketToAll(new GSFlushingBlockEntityUpdatesPacket(true), CORRECTED_PUSHING_VERSION);
-
+		
 			// Only gets executed if there are no normal block or light
 			// updates that are marked for updates (where loops do not run).
-			if (!pendingBlockUpdates && skyLightUpdateBits == 0 && blockLightUpdateBits == 0) {
+			if (!pendingBlockUpdates && skyLightUpdateBits.isEmpty() && blockLightUpdateBits.isEmpty()) {
 				for (int s = 0; s < gs_blockEntityUpdatesBySection.length; s++)
 					sendBlockEntityUpdates(chunk, s);
 			}
@@ -92,10 +97,10 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 		method = "flushUpdates",
 		slice = @Slice(
 			from = @At(
-				value = "FIELD",
+				value = "INVOKE",
+				ordinal = 1,
 				shift = Shift.AFTER,
-				opcode = Opcodes.PUTFIELD,
-				target = "Lnet/minecraft/server/world/ChunkHolder;blockLightUpdateBits:I"
+				target = "Ljava/util/BitSet;clear()V"
 			)
 		),
 		at = @At(
@@ -138,7 +143,7 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 				if (blockEntity != null) {
 					Packet<?> packet;
 					if (blockEntity instanceof PistonBlockEntity) {
-						CompoundTag tag = blockEntity.toTag(new CompoundTag());
+						NbtCompound tag = blockEntity.writeNbt(new NbtCompound());
 						sendPacketToPlayersWatching(new BlockEntityUpdateS2CPacket(pos, 0, tag), false);
 					} else {
 						packet = blockEntity.toUpdatePacket();

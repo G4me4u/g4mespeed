@@ -12,7 +12,6 @@ import com.g4mesoft.access.client.GSIPistonBlockEntityAccess;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 
@@ -33,7 +32,7 @@ public class GSWorldChunkMixin {
 				")Ljava/lang/Object;"
 		)
 	)
-	private void onSetBlockEntityAfterPut(BlockPos pos, BlockEntity blockEntity, CallbackInfo ci) {
+	private void onSetBlockEntityAfterPut(BlockEntity blockEntity, CallbackInfo ci) {
 		if (blockEntity instanceof PistonBlockEntity)
 			((GSIPistonBlockEntityAccess)blockEntity).gs_onAdded();
 	}

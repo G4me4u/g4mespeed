@@ -274,10 +274,10 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 			gs_forceScheduledPistonBlockEntityUpdates = false;
 		}
 
-		gs_playerTimer.update(Util.getMeasuringTimeMs());
+		gs_playerTimer.update0(Util.getMeasuringTimeMs());
 
 		if (!gs_tpsModule.isDefaultTps() || gs_tpsModule.isFixedMovementOnDefaultTps()) {
-			int tickCount = Math.min(gs_playerTimer.getTickCount(), 10);
+			int tickCount = Math.min(gs_playerTimer.getTickCount0(), 10);
 			for (int i = 0; i < tickCount; i++) {
 				if (gs_tpsModule.isMainPlayerFixedMovement()) {
 					onTickCorrection();
