@@ -54,11 +54,12 @@ public class GSGameRendererMixin {
 	
 	@ModifyArg(
 		method = "renderWorld",
-		index = 0,
+		index = 1,
 		at = @At(
-			value = "INVOKE", 
+			value = "INVOKE",
 			target =
 				"Lnet/minecraft/client/render/WorldRenderer;render(" +
+					"Lnet/minecraft/client/util/ObjectAllocator;" +
 					"Lnet/minecraft/client/render/RenderTickCounter;" +
 					"Z" +
 					"Lnet/minecraft/client/render/Camera;" +

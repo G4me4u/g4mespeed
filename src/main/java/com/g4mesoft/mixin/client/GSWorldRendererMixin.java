@@ -50,7 +50,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	}
 	
 	@ModifyArg(
-		method = "render",
+		method = "renderEntities",
 		index = 4,
 		at = @At(
 			value = "INVOKE", 
@@ -73,7 +73,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	}
 	
 	@Redirect(
-		method = "render",
+		method = "renderEntities",
 		allow = 1,
 		require = 1,
 		expect = 1,

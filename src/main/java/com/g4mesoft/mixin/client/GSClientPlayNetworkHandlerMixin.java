@@ -38,7 +38,7 @@ import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityPositionSyncS2CPacket;
 import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
@@ -80,7 +80,7 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 	}
 	
 	@Inject(
-		method = "onEntityPosition",
+		method = "onEntityPositionSync",
 		cancellable = true,
 		at = @At(
 			value = "INVOKE",
@@ -93,13 +93,14 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 				")V"
 		)
 	)
-	private void onOnEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci) {
+	private void onOnEntityPositionSync(EntityPositionSyncS2CPacket packet, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
-			Entity entity = world.getEntityById(packet.getEntityId());
+			Entity entity = world.getEntityById(packet.id());
 			if (entity != null && isRecentlyMovedByPiston(entity)) {
 				// Update the tracked position such that the entity position
 				// does not get out of sync later.
-				entity.updateTrackedPosition(packet.getX(), packet.getY(), packet.getZ());
+				Vec3d pos = packet.values().position();
+				entity.getTrackedPosition().setPos(pos);
 				ci.cancel();
 			}
 		}
@@ -170,19 +171,21 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 			if (isRecentlyMovedByPiston(player)) {
 				// Note: there might be a few issues with an actual teleport, if the player was just moved
 				//       by a piston. But this should hopefully be solved by a simple distance check.
-				boolean isDeltaX = packet.getFlags().contains(PositionFlag.X);
-				boolean isDeltaY = packet.getFlags().contains(PositionFlag.Y);
-				boolean isDeltaZ = packet.getFlags().contains(PositionFlag.Z);
+				boolean isDeltaX = packet.relatives().contains(PositionFlag.X);
+				boolean isDeltaY = packet.relatives().contains(PositionFlag.Y);
+				boolean isDeltaZ = packet.relatives().contains(PositionFlag.Z);
+				// Note: isDelta* flags specify whether the axes are delta or absolute position.
+				Vec3d packetPos = packet.change().position();
 				
-				double dx = isDeltaX ? packet.getX() : (packet.getX() - player.getX());
-				double dy = isDeltaY ? packet.getY() : (packet.getY() - player.getY());
-				double dz = isDeltaZ ? packet.getZ() : (packet.getZ() - player.getZ());
+				double dx = isDeltaX ? packetPos.x : (packetPos.x - player.getX());
+				double dy = isDeltaY ? packetPos.y : (packetPos.y - player.getY());
+				double dz = isDeltaZ ? packetPos.z : (packetPos.z - player.getZ());
 				
 				if (Math.abs(dx) < IGNORE_TELEPORT_MAX_DISTANCE &&
 				    Math.abs(dy) < IGNORE_TELEPORT_MAX_DISTANCE &&
 				    Math.abs(dz) < IGNORE_TELEPORT_MAX_DISTANCE) {
 					
-					connection.send(new TeleportConfirmC2SPacket(packet.getTeleportId()));
+					connection.send(new TeleportConfirmC2SPacket(packet.teleportId()));
 					ci.cancel();
 				}
 			}

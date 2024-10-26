@@ -6,8 +6,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
 import com.g4mesoft.access.common.GSIChunkHolderAccess;
-import com.g4mesoft.access.common.GSIServerChunkManagerAccess;
 import com.g4mesoft.access.common.GSIServerChunkLoadingManagerAccess;
+import com.g4mesoft.access.common.GSIServerChunkManagerAccess;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.network.packet.Packet;
@@ -18,6 +18,8 @@ import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.profiler.Profilers;
 import net.minecraft.world.chunk.WorldChunk;
 
 @Mixin(ServerChunkManager.class)
@@ -48,23 +50,24 @@ public abstract class GSServerChunkManagerMixin implements GSIServerChunkManager
 	
 	@Override
 	public void gs_flushAndSendChunkUpdates() {
-		world.getProfiler().push("chunks");
+		Profiler profiler = Profilers.get();
+		profiler.push("chunks");
 		if (!world.isDebugWorld()) {
-			world.getProfiler().push("pollingChunks");
+			profiler.push("pollingChunks");
 			// The vanilla implementation actually shuffles the chunks before
 			// processing them. This is to ensure that random ticks are being
 			// processed randomly. Since we don't process those here, we can
 			// broadcast without having to shuffle the chunk holders.
-			world.getProfiler().push("broadcast");
+			profiler.push("broadcast");
 			((GSIServerChunkLoadingManagerAccess)chunkLoadingManager).gs_getEntryIterator().forEach((chunkHolder) -> {
 				WorldChunk chunk = chunkHolder.getWorldChunk();
 				if (chunk != null)
 					chunkHolder.flushUpdates(chunk);
 			});
-			world.getProfiler().pop();
-			world.getProfiler().pop();
+			profiler.pop();
+			profiler.pop();
 		}
-		world.getProfiler().pop();
+		profiler.pop();
 	}
 
 	@Override
