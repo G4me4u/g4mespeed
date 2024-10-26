@@ -3,7 +3,7 @@ plugins {
 	id 'maven-publish'
 }
 
-version = "${project.mod_version}-mc${project.minecraft_version}-SNAPSHOT"
+version = "${project.mod_version}-mc${project.minecraft_version}"
 group = project.maven_group
 
 base {
@@ -34,7 +34,7 @@ dependencies {
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modCompileOnly "net.fabricmc:fabric-loader:${project.loader_version}"
 	// Include G4mespeed UI
-	includeMod "com.g4mesoft.ui:g4mespeed-ui:${project.g4mespeed_ui_version}-mc${project.minecraft_version}-SNAPSHOT"
+	includeMod "com.g4mesoft.ui:g4mespeed-ui:${project.g4mespeed_ui_version}-mc${project.minecraft_version}"
 	// ModMenu integration
 	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 	// ModMenu requires some fabric api modules
