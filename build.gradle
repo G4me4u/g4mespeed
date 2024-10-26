@@ -17,7 +17,7 @@ repositories {
 	}
 	maven {
 		name = 'G4me4u Maven'
-		url = 'https://maven.g4mesoft.com/snapshots'
+		url = 'https://maven.g4mesoft.com/releases'
 	}
 }
 
@@ -88,7 +88,7 @@ void setupRepositories(RepositoryHandler repositories) {
 	def ENV = System.getenv()
 	if (ENV.MAVEN_URL && ENV.MAVEN_ALIAS && ENV.MAVEN_TOKEN) {
 		repositories.maven {
-			url "${ENV.MAVEN_URL}/snapshots"
+			url "${ENV.MAVEN_URL}/releases"
 			credentials {
 				username ENV.MAVEN_ALIAS
 				password ENV.MAVEN_TOKEN
