@@ -64,7 +64,6 @@ public class GSGameRendererMixin {
 					"Z" +
 					"Lnet/minecraft/client/render/Camera;" +
 					"Lnet/minecraft/client/render/GameRenderer;" +
-					"Lnet/minecraft/client/render/LightmapTextureManager;" +
 					"Lorg/joml/Matrix4f;" +
 					"Lorg/joml/Matrix4f;" +
 				")V"
