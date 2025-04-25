@@ -23,13 +23,13 @@ import net.minecraft.client.render.RenderTickCounter;
 @Mixin(RenderTickCounter.Dynamic.class)
 public class GSRenderTickCounterDynamicMixin implements GSIRenderTickCounterDynamicAccess, GSITickTimer {
 
-	@Shadow public float tickDelta;
-	@Shadow public float lastFrameDuration;
-	@Shadow public long prevTimeMillis;
+	@Shadow public float tickProgress;
+	@Shadow public float dynamicDeltaTicks;
+	@Shadow public long lastTimeMillis;
 	@Shadow @Final private float tickTime;
 
-	@Shadow private float lastDuration;
-	@Shadow private float tickDeltaBeforePause;
+	@Shadow private float fixedDeltaTicks;
+	@Shadow private float tickProgressBeforePause;
 	@Shadow private long timeMillis;
 
 	@Unique
@@ -56,12 +56,12 @@ public class GSRenderTickCounterDynamicMixin implements GSIRenderTickCounterDyna
 			value = "FIELD",
 			shift = Shift.AFTER,
 			opcode = Opcodes.PUTFIELD,
-			target = "Lnet/minecraft/client/render/RenderTickCounter$Dynamic;lastFrameDuration:F"
+			target = "Lnet/minecraft/client/render/RenderTickCounter$Dynamic;dynamicDeltaTicks:F"
 		)
 	)
 	private void onModifyTickrate(long timeMillis, CallbackInfoReturnable<Integer> cir) {
 		if (gs_firstUpdate) {
-			init0(prevTimeMillis);
+			init0(lastTimeMillis);
 			gs_firstUpdate = false;
 		}
 		
@@ -73,7 +73,7 @@ public class GSRenderTickCounterDynamicMixin implements GSIRenderTickCounterDyna
 			gs_serverTimer.setMillisPerTick(DEFAULT_MILLIS_PER_TICK);
 		}
 		
-		this.lastFrameDuration = (timeMillis - this.prevTimeMillis) / millisPerTick;
+		this.dynamicDeltaTicks = (timeMillis - this.lastTimeMillis) / millisPerTick;
 	}
 
 	@Inject(
@@ -82,11 +82,11 @@ public class GSRenderTickCounterDynamicMixin implements GSIRenderTickCounterDyna
 			value = "FIELD",
 			shift = Shift.BEFORE,
 			opcode = Opcodes.GETFIELD,
-			target = "Lnet/minecraft/client/render/RenderTickCounter$Dynamic;tickDelta:F"
+			target = "Lnet/minecraft/client/render/RenderTickCounter$Dynamic;tickProgress:F"
 		)
 	)
 	private void onGetTicksThisFrame(long currentTimeMillis, CallbackInfoReturnable<Integer> cir) {
-		gs_ticksThisFrame = (int)tickDelta;
+		gs_ticksThisFrame = (int)tickProgress;
 	}
 
 	@Inject(
@@ -102,12 +102,12 @@ public class GSRenderTickCounterDynamicMixin implements GSIRenderTickCounterDyna
 
 	@Override
 	public void gs_setFromTimer(GSITickTimer timer) {
-		tickDelta = timer.getTickDelta0();
-		tickDeltaBeforePause = timer.getTickDelta0();
+		tickProgress = timer.getTickDelta0();
+		tickProgressBeforePause = timer.getTickDelta0();
 		// Note: convert to Minecraft default tps.
-		lastDuration = timer.getLastDuration0() * timer.getMillisPerTick0() / tickTime;
-		lastFrameDuration = timer.getLastDuration0();
-		timeMillis = prevTimeMillis = timer.getPrevTimeMillis0();
+		fixedDeltaTicks = timer.getLastDuration0() * timer.getMillisPerTick0() / tickTime;
+		dynamicDeltaTicks = timer.getLastDuration0();
+		timeMillis = lastTimeMillis = timer.getPrevTimeMillis0();
 	}
 	
 	/* Following methods might add compatibility issues (if other mods have same names) */
@@ -136,12 +136,12 @@ public class GSRenderTickCounterDynamicMixin implements GSIRenderTickCounterDyna
 
 	@Override
 	public float getTickDelta0() {
-		return tickDelta;
+		return tickProgress;
 	}
 
 	@Override
 	public void setTickDelta0(float tickDelta) {
-		this.tickDelta = tickDelta;
+		this.tickProgress = tickDelta;
 	}
 
 	@Override
@@ -156,11 +156,11 @@ public class GSRenderTickCounterDynamicMixin implements GSIRenderTickCounterDyna
 
 	@Override
 	public float getLastDuration0() {
-		return lastFrameDuration;
+		return dynamicDeltaTicks;
 	}
 
 	@Override
 	public long getPrevTimeMillis0() {
-		return prevTimeMillis;
+		return lastTimeMillis;
 	}
 }

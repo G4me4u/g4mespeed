@@ -38,7 +38,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	
 	@Shadow @Final private ServerWorld world;
 	@Shadow @Final private Entity entity;
-	@Shadow @Final private Consumer<Packet<?>> receiver;
+	@Shadow @Final private Consumer<Packet<?>> watchingSender;
 	@Shadow private int trackingTick;
 	@Shadow private boolean lastOnGround;
 	@Shadow private Vec3d velocity;
@@ -68,7 +68,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 				// Encode packet to a vanilla packet. This is required for sending to all nearby
 				// players. Note that vanilla players will not react to the packet.
 				GSPacketManager packetManager = G4mespeedMod.getPacketManager();
-				receiver.accept(packetManager.encodePacket(packet, GSServerController.getInstance()));
+				watchingSender.accept(packetManager.encodePacket(packet, GSServerController.getInstance()));
 			}
 		}
 		

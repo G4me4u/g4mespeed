@@ -49,7 +49,6 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	
 	@Shadow private float progress;
 	@Shadow private float lastProgress;
-	@Shadow private BlockState pushedBlock;
 	
 	@Shadow private int field_26705;
 

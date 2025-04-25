@@ -40,7 +40,7 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 		at = @At("RETURN")
 	)
 	private void onReadNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
-		gs_ticked = !tag.contains("ticked") || tag.getBoolean("ticked");
+		gs_ticked = tag.getBoolean("ticked", true);
 	}
 
 	@Inject(

@@ -134,9 +134,7 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 					
 					if (packet.hasRotation()) {
 						// Do not ignore rotation changes.
-						float yaw   = (float)(packet.getYaw()   * 360) / 256.0f;
-						float pitch = (float)(packet.getPitch() * 360) / 256.0f;
-						entity.updateTrackedPositionAndAngles(entity.getLerpTargetX(), entity.getLerpTargetY(), entity.getLerpTargetZ(), yaw, pitch, 3);
+						entity.updateTrackedPositionAndAngles(entity.getPos(), packet.getYaw(), packet.getPitch());
 					}
 					
 					entity.setOnGround(packet.isOnGround());
@@ -251,8 +249,8 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 				// that the block entity has ticked if it is not a g4mespeed
 				// server or if the immediate block updates setting is not
 				// enabled.
-				if (!tpsModule.sImmediateBlockBroadcast.get() || !tag.contains("ticked") || tag.getBoolean("ticked"))
-					tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
+				if (!tpsModule.sImmediateBlockBroadcast.get() || tag.getBoolean("ticked", true))
+					tag.putFloat("progress", Math.min(tag.getFloat("progress", 0.0f) + 0.5f, 1.0f));
 				
 				if (blockEntity == null) {
 					blockEntity = new PistonBlockEntity(pos, blockState);

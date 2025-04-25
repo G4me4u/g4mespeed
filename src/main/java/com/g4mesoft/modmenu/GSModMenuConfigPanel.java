@@ -89,7 +89,7 @@ public class GSModMenuConfigPanel extends GSClosableParentPanel {
 
 	private void renderBackground(GSIRenderer2D renderer) {
 		// Draw menu background
-		renderer.drawMenuBackground(x, y, width, height, isInWorld());
+		renderer.drawMenuBackground(isInWorld());
 		// Draw content background (scrollable)
 		int x = configGUI.getX();
 		int y = configGUI.getY();

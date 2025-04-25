@@ -167,7 +167,7 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 	}
 	
 	protected void renderBackground(GSIRenderer2D renderer) {
-		renderer.drawMenuBackground(0, 0, width, height, isInWorld());
+		renderer.drawMenuBackground(isInWorld());
 	}
 
 	private void renderTabs(GSIRenderer2D renderer) {

@@ -49,7 +49,7 @@ public class GSGameRendererMixin {
 				return oldTickDelta;
 		}
 		
-		return client.isPaused() ? oldTickDelta : client.getRenderTickCounter().getTickDelta(true);
+		return client.isPaused() ? oldTickDelta : client.getRenderTickCounter().getTickProgress(true);
 	}
 	
 	@ModifyArg(
