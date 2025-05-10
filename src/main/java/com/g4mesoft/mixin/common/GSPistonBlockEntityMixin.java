@@ -13,7 +13,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 
 @Mixin(PistonBlockEntity.class)
 public class GSPistonBlockEntityMixin extends BlockEntity {
@@ -37,15 +37,15 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 		method = "fromTag",
 		at = @At("RETURN")
 	)
-	private void onFromTag(BlockState state, CompoundTag tag, CallbackInfo ci) {
+	private void onFromTag(BlockState state, NbtCompound tag, CallbackInfo ci) {
 		gs_ticked = !tag.contains("ticked") || tag.getBoolean("ticked");
 	}
 
 	@Inject(
-		method = "toTag",
+		method = "writeNbt",
 		at = @At("RETURN")
 	)
-	private void onToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
+	private void onToTag(NbtCompound tag, CallbackInfoReturnable<NbtCompound> cir) {
 		GSController controller = GSController.getInstanceOnThread();
 		if (controller != null && controller.getTpsModule().sImmediateBlockBroadcast.get())
 			tag.putBoolean("ticked", gs_ticked);

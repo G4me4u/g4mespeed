@@ -101,11 +101,8 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V",
 		at = @At("HEAD")
 	)
-	private void onDisconnect(Screen screen, CallbackInfo ci) {
-		// Check if player is null. This ensures that we only
-		// call disconnect when we're leaving a play-session.
-		if (this.player != null)
-			gs_controller.onDisconnectServer();
+	private void onDisconnect(CallbackInfo ci) {
+		gs_controller.onDisconnectServer();
 	}
 	
 	@Inject(

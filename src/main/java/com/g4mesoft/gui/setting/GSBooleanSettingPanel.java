@@ -15,8 +15,8 @@ public class GSBooleanSettingPanel extends GSSettingPanel<GSBooleanSetting> {
 	private static final int TEXT_MAX_WIDTH = 140;
 	private static final int TOGGLE_WIDTH = GSToggleSwitchPanel.SWITCH_WIDTH;
 
-	private static final Text ENABLED_TEXT = new LiteralText("enabled").formatted(Formatting.GREEN);
-	private static final Text DISABLED_TEXT = new LiteralText("disabled").formatted(Formatting.RED);
+	private static final Text ENABLED_TEXT = new LiteralText("setting.boolean.enabled").formatted(Formatting.GREEN);
+	private static final Text DISABLED_TEXT = new LiteralText("setting.boolean.disabled").formatted(Formatting.RED);
 	
 	private final GSToggleSwitchPanel switchWidget;
 	

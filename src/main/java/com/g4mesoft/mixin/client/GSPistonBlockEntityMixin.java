@@ -33,7 +33,7 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Boxes;
@@ -276,7 +276,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		method = "fromTag",
 		at = @At("RETURN")
 	)
-	private void onFromTag(BlockState blockState, CompoundTag tag, CallbackInfo ci) {
+	private void onFromTag(BlockState blockState, NbtCompound tag, CallbackInfo ci) {
 		gs_actualLastProgress = Math.max(0.0f, this.lastProgress - 1.0f / gs_numberOfSteps);
 	}
 	
@@ -296,7 +296,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@Override
 	@GSCoreOverride
 	@Environment(EnvType.CLIENT)
-	public double getSquaredRenderDistance() {
+	public double getRenderDistance() {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		int chunkDist = tpsModule.cPistonRenderDistance.get();
 		if (chunkDist == GSTpsModule.AUTOMATIC_PISTON_RENDER_DISTANCE) {
@@ -310,6 +310,6 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 			}
 		}
 		
-		return chunkDist * 16.0; // Distance is no longer squared.
+		return chunkDist * 16.0;
 	}
 }

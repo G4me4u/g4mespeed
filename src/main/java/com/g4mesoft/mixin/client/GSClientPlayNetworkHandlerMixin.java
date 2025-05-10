@@ -31,7 +31,7 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
@@ -223,14 +223,14 @@ public class GSClientPlayNetworkHandlerMixin {
 			target = "Ljava/util/Iterator;hasNext()Z"
 		)
 	)
-	private boolean replaceChunkDataBlockEntityLoop(Iterator<CompoundTag> itr) {
+	private boolean replaceChunkDataBlockEntityLoop(Iterator<NbtCompound> itr) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 
 		// Note that Fabric Carpet changes parts of the loop, so we have
 		// to override the entirety of the loop by redirecting the condition.
 		
 		while(itr.hasNext()) {
-			CompoundTag tag = itr.next();
+			NbtCompound tag = itr.next();
 			
 			BlockPos blockPos = new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
 			
@@ -293,7 +293,7 @@ public class GSClientPlayNetworkHandlerMixin {
 			BlockPos pos = packet.getPos();
 			
 			if (packet.getBlockEntityType() == 0 && world.isChunkLoaded(pos)) {
-				CompoundTag tag = packet.getCompoundTag();
+				NbtCompound tag = packet.getNbt();
 
 				if ("minecraft:piston".equals(tag.getString("id"))) {
 					BlockState blockState = world.getBlockState(pos);
