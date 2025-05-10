@@ -6,6 +6,7 @@ import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSIntegerSetting;
+import com.g4mesoft.ui.panel.GSPanelContext;
 
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.MutableText;
@@ -54,15 +55,19 @@ public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntege
 	
 	private MutableText getFormattedValue(int value) {
 		String valueText = Integer.toString(value);
-		String nameTranslationKey = nameText.getKey();
+		String nameTextKey = nameText.getKey();
 		
 		GSTranslationModule translationModule =
 				GSClientController.getInstance().getTranslationModule();
 		
 		String key;
-		if (translationModule.hasTranslation(key = nameTranslationKey + "." + valueText))
+		
+		key = nameTextKey + "." + valueText;
+		if (translationModule.hasTranslation(key) || GSPanelContext.hasI18nTranslation(key))
 			return new TranslatableText(key, valueText);
-		if (translationModule.hasTranslation(key = nameTranslationKey + ".x"))
+		
+		key = nameTextKey + ".x";
+		if (translationModule.hasTranslation(key) || GSPanelContext.hasI18nTranslation(key))
 			return new TranslatableText(key, valueText);
 		
 		return new LiteralText(valueText);
