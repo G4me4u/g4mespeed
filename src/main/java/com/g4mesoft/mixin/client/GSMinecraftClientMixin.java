@@ -98,7 +98,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	}
 	
 	@Inject(
-		method = "onDisconnected",
+		method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V",
 		at = @At("HEAD")
 	)
 	private void onDisconnect(CallbackInfo ci) {
