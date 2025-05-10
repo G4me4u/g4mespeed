@@ -23,6 +23,9 @@ setting.default=Default is %s.
 setting.button.reset=Reset
 setting.button.set=Set
 
+setting.boolean.enabled=enabled
+setting.boolean.disabled=disabled
+
 setting.tps=Tickspeed
 setting.betterPistons=Better Pistons
 
