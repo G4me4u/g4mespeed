@@ -25,7 +25,11 @@ public class GSPistonBlockEntityRendererMixin {
 		return 0.5f;
 	}
 	
-	@Inject(method = "getRenderDistance", cancellable = true, at = @At("HEAD"))
+	@Inject(
+		method = "getRenderDistance",
+		cancellable = true,
+		at = @At("HEAD")
+	)
 	private void onGetRenderDistance(CallbackInfoReturnable<Integer> cir) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		int chunkDist = tpsModule.cPistonRenderDistance.get();
