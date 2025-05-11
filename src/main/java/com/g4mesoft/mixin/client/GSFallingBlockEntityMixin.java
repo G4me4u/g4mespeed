@@ -4,7 +4,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
@@ -45,7 +44,6 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 		return false;
 	}
 	
-	@GSCoreOverride
 	@Override
 	public void move(MovementType movementType, Vec3d movement) {
 		if (!world.isClient || GSClientController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_FIDELITY) {

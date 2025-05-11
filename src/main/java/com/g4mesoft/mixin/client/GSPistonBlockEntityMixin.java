@@ -19,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import com.g4mesoft.access.client.GSIEntityAccess;
 import com.g4mesoft.access.client.GSIMinecraftClientAccess;
 import com.g4mesoft.access.client.GSIPistonBlockEntityAccess;
-import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.ui.util.GSMathUtil;
@@ -294,7 +293,6 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	}
 
 	@Override
-	@GSCoreOverride
 	@Environment(EnvType.CLIENT)
 	public double getRenderDistance() {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
