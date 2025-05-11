@@ -36,7 +36,7 @@ dependencies {
 	// Include G4mespeed UI
 	includeMod "com.g4mesoft.ui:g4mespeed-ui:${project.g4mespeed_ui_version}-mc${project.minecraft_version}"
 	// ModMenu integration
-	modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 
 processResources {
