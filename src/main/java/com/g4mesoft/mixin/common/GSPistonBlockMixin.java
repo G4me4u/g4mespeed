@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
-import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -59,44 +58,6 @@ public class GSPistonBlockMixin {
 		)
 	)
 	private int modifySetAirBlockFlags(int flags) {
-		GSController controller = GSController.getInstanceOnThread();
-		if (controller != null && controller.getTpsModule().sParanoidMode.get())
-			flags |= 0x02; /* mark block for sending */
-		return flags;
-	}
-	
-	@ModifyArg(
-		method = "move",
-		require = 2,
-		index = 2,
-		at = @At(
-			value = "INVOKE", 
-			target =
-				"Lnet/minecraft/world/World;setBlockState(" +
-					"Lnet/minecraft/util/math/BlockPos;" +
-					"Lnet/minecraft/block/BlockState;" +
-					"I" +
-				")Z"
-		),
-		slice = @Slice(
-			from = @At(
-				value = "FIELD",
-				ordinal = 0,
-				shift = Shift.BEFORE,
-				target =
-					"Lnet/minecraft/block/Blocks;MOVING_PISTON:Lnet/minecraft/block/Block;"
-			),
-			to = @At(
-				value = "INVOKE",
-				ordinal = 0,
-				shift = Shift.BEFORE,
-				target =
-					"Ljava/util/Set;iterator(" +
-					")Ljava/util/Iterator;"
-			)
-		)
-	)
-	private int modifySetMovingBlockFlags(int flags) {
 		GSController controller = GSController.getInstanceOnThread();
 		if (controller != null && controller.getTpsModule().sParanoidMode.get())
 			flags |= 0x02; /* mark block for sending */
