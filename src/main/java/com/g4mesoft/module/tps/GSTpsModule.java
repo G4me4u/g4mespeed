@@ -217,11 +217,13 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 			G4mespeedMod.getTweakerooCompat().isCameraEntityRetreived() ? cTweakerooFreecamHack : null,
 			cTpsLabel
 		);
+
 		settings.registerSettings(BETTER_PISTONS_CATEGORY,
 			cPistonAnimationType,
 			cCorrectPistonPushing,
 			cPistonRenderDistance
 		);
+		
 		settings.addChangeListener(new GSISettingChangeListener() {
 			@Override
 			public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
@@ -255,7 +257,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 	
 	@Override
 	public void registerGlobalServerSettings(GSSettingManager settings) {
-		settings.registerSettings(TPS_CATEGORY, 
+		settings.registerSettings(TPS_CATEGORY,
 			sRequireOP,
 			sSyncPacketInterval,
 			sBroadcastTps,
