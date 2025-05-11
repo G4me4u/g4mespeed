@@ -4,8 +4,8 @@ import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSBooleanSetting;
 import com.g4mesoft.ui.panel.legacy.GSToggleSwitchPanel;
 import com.g4mesoft.ui.renderer.GSIRenderer2D;
+import com.g4mesoft.ui.util.GSTextUtil;
 
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -15,8 +15,8 @@ public class GSBooleanSettingPanel extends GSSettingPanel<GSBooleanSetting> {
 	private static final int TEXT_MAX_WIDTH = 140;
 	private static final int TOGGLE_WIDTH = GSToggleSwitchPanel.SWITCH_WIDTH;
 
-	private static final Text ENABLED_TEXT = new LiteralText("setting.boolean.enabled").formatted(Formatting.GREEN);
-	private static final Text DISABLED_TEXT = new LiteralText("setting.boolean.disabled").formatted(Formatting.RED);
+	private static final Text ENABLED_TEXT = GSTextUtil.translatable("setting.boolean.enabled").formatted(Formatting.GREEN);
+	private static final Text DISABLED_TEXT = GSTextUtil.translatable("setting.boolean.disabled").formatted(Formatting.RED);
 	
 	private final GSToggleSwitchPanel switchWidget;
 	
