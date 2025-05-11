@@ -53,7 +53,10 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 	@Unique
 	private boolean gs_trackerFixedMovement = false;
 
-	@Inject(method = "tick", at = @At("HEAD"))
+	@Inject(
+		method = "tick",
+		at = @At("HEAD")
+	)
 	private void onTick(CallbackInfo ci) {
 		if (gs_fixedMovement && floatingTicks > 70)
 			floatingTicks--;
