@@ -62,6 +62,28 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		if (gs_fixedMovement && floatingTicks > 70)
 			floatingTicks--;
 	}
+
+	@ModifyConstant(
+		method = "onPlayerMove",
+		allow = 1,
+		constant = @Constant(
+			intValue = 5
+		), slice = @Slice(
+			from = @At(
+				value = "FIELD",
+				opcode = Opcodes.PUTFIELD,
+				target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;movePacketsCount:I"
+			),
+			to = @At(
+				value = "CONSTANT",
+				args = "stringValue={} is sending move packets too frequently ({} packets since last tick)"
+			)
+		)
+	)
+	private int onPlayerMoveModifyConstant5(int oldValue) {
+		// Allow for "infinite" packets between ticks when using fixed movement.
+		return gs_fixedMovement ? Integer.MAX_VALUE : oldValue;
+	}
 	
 	@Inject(
 		method = "onPlayerMove",
@@ -87,28 +109,6 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		this.gs_trackerFixedMovement = trackerFixedMovement;
 		
 		((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).gs_setTrackerFixedMovement(player, trackerFixedMovement);
-	}
-
-	@ModifyConstant(
-		method = "onPlayerMove",
-		allow = 1,
-		constant = @Constant(
-			intValue = 5
-		), slice = @Slice(
-			from = @At(
-				value = "FIELD",
-				opcode = Opcodes.PUTFIELD,
-				target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;movePacketsCount:I"
-			),
-			to = @At(
-				value = "CONSTANT",
-				args = "stringValue={} is sending move packets too frequently ({} packets since last tick)"
-			)
-		)
-	)
-	private int onPlayerMoveModifyConstant5(int oldValue) {
-		// Allow for "infinite" packets between ticks when using fixed movement.
-		return gs_fixedMovement ? Integer.MAX_VALUE : oldValue;
 	}
 	
 	@Redirect(
