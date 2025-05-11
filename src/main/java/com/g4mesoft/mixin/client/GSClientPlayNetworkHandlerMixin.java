@@ -331,6 +331,22 @@ public class GSClientPlayNetworkHandlerMixin {
 	}
 
 	@Inject(
+		method = "onBlockUpdate",
+		cancellable = true,
+		at = @At("RETURN")
+	)
+	private void onOnBlockUpdateReturn(BlockUpdateS2CPacket packet, CallbackInfo ci) {
+		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
+		if (tpsModule.sParanoidMode.get() && packet.getState().getBlock() == Blocks.MOVING_PISTON) {
+			// In this case we will handle the block state when
+			// the block entity has been set in the above injection.
+			ci.cancel();
+		} else if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
+			scheduleRenderUpdateForFallingBlock(packet.getPos(), packet.getState());
+		}
+	}
+
+	@Inject(
 		method = "onChunkDeltaUpdate",
 		at = @At(
 			value = "INVOKE",
@@ -370,22 +386,6 @@ public class GSClientPlayNetworkHandlerMixin {
 		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			for (ChunkDeltaUpdateS2CPacket.ChunkDeltaRecord record : packet.getRecords())
 				scheduleRenderUpdateForFallingBlock(record.getBlockPos(), record.getState());
-		}
-	}
-
-	@Inject(
-		method = "onBlockUpdate",
-		cancellable = true,
-		at = @At("RETURN")
-	)
-	private void onOnBlockUpdateReturn(BlockUpdateS2CPacket packet, CallbackInfo ci) {
-		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		if (tpsModule.sParanoidMode.get() && packet.getState().getBlock() == Blocks.MOVING_PISTON) {
-			// In this case we will handle the block state when
-			// the block entity has been set in the above injection.
-			ci.cancel();
-		} else if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
-			scheduleRenderUpdateForFallingBlock(packet.getPos(), packet.getState());
 		}
 	}
 
