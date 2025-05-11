@@ -35,10 +35,12 @@ dependencies {
 	modCompileOnly "net.fabricmc:fabric-loader:${project.loader_version}"
 	// Include G4mespeed UI
 	includeMod "com.g4mesoft.ui:g4mespeed-ui:${project.g4mespeed_ui_version}-mc${project.minecraft_version}"
-	// Fabric API. Required by modmenu.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	// ModMenu integration
 	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+	// ModMenu requires some fabric api modules
+	modCompileOnly(fabricApi.module("fabric-screen-api-v1", project.fabric_version))
+	modCompileOnly(fabricApi.module("fabric-key-binding-api-v1", project.fabric_version))
+	modCompileOnly(fabricApi.module("fabric-lifecycle-events-v1", project.fabric_version))
 }
 
 processResources {
@@ -75,14 +77,15 @@ java {
 
 jar {
 	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
+		rename { "${it}_${project.base.archivesName.get()}"}
 	}
 }
 
 // configure the maven publication
 publishing {
 	publications {
-		mavenJava(MavenPublication) {
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
 			from components.java
 		}
 	}
