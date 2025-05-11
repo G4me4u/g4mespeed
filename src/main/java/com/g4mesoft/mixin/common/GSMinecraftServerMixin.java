@@ -138,7 +138,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 
 	@Inject(
-		method = "runServer",
+		method = "run",
 		slice = @Slice(
 			from = @At(
 				value = "INVOKE",
@@ -162,7 +162,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 
 	@ModifyConstant(
-		method = "runServer",
+		method = "run",
 		constant = @Constant(
 			longValue = 50L,
 			ordinal = 0
@@ -181,7 +181,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 
 	@ModifyArg(
-		method = "runServer",
+		method = "run",
 		require = 0,
 		index = 2,
 		at = @At(
@@ -200,7 +200,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 	
 	@Inject(
-		method = "runServer",
+		method = "run",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
@@ -221,7 +221,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 
 	@ModifyConstant(
-		method = "runServer",
+		method = "run",
 		constant = @Constant(
 			longValue = 50L,
 			ordinal = 1
@@ -233,7 +233,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 	
 	@ModifyConstant(
-		method = "runServer",
+		method = "run",
 		constant = @Constant(
 			longValue = 50L
 		),
@@ -251,7 +251,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 	
 	@ModifyConstant(
-		method = "runServer",
+		method = "run",
 		constant = @Constant(
 			longValue = 2000L
 		)
@@ -261,7 +261,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 
 	@ModifyConstant(
-		method = "runServer",
+		method = "run",
 		constant = @Constant(
 			longValue = 15000L
 		)
@@ -271,12 +271,12 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 	
 	@Inject(
-		method = "runServer",
+		method = "run",
 		at = @At(
 			value = "FIELD",
 			shift = Shift.AFTER,
 			opcode = Opcodes.PUTFIELD,
-			target = "Lnet/minecraft/server/MinecraftServer;lastTimeReference:J"
+			target = "Lnet/minecraft/server/MinecraftServer;field_4557:J"
 		)
 	)
 	private void onRunServerAfterOverloaded(CallbackInfo ci) {
