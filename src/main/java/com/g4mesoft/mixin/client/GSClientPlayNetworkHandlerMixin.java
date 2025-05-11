@@ -73,6 +73,74 @@ public class GSClientPlayNetworkHandlerMixin {
 	private void onOnGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
 		GSClientController.getInstance().onJoinServer();
 	}
+
+	@Inject(
+		method = "onEntityPosition",
+		cancellable = true,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target = 
+				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
+					"Lnet/minecraft/network/Packet;" +
+					"Lnet/minecraft/network/listener/PacketListener;" +
+					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+				")V"
+		)
+	)
+	private void onOnEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci) {
+		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
+			Entity entity = world.getEntityById(packet.getId());
+			if (entity != null && isRecentlyMovedByPiston(entity)) {
+				// Update the tracked position such that the entity position
+				// does not get out of sync later.
+				entity.updateTrackedPosition(packet.getX(), packet.getY(), packet.getZ());
+				ci.cancel();
+			}
+		}
+	}
+
+	@Inject(
+		method = "onEntityUpdate",
+		cancellable = true,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
+					"Lnet/minecraft/network/Packet;" +
+					"Lnet/minecraft/network/listener/PacketListener;" +
+					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+				")V"
+		)
+	)
+	private void onOnEntityUpdate(EntityS2CPacket packet, CallbackInfo ci) {
+		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
+			Entity entity = packet.getEntity(world);
+			if (entity != null && isRecentlyMovedByPiston(entity)) {
+				if (!entity.isLogicalSideForUpdatingMovement()) {
+					if (packet.method_22826()) {
+						// See comment above.
+						entity.trackedX = entity.trackedX + packet.getDeltaXShort();
+						entity.trackedY = entity.trackedY + packet.getDeltaYShort();
+						entity.trackedZ = entity.trackedZ + packet.getDeltaZShort();
+						Vec3d pos = EntityS2CPacket.decodePacketCoordinates(entity.trackedX, entity.trackedY, entity.trackedZ);
+						entity.updateTrackedPosition(pos.x, pos.y, pos.z);
+					}
+					
+					if (packet.hasRotation()) {
+						// Do not ignore rotation changes.
+						float yaw   = (float)(packet.getYaw()   * 360) / 256.0f;
+						float pitch = (float)(packet.getPitch() * 360) / 256.0f;
+						entity.updateTrackedPositionAndAngles(entity.getX(), entity.getY(), entity.getZ(), yaw, pitch, 3, false);
+					}
+					
+					entity.onGround = packet.isOnGround();
+				}
+				ci.cancel();
+			}
+		}
+	}
 	
 	@Inject(
 		method = "onPlayerPositionLook",
@@ -121,74 +189,6 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Unique
 	private boolean isRecentlyMovedByPiston(Entity entity) {
 		return (((GSIEntityAccess)entity).gs_isMovedByPiston() || ((GSIEntityAccess)entity).gs_wasMovedByPiston());
-	}
-
-	@Inject(
-		method = "onEntityUpdate",
-		cancellable = true,
-		at = @At(
-			value = "INVOKE",
-			shift = Shift.AFTER,
-			target =
-				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
-					"Lnet/minecraft/network/Packet;" +
-					"Lnet/minecraft/network/listener/PacketListener;" +
-					"Lnet/minecraft/util/thread/ThreadExecutor;" +
-				")V"
-		)
-	)
-	private void onOnEntityUpdate(EntityS2CPacket packet, CallbackInfo ci) {
-		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
-			Entity entity = packet.getEntity(world);
-			if (entity != null && isRecentlyMovedByPiston(entity)) {
-				if (!entity.isLogicalSideForUpdatingMovement()) {
-					if (packet.method_22826()) {
-						// See comment above.
-						entity.trackedX = entity.trackedX + packet.getDeltaXShort();
-						entity.trackedY = entity.trackedY + packet.getDeltaYShort();
-						entity.trackedZ = entity.trackedZ + packet.getDeltaZShort();
-						Vec3d pos = EntityS2CPacket.decodePacketCoordinates(entity.trackedX, entity.trackedY, entity.trackedZ);
-						entity.updateTrackedPosition(pos.x, pos.y, pos.z);
-					}
-					
-					if (packet.hasRotation()) {
-						// Do not ignore rotation changes.
-						float yaw   = (float)(packet.getYaw()   * 360) / 256.0f;
-						float pitch = (float)(packet.getPitch() * 360) / 256.0f;
-						entity.updateTrackedPositionAndAngles(entity.getX(), entity.getY(), entity.getZ(), yaw, pitch, 3, false);
-					}
-					
-					entity.onGround = packet.isOnGround();
-				}
-				ci.cancel();
-			}
-		}
-	}
-
-	@Inject(
-		method = "onEntityPosition",
-		cancellable = true,
-		at = @At(
-			value = "INVOKE",
-			shift = Shift.AFTER,
-			target = 
-				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
-					"Lnet/minecraft/network/Packet;" +
-					"Lnet/minecraft/network/listener/PacketListener;" +
-					"Lnet/minecraft/util/thread/ThreadExecutor;" +
-				")V"
-		)
-	)
-	private void onOnEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci) {
-		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
-			Entity entity = world.getEntityById(packet.getId());
-			if (entity != null && isRecentlyMovedByPiston(entity)) {
-				// Update the tracked position such that the entity position
-				// does not get out of sync later.
-				entity.updateTrackedPosition(packet.getX(), packet.getY(), packet.getZ());
-				ci.cancel();
-			}
-		}
 	}
 	
 	@Inject(
