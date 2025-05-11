@@ -1,88 +1,101 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-		classpath "net.sf.proguard:proguard-gradle:6.2.2"
-    }
-}
-
 plugins {
-	id 'fabric-loom' version '0.6-SNAPSHOT'
+	id 'fabric-loom' version '1.10-SNAPSHOT'
+	id 'maven-publish'
 }
 
 repositories {
-    flatDir {
-        dirs "./compat-mods"
-    }
+	maven {
+		name = 'TerraformersMC'
+		url = 'https://maven.terraformersmc.com/'
+	}
+	maven {
+		name = 'G4me4u Maven'
+		url = 'https://maven.g4mesoft.com/releases'
+	}
 }
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 archivesBaseName = project.archives_base_name
-version = project.mod_version + "-mc" + project.minecraft_version
+version = "${project.mod_version}-mc${project.minecraft_version}"
 group = project.maven_group
+
+// See https://github.com/TerraformersMC/GradleScripts/blob/2.5/ferry.gradle
+
+ext.includeMod = { Object dep ->
+    dependencies.modImplementation dep
+    dependencies.include dep
+}
 
 dependencies {
 	//to change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-	// Test mod compatibility in dev environment.
-	//modImplementation ":sodium-fabric:mc1.16.1:0.1.0"
-	//modImplementation ":optifabric:1.9.2"
-	
-	// Fabric API. This is technically optional, but you probably want it anyway.
-    //modImplementation "net.fabricmc.fabric-api:fabric-api:0.31.0+1.16"
+	// Include G4mespeed UI
+	includeMod "com.g4mesoft.ui:g4mespeed-ui:${project.g4mespeed_ui_version}-mc${project.minecraft_version}"
+	// Fabric API. Required by modmenu.
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	// ModMenu integration
+	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 
 processResources {
 	inputs.property "version", project.version
 
-	from(sourceSets.main.resources.srcDirs) {
-		include "fabric.mod.json"
+	filesMatching("fabric.mod.json") {
 		expand "version": project.mod_version
 	}
-
-	from(sourceSets.main.resources.srcDirs) {
-		exclude "fabric.mod.json"
-	}
 }
 
-// ensure that the encoding is set to UTF-8, no matter what the system default is
-// this fixes some edge cases with special characters not displaying correctly
-// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-tasks.withType(JavaCompile) {
-	options.encoding = "UTF-8"
+tasks.withType(JavaCompile).configureEach {
+	// ensure that the encoding is set to UTF-8, no matter what the system default is
+	// this fixes some edge cases with special characters not displaying correctly
+	// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
+	// If Javadoc is generated, this must be specified in that task too.
+	it.options.encoding = "UTF-8"
 }
 
-// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-// if it is present.
-// If you remove this task, sources will not be generated.
-task sourcesJar(type: Jar, dependsOn: classes) {
-	classifier = "sources"
-	from sourceSets.main.allSource
-}
-
-def outputJarName = jar.archiveName.with { it.take(it.lastIndexOf(".")) }
-def obfuscatedFileName = "${outputJarName}-release.jar"
-def homeDir = System.getProperty("user.home")
-
-task obfuscateJar(type: proguard.gradle.ProGuardTask) {
-	configuration "proguard.txt"
-
-	injars "./build/libs/${jar.archiveName}"
-	outjars "./build/libs/${obfuscatedFileName}"
-	
-	obfuscationdictionary "member_obfuscation_dictionary.txt"
-	
-	printmapping "g4mespeed-mappings-mc${project.minecraft_version}.map"
-	applymapping "g4mespeed-mappings-mc${project.minecraft_version}.map"
+java {
+	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
+	// if it is present.
+	// If you remove this line, sources will not be generated.
+	withSourcesJar()
 }
 
 jar {
-	from "LICENSE"
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
 }
 
+// configure the maven publication
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+
+	setupRepositories(repositories)
+}
+
+void setupRepositories(RepositoryHandler repositories) {
+	//repositories.mavenLocal() // uncomment for testing
+	def ENV = System.getenv()
+	if (ENV.MAVEN_URL && ENV.MAVEN_ALIAS && ENV.MAVEN_TOKEN) {
+		repositories.maven {
+			url "${ENV.MAVEN_URL}/releases"
+			credentials {
+				username ENV.MAVEN_ALIAS
+				password ENV.MAVEN_TOKEN
+			}
+			authentication {
+				basic(BasicAuthentication)
+			}
+		}
+	} else {
+		throw GradleException("No Maven credentials specified")
+	}
+}

@@ -8,11 +8,12 @@ import java.util.Map;
 import com.g4mesoft.hotkey.GSIKeyBindingRegisterListener;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
-import com.g4mesoft.panel.GSPanelContext;
-import com.g4mesoft.panel.GSParentPanel;
-import com.g4mesoft.panel.legend.GSButtonPanel;
-import com.g4mesoft.panel.scroll.GSIScrollable;
-import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.ui.panel.GSDimension;
+import com.g4mesoft.ui.panel.GSPanelContext;
+import com.g4mesoft.ui.panel.GSParentPanel;
+import com.g4mesoft.ui.panel.legacy.GSButtonPanel;
+import com.g4mesoft.ui.panel.scroll.GSIScrollable;
+import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -34,9 +35,6 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 	
 	private final GSButtonPanel resetAllButton;
 	private final GSButtonPanel unbindAllButton;
-	
-	private int contentHeight;
-	private boolean needsRelayout;
 	
 	private GSHotkeyElementGUI changingElement;
 	
@@ -60,7 +58,8 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 		keyManager.setKeyRegisterListener(this);
 	}
 
-	private void layoutHotkeys() {
+	@Override
+	public void layout() {
 		int w = 0;
 		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values()) {
 			int prefWidth = hotkeyCategory.getPreferredWidth();
@@ -84,24 +83,10 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 		unbindAllButton.setPreferredBounds(bw + buttonMargin, y, bw);
 		
 		y += GSButtonPanel.BUTTON_HEIGHT;
-		
-		contentHeight = y;
-	}
-	
-	@Override
-	public void onBoundsChanged() {
-		super.onBoundsChanged();
-	
-		needsRelayout = true;
 	}
 	
 	@Override
 	public void render(GSIRenderer2D renderer) {
-		if (needsRelayout) {
-			layoutHotkeys();
-			needsRelayout = false;
-		}
-		
 		super.render(renderer);
 		
 		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values())
@@ -121,17 +106,20 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 		}
 		
 		category.addKeyBinding(keyBinding);
-		needsRelayout = true;
+		invalidate();
 	}
 
 	@Override
-	public int getContentWidth() {
-		return width;
-	}
+	protected GSDimension calculatePreferredSize() {
+		int w = 0, h = 0;
+		for (GSHotkeyCategoryGUI hotkeyCategory : hotkeyCategories.values()) {
+			w = Math.max(w, hotkeyCategory.getPreferredWidth());
+			h += hotkeyCategory.getPreferredHeight();
+		}
 
-	@Override
-	public int getContentHeight() {
-		return contentHeight;
+		h += CATEGORY_MARGIN + GSButtonPanel.BUTTON_HEIGHT + CATEGORY_MARGIN;
+		
+		return new GSDimension(w, h);
 	}
 
 	public void setChangingElement(GSHotkeyElementGUI element) {
@@ -142,6 +130,11 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 	
 	public GSHotkeyElementGUI getChangingElement() {
 		return changingElement;
+	}
+	
+	@Override
+	public boolean isScrollableWidthFilled() {
+		return true;
 	}
 	
 	private class GSHotkeyCategoryGUI {
@@ -177,6 +170,15 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 			}
 			
 			return prefWidth;
+		}
+
+		public int getPreferredHeight() {
+			int prefHeight = 0;
+			GSIRenderer2D renderer = GSPanelContext.getRenderer();
+			prefHeight += CATEGORY_MARGIN + renderer.getTextHeight() + CATEGORY_TITLE_BOTTOM_MARGIN;
+			for (GSHotkeyElementGUI hotkeyElement : elements)
+				prefHeight += hotkeyElement.getPreferredHeight() + HOTKEY_MARGIN * 2;
+			return prefHeight;
 		}
 
 		public int layoutHotkeys(int x, int y, int w) {

@@ -6,9 +6,9 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionInfoList;
 import com.g4mesoft.core.GSVersion;
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.panel.GSParentPanel;
-import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.ui.panel.GSParentPanel;
+import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -30,9 +30,9 @@ public class GSInfoGUI extends GSParentPanel {
 	private static final Text INVALID_VERSION_TEXT    = new TranslatableText("gui.info.invalidVersion");
 	private static final String EXTENSION_NAME_TRANSLATION_KEY = "gui.info.extensionName";
 	
-	private final GSControllerClient client;
+	private final GSClientController client;
 	
-	public GSInfoGUI(GSControllerClient client) {
+	public GSInfoGUI(GSClientController client) {
 		this.client = client;
 	}
 	
@@ -48,22 +48,23 @@ public class GSInfoGUI extends GSParentPanel {
 		int xc = width / 2;
 		int y = height / 2 - renderer.getLineHeight() * lineCount / 2 - 10;
 		
-		renderer.drawCenteredText(SERVER_EXTENSIONS_TITLE, xc, y, TEXT_COLOR);
+		if (client.isConnectedToServer()) {
+			y = drawExtensionList(renderer, xc, y, SERVER_EXTENSIONS_TITLE, serverInfoList);
+			y += renderer.getLineHeight();
+		}
+		y = drawExtensionList(renderer, xc, y, CLIENT_EXTENSIONS_TITLE, clientInfoList);
+	}
+	
+	private int drawExtensionList(GSIRenderer2D renderer, int xc, int y, Text title, Collection<GSExtensionInfo> infoList) {
+		renderer.drawCenteredText(title, xc, y, TEXT_COLOR);
 		y += renderer.getLineHeight();
 
-		for (GSExtensionInfo info : serverInfoList) {
+		for (GSExtensionInfo info : infoList) {
 			drawExtensionInfo(renderer, info, xc, y);
 			y += renderer.getLineHeight();
 		}
-
-		y += renderer.getLineHeight();
-		renderer.drawCenteredText(CLIENT_EXTENSIONS_TITLE, xc, y, TEXT_COLOR);
-		y += renderer.getLineHeight();
-
-		for (GSExtensionInfo info : clientInfoList) {
-			drawExtensionInfo(renderer, info, xc, y);
-			y += renderer.getLineHeight();
-		}
+		
+		return y;
 	}
 	
 	private void drawExtensionInfo(GSIRenderer2D renderer, GSExtensionInfo info, int xc, int y) {

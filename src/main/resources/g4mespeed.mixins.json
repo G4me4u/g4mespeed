@@ -3,27 +3,31 @@
   "package": "com.g4mesoft.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "server.GSMinecraftServerMixin",
+    "common.GSMinecraftServerMixin",
     
-    "server.GSServerWorldMixin",
+    "common.GSServerWorldMixin",
 
-    "server.GSCommandManagerMixin",
+    "common.GSCommandManagerMixin",
     
-    "server.GSServerPlayNetworkHandlerMixin",
-    "server.GSCustomPayloadS2CPacketMixin",
-    "server.GSCustomPayloadC2SPacketMixin",
+    "common.GSServerPlayNetworkHandlerMixin",
+    "common.GSCustomPayloadS2CPacketMixin",
+    "common.GSCustomPayloadC2SPacketMixin",
     
-    "server.GSPlayerManagerMixin",
-    "server.GSClientConnectionMixin",
+    "common.GSPlayerManagerMixin",
+    "common.GSClientConnectionMixin",
     
-    "server.GSTranslatableTextMixin",
+    "common.GSTranslatableTextMixin",
     
-    "server.GSPistonBlockEntityMixin",
-    "server.GSPistonBlockMixin",
+    "common.GSPistonBlockEntityMixin",
+    "common.GSPistonBlockMixin",
     
-    "server.GSIThreadedAnvilChunkStorageAccess",
-    "server.GSServerChunkManagerMixin",
-    "server.GSIBlockActionS2CPacketAccess"
+    "common.GSThreadedAnvilChunkStorageMixin",
+    "common.GSIThreadedAnvilChunkStorageEntityTrackerAccess",
+    "common.GSEntityTrackerEntryMixin",
+    "common.GSServerChunkManagerMixin",
+    "common.GSIBlockActionS2CPacketAccess",
+    "common.GSChunkHolderMixin",
+    "common.GSFallingBlockEntityMixin"
   ],
   "client": [
     "client.GSMinecraftClientMixin",
@@ -43,14 +47,20 @@
     "client.GSPistonBlockEntityRendererMixin",
     "client.GSPistonBlockEntityMixin",
     
-    "client.GSBufferBuilderMixin",
-    
     "client.GSInGameHudMixin",
-    "client.GSBossBarHudMixin",
     
     "client.GSWorldRendererMixin",
     "client.GSGameRendererMixin",
-    "client.GSClientWorldMixin"
+    "client.GSClientWorldMixin",
+    "client.GSAbstractClientPlayerEntityMixin",
+    
+    "client.GSFallingBlockEntityMixin",
+    
+    "client.GSWorldChunkMixin",
+    "client.GSEntityMixin",
+    "client.GSIWorldAccess",
+    
+    "client.GSClientPlayerInteractionManagerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -2,16 +2,15 @@ package com.g4mesoft.setting;
 
 import java.io.IOException;
 
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;
-import com.g4mesoft.setting.decoder.GSISettingDecoder;
-import com.g4mesoft.util.GSBufferUtil;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.PacketByteBuf;
 
 public class GSSettingChangePacket implements GSIPacket {
 
@@ -29,13 +28,13 @@ public class GSSettingChangePacket implements GSIPacket {
 	}
 
 	@Override
-	public void read(PacketByteBuf buf) throws IOException {
+	public void read(GSDecodeBuffer buf) throws IOException {
 		category = GSSettingCategory.read(buf);
-		type = GSESettingChangeType.fromIndex(buf.readVarInt());
-		String decoderType = buf.readString(16);
-		String settingName = buf.readString(GSBufferUtil.MAX_STRING_LENGTH);
+		type = GSESettingChangeType.fromIndex(buf.readUnsignedByte());
+		String decoderType = buf.readString(GSSettingMap.MAX_TYPESTRING_LENGTH);
+		String settingName = buf.readString();
 		
-		GSISettingDecoder<?> decoder = GSSettingManager.getSettingDecoder(decoderType);
+		GSISettingDecoder<?> decoder = GSSettingManager.getDecoder(decoderType);
 		if (decoder == null)
 			throw new IOException("No valid decoder found");
 		setting = decoder.decodeSetting(settingName, buf);
@@ -43,35 +42,40 @@ public class GSSettingChangePacket implements GSIPacket {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public void write(PacketByteBuf buf) throws IOException {
+	public void write(GSEncodeBuffer buf) throws IOException {
 		@SuppressWarnings("rawtypes")
-		GSISettingDecoder decoder = GSSettingManager.getSettingDecoder(setting.getClass());
+		GSISettingDecoder decoder = GSSettingManager.getDecoder(setting);
 		if (decoder == null)
 			throw new IOException("No valid decoder found");
 
 		category.write(buf);
-		buf.writeVarInt(type.getIndex());
-		buf.writeString(decoder.getTypeString());
+		buf.writeUnsignedByte((short)type.getIndex());
+		buf.writeString(decoder.getTypeString(), GSSettingMap.MAX_TYPESTRING_LENGTH);
 		buf.writeString(setting.getName());
 		
 		decoder.encodeSetting(buf, setting);
 	}
 
 	@Override
-	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
+	public void handleOnServer(GSServerController controller, ServerPlayerEntity player) {
 		if (type != GSESettingChangeType.SETTING_CHANGED)
 			return;
 		
 		if (controller.isAllowedSettingChange(player)) {
-			GSSetting<?> currentSetting = controller.getSettingManager().getSetting(category, setting.getName());
-			if (currentSetting != null && currentSetting.isActive() && currentSetting.isVisibleInGUI())
-				currentSetting.setValueIfSameType(setting);
+			// Select the appropriate setting manager
+			GSSettingManager settingManager = controller.getGlobalSettingManager();
+			if (!settingManager.isRegistered(category, setting.getName()))
+				settingManager = controller.getWorldSettingManager();
+			// Update the setting value
+			GSSetting<?> currentSetting = settingManager.getSetting(category, setting.getName());
+			if (currentSetting != null && currentSetting.isActive() && currentSetting.isVisibleInGui() && currentSetting.isEnabledInGui())
+				currentSetting.setIfSameType(setting);
 		}
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void handleOnClient(GSControllerClient controller) {
+	public void handleOnClient(GSClientController controller) {
 		GSRemoteSettingManager remoteSettings = controller.getServerSettings();
 		
 		switch (type) {

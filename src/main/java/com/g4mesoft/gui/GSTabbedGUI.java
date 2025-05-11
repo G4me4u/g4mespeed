@@ -4,26 +4,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.hotkey.GSKeyBinding;
-import com.g4mesoft.panel.GSClosableParentPanel;
-import com.g4mesoft.panel.GSPanel;
-import com.g4mesoft.panel.GSPanelContext;
-import com.g4mesoft.panel.event.GSCompoundButtonStroke;
-import com.g4mesoft.panel.event.GSIButtonStroke;
-import com.g4mesoft.panel.event.GSIMouseListener;
-import com.g4mesoft.panel.event.GSKeyBindingButtonStroke;
-import com.g4mesoft.panel.event.GSMouseEvent;
-import com.g4mesoft.renderer.GSIRenderer2D;
+import com.g4mesoft.ui.panel.GSPanel;
+import com.g4mesoft.ui.panel.GSPanelContext;
+import com.g4mesoft.ui.panel.GSParentPanel;
+import com.g4mesoft.ui.panel.event.GSIMouseListener;
+import com.g4mesoft.ui.panel.event.GSMouseEvent;
+import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 @Environment(EnvType.CLIENT)
-public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListener {
-
+public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
+	
+	private static final int BACKGROUND_TOP_COLOR    = 0xC0101010;
+	private static final int BACKGROUND_BOTTOM_COLOR = 0xD0101010;
+	
 	private static final int TAB_VERTICAL_PADDING = 5;
 	private static final int TAB_HORIZONTAL_PADDING = 5;
 
@@ -39,36 +39,33 @@ public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListen
 	private static final int SELECTED_BACKGROUND_COLOR = 0xAAAAAAAA;
 	private static final int HOVERED_BACKGROUND_COLOR = 0xAAEDEDFF;
 
+	private final boolean showBackground;
+	
 	private int tabHeight;
 	private List<GSTabEntry> tabs;
-	private boolean tabsChanged;
 
 	private int selectedTabIndex;
 
 	public GSTabbedGUI() {
+		this(true);
+	}
+
+	public GSTabbedGUI(boolean showBackground) {
+		this.showBackground = showBackground;
+		
 		tabs = new ArrayList<>();
 		selectedTabIndex = -1;
-		
-		GSKeyBinding guiKeyBinding = GSControllerClient.getInstance().getOpenGUIKey();
-		GSIButtonStroke guiButton = new GSKeyBindingButtonStroke(guiKeyBinding);
-		setCloseButton(new GSCompoundButtonStroke(getCloseButton(), guiButton));
 		
 		addMouseEventListener(this);
 	}
 
-	@Override
-	public void onBoundsChanged() {
-		super.onBoundsChanged();
-		
-		tabsChanged = true;
-	}
-	
-	public void addTab(String title, GSPanel tabContent) {
-		tabs.add(new GSTabEntry(title, tabContent));
-		tabsChanged = true;
+	public void addTab(String titleKey, GSPanel tabContent) {
+		tabs.add(new GSTabEntry(new TranslatableText(titleKey), tabContent));
 
 		if (selectedTabIndex == -1)
 			setSelectedTabIndex(0);
+		
+		invalidate();
 	}
 
 	public void setSelectedTabIndex(int index) {
@@ -88,14 +85,18 @@ public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListen
 		return (index != -1) ? tabs.get(index).getTabContent() : null;
 	}
 
-	private void layoutTabs(GSIRenderer2D renderer) {
+	public GSPanel getSelectedTabContent() {
+		return getTabContent(selectedTabIndex);
+	}
+	
+	public void layout() {
+		GSIRenderer2D renderer = GSPanelContext.getRenderer();
+
 		tabHeight = renderer.getTextHeight() + TAB_VERTICAL_PADDING * 2;
 
 		for (GSTabEntry tab : tabs) {
-			String title = i18nTranslate(tab.getTitle());
+			Text title = tab.getTitle();
 			int titleWidth = (int)Math.ceil(renderer.getTextWidth(title));
-
-			tab.setDisplayTitle(title);
 			tab.setWidth(titleWidth + TAB_HORIZONTAL_PADDING * 2);
 		}
 
@@ -134,9 +135,8 @@ public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListen
 		}
 
 		for (GSTabEntry tab : sortedTabs) {
-			String title = tab.getDisplayTitle();
-			title = renderer.trimString(title, tab.getWidth());
-			tab.setDisplayTitle(title);
+			// Update display title based on tab width
+			tab.setDisplayTitle(renderer.trimString(tab.getTitle(), tab.getWidth()));
 		}
 
 		int tabOffsetX = HORIZONTAL_MARGIN;
@@ -151,20 +151,20 @@ public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListen
 			tab.setX(tabOffsetX);
 			tabOffsetX += tab.getWidth();
 		}
-
-		tabsChanged = false;
 	}
 	
 	@Override
 	public void render(GSIRenderer2D renderer) {
-		if (tabsChanged)
-			layoutTabs(renderer);
-		
-		renderBackground(renderer);
+		if (showBackground)
+			renderBackground(renderer);
 		
 		super.render(renderer);
 		
 		renderTabs(renderer);
+	}
+	
+	protected void renderBackground(GSIRenderer2D renderer) {
+		renderer.fillVGradient(0, 0, width, height, BACKGROUND_TOP_COLOR, BACKGROUND_BOTTOM_COLOR);
 	}
 
 	private void renderTabs(GSIRenderer2D renderer) {
@@ -188,7 +188,7 @@ public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListen
 			renderer.fillRect(tab.getX(), VERTICAL_MARGIN, tab.getWidth(), tabHeight, SELECTED_BACKGROUND_COLOR);
 		}
 		
-		int xc = tab.getX() + tab.getWidth() / 2;
+		int xc = tab.getX() + (tab.getWidth() + 1) / 2;
 		int yc = VERTICAL_MARGIN + (tabHeight - renderer.getTextHeight()) / 2;
 		
 		int titleColor = selected ? SELECTED_TEXT_COLOR : TAB_TEXT_COLOR;
@@ -222,19 +222,19 @@ public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListen
 
 	private class GSTabEntry {
 
-		private final String title;
+		private final Text title;
 		private final GSPanel tabContent;
 
-		private String displayTitle;
+		private Text displayTitle;
 		private int x;
 		private int width;
 
-		public GSTabEntry(String title, GSPanel tabContent) {
+		public GSTabEntry(Text title, GSPanel tabContent) {
 			this.title = title;
 			this.tabContent = tabContent;
 		}
 
-		public String getTitle() {
+		public Text getTitle() {
 			return title;
 		}
 		
@@ -242,11 +242,11 @@ public class GSTabbedGUI extends GSClosableParentPanel implements GSIMouseListen
 			return tabContent;
 		}
 		
-		public void setDisplayTitle(String displayTitle) {
+		public void setDisplayTitle(Text displayTitle) {
 			this.displayTitle = displayTitle;
 		}
 
-		public String getDisplayTitle() {
+		public Text getDisplayTitle() {
 			return displayTitle;
 		}
 		

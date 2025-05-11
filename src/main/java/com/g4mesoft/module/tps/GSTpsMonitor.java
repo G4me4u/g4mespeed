@@ -7,7 +7,7 @@ import net.minecraft.util.Util;
 public class GSTpsMonitor {
 
 	private static final long MILLIS_PER_SECOND = 1000;
-	private static final int MAX_TPS_HISTORY_SIZE = 10;
+	private static final int DEFAULT_MAX_HISTORY_SIZE = 10;
 	
 	private final int[] tpsHistory;
 	private int tpsHistorySize;
@@ -18,9 +18,13 @@ public class GSTpsMonitor {
 	private int ticks;
 
 	private volatile float averageTps;
-	
+
 	public GSTpsMonitor() {
-		tpsHistory = new int[MAX_TPS_HISTORY_SIZE];
+		this(DEFAULT_MAX_HISTORY_SIZE);
+	}
+	
+	public GSTpsMonitor(int maxHistorySize) {
+		tpsHistory = new int[maxHistorySize];
 
 		reset();
 	}
@@ -54,14 +58,14 @@ public class GSTpsMonitor {
 			lastUpdateTime += millisThisUpdate;
 			ticks -= ticksThisUpdate;
 
-			if (secondsPassed > MAX_TPS_HISTORY_SIZE) {
-				long oldSeconds = (secondsPassed - MAX_TPS_HISTORY_SIZE);
+			if (secondsPassed > tpsHistory.length) {
+				long oldSeconds = (secondsPassed - tpsHistory.length);
 				int oldTicks = (int)(ticksThisUpdate * oldSeconds / secondsPassed);
 				if (oldTicks > 0) {
 					// Again to handle overflow.
 					ticksThisUpdate -= oldTicks;
 				}
-				secondsPassed = MAX_TPS_HISTORY_SIZE;
+				secondsPassed = tpsHistory.length;
 			}
 			
 			int secondsToProcess = (int)secondsPassed;
@@ -80,9 +84,9 @@ public class GSTpsMonitor {
 		tpsHistory[tpsHistoryPosition] = tps;
 		tpsAccumulator += tps;
 	
-		if (++tpsHistoryPosition >= MAX_TPS_HISTORY_SIZE)
+		if (++tpsHistoryPosition >= tpsHistory.length)
 			tpsHistoryPosition = 0;
-		if (tpsHistorySize < MAX_TPS_HISTORY_SIZE)
+		if (tpsHistorySize < tpsHistory.length)
 			tpsHistorySize++;
 	}
 	

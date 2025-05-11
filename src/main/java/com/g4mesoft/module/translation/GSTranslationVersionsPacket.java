@@ -5,14 +5,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.g4mesoft.GSExtensionUID;
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.PacketByteBuf;
 
 public class GSTranslationVersionsPacket implements GSIPacket {
 
@@ -29,7 +30,7 @@ public class GSTranslationVersionsPacket implements GSIPacket {
 	}
 
 	@Override
-	public void read(PacketByteBuf buf) throws IOException {
+	public void read(GSDecodeBuffer buf) throws IOException {
 		int n = buf.readInt();
 
 		uidToVersion = new HashMap<>();
@@ -41,7 +42,7 @@ public class GSTranslationVersionsPacket implements GSIPacket {
 	}
 
 	@Override
-	public void write(PacketByteBuf buf) throws IOException {
+	public void write(GSEncodeBuffer buf) throws IOException {
 		buf.writeInt(uidToVersion.size());
 		
 		for (Map.Entry<GSExtensionUID, Integer> entry : uidToVersion.entrySet()) {
@@ -51,12 +52,12 @@ public class GSTranslationVersionsPacket implements GSIPacket {
 	}
 
 	@Override
-	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
+	public void handleOnServer(GSServerController controller, ServerPlayerEntity player) {
 		controller.getTranslationModule().onTranslationVersionsReceived(player, uidToVersion);
 	}
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void handleOnClient(GSControllerClient controller) {
+	public void handleOnClient(GSClientController controller) {
 	}
 }

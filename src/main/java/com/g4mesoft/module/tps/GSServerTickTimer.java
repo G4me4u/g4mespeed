@@ -1,9 +1,8 @@
 package com.g4mesoft.module.tps;
 
 import com.g4mesoft.G4mespeedMod;
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.core.compat.GSCarpetCompat;
-import com.g4mesoft.util.GSMathUtils;
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.compat.GSICarpetTickrateManager;
 
 import net.minecraft.util.Util;
 
@@ -31,15 +30,15 @@ public class GSServerTickTimer implements GSITickTimer {
 	
 		millisPerTick = DEFAULT_MILLIS_PER_TICK;
 	}
-	
+
 	@Override
-	public void init(long initialTimeMillis) {
+	public synchronized void init(long initialTimeMillis) {
 		prevTimeMillis = initialTimeMillis;
 		tickDelta = 0.0f;
 		ticksSinceLastPacket = 0;
 		tickCount = 0;
 	}
-
+	
 	@Override
 	public synchronized void update(long timeMillis) {
 		long deltaMillis = timeMillis - prevTimeMillis;
@@ -72,44 +71,44 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	@Override
-	public float getTickDelta() {
+	public synchronized float getTickDelta0() {
 		return tickDelta;
 	}
 
 	@Override
-	public void setTickDelta(float tickDelta) {
+	public synchronized void setTickDelta0(float tickDelta) {
 		this.tickDelta = tickDelta;
 	}
 
 	@Override
-	public int getTickCount() {
+	public synchronized int getTickCount() {
 		return tickCount;
 	}
 	
 	@Override
-	public void setTickCount(int tickCount) {
+	public synchronized void setTickCount(int tickCount) {
 		this.tickCount = tickCount;
 	}
 	
-	public void syncTimer(GSITickTimer timer) {
-		if (tpsModule.cSyncTick.getValue() && shouldAdjustTickDelta())
+	public synchronized void syncTimer(GSITickTimer timer) {
+		if (tpsModule.cSyncTick.get() && shouldAdjustTickDelta())
 			adjustTickDelta(timer);
 	}
 	
 	private boolean shouldAdjustTickDelta() {
-		if (GSControllerClient.getInstance().isG4mespeedServer()) {
-			// When Fabric Carpet tickrate is linked, it is possible
-			// to use their client tickrate. Make sure to only enforce
-			// synchronization when using G4mespeed tickrate.
-			GSCarpetCompat carpetCompat = G4mespeedMod.getInstance().getCarpetCompat();
-			if (!carpetCompat.isTickrateLinked() || tpsModule.cForceCarpetTickrate.getValue())
+		if (GSClientController.getInstance().isG4mespeedServer()) {
+			// When Fabric Carpet tickrate is linked, it is possible to use
+			// their client tickrate. Make sure to only enforce synchronization
+			// when using G4mespeed tickrate.
+			GSICarpetTickrateManager carpetTRM = G4mespeedMod.getCarpetCompat().getClientTickrateManager();
+			if (!carpetTRM.isTickrateLinked() || tpsModule.cForceCarpetTickrate.get())
 				return true;
 		}
 
 		if (!syncReceived)
 			return false;
 		
-		return GSMathUtils.equalsApproximate(tpsModule.getTps(), DEFAULT_TICKS_PER_SECOND);
+		return tpsModule.isDefaultTps();
 	}
 
 	private void adjustTickDelta(GSITickTimer timer) {
@@ -119,7 +118,7 @@ public class GSServerTickTimer implements GSITickTimer {
 		if (targetTickDelta < 0.0f)
 			targetTickDelta++;
 		
-		float syncTickDelta = timer.getTickDelta();
+		float syncTickDelta = timer.getTickDelta0();
 		int syncTickCount = timer.getTickCount();
 		
 		// Check if we have to cross tick border
@@ -145,7 +144,7 @@ public class GSServerTickTimer implements GSITickTimer {
 			syncTickDelta--;
 		}
 		
-		timer.setTickDelta(syncTickDelta);
+		timer.setTickDelta0(syncTickDelta);
 		timer.setTickCount(syncTickCount);
 	}
 	
@@ -155,5 +154,4 @@ public class GSServerTickTimer implements GSITickTimer {
 
 		init(Util.getMeasuringTimeMs());
 	}
-
 }

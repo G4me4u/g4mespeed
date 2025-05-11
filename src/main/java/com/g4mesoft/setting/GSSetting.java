@@ -1,5 +1,7 @@
 package com.g4mesoft.setting;
 
+import java.util.Objects;
+
 public abstract class GSSetting<T> {
 
 	protected final String name;
@@ -10,8 +12,12 @@ public abstract class GSSetting<T> {
 	private boolean active;
 	
 	private boolean enabledInGui;
+	private boolean allowedChange;
 	
 	public GSSetting(String name, T defaultValue, boolean visibleInGui) {
+		if (name == null)
+			throw new IllegalArgumentException("name is null");
+		
 		this.name = name;
 		this.defaultValue = defaultValue;
 		this.visibleInGui = visibleInGui;
@@ -20,12 +26,14 @@ public abstract class GSSetting<T> {
 		active = true;
 		
 		enabledInGui = true;
+		allowedChange = true;
 	}
 	
 	public String getName() {
 		return name;
 	}
 	
+	/* Visible for GSSettingMap */
 	void setSettingOwner(GSSettingMap changeListener) {
 		if (changeListener != null && this.settingOwner != null)
 			throw new IllegalStateException("Change listener already set!");
@@ -37,32 +45,52 @@ public abstract class GSSetting<T> {
 			settingOwner.settingChanged(this);
 	}
 	
-	public abstract T getValue();
+	/**
+	 * @return the value of this setting
+	 */
+	public abstract T get();
 	
-	public abstract GSSetting<T> setValue(T value);
+	/**
+	 * @param value - the new value of this setting
+	 * 
+	 * @return this setting
+	 */
+	public abstract GSSetting<T> set(T value);
 
-	public abstract boolean isDefaultValue();
+	/**
+	 * @return True iff. the value of this setting is considered equal to
+	 *         that returned by {@link #getDefault()}. False otherwise.
+	 */
+	public abstract boolean isDefault();
 
 	public abstract boolean isSameType(GSSetting<?> other);
 
+	public boolean isSameSetting(GSSetting<?> other) {
+		return isSameType(other) && Objects.equals(defaultValue, other.getDefault());
+	}
+	
 	public abstract GSSetting<T> copySetting();
 
 	public void reset() {
-		setValue(defaultValue);
+		set(defaultValue);
 	}
 	
-	void setValueIfSameType(GSSetting<?> other) {
+	void setIfSameType(GSSetting<?> other) {
 		if (isSameType(other)) {
 			@SuppressWarnings("unchecked")
-			T otherValue = (T)other.getValue();
-			setValue(otherValue);
+			T otherValue = (T)other.get();
+			set(otherValue);
 		}
 	}
 	
-	public T getDefaultValue() {
+	/**
+	 * @return the default value
+	 */
+	public T getDefault() {
 		return defaultValue;
 	}
 
+	/* Visible for GSSettingMap */
 	void setActive(boolean active) {
 		this.active = active;
 	}
@@ -71,7 +99,7 @@ public abstract class GSSetting<T> {
 		return active;
 	}
 
-	public boolean isVisibleInGUI() {
+	public boolean isVisibleInGui() {
 		return visibleInGui;
 	}
 
@@ -85,5 +113,17 @@ public abstract class GSSetting<T> {
 
 	public boolean isEnabledInGui() {
 		return enabledInGui;
+	}
+
+	public GSSetting<T> setAllowedChange(boolean allowedChange) {
+		if (allowedChange != this.allowedChange) {
+			this.allowedChange = allowedChange;
+			notifyOwnerChange();
+		}
+		return this;
+	}
+	
+	public boolean isAllowedChange() {
+		return allowedChange;
 	}
 }

@@ -2,13 +2,14 @@ package com.g4mesoft.module.tps;
 
 import java.io.IOException;
 
-import com.g4mesoft.access.GSIServerPlayNetworkHandlerAccess;
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.access.common.GSIServerPlayNetworkHandlerAccess;
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.PacketByteBuf;
 
 public class GSPlayerFixedMovementPacket implements GSIPacket {
 
@@ -22,21 +23,21 @@ public class GSPlayerFixedMovementPacket implements GSIPacket {
 	}
 
 	@Override
-	public void read(PacketByteBuf buf) throws IOException {
+	public void read(GSDecodeBuffer buf) throws IOException {
 		fixedMovement = buf.readBoolean();
 	}
 
 	@Override
-	public void write(PacketByteBuf buf) throws IOException {
+	public void write(GSEncodeBuffer buf) throws IOException {
 		buf.writeBoolean(fixedMovement);
 	}
 
 	@Override
-	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
-		((GSIServerPlayNetworkHandlerAccess)player.networkHandler).setFixedMovement(fixedMovement);
+	public void handleOnServer(GSServerController controller, ServerPlayerEntity player) {
+		((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_setFixedMovement(fixedMovement);
 	}
 
 	@Override
-	public void handleOnClient(GSControllerClient controller) {
+	public void handleOnClient(GSClientController controller) {
 	}
 }

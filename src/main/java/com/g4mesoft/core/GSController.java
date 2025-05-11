@@ -3,7 +3,9 @@ package com.g4mesoft.core;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.g4mesoft.G4mespeedMod;
@@ -19,7 +21,7 @@ import net.minecraft.util.PacketByteBuf;
 
 public abstract class GSController implements GSIModuleManager, GSIExtensionListener {
 
-	private static final String SETTINGS_PATH = "settings.cfg";
+	protected static final String SETTINGS_FILE_NAME = "settings.cfg";
 	
 	protected static final String CACHE_DIR_NAME = "g4mespeed/cache";
 	protected static final String INTEGRATED_CACHE_DIR_NAME = "g4mespeed/integrated/cache";
@@ -29,6 +31,7 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 	protected final GSSettingManager settings;
 	
 	protected final List<GSIModule> modules;
+	protected final Map<Class<? extends GSIModule>, GSIModule> clazzToModule;
 	
 	protected final GSTpsModule tpsModule;
 	protected final GSTranslationModule translationModule;
@@ -37,6 +40,7 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 		settings = new GSSettingManager();
 		
 		modules = new ArrayList<>();
+		clazzToModule = new IdentityHashMap<>();
 		
 		tpsModule = new GSTpsModule();
 		translationModule = new GSTranslationModule();
@@ -62,6 +66,7 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 		settings.clearSettings();
 		
 		modules.clear();
+		clazzToModule.clear();
 
 		G4mespeedMod.removeExtensionListener(this);
 	}
@@ -75,6 +80,10 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 	
 	@Override
 	public void addModule(GSIModule module) {
+		Class<? extends GSIModule> clazz = module.getClass();
+		if (clazzToModule.put(clazz, module) != null)
+			throw new IllegalStateException("Module of class " + clazz.getName() + " already exists");
+		
 		modules.add(module);
 		module.init(this);
 	}
@@ -93,17 +102,24 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 	}
 	
 	@Override
+	public <M extends GSIModule> M getModule(Class<M> moduleClazz) {
+		@SuppressWarnings("unchecked")
+		M module = (M)clazzToModule.get(moduleClazz);
+		return module;
+	}
+	
+	@Override
 	public List<GSIModule> getModules() {
 		return modules;
+	}
+	
+	private File getSettingsFile() {
+		return new File(getCacheFile(), SETTINGS_FILE_NAME);
 	}
 	
 	@Override
 	public GSSettingManager getSettingManager() {
 		return settings;
-	}
-
-	private File getSettingsFile() {
-		return new File(getCacheFile(), SETTINGS_PATH);
 	}
 	
 	public static GSController getInstanceOnThread() {
@@ -123,7 +139,7 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 	
 	public abstract boolean isThreadOwner();
 		
-	public abstract Packet<?> encodeCustomPayload(Identifier identifier, PacketByteBuf buffer);
+	public abstract Packet<?> createCustomPayload(Identifier identifier, PacketByteBuf buffer);
 
 	public abstract boolean isClient();
 

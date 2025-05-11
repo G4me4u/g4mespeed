@@ -1,7 +1,7 @@
 package com.g4mesoft;
 
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.registry.GSSupplierRegistry;
 
@@ -11,9 +11,9 @@ public interface GSIExtension {
 	
 	public void registerPackets(GSSupplierRegistry<Integer, GSIPacket> registry);
 	
-	public void addClientModules(GSControllerClient controller);
+	public void addClientModules(GSClientController controller);
 	
-	public void addServerModules(GSControllerServer controller);
+	public void addServerModules(GSServerController controller);
 
 	public String getTranslationPath();
 	

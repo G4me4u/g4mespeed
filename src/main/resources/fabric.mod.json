@@ -9,16 +9,23 @@
     "G4me4u"
   ],
   "contact": {
-    "homepage": "https://youtube.com/user/G4me4u"
+    "homepage": "https://youtube.com/user/G4me4u",
+    "sources": "https://github.com/G4me4u/g4mespeed"
   },
 
-  "license": "CC-BY-ND-4.0",
+  "license": "GNU-GPLv2",
   "icon": "assets/g4mespeed/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
       "com.g4mesoft.G4mespeedMod"
+    ],
+    "modmenu": [
+      "com.g4mesoft.modmenu.GSModMenuApi"
+    ],
+    "g4mespeed": [
+      "com.g4mesoft.core.GSCoreExtension"
     ]
   },
   "mixins": [
@@ -26,6 +33,24 @@
   ],
 
   "depends": {
-  	"minecraft": "1.15.x"
+  	"minecraft": "1.15.x",
+  	"g4mespeed-ui": ">=0.9.2"
+  },
+  
+  "custom": {
+    "lithium:options": {
+      "mixin.block.moving_block_shapes": false
+    },
+    "modmenu": {
+      "links": {
+        "g4mespeed.modmenu.discord": "https://discord.gg/5yCsMbC"
+      }
+    },
+    "multiconnect": {
+      "custom_payloads": {
+        "allowed_clientbound": "minecraft:mod/g4mespeed",
+        "allowed_serverbound": "minecraft:mod/g4mespeed"
+      }
+    }
   }
 }
