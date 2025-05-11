@@ -21,7 +21,9 @@ public final class GSTpsCommand {
 	
 	public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
 		LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager.literal("tps").requires(context -> {
-			return context.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL);
+			if (GSServerController.getInstance().getTpsModule().sRequireOP.get())
+				return context.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL);
+			return true;
 		});
 		
 		builder.executes(context -> informCurrentTps(context.getSource()));

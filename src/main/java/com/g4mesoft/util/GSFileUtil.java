@@ -7,8 +7,6 @@ import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
 
-import com.g4mesoft.core.GSCoreOverride;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
@@ -71,14 +69,12 @@ public class GSFileUtil {
 	
 	public static interface GSFileDecoder<E> {
 		
-		@GSCoreOverride
 		public E decode(GSDecodeBuffer buf) throws Exception;
 		
 	}
 
 	public static interface GSFileEncoder<E> {
 		
-		@GSCoreOverride
 		public void encode(GSEncodeBuffer buf, E element) throws Exception;
 		
 	}
