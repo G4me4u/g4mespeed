@@ -4,7 +4,7 @@ import com.g4mesoft.setting.GSSetting;
 
 public class GSBooleanSetting extends GSSetting<Boolean> {
 
-	private boolean value;
+	private volatile boolean value;
 
 	public GSBooleanSetting(String name, boolean defaultValue) {
 		this(name, defaultValue, true);
@@ -17,23 +17,72 @@ public class GSBooleanSetting extends GSSetting<Boolean> {
 	}
 	
 	@Override
-	public Boolean getValue() {
+	public Boolean get() {
 		return Boolean.valueOf(value);
+	}
+	
+	/**
+	 * @deprecated Replaced by {@link #get()}
+	 * 
+	 * @return the value of this setting
+	 */
+	@Deprecated
+	public Boolean getValue() {
+		return get();
 	}
 
 	@Override
+	public GSBooleanSetting set(Boolean value) {
+		return set(value.booleanValue());
+	}
+	
+	/**
+	 * @deprecated Replaced by {@link #set(Boolean)}
+	 * 
+	 * @param value - the new value of this setting
+	 * 
+	 * @return this setting
+	 */
+	@Deprecated
 	public GSBooleanSetting setValue(Boolean value) {
-		boolean newValue = value.booleanValue();
-		if (newValue != this.value) {
-			this.value = newValue;
+		return set(value);
+	}
+	
+	/**
+	 * Sets the boolean value in this setting to the value specified.
+	 * 
+	 * @param value - the new value to be stored in this setting
+	 * 
+	 * @return this boolean setting.
+	 */
+	public GSBooleanSetting set(boolean value) {
+		if (value != this.value) {
+			this.value = value;
 			notifyOwnerChange();
 		}
 		
 		return this;
 	}
+
+	/**
+	 * Toggles this boolean setting. That is, if the currently stored value is
+	 * {@code true} then the value after an invocation is {@code false}, and
+	 * vice versa. An invocation of this method is equivalent to the following
+	 * code snippet:
+	 * <pre>
+	 *     setting.setValue(!setting.getValue());
+	 * </pre>
+	 * 
+	 * @return this boolean setting
+	 * 
+	 * @see #setValue(boolean)
+	 */
+	public GSBooleanSetting toggle() {
+		return set(!value);
+	}
 	
 	@Override
-	public boolean isDefaultValue() {
+	public boolean isDefault() {
 		return defaultValue.booleanValue() == value;
 	}
 
@@ -44,6 +93,6 @@ public class GSBooleanSetting extends GSSetting<Boolean> {
 
 	@Override
 	public GSSetting<Boolean> copySetting() {
-		return new GSBooleanSetting(name, defaultValue, visibleInGui).setValue(value).setEnabledInGui(isEnabledInGui());
+		return new GSBooleanSetting(name, defaultValue, visibleInGui).set(value).setEnabledInGui(isEnabledInGui());
 	}
 }

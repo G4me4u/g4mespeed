@@ -26,7 +26,7 @@ import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.GSIExtensionListener;
-import com.g4mesoft.access.GSINetworkHandlerAccess;
+import com.g4mesoft.access.common.GSIServerPlayNetworkHandlerAccess;
 import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
@@ -49,8 +49,8 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	private long translationsChangeTimestamp;
 	
 	public GSTranslationModule() {
-		translations = new ConcurrentHashMap<String, String>();
-		cacheLists = new HashMap<GSExtensionUID, GSTranslationCacheList>();
+		translations = new ConcurrentHashMap<>();
+		cacheLists = new HashMap<>();
 	
 		translationsChangeTimestamp = -1L;
 	}
@@ -102,7 +102,12 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	}
 	
 	private void addExtensionTranslations(GSIExtension extension) {
-		URL url = GSTranslationModule.class.getResource(extension.getTranslationPath());
+		String path = extension.getTranslationPath();
+		if (path == null || path.isEmpty()) {
+			// Extension does not have translations.
+			return;
+		}
+		URL url = GSTranslationModule.class.getResource(path);
 		if (url != null) {
 			try (InputStream is = url.openStream()) {
 				loadTranslations(is, extension.getInfo().getUniqueId(), false);
@@ -125,7 +130,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	private void sendMissingTranslations(ServerPlayerEntity player, GSExtensionUID uid, int translationVersion) {
 		// Make sure the player hasn't already requested
 		// a translation mapping in the current session.
-		if (((GSINetworkHandlerAccess)player.networkHandler).getTranslationVersion(uid) != INVALID_TRANSLATION_VERSION)
+		if (((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_getTranslationVersion(uid) != INVALID_TRANSLATION_VERSION)
 			return;
 		
 		GSTranslationCacheList cacheList = cacheLists.get(uid);
@@ -144,7 +149,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 					managerServer.sendPacket(new GSTranslationCachePacket(uid, cache), player);
 			});
 
-			((GSINetworkHandlerAccess)player.networkHandler).setTranslationVersion(uid, cacheList.getVersion());
+			((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_setTranslationVersion(uid, cacheList.getVersion());
 		}
 	}
 	
@@ -184,7 +189,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	}
 
 	private void loadTranslations(BufferedReader reader, GSExtensionUID extensionUid, boolean cachedTranslations) throws IOException {
-		Map<String, String> translations = new HashMap<String, String>();
+		Map<String, String> translations = new HashMap<>();
 
 		int currentVersion = INVALID_TRANSLATION_VERSION;
 		

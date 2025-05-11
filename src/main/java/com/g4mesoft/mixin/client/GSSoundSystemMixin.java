@@ -4,13 +4,14 @@ import java.util.Map;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.g4mesoft.core.client.GSControllerClient;
+import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.setting.GSISettingChangeListener;
@@ -30,30 +31,41 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 
 	@Shadow @Final private Map<SoundInstance, Channel.SourceManager> sources;
 
-	private GSTpsModule tpsModule;
+	@Shadow protected abstract float getAdjustedPitch(SoundInstance soundInstance);
 	
-	@Inject(method = "<init>", at = @At("RETURN"))
-	public void onInit(SoundManager soundManager, GameOptions options, ResourceManager resourceManager, CallbackInfo ci) {
-		GSControllerClient client = GSControllerClient.getInstance();
-		tpsModule = client.getTpsModule();
+	@Unique
+	private GSTpsModule gs_tpsModule;
+	
+	@Inject(
+		method = "<init>",
+		at = @At("RETURN")
+	)
+	private void onInit(SoundManager soundManager, GameOptions options, ResourceManager resourceManager, CallbackInfo ci) {
+		GSClientController client = GSClientController.getInstance();
+		gs_tpsModule = client.getTpsModule();
 		
-		tpsModule.addTpsListener(this);
+		gs_tpsModule.addTpsListener(this);
 		client.getSettingManager().addChangeListener(this);
 	}
 	
-	/**
-	 * @author Christian
-	 * @reason The whole method is changed to return shifted pitch
-	 */
-	@Overwrite
-	private float getAdjustedPitch(SoundInstance soundInstance) {
-		float pitch = MathHelper.clamp(soundInstance.getPitch(), 0.5F, 2.0F);
-		if (tpsModule.cShiftPitch.getValue())
-			return pitch * tpsModule.getTps() / GSTpsModule.DEFAULT_TPS;
+	@Inject(
+		method = "getAdjustedPitch",
+		cancellable = true,
+		at = @At("HEAD")
+	)
+	private void onGetAdjustedPitch(SoundInstance soundInstance, CallbackInfoReturnable<Float> cir) {
+		float pitch = MathHelper.clamp(soundInstance.getPitch(), 0.5f, 2.0f);
+		
+		if (gs_tpsModule.cShiftPitch.get()) {
+			// Scale pitch by relative tps difference to the default.
+			pitch *= gs_tpsModule.getTps() / GSTpsModule.DEFAULT_TPS;
+		}
 
-		return pitch;
+		cir.setReturnValue(pitch);
+		cir.cancel();
 	}
 
+	@Unique
 	private void updatePitch() {
 		for (Map.Entry<SoundInstance, Channel.SourceManager> soundEntry : sources.entrySet()) {
 			float pitch = getAdjustedPitch(soundEntry.getKey());
@@ -68,7 +80,7 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 	
 	@Override
 	public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
-		if (setting == tpsModule.cShiftPitch)
+		if (setting == gs_tpsModule.cShiftPitch)
 			updatePitch();
 	}
 }

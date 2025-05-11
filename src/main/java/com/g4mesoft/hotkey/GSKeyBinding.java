@@ -1,37 +1,38 @@
 package com.g4mesoft.hotkey;
 
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.util.InputUtil.KeyCode;
+import net.minecraft.text.Text;
 
 public class GSKeyBinding {
 
 	private final GSKeyManager manager;
 	private final String name;
 	private final String category;
-	private final KeyCode defaultKeyCode;
+	private final GSKeyCode defaultKeyCode;
 	private final boolean allowDisabled;
 	
-	private KeyCode keyCode;
-
-	private boolean keyState;
+	private int priority;
 	
-	private boolean wasPressed;
-	private boolean pressed;
-	private int repeatCount;
-
+	private GSKeyCode keyCode;
+	private boolean[] keyStates;
+	private int pressedCount;
+	
 	private GSIKeyBindingListener listener;
 	
-	public GSKeyBinding(GSKeyManager manager, String name, String category, InputUtil.Type keyType, int keyCode, boolean allowDisabled) {
+	public GSKeyBinding(GSKeyManager manager, String name, String category, GSKeyCode defaultKeyCode, boolean allowDisabled, int priority) {
 		this.manager = manager;
 		this.name = name;
 		this.category = category;
-		this.defaultKeyCode = keyType.createFromCode(keyCode);
+		this.defaultKeyCode = defaultKeyCode;
 		this.allowDisabled = allowDisabled;
+		
+		this.priority = priority;
 	
-		this.keyCode = defaultKeyCode;
-	
+		keyCode = defaultKeyCode;
+		keyStates = new boolean[keyCode.getKeyCount()];
+		pressedCount = 0;
+		
 		listener = null;
 	}
 
@@ -41,92 +42,57 @@ public class GSKeyBinding {
 		this.listener = listener;
 	}
 	
-	public void reset() {
-		pressed = wasPressed = false;
-		repeatCount = 0;
+	void reset() {
+		for (int i = 0; i < keyStates.length; i++)
+			keyStates[i] = false;
+		pressedCount = 0;
 	}
 
-	public void onKeyPressed() {
-		repeatCount++;
-
-		if (!pressed) {
-			wasPressed = false;
-			pressed = true;
+	void onKeyPressed(InputUtil.KeyCode key) {
+		int count = 0;
+		for (int i = 0; i < keyCode.getKeyCount(); i++) {
+			if (keyCode.get(i) == key)
+				keyStates[i] = true;
+			if (keyStates[i])
+				count++;
 		}
-
-		onStateChanged(true, GSEKeyEventType.PRESS);
+		
+		onKeyStateChanged(count);
 	}
 	
-	public void onKeyReleased() {
-		onStateChanged(false, GSEKeyEventType.RELEASE);
+	void onKeyReleased(InputUtil.KeyCode key) {
+		int count = 0;
+		for (int i = 0; i < keyCode.getKeyCount(); i++) {
+			if (keyCode.get(i) == key)
+				keyStates[i] = false;
+			if (keyStates[i])
+				count++;
+		}
+		
+		onKeyStateChanged(count);
 	}
 	
-	private void onStateChanged(boolean newKeyState, GSEKeyEventType eventType) {
-		if (newKeyState != this.keyState) {
-			this.keyState = newKeyState;
-			
-			final GSIKeyBindingListener listener = this.listener;
-			if (listener != null) {
-				MinecraftClient client = MinecraftClient.getInstance();
-				if (client.isOnThread()) {
-					listener.onKeyStateChanged(this, eventType);
-				} else {
-					client.execute(() -> listener.onKeyStateChanged(this, eventType));
-				}
+	private void onKeyStateChanged(int count) {
+		boolean wasPressed = isPressed();
+		this.pressedCount = count;
+		
+		if (isPressed() != wasPressed)
+			manager.scheduleEvent(this);
+	}
+	
+	void dispatchKeyEvent(GSEKeyEventType eventType) {
+		// Use local field to ensure thread safety.
+		final GSIKeyBindingListener listener = this.listener;
+		if (listener != null) {
+			MinecraftClient client = MinecraftClient.getInstance();
+			if (client.isOnThread()) {
+				listener.onKeyStateChanged(this, eventType);
+			} else {
+				client.execute(() -> listener.onKeyStateChanged(this, eventType));
 			}
 		}
 	}
 
-	public void onKeyRepeated() {
-		repeatCount++;
-	}
-	
-	public void update() {
-		wasPressed = pressed;
-		pressed = keyState;
-		
-		repeatCount = 0;
-	}
-
-	public String getLocalizedName() {
-		String result = null;
-		
-		switch (keyCode.getCategory()) {
-		case KEYSYM:
-			result = InputUtil.getKeycodeName(keyCode.getKeyCode());
-			break;
-		case SCANCODE:
-			result = InputUtil.getScancodeName(keyCode.getKeyCode());
-			break;
-		case MOUSE:
-			result = I18n.hasTranslation(keyCode.getName()) ? I18n.translate(keyCode.getName()) :
-				I18n.translate(keyCode.getCategory().getName(), keyCode.getKeyCode() + 1);
-			break;
-		}
-		
-		return result != null ? result : I18n.translate(keyCode.getName());
-	}
-
-	public boolean isPressed() {
-		return pressed;
-	}
-
-	public boolean wasPressed() {
-		return wasPressed;
-	}
-	
-	public boolean isClicking() {
-		return pressed && !wasPressed;
-	}
-	
-	public boolean isReleaing() {
-		return !pressed && wasPressed;
-	}
-	
-	public int getRepeatCount() {
-		return repeatCount;
-	}
-	
 	public String getName() {
 		return name;
 	}
@@ -135,22 +101,46 @@ public class GSKeyBinding {
 		return category;
 	}
 	
-	public KeyCode getKeyCode() {
+	public GSKeyCode getDefaultKeyCode() {
+		return defaultKeyCode;
+	}
+	
+	public GSKeyCode getKeyCode() {
 		return keyCode;
 	}
 
-	public void setKeyCode(KeyCode keyCode) {
-		if (!allowDisabled && keyCode == InputUtil.UNKNOWN_KEYCODE)
+	public void setKeyCode(GSKeyCode keyCode) {
+		if (!allowDisabled && keyCode == GSKeyCode.UNKNOWN_KEY)
 			keyCode = defaultKeyCode;
 		
-		KeyCode oldKeyCode = this.keyCode;
+		GSKeyCode oldKeyCode = this.keyCode;
 		this.keyCode = keyCode;
+		keyStates = new boolean[keyCode.getKeyCount()];
 		reset();
 		
 		manager.onKeyCodeChanged(this, oldKeyCode, keyCode);
 	}
+	
+	public Text getLocalizedName() {
+		return keyCode.getLocalizedText();
+	}
+	
+	public boolean isAnyPressed() {
+		return (pressedCount != 0);
+	}
+	
+	public boolean isPressed() {
+		return (pressedCount == keyCode.getKeyCount());
+	}
 
-	public KeyCode getDefaultKeyCode() {
-		return defaultKeyCode;
+	/* Higher value of priority means key is dominant */
+	public void setPriority(int priority) {
+		if (priority < 0)
+			throw new IllegalArgumentException("priority must be non-negative");
+		this.priority = priority;
+	}
+	
+	public int getPriority() {
+		return priority;
 	}
 }

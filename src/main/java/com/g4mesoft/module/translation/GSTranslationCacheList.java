@@ -10,7 +10,7 @@ public class GSTranslationCacheList {
 	private int cachedTranslationVersion;
 	
 	public GSTranslationCacheList() {
-		this.caches = new HashMap<Integer, GSTranslationCache>();
+		this.caches = new HashMap<>();
 		cachedTranslationVersion = GSTranslationModule.INVALID_TRANSLATION_VERSION;
 	}
 	

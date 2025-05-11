@@ -4,23 +4,26 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.gui.event.GSCompoundButtonStroke;
-import com.g4mesoft.gui.event.GSIButtonStroke;
-import com.g4mesoft.gui.event.GSIMouseListener;
-import com.g4mesoft.gui.event.GSKeyBindingButtonStroke;
-import com.g4mesoft.gui.event.GSMouseEvent;
-import com.g4mesoft.gui.renderer.GSIRenderer2D;
-import com.g4mesoft.hotkey.GSKeyBinding;
+import com.g4mesoft.ui.panel.GSPanel;
+import com.g4mesoft.ui.panel.GSPanelContext;
+import com.g4mesoft.ui.panel.GSParentPanel;
+import com.g4mesoft.ui.panel.event.GSIMouseListener;
+import com.g4mesoft.ui.panel.event.GSMouseEvent;
+import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 
 @Environment(EnvType.CLIENT)
-public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
-
+public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
+	
+	private static final int BACKGROUND_TOP_COLOR    = 0xC0101010;
+	private static final int BACKGROUND_BOTTOM_COLOR = 0xD0101010;
+	
 	private static final int TAB_VERTICAL_PADDING = 5;
 	private static final int TAB_HORIZONTAL_PADDING = 5;
 
@@ -36,36 +39,33 @@ public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
 	private static final int SELECTED_BACKGROUND_COLOR = 0xAAAAAAAA;
 	private static final int HOVERED_BACKGROUND_COLOR = 0xAAEDEDFF;
 
+	private final boolean showBackground;
+	
 	private int tabHeight;
 	private List<GSTabEntry> tabs;
-	private boolean tabsChanged;
 
 	private int selectedTabIndex;
 
 	public GSTabbedGUI() {
-		tabs = new ArrayList<GSTabEntry>();
-		selectedTabIndex = -1;
+		this(true);
+	}
+
+	public GSTabbedGUI(boolean showBackground) {
+		this.showBackground = showBackground;
 		
-		GSKeyBinding guiKeyBinding = GSControllerClient.getInstance().getOpenGUIKey();
-		GSIButtonStroke guiButton = new GSKeyBindingButtonStroke(guiKeyBinding);
-		setCloseButton(new GSCompoundButtonStroke(getCloseButton(), guiButton));
+		tabs = new ArrayList<>();
+		selectedTabIndex = -1;
 		
 		addMouseEventListener(this);
 	}
 
-	@Override
-	public void onBoundsChanged() {
-		super.onBoundsChanged();
-		
-		tabsChanged = true;
-	}
-	
-	public void addTab(String title, GSPanel tabContent) {
-		tabs.add(new GSTabEntry(title, tabContent));
-		tabsChanged = true;
+	public void addTab(String titleKey, GSPanel tabContent) {
+		tabs.add(new GSTabEntry(new TranslatableText(titleKey), tabContent));
 
 		if (selectedTabIndex == -1)
 			setSelectedTabIndex(0);
+		
+		invalidate();
 	}
 
 	public void setSelectedTabIndex(int index) {
@@ -85,14 +85,18 @@ public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
 		return (index != -1) ? tabs.get(index).getTabContent() : null;
 	}
 
-	private void layoutTabs(GSIRenderer2D renderer) {
-		tabHeight = renderer.getFontHeight() + TAB_VERTICAL_PADDING * 2;
+	public GSPanel getSelectedTabContent() {
+		return getTabContent(selectedTabIndex);
+	}
+	
+	public void layout() {
+		GSIRenderer2D renderer = GSPanelContext.getRenderer();
+
+		tabHeight = renderer.getTextHeight() + TAB_VERTICAL_PADDING * 2;
 
 		for (GSTabEntry tab : tabs) {
-			String title = i18nTranslate(tab.getTitle());
-			int titleWidth = (int)Math.ceil(renderer.getStringWidth(title));
-
-			tab.setDisplayTitle(title);
+			Text title = tab.getTitle();
+			int titleWidth = (int)Math.ceil(renderer.getTextWidth(title));
 			tab.setWidth(titleWidth + TAB_HORIZONTAL_PADDING * 2);
 		}
 
@@ -131,9 +135,8 @@ public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
 		}
 
 		for (GSTabEntry tab : sortedTabs) {
-			String title = tab.getDisplayTitle();
-			title = renderer.trimString(title, tab.getWidth());
-			tab.setDisplayTitle(title);
+			// Update display title based on tab width
+			tab.setDisplayTitle(renderer.trimString(tab.getTitle(), tab.getWidth()));
 		}
 
 		int tabOffsetX = HORIZONTAL_MARGIN;
@@ -148,20 +151,20 @@ public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
 			tab.setX(tabOffsetX);
 			tabOffsetX += tab.getWidth();
 		}
-
-		tabsChanged = false;
 	}
 	
 	@Override
 	public void render(GSIRenderer2D renderer) {
-		if (tabsChanged)
-			layoutTabs(renderer);
-		
-		renderBackground(renderer);
+		if (showBackground)
+			renderBackground(renderer);
 		
 		super.render(renderer);
 		
 		renderTabs(renderer);
+	}
+	
+	protected void renderBackground(GSIRenderer2D renderer) {
+		renderer.fillVGradient(0, 0, width, height, BACKGROUND_TOP_COLOR, BACKGROUND_BOTTOM_COLOR);
 	}
 
 	private void renderTabs(GSIRenderer2D renderer) {
@@ -185,18 +188,18 @@ public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
 			renderer.fillRect(tab.getX(), VERTICAL_MARGIN, tab.getWidth(), tabHeight, SELECTED_BACKGROUND_COLOR);
 		}
 		
-		int xc = tab.getX() + tab.getWidth() / 2;
-		int yc = VERTICAL_MARGIN + (tabHeight - renderer.getFontHeight()) / 2;
+		int xc = tab.getX() + (tab.getWidth() + 1) / 2;
+		int yc = VERTICAL_MARGIN + (tabHeight - renderer.getTextHeight()) / 2;
 		
 		int titleColor = selected ? SELECTED_TEXT_COLOR : TAB_TEXT_COLOR;
-		renderer.drawCenteredString(tab.getDisplayTitle(), xc, yc, titleColor);
+		renderer.drawCenteredText(tab.getDisplayTitle(), xc, yc, titleColor);
 
 		if (tabIndex != 0)
 			renderer.drawVLine(tab.getX(), VERTICAL_MARGIN, tabHeight + VERTICAL_MARGIN, TAB_BORDER_COLOR);
 	}
 
 	private void playClickSound() {
-		GSElementContext.playSound(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+		GSPanelContext.playSound(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 	}
 	
 	@Override
@@ -219,19 +222,19 @@ public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
 
 	private class GSTabEntry {
 
-		private final String title;
+		private final Text title;
 		private final GSPanel tabContent;
 
-		private String displayTitle;
+		private Text displayTitle;
 		private int x;
 		private int width;
 
-		public GSTabEntry(String title, GSPanel tabContent) {
+		public GSTabEntry(Text title, GSPanel tabContent) {
 			this.title = title;
 			this.tabContent = tabContent;
 		}
 
-		public String getTitle() {
+		public Text getTitle() {
 			return title;
 		}
 		
@@ -239,11 +242,11 @@ public class GSTabbedGUI extends GSBasePanel implements GSIMouseListener {
 			return tabContent;
 		}
 		
-		public void setDisplayTitle(String displayTitle) {
+		public void setDisplayTitle(Text displayTitle) {
 			this.displayTitle = displayTitle;
 		}
 
-		public String getDisplayTitle() {
+		public Text getDisplayTitle() {
 			return displayTitle;
 		}
 		

@@ -1,28 +1,37 @@
 package com.g4mesoft.setting.decoder;
 
+import com.g4mesoft.setting.GSISettingDecoder;
 import com.g4mesoft.setting.types.GSStringSetting;
-import com.g4mesoft.util.GSBufferUtil;
-
-import net.minecraft.util.PacketByteBuf;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 
 public class GSStringSettingDecoder implements GSISettingDecoder<GSStringSetting> {
 
 	private static final String STRING_TYPE_STRING = "STR";
 	
 	@Override
-	public GSStringSetting decodeSetting(String name, PacketByteBuf buffer) {
-		String value = buffer.readString(GSBufferUtil.MAX_STRING_LENGTH);
-		String defaultValue = buffer.readString(GSBufferUtil.MAX_STRING_LENGTH);
-		boolean visibleInGui = buffer.readBoolean();
+	public GSStringSetting decodeSetting(String name, GSDecodeBuffer buf) {
+		String value = buf.readString();
+		String defaultValue = buf.readString();
+		boolean visibleInGui = buf.readBoolean();
 		
-		return new GSStringSetting(name, defaultValue, visibleInGui).setValue(value);
+		GSStringSetting setting = new GSStringSetting(name, defaultValue, visibleInGui);
+		setting.set(value);
+
+		if (buf.isReadable(1)) {
+			// Only read when available to ensure backwards compatability
+			setting.setEnabledInGui(buf.readBoolean());
+		}
+		
+		return setting;
 	}
 
 	@Override
-	public void encodeSetting(PacketByteBuf buffer, GSStringSetting setting) {
-		buffer.writeString(setting.getValue());
-		buffer.writeString(setting.getDefaultValue());
-		buffer.writeBoolean(setting.isVisibleInGUI());
+	public void encodeSetting(GSEncodeBuffer buf, GSStringSetting setting) {
+		buf.writeString(setting.get());
+		buf.writeString(setting.getDefault());
+		buf.writeBoolean(setting.isVisibleInGui());
+		buf.writeBoolean(setting.isEnabledInGui());
 	}
 
 	@Override

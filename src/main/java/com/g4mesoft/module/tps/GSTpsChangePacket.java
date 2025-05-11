@@ -2,14 +2,15 @@ package com.g4mesoft.module.tps;
 
 import java.io.IOException;
 
-import com.g4mesoft.core.client.GSControllerClient;
-import com.g4mesoft.core.server.GSControllerServer;
+import com.g4mesoft.core.client.GSClientController;
+import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;
+import com.g4mesoft.util.GSDecodeBuffer;
+import com.g4mesoft.util.GSEncodeBuffer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.PacketByteBuf;
 
 public class GSTpsChangePacket implements GSIPacket {
 
@@ -23,17 +24,17 @@ public class GSTpsChangePacket implements GSIPacket {
 	}
 	
 	@Override
-	public void read(PacketByteBuf buf) throws IOException {
+	public void read(GSDecodeBuffer buf) throws IOException {
 		requestedTps = buf.readFloat();
 	}
 
 	@Override
-	public void write(PacketByteBuf buf) throws IOException {
+	public void write(GSEncodeBuffer buf) throws IOException {
 		buf.writeFloat(requestedTps);
 	}
 
 	@Override
-	public void handleOnServer(GSControllerServer controller, ServerPlayerEntity player) {
+	public void handleOnServer(GSServerController controller, ServerPlayerEntity player) {
 		GSTpsModule tpsModule = controller.getTpsModule();
 		if (tpsModule.isPlayerAllowedTpsChange(player))
 			controller.getTpsModule().setTps(requestedTps);
@@ -41,7 +42,7 @@ public class GSTpsChangePacket implements GSIPacket {
 
 	@Override
 	@Environment(EnvType.CLIENT)
-	public void handleOnClient(GSControllerClient controller) {
+	public void handleOnClient(GSClientController controller) {
 		controller.getTpsModule().setTps(requestedTps);
 	}
 }
