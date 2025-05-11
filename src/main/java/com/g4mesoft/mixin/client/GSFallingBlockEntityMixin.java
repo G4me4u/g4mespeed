@@ -2,7 +2,6 @@ package com.g4mesoft.mixin.client;
 
 import org.spongepowered.asm.mixin.Mixin;
 
-import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
@@ -20,7 +19,6 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 		super(type, world);
 	}
 
-	@GSCoreOverride
 	@Override
 	public void move(MovementType movementType, Vec3d movement) {
 		World world = getWorld();

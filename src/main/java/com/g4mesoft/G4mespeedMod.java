@@ -10,7 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.g4mesoft.core.GSCoreExtension;
-import com.g4mesoft.core.GSCoreOverride;
 import com.g4mesoft.core.compat.GSTweakerooCompat;
 import com.g4mesoft.packet.GSPacketManager;
 
@@ -40,7 +39,6 @@ public class G4mespeedMod implements ModInitializer {
 	}
 	
 	@Override
-	@GSCoreOverride
 	public void onInitialize() {
 		instance = this;
 
