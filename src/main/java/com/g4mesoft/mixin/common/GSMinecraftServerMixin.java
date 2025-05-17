@@ -22,13 +22,12 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.Util;
+import net.minecraft.util.Utils;
 
 @Mixin(MinecraftServer.class)
 public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
-	@Shadow private long timeReference;
-	@Shadow private long field_19248;
+	@Shadow private long nextTickTime;
 
 	@Unique
 	private float gs_msAccum = 0.0f;
@@ -86,19 +85,17 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		// Note that there might be some inaccuracies since we
 		// are using milliseconds.
 		
-		long now = Util.getMeasuringTimeMs();   // t_n
-		long dt = timeReference - now;          // t_r1 - t_n
+		long now = Utils.getTimeMillis();       // t_n
+		long dt = nextTickTime - now;           // t_r1 - t_n
 		long millisNextTick = (long)gs_msAccum; // D_2
 		
 		if (dt < millisPrevTick && millisPrevTick != 0L) {
 			// t_r2 = t_n + D_2 * (t_r1 - t_n) / D_1
 			long delta = millisNextTick * dt / millisPrevTick;
-			timeReference = now + GSMathUtil.clamp(delta, 0L, millisNextTick);
+			nextTickTime = now + GSMathUtil.clamp(delta, 0L, millisNextTick);
 		} else {
-			timeReference = now + millisNextTick;
+			nextTickTime = now + millisNextTick;
 		}
-		// Also reset wait timer for tasks.
-		field_19248 = timeReference;
 	}
 
 	@Inject(
@@ -107,8 +104,8 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			value = "INVOKE",
 			shift = At.Shift.BEFORE, 
 			target =
-				"Lnet/minecraft/server/MinecraftServer;setFavicon(" +
-					"Lnet/minecraft/server/ServerMetadata;" +
+				"Lnet/minecraft/server/MinecraftServer;setStatus(" +
+					"Lnet/minecraft/server/ServerStatus;" +
 				")V"
 		)
 	)
@@ -128,8 +125,8 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 				value = "INVOKE",
 				shift = At.Shift.AFTER, 
 				target =
-					"Lnet/minecraft/server/MinecraftServer;setFavicon(" +
-						"Lnet/minecraft/server/ServerMetadata;" +
+					"Lnet/minecraft/server/MinecraftServer;setStatus(" +
+						"Lnet/minecraft/server/ServerStatus;" +
 					")V"
 			)
 		),
@@ -137,7 +134,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			value = "INVOKE",
 			shift = Shift.BEFORE,
 			ordinal = 0,
-			target = "Lnet/minecraft/util/Util;getMeasuringTimeMs()J"
+			target = "Lnet/minecraft/util/Utils;getTimeMillis()J"
 		)
 	)
 	private void onRunServerLoopBeginning(CallbackInfo ci) {
@@ -156,7 +153,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		if (GSMathUtil.equalsApproximate(gs_msPerTick, 0.0f)) {
 			gs_ticksBehind = Long.MAX_VALUE;
 		} else {
-			long deltaMs = Util.getMeasuringTimeMs() - timeReference;
+			long deltaMs = Utils.getTimeMillis() - nextTickTime;
 			gs_ticksBehind = (deltaMs > 0L) ? (long)(deltaMs / gs_msPerTick) : 0L;
 		}
 		
@@ -198,9 +195,9 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	)
 	private void onRunServerAfterWarn(CallbackInfo ci) {
 		if (gs_ticksBehind == Long.MAX_VALUE) {
-			timeReference = Util.getMeasuringTimeMs();
+			nextTickTime = Utils.getTimeMillis();
 		} else {
-			timeReference += gs_ticksBehind * gs_msPerTick;
+			nextTickTime += gs_ticksBehind * gs_msPerTick;
 		}
 	}
 
@@ -216,17 +213,6 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		return 0L;
 	}
 	
-	@ModifyConstant(
-		method = "run",
-		constant = @Constant(
-			longValue = 50L,
-			ordinal = 2
-		)
-	)
-	private long onRunServerModify50TimeReferenceIncrement(long prevMsThisTick) {
-		return gs_msThisTick;
-	}
-
 	@ModifyConstant(
 		method = "run",
 		expect = 1,
@@ -274,7 +260,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			value = "FIELD",
 			shift = Shift.AFTER,
 			opcode = Opcodes.PUTFIELD,
-			target = "Lnet/minecraft/server/MinecraftServer;field_4557:J"
+			target = "Lnet/minecraft/server/MinecraftServer;lastWarnTime:J"
 		)
 	)
 	private void onRunServerAfterOverloaded(CallbackInfo ci) {
@@ -292,7 +278,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	}
 	
 	@Inject(
-		method = "shutdown",
+		method = "stop",
 		at = @At("RETURN")
 	)
 	private void onShutdown(CallbackInfo ci) {

@@ -1,9 +1,9 @@
 package com.g4mesoft.mixin.client;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -12,11 +12,14 @@ import com.g4mesoft.access.client.GSIEntityAccess;
 import com.g4mesoft.core.client.GSClientController;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.MoverType;
 import net.minecraft.world.World;
 
 @Mixin(Entity.class)
 public class GSEntityMixin implements GSIEntityAccess {
 
+	@Shadow public boolean noClip;
+	
 	@Unique
 	private boolean gs_wasMovedByPiston = false;
 	@Unique
@@ -24,30 +27,24 @@ public class GSEntityMixin implements GSIEntityAccess {
 	
 	@Inject(
 		method = "move",
-		at = @At(
-			value = "INVOKE",
-			shift = Shift.BEFORE,
-			target =
-				"Lnet/minecraft/entity/Entity;adjustMovementForPiston(" +
-					"Lnet/minecraft/util/math/Vec3d;" +
-				")Lnet/minecraft/util/math/Vec3d;"
-		)
+		at = @At("HEAD")
 	)
-	private void onMoveBeforeAdjustMovementForPiston(CallbackInfo ci) {
-		gs_movedByPiston = true;
+	private void onMoveBeforeAdjustMovementForPiston(MoverType moverType, double x, double y, double z, CallbackInfo ci) {
+		if (!noClip && moverType == MoverType.PISTON)
+			gs_movedByPiston = true;
 	}
 
 	@Inject(
-		method = "updatePosition",
+		method = "baseTick",
 		at = @At("HEAD")
 	)
-	private void onUpdatePosition(CallbackInfo ci) {
+	private void onBaseTick(CallbackInfo ci) {
 		gs_wasMovedByPiston = gs_movedByPiston;
 		gs_movedByPiston = false;
 	}
 
 	@Redirect(
-		method = "adjustMovementForPiston",
+		method = "move",
 		at = @At(
 			value = "INVOKE",
 			target = "Lnet/minecraft/world/World;getTime()J"
@@ -58,7 +55,7 @@ public class GSEntityMixin implements GSIEntityAccess {
 			// Check if we are pushing entities from outside of the tick loop,
 			// meaning that the piston movement delta array from the previous
 			// tick should be used.
-	        if (!((GSIWorldAccess)world).isIteratingTickingBlockEntities())
+	        if (!((GSIWorldAccess)world).isTickingBlockEntities())
 	        	return world.getTime() - 1L;
 		}
 		

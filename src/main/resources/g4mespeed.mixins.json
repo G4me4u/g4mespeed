@@ -18,41 +18,42 @@
     
     "common.GSTranslatableTextMixin",
     
-    "common.GSPistonBlockEntityMixin",
-    "common.GSPistonBlockMixin",
+    "common.GSMovingBlockEntityMixin",
+    "common.GSPistonBaseBlockMixin",
     
-    "common.GSThreadedAnvilChunkStorageMixin",
-    "common.GSIThreadedAnvilChunkStorageEntityTrackerAccess",
+    "common.GSEntityTrackerMixin",
     "common.GSEntityTrackerEntryMixin",
+    "common.GSIAddEntityS2CPacketAccess",
     "common.GSServerChunkManagerMixin",
-    "common.GSIBlockActionS2CPacketAccess",
+    "common.GSIBlockEventS2CPacketAccess",
     "common.GSChunkHolderMixin",
     "common.GSFallingBlockEntityMixin"
   ],
   "client": [
-    "client.GSMinecraftClientMixin",
+    "client.GSMinecraftMixin",
     "client.GSIntegratedServerMixin",
 
-  	"client.GSSoundSystemMixin",
+  	"client.GSSoundEngineMixin",
   	
-    "client.GSKeyboardMixin",
-    "client.GSMouseMixin",
+    "client.GSKeyboardHandlerMixin",
+    "client.GSMouseHandlerMixin",
     
-    "client.GSRenderTickCounterMixin",
+    "client.GSTickTimerMixin",
     
     "client.GSClientPlayNetworkHandlerMixin",
-    "client.GSIChunkDeltaRecordAccess",
+    "client.GSIBlocksUpdateBlockUpdateAccess",
     
-    "client.GSPistonBlockEntityRendererMixin",
-    "client.GSPistonBlockEntityMixin",
+    "client.GSMovingBlockRendererMixin",
+    "client.GSMovingBlockEntityMixin",
     
-    "client.GSInGameHudMixin",
+    "client.GSGameGuiMixin",
     
     "client.GSWorldRendererMixin",
     "client.GSGameRendererMixin",
+    "client.GSParticleManagerMixin",
     "client.GSEntityRenderDispatcherMixin",
-    "client.GSClientWorldMixin",
-    "client.GSAbstractClientPlayerEntityMixin",
+    "client.GSWorldMixin",
+    "client.GSClientPlayerEntityMixin",
     
     "client.GSFallingBlockEntityMixin",
     

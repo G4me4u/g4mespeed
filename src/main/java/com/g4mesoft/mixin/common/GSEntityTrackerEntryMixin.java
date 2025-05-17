@@ -1,6 +1,6 @@
 package com.g4mesoft.mixin.common;
 
-import java.util.function.Consumer;
+import java.util.List;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.common.GSIEntityTrackerEntryAccess;
@@ -21,23 +22,27 @@ import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 import com.g4mesoft.ui.util.GSMathUtil;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.network.Packet;
-import net.minecraft.server.network.EntityTrackerEntry;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.entity.FallingBlockEntity;
+import net.minecraft.entity.living.player.PlayerEntity;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.AddEntityS2CPacket;
+import net.minecraft.server.entity.EntityTrackerEntry;
+import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 
 @Mixin(EntityTrackerEntry.class)
-public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
+public abstract class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 
 	private static final double FALLING_BLOCK_GRAVITY  = -0.04;
 	private static final double FALLING_BLOCK_FRICTION =  0.98;
 	
-	@Shadow @Final private Entity entity;
-	@Shadow @Final private Consumer<Packet<?>> field_18259; /* receiver */
-	@Shadow private int field_14040; /* trackingTick */
-	@Shadow private boolean lastOnGround;
+	@Shadow @Final private Entity currentTrackedEntity;
+	@Shadow private int ticks;
+	@Shadow private boolean onGround;
+	
+	@Shadow public abstract void sendToListeners(Packet<?> packet);
 	
 	@Unique
 	private boolean gs_fixedMovement = false;
@@ -48,34 +53,39 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	@Unique
 	private int gs_fallingBlockTrackingTick = 0;
 	@Unique
-	private Vec3d gs_lastFallingBlockVelocity = Vec3d.ZERO;
+	private double gs_lastFallingBlockVelocityX = 0.0;
+	@Unique
+	private double gs_lastFallingBlockVelocityY = 0.0;
+	@Unique
+	private double gs_lastFallingBlockVelocityZ = 0.0;
 	
 	@Inject(
-		method = "method_18756", /* tick */
+		method = "notifyNewLocation",
 		cancellable = true,
 		at = @At("HEAD")
 	)
-	private void onTick(CallbackInfo ci) {
+	private void onNotifyNewLocation(List<PlayerEntity> players, CallbackInfo ci) {
 		if (gs_fixedMovement != gs_lastFixedMovement) {
 			gs_lastFixedMovement = gs_fixedMovement;
 
-			if (entity.getType() == EntityType.PLAYER) {
-				GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getEntityId(), gs_fixedMovement);
+			if (currentTrackedEntity.getType() == EntityType.PLAYER) {
+				GSIPacket packet = new GSServerPlayerFixedMovementPacket(currentTrackedEntity.getNetworkId(), gs_fixedMovement);
 				// Encode packet to a vanilla packet. This is required for sending to all nearby
 				// players. Note that vanilla players will not react to the packet.
 				GSPacketManager packetManager = G4mespeedMod.getPacketManager();
-				field_18259.accept(packetManager.encodePacket(packet, GSServerController.getInstance()));
+				sendToListeners(packetManager.encodePacket(packet, GSServerController.getInstance()));
 			}
 		}
 		
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && currentTrackedEntity.getType() == EntityType.FALLING_BLOCK) {
 			if (gs_tickedFromFallingBlock) {
-				Vec3d currentVelocity = entity.getVelocity();
-				double dvx = currentVelocity.getX() - gs_lastFallingBlockVelocity.getX() * FALLING_BLOCK_FRICTION;
-				double dvy = currentVelocity.getY() - gs_lastFallingBlockVelocity.getY() * FALLING_BLOCK_FRICTION;
-				double dvz = currentVelocity.getZ() - gs_lastFallingBlockVelocity.getZ() * FALLING_BLOCK_FRICTION;
-				gs_lastFallingBlockVelocity = currentVelocity;
+				double dvx = currentTrackedEntity.velocityX - gs_lastFallingBlockVelocityX * FALLING_BLOCK_FRICTION;
+				double dvy = currentTrackedEntity.velocityY - gs_lastFallingBlockVelocityY * FALLING_BLOCK_FRICTION;
+				double dvz = currentTrackedEntity.velocityZ - gs_lastFallingBlockVelocityZ * FALLING_BLOCK_FRICTION;
+				gs_lastFallingBlockVelocityX = currentTrackedEntity.velocityX;
+				gs_lastFallingBlockVelocityY = currentTrackedEntity.velocityY;
+				gs_lastFallingBlockVelocityZ = currentTrackedEntity.velocityZ;
 				
 				if (tpsModule.sPrettySand.get() == GSTpsModule.PRETTY_SAND_FIDELITY ||
 				    gs_fallingBlockTrackingTick == 0 ||
@@ -85,11 +95,11 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 					
 					// Set dirty flag. This will update the position, rotation,
 					// and velocity of the falling block immediately.
-					entity.velocityDirty = true;
+					currentTrackedEntity.velocityDirty = true;
 					
 					// Force position and velocity to be sent in their entirety
-					lastOnGround = !entity.onGround;
-					field_14040 = Math.max(1, field_14040);
+					onGround = !currentTrackedEntity.onGround;
+					ticks = Math.max(1, ticks);
 				}
 	
 				gs_fallingBlockTrackingTick++;
@@ -102,22 +112,45 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	}
 	
 	@Inject(
-		method = "startTracking",
+		method = "updateListener",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/server/network/EntityTrackerEntry;sendPackets(" +
-					"Ljava/util/function/Consumer;" +
+				"Lnet/minecraft/entity/Entity;onStartedTrackingBy(" +
+					"Lnet/minecraft/server/entity/living/player/ServerPlayerEntity;" +
 				")V"
 		)
 	)
 	private void onStartTracking(ServerPlayerEntity player, CallbackInfo ci) {
-		if (entity.getType() == EntityType.PLAYER) {
-			GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getEntityId(), gs_fixedMovement);
+		if (currentTrackedEntity.getType() == EntityType.PLAYER) {
+			GSIPacket packet = new GSServerPlayerFixedMovementPacket(currentTrackedEntity.getNetworkId(), gs_fixedMovement);
 			// Note that player might be tracking the entity after just joining
 			// in which case the extension versions will not yet have been sent.
 			GSServerController.getInstance().sendPacket(packet, player, GSVersion.INVALID);
+		}
+	}
+	
+	@Inject(
+		method = "createAddEntityPacket",
+		cancellable = true,
+		at = @At("HEAD")
+	)
+	private void onCreateAddEntityPacket(CallbackInfoReturnable<Packet<?>> cir) {
+		if (currentTrackedEntity instanceof FallingBlockEntity) {
+			FallingBlockEntity fallingBlockEntity = (FallingBlockEntity)currentTrackedEntity;
+			
+			if (GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
+				// Note: falling block entity has id 70.
+				AddEntityS2CPacket packet = new AddEntityS2CPacket(currentTrackedEntity,
+						70, Block.serialize(fallingBlockEntity.getBlock()));
+	
+				// Calculate offset applied to position (falling block entity is not 1.0 tall)
+				double yOffs = (double)((1.0F - currentTrackedEntity.height) / 2.0F);
+				((GSIAddEntityS2CPacketAccess)packet).setY(currentTrackedEntity.y - yOffs);
+				
+				cir.setReturnValue(packet);
+			}
 		}
 	}
 	

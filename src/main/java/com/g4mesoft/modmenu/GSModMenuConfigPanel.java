@@ -14,7 +14,7 @@ import com.g4mesoft.ui.panel.scroll.GSScrollPanel;
 import com.g4mesoft.ui.renderer.GSIRenderer2D;
 import com.g4mesoft.ui.renderer.GSTexture;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -115,6 +115,6 @@ public class GSModMenuConfigPanel extends GSClosableParentPanel {
 	
 	@Override
 	public void close() {
-		MinecraftClient.getInstance().openScreen(previous);
+		Minecraft.getInstance().openScreen(previous);
 	}
 }

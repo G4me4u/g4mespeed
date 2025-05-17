@@ -1,16 +1,13 @@
 package com.g4mesoft.modmenu;
 
-import java.util.function.Function;
-
 import com.g4mesoft.ui.panel.GSPanelContext;
-
-import io.github.prospector.modmenu.api.ModMenuApi;
-import net.minecraft.client.gui.screen.Screen;
+import com.terraformersmc.modmenu.api.ConfigScreenFactory;
+import com.terraformersmc.modmenu.api.ModMenuApi;
 
 public class GSModMenuApi implements ModMenuApi {
 
 	@Override
-	public Function<Screen, ? extends Screen> getConfigScreenFactory() {
+	public ConfigScreenFactory<?> getModConfigScreenFactory() {
 		return screen -> {
 			// This is a hack to get the MC screen to be compatible with GSPanel.
 			// However, It can generally be guaranteed that setContent is not
@@ -18,10 +15,5 @@ public class GSModMenuApi implements ModMenuApi {
 			GSPanelContext.setContent(new GSModMenuConfigPanel(screen));
 			return GSPanelContext.getScreen();
 		};
-	}
-
-	@Override
-	public String getModId() {
-		return "g4mespeed";
 	}
 }

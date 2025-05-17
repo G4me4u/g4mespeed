@@ -18,21 +18,18 @@ import com.g4mesoft.setting.GSISettingChangeListener;
 import com.g4mesoft.setting.GSSetting;
 import com.g4mesoft.setting.GSSettingCategory;
 
-import net.minecraft.client.options.GameOptions;
-import net.minecraft.client.sound.Channel;
-import net.minecraft.client.sound.SoundInstance;
-import net.minecraft.client.sound.SoundManager;
-import net.minecraft.client.sound.SoundSystem;
-import net.minecraft.resource.ResourceManager;
+import net.minecraft.client.sound.instance.SoundInstance;
+import net.minecraft.client.sound.system.SoundEngine;
 import net.minecraft.util.math.MathHelper;
 
-@Mixin(SoundSystem.class)
-public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingChangeListener {
+@Mixin(SoundEngine.class)
+public abstract class GSSoundEngineMixin implements GSITpsDependant, GSISettingChangeListener {
 
-	@Shadow @Final private Map<SoundInstance, Channel.SourceManager> sources;
+	@Shadow @Final private Map<SoundInstance, String> channelsByEvent;
+	@Shadow private SoundEngine.System system;
 
-	@Shadow protected abstract float getAdjustedPitch(SoundInstance soundInstance);
-	
+	@Shadow protected abstract float getPitch(SoundInstance soundInstance);
+
 	@Unique
 	private GSTpsModule gs_tpsModule;
 	
@@ -40,7 +37,7 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 		method = "<init>",
 		at = @At("RETURN")
 	)
-	private void onInit(SoundManager soundManager, GameOptions options, ResourceManager resourceManager, CallbackInfo ci) {
+	private void onInit(CallbackInfo ci) {
 		GSClientController client = GSClientController.getInstance();
 		gs_tpsModule = client.getTpsModule();
 		
@@ -49,7 +46,7 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 	}
 	
 	@Inject(
-		method = "getAdjustedPitch",
+		method = "getPitch",
 		cancellable = true,
 		at = @At("HEAD")
 	)
@@ -67,9 +64,9 @@ public abstract class GSSoundSystemMixin implements GSITpsDependant, GSISettingC
 
 	@Unique
 	private void updatePitch() {
-		for (Map.Entry<SoundInstance, Channel.SourceManager> soundEntry : sources.entrySet()) {
-			float pitch = getAdjustedPitch(soundEntry.getKey());
-			soundEntry.getValue().run((s) -> s.setPitch(pitch));
+		for (Map.Entry<SoundInstance, String> soundEntry : channelsByEvent.entrySet()) {
+			float pitch = getPitch(soundEntry.getKey());
+			system.setPitch(soundEntry.getValue(), pitch);
 		}
 	}
 	

@@ -11,11 +11,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.core.client.GSClientController;
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.client.render.block.entity.PistonBlockEntityRenderer;
+import net.minecraft.client.render.block.entity.MovingBlockRenderer;
 
-@Mixin(PistonBlockEntityRenderer.class)
-public class GSPistonBlockEntityRendererMixin {
+@Mixin(MovingBlockRenderer.class)
+public class GSMovingBlockRendererMixin {
 
 	@ModifyConstant(
 		method = "render",
@@ -54,8 +53,11 @@ public class GSPistonBlockEntityRendererMixin {
 		}
 	}
 
-	@Inject(method = "render", at = @At("RETURN"))
-	private void onRenderEnd(PistonBlockEntity blockEntity, double x, double y, double z, float partialTicks, int int_1, CallbackInfo ci) {
+	@Inject(
+		method = "render",
+		at = @At("RETURN")
+	)
+	private void onRenderEnd(CallbackInfo ci) {
 		// Ensure that we're disabling culling after
 		// the block entity call (since we might have
 		// enabled it).

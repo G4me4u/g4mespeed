@@ -1,6 +1,5 @@
 package com.g4mesoft.mixin.common;
 
-import java.util.function.BiFunction;
 import java.util.function.BooleanSupplier;
 
 import org.spongepowered.asm.mixin.Final;
@@ -12,48 +11,49 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.access.common.GSIServerChunkManagerAccess;
+import com.g4mesoft.access.common.GSIEntityTrackerAccess;
+import com.g4mesoft.access.common.GSIServerChunkMapAccess;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.Packet;
-import net.minecraft.server.world.ServerChunkManager;
+import net.minecraft.entity.living.player.PlayerEntity;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.server.ChunkMap;
+import net.minecraft.server.entity.EntityTracker;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkManager;
+import net.minecraft.world.WorldData;
 import net.minecraft.world.dimension.Dimension;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.level.LevelProperties;
+import net.minecraft.world.storage.DimensionDataStorage;
+import net.minecraft.world.storage.WorldStorage;
 
 @Mixin(ServerWorld.class)
 public abstract class GSServerWorldMixin extends World {
 
-	@Shadow @Final private Int2ObjectMap<Entity> entitiesById;
+	@Shadow @Final private ChunkMap chunkMap;
+	@Shadow @Final private EntityTracker entityTracker;
 	
-	protected GSServerWorldMixin(LevelProperties levelProperties, DimensionType dimensionType,
-			BiFunction<World, Dimension, ChunkManager> chunkManagerProvider, Profiler profiler, boolean isClient) {
-		super(levelProperties, dimensionType, chunkManagerProvider, profiler, isClient);
+	protected GSServerWorldMixin(WorldStorage storage, DimensionDataStorage dimensionDataStorage, WorldData data,
+			Dimension dimension, Profiler profiler, boolean isClient) {
+		super(storage, dimensionDataStorage, data, dimension, profiler, isClient);
 	}
-
+	
 	@Inject(
-		method = "tick",
+		method = "tickEntities",
 		at = @At("RETURN")
 	)
-	private void onTickReturn(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+	private void onTickEntitiesReturn(CallbackInfo ci) {
 		if (GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
-			ServerChunkManager chunkManager = (ServerChunkManager)getChunkManager();
-			
-			for (Entity entity : entitiesById.values()) {
+			for (Entity entity : entities) {
 				if (!entity.removed && entity.getType() == EntityType.FALLING_BLOCK) {
-					((GSIServerChunkManagerAccess)chunkManager).gs_setTrackerTickedFromFallingBlock(entity, true);
-					((GSIServerChunkManagerAccess)chunkManager).gs_tickEntityTracker(entity);
+					((GSIEntityTrackerAccess)entityTracker).gs_setTrackerTickedFromFallingBlock(entity, true);
+					((GSIEntityTrackerAccess)entityTracker).gs_tickEntityTracker(entity);
 				}
 			}
 		}
@@ -64,33 +64,33 @@ public abstract class GSServerWorldMixin extends World {
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER, 
-			target = "Lnet/minecraft/server/world/ServerWorld;sendBlockActions()V"
+			target = "Lnet/minecraft/server/world/ServerWorld;doBlockEvents()V"
 		)
 	)
 	private void onTickImmediateUpdates(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
 		if (GSServerController.getInstance().getTpsModule().sImmediateBlockBroadcast.get()) {
-			getProfiler().swap("chunkSource");
-			((GSIServerChunkManagerAccess) getChunkManager()).gs_flushAndSendChunkUpdates();
+			profiler.swap("chunkMap");
+			((GSIServerChunkMapAccess)chunkMap).gs_flushAndSendChunkUpdates();
 		}
 	}
 	
 	@ModifyArg(
-		method = "sendBlockActions",
+		method = "doBlockEvents",
 		allow = 1,
 		index = 4,
 		at = @At(
 			value = "INVOKE", 
 			target =
-				"Lnet/minecraft/server/PlayerManager;sendToAround(" +
-					"Lnet/minecraft/entity/player/PlayerEntity;" +
+				"Lnet/minecraft/server/PlayerManager;sendPacket(" +
+					"Lnet/minecraft/entity/living/player/PlayerEntity;" +
 					"DDDD" +
 					"Lnet/minecraft/world/dimension/DimensionType;" +
-					"Lnet/minecraft/network/Packet;" +
+					"Lnet/minecraft/network/packet/Packet;" +
 				")V"
 		)
 	)
 	private double blockEventDistance(PlayerEntity player, double x, double y, double z, double dist, DimensionType dimensionType, Packet<?> packet) {
-		Block block = ((GSIBlockActionS2CPacketAccess)packet).getBlock2();
+		Block block = ((GSIBlockEventS2CPacketAccess)packet).getBlock2();
 		
 		if (block == Blocks.PISTON || block == Blocks.STICKY_PISTON) {
 			GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();

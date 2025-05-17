@@ -12,20 +12,20 @@ import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.hotkey.GSEKeyEventType;
 import com.g4mesoft.hotkey.GSKeyManager;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.Mouse;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
 
-@Mixin(Mouse.class)
-public class GSMouseMixin {
+@Mixin(MouseHandler.class)
+public class GSMouseHandlerMixin {
 
-	@Shadow @Final private MinecraftClient client;
+	@Shadow @Final private Minecraft minecraft;
 
 	@Inject(
-		method="onMouseButton(JIII)V",
+		method="onPress(JIII)V",
 		at = @At("HEAD")
 	)
 	private void onMouseEvent(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
-		if (windowHandle == client.window.getHandle()) {
+		if (windowHandle == minecraft.window.getWindow()) {
 			GSKeyManager keyManager = GSClientController.getInstance().getKeyManager();
 
 			keyManager.clearEventQueue();
@@ -38,13 +38,13 @@ public class GSMouseMixin {
 	}
 
 	@Inject(
-		method="onMouseButton(JIII)V",
+		method="onPress(JIII)V",
 		at = @At(
 			value = "INVOKE",
 			shift = At.Shift.AFTER, 
 			target =
-				"Lnet/minecraft/client/options/KeyBinding;setKeyPressed(" +
-					"Lnet/minecraft/client/util/InputUtil$KeyCode;" +
+				"Lnet/minecraft/client/options/KeyBinding;set(" +
+					"Lcom/mojang/blaze3d/platform/InputConstants$Key;" +
 					"Z" +
 				")V"
 		)

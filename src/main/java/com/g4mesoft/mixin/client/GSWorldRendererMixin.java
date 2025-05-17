@@ -7,25 +7,27 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.access.client.GSIMinecraftClientAccess;
+import com.g4mesoft.access.client.GSIMinecraftAccess;
 import com.g4mesoft.access.client.GSIWorldRendererAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.WorldRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.living.player.ClientPlayerEntity;
+import net.minecraft.client.render.world.WorldRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 
 @Mixin(WorldRenderer.class)
 public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 
-	@Shadow @Final private MinecraftClient client;
+	@Shadow @Final private Minecraft minecraft;
 	
-	@Shadow protected abstract void scheduleSectionRender(BlockPos pos, boolean important);
+	@Shadow protected abstract void setDirty(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, boolean important);
 	
 	@Unique
 	private GSClientController gs_controller;
@@ -36,16 +38,40 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 		method = "<init>",
 		at = @At("RETURN")
 	)
-	private void onInit(MinecraftClient client, CallbackInfo ci) {
+	private void onInit(Minecraft client, CallbackInfo ci) {
 		gs_controller = GSClientController.getInstance();
 		gs_tpsModule = gs_controller.getTpsModule();
 	}
 
 	@Unique
+	private float gs_getGlobalTickDelta(float oldTickDelta) {
+		Minecraft minecraft = Minecraft.getInstance();
+		return minecraft.isPaused() ? oldTickDelta : minecraft.getPartialTick();
+	}
+	
+	@ModifyVariable(
+		method = "renderEntities",
+		argsOnly = true,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/client/render/entity/EntityRenderDispatcher;setCameraPos(" +
+					"D" +
+					"D" +
+					"D" +
+				")V"
+		)
+	)
+	private float modifyParticleRenderTickDelta(float oldTickDelta) {
+		return gs_getGlobalTickDelta(oldTickDelta);
+	}
+	
+	@Unique
 	private float gs_getEntityDeltaTick(Entity entity, float deltaTick) {
-		if (!client.isPaused() && (entity instanceof AbstractClientPlayerEntity)) {
-			if (gs_tpsModule.isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
-				return ((GSIMinecraftClientAccess)client).gs_getFixedMovementTickDelta();
+		if (!minecraft.isPaused() && (entity instanceof ClientPlayerEntity)) {
+			if (gs_tpsModule.isPlayerFixedMovement((ClientPlayerEntity)entity))
+				return ((GSIMinecraftAccess)minecraft).gs_getFixedMovementTickDelta();
 		}
 
 		return deltaTick;
@@ -86,6 +112,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	
 	@Override
 	public void gs_scheduleBlockUpdate(BlockPos pos, boolean important) {
-		scheduleSectionRender(pos, important);
+		int x = pos.getX(), y = pos.getY(), z = pos.getZ();
+		setDirty(x - 1, y - 1, z - 1, x + 1, y + 1, z + 1, important);
 	}
 }

@@ -17,7 +17,7 @@ import org.lwjgl.glfw.GLFW;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
-import com.g4mesoft.access.client.GSIAbstractClientPlayerEntityAccess;
+import com.g4mesoft.access.client.GSIClientPlayerEntityAccess;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.client.GSClientController;
@@ -39,15 +39,15 @@ import com.mojang.brigadier.CommandDispatcher;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.living.player.ClientPlayerEntity;
+import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.server.PlayerManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.command.source.CommandSourceStack;
+import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Util;
+import net.minecraft.util.Utils;
 import net.minecraft.world.GameMode;
 
 public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
@@ -137,7 +137,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 
 		serverSyncTimer = 0;
 		serverTpsMonitor = new GSTpsMonitor();
-		lastServerTpsTime = Util.getMeasuringTimeMs();
+		lastServerTpsTime = Utils.getTimeMillis();
 		
 		manager = null;
 	
@@ -282,10 +282,10 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 					// longer be available an vice versa.
 					manager.runOnServer(managerServer -> {
 						PlayerManager playerManager = managerServer.getServer().getPlayerManager();
-						for (ServerPlayerEntity player : playerManager.getPlayerList()) {
+						for (ServerPlayerEntity player : playerManager.getAll()) {
 							// The command tree can only change for non-OP players.
-							if (!player.allowsPermissionLevel(GSServerController.OP_PERMISSION_LEVEL))
-								playerManager.sendCommandTree(player);
+							if (!player.hasPermissions(GSServerController.OP_PERMISSION_LEVEL))
+								managerServer.getServer().getCommandHandler().sendCommands(player);
 						}
 					});
 				}
@@ -294,7 +294,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 	}
 	
 	@Override
-	public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
+	public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
 		GSTpsCommand.registerCommand(dispatcher);
 	}
 	
@@ -314,7 +314,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 			serverTpsMonitor.update(1);
 			
 			if (sBroadcastTps.get()) {
-				long now = Util.getMeasuringTimeMs();
+				long now = Utils.getTimeMillis();
 				
 				// Note that the interval may be less than zero in case of the
 				// first tick or in case of overflow / underflow.
@@ -339,7 +339,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 	
 	public void onServerTps(float serverTps) {
 		this.serverTps = serverTps;
-		lastServerTpsTime = Util.getMeasuringTimeMs();
+		lastServerTpsTime = Utils.getTimeMillis();
 	}
 	
 	private void onClientHotkey(GSETpsHotkeyType hotkeyType) {
@@ -348,8 +348,8 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 			@Override
 			@Environment(EnvType.CLIENT)
 			public void accept(GSIClientModuleManager managerClient) {
-				MinecraftClient client = MinecraftClient.getInstance();
-				boolean sneaking = client.options.keySneak.isPressed();
+				Minecraft client = Minecraft.getInstance();
+				boolean sneaking = client.options.sneakKey.isPressed();
 				
 				if (managerClient.isG4mespeedServer()) {
 					if (sTpsHotkeyMode.get() != HOTKEY_MODE_DISABLED) {
@@ -358,16 +358,16 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 						managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
 					}
 				} else if (client.interactionManager != null) { 
-					if (isGameModeAllowingHotkeys(client.interactionManager.getCurrentGameMode())) {
+					if (isGameModeAllowingHotkeys(client.interactionManager.getGameMode())) {
 						performHotkeyAction(hotkeyType, sneaking);
 						
-						if (client.inGameHud != null) {
+						if (client.gui != null) {
 							String formattedTps = TPS_FORMAT.format(tps);
 							Text overlay = new TranslatableText("play.info.clientTpsChanged", formattedTps);
-							client.inGameHud.setOverlayMessage(overlay, false);
+							client.gui.setOverlayMessage(overlay, false);
 						}
-					} else if (client.inGameHud != null) {
-						client.inGameHud.setOverlayMessage(new TranslatableText("play.info.hotkeysDisallowed"), false);
+					} else if (client.gui != null) {
+						client.gui.setOverlayMessage(new TranslatableText("play.info.hotkeysDisallowed"), false);
 					}
 				}
 			}
@@ -404,10 +404,10 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 		case HOTKEY_FEEDBACK_DISABLED:
 			break;
 		case HOTKEY_FEEDBACK_STATUS:
-			player.addChatMessage(feedbackText, true);
+			player.addMessage(feedbackText, true);
 			break;
 		case HOTKEY_FEEDBACK_CHAT:
-			player.addChatMessage(feedbackText, false);
+			player.addMessage(feedbackText, false);
 			break;
 		default:
 			break;
@@ -543,7 +543,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 				// a de-sync with the server tick cycle.
 				serverTpsMonitor.reset();
 
-				lastServerTpsTime = Util.getMeasuringTimeMs();
+				lastServerTpsTime = Utils.getTimeMillis();
 				carpetCompat.getServerTickrateManager().setTickrate(this.tps);
 			});
 			manager.runOnClient(managerClient -> {
@@ -566,7 +566,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 
 	public boolean isPlayerAllowedTpsChange(PlayerEntity player) {
 		if (sRequireOP.get())
-			return player.allowsPermissionLevel(GSServerController.OP_PERMISSION_LEVEL);
+			return player.hasPermissions(GSServerController.OP_PERMISSION_LEVEL);
 		return true;
 	}
 	
@@ -677,7 +677,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public boolean isPlayerFixedMovement(AbstractClientPlayerEntity player) {
+	public boolean isPlayerFixedMovement(ClientPlayerEntity player) {
 		// Only enable fixed movement if tps is different from default.
 		if (!isDefaultTps() || fixedMovementOnDefaultTps) {
 			GSClientController controller = GSClientController.getInstance();
@@ -688,7 +688,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 		
 			if (!controller.isG4mespeedServer())
 				return GSMathUtil.equalsApproximate(getServerTps(), DEFAULT_TPS);
-			return ((GSIAbstractClientPlayerEntityAccess)player).gs_isFixedMovement();
+			return ((GSIClientPlayerEntityAccess)player).gs_isFixedMovement();
 		}
 		
 		return false;

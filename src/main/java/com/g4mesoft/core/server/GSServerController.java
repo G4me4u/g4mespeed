@@ -30,14 +30,14 @@ import com.g4mesoft.setting.GSSettingMap;
 import com.g4mesoft.setting.GSSettingPermissionPacket;
 import com.mojang.brigadier.CommandDispatcher;
 
-import net.minecraft.network.Packet;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
+import net.minecraft.resource.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.command.source.CommandSourceStack;
+import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.PacketByteBuf;
 import net.minecraft.world.dimension.DimensionType;
 
 public class GSServerController extends GSController implements GSIServerModuleManager, GSISettingChangeListener {
@@ -48,7 +48,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	protected final GSSettingManager worldSettings;
 
-	private CommandDispatcher<ServerCommandSource> dispatcher;
+	private CommandDispatcher<CommandSourceStack> dispatcher;
 	
 	private MinecraftServer server;
 
@@ -100,7 +100,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		worldSettings.clearSettings();
 	}
 	
-	public void setCommandDispatcher(CommandDispatcher<ServerCommandSource> dispatcher) {
+	public void setCommandDispatcher(CommandDispatcher<CommandSourceStack> dispatcher) {
 		GSInfoCommand.registerCommand(dispatcher);
 		
 		for (GSIModule module : modules)
@@ -179,7 +179,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	@Override
 	public boolean isThreadOwner() {
-		return server != null && server.isOnThread();
+		return server != null && server.isOnSameThread();
 	}
 
 	@Override
@@ -242,12 +242,12 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	@Override
 	public ServerPlayerEntity getPlayer(UUID playerUUID) {
-		return server.getPlayerManager().getPlayer(playerUUID);
+		return server.getPlayerManager().get(playerUUID);
 	}
 	
 	@Override
 	public Collection<ServerPlayerEntity> getAllPlayers() {
-		return Collections.unmodifiableCollection(server.getPlayerManager().getPlayerList());
+		return Collections.unmodifiableCollection(server.getPlayerManager().getAll());
 	}
 	
 	@Override
@@ -258,10 +258,10 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	@Override
 	public File getCacheFile() {
 		if (server.isDedicated())
-			return new File(server.getRunDirectory(), CACHE_DIR_NAME);
+			return new File(server.getRunDir(), CACHE_DIR_NAME);
 		
 		// Assume we're running on integrated server
-		return new File(server.getRunDirectory(), INTEGRATED_CACHE_DIR_NAME);
+		return new File(server.getRunDir(), INTEGRATED_CACHE_DIR_NAME);
 	}
 	
 	@Override
@@ -274,9 +274,9 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		ServerWorld world = server.getWorld(DimensionType.OVERWORLD);
 		File worldDir;
 		if (world != null) {
-			worldDir = world.getSaveHandler().getWorldDir();
+			worldDir = world.getStorage().getDir();
 		} else {
-			worldDir = server.getFile(server.getLevelName());
+			worldDir = server.getFile(server.getWorldSaveName());
 		}
 		return new File(worldDir, CACHE_DIR_NAME);
 	}
@@ -308,7 +308,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	}
 	
 	public boolean isAllowedSettingChange(ServerPlayerEntity player) {
-		return player.allowsPermissionLevel(OP_PERMISSION_LEVEL);
+		return player.hasPermissions(OP_PERMISSION_LEVEL);
 	}
 	
 	private void sendSettingPermissionPacket(ServerPlayerEntity player) {

@@ -8,10 +8,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCounted;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.Vec3i;
 
 public class GSEncodeBuffer implements ReferenceCounted {
 
@@ -205,11 +205,11 @@ public class GSEncodeBuffer implements ReferenceCounted {
 		writeInt(value.x);
 	}
 	
-	public void writeChunkSectionPos(ChunkSectionPos value) {
-		writeChunkSectionPos(value.getSectionX(), value.getSectionY(), value.getSectionZ());
+	public void writeChunkSectionPos(Vec3i value) {
+		writeChunkSectionPos(value.getX(), value.getY(), value.getZ());
 	}
 	
-	private void writeChunkSectionPos(int x, int y, int z) {
+	public void writeChunkSectionPos(int x, int y, int z) {
 		// The encoding of a chunk section position is as follows:
 		//   - section y stored in bits <0:19>
 		//   - section z stored in bits <20:41>

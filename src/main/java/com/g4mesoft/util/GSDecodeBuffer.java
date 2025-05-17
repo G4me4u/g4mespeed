@@ -21,10 +21,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCounted;
-import net.minecraft.util.Identifier;
+import net.minecraft.resource.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.util.math.Vec3i;
 
 public class GSDecodeBuffer implements ReferenceCounted {
 
@@ -216,12 +216,12 @@ public class GSDecodeBuffer implements ReferenceCounted {
 		return new ChunkPos(x, z);
 	}
 	
-	public ChunkSectionPos readChunkSectionPos() {
+	public Vec3i readChunkSectionPos() {
 		long value = readLong();
 		int x = (int)((value << (64 - BIT_SHIFT_SECTION_X - BIT_SIZE_SECTION_X)) >> (64 - BIT_SIZE_SECTION_X));
 		int y = (int)((value << (64 - BIT_SHIFT_SECTION_Y - BIT_SIZE_SECTION_Y)) >> (64 - BIT_SIZE_SECTION_Y));
 		int z = (int)((value << (64 - BIT_SHIFT_SECTION_Z - BIT_SIZE_SECTION_Z)) >> (64 - BIT_SIZE_SECTION_Z));
-		return ChunkSectionPos.from(x, y, z);
+		return new Vec3i(x, y, z);
 	}
 	
 	public boolean getBoolean(int location) {

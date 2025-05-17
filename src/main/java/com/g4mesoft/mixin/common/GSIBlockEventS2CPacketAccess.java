@@ -4,10 +4,10 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 import net.minecraft.block.Block;
-import net.minecraft.network.packet.s2c.play.BlockActionS2CPacket;
+import net.minecraft.network.packet.s2c.play.BlockEventS2CPacket;
 
-@Mixin(BlockActionS2CPacket.class)
-public interface GSIBlockActionS2CPacketAccess {
+@Mixin(BlockEventS2CPacket.class)
+public interface GSIBlockEventS2CPacketAccess {
 
 	@Accessor("block")
 	public Block getBlock2();

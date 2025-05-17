@@ -8,7 +8,7 @@ import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.util.GSDecodeBuffer;
 import com.g4mesoft.util.GSEncodeBuffer;
 
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 
 public class GSServerTpsPacket implements GSIPacket {
 

@@ -1,7 +1,8 @@
 package com.g4mesoft.hotkey;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.InputUtil;
+import com.mojang.blaze3d.platform.InputConstants;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.text.Text;
 
 public class GSKeyBinding {
@@ -48,7 +49,7 @@ public class GSKeyBinding {
 		pressedCount = 0;
 	}
 
-	void onKeyPressed(InputUtil.KeyCode key) {
+	void onKeyPressed(InputConstants.Key key) {
 		int count = 0;
 		for (int i = 0; i < keyCode.getKeyCount(); i++) {
 			if (keyCode.get(i) == key)
@@ -60,7 +61,7 @@ public class GSKeyBinding {
 		onKeyStateChanged(count);
 	}
 	
-	void onKeyReleased(InputUtil.KeyCode key) {
+	void onKeyReleased(InputConstants.Key key) {
 		int count = 0;
 		for (int i = 0; i < keyCode.getKeyCount(); i++) {
 			if (keyCode.get(i) == key)
@@ -84,11 +85,11 @@ public class GSKeyBinding {
 		// Use local field to ensure thread safety.
 		final GSIKeyBindingListener listener = this.listener;
 		if (listener != null) {
-			MinecraftClient client = MinecraftClient.getInstance();
-			if (client.isOnThread()) {
+			Minecraft client = Minecraft.getInstance();
+			if (client.isOnSameThread()) {
 				listener.onKeyStateChanged(this, eventType);
 			} else {
-				client.execute(() -> listener.onKeyStateChanged(this, eventType));
+				client.submit(() -> listener.onKeyStateChanged(this, eventType));
 			}
 		}
 	}

@@ -1,26 +1,20 @@
 plugins {
 	id 'fabric-loom' version '1.10-SNAPSHOT'
+	id 'ploceus' version '1.10-SNAPSHOT'
 	id 'maven-publish'
 }
 
 repositories {
-	maven {
-		name = 'Curse Maven'
-		url "https://cursemaven.com"
-	    content {
-            includeGroup "curse.maven"
-        }
-	}
 	maven {
 		name = 'G4me4u Maven'
 		url = 'https://maven.g4mesoft.com/releases'
 	}
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+base {
+	archivesName = project.archives_base_name
+}
 
-archivesBaseName = project.archives_base_name
 version = "${project.mod_version}-mc${project.minecraft_version}"
 group = project.maven_group
 
@@ -34,12 +28,18 @@ ext.includeMod = { Object dep ->
 dependencies {
 	//to change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+	mappings ploceus.featherMappings(project.feather_build)
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	// Include G4mespeed UI
 	includeMod "com.g4mesoft.ui:g4mespeed-ui:${project.g4mespeed_ui_version}-mc${project.minecraft_version}"
 	// ModMenu integration
-	modCompileOnly "curse.maven:modmenu-308702:${project.modmenu_version}"
+	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+	
+	ploceus.dependOsl(project.osl_version)
+}
+
+loom {
+	accessWidenerPath = file("src/main/resources/g4mespeed.accesswidener")
 }
 
 processResources {
@@ -51,30 +51,31 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	// ensure that the encoding is set to UTF-8, no matter what the system default is
-	// this fixes some edge cases with special characters not displaying correctly
-	// see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-	// If Javadoc is generated, this must be specified in that task too.
-	it.options.encoding = "UTF-8"
+	it.options.encoding = 'UTF-8'
+	it.options.release = 8
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
+	// Still required by IDEs such as Eclipse and Visual Studio Code
+	sourceCompatibility = JavaVersion.VERSION_1_8
+	targetCompatibility = JavaVersion.VERSION_1_8
+
+	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task if it is present.
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 }
 
+// If you plan to use a different file for the license, don't forget to change the file name here!
 jar {
-	from("LICENSE") {
-		rename { "${it}_${project.base.archivesName.get()}"}
+	from('LICENSE') {
+		rename { "${it}_${base.archivesName.get()}" }
 	}
 }
 
 // configure the maven publication
 publishing {
 	publications {
-		create("mavenJava", MavenPublication) {
+		mavenJava(MavenPublication) {
 			artifactId = project.archives_base_name
 			from components.java
 		}

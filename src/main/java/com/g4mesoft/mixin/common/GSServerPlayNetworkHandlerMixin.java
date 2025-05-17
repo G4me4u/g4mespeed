@@ -20,7 +20,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionInfoList;
 import com.g4mesoft.GSExtensionUID;
-import com.g4mesoft.access.common.GSIServerChunkManagerAccess;
+import com.g4mesoft.access.common.GSIEntityTrackerAccess;
 import com.g4mesoft.access.common.GSIServerPlayNetworkHandlerAccess;
 import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSVersion;
@@ -30,19 +30,17 @@ import com.g4mesoft.packet.GSICustomPayloadPacket;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 
-import net.minecraft.network.listener.ServerPlayPacketListener;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.entity.living.player.ServerPlayerEntity;
+import net.minecraft.server.network.handler.ServerPlayNetworkHandler;
+import net.minecraft.server.network.handler.ServerPlayPacketHandler;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNetworkHandlerAccess {
 
 	@Shadow public ServerPlayerEntity player;
 	@Shadow private int floatingTicks;
-
-	@Shadow protected abstract boolean isServerOwner();
 
 	@Unique
 	private final GSExtensionInfoList gs_extensionInfoList = new GSExtensionInfoList();
@@ -59,12 +57,12 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		at = @At("HEAD")
 	)
 	private void onTick(CallbackInfo ci) {
-		if (gs_fixedMovement && floatingTicks > 70)
+		if (gs_fixedMovement && floatingTicks >= 80)
 			floatingTicks--;
 	}
 
 	@ModifyConstant(
-		method = "onPlayerMove",
+		method = "handlePlayerMove",
 		allow = 1,
 		constant = @Constant(
 			intValue = 5
@@ -72,7 +70,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 			from = @At(
 				value = "FIELD",
 				opcode = Opcodes.PUTFIELD,
-				target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;movePacketsCount:I"
+				target = "Lnet/minecraft/server/network/handler/ServerPlayNetworkHandler;receivedMovePacketCount:I"
 			),
 			to = @At(
 				value = "CONSTANT",
@@ -86,15 +84,15 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 	}
 	
 	@Inject(
-		method = "onPlayerMove",
+		method = "handlePlayerMove",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
-					"Lnet/minecraft/network/Packet;" +
-					"Lnet/minecraft/network/listener/PacketListener;" +
-					"Lnet/minecraft/server/world/ServerWorld;" +
+				"Lnet/minecraft/network/PacketUtils;ensureOnSameThread(" +
+					"Lnet/minecraft/network/packet/Packet;" +
+					"Lnet/minecraft/network/handler/PacketHandler;" +
+					"Lnet/minecraft/util/BlockableEventLoop;" +
 				")V"
 		)
 	)
@@ -108,41 +106,40 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		
 		this.gs_trackerFixedMovement = trackerFixedMovement;
 		
-		((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).gs_setTrackerFixedMovement(player, trackerFixedMovement);
+		((GSIEntityTrackerAccess)player.getServerWorld().getEntityTracker()).gs_setTrackerFixedMovement(player, trackerFixedMovement);
 	}
 	
 	@Redirect(
-		method = "onPlayerMove",
-		require = 0,
+		method = "handlePlayerMove",
 		at = @At(
 			value = "INVOKE",
 			target =
-				"Lnet/minecraft/server/network/ServerPlayNetworkHandler;isServerOwner()Z"
+				"Lnet/minecraft/server/entity/living/player/ServerPlayerEntity;isInTeleportationState(" +
+				")Z"
 		)
 	)
-	private boolean onPlayerMoveFixedMovement(ServerPlayNetworkHandler serverPlayNetworkHandler) {
-		return isServerOwner() || gs_fixedMovement;
+	private boolean onPlayerMoveRedirectIsInTeleportationState(ServerPlayerEntity player) {
+		return player.isInTeleportationState() || gs_fixedMovement;
 	}
 	
 	@Inject(
-		method = "onPlayerMove",
+		method = "handlePlayerMove",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/server/network/ServerPlayerEntity;method_7282(" +
+				"Lnet/minecraft/server/entity/living/player/ServerPlayerEntity;tickNonRidingMovementRelatedStats(" +
 					"DDD" +
 				")V"
 		)
 	)
 	private void onPlayerMoveUpdateCameraPosition(PlayerMoveC2SPacket packet, CallbackInfo ci) {
 		if (gs_trackerFixedMovement)
-			((GSIServerChunkManagerAccess)player.getServerWorld().getChunkManager()).gs_tickEntityTracker(player);
+			((GSIEntityTrackerAccess)player.getServerWorld().getEntityTracker()).gs_tickEntityTracker(player);
 	}
 
-	
 	@Inject(
-		method = "onCustomPayload",
+		method = "handleCustomPayload",
 		cancellable = true,
 		at = @At("HEAD")
 	)
@@ -150,7 +147,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 		GSPacketManager packetManger = G4mespeedMod.getPacketManager();
 		
 		@SuppressWarnings("unchecked")
-		GSICustomPayloadPacket<ServerPlayPacketListener> payload = (GSICustomPayloadPacket<ServerPlayPacketListener>)packet;
+		GSICustomPayloadPacket<ServerPlayPacketHandler> payload = (GSICustomPayloadPacket<ServerPlayPacketHandler>)packet;
 		
 		GSServerController controllerServer = GSServerController.getInstance();
 		GSIPacket gsPacket = packetManger.decodePacket(payload, gs_extensionInfoList, (ServerPlayNetworkHandler)(Object)this, controllerServer.getServer());

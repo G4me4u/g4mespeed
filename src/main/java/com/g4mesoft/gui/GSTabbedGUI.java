@@ -13,7 +13,7 @@ import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.sound.instance.SimpleSoundInstance;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
@@ -199,7 +199,7 @@ public class GSTabbedGUI extends GSParentPanel implements GSIMouseListener {
 	}
 
 	private void playClickSound() {
-		GSPanelContext.playSound(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+		GSPanelContext.playSound(SimpleSoundInstance.of(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 	}
 	
 	@Override

@@ -10,10 +10,9 @@ import com.mojang.brigadier.CommandDispatcher;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.command.source.CommandSourceStack;
+import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 
 public interface GSIModule {
 
@@ -105,7 +104,7 @@ public interface GSIModule {
 	 * 
 	 * @param dispatcher - the server command dispatcher
 	 */
-	default public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) { }
+	default public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) { }
 
 	/**
 	 * Invoked at the beginning of a <b>client and server</b> tick, depending on whether

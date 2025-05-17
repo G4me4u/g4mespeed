@@ -12,20 +12,20 @@ import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.hotkey.GSEKeyEventType;
 import com.g4mesoft.hotkey.GSKeyManager;
 
-import net.minecraft.client.Keyboard;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.KeyboardHandler;
+import net.minecraft.client.Minecraft;
 
-@Mixin(Keyboard.class)
-public class GSKeyboardMixin {
+@Mixin(KeyboardHandler.class)
+public class GSKeyboardHandlerMixin {
 	
-	@Shadow @Final private MinecraftClient client;
+	@Shadow @Final private Minecraft minecraft;
 	
 	@Inject(
-		method = "onKey(JIIII)V",
+		method = "keyPress(JIIII)V",
 		at = @At("HEAD")
 	)
 	private void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
-		if (windowHandle == client.window.getHandle()) {
+		if (windowHandle == minecraft.window.getWindow()) {
 			GSKeyManager keyManager = GSClientController.getInstance().getKeyManager();
 
 			keyManager.clearEventQueue();
@@ -38,14 +38,14 @@ public class GSKeyboardMixin {
 	}
 
 	@Inject(
-		method="onKey(JIIII)V",
+		method="keyPress(JIIII)V",
 		at = @At(
 			value = "INVOKE",
 			ordinal = 0,
 			shift = At.Shift.AFTER, 
 			target =
-				"Lnet/minecraft/client/options/KeyBinding;setKeyPressed(" +
-					"Lnet/minecraft/client/util/InputUtil$KeyCode;" +
+				"Lnet/minecraft/client/options/KeyBinding;set(" +
+					"Lcom/mojang/blaze3d/platform/InputConstants$Key;" +
 					"Z" +
 				")V"
 		)
@@ -55,13 +55,13 @@ public class GSKeyboardMixin {
 	}
 
 	@Inject(
-		method="onKey(JIIII)V",
+		method="keyPress(JIIII)V",
 		at = @At(
 			value = "INVOKE",
 			shift = At.Shift.BEFORE, 
 			target =
-				"Lnet/minecraft/client/options/KeyBinding;onKeyPressed(" +
-					"Lnet/minecraft/client/util/InputUtil$KeyCode;" +
+				"Lnet/minecraft/client/options/KeyBinding;click(" +
+					"Lcom/mojang/blaze3d/platform/InputConstants$Key;" +
 				")V"
 		)
 	)

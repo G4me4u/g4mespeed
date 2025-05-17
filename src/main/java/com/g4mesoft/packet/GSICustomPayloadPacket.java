@@ -1,11 +1,11 @@
 package com.g4mesoft.packet;
 
-import net.minecraft.network.Packet;
-import net.minecraft.network.listener.PacketListener;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.PacketByteBuf;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.handler.PacketHandler;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.resource.Identifier;
 
-public interface GSICustomPayloadPacket<T extends PacketListener> extends Packet<T> {
+public interface GSICustomPayloadPacket<T extends PacketHandler> extends Packet<T> {
 
 	public Identifier getChannel0();
 

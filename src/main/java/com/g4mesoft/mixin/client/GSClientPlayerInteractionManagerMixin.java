@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.core.client.GSClientController;
 
-import net.minecraft.client.network.ClientPlayerInteractionManager;
+import net.minecraft.client.ClientPlayerInteractionManager;
 import net.minecraft.world.GameMode;
 
 @Mixin(ClientPlayerInteractionManager.class)

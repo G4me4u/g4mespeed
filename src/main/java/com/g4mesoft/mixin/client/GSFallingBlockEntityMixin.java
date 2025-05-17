@@ -10,9 +10,8 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.entity.MovementType;
+import net.minecraft.entity.MoverType;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 @Mixin(FallingBlockEntity.class)
@@ -30,26 +29,25 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 			target =
 				"Lnet/minecraft/world/World;removeBlock(" +
 					"Lnet/minecraft/util/math/BlockPos;" +
-					"Z" +
 				")Z"
 		)
 	)
-	private boolean redirectTickRemoveBlock(World world, BlockPos pos, boolean move) {
+	private boolean redirectTickRemoveBlock(World world, BlockPos pos) {
 		if (!world.isClient || GSClientController.getInstance().getTpsModule().sPrettySand.get() == GSTpsModule.PRETTY_SAND_DISABLED) {
 			// Do not remove the source block on the client when pretty sand is
 			// enabled. This might cause the client to remove the final position,
 			// if it is lagging behind, and desync the server and client world.
-			return world.removeBlock(pos, move);
+			return world.removeBlock(pos);
 		}
 		return false;
 	}
 	
 	@Override
-	public void move(MovementType movementType, Vec3d movement) {
+	public void move(MoverType movementType, double x, double y, double z) {
 		if (!world.isClient || GSClientController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_FIDELITY) {
 			// Do not move on the client if the server has pretty sand in fidelity
 			// mode. (the positions are sent from the server every tick).
-			super.move(movementType, movement);
+			super.move(movementType, x, y, z);
 		}
 	}
 }

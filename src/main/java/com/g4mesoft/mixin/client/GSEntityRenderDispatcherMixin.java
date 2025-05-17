@@ -16,21 +16,21 @@ import net.minecraft.entity.EntityType;
 public class GSEntityRenderDispatcherMixin {
 
 	@Redirect(
-		method = { "render", "renderSecondPass" },
+		method = { "render(Lnet/minecraft/entity/Entity;FZ)V", "renderSecondPass(Lnet/minecraft/entity/Entity;F)V" },
 		allow = 2,
 		require = 2,
 		at = @At(
 			value = "FIELD",
 			opcode = Opcodes.GETFIELD,
-			target="Lnet/minecraft/entity/Entity;age:I"
+			target="Lnet/minecraft/entity/Entity;time:I"
 		)
 	)
 	private int onRenderGetEntityAge(Entity entity) {
 		if (GSClientController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
 			// We do not want the render positions to be modified when
 			// using pretty sand (already done by position packets).
-			return (entity.age == 0) ? -1 : entity.age;
+			return (entity.time == 0) ? -1 : entity.time;
 		}
-		return entity.age;
+		return entity.time;
 	}
 }

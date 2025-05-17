@@ -11,31 +11,26 @@ import com.g4mesoft.core.server.GSServerController;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.block.entity.MovingBlockEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 
-@Mixin(PistonBlockEntity.class)
-public class GSPistonBlockEntityMixin extends BlockEntity {
+@Mixin(MovingBlockEntity.class)
+public class GSMovingBlockEntityMixin extends BlockEntity {
 
 	private boolean gs_ticked;
 	
-	public GSPistonBlockEntityMixin(BlockEntityType<?> type) {
+	public GSMovingBlockEntityMixin(BlockEntityType<?> type) {
 		super(type);
 	}
 
 	@Override
-	public BlockEntityUpdateS2CPacket toUpdatePacket() {
+	public BlockEntityUpdateS2CPacket createUpdatePacket() {
 		if (GSServerController.getInstance().getTpsModule().sParanoidMode.get())
-			return new BlockEntityUpdateS2CPacket(pos, 0, toInitialChunkDataTag());
+			return new BlockEntityUpdateS2CPacket(pos, 0, toNbt());
 		return null;
 	}
 	
-	@Override
-	public CompoundTag toInitialChunkDataTag() {
-		return toTag(new CompoundTag());
-	}
-
 	@Inject(
 		method = "tick",
 		at = @At("HEAD")
@@ -45,18 +40,18 @@ public class GSPistonBlockEntityMixin extends BlockEntity {
 	}
 	
 	@Inject(
-		method = "fromTag",
+		method = "readNbt",
 		at = @At("RETURN")
 	)
-	private void onFromTag(CompoundTag tag, CallbackInfo ci) {
+	private void onFromTag(NbtCompound tag, CallbackInfo ci) {
 		gs_ticked = !tag.contains("ticked") || tag.getBoolean("ticked");
 	}
 
 	@Inject(
-		method = "toTag",
+		method = "writeNbt",
 		at = @At("RETURN")
 	)
-	private void onToTag(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
+	private void onToTag(NbtCompound tag, CallbackInfoReturnable<NbtCompound> cir) {
 		GSController controller = GSController.getInstanceOnThread();
 		if (controller != null && controller.getTpsModule().sImmediateBlockBroadcast.get())
 			tag.putBoolean("ticked", gs_ticked);

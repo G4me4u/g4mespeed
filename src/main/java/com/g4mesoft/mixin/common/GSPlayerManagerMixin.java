@@ -12,20 +12,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.core.server.GSServerController;
 import com.mojang.authlib.GameProfile;
 
-import net.minecraft.network.ClientConnection;
+import net.minecraft.network.Connection;
 import net.minecraft.server.PlayerManager;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 
 @Mixin(PlayerManager.class)
 public abstract class GSPlayerManagerMixin {
 
-	@Shadow public abstract ServerPlayerEntity getPlayer(UUID uuid);
+	@Shadow public abstract ServerPlayerEntity get(UUID uuid);
 	
 	@Inject(
-		method = "onPlayerConnect",
+		method = "onLogin",
 		at = @At("RETURN")
 	)
-	private void onPlayerJoin(ClientConnection clientConnection, ServerPlayerEntity player, CallbackInfo ci) {
+	private void onPlayerJoin(Connection clientConnection, ServerPlayerEntity player, CallbackInfo ci) {
 		GSServerController.getInstance().onPlayerJoin(player);
 	}
 
@@ -38,7 +38,7 @@ public abstract class GSPlayerManagerMixin {
 	}
 
 	@Inject(
-		method = "addToOperators",
+		method = "addOp",
 		at = @At("RETURN")
 	)
 	private void onAddToOperators(GameProfile gameProfile, CallbackInfo ci) {
@@ -46,7 +46,7 @@ public abstract class GSPlayerManagerMixin {
 	}
 
 	@Inject(
-		method = "removeFromOperators",
+		method = "removeOp",
 		at = @At("RETURN")
 	)
 	private void onRemoveFromOperators(GameProfile gameProfile, CallbackInfo ci) {
@@ -58,7 +58,7 @@ public abstract class GSPlayerManagerMixin {
 		// We could capture the local variable, however,
 		// doing so might not be feasible if other mods
 		// inject the same method.
-		ServerPlayerEntity player = this.getPlayer(gameProfile.getId());
+		ServerPlayerEntity player = this.get(gameProfile.getId());
 		if (player != null)
 			GSServerController.getInstance().onPlayerPermissionChanged(player);
 	}

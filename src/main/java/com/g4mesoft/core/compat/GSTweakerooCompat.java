@@ -1,19 +1,24 @@
 package com.g4mesoft.core.compat;
 
+import static com.g4mesoft.core.compat.GSCompatUtil.findClassByName;
+import static com.g4mesoft.core.compat.GSCompatUtil.findDeclaredField;
+import static com.g4mesoft.core.compat.GSCompatUtil.findDeclaredMethod;
+import static com.g4mesoft.core.compat.GSCompatUtil.getStaticField;
+import static com.g4mesoft.core.compat.GSCompatUtil.invokeStatic;
+import static com.g4mesoft.core.compat.GSCompatUtil.setStaticField;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.client.GSClientController;
 
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
 import net.minecraft.entity.Entity;
-
-import static com.g4mesoft.core.compat.GSCompatUtil.*;
 
 public class GSTweakerooCompat extends GSAbstractCompat {
 
-	private static final String CAMERA_ENTITY_CLASSPATH = "fi.dy.masa.tweakeroo.util.CameraEntity";
+	private static final String CAMERA_ENTITY_CLASSPATH = "tweakeroo.util.CameraEntity";
 	private static final String MOVEMENT_TICK_METHOD = "movementTick";
 	private static final String CAMERA_FIELD = "camera";
 	
@@ -96,7 +101,7 @@ public class GSTweakerooCompat extends GSAbstractCompat {
 	
 	public void tickCameraEntityMovement() {
 		if (movementTickMethod != null) {
-			ClientPlayerEntity player = GSClientController.getInstance().getPlayer();
+			LocalClientPlayerEntity player = GSClientController.getInstance().getPlayer();
 			if (player != null && player.input != null)
 				invokeStatic(movementTickMethod, player.input.sneaking, player.input.jumping);
 		}

@@ -8,9 +8,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.debug.GSDebug;
 
 import io.netty.channel.ChannelHandlerContext;
-import net.minecraft.network.ClientConnection;
+import net.minecraft.network.Connection;
 
-@Mixin(ClientConnection.class)
+@Mixin(Connection.class)
 public class GSClientConnectionMixin {
 
 	@Inject(

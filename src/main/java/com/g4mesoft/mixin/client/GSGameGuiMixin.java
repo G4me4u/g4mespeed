@@ -19,13 +19,13 @@ import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.ui.util.GSMathUtil;
 import com.mojang.blaze3d.platform.GlStateManager;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GameGui;
+import net.minecraft.client.gui.GuiElement;
+import net.minecraft.client.render.TextRenderer;
 
-@Mixin(InGameHud.class)
-public abstract class GSInGameHudMixin extends DrawableHelper {
+@Mixin(GameGui.class)
+public abstract class GSGameGuiMixin extends GuiElement {
 
 	private static final int TPS_LABEL_MAGIN = 5;
 
@@ -46,12 +46,12 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 	@Unique
 	private static final DecimalFormat LOW_PRECISION_TPS_FORMAT = new DecimalFormat("0.0", new DecimalFormatSymbols(Locale.ENGLISH));
 
-	@Shadow private int scaledWidth;
-	@Shadow private int scaledHeight;
+	@Shadow private int f_2748637; /* scaledWidth */
+	@Shadow private int f_0390887; /* scaledHeight */
 
-	@Shadow @Final private MinecraftClient client;
+	@Shadow @Final private Minecraft minecraft;
 	
-	@Shadow public abstract TextRenderer getFontRenderer();
+	@Shadow public abstract TextRenderer getTextRenderer();
 
 	@Inject(
 		method = "render",
@@ -59,13 +59,13 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 			value = "INVOKE",
 			shift = Shift.BEFORE,
 			target =
-				"Lnet/minecraft/client/gui/hud/BossBarHud;render()V"
+				"Lnet/minecraft/client/gui/overlay/BossEventOverlay;render()V"
 		)
 	)
 	private void onRenderBeforeBossBar(float partialTicks, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER) {
 			GlStateManager.pushMatrix();
-			GlStateManager.translatef(0.0f, client.textRenderer.fontHeight + 5.0f, 0.0f);
+			GlStateManager.translatef(0.0f, minecraft.textRenderer.fontHeight + 5.0f, 0.0f);
 		}
 	}
 
@@ -75,7 +75,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/client/gui/hud/BossBarHud;render()V"
+				"Lnet/minecraft/client/gui/overlay/BossEventOverlay;render()V"
 		)
 	)
 	private void onRenderAfterBossBar(float partialTicks, CallbackInfo ci) {
@@ -89,7 +89,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 			value = "INVOKE",
 			shift = Shift.BEFORE, 
 			target =
-				"Lnet/minecraft/client/gui/hud/SubtitlesHud;render()V"
+				"Lnet/minecraft/client/gui/overlay/SubtitleOverlay;render()V"
 		)
 	)
 	private void onRenderBeforeSubtitles(float partialTicks, CallbackInfo ci) {
@@ -97,8 +97,8 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 		GSTpsModule tpsModule = controller.getTpsModule();
 		
 		int labelLocation = tpsModule.cTpsLabel.get();
-		if (!client.options.debugEnabled && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
-			TextRenderer font = getFontRenderer();
+		if (!minecraft.options.debugEnabled && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
+			TextRenderer font = getTextRenderer();
 			GSTranslationModule translationModule = controller.getTranslationModule();
 			
 			float averageTps = tpsModule.getServerTps();
@@ -111,15 +111,15 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 			
 			int lx;
 			int ly = TPS_LABEL_MAGIN;
-			int lw = font.getStringWidth(current + " " + targetText);
+			int lw = font.getWidth(current + " " + targetText);
 			int lh = font.fontHeight;
 
 			switch (labelLocation) {
 			case GSTpsModule.TPS_LABEL_TOP_CENTER:
-				lx = (scaledWidth - lw) / 2;
+				lx = (f_2748637 - lw) / 2;
 				break;
 			case GSTpsModule.TPS_LABEL_TOP_RIGHT:
-				lx = scaledWidth - lw - TPS_LABEL_MAGIN + 1;
+				lx = f_2748637 - lw - TPS_LABEL_MAGIN + 1;
 				break;
 			case GSTpsModule.TPS_LABEL_TOP_LEFT:
 			default:
@@ -130,7 +130,7 @@ public abstract class GSInGameHudMixin extends DrawableHelper {
 			fill(lx - 1, ly - 1, lx + lw, ly + lh, LABEL_BACKGROUND_COLOR);
 			
 			float tx = font.draw(current, lx, ly, getTpsLabelColor(averageTps, targetTps));
-			font.draw(targetText, tx + font.getStringWidth(" "), ly, LABEL_TARGET_COLOR);
+			font.draw(targetText, tx + font.getWidth(" "), ly, LABEL_TARGET_COLOR);
 		}
 	}
 	

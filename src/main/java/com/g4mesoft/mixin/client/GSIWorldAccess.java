@@ -8,7 +8,7 @@ import net.minecraft.world.World;
 @Mixin(World.class)
 public interface GSIWorldAccess {
 
-	@Accessor("iteratingTickingBlockEntities")
-	public boolean isIteratingTickingBlockEntities();
+	@Accessor("isTickingBlockEntities")
+	public boolean isTickingBlockEntities();
 	
 }

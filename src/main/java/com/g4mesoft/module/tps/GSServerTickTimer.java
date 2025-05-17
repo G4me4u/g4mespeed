@@ -4,7 +4,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.core.compat.GSICarpetTickrateManager;
 
-import net.minecraft.util.Util;
+import net.minecraft.util.Utils;
 
 public class GSServerTickTimer implements GSITickTimer {
 
@@ -152,6 +152,6 @@ public class GSServerTickTimer implements GSITickTimer {
 		this.syncTickInterval = syncTickInterval;
 		syncReceived = true;
 
-		init(Util.getMeasuringTimeMs());
+		init(Utils.getTimeMillis());
 	}
 }

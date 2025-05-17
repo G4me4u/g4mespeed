@@ -21,37 +21,38 @@ import com.g4mesoft.packet.GSICustomPayloadPacket;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FallingBlock;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
+import net.minecraft.block.entity.MovingBlockEntity;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.network.handler.ClientPlayNetworkHandler;
+import net.minecraft.client.network.handler.ClientPlayPacketHandler;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.c2s.play.TeleportConfirmC2SPacket;
+import net.minecraft.entity.living.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.Connection;
+import net.minecraft.network.packet.c2s.play.AcceptTeleportC2SPacket;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
-import net.minecraft.network.packet.s2c.play.ChunkDeltaUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.BlocksUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityS2CPacket;
-import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
-import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
-import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityMoveS2CPacket;
+import net.minecraft.network.packet.s2c.play.EntityTeleportS2CPacket;
+import net.minecraft.network.packet.s2c.play.LoginS2CPacket;
+import net.minecraft.network.packet.s2c.play.PlayerMoveS2CPacket;
+import net.minecraft.network.packet.s2c.play.WorldTimeS2CPacket;
+import net.minecraft.server.entity.EntityTracker;
 import net.minecraft.util.math.BlockPos;
 
 /* Use priority -1001 to ensure we have priority over MultiConnect */
 @Mixin(value = ClientPlayNetworkHandler.class, priority = -1001)
 public class GSClientPlayNetworkHandlerMixin {
 
-	@Shadow @Final private ClientConnection connection;
-	@Shadow private MinecraftClient client;
+	@Shadow @Final private Connection connection;
+	@Shadow private Minecraft minecraft;
 	@Shadow private ClientWorld world;
 
 	private static final int WORLD_TIME_UPDATE_INTERVAL = 20;
@@ -66,70 +67,70 @@ public class GSClientPlayNetworkHandlerMixin {
 	}
 	
 	@Inject(
-		method = "onGameJoin",
+		method = "handleLogin",
 		at = @At("RETURN")
 	)
-	private void onOnGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
+	private void onOnGameJoin(LoginS2CPacket packet, CallbackInfo ci) {
 		GSClientController.getInstance().onJoinServer();
 	}
 
 	@Inject(
-		method = "onEntityPosition",
+		method = "handleEntityTeleport",
 		cancellable = true,
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target = 
-				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
-					"Lnet/minecraft/network/Packet;" +
-					"Lnet/minecraft/network/listener/PacketListener;" +
-					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+				"Lnet/minecraft/network/PacketUtils;ensureOnSameThread(" +
+					"Lnet/minecraft/network/packet/Packet;" +
+					"Lnet/minecraft/network/handler/PacketHandler;" +
+					"Lnet/minecraft/util/BlockableEventLoop;" +
 				")V"
 		)
 	)
-	private void onOnEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci) {
+	private void onOnEntityPosition(EntityTeleportS2CPacket packet, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
-			Entity entity = world.getEntityById(packet.getId());
+			Entity entity = world.getEntity(packet.getId());
 			if (entity != null && isRecentlyMovedByPiston(entity)) {
 				// Update the tracked position such that the entity position
 				// does not get out of sync later.
-				entity.updateTrackedPosition(packet.getX(), packet.getY(), packet.getZ());
+				EntityTracker.updatePosition(entity, packet.getX(), packet.getY(), packet.getZ());
 				ci.cancel();
 			}
 		}
 	}
 
 	@Inject(
-		method = "onEntityUpdate",
+		method = "handleEntityMove",
 		cancellable = true,
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
-					"Lnet/minecraft/network/Packet;" +
-					"Lnet/minecraft/network/listener/PacketListener;" +
-					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+				"Lnet/minecraft/network/PacketUtils;ensureOnSameThread(" +
+					"Lnet/minecraft/network/packet/Packet;" +
+					"Lnet/minecraft/network/handler/PacketHandler;" +
+					"Lnet/minecraft/util/BlockableEventLoop;" +
 				")V"
 		)
 	)
-	private void onOnEntityUpdate(EntityS2CPacket packet, CallbackInfo ci) {
+	private void onOnEntityUpdate(EntityMoveS2CPacket packet, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			Entity entity = packet.getEntity(world);
 			if (entity != null && isRecentlyMovedByPiston(entity)) {
+				// See comment above.
+				entity.packetX = entity.packetX + packet.getDx();
+				entity.packetY = entity.packetY + packet.getDy();
+				entity.packetZ = entity.packetZ + packet.getDz();
 				if (!entity.isLogicalSideForUpdatingMovement()) {
-					// See comment above.
-					entity.trackedX = entity.trackedX + packet.getDeltaXShort();
-					entity.trackedY = entity.trackedY + packet.getDeltaYShort();
-					entity.trackedZ = entity.trackedZ + packet.getDeltaZShort();
-					if (packet.hasRotation()) {
+					if (packet.hasAngles()) {
 						// Do not ignore rotation changes.
 						float yaw   = (float)(packet.getYaw()   * 360) / 256.0f;
 						float pitch = (float)(packet.getPitch() * 360) / 256.0f;
-						entity.updateTrackedPositionAndAngles(entity.x, entity.y, entity.z, yaw, pitch, 3, false);
+						entity.updatePositionAndAngles(entity.x, entity.y, entity.z, yaw, pitch, 3, false);
 					}
 					
-					entity.onGround = packet.isOnGround();
+					entity.onGround = packet.getOnGround();
 				}
 				ci.cancel();
 			}
@@ -137,33 +138,33 @@ public class GSClientPlayNetworkHandlerMixin {
 	}
 	
 	@Inject(
-		method = "onPlayerPositionLook",
+		method = "handlePlayerMove",
 		cancellable = true,
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
-					"Lnet/minecraft/network/Packet;" +
-					"Lnet/minecraft/network/listener/PacketListener;" +
-					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+				"Lnet/minecraft/network/PacketUtils;ensureOnSameThread(" +
+					"Lnet/minecraft/network/packet/Packet;" +
+					"Lnet/minecraft/network/handler/PacketHandler;" +
+					"Lnet/minecraft/util/BlockableEventLoop;" +
 				")V"
 		)
 	)
-	private void onOnPlayerPositionLook(PlayerPositionLookS2CPacket packet, CallbackInfo ci) {
+	private void onOnPlayerPositionLook(PlayerMoveS2CPacket packet, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			// The server will inherently detect that the player moved in an incorrect way, if the
 			// player was moved by a piston. In this case we ignore the update and send confirmation.
 			// The confirmation is important, since we do not want the server to teleport the player
 			// 20 ticks after it has been ignored.
-			PlayerEntity player = client.player;
+			PlayerEntity player = minecraft.player;
 			
 			if (isRecentlyMovedByPiston(player)) {
 				// Note: there might be a few issues with an actual teleport, if the player was just moved
 				//       by a piston. But this should hopefully be solved by a simple distance check.
-				boolean isDeltaX = packet.getFlags().contains(PlayerPositionLookS2CPacket.Flag.X);
-				boolean isDeltaY = packet.getFlags().contains(PlayerPositionLookS2CPacket.Flag.Y);
-				boolean isDeltaZ = packet.getFlags().contains(PlayerPositionLookS2CPacket.Flag.Z);
+				boolean isDeltaX = packet.getRelativeArgs().contains(PlayerMoveS2CPacket.Argument.X);
+				boolean isDeltaY = packet.getRelativeArgs().contains(PlayerMoveS2CPacket.Argument.Y);
+				boolean isDeltaZ = packet.getRelativeArgs().contains(PlayerMoveS2CPacket.Argument.Z);
 				
 				double dx = isDeltaX ? packet.getX() : (packet.getX() - player.x);
 				double dy = isDeltaY ? packet.getY() : (packet.getY() - player.y);
@@ -173,7 +174,7 @@ public class GSClientPlayNetworkHandlerMixin {
 				    Math.abs(dy) < IGNORE_TELEPORT_MAX_DISTANCE &&
 				    Math.abs(dz) < IGNORE_TELEPORT_MAX_DISTANCE) {
 					
-					connection.send(new TeleportConfirmC2SPacket(packet.getTeleportId()));
+					connection.send(new AcceptTeleportC2SPacket(packet.getTeleportId()));
 					ci.cancel();
 				}
 			}
@@ -186,7 +187,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	}
 	
 	@Inject(
-		method = "onCustomPayload",
+		method = "handleCustomPayload",
 		cancellable = true,
 		at = @At("HEAD")
 	)
@@ -194,10 +195,10 @@ public class GSClientPlayNetworkHandlerMixin {
 		GSPacketManager packetManger = G4mespeedMod.getPacketManager();
 		
 		@SuppressWarnings("unchecked")
-		GSICustomPayloadPacket<ClientPlayPacketListener> payload = (GSICustomPayloadPacket<ClientPlayPacketListener>)packet;
+		GSICustomPayloadPacket<ClientPlayPacketHandler> payload = (GSICustomPayloadPacket<ClientPlayPacketHandler>)packet;
 		
 		GSClientController controllerClient = GSClientController.getInstance();
-		GSIPacket gsPacket = packetManger.decodePacket(payload, controllerClient.getServerExtensionInfoList(), (ClientPlayNetworkHandler)(Object)this, this.client);
+		GSIPacket gsPacket = packetManger.decodePacket(payload, controllerClient.getServerExtensionInfoList(), (ClientPlayNetworkHandler)(Object)this, this.minecraft);
 		if (gsPacket != null) {
 			gsPacket.handleOnClient(controllerClient);
 			ci.cancel();
@@ -205,31 +206,31 @@ public class GSClientPlayNetworkHandlerMixin {
 	}
 
 	@Inject(
-		method = "onWorldTimeUpdate",
+		method = "handleWorldTime",
 		at = @At("HEAD")
 	)
-	private void onWorldTimeSync(WorldTimeUpdateS2CPacket worldTimePacket, CallbackInfo ci) {
+	private void onWorldTimeSync(WorldTimeS2CPacket worldTimePacket, CallbackInfo ci) {
 		// Check if handled by GSServerSyncPacket (gs server)
 		GSClientController controller = GSClientController.getInstance();
-		if (!controller.isG4mespeedServer() && !this.client.isOnThread())
+		if (!controller.isG4mespeedServer() && !this.minecraft.isOnSameThread())
 			controller.getTpsModule().onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
 	}
 	
 	@Redirect(
-		method = "onChunkData",
+		method = "handleWorldChunk",
 		at = @At(
 			value = "INVOKE",
 			target = "Ljava/util/Iterator;hasNext()Z"
 		)
 	)
-	private boolean replaceChunkDataBlockEntityLoop(Iterator<CompoundTag> itr) {
+	private boolean replaceChunkDataBlockEntityLoop(Iterator<NbtCompound> itr) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 
 		// Note that Fabric Carpet changes parts of the loop, so we have
 		// to override the entirety of the look by redirecting the condition.
 		
 		while(itr.hasNext()) {
-			CompoundTag tag = itr.next();
+			NbtCompound tag = itr.next();
 			
 			BlockPos blockPos = new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
 			
@@ -251,19 +252,19 @@ public class GSClientPlayNetworkHandlerMixin {
 			
 			BlockEntity blockEntity = world.getBlockEntity(blockPos);
 			if (blockEntity != null) {
-				blockEntity.fromTag(tag);
+				blockEntity.readNbt(tag);
 			} else if (pistonType) {
 				// Make sure we're actually supposed to put
 				// a moving piston block entity in this location...
 				BlockState blockState = world.getBlockState(blockPos);
-				if (blockState.getBlock() == Blocks.MOVING_PISTON) {
-					blockEntity = new PistonBlockEntity();
-					blockEntity.fromTag(tag);
+				if (blockState.getBlock() == Blocks.MOVING_BLOCK) {
+					blockEntity = new MovingBlockEntity();
+					blockEntity.readNbt(tag);
 					world.setBlockEntity(blockPos, blockEntity);
-					
+
 					// Probably not needed but it's done in
 					// other places so let's keep the standard.
-					blockEntity.resetBlock();
+					blockEntity.clearBlockCache();
 				}
 			}
 		}
@@ -272,16 +273,16 @@ public class GSClientPlayNetworkHandlerMixin {
 	}
 
 	@Inject(
-		method = "onBlockEntityUpdate",
+		method = "handleBlockEntityUpdate",
 		cancellable = true,
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
-					"Lnet/minecraft/network/Packet;" +
-					"Lnet/minecraft/network/listener/PacketListener;" +
-					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+				"Lnet/minecraft/network/PacketUtils;ensureOnSameThread(" +
+					"Lnet/minecraft/network/packet/Packet;" +
+					"Lnet/minecraft/network/handler/PacketHandler;" +
+					"Lnet/minecraft/util/BlockableEventLoop;" +
 				")V"
 		)
 	)
@@ -291,15 +292,15 @@ public class GSClientPlayNetworkHandlerMixin {
 		if (tpsModule.sParanoidMode.get()) {
 			BlockPos pos = packet.getPos();
 			
-			if (packet.getBlockEntityType() == 0 && world.isBlockLoaded(pos)) {
-				CompoundTag tag = packet.getCompoundTag();
+			if (packet.getType() == 0 && world.isChunkLoaded(pos)) {
+				NbtCompound tag = packet.getNbt();
 
 				if ("minecraft:piston".equals(tag.getString("id"))) {
 					BlockState blockState = world.getBlockState(pos);
 					BlockEntity blockEntity = world.getBlockEntity(pos);
 					
-					if (blockState.getBlock() != Blocks.MOVING_PISTON) {
-						blockState = Blocks.MOVING_PISTON.getDefaultState();
+					if (blockState.getBlock() != Blocks.MOVING_BLOCK) {
+						blockState = Blocks.MOVING_BLOCK.defaultState();
 						world.setBlockState(pos, blockState, 4 | 64 /* NO_REDRAW | MOVED */);
 					}
 					
@@ -308,14 +309,14 @@ public class GSClientPlayNetworkHandlerMixin {
 						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
 					
 					if (blockEntity == null) {
-						blockEntity = new PistonBlockEntity();
-						blockEntity.fromTag(tag);
+						blockEntity = new MovingBlockEntity();
+						blockEntity.readNbt(tag);
 						world.setBlockEntity(pos, blockEntity);
 					} else {
-						blockEntity.fromTag(tag);
+						blockEntity.readNbt(tag);
 					}
 
-					blockEntity.resetBlock();
+					blockEntity.clearBlockCache();
 
 					// Cancel vanilla handling of the packet.
 					ci.cancel();
@@ -325,40 +326,40 @@ public class GSClientPlayNetworkHandlerMixin {
 	}
 
 	@Inject(
-		method = "onBlockUpdate",
+		method = "handleBlockUpdate",
 		at = @At("RETURN")
 	)
 	private void onOnBlockUpdateReturn(BlockUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
-			scheduleRenderUpdateForFallingBlock(packet.getPos(), packet.getState());
+			scheduleRenderUpdateForFallingBlock(packet.getPos(), packet.getBlockState());
 	}
 
 	@Inject(
-		method = "onChunkDeltaUpdate",
+		method = "handleBlocksUpdate",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
-					"Lnet/minecraft/network/Packet;" +
-					"Lnet/minecraft/network/listener/PacketListener;" +
-					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+				"Lnet/minecraft/network/PacketUtils;ensureOnSameThread(" +
+					"Lnet/minecraft/network/packet/Packet;" +
+					"Lnet/minecraft/network/handler/PacketHandler;" +
+					"Lnet/minecraft/util/BlockableEventLoop;" +
 				")V"
 		)
 	)
-	private void onOnChunkDeltaUpdateRedirect(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
+	private void onOnChunkDeltaUpdateRedirect(BlocksUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 
 		if (tpsModule.sParanoidMode.get()) {
-			for (ChunkDeltaUpdateS2CPacket.ChunkDeltaRecord record : packet.getRecords()) {
-				if (record.getState().getBlock() == Blocks.MOVING_PISTON) {
+			for (BlocksUpdateS2CPacket.BlockUpdate record : packet.getUpdates()) {
+				if (record.getBlockState().getBlock() == Blocks.MOVING_BLOCK) {
 					BlockState state = world.getBlockState(record.getBlockPos());
 					
-					if (state.getBlock() != Blocks.MOVING_PISTON) {
+					if (state.getBlock() != Blocks.MOVING_BLOCK) {
 						// By setting the block state to the state in the world, it
 						// is equivalent to ignoring the block change.
-						((GSIChunkDeltaRecordAccess)record).setBlockState(state);
+						((GSIBlocksUpdateBlockUpdateAccess)record).setBlockState(state);
 					}
 				}
 			}
@@ -366,20 +367,20 @@ public class GSClientPlayNetworkHandlerMixin {
 	}
 	
 	@Inject(
-		method = "onChunkDeltaUpdate",
+		method = "handleBlocksUpdate",
 		at = @At("RETURN")
 	)
-	private void onOnChunkDeltaUpdateReturn(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
+	private void onOnChunkDeltaUpdateReturn(BlocksUpdateS2CPacket packet, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
-			for (ChunkDeltaUpdateS2CPacket.ChunkDeltaRecord record : packet.getRecords())
-				scheduleRenderUpdateForFallingBlock(record.getBlockPos(), record.getState());
+			for (BlocksUpdateS2CPacket.BlockUpdate record : packet.getUpdates())
+				scheduleRenderUpdateForFallingBlock(record.getBlockPos(), record.getBlockState());
 		}
 	}
 
 	@Unique
 	private void scheduleRenderUpdateForFallingBlock(BlockPos pos, BlockState state) {
 		if (state.getBlock() instanceof FallingBlock)
-			((GSIWorldRendererAccess)client.worldRenderer).gs_scheduleBlockUpdate(pos, true);
+			((GSIWorldRendererAccess)minecraft.worldRenderer).gs_scheduleBlockUpdate(pos, true);
 	}
 }

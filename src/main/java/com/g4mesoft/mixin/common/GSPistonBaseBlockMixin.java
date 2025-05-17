@@ -12,22 +12,23 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import com.g4mesoft.access.common.GSIServerChunkManagerAccess;
+import com.g4mesoft.access.common.GSIServerChunkMapAccess;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.server.GSServerController;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.PistonBlock;
-import net.minecraft.block.piston.PistonHandler;
+import net.minecraft.block.PistonBaseBlock;
+import net.minecraft.block.piston.PistonMoveStructureResolver;
+import net.minecraft.block.state.BlockState;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 
-@Mixin(PistonBlock.class)
-public class GSPistonBlockMixin {
+@Mixin(PistonBaseBlock.class)
+public class GSPistonBaseBlockMixin {
 
 	@Inject(
-		method = "onBlockAction",
+		method = "doEvent",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
@@ -38,7 +39,7 @@ public class GSPistonBlockMixin {
 				")V"
 		)
 	)
-	private void onOnBlockActionBlockEntityChanged(BlockState state, World world, BlockPos pos, int type, int data, CallbackInfoReturnable<Boolean> cir) {
+	private void onDoEventBlockEntityChanged(BlockState state, World world, BlockPos pos, int type, int data, CallbackInfoReturnable<Boolean> cir) {
 		markBlockEntityForUpdate(world, pos);
 	}
 	
@@ -52,7 +53,7 @@ public class GSPistonBlockMixin {
 			target =
 				"Lnet/minecraft/world/World;setBlockState(" +
 					"Lnet/minecraft/util/math/BlockPos;" +
-					"Lnet/minecraft/block/BlockState;" +
+					"Lnet/minecraft/block/state/BlockState;" +
 					"I" +
 				")Z"
 		)
@@ -78,7 +79,7 @@ public class GSPistonBlockMixin {
 				")V"
 		)
 	)
-	private void onMoveBlockEntityChanged0(World world, BlockPos pos, Direction dir, boolean retract, CallbackInfoReturnable<Boolean> cir, BlockPos blockPos, PistonHandler pistonHandler, List<?> list, List<?> list2, List<?> list3, int j, BlockState blockStates[], Direction direction, Set<?> set, int k, BlockPos blockPos3) {
+	private void onMoveBlockEntityChanged0(World world, BlockPos pos, Direction facing, boolean extend, CallbackInfoReturnable<Boolean> cir, BlockPos blockPos, PistonMoveStructureResolver resolver, List<?> list, List<?> list2, List<?> list3, int j, BlockState blockStates[], Direction direction, Set<?> set, int k, BlockPos blockPos3) {
 		markBlockEntityForUpdate(world, blockPos3);
 	}
 
@@ -96,13 +97,13 @@ public class GSPistonBlockMixin {
 				")V"
 		)
 	)
-	private void onMoveBlockEntityChanged1(World world, BlockPos pos, Direction dir, boolean retract, CallbackInfoReturnable<Boolean> cir, BlockPos blockPos) {
+	private void onMoveBlockEntityChanged1(World world, BlockPos pos, Direction facing, boolean extend, CallbackInfoReturnable<Boolean> cir, BlockPos blockPos) {
 		markBlockEntityForUpdate(world, blockPos);
 	}
 	
 	@Unique
 	private void markBlockEntityForUpdate(World world, BlockPos pos) {
 		if (!world.isClient && GSServerController.getInstance().getTpsModule().sParanoidMode.get())
-			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_markBlockEntityUpdate(pos);
+			((GSIServerChunkMapAccess)((ServerWorld)world).getChunkMap()).gs_markBlockEntityUpdate(pos);
 	}
 }

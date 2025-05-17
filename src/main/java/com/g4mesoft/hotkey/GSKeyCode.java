@@ -2,26 +2,29 @@ package com.g4mesoft.hotkey;
 
 import java.util.Arrays;
 
+import org.lwjgl.glfw.GLFW;
+
+import com.mojang.blaze3d.platform.InputConstants;
+
 import net.minecraft.client.resource.language.I18n;
-import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 
 public class GSKeyCode {
 
-	public static final GSKeyCode UNKNOWN_KEY = new GSKeyCode(new InputUtil.KeyCode[] { InputUtil.UNKNOWN_KEYCODE });
+	public static final GSKeyCode UNKNOWN_KEY = new GSKeyCode(new InputConstants.Key[] { InputConstants.UNKNOWN });
 	
-	private InputUtil.KeyCode[] keys;
+	private InputConstants.Key[] keys;
 	
-	private GSKeyCode(InputUtil.KeyCode[] keys) {
+	private GSKeyCode(InputConstants.Key[] keys) {
 		this.keys = keys;
 	}
 
-	public InputUtil.KeyCode get(int index) {
+	public InputConstants.Key get(int index) {
 		return keys[index];
 	}
 	
-	public int indexOf(InputUtil.KeyCode key) {
+	public int indexOf(InputConstants.Key key) {
 		for (int i = 0; i < keys.length; i++) {
 			if (key == keys[i])
 				return i;
@@ -44,19 +47,19 @@ public class GSKeyCode {
 		return getLocalizedName(keys[0]);
 	}
 	
-	private Text getLocalizedName(InputUtil.KeyCode keyCode) {
+	private Text getLocalizedName(InputConstants.Key keyCode) {
 		String result = null;
 		
-		switch (keyCode.getCategory()) {
+		switch (keyCode.getType()) {
 		case KEYSYM:
-			result = InputUtil.getKeycodeName(keyCode.getKeyCode());
+			result = GLFW.glfwGetKeyName(keyCode.getValue(), GLFW.GLFW_KEY_UNKNOWN);
 			break;
 		case SCANCODE:
-			result = InputUtil.getScancodeName(keyCode.getKeyCode());
+			result = GLFW.glfwGetKeyName(GLFW.GLFW_KEY_UNKNOWN, keyCode.getValue());
 			break;
 		case MOUSE:
 			result = I18n.hasTranslation(keyCode.getName()) ? I18n.translate(keyCode.getName()) :
-				I18n.translate(keyCode.getCategory().getName(), keyCode.getKeyCode() + 1);
+					I18n.translate("key.mouse", keyCode.getValue() + 1);
 			break;
 		}
 		
@@ -80,22 +83,22 @@ public class GSKeyCode {
 		return Arrays.equals(keys, ((GSKeyCode)other).keys);
 	}
 	
-	public static GSKeyCode fromType(InputUtil.Type type, int code) {
-		return fromKey(type.createFromCode(code));
+	public static GSKeyCode fromType(InputConstants.Type type, int code) {
+		return fromKey(type.getOrCreate(code));
 	}
 	
 	public static GSKeyCode fromKeyCode(int keyCode, int scanCode) {
-		return fromKey(InputUtil.getKeyCode(keyCode, scanCode));
+		return fromKey(InputConstants.getKey(keyCode, scanCode));
 	}
 	
-	public static GSKeyCode fromKey(InputUtil.KeyCode key) {
+	public static GSKeyCode fromKey(InputConstants.Key key) {
 		return fromKeys(key);
 	}
 	
-	public static GSKeyCode fromKeys(InputUtil.KeyCode... keys) {
+	public static GSKeyCode fromKeys(InputConstants.Key... keys) {
 		if (keys.length == 0)
 			throw new IllegalArgumentException("Must contain at least one key!");
-		if (keys.length == 1 && keys[0] == InputUtil.UNKNOWN_KEYCODE)
+		if (keys.length == 1 && keys[0] == InputConstants.UNKNOWN)
 			return UNKNOWN_KEY;
 		return new GSKeyCode(keys);
 	}

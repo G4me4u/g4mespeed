@@ -14,24 +14,21 @@ import com.g4mesoft.access.client.GSIClientWorldAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.entity.living.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.world.World;
 
-@Mixin(ClientWorld.class)
-public abstract class GSClientWorldMixin implements GSIClientWorldAccess {
+@Mixin(World.class)
+public abstract class GSWorldMixin implements GSIClientWorldAccess {
 
-	@Shadow @Final private MinecraftClient client;
-	@Shadow @Final private List<AbstractClientPlayerEntity> players;
+	@Shadow @Final private List<PlayerEntity> players;
+	@Shadow @Final private boolean isClient;
 	
 	@Unique
 	private boolean gs_tickingEntities;
-	@Unique
-	private GSTpsModule gs_tpsModule = GSClientController.getInstance().getTpsModule();
 	
-	@Shadow public abstract void tickEntity(Entity entity);
+	@Shadow public abstract void updateEntity(Entity entity);
 	
 	@Inject(
 		method = "tickEntities",
@@ -50,22 +47,28 @@ public abstract class GSClientWorldMixin implements GSIClientWorldAccess {
 	}
 	
 	@Inject(
-		method = "tickEntity",
+		method = "updateEntity(Lnet/minecraft/entity/Entity;Z)V",
 		cancellable = true,
 		at = @At("HEAD")
 	)
-	private void onTickEntity(Entity entity, CallbackInfo ci) {
-		if (gs_tickingEntities && (entity instanceof AbstractClientPlayerEntity)) {
-			if (gs_tpsModule.isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
+	private void onUpdateEntity(Entity entity, boolean requireLoaded, CallbackInfo ci) {
+		if (isClient && gs_tickingEntities && (entity instanceof ClientPlayerEntity)) {
+			GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
+			if (tpsModule.isPlayerFixedMovement((ClientPlayerEntity)entity))
 				ci.cancel();
 		}
 	}
 	
 	@Override
 	public void gs_tickFixedMovementPlayers() {
-		for (AbstractClientPlayerEntity player : players) {
-			if (!player.hasVehicle() && !player.removed && gs_tpsModule.isPlayerFixedMovement(player))
-				((World)(Object)this).tickEntity(this::tickEntity, player);
+		if (isClient) {
+			GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
+			for (PlayerEntity player : players) {
+				if (!player.hasVehicle() && !player.removed && player instanceof ClientPlayerEntity) {
+					if (tpsModule.isPlayerFixedMovement((ClientPlayerEntity)player))
+						updateEntity(player);
+				}
+			}
 		}
 	}
 }

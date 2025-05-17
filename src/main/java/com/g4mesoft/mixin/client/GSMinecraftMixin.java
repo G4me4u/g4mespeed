@@ -3,6 +3,7 @@ package com.g4mesoft.mixin.client;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.lwjgl.glfw.GLFW;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,8 +19,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.client.GSIClientWorldAccess;
-import com.g4mesoft.access.client.GSIMinecraftClientAccess;
-import com.g4mesoft.access.client.GSIPistonBlockEntityAccess;
+import com.g4mesoft.access.client.GSIMinecraftAccess;
+import com.g4mesoft.access.client.GSIMovingBlockEntityAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.core.compat.GSTweakerooCompat;
 import com.g4mesoft.debug.GSDebug;
@@ -28,35 +29,27 @@ import com.g4mesoft.module.tps.GSITickTimer;
 import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.gui.screen.Overlay;
+import net.minecraft.block.entity.MovingBlockEntity;
+import net.minecraft.client.ClientPlayerInteractionManager;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GameGui;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.Util;
+import net.minecraft.util.Utils;
 import net.minecraft.util.math.BlockPos;
 
-@Mixin(MinecraftClient.class)
-public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess {
+@Mixin(Minecraft.class)
+public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 
-	@Shadow @Final private RenderTickCounter renderTickCounter;
-	@Shadow private SoundManager soundManager;
-	@Shadow public ClientPlayerEntity player;
 	@Shadow public ClientWorld world;
 	@Shadow private boolean paused;
 	@Shadow @Final private GameRenderer gameRenderer;
-	@Shadow private int itemUseCooldown;
+	@Shadow private int itemUseDelay;
 	@Shadow private int attackCooldown;
 	@Shadow public ClientPlayerInteractionManager interactionManager;
-	@Shadow public Screen currentScreen;
-	@Shadow public Overlay overlay;
-	@Shadow @Final public InGameHud inGameHud;
+	@Shadow public Screen screen;
+	@Shadow public GameGui gui;
 
 	@Unique
 	private GSClientController gs_controller;
@@ -79,7 +72,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	
 	@Shadow protected abstract boolean isPaused();
 	
-	@Shadow protected abstract void handleInputEvents();
+	@Shadow protected abstract void handleKeyBindings();
 	
 	@Inject(
 		method = "init()V",
@@ -87,17 +80,22 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	)
 	public void onInit(CallbackInfo ci) {
 		gs_controller = GSClientController.getInstance();
-		gs_controller.init((MinecraftClient)(Object)this);
+		gs_controller.init((Minecraft)(Object)this);
 		gs_tpsModule = gs_controller.getTpsModule();
 		gs_tweakerooCompat = G4mespeedMod.getTweakerooCompat();
 	}
 	
 	@Inject(
-		method = "disconnect(Lnet/minecraft/client/gui/screen/Screen;)V",
+		method =
+			"setWorld(" +
+				"Lnet/minecraft/client/world/ClientWorld;" +
+				"Lnet/minecraft/client/gui/screen/Screen;" +
+			")V",
 		at = @At("HEAD")
 	)
-	private void onDisconnect(CallbackInfo ci) {
-		gs_controller.onDisconnectServer();
+	private void onDisconnect(ClientWorld world, Screen screen, CallbackInfo ci) {
+		if (world == null && this.world != null)
+			gs_controller.onDisconnectServer();
 	}
 	
 	@Inject(
@@ -129,13 +127,13 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 			value = "FIELD",
 			shift = Shift.AFTER, 
 			opcode = Opcodes.PUTFIELD,
-			target = "Lnet/minecraft/client/MinecraftClient;itemUseCooldown:I"
+			target = "Lnet/minecraft/client/Minecraft;itemUseDelay:I"
 		)
 	)
 	private void onTickAfterItemUseCooldownDecrement(CallbackInfo ci) {
 		if (gs_tpsModule.isMainPlayerFixedMovement()) {
 			// Fix item cool-down by incrementing it.
-			itemUseCooldown++;
+			itemUseDelay++;
 		}
 	}
 
@@ -145,7 +143,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 			value = "FIELD",
 			shift = Shift.AFTER, 
 			opcode = Opcodes.PUTFIELD,
-			target = "Lnet/minecraft/client/MinecraftClient;attackCooldown:I"
+			target = "Lnet/minecraft/client/Minecraft;attackCooldown:I"
 		)
 	)
 	private void onTickAfterAttackCooldownDecrement(CallbackInfo ci) {
@@ -159,10 +157,10 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		method = "tick",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/gui/hud/InGameHud;tick()V"
+			target = "Lnet/minecraft/client/gui/GameGui;tick()V"
 		)
 	)
-	private void onTickRedirectInteractionManagerTick(InGameHud inGameHud) {
+	private void onTickRedirectInteractionManagerTick(GameGui inGameHud) {
 		// Tick is handled elsewhere when correcting movement.
 		if (!gs_tpsModule.isMainPlayerFixedMovement())
 			inGameHud.tick();
@@ -172,7 +170,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		method = "tick",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/network/ClientPlayerInteractionManager;tick()V"
+			target = "Lnet/minecraft/client/ClientPlayerInteractionManager;tick()V"
 		)
 	)
 	private void onTickRedirectInteractionManagerTick(ClientPlayerInteractionManager interactionManager) {
@@ -185,13 +183,13 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		method = "tick",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/MinecraftClient;handleInputEvents()V"
+			target = "Lnet/minecraft/client/Minecraft;handleKeyBindings()V"
 		)
 	)
-	private void onTickRedirectHandleInputEvents(MinecraftClient ignore) {
+	private void onTickRedirectHandleInputEvents(Minecraft ignore) {
 		// Events are handled elsewhere when correcting movement.
 		if (!gs_tpsModule.isMainPlayerFixedMovement())
-			handleInputEvents();
+			handleKeyBindings();
 	}
 
 	@Redirect(
@@ -226,11 +224,11 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	}
 
 	@Inject(
-		method = "render",
+		method = "m_0520165",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
-			target = "Lnet/minecraft/client/MinecraftClient;tick()V"
+			target = "Lnet/minecraft/client/Minecraft;tick()V"
 		)
 	)
 	private void onRenderAfterTick(CallbackInfo ci) {
@@ -242,7 +240,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	}
 	
 	@Inject(
-		method = "render",
+		method = "m_0520165",
 		slice = @Slice(
 			from = @At(
 				value = "CONSTANT",
@@ -254,7 +252,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 			ordinal = 0,
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/util/profiler/DisableableProfiler;push(" +
+				"Lnet/minecraft/util/profiler/Profiler;push(" +
 					"Ljava/lang/String;" +
 				")V"
 		)
@@ -266,7 +264,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 			gs_forceScheduledPistonBlockEntityUpdates = false;
 		}
 
-		gs_playerTimer.update(Util.getMeasuringTimeMs());
+		gs_playerTimer.update(Utils.getTimeMillis());
 
 		if (!gs_tpsModule.isDefaultTps() || gs_tpsModule.isFixedMovementOnDefaultTps()) {
 			int tickCount = Math.min(gs_playerTimer.getTickCount(), 10);
@@ -290,26 +288,27 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		
 			for (BlockPos blockPos : positions) {
 				BlockEntity blockEntity = world.getBlockEntity(blockPos);
-				if (blockEntity instanceof PistonBlockEntity)
-					((GSIPistonBlockEntityAccess)blockEntity).gs_handleScheduledUpdate();
+				if (blockEntity instanceof MovingBlockEntity)
+					((GSIMovingBlockEntityAccess)blockEntity).gs_handleScheduledUpdate();
 			}
 		}
 	}
 	
 	@Unique
 	private void onTickCorrection() {
-		if (itemUseCooldown > 0)
-			itemUseCooldown--;
+		if (itemUseDelay > 0)
+			itemUseDelay--;
 
 		if (!paused) {
-			inGameHud.tick();
+			gui.tick();
 		
 			if (world != null)
 				interactionManager.tick();
 		}
 
-		if (overlay == null && (currentScreen == null || currentScreen.passEvents)) {
-			handleInputEvents();
+		if (screen == null || screen.passEvents) {
+			GLFW.glfwPollEvents();
+			handleKeyBindings();
 			if (attackCooldown > 0)
 				attackCooldown--;
 		}
@@ -319,7 +318,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	}
 	
 	@ModifyArg(
-		method = "render",
+		method = "m_0520165",
 		index = 0,
 		at = @At(
 			value = "INVOKE",

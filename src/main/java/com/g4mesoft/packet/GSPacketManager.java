@@ -14,12 +14,12 @@ import com.g4mesoft.util.GSEncodeBuffer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.NetworkThreadUtils;
-import net.minecraft.network.Packet;
-import net.minecraft.network.listener.PacketListener;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.PacketByteBuf;
-import net.minecraft.util.thread.ThreadExecutor;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.PacketUtils;
+import net.minecraft.network.handler.PacketHandler;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.resource.Identifier;
+import net.minecraft.util.BlockableEventLoop;
 
 public class GSPacketManager {
 
@@ -64,9 +64,9 @@ public class GSPacketManager {
 		return controller.createCustomPayload(GS_IDENTIFIER, new PacketByteBuf(buf));
 	}
 	
-	public <T extends PacketListener> GSIPacket decodePacket(GSICustomPayloadPacket<T> customPayload,
-	                                                         GSExtensionInfoList extensionInfoList, 
-	                                                         T packetListener, ThreadExecutor<?> executor) {
+	public <T extends PacketHandler> GSIPacket decodePacket(GSICustomPayloadPacket<T> customPayload,
+	                                                        GSExtensionInfoList extensionInfoList, 
+	                                                        T packetListener, BlockableEventLoop executor) {
 		
 		if (!GS_IDENTIFIER.equals(customPayload.getChannel0()))
 			return null;
@@ -79,7 +79,7 @@ public class GSPacketManager {
 			return null;
 		}
 		if (packet.shouldForceMainThread())
-		      NetworkThreadUtils.forceMainThread(customPayload, packetListener, executor);
+		      PacketUtils.ensureOnSameThread(customPayload, packetListener, executor);
 			
 		GSExtensionUID extensionUid = getPacketExtensionUniqueId(packet);
 		GSExtensionInfo extensionInfo = extensionInfoList.getInfo(extensionUid);

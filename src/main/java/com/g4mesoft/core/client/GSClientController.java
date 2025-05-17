@@ -35,13 +35,13 @@ import com.g4mesoft.ui.renderer.GSIRenderable3D;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.network.Packet;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.living.player.LocalClientPlayerEntity;
+import net.minecraft.client.network.handler.ClientPlayNetworkHandler;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.PacketByteBuf;
+import net.minecraft.resource.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class GSClientController extends GSController implements GSIClientModuleManager {
@@ -58,7 +58,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	
 	private static final GSClientController instance = new GSClientController();
 	
-	private MinecraftClient minecraft;
+	private Minecraft minecraft;
 	private boolean connectedToServer;
 	private ClientPlayNetworkHandler networkHandler;
 
@@ -78,7 +78,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 		keyManager = new GSKeyManager();
 	}
 
-	public void init(MinecraftClient minecraft) {
+	public void init(Minecraft minecraft) {
 		if (this.minecraft == null) {
 			this.minecraft = minecraft;
 
@@ -211,7 +211,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	
 	@Override
 	public boolean isThreadOwner() {
-		return minecraft != null && minecraft.isOnThread();
+		return minecraft != null && minecraft.isOnSameThread();
 	}
 	
 	@Override
@@ -235,7 +235,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	
 	@Override
 	public boolean isInGame() {
-		return (minecraft != null && minecraft.currentScreen == null);
+		return (minecraft != null && minecraft.screen == null);
 	}
 	
 	@Override
@@ -255,7 +255,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	
 	@Override
 	public File getCacheFile() {
-		return new File(minecraft.runDirectory, CACHE_DIR_NAME);
+		return new File(minecraft.runDir, CACHE_DIR_NAME);
 	}
 	
 	@Override
@@ -268,11 +268,11 @@ public class GSClientController extends GSController implements GSIClientModuleM
 		G4mespeedUIMod.removeRenderable(renderable);
 	}
 	
-	public ClientPlayerEntity getPlayer() {
+	public LocalClientPlayerEntity getPlayer() {
 		return (minecraft != null) ? minecraft.player : null;
 	}
 	
-	public MinecraftClient getClient() {
+	public Minecraft getClient() {
 		return minecraft;
 	}
 	

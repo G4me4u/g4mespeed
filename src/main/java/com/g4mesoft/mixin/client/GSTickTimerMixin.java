@@ -17,16 +17,16 @@ import com.g4mesoft.module.tps.GSITickTimer;
 import com.g4mesoft.module.tps.GSServerTickTimer;
 import com.g4mesoft.module.tps.GSTpsModule;
 
-import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.TickTimer;
 
-@Mixin(RenderTickCounter.class)
-public class GSRenderTickCounterMixin implements GSITickTimer {
+@Mixin(TickTimer.class)
+public class GSTickTimerMixin implements GSITickTimer {
 
 	@Shadow public int ticksThisFrame;
+	@Shadow public float partialTick;
 	@Shadow public float tickDelta;
-	@Shadow public float lastFrameDuration;
-	@Shadow public long prevTimeMillis;
-	@Shadow @Final private float tickTime;
+	@Shadow public long lastTickTime;
+	@Shadow @Final private float mspt;
 	
 	@Unique
 	private boolean gs_firstUpdate;
@@ -46,17 +46,17 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 	}
 
 	@Inject(
-		method = "beginRenderTick",
+		method = "advance",
 		at = @At(
 			value = "FIELD",
 			shift = Shift.AFTER,
 			opcode = Opcodes.PUTFIELD,
-			target = "Lnet/minecraft/client/render/RenderTickCounter;lastFrameDuration:F"
+			target = "Lnet/minecraft/client/TickTimer;tickDelta:F"
 		)
 	)
 	private void onModifyTickrate(long timeMillis, CallbackInfo ci) {
 		if (gs_firstUpdate) {
-			init(prevTimeMillis);
+			init(lastTickTime);
 			gs_firstUpdate = false;
 		}
 		
@@ -69,11 +69,11 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 		}
 		
 		if (!gs_carpetTickrateManager.isTickrateLinked() || gs_tpsModule.cForceCarpetTickrate.get())
-			this.lastFrameDuration = (timeMillis - this.prevTimeMillis) / millisPerTick;
+			this.tickDelta = (timeMillis - this.lastTickTime) / millisPerTick;
 	}
 
 	@Inject(
-		method = "beginRenderTick",
+		method = "advance",
 		at = @At("RETURN")
 	)
 	private void onBeginRenderTick(long timeMillis, CallbackInfo ci) {
@@ -102,17 +102,17 @@ public class GSRenderTickCounterMixin implements GSITickTimer {
 		// Other mods such as the ReplayMod modify the timeScale value
 		// of the timer. To ensure that the functionality stays as expected,
 		// scale the milliseconds per tick by that value.
-		return gs_tpsModule.getMsPerTick() * tickTime / DEFAULT_MILLIS_PER_TICK;
+		return gs_tpsModule.getMsPerTick() * mspt / DEFAULT_MILLIS_PER_TICK;
 	}
 
 	@Override
 	public float getTickDelta0() {
-		return tickDelta;
+		return partialTick;
 	}
 
 	@Override
 	public void setTickDelta0(float tickDelta) {
-		this.tickDelta = tickDelta;
+		this.partialTick = tickDelta;
 	}
 
 	@Override

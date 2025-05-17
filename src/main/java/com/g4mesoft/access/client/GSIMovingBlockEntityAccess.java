@@ -1,6 +1,6 @@
 package com.g4mesoft.access.client;
 
-public interface GSIPistonBlockEntityAccess {
+public interface GSIMovingBlockEntityAccess {
 
 	public float gs_getOffsetForProgress(float progress, float lastProgress, float partialTicks);
 	

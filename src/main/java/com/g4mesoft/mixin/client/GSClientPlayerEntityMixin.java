@@ -3,12 +3,12 @@ package com.g4mesoft.mixin.client;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-import com.g4mesoft.access.client.GSIAbstractClientPlayerEntityAccess;
+import com.g4mesoft.access.client.GSIClientPlayerEntityAccess;
 
-import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.entity.living.player.ClientPlayerEntity;
 
-@Mixin(AbstractClientPlayerEntity.class)
-public class GSAbstractClientPlayerEntityMixin implements GSIAbstractClientPlayerEntityAccess {
+@Mixin(ClientPlayerEntity.class)
+public class GSClientPlayerEntityMixin implements GSIClientPlayerEntityAccess {
 
 	@Unique
 	private boolean gs_fixedMovement;

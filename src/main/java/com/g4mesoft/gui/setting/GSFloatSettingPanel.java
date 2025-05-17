@@ -7,9 +7,9 @@ import java.util.Locale;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSFloatSetting;
 
+import net.minecraft.text.Formatting;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 public class GSFloatSettingPanel extends GSAbstractNumberSettingPanel<GSFloatSetting> {
 
@@ -54,6 +54,6 @@ public class GSFloatSettingPanel extends GSAbstractNumberSettingPanel<GSFloatSet
 	
 	@Override
 	public Text getFormattedDefault() {
-		return new LiteralText(FORMATTER.format(setting.getDefault().doubleValue())).formatted(Formatting.AQUA);
+		return new LiteralText(FORMATTER.format(setting.getDefault().doubleValue())).setFormatting(Formatting.AQUA);
 	}
 }

@@ -12,7 +12,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.module.tps.GSTpsModule;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.world.ClientWorld;
 
 public class GSClientCarpetTickrateManager extends GSAbstractCarpetTickrateManager {
@@ -79,7 +79,7 @@ public class GSClientCarpetTickrateManager extends GSAbstractCarpetTickrateManag
 	public Object getTickrateManager() {
 		if (getTRMMethod != null) {
 			// Attempt to get through client world
-			MinecraftClient client = MinecraftClient.getInstance();
+			Minecraft client = Minecraft.getInstance();
 			ClientWorld world = client.world;
 			if (world != null)
 				return get(world, getTRMMethod);

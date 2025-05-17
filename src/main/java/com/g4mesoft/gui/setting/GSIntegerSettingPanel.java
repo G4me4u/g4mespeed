@@ -8,10 +8,10 @@ import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 import com.g4mesoft.ui.panel.GSPanelContext;
 
+import net.minecraft.text.Formatting;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
 
 public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntegerSetting> {
 
@@ -74,6 +74,6 @@ public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntege
 	
 	@Override
 	public Text getFormattedDefault() {
-		return getFormattedValue(setting.getDefault()).formatted(Formatting.AQUA);
+		return getFormattedValue(setting.getDefault()).setFormatting(Formatting.AQUA);
 	}
 }

@@ -2,7 +2,7 @@ package com.g4mesoft.access.client;
 
 import net.minecraft.util.math.BlockPos;
 
-public interface GSIMinecraftClientAccess {
+public interface GSIMinecraftAccess {
 
 	public void gs_setFlushingBlockEntityUpdates(boolean flushingUpdates);
 

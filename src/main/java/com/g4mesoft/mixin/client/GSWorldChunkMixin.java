@@ -8,10 +8,10 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.access.client.GSIPistonBlockEntityAccess;
+import com.g4mesoft.access.client.GSIMovingBlockEntityAccess;
 
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.PistonBlockEntity;
+import net.minecraft.block.entity.MovingBlockEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
@@ -34,7 +34,7 @@ public class GSWorldChunkMixin {
 		)
 	)
 	private void onSetBlockEntityAfterPut(BlockPos pos, BlockEntity blockEntity, CallbackInfo ci) {
-		if (blockEntity instanceof PistonBlockEntity)
-			((GSIPistonBlockEntityAccess)blockEntity).gs_onAdded();
+		if (blockEntity instanceof MovingBlockEntity)
+			((GSIMovingBlockEntityAccess)blockEntity).gs_onAdded();
 	}
 }

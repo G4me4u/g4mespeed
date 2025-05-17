@@ -8,8 +8,8 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.command.handler.CommandManager;
+import net.minecraft.server.command.source.CommandSourceStack;
 import net.minecraft.text.TranslatableText;
 
 public final class GSTpsCommand {
@@ -19,10 +19,10 @@ public final class GSTpsCommand {
 	private GSTpsCommand() {
 	}
 	
-	public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
-		LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager.literal("tps").requires(context -> {
+	public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
+		LiteralArgumentBuilder<CommandSourceStack> builder = CommandManager.literal("tps").requires(context -> {
 			if (GSServerController.getInstance().getTpsModule().sRequireOP.get())
-				return context.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL);
+				return context.hasPermissions(GSServerController.OP_PERMISSION_LEVEL);
 			return true;
 		});
 		
@@ -35,7 +35,7 @@ public final class GSTpsCommand {
 		dispatcher.register(builder);
 	}
 	
-	private static int informCurrentTps(ServerCommandSource source) {
+	private static int informCurrentTps(CommandSourceStack source) {
 		float tps = GSServerController.getInstance().getTpsModule().getTps();
 		String tpsFormatted = GSTpsModule.TPS_FORMAT.format(tps);
 		
@@ -51,12 +51,12 @@ public final class GSTpsCommand {
 			}
 			
 			if (o != 0) {
-				source.sendFeedback(new TranslatableText("command.tps.geton", tpsFormatted, formatSign(o), formatSign(n)), false);
+				source.sendSuccess(new TranslatableText("command.tps.geton", tpsFormatted, formatSign(o), formatSign(n)), false);
 			} else {
-				source.sendFeedback(new TranslatableText("command.tps.getn", tpsFormatted, formatSign(n)), false);
+				source.sendSuccess(new TranslatableText("command.tps.getn", tpsFormatted, formatSign(n)), false);
 			}
 		} else {
-			source.sendFeedback(new TranslatableText("command.tps.get", tpsFormatted), false);
+			source.sendSuccess(new TranslatableText("command.tps.get", tpsFormatted), false);
 		}
 		
 		return Command.SINGLE_SUCCESS;
@@ -68,10 +68,10 @@ public final class GSTpsCommand {
 		return Integer.toString(value);
 	}
 	
-	private static int setCurrentTps(ServerCommandSource source, float newTps) throws CommandSyntaxException {
+	private static int setCurrentTps(CommandSourceStack source, float newTps) throws CommandSyntaxException {
 		GSServerController.getInstance().getTpsModule().setTps(newTps);
 		
-		source.sendFeedback(new TranslatableText("command.tps.set", newTps), true);
+		source.sendSuccess(new TranslatableText("command.tps.set", newTps), true);
 		
 		return Command.SINGLE_SUCCESS;
 	}

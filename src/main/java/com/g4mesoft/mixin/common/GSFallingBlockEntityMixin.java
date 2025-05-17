@@ -1,43 +1,38 @@
 package com.g4mesoft.mixin.common;
 
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.g4mesoft.access.common.GSIServerChunkManagerAccess;
+import com.g4mesoft.access.common.GSIEntityTrackerAccess;
+import com.g4mesoft.access.common.GSIServerChunkMapAccess;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.network.Packet;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 
 @Mixin(FallingBlockEntity.class)
 public abstract class GSFallingBlockEntityMixin extends Entity {
-
-	@Shadow public abstract BlockState getBlockState();
 
 	public GSFallingBlockEntityMixin(EntityType<?> type, World world) {
 		super(type, world);
 	}
 	
 	@Inject(
-		method = "<init>(Lnet/minecraft/world/World;DDDLnet/minecraft/block/BlockState;)V",
+		method = "<init>(Lnet/minecraft/world/World;DDDLnet/minecraft/block/state/BlockState;)V",
 		at = @At("RETURN")
 	)
 	private void onInit2(World world, double x, double y, double z, BlockState block, CallbackInfo ci) {
-		lastRenderX = x;
-		lastRenderY = y;
-		lastRenderZ = z;
+		prevTickX = x;
+		prevTickY = y;
+		prevTickZ = z;
 	}
 	
 	@Inject(
@@ -49,13 +44,12 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 			target =
 				"Lnet/minecraft/world/World;removeBlock(" +
 					"Lnet/minecraft/util/math/BlockPos;" +
-					"Z" +
 				")Z"
 		)
 	)
 	private void onTickRemoveBlock(CallbackInfo ci) {
 		if (!world.isClient && GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
-			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_updateBlockImmediately(getBlockPos());
+			((GSIServerChunkMapAccess)((ServerWorld)world).getChunkMap()).gs_updateBlockImmediately(getSourceBlockPos());
 	}
 	
 	@Inject(
@@ -68,28 +62,8 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 	)
 	private void onTickBeforeRemove(CallbackInfo ci) {
 		if (!world.isClient && !removed && GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
-			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_setTrackerTickedFromFallingBlock(this, true);
-			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_tickEntityTracker(this);
-		}
-	}
-	
-	@Inject(
-		method = "createSpawnPacket",
-		cancellable = true,
-		at = @At("HEAD")
-	)
-	private void onCreateSpawnPacket(CallbackInfoReturnable<Packet<?>> cir) {
-		if (!world.isClient && GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
-			// Calculate offset applied to position (falling block entity is not 1.0 tall)
-			double yOffs = (double)((1.0F - getHeight()) / 2.0F);
-			
-			cir.setReturnValue(new EntitySpawnS2CPacket(
-					getEntityId(), getUuid(),
-					x, y - yOffs, z, pitch, yaw,
-					getType(),
-					Block.getRawIdFromState(getBlockState()), 
-					getVelocity()));
-			cir.cancel();
+			((GSIEntityTrackerAccess)((ServerWorld)world).getEntityTracker()).gs_setTrackerTickedFromFallingBlock(this, true);
+			((GSIEntityTrackerAccess)((ServerWorld)world).getEntityTracker()).gs_tickEntityTracker(this);
 		}
 	}
 }

@@ -24,7 +24,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Util;
+import net.minecraft.util.Utils;
 
 @Environment(EnvType.CLIENT)
 public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISettingChangeListener {
@@ -145,7 +145,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 				
 				Text desc = new TranslatableText(hoveredElement.getSettingNameText().getKey() + ".desc");
 				Text def = new TranslatableText("setting.default", hoveredElement.getFormattedDefault());
-				descLines = renderer.splitToLines(desc.append(" ").append(def).asFormattedString(), descTextWidth);
+				descLines = renderer.splitToLines(desc.append(" ").append(def).getFormattedString(), descTextWidth);
 				
 				int lineCount = descLines.size();
 				int minimumDescHeight = lineCount * renderer.getTextHeight() + (lineCount - 1) * DESC_LINE_SPACING + DESC_LINE_MARGIN * 2;
@@ -153,7 +153,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 				targetDescHeight = Math.max(minimumDescHeight, hoveredElement.height);
 				startDescHeight = hoveredElement.height;
 				
-				descAnimStart = Util.getMeasuringTimeMs();
+				descAnimStart = Utils.getTimeMillis();
 			} else {
 				descLines = null;
 			}
@@ -164,7 +164,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	}
 	
 	private void renderHoveredDesc(GSIRenderer2D renderer, GSSettingPanel<?> hoveredElement) {
-		long delta = Util.getMeasuringTimeMs() - descAnimStart;
+		long delta = Utils.getTimeMillis() - descAnimStart;
 
 		float progress = Math.min(1.0f, delta / DESC_ANIMATION_TIME);
 		
