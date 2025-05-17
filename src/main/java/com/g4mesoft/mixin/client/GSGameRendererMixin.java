@@ -88,4 +88,22 @@ public class GSGameRendererMixin {
 	private float modifyWorldRenderTickDelta(float oldTickDelta) {
 		return gs_getGlobalTickDelta(oldTickDelta);
 	}
+	
+	@ModifyArg(
+		method = "renderAboveClouds",
+		index = 0,
+		at = @At(
+			value = "INVOKE", 
+			target =
+				"Lnet/minecraft/client/render/WorldRenderer;renderClouds(" +
+					"F" +
+					"D" +
+					"D" +
+					"D" +
+				")V"
+		)
+	)
+	private float modifyRenderCloudsTickDelta(float oldTickDelta) {
+		return gs_getGlobalTickDelta(oldTickDelta);
+	}
 }
