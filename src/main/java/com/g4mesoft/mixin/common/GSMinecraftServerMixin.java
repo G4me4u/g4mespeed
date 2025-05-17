@@ -219,21 +219,35 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	@ModifyConstant(
 		method = "runServer",
 		constant = @Constant(
+			longValue = 50L,
+			ordinal = 2
+		)
+	)
+	private long onRunServerModify50TimeReferenceIncrement(long prevMsThisTick) {
+		return gs_msThisTick;
+	}
+
+	@ModifyConstant(
+		method = "runServer",
+		expect = 1,
+		constant = @Constant(
 			longValue = 50L
 		),
 		slice = @Slice(
 			from = @At(
-				value = "FIELD",
+				value = "INVOKE",
 				shift = Shift.AFTER,
-				opcode = Opcodes.GETFIELD,
-				target = "Lnet/minecraft/server/MinecraftServer;needsDebugSetup:Z"
+				target =
+					"Lnet/minecraft/server/MinecraftServer;tick(" +
+						"Ljava/util/function/BooleanSupplier;" +
+					")V"
 			)
 		)
 	)
-	private long onRunServerModify50AfterDebugSetup(long prevMsThisTick) {
+	private long onRunServerModify50AfterTick(long prevMsThisTick) {
 		return gs_msThisTick;
 	}
-	
+
 	@ModifyConstant(
 		method = "runServer",
 		constant = @Constant(
