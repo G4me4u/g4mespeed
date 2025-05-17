@@ -39,7 +39,6 @@
     "client.GSMouseMixin",
     
     "client.GSRenderTickCounterMixin",
-    "client.GSIRenderTickCounterAccess",
     
     "client.GSClientPlayNetworkHandlerMixin",
     "client.GSIChunkDeltaRecordAccess",
