@@ -2,9 +2,7 @@ package com.g4mesoft.mixin.common;
 
 import java.util.function.BooleanSupplier;
 
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -24,32 +22,13 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.TickDurationMonitor;
 import net.minecraft.util.Util;
-import net.minecraft.util.profiler.Profiler;
 
 @Mixin(MinecraftServer.class)
 public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
-	@Shadow @Final private static Logger LOGGER;
-	@Shadow private volatile boolean running;
 	@Shadow private long timeReference;
-	@Shadow private long lastTimeReference;
-	@Shadow private boolean profilerStartQueued;
-	@Shadow private Profiler profiler;
-	@Shadow private volatile boolean loading;
-	@Shadow private boolean waitingForNextTick;
 	@Shadow private long field_19248;
-
-	@Shadow protected abstract void tick(BooleanSupplier booleanSupplier);
-
-	@Shadow protected abstract boolean shouldKeepTicking();
-
-	@Shadow protected abstract void method_16208();
-
-	@Shadow protected abstract void startMonitor(TickDurationMonitor tickDurationMonitor);
-	
-	@Shadow protected abstract void endMonitor(TickDurationMonitor tickDurationMonitor);
 
 	@Unique
 	private float gs_msAccum = 0.0f;
