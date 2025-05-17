@@ -2,9 +2,7 @@ package com.g4mesoft.mixin.common;
 
 import java.util.function.BooleanSupplier;
 
-import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -25,26 +23,12 @@ import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Util;
-import net.minecraft.util.profiler.DisableableProfiler;
 
 @Mixin(MinecraftServer.class)
 public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
-	@Shadow @Final private static Logger LOGGER;
-	@Shadow private volatile boolean running;
 	@Shadow private long timeReference;
-	@Shadow private long field_4557;
-	@Shadow private boolean profilerStartQueued;
-	@Shadow @Final private DisableableProfiler profiler;
-	@Shadow private volatile boolean loading;
-	@Shadow private boolean field_19249;
 	@Shadow private long field_19248;
-
-	@Shadow protected abstract void tick(BooleanSupplier booleanSupplier);
-
-	@Shadow protected abstract boolean shouldKeepTicking();
-
-	@Shadow protected abstract void method_16208();
 
 	@Unique
 	private float gs_msAccum = 0.0f;
@@ -235,21 +219,35 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	@ModifyConstant(
 		method = "run",
 		constant = @Constant(
+			longValue = 50L,
+			ordinal = 2
+		)
+	)
+	private long onRunServerModify50TimeReferenceIncrement(long prevMsThisTick) {
+		return gs_msThisTick;
+	}
+
+	@ModifyConstant(
+		method = "run",
+		expect = 1,
+		constant = @Constant(
 			longValue = 50L
 		),
 		slice = @Slice(
 			from = @At(
-				value = "FIELD",
+				value = "INVOKE",
 				shift = Shift.AFTER,
-				opcode = Opcodes.GETFIELD,
-				target = "Lnet/minecraft/server/MinecraftServer;needsDebugSetup:Z"
+				target =
+					"Lnet/minecraft/server/MinecraftServer;tick(" +
+						"Ljava/util/function/BooleanSupplier;" +
+					")V"
 			)
 		)
 	)
-	private long onRunServerModify50AfterDebugSetup(long prevMsThisTick) {
+	private long onRunServerModify50AfterTick(long prevMsThisTick) {
 		return gs_msThisTick;
 	}
-	
+
 	@ModifyConstant(
 		method = "run",
 		constant = @Constant(
