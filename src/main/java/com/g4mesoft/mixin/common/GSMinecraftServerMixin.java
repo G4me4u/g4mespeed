@@ -1,8 +1,13 @@
 package com.g4mesoft.mixin.common;
 
+import java.util.Queue;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.locks.LockSupport;
 import java.util.function.BooleanSupplier;
 
+import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -14,12 +19,14 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.module.tps.GSITpsDependant;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.ui.util.GSMathUtil;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.Utils;
@@ -27,7 +34,12 @@ import net.minecraft.util.Utils;
 @Mixin(MinecraftServer.class)
 public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
+	@Shadow @Final private static Logger LOGGER;
 	@Shadow private long nextTickTime;
+	@Shadow @Final public Queue<FutureTask<?>> pendingEvents;
+	@Shadow private Thread thread;
+
+	@Shadow protected abstract boolean hasTimeLeft();
 
 	@Unique
 	private float gs_msAccum = 0.0f;
@@ -266,7 +278,36 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	private void onRunServerAfterOverloaded(CallbackInfo ci) {
 		this.gs_msAccum = gs_msPerTick;
 	}
-	
+
+	@Inject(
+		method = "run",
+		expect = 1,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.BEFORE,
+			target =
+				"Lnet/minecraft/server/MinecraftServer;hasTimeLeft(" +
+				")Z"
+		)
+	)
+	private void onRunServerBeforeHasTimeLeft(CallbackInfo ci) {
+		while (hasTimeLeft()) {
+			// Note: tick already ran tasks that were available at the time, so we
+			//       should just execute/wait for tasks here.
+			FutureTask<?> task = pendingEvents.poll();
+			if (task == null) {
+				// A yield here could avoid the need to park the thread leading to
+				// quicker responses to incoming tasks.
+				Thread.yield();
+				// Wait for up to 100 microseconds.
+				LockSupport.parkNanos("waiting for tasks", 100000L);
+			} else {
+				// Execute the task.
+				Utils.run(task, LOGGER);
+			}
+		}
+	}
+
 	@Inject(
 		method = "tick",
 		at = @At("HEAD")
@@ -277,6 +318,25 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		GSServerController.getInstance().tick(false);
 	}
 	
+	@Inject(
+		method =
+			"submit(" +
+				"Ljava/util/concurrent/Callable;" +
+			")Lcom/google/common/util/concurrent/ListenableFuture;",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Ljava/util/Queue;add(" +
+					"Ljava/lang/Object;" +
+				")Z"
+		)
+	)
+	private void onSubmitAfterPendingEventsAdd(CallbackInfoReturnable<ListenableFuture<?>> cir) {
+		// Signal server thread (in case it is) waiting for tasks.
+		LockSupport.unpark(thread);
+	}
+
 	@Inject(
 		method = "stop",
 		at = @At("RETURN")
