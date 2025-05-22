@@ -36,10 +36,9 @@ public class GSSourceOpenALMixin extends Source {
 		method = "setPitch",
 		at = @At(
 			value = "INVOKE",
-			shift = Shift.AFTER,
+			shift = Shift.BEFORE,
 			target =
-				"Lpaulscode/sound/Source;setPitch(" +
-					"F" +
+				"Lnet/minecraft/unmapped/C_7775554;m_8107823(" +
 				")V"
 		)
 	)
