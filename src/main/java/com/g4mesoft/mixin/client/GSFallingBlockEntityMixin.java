@@ -8,7 +8,6 @@ import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.util.math.BlockPos;
@@ -17,8 +16,8 @@ import net.minecraft.world.World;
 @Mixin(FallingBlockEntity.class)
 public abstract class GSFallingBlockEntityMixin extends Entity {
 
-	public GSFallingBlockEntityMixin(EntityType<?> type, World world) {
-		super(type, world);
+	public GSFallingBlockEntityMixin(World world) {
+		super(world);
 	}
 
 	@Redirect(

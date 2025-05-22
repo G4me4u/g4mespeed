@@ -22,19 +22,19 @@ import com.g4mesoft.access.client.GSIMovingBlockEntityAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.ui.util.GSMathUtil;
+import com.google.common.collect.Lists;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.MovingBlockEntity;
 import net.minecraft.block.piston.PistonMoveBehavior;
-import net.minecraft.block.shape.VoxelShape;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.entity.living.player.ServerPlayerEntity;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
 
@@ -43,6 +43,7 @@ public abstract class GSMovingBlockEntityMixin extends BlockEntity implements GS
 
 	@Shadow private Direction facing;
 	@Shadow private BlockState movedState;
+	@Shadow private boolean extending;
 	
 	@Shadow private float progress;
 	@Shadow private float lastProgress;
@@ -53,12 +54,12 @@ public abstract class GSMovingBlockEntityMixin extends BlockEntity implements GS
 	
 	@Shadow protected abstract BlockState getStateForShape();
 	
+	@Shadow protected abstract Box getBounds(List<Box> shapes);
+	
 	@Shadow protected abstract Box moveBox(Box box);
 
 	@Shadow protected abstract Box getMovementArea(Box box, Direction direction, double amount);
 	
-	@Shadow public abstract Direction getMoveDirection();
-
 	private float gs_actualLastProgress;
 	@Unique
 	private float gs_nextProgress = 0.0f;
@@ -67,10 +68,6 @@ public abstract class GSMovingBlockEntityMixin extends BlockEntity implements GS
 	
 	/* Number of steps for a full extension (visible / modifiable for mod compatibility) */
 	private float gs_numberOfSteps = 2.0f;
-
-	public GSMovingBlockEntityMixin(BlockEntityType<?> blockEntityType_1) {
-		super(blockEntityType_1);
-	}
 
 	@Inject(
 		method = "getProgress",
@@ -152,7 +149,7 @@ public abstract class GSMovingBlockEntityMixin extends BlockEntity implements GS
 				")Lnet/minecraft/util/math/Direction$Axis;"
 		)
 	)
-	private void onPushEntitiesAfterDirectionGetAxis(float nextProgress, CallbackInfo ci, Direction direction, double d, VoxelShape voxelShape, List<?> list, Box box, List<?> list2, boolean bl, int i, Entity entity) {
+	private void onPushEntitiesAfterDirectionGetAxis(float nextProgress, CallbackInfo ci, Direction direction, double d, List<Box> voxelShape, Box box, List<?> list2, boolean bl, int i, Entity entity) {
 		((GSIEntityAccess)entity).gs_setMovedByPiston(true);
 	}
 	
@@ -179,16 +176,38 @@ public abstract class GSMovingBlockEntityMixin extends BlockEntity implements GS
 	}
 
 	@Redirect(
-		method = "getCollisionShape",
+		method =
+			"getShape(" +
+				"Lnet/minecraft/world/WorldView;" +
+				"Lnet/minecraft/util/math/BlockPos;" +
+			")Lnet/minecraft/util/math/Box;",
 		at = @At(
 			value = "FIELD",
 			opcode = Opcodes.GETFIELD,
 			target = "Lnet/minecraft/block/entity/MovingBlockEntity;progress:F"
 		)
 	)
-	private float onGetCollisionShapeRedirectProgress(MovingBlockEntity blockEntity) {
+	private float onGetShapeRedirectProgress(MovingBlockEntity blockEntity) {
 		if (shouldCorrectPushEntities())
 			return getProgress(1.0f);
+		return progress;
+	}
+
+	@Redirect(
+		method =
+			"getShape(" +
+				"Lnet/minecraft/world/WorldView;" +
+				"Lnet/minecraft/util/math/BlockPos;" +
+			")Lnet/minecraft/util/math/Box;",
+		at = @At(
+			value = "FIELD",
+			opcode = Opcodes.GETFIELD,
+			target = "Lnet/minecraft/block/entity/MovingBlockEntity;lastProgress:F"
+		)
+	)
+	private float onGetShapeRedirectLastProgress(MovingBlockEntity blockEntity) {
+		if (shouldCorrectPushEntities())
+			return getProgress(0.0f);
 		return progress;
 	}
 	
@@ -218,10 +237,11 @@ public abstract class GSMovingBlockEntityMixin extends BlockEntity implements GS
 	
 	@Unique
 	private void markEntitiesMovedByPiston(float stretchAmount) {
-		VoxelShape voxelShape = getStateForShape().getCollisionShape(this.world, this.getPos());
+		List<Box> voxelShape = Lists.<Box>newArrayList();
+		getStateForShape().addCollisions(world, BlockPos.ORIGIN, new Box(BlockPos.ORIGIN), voxelShape, null, true);
 		if (!voxelShape.isEmpty()) {
-			Box box = moveBox(voxelShape.bounds());
-			Direction direction = getMoveDirection();
+			Box box = moveBox(getBounds(voxelShape));
+			Direction direction = extending ? facing : facing.getOpposite();
 
 			List<Entity> entities = world.getEntities((Entity)null, this.getMovementArea(box, direction, stretchAmount).union(box));
 			if (!entities.isEmpty()) {

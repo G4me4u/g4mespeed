@@ -8,16 +8,15 @@ import com.g4mesoft.packet.GSICustomPayloadPacket;
 import net.minecraft.client.network.handler.ClientPlayPacketHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.resource.Identifier;
 
 @Mixin(CustomPayloadS2CPacket.class)
 public abstract class GSCustomPayloadS2CPacketMixin implements GSICustomPayloadPacket<ClientPlayPacketHandler> {
 
-	@Shadow private Identifier channel;
+	@Shadow private String channel;
 	@Shadow private PacketByteBuf data;
 	
 	@Override
-	public Identifier getChannel0() {
+	public String getChannel0() {
 		return channel;
 	}
 

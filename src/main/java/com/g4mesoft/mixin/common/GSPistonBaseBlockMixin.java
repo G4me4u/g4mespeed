@@ -1,7 +1,6 @@
 package com.g4mesoft.mixin.common;
 
 import java.util.List;
-import java.util.Set;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -79,13 +78,12 @@ public class GSPistonBaseBlockMixin {
 				")V"
 		)
 	)
-	private void onMoveBlockEntityChanged0(World world, BlockPos pos, Direction facing, boolean extend, CallbackInfoReturnable<Boolean> cir, BlockPos blockPos, PistonMoveStructureResolver resolver, List<?> list, List<?> list2, List<?> list3, int j, BlockState blockStates[], Direction direction, Set<?> set, int k, BlockPos blockPos3) {
-		markBlockEntityForUpdate(world, blockPos3);
+	private void onMoveBlockEntityChanged0(World world, BlockPos pos, Direction facing, boolean extend, CallbackInfoReturnable<Boolean> cir, PistonMoveStructureResolver resolver, List<?> list, List<?> list2, List<?> list3, int j, BlockState blockStates[], Direction direction, int k, BlockPos blockPos2) {
+		markBlockEntityForUpdate(world, blockPos2);
 	}
 
 	@Inject(
 		method = "move",
-		locals = LocalCapture.CAPTURE_FAILEXCEPTION,
 		at = @At(
 			value = "INVOKE",
 			ordinal = 1,
@@ -97,8 +95,8 @@ public class GSPistonBaseBlockMixin {
 				")V"
 		)
 	)
-	private void onMoveBlockEntityChanged1(World world, BlockPos pos, Direction facing, boolean extend, CallbackInfoReturnable<Boolean> cir, BlockPos blockPos) {
-		markBlockEntityForUpdate(world, blockPos);
+	private void onMoveBlockEntityChanged1(World world, BlockPos pos, Direction facing, boolean extend, CallbackInfoReturnable<Boolean> cir) {
+		markBlockEntityForUpdate(world, pos.offset(facing));
 	}
 	
 	@Unique

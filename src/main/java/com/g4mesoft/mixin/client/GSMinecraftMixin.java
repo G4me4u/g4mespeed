@@ -3,7 +3,7 @@ package com.g4mesoft.mixin.client;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.lwjgl.glfw.GLFW;
+import org.lwjgl.input.Mouse;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,6 +24,8 @@ import com.g4mesoft.access.client.GSIMovingBlockEntityAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.core.compat.GSTweakerooCompat;
 import com.g4mesoft.debug.GSDebug;
+import com.g4mesoft.hotkey.GSEKeyEventType;
+import com.g4mesoft.hotkey.GSKeyManager;
 import com.g4mesoft.module.tps.GSBasicTickTimer;
 import com.g4mesoft.module.tps.GSITickTimer;
 import com.g4mesoft.module.tps.GSTpsModule;
@@ -36,7 +38,9 @@ import net.minecraft.client.gui.GameGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.Utils;
+import net.minecraft.util.crash.CrashException;
+import net.minecraft.util.crash.CrashReport;
+import net.minecraft.util.crash.CrashReportCategory;
 import net.minecraft.util.math.BlockPos;
 
 @Mixin(Minecraft.class)
@@ -50,6 +54,7 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 	@Shadow public ClientPlayerInteractionManager interactionManager;
 	@Shadow public Screen screen;
 	@Shadow public GameGui gui;
+	@Shadow long sysTime;
 
 	@Unique
 	private GSClientController gs_controller;
@@ -68,11 +73,15 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 	@Unique
 	private GSTweakerooCompat gs_tweakerooCompat;
 	@Unique
+	private GSKeyManager gs_keyManager;
+	@Unique
 	private boolean gs_tweakerooWasCameraEntityEnabled = false;
 	
 	@Shadow protected abstract boolean isPaused();
 	
-	@Shadow protected abstract void handleKeyBindings();
+	@Shadow protected abstract void handleMouseEvents();
+
+	@Shadow protected abstract void handleKeyboardEvents();
 	
 	@Inject(
 		method = "init()V",
@@ -83,17 +92,18 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 		gs_controller.init((Minecraft)(Object)this);
 		gs_tpsModule = gs_controller.getTpsModule();
 		gs_tweakerooCompat = G4mespeedMod.getTweakerooCompat();
+		gs_keyManager = gs_controller.getKeyManager();
 	}
 	
 	@Inject(
 		method =
 			"setWorld(" +
 				"Lnet/minecraft/client/world/ClientWorld;" +
-				"Lnet/minecraft/client/gui/screen/Screen;" +
+				"Ljava/lang/String;" +
 			")V",
 		at = @At("HEAD")
 	)
-	private void onDisconnect(ClientWorld world, Screen screen, CallbackInfo ci) {
+	private void onDisconnect(ClientWorld world, String title, CallbackInfo ci) {
 		if (world == null && this.world != null)
 			gs_controller.onDisconnectServer();
 	}
@@ -183,13 +193,52 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 		method = "tick",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/Minecraft;handleKeyBindings()V"
+			target = "Lnet/minecraft/client/gui/screen/Screen;handleInputs()V"
 		)
 	)
-	private void onTickRedirectHandleInputEvents(Minecraft ignore) {
+	private void onTickRedirectScreenHandleInputs(Screen screen) {
 		// Events are handled elsewhere when correcting movement.
 		if (!gs_tpsModule.isMainPlayerFixedMovement())
-			handleKeyBindings();
+			screen.handleInputs();
+	}
+
+	@Redirect(
+		method = "tick",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/gui/screen/Screen;tick()V"
+		)
+	)
+	private void onTickRedirectScreenTick(Screen screen) {
+		// Tick is handled elsewhere when correcting movement.
+		if (!gs_tpsModule.isMainPlayerFixedMovement())
+			screen.tick();
+	}
+	
+	@Redirect(
+		method = "tick",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/Minecraft;handleMouseEvents()V"
+		)
+	)
+	private void onTickRedirectHandleMouseEvents(Minecraft ignore) {
+		// Events are handled elsewhere when correcting movement.
+		if (!gs_tpsModule.isMainPlayerFixedMovement())
+			handleMouseEvents();
+	}
+	
+	@Redirect(
+		method = "tick",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/client/Minecraft;handleKeyboardEvents()V"
+		)
+	)
+	private void onTickRedirectHandleKeyboardEvents(Minecraft ignore) {
+		// Events are handled elsewhere when correcting movement.
+		if (!gs_tpsModule.isMainPlayerFixedMovement())
+			handleKeyboardEvents();
 	}
 
 	@Redirect(
@@ -224,7 +273,7 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 	}
 
 	@Inject(
-		method = "m_0520165",
+		method = "runGame",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
@@ -240,7 +289,7 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 	}
 	
 	@Inject(
-		method = "m_0520165",
+		method = "runGame",
 		slice = @Slice(
 			from = @At(
 				value = "CONSTANT",
@@ -264,7 +313,7 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 			gs_forceScheduledPistonBlockEntityUpdates = false;
 		}
 
-		gs_playerTimer.update(Utils.getTimeMillis());
+		gs_playerTimer.update(System.currentTimeMillis());
 
 		if (!gs_tpsModule.isDefaultTps() || gs_tpsModule.isFixedMovementOnDefaultTps()) {
 			int tickCount = Math.min(gs_playerTimer.getTickCount(), 10);
@@ -306,19 +355,43 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 				interactionManager.tick();
 		}
 
+		if (screen != null) {
+			try {
+				screen.handleInputs();
+			} catch (Throwable throwable) {
+				CrashReport crashReport = CrashReport.of(throwable, "Updating screen events");
+				CrashReportCategory crashReportCategory = crashReport.addCategory("Affected screen");
+				crashReportCategory.add("Screen name", () -> screen.getClass().getCanonicalName());
+				throw new CrashException(crashReport);
+			}
+
+			if (screen != null) {
+				try {
+					screen.tick();
+				} catch (Throwable throwable) {
+					CrashReport crashReport = CrashReport.of(throwable, "Ticking screen");
+					CrashReportCategory crashReportCategory = crashReport.addCategory("Affected screen");
+					crashReportCategory.add("Screen name", () -> screen.getClass().getCanonicalName());
+					throw new CrashException(crashReport);
+				}
+			}
+		}
+		
 		if (screen == null || screen.passEvents) {
-			GLFW.glfwPollEvents();
-			handleKeyBindings();
+			handleMouseEvents();
 			if (attackCooldown > 0)
 				attackCooldown--;
+			handleKeyboardEvents();
 		}
 		
 		if (!paused && world != null)
 			gameRenderer.tick();
+		
+		sysTime = Minecraft.getTime();
 	}
 	
 	@ModifyArg(
-		method = "m_0520165",
+		method = "runGame",
 		index = 0,
 		at = @At(
 			value = "INVOKE",
@@ -326,7 +399,6 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 				"Lnet/minecraft/client/render/GameRenderer;render(" +
 					"F" +
 					"J" +
-					"Z" +
 				")V"
 		)
 	)
@@ -334,6 +406,119 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 		if (!paused && gs_tpsModule.isMainPlayerFixedMovement())
 			return gs_playerTimer.getTickDelta0();
 		return oldTickDelta;
+	}
+
+	@Inject(
+		method = "handleKeyboardEvents",
+		at = @At(
+			value = "INVOKE",
+			ordinal = 0,
+			shift = Shift.BEFORE,
+			target =
+				"Lorg/lwjgl/input/Keyboard;getEventKey()I"
+		)
+	)
+	private void onHandleKeyboardEventsKeyboardNext(CallbackInfo ci) {
+		gs_keyManager.handleKeyboard();
+	}
+	
+	@Inject(
+		method = "handleKeyboardEvents",
+		expect = 1,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/client/options/KeyBinding;click(" +
+					"I" +
+				")V"
+		)
+	)
+	private void onHandleKeyboardEventsKeyBindingPress(CallbackInfo ci) {
+		gs_keyManager.dispatchEvents(GSEKeyEventType.PRESS);
+	}
+	
+	@Inject(
+		method = "handleKeyboardEvents",
+		at = @At(
+			value = "INVOKE",
+			ordinal = 2,
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/client/options/KeyBinding;set(" +
+					"I" +
+					"Z" +
+				")V"
+		)
+	)
+	private void onHandleKeyboardEventsKeyBindingRelease(CallbackInfo ci) {
+		gs_keyManager.dispatchEvents(GSEKeyEventType.RELEASE);
+	}
+	
+	@Inject(
+		method = "handleMouseEvents",
+		expect = 1,
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.BEFORE,
+			target =
+				"Lorg/lwjgl/input/Mouse;getEventButton()I"
+		)
+	)
+	private void onHandleMouseEventsMouseNext(CallbackInfo ci) {
+		gs_keyManager.handleMouse();
+	}
+	
+	@Inject(
+		method = "handleMouseEvents",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lnet/minecraft/client/options/KeyBinding;set(" +
+					"I" +
+					"Z" +
+				")V"
+		)
+	)
+	private void onHandleMouseEventsKeyBindingSet(CallbackInfo ci) {
+		if (Mouse.getEventButtonState()) {
+			gs_keyManager.dispatchEvents(GSEKeyEventType.PRESS);
+		} else {
+			gs_keyManager.dispatchEvents(GSEKeyEventType.RELEASE);
+		}
+	}
+	
+	@Redirect(
+		method = "openScreen",
+		at = @At(
+			value = "INVOKE",
+			target =
+				"Lorg/lwjgl/input/Mouse;next()Z"
+		)
+	)
+	private boolean onOpenScreenRedirectMouseNext() {
+		if (Mouse.next() && gs_keyManager != null) {
+			gs_keyManager.handleMouse();
+			return true;
+		}
+		return false;
+	}
+
+	@Redirect(
+		method = "openScreen",
+		at = @At(
+			value = "INVOKE",
+			target =
+			"Lorg/lwjgl/input/Keyboard;next()Z"
+		)
+	)
+	private boolean onOpenScreenRedirectKeyboardNext() {
+		if (Mouse.next() && gs_keyManager != null) {
+			gs_keyManager.handleKeyboard();
+			return true;
+		}
+		return false;
 	}
 	
 	@Override

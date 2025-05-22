@@ -6,12 +6,11 @@ import com.g4mesoft.core.server.GSIServerModuleManager;
 import com.g4mesoft.gui.GSTabbedGUI;
 import com.g4mesoft.hotkey.GSKeyManager;
 import com.g4mesoft.setting.GSSettingManager;
-import com.mojang.brigadier.CommandDispatcher;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.source.CommandSourceStack;
+import net.minecraft.server.command.handler.CommandManager;
 import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 
 public interface GSIModule {
@@ -102,9 +101,9 @@ public interface GSIModule {
 	 * Invoked on the <b>server</b> after initialization to allow modules to register
 	 * their own commands. This method is <i>not</i> invoked on the client.
 	 * 
-	 * @param dispatcher - the server command dispatcher
+	 * @param commandManager - the server command manager
 	 */
-	default public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) { }
+	default public void registerCommands(CommandManager commandManager) { }
 
 	/**
 	 * Invoked at the beginning of a <b>client and server</b> tick, depending on whether

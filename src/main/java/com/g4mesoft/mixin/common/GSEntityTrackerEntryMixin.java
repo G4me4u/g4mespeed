@@ -24,7 +24,6 @@ import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.network.packet.Packet;
@@ -68,7 +67,7 @@ public abstract class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntry
 		if (gs_fixedMovement != gs_lastFixedMovement) {
 			gs_lastFixedMovement = gs_fixedMovement;
 
-			if (currentTrackedEntity.getType() == EntityType.PLAYER) {
+			if (currentTrackedEntity instanceof PlayerEntity) {
 				GSIPacket packet = new GSServerPlayerFixedMovementPacket(currentTrackedEntity.getNetworkId(), gs_fixedMovement);
 				// Encode packet to a vanilla packet. This is required for sending to all nearby
 				// players. Note that vanilla players will not react to the packet.
@@ -78,7 +77,7 @@ public abstract class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntry
 		}
 		
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && currentTrackedEntity.getType() == EntityType.FALLING_BLOCK) {
+		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && currentTrackedEntity instanceof FallingBlockEntity) {
 			if (gs_tickedFromFallingBlock) {
 				double dvx = currentTrackedEntity.velocityX - gs_lastFallingBlockVelocityX * FALLING_BLOCK_FRICTION;
 				double dvy = currentTrackedEntity.velocityY - gs_lastFallingBlockVelocityY * FALLING_BLOCK_FRICTION;
@@ -123,7 +122,7 @@ public abstract class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntry
 		)
 	)
 	private void onStartTracking(ServerPlayerEntity player, CallbackInfo ci) {
-		if (currentTrackedEntity.getType() == EntityType.PLAYER) {
+		if (currentTrackedEntity instanceof PlayerEntity) {
 			GSIPacket packet = new GSServerPlayerFixedMovementPacket(currentTrackedEntity.getNetworkId(), gs_fixedMovement);
 			// Note that player might be tracking the entity after just joining
 			// in which case the extension versions will not yet have been sent.

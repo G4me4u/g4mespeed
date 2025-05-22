@@ -1,7 +1,5 @@
 package com.g4mesoft.mixin.client;
 
-import java.util.function.BooleanSupplier;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,7 +19,7 @@ public class GSIntegratedServerMixin {
 		method = "tick",
 		at = @At("RETURN")
 	)
-	private void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
+	private void onTick(CallbackInfo ci) {
 		if (this.paused) {
 			// At this point the client is paused and the tick method of
 			// MinecraftServer was not called. Hence we have to call the

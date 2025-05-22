@@ -261,7 +261,9 @@ public class GSClientPlayNetworkHandlerMixin {
 					blockEntity = new MovingBlockEntity();
 					blockEntity.readNbt(tag);
 					world.setBlockEntity(blockPos, blockEntity);
-
+					// Schedule render update.
+					((GSIWorldRendererAccess)minecraft.worldRenderer).gs_scheduleBlockUpdate(blockPos, true);
+					
 					// Probably not needed but it's done in
 					// other places so let's keep the standard.
 					blockEntity.clearBlockCache();

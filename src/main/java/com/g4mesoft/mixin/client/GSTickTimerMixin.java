@@ -9,6 +9,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.core.client.GSClientController;
@@ -41,12 +42,13 @@ public class GSTickTimerMixin implements GSITickTimer {
 		method = "<init>",
 		at = @At("RETURN")
 	)
-	private void onInit(float ticksPerSecond, long initialTimeMillis, CallbackInfo ci) {
+	private void onInit(CallbackInfo ci) {
 		gs_firstUpdate = true;
 	}
 
 	@Inject(
 		method = "advance",
+		locals = LocalCapture.CAPTURE_FAILHARD,
 		at = @At(
 			value = "FIELD",
 			shift = Shift.AFTER,
@@ -54,7 +56,7 @@ public class GSTickTimerMixin implements GSITickTimer {
 			target = "Lnet/minecraft/client/TickTimer;tickDelta:F"
 		)
 	)
-	private void onModifyTickrate(long timeMillis, CallbackInfo ci) {
+	private void onModifyTickrate(CallbackInfo ci, long timeMillis) {
 		if (gs_firstUpdate) {
 			init(lastTickTime);
 			gs_firstUpdate = false;
@@ -74,9 +76,10 @@ public class GSTickTimerMixin implements GSITickTimer {
 
 	@Inject(
 		method = "advance",
+		locals = LocalCapture.CAPTURE_FAILHARD,
 		at = @At("RETURN")
 	)
-	private void onBeginRenderTick(long timeMillis, CallbackInfo ci) {
+	private void onBeginRenderTick(CallbackInfo ci, long timeMillis) {
 		update(timeMillis);
 	}
 

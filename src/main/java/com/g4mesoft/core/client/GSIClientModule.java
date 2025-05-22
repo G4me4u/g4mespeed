@@ -3,9 +3,8 @@ package com.g4mesoft.core.client;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
-import com.mojang.brigadier.CommandDispatcher;
 
-import net.minecraft.server.command.source.CommandSourceStack;
+import net.minecraft.server.command.handler.CommandManager;
 import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 
 public interface GSIClientModule extends GSIModule {
@@ -27,7 +26,7 @@ public interface GSIClientModule extends GSIModule {
 	public void init(GSIClientModuleManager manager);
 	
 	@Override
-	default public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
+	default public void registerCommands(CommandManager commandManager) {
 		throw new UnsupportedOperationException();
 	}
 

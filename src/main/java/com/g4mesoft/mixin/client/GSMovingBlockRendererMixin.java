@@ -18,16 +18,6 @@ public class GSMovingBlockRendererMixin {
 
 	@ModifyConstant(
 		method = "render",
-		constant = @Constant(
-			floatValue = 4.0f
-		)
-	)
-	private float fixShortArm(float shortArmCutoff) {
-		return 0.5f;
-	}
-
-	@ModifyConstant(
-		method = "render",
 		constant = @Constant(floatValue = 1.0f),
 		allow = 1
 	)

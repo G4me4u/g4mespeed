@@ -7,8 +7,6 @@
     
     "common.GSServerWorldMixin",
 
-    "common.GSCommandManagerMixin",
-    
     "common.GSServerPlayNetworkHandlerMixin",
     "common.GSCustomPayloadS2CPacketMixin",
     "common.GSCustomPayloadC2SPacketMixin",
@@ -34,11 +32,8 @@
     "client.GSIntegratedServerMixin",
 
   	"client.GSSoundEngineMixin",
-  	"client.GSSourceOpenALMixin",
+  	"client.GSScreenMixin",
   	
-    "client.GSKeyboardHandlerMixin",
-    "client.GSMouseHandlerMixin",
-    
     "client.GSTickTimerMixin",
     
     "client.GSClientPlayNetworkHandlerMixin",

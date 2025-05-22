@@ -18,12 +18,11 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.PacketUtils;
 import net.minecraft.network.handler.PacketHandler;
 import net.minecraft.network.packet.Packet;
-import net.minecraft.resource.Identifier;
 import net.minecraft.util.BlockableEventLoop;
 
 public class GSPacketManager {
 
-	private static final Identifier GS_IDENTIFIER = new Identifier("mod/g4mespeed");
+	private static final String GS_IDENTIFIER = "mod/g4mespeed";
 	
 	private final GSPacketRegistryList registryList;
 	private boolean initialized;

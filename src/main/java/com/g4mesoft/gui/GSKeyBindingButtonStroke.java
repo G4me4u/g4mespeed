@@ -1,11 +1,12 @@
 package com.g4mesoft.gui;
 
+import com.g4mesoft.hotkey.GSEKeyType;
+import com.g4mesoft.hotkey.GSKey;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.ui.panel.event.GSEvent;
 import com.g4mesoft.ui.panel.event.GSIButtonStroke;
 import com.g4mesoft.ui.panel.event.GSKeyEvent;
 import com.g4mesoft.ui.panel.event.GSMouseEvent;
-import com.mojang.blaze3d.platform.InputConstants;
 
 public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 
@@ -42,7 +43,7 @@ public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 			return false;
 		}
 		
-		return isKeyMatching(InputConstants.Type.MOUSE.getOrCreate(event.getButton()));
+		return isKeyMatching(GSKey.fromKeyCode(GSEKeyType.MOUSE, event.getButton()));
 	}
 	
 	private boolean isKeyEventMatching(GSKeyEvent event) {
@@ -54,11 +55,10 @@ public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 			return false;
 		}
 
-		return isKeyMatching(InputConstants.getKey(event.getKeyCode(),
-		                                           event.getScanCode()));
+		return isKeyMatching(GSKey.fromKeyCode(GSEKeyType.MOUSE, event.getKeyCode()));
 	}
 	
-	private boolean isKeyMatching(InputConstants.Key key) {
+	private boolean isKeyMatching(GSKey key) {
 		return (keyBinding.getKeyCode().indexOf(key) != -1);
 	}
 }

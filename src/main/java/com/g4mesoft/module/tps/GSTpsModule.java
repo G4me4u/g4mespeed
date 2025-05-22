@@ -13,8 +13,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-import org.lwjgl.glfw.GLFW;
-
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.access.client.GSIClientPlayerEntityAccess;
@@ -25,8 +23,8 @@ import com.g4mesoft.core.client.GSIClientModuleManager;
 import com.g4mesoft.core.compat.GSCarpetCompat;
 import com.g4mesoft.core.compat.GSICarpetTickrateListener;
 import com.g4mesoft.core.compat.GSICarpetTickrateManager;
-import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.hotkey.GSEKeyEventType;
+import com.g4mesoft.hotkey.GSKey;
 import com.g4mesoft.hotkey.GSKeyManager;
 import com.g4mesoft.setting.GSISettingChangeListener;
 import com.g4mesoft.setting.GSSetting;
@@ -35,19 +33,17 @@ import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.types.GSBooleanSetting;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 import com.g4mesoft.ui.util.GSMathUtil;
-import com.mojang.brigadier.CommandDispatcher;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.living.player.ClientPlayerEntity;
 import net.minecraft.entity.living.player.PlayerEntity;
-import net.minecraft.server.PlayerManager;
-import net.minecraft.server.command.source.CommandSourceStack;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.handler.CommandManager;
 import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Utils;
 import net.minecraft.world.GameMode;
 
 public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
@@ -137,7 +133,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 
 		serverSyncTimer = 0;
 		serverTpsMonitor = new GSTpsMonitor();
-		lastServerTpsTime = Utils.getTimeMillis();
+		lastServerTpsTime = System.currentTimeMillis();
 		
 		manager = null;
 	
@@ -242,19 +238,19 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 
 	@Override
 	public void registerHotkeys(GSKeyManager keyManager) {
-		keyManager.registerKey("reset", KEY_CATEGORY, GLFW.GLFW_KEY_M, 
+		keyManager.registerKey("reset", KEY_CATEGORY, GSKey.KEY_M, 
 				GSETpsHotkeyType.RESET_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 		
-		keyManager.registerKey("increment", KEY_CATEGORY, GLFW.GLFW_KEY_PERIOD, 
+		keyManager.registerKey("increment", KEY_CATEGORY, GSKey.KEY_PERIOD, 
 				GSETpsHotkeyType.INCREMENT_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 		
-		keyManager.registerKey("decrement", KEY_CATEGORY, GLFW.GLFW_KEY_COMMA, 
+		keyManager.registerKey("decrement", KEY_CATEGORY, GSKey.KEY_COMMA, 
 				GSETpsHotkeyType.DECREMENT_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 		
-		keyManager.registerKey("double", KEY_CATEGORY, GLFW.GLFW_KEY_K, 
+		keyManager.registerKey("double", KEY_CATEGORY, GSKey.KEY_K, 
 				GSETpsHotkeyType.DOUBLE_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 
-		keyManager.registerKey("halve", KEY_CATEGORY, GLFW.GLFW_KEY_J, 
+		keyManager.registerKey("halve", KEY_CATEGORY, GSKey.KEY_J, 
 				GSETpsHotkeyType.HALVE_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 	}
 	
@@ -274,28 +270,11 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 			sParanoidMode,
 			sImmediateBlockBroadcast
 		);
-		settings.addChangeListener(new GSISettingChangeListener() {
-			@Override
-			public void onSettingChanged(GSSettingCategory category, GSSetting<?> setting) {
-				if (setting == sRequireOP) {
-					// Send the command tree, since the tps command might no
-					// longer be available an vice versa.
-					manager.runOnServer(managerServer -> {
-						PlayerManager playerManager = managerServer.getServer().getPlayerManager();
-						for (ServerPlayerEntity player : playerManager.getAll()) {
-							// The command tree can only change for non-OP players.
-							if (!player.hasPermissions(GSServerController.OP_PERMISSION_LEVEL))
-								managerServer.getServer().getCommandHandler().sendCommands(player);
-						}
-					});
-				}
-			}
-		});
 	}
 	
 	@Override
-	public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
-		GSTpsCommand.registerCommand(dispatcher);
+	public void registerCommands(CommandManager commandManager) {
+		commandManager.register(new GSTpsCommand(this));
 	}
 	
 	@Override
@@ -314,7 +293,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 			serverTpsMonitor.update(1);
 			
 			if (sBroadcastTps.get()) {
-				long now = Utils.getTimeMillis();
+				long now = System.currentTimeMillis();
 				
 				// Note that the interval may be less than zero in case of the
 				// first tick or in case of overflow / underflow.
@@ -339,7 +318,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 	
 	public void onServerTps(float serverTps) {
 		this.serverTps = serverTps;
-		lastServerTpsTime = Utils.getTimeMillis();
+		lastServerTpsTime = System.currentTimeMillis();
 	}
 	
 	private void onClientHotkey(GSETpsHotkeyType hotkeyType) {
@@ -543,7 +522,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 				// a de-sync with the server tick cycle.
 				serverTpsMonitor.reset();
 
-				lastServerTpsTime = Utils.getTimeMillis();
+				lastServerTpsTime = System.currentTimeMillis();
 				carpetCompat.getServerTickrateManager().setTickrate(this.tps);
 			});
 			manager.runOnClient(managerClient -> {
@@ -564,9 +543,12 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 		}
 	}
 
-	public boolean isPlayerAllowedTpsChange(PlayerEntity player) {
-		if (sRequireOP.get())
-			return player.hasPermissions(GSServerController.OP_PERMISSION_LEVEL);
+	public boolean isPlayerAllowedTpsChange(ServerPlayerEntity player) {
+		if (sRequireOP.get() && player.world != null) {
+			MinecraftServer server = player.world.getServer();
+			if (server != null)
+				return server.getPlayerManager().isOp(player.getGameProfile());
+		}
 		return true;
 	}
 	

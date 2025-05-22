@@ -2,41 +2,62 @@ package com.g4mesoft.module.tps;
 
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.ui.util.GSMathUtil;
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.FloatArgumentType;
-import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import net.minecraft.server.command.handler.CommandManager;
-import net.minecraft.server.command.source.CommandSourceStack;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.AbstractCommand;
+import net.minecraft.server.command.exception.CommandException;
+import net.minecraft.server.command.exception.IncorrectUsageException;
+import net.minecraft.server.command.source.CommandSource;
 
-public final class GSTpsCommand {
+public final class GSTpsCommand extends AbstractCommand {
 
 	private static final double LOG_2 = Math.log(2.0);
 	
-	private GSTpsCommand() {
+	private final GSTpsModule tpsModule;
+	
+	public GSTpsCommand(GSTpsModule tpsModule) {
+		this.tpsModule = tpsModule;
 	}
 	
-	public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
-		LiteralArgumentBuilder<CommandSourceStack> builder = CommandManager.literal("tps").requires(context -> {
-			if (GSServerController.getInstance().getTpsModule().sRequireOP.get())
-				return context.hasPermissions(GSServerController.OP_PERMISSION_LEVEL);
-			return true;
-		});
-		
-		builder.executes(context -> informCurrentTps(context.getSource()));
-		
-		builder.then(CommandManager.argument("newTps", FloatArgumentType.floatArg(GSTpsModule.MIN_TPS, GSTpsModule.MAX_TPS)).executes(context -> {
-			return setCurrentTps(context.getSource(), FloatArgumentType.getFloat(context, "newTps"));
-		}));
-		
-		dispatcher.register(builder);
+	@Override
+	public String getName() {
+		return "tps";
+	}
+
+	@Override
+	public int getRequiredPermissionLevel() {
+		if (GSServerController.getInstance().getTpsModule().sRequireOP.get())
+			return GSServerController.OP_PERMISSION_LEVEL;
+		return 0;
 	}
 	
-	private static int informCurrentTps(CommandSourceStack source) {
-		float tps = GSServerController.getInstance().getTpsModule().getTps();
+	@Override
+	public String getUsage(CommandSource source) {
+		return "commands.tps.usage";
+	}
+
+	@Override
+	public void run(MinecraftServer server, CommandSource source, String[] args) throws CommandException {
+		if (args.length == 0) {
+			// Format: /tps
+			informCurrentTps(source);
+		} else if (args.length == 1) {
+			// Format: /tps <newTps>
+			float newTps = (float)parseDouble(args[0], GSTpsModule.MIN_TPS, GSTpsModule.MAX_TPS);
+			setCurrentTps(source, newTps);
+		} else {
+			throw new IncorrectUsageException(getUsage(source));
+		}
+	}
+	
+	private static String formatSign(int value) {
+		if (value > 0)
+			return "+" + Integer.toString(value);
+		return Integer.toString(value);
+	}
+	
+	private void informCurrentTps(CommandSource source) {
+		float tps = tpsModule.getTps();
 		String tpsFormatted = GSTpsModule.TPS_FORMAT.format(tps);
 		
 		float fn = (float)(Math.log(tps / GSTpsModule.DEFAULT_TPS) / LOG_2 * 12.0);
@@ -51,28 +72,18 @@ public final class GSTpsCommand {
 			}
 			
 			if (o != 0) {
-				source.sendSuccess(new TranslatableText("command.tps.geton", tpsFormatted, formatSign(o), formatSign(n)), false);
+				sendSuccess(source, this, "command.tps.geton", tpsFormatted, formatSign(o), formatSign(n));
 			} else {
-				source.sendSuccess(new TranslatableText("command.tps.getn", tpsFormatted, formatSign(n)), false);
+				sendSuccess(source, this, "command.tps.getn", tpsFormatted, formatSign(n));
 			}
 		} else {
-			source.sendSuccess(new TranslatableText("command.tps.get", tpsFormatted), false);
+			sendSuccess(source, this, "command.tps.get", tpsFormatted);
 		}
-		
-		return Command.SINGLE_SUCCESS;
 	}
 	
-	private static String formatSign(int value) {
-		if (value > 0)
-			return "+" + Integer.toString(value);
-		return Integer.toString(value);
-	}
-	
-	private static int setCurrentTps(CommandSourceStack source, float newTps) throws CommandSyntaxException {
-		GSServerController.getInstance().getTpsModule().setTps(newTps);
+	private void setCurrentTps(CommandSource source, float newTps) throws CommandException {
+		tpsModule.setTps(newTps);
 		
-		source.sendSuccess(new TranslatableText("command.tps.set", newTps), true);
-		
-		return Command.SINGLE_SUCCESS;
+		sendSuccess(source, this, "command.tps.set", newTps);
 	}
 }

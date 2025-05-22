@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.g4mesoft.hotkey.GSEKeyType;
+import com.g4mesoft.hotkey.GSKey;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyCode;
 import com.g4mesoft.ui.panel.GSPanel;
@@ -14,7 +16,6 @@ import com.g4mesoft.ui.panel.event.GSKeyEvent;
 import com.g4mesoft.ui.panel.event.GSMouseEvent;
 import com.g4mesoft.ui.panel.legacy.GSButtonPanel;
 import com.g4mesoft.ui.renderer.GSIRenderer2D;
-import com.mojang.blaze3d.platform.InputConstants;
 
 import net.minecraft.text.Formatting;
 import net.minecraft.text.LiteralText;
@@ -45,8 +46,8 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	private final GSButtonPanel resetButton;
 
 	private boolean modifyingKeyCode;
-	private final Set<InputConstants.Key> pressedKeys;
-	private final Set<InputConstants.Key> activeKeys;
+	private final Set<GSKey> pressedKeys;
+	private final Set<GSKey> activeKeys;
 	
 	public GSHotkeyElementGUI(GSHotkeyGUI hotkeyGui, GSKeyBinding keyBinding) {
 		this.hotkeyGui = hotkeyGui;
@@ -118,7 +119,8 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 		Text keyName = keyBinding.getLocalizedName();
 		
 		if (modifyingKeyCode) {
-			keyName = keyName.deepCopy().setFormatting(Formatting.YELLOW);
+			keyName = keyName.copy();
+			keyName.getStyle().setColor(Formatting.YELLOW);
 
 			modifyButton.setText(new LiteralText("> ").append(keyName).append(" <"));
 		} else {
@@ -176,7 +178,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	@Override
 	public void mousePressed(GSMouseEvent event) {
 		if (modifyingKeyCode) {
-			onKeyPressed(InputConstants.Type.MOUSE.getOrCreate(event.getButton()));
+			onKeyPressed(GSKey.fromKeyCode(GSEKeyType.MOUSE, event.getButton()));
 			event.consume();
 		}
 	}
@@ -184,7 +186,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	@Override
 	public void mouseReleased(GSMouseEvent event) {
 		if (modifyingKeyCode) {
-			onKeyReleased(InputConstants.Type.MOUSE.getOrCreate(event.getButton()));
+			onKeyReleased(GSKey.fromKeyCode(GSEKeyType.MOUSE, event.getButton()));
 			event.consume();
 		}
 	}
@@ -196,7 +198,7 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 				unbindKeyCode();
 				stopModifying();
 			} else {
-				onKeyPressed(InputConstants.getKey(event.getKeyCode(), event.getScanCode()));
+				onKeyPressed(GSKey.fromKeyCode(GSEKeyType.KEYBOARD, event.getKeyCode()));
 			}
 			event.consume();
 		}
@@ -205,19 +207,19 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	@Override
 	public void keyReleased(GSKeyEvent event) {
 		if (modifyingKeyCode) {
-			onKeyReleased(InputConstants.getKey(event.getKeyCode(), event.getScanCode()));
+			onKeyReleased(GSKey.fromKeyCode(GSEKeyType.KEYBOARD, event.getKeyCode()));
 			event.consume();
 		}
 	}
 	
-	private void onKeyPressed(InputConstants.Key key) {
+	private void onKeyPressed(GSKey key) {
 		pressedKeys.add(key);
 		activeKeys.add(key);
 	}
 
-	private void onKeyReleased(InputConstants.Key key) {
+	private void onKeyReleased(GSKey key) {
 		if (activeKeys.remove(key) && activeKeys.isEmpty() && !pressedKeys.isEmpty()) {
-			setKeyCode(GSKeyCode.fromKeys(pressedKeys.toArray(new InputConstants.Key[0])));
+			setKeyCode(GSKeyCode.fromKeys(pressedKeys.toArray(new GSKey[0])));
 			stopModifying();
 		}
 	}

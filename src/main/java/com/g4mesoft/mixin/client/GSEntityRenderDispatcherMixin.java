@@ -10,7 +10,7 @@ import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
+import net.minecraft.entity.FallingBlockEntity;
 
 @Mixin(EntityRenderDispatcher.class)
 public class GSEntityRenderDispatcherMixin {
@@ -26,7 +26,7 @@ public class GSEntityRenderDispatcherMixin {
 		)
 	)
 	private int onRenderGetEntityAge(Entity entity) {
-		if (GSClientController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (GSClientController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity instanceof FallingBlockEntity) {
 			// We do not want the render positions to be modified when
 			// using pretty sand (already done by position packets).
 			return (entity.time == 0) ? -1 : entity.time;

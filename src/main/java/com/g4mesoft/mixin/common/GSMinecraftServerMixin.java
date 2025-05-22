@@ -3,7 +3,6 @@ package com.g4mesoft.mixin.common;
 import java.util.Queue;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.locks.LockSupport;
-import java.util.function.BooleanSupplier;
 
 import org.apache.logging.log4j.Logger;
 import org.objectweb.asm.Opcodes;
@@ -17,6 +16,8 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -29,18 +30,19 @@ import com.g4mesoft.ui.util.GSMathUtil;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.handler.CommandHandler;
+import net.minecraft.server.command.handler.CommandManager;
 import net.minecraft.util.Utils;
 
 @Mixin(MinecraftServer.class)
 public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 
 	@Shadow @Final private static Logger LOGGER;
-	@Shadow private long nextTickTime;
+	@Shadow private long nextTickTime; /* prevTickTime */
 	@Shadow @Final public Queue<FutureTask<?>> pendingEvents;
 	@Shadow private Thread thread;
-
-	@Shadow protected abstract boolean hasTimeLeft();
-
+	@Shadow @Final public CommandHandler commandHandler;
+	
 	@Unique
 	private float gs_msAccum = 0.0f;
 	@Unique
@@ -50,6 +52,9 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	private long gs_msThisTick;
 	@Unique
 	private long gs_ticksBehind;
+	
+	@Unique
+	private long gs_nextTickTime;
 	
 	@Override
 	public void tpsChanged(float newTps, float oldTps) {
@@ -97,17 +102,19 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		// Note that there might be some inaccuracies since we
 		// are using milliseconds.
 		
-		long now = Utils.getTimeMillis();       // t_n
-		long dt = nextTickTime - now;           // t_r1 - t_n
-		long millisNextTick = (long)gs_msAccum; // D_2
+		long now = MinecraftServer.getTimeMillis(); // t_n
+		long dt = gs_nextTickTime - now;            // t_r1 - t_n
+		long millisNextTick = (long)gs_msAccum;     // D_2
 		
 		if (dt < millisPrevTick && millisPrevTick != 0L) {
 			// t_r2 = t_n + D_2 * (t_r1 - t_n) / D_1
 			long delta = millisNextTick * dt / millisPrevTick;
-			nextTickTime = now + GSMathUtil.clamp(delta, 0L, millisNextTick);
+			gs_nextTickTime = now + GSMathUtil.clamp(delta, 0L, millisNextTick);
 		} else {
-			nextTickTime = now + millisNextTick;
+			gs_nextTickTime = now + millisNextTick;
 		}
+		
+		nextTickTime /* prevTickTime */ = gs_nextTickTime - millisNextTick;
 	}
 
 	@Inject(
@@ -127,11 +134,17 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		// method was called *before* those loops.
 		GSServerController controllerServer = GSServerController.getInstance();
 		controllerServer.init((MinecraftServer)(Object)this);
+		controllerServer.setCommandManager((CommandManager)commandHandler);
 		controllerServer.getTpsModule().addTpsListener(this);
+		
+		// Initial tick is happening now.
+		gs_nextTickTime = nextTickTime /* prevTickTime */;
 	}
-
-	@Inject(
+	
+	@ModifyVariable(
 		method = "run",
+		expect = 1,
+		ordinal = 0,
 		slice = @Slice(
 			from = @At(
 				value = "INVOKE",
@@ -143,15 +156,21 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			)
 		),
 		at = @At(
-			value = "INVOKE",
+			value = "FIELD",
 			shift = Shift.BEFORE,
-			ordinal = 0,
-			target = "Lnet/minecraft/util/Utils;getTimeMillis()J"
+			opcode = Opcodes.PUTFIELD,
+			target =
+				"Lnet/minecraft/server/MinecraftServer;nextTickTime:J"
 		)
 	)
-	private void onRunServerLoopBeginning(CallbackInfo ci) {
+	private long onRunServerLoopBeginning(long prevTimeRemaining) {
 		gs_msThisTick = (long)gs_msAccum;
 		gs_msAccum += gs_msPerTick - gs_msThisTick;
+		// Prepare next tick time.
+		gs_nextTickTime += gs_msThisTick;
+		// Note: anything greater than 0 would do, as we replace while loop with
+		//       a while(prevTimeRemaining > 0L) { ... }.
+		return 1L;
 	}
 
 	@ModifyConstant(
@@ -165,7 +184,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		if (GSMathUtil.equalsApproximate(gs_msPerTick, 0.0f)) {
 			gs_ticksBehind = Long.MAX_VALUE;
 		} else {
-			long deltaMs = Utils.getTimeMillis() - nextTickTime;
+			long deltaMs = MinecraftServer.getTimeMillis() - nextTickTime;
 			gs_ticksBehind = (deltaMs > 0L) ? (long)(deltaMs / gs_msPerTick) : 0L;
 		}
 		
@@ -205,12 +224,28 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 				")V"
 		)
 	)
-	private void onRunServerAfterWarn(CallbackInfo ci) {
+	private void onRunServerAfterCantKeepUpWarn(CallbackInfo ci) {
+		nextTickTime /* prevTickTime */ = MinecraftServer.getTimeMillis();
 		if (gs_ticksBehind == Long.MAX_VALUE) {
-			nextTickTime = Utils.getTimeMillis();
+			gs_nextTickTime = nextTickTime;
 		} else {
-			nextTickTime += gs_ticksBehind * gs_msPerTick;
+			gs_nextTickTime += gs_ticksBehind * gs_msPerTick;
 		}
+	}
+
+	@Inject(
+		method = "run",
+		at = @At(
+			value = "INVOKE",
+			shift = Shift.AFTER,
+			target =
+				"Lorg/apache/logging/log4j/Logger;warn(" +
+					"Ljava/lang/String;" +
+				")V"
+		)
+	)
+	private void onRunServerAfterRunBackwardsWarn(CallbackInfo ci) {
+		nextTickTime /* prevTickTime */ = gs_nextTickTime = MinecraftServer.getTimeMillis();
 	}
 
 	@ModifyConstant(
@@ -221,29 +256,20 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		)
 	)
 	private long onRunServerModify50_1(long prevMsThisTick) {
-		// Modifying this constant to zero will ensure that no time is added to timeReference.
+		// Replace with while(... > 0L) { ...}.
 		return 0L;
 	}
 	
 	@ModifyConstant(
 		method = "run",
-		expect = 1,
 		constant = @Constant(
-			longValue = 50L
-		),
-		slice = @Slice(
-			from = @At(
-				value = "INVOKE",
-				shift = Shift.AFTER,
-				target =
-					"Lnet/minecraft/server/MinecraftServer;tick(" +
-						"Ljava/util/function/BooleanSupplier;" +
-					")V"
-			)
+			longValue = 50L,
+			ordinal = 2
 		)
 	)
-	private long onRunServerModify50AfterTick(long prevMsThisTick) {
-		return gs_msThisTick;
+	private long onRunServerModify50_2(long prevMsThisTick) {
+		// Note: should match modification of variable above.
+		return 1L;
 	}
 
 	@ModifyConstant(
@@ -279,19 +305,24 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		this.gs_msAccum = gs_msPerTick;
 	}
 
-	@Inject(
+	@Unique
+	private boolean gs_hasTimeLeft() {
+		return gs_nextTickTime - MinecraftServer.getTimeMillis() > 0L;
+	}
+	
+	@Redirect(
 		method = "run",
 		expect = 1,
 		at = @At(
 			value = "INVOKE",
-			shift = Shift.BEFORE,
 			target =
-				"Lnet/minecraft/server/MinecraftServer;hasTimeLeft(" +
-				")Z"
+				"Ljava/lang/Thread;sleep(" +
+					"J" +
+				")V"
 		)
 	)
-	private void onRunServerBeforeHasTimeLeft(CallbackInfo ci) {
-		while (hasTimeLeft()) {
+	private void onRunServerRedirectThreadSleep(long ignore) {
+		while (gs_hasTimeLeft()) {
 			// Note: tick already ran tasks that were available at the time, so we
 			//       should just execute/wait for tasks here.
 			FutureTask<?> task = pendingEvents.poll();
@@ -312,7 +343,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		method = "tick",
 		at = @At("HEAD")
 	)
-	private void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
+	private void onTick(CallbackInfo ci) {
 		GSDebug.onServerTick();
 		
 		GSServerController.getInstance().tick(false);

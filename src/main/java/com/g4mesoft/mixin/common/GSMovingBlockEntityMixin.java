@@ -10,7 +10,6 @@ import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.server.GSServerController;
 
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.entity.MovingBlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
@@ -20,10 +19,6 @@ public class GSMovingBlockEntityMixin extends BlockEntity {
 
 	private boolean gs_ticked;
 	
-	public GSMovingBlockEntityMixin(BlockEntityType<?> type) {
-		super(type);
-	}
-
 	@Override
 	public BlockEntityUpdateS2CPacket createUpdatePacket() {
 		if (GSServerController.getInstance().getTpsModule().sParanoidMode.get())

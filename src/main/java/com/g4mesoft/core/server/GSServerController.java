@@ -28,14 +28,12 @@ import com.g4mesoft.setting.GSSettingChangePacket.GSESettingChangeType;
 import com.g4mesoft.setting.GSSettingManager;
 import com.g4mesoft.setting.GSSettingMap;
 import com.g4mesoft.setting.GSSettingPermissionPacket;
-import com.mojang.brigadier.CommandDispatcher;
 
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
-import net.minecraft.resource.Identifier;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.source.CommandSourceStack;
+import net.minecraft.server.command.handler.CommandManager;
 import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.dimension.DimensionType;
@@ -48,7 +46,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	protected final GSSettingManager worldSettings;
 
-	private CommandDispatcher<CommandSourceStack> dispatcher;
+	private CommandManager commandManager;
 	
 	private MinecraftServer server;
 
@@ -72,8 +70,8 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		if (!worldSettings.isDisjoint(settings))
 			throw new IllegalStateException("The global- and world settings are not disjoint!");
 		
-		if (dispatcher != null)
-			module.registerCommands(dispatcher);
+		if (commandManager != null)
+			module.registerCommands(commandManager);
 
 		super.addModule(module);
 	}
@@ -100,13 +98,13 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		worldSettings.clearSettings();
 	}
 	
-	public void setCommandDispatcher(CommandDispatcher<CommandSourceStack> dispatcher) {
-		GSInfoCommand.registerCommand(dispatcher);
+	public void setCommandManager(CommandManager commandManager) {
+		commandManager.register(new GSInfoCommand());
 		
 		for (GSIModule module : modules)
-			module.registerCommands(dispatcher);
+			module.registerCommands(commandManager);
 		
-		this.dispatcher = dispatcher;
+		this.commandManager = commandManager;
 	}
 
 	public void onPlayerJoin(ServerPlayerEntity player) {
@@ -183,7 +181,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	}
 
 	@Override
-	public Packet<?> createCustomPayload(Identifier identifier, PacketByteBuf buffer) {
+	public Packet<?> createCustomPayload(String identifier, PacketByteBuf buffer) {
 		return new CustomPayloadS2CPacket(identifier, buffer);
 	}
 
@@ -271,7 +269,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	@Override
 	public File getWorldCacheFile() {
-		ServerWorld world = server.getWorld(DimensionType.OVERWORLD);
+		ServerWorld world = server.getWorld(DimensionType.OVERWORLD.getId());
 		File worldDir;
 		if (world != null) {
 			worldDir = world.getStorage().getDir();
@@ -308,7 +306,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	}
 	
 	public boolean isAllowedSettingChange(ServerPlayerEntity player) {
-		return player.hasPermissions(OP_PERMISSION_LEVEL);
+		return server.getPlayerManager().isOp(player.getGameProfile());
 	}
 	
 	private void sendSettingPermissionPacket(ServerPlayerEntity player) {

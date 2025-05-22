@@ -7,11 +7,11 @@ import com.g4mesoft.module.translation.GSTranslationModule;
 import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 import com.g4mesoft.ui.panel.GSPanelContext;
+import com.g4mesoft.ui.util.GSTextUtil;
 
 import net.minecraft.text.Formatting;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 
 public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntegerSetting> {
 
@@ -63,17 +63,17 @@ public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntege
 		
 		key = nameTextKey + "." + valueText;
 		if (translationModule.hasTranslation(key) || GSPanelContext.hasI18nTranslation(key))
-			return new TranslatableText(key, valueText);
+			return GSTextUtil.translatable(key, valueText);
 		
 		key = nameTextKey + ".x";
 		if (translationModule.hasTranslation(key) || GSPanelContext.hasI18nTranslation(key))
-			return new TranslatableText(key, valueText);
+			return GSTextUtil.translatable(key, valueText);
 		
-		return new LiteralText(valueText);
+		return GSTextUtil.literal(valueText);
 	}
 	
 	@Override
 	public Text getFormattedDefault() {
-		return getFormattedValue(setting.getDefault()).setFormatting(Formatting.AQUA);
+		return getFormattedValue(setting.getDefault()).setStyle(new Style().setColor(Formatting.AQUA));
 	}
 }

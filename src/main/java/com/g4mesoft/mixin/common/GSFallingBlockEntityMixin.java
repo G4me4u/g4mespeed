@@ -13,7 +13,6 @@ import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.block.state.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
@@ -21,10 +20,10 @@ import net.minecraft.world.World;
 @Mixin(FallingBlockEntity.class)
 public abstract class GSFallingBlockEntityMixin extends Entity {
 
-	public GSFallingBlockEntityMixin(EntityType<?> type, World world) {
-		super(type, world);
+	public GSFallingBlockEntityMixin(World world) {
+		super(world);
 	}
-	
+
 	@Inject(
 		method = "<init>(Lnet/minecraft/world/World;DDDLnet/minecraft/block/state/BlockState;)V",
 		at = @At("RETURN")

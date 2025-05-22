@@ -23,6 +23,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GameGui;
 import net.minecraft.client.gui.GuiElement;
 import net.minecraft.client.render.TextRenderer;
+import net.minecraft.client.render.Window;
 
 @Mixin(GameGui.class)
 public abstract class GSGameGuiMixin extends GuiElement {
@@ -45,9 +46,6 @@ public abstract class GSGameGuiMixin extends GuiElement {
 	
 	@Unique
 	private static final DecimalFormat LOW_PRECISION_TPS_FORMAT = new DecimalFormat("0.0", new DecimalFormatSymbols(Locale.ENGLISH));
-
-	@Shadow private int f_2748637; /* scaledWidth */
-	@Shadow private int f_0390887; /* scaledHeight */
 
 	@Shadow @Final private Minecraft minecraft;
 	
@@ -89,7 +87,9 @@ public abstract class GSGameGuiMixin extends GuiElement {
 			value = "INVOKE",
 			shift = Shift.BEFORE, 
 			target =
-				"Lnet/minecraft/client/gui/overlay/SubtitleOverlay;render()V"
+				"Lnet/minecraft/client/gui/overlay/SubtitleOverlay;render(" +
+					"Lnet/minecraft/client/render/Window;" +
+				")V"
 		)
 	)
 	private void onRenderBeforeSubtitles(float partialTicks, CallbackInfo ci) {
@@ -98,6 +98,9 @@ public abstract class GSGameGuiMixin extends GuiElement {
 		
 		int labelLocation = tpsModule.cTpsLabel.get();
 		if (!minecraft.options.debugEnabled && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
+			Window window = new Window(minecraft);
+			int scaledWidth = window.getWidth();
+			
 			TextRenderer font = getTextRenderer();
 			GSTranslationModule translationModule = controller.getTranslationModule();
 			
@@ -116,10 +119,10 @@ public abstract class GSGameGuiMixin extends GuiElement {
 
 			switch (labelLocation) {
 			case GSTpsModule.TPS_LABEL_TOP_CENTER:
-				lx = (f_2748637 - lw) / 2;
+				lx = (scaledWidth - lw) / 2;
 				break;
 			case GSTpsModule.TPS_LABEL_TOP_RIGHT:
-				lx = f_2748637 - lw - TPS_LABEL_MAGIN + 1;
+				lx = scaledWidth - lw - TPS_LABEL_MAGIN + 1;
 				break;
 			case GSTpsModule.TPS_LABEL_TOP_LEFT:
 			default:
@@ -130,7 +133,7 @@ public abstract class GSGameGuiMixin extends GuiElement {
 			fill(lx - 1, ly - 1, lx + lw, ly + lh, LABEL_BACKGROUND_COLOR);
 			
 			float tx = font.draw(current, lx, ly, getTpsLabelColor(averageTps, targetTps));
-			font.draw(targetText, tx + font.getWidth(" "), ly, LABEL_TARGET_COLOR);
+			font.draw(targetText, (int)tx + font.getWidth(" "), ly, LABEL_TARGET_COLOR);
 		}
 	}
 	

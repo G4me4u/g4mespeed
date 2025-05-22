@@ -1,27 +1,46 @@
 package com.g4mesoft.core.server;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.g4mesoft.core.GSCoreExtension;
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
 
-import net.minecraft.server.command.handler.CommandManager;
-import net.minecraft.server.command.source.CommandSourceStack;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.AbstractCommand;
+import net.minecraft.server.command.exception.CommandException;
+import net.minecraft.server.command.exception.IncorrectUsageException;
+import net.minecraft.server.command.source.CommandSource;
+import net.minecraft.util.math.BlockPos;
 
-public final class GSInfoCommand {
+public class GSInfoCommand extends AbstractCommand {
 
-	private GSInfoCommand() {
+	@Override
+	public String getName() {
+		return "gs";
 	}
 
-	public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
-		dispatcher.register(CommandManager.literal("gs").then(CommandManager.literal("info").executes(context -> {
-			return informCoreVersion(context.getSource());
-		})));
+	@Override
+	public int getRequiredPermissionLevel() {
+		return 0;
 	}
 
-	private static int informCoreVersion(CommandSourceStack source) {
-		source.sendSuccess(new TranslatableText("command.gs.info", GSCoreExtension.VERSION), false);
-		
-		return Command.SINGLE_SUCCESS;
+	@Override
+	public String getUsage(CommandSource source) {
+		return "commands.gs.usage";
+	}
+	
+	@Override
+	public List<String> getSuggestions(MinecraftServer server, CommandSource source, String[] args, BlockPos pos) {
+		return args.length == 0 ? Collections.singletonList("info") : Collections.emptyList();
+	}
+
+	@Override
+	public void run(MinecraftServer server, CommandSource source, String[] args) throws CommandException {
+		if (args.length == 1 && "info".equals(args[0])) {
+			// Format: /gs info
+			sendSuccess(source, this, "command.gs.info", GSCoreExtension.VERSION);
+		} else {
+			throw new IncorrectUsageException(getUsage(source));
+		}
 	}
 }

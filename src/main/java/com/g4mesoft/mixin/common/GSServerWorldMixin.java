@@ -1,7 +1,5 @@
 package com.g4mesoft.mixin.common;
 
-import java.util.function.BooleanSupplier;
-
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,7 +17,7 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
+import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.entity.living.player.PlayerEntity;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.server.ChunkMap;
@@ -29,8 +27,6 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldData;
 import net.minecraft.world.dimension.Dimension;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.storage.DimensionDataStorage;
 import net.minecraft.world.storage.WorldStorage;
 
 @Mixin(ServerWorld.class)
@@ -39,9 +35,9 @@ public abstract class GSServerWorldMixin extends World {
 	@Shadow @Final private ChunkMap chunkMap;
 	@Shadow @Final private EntityTracker entityTracker;
 	
-	protected GSServerWorldMixin(WorldStorage storage, DimensionDataStorage dimensionDataStorage, WorldData data,
-			Dimension dimension, Profiler profiler, boolean isClient) {
-		super(storage, dimensionDataStorage, data, dimension, profiler, isClient);
+	protected GSServerWorldMixin(WorldStorage storage, WorldData data, Dimension dimension, Profiler profiler,
+			boolean isClient) {
+		super(storage, data, dimension, profiler, isClient);
 	}
 	
 	@Inject(
@@ -51,7 +47,7 @@ public abstract class GSServerWorldMixin extends World {
 	private void onTickEntitiesReturn(CallbackInfo ci) {
 		if (GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
 			for (Entity entity : entities) {
-				if (!entity.removed && entity.getType() == EntityType.FALLING_BLOCK) {
+				if (!entity.removed && entity instanceof FallingBlockEntity) {
 					((GSIEntityTrackerAccess)entityTracker).gs_setTrackerTickedFromFallingBlock(entity, true);
 					((GSIEntityTrackerAccess)entityTracker).gs_tickEntityTracker(entity);
 				}
@@ -67,7 +63,7 @@ public abstract class GSServerWorldMixin extends World {
 			target = "Lnet/minecraft/server/world/ServerWorld;doBlockEvents()V"
 		)
 	)
-	private void onTickImmediateUpdates(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+	private void onTickImmediateUpdates(CallbackInfo ci) {
 		if (GSServerController.getInstance().getTpsModule().sImmediateBlockBroadcast.get()) {
 			profiler.swap("chunkMap");
 			((GSIServerChunkMapAccess)chunkMap).gs_flushAndSendChunkUpdates();
@@ -84,12 +80,12 @@ public abstract class GSServerWorldMixin extends World {
 				"Lnet/minecraft/server/PlayerManager;sendPacket(" +
 					"Lnet/minecraft/entity/living/player/PlayerEntity;" +
 					"DDDD" +
-					"Lnet/minecraft/world/dimension/DimensionType;" +
+					"I" +
 					"Lnet/minecraft/network/packet/Packet;" +
 				")V"
 		)
 	)
-	private double blockEventDistance(PlayerEntity player, double x, double y, double z, double dist, DimensionType dimensionType, Packet<?> packet) {
+	private double blockEventDistance(PlayerEntity player, double x, double y, double z, double dist, int dimensionTypeId, Packet<?> packet) {
 		Block block = ((GSIBlockEventS2CPacketAccess)packet).getBlock2();
 		
 		if (block == Blocks.PISTON || block == Blocks.STICKY_PISTON) {

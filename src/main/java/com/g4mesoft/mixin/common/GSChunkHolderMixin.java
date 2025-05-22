@@ -24,6 +24,7 @@ import net.minecraft.server.ChunkHolder;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.chunk.WorldChunk.BlockEntityCreationType;
 
 @Mixin(ChunkHolder.class)
 public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
@@ -80,7 +81,7 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 				int y = ((coord >>> 4) & 15) + sectionY;
 				int z = ((coord >>> 8) & 15) + sectionZ;
 				BlockPos pos = new BlockPos(x, y, z);
-				BlockEntity blockEntity = chunk.getBlockEntity(pos);
+				BlockEntity blockEntity = chunk.getBlockEntity(pos, BlockEntityCreationType.CHECK);
 
 				if (blockEntity != null) {
 					Packet<?> packet;
@@ -114,8 +115,8 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 	@Override
 	public void gs_markBlockEntityUpdate(BlockPos blockPos) {
 		WorldChunk worldChunk = this.getChunk();
-		if (worldChunk != null && !World.isOutsideWorldHeight(blockPos)) {
-			int sectionIndex = blockPos.getY() >> 4;
+		int sectionIndex = blockPos.getY() >> 4;
+		if (worldChunk != null && sectionIndex < gs_blockEntityUpdatesBySection.length) {
 			if (gs_blockEntityUpdatesBySection[sectionIndex] == null) {
 				gs_pendingBlockEntityUpdates = true;
 				gs_blockEntityUpdatesBySection[sectionIndex] = new ShortArraySet();

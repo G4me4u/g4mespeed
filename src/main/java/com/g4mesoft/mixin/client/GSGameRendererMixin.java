@@ -28,13 +28,14 @@ public class GSGameRendererMixin {
 	}
 	
 	@ModifyArg(
-		method = "render(FJ)V",
+		method = "render(IFJ)V",
 		index = 0,
 		at = @At(
 			value = "INVOKE", 
 			target =
 				"Lnet/minecraft/client/render/GameRenderer;setupCamera(" +
 					"F" +
+					"I" +
 				")V"
 		)
 	)
@@ -63,6 +64,7 @@ public class GSGameRendererMixin {
 			target =
 				"Lnet/minecraft/client/render/world/WorldRenderer;renderClouds(" +
 					"F" +
+					"I" +
 					"D" +
 					"D" +
 					"D" +

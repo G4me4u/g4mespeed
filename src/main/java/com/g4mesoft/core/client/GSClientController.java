@@ -3,8 +3,6 @@ package com.g4mesoft.core.client;
 import java.io.File;
 import java.util.function.Consumer;
 
-import org.lwjgl.glfw.GLFW;
-
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionInfoList;
@@ -23,6 +21,7 @@ import com.g4mesoft.gui.GSKeyBindingButtonStroke;
 import com.g4mesoft.gui.GSTabbedGUI;
 import com.g4mesoft.gui.setting.GSSettingsGUI;
 import com.g4mesoft.hotkey.GSEKeyEventType;
+import com.g4mesoft.hotkey.GSKey;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
 import com.g4mesoft.packet.GSIPacket;
@@ -41,7 +40,6 @@ import net.minecraft.client.network.handler.ClientPlayNetworkHandler;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.resource.Identifier;
 
 @Environment(EnvType.CLIENT)
 public class GSClientController extends GSController implements GSIClientModuleManager {
@@ -84,7 +82,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 
 			keyManager.loadKeys(getHotkeySettingsFile());
 	
-			openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, () -> {
+			openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GSKey.KEY_G, () -> {
 				// Use lambda to ensure that contentHistoryGUI has been initialized.
 				if (contentHistoryGUI != null)
 					GSPanelContext.openContent(contentHistoryGUI);
@@ -215,7 +213,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	}
 	
 	@Override
-	public Packet<?> createCustomPayload(Identifier identifier, PacketByteBuf buffer) {
+	public Packet<?> createCustomPayload(String identifier, PacketByteBuf buffer) {
 		return new CustomPayloadC2SPacket(identifier, buffer);
 	}
 

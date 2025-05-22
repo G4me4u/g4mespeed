@@ -1,7 +1,5 @@
 package com.g4mesoft.hotkey;
 
-import com.mojang.blaze3d.platform.InputConstants;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.text.Text;
 
@@ -49,7 +47,7 @@ public class GSKeyBinding {
 		pressedCount = 0;
 	}
 
-	void onKeyPressed(InputConstants.Key key) {
+	void onKeyPressed(GSKey key) {
 		int count = 0;
 		for (int i = 0; i < keyCode.getKeyCount(); i++) {
 			if (keyCode.get(i) == key)
@@ -61,7 +59,7 @@ public class GSKeyBinding {
 		onKeyStateChanged(count);
 	}
 	
-	void onKeyReleased(InputConstants.Key key) {
+	void onKeyReleased(GSKey key) {
 		int count = 0;
 		for (int i = 0; i < keyCode.getKeyCount(); i++) {
 			if (keyCode.get(i) == key)
