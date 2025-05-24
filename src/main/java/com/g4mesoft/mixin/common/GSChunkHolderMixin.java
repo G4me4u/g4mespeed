@@ -1,5 +1,6 @@
 package com.g4mesoft.mixin.common;
 
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -21,12 +22,15 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.network.packet.s2c.play.BlockUpdateS2CPacket;
 import net.minecraft.server.ChunkHolder;
+import net.minecraft.server.ChunkMap;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 
 @Mixin(ChunkHolder.class)
 public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
+
+	@Shadow @Final private ChunkMap chunkMap;
 
 	@Shadow protected abstract void sendPacket(Packet<?> packet);
 
@@ -117,7 +121,10 @@ public abstract class GSChunkHolderMixin implements GSIChunkHolderAccess {
 		if (worldChunk != null && !World.isOutsideWorldHeight(blockPos)) {
 			int sectionIndex = blockPos.getY() >> 4;
 			if (gs_blockEntityUpdatesBySection[sectionIndex] == null) {
-				gs_pendingBlockEntityUpdates = true;
+				if (!gs_pendingBlockEntityUpdates) {
+					chunkMap.markDirty((ChunkHolder)(Object)this);
+					gs_pendingBlockEntityUpdates = true;
+				}
 				gs_blockEntityUpdatesBySection[sectionIndex] = new ShortArraySet();
 			}
 
