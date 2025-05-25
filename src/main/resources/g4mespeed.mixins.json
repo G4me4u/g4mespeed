@@ -41,6 +41,7 @@
     
     "client.GSMovingBlockRendererMixin",
     "client.GSMovingBlockEntityMixin",
+    "client.GSPistonBaseBlockMixin",
     
     "client.GSGameGuiMixin",
     
