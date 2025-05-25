@@ -211,6 +211,21 @@ public abstract class GSMovingBlockEntityMixin extends BlockEntity implements GS
 		return progress;
 	}
 	
+	@Redirect(
+		method =
+			"addCollisions",
+		at = @At(
+			value = "FIELD",
+			opcode = Opcodes.GETFIELD,
+			target = "Lnet/minecraft/block/entity/MovingBlockEntity;progress:F"
+		)
+	)
+	private float onAddCollisionsRedirectProgress(MovingBlockEntity blockEntity) {
+		if (shouldCorrectPushEntities())
+			return getProgress(1.0f);
+		return progress;
+	}
+	
 	@Override
 	public void gs_onAdded() {
 		if (!gs_wasAdded) {
