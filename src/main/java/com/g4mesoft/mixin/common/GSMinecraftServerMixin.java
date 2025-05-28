@@ -325,7 +325,10 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 		while (gs_hasTimeLeft()) {
 			// Note: tick already ran tasks that were available at the time, so we
 			//       should just execute/wait for tasks here.
-			FutureTask<?> task = pendingEvents.poll();
+			FutureTask<?> task;
+			synchronized (pendingEvents) {
+				task = pendingEvents.poll();
+			}
 			if (task == null) {
 				// A yield here could avoid the need to park the thread leading to
 				// quicker responses to incoming tasks.
