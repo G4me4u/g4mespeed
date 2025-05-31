@@ -60,7 +60,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Shadow private ClientWorld world;
 
 	private static final int WORLD_TIME_UPDATE_INTERVAL = 20;
-	private static final double IGNORE_TELEPORT_MAX_DISTANCE = 1.0; /* Must be > 0.51 */
+	private static final double IGNORE_TELEPORT_MAX_DISTANCE = 1.5; /* Must be > 0.51 */
 	
 	@Inject(
 		method = "<init>",
