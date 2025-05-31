@@ -14,7 +14,7 @@ import paulscode.sound.SoundBuffer;
 import paulscode.sound.Source;
 import paulscode.sound.libraries.SourceLWJGLOpenAL;
 
-@Mixin(SourceLWJGLOpenAL.class)
+@Mixin(value = SourceLWJGLOpenAL.class, remap = false)
 public class GSSourceLWJGLOpenALMixin extends Source {
 
 	public GSSourceLWJGLOpenALMixin(Source old, SoundBuffer soundBuffer) {
