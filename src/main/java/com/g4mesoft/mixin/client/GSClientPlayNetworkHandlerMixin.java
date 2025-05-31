@@ -122,14 +122,14 @@ public class GSClientPlayNetworkHandlerMixin {
 		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			Entity entity = packet.getEntity(world);
 			if (entity != null && isRecentlyMovedByPiston(entity)) {
-				if (!entity.isLogicalSideForUpdatingMovement()) {
-					if (packet.isPositionChanged()) {
-						// See comment above.
-		                TrackedPosition trackedPosition = entity.getTrackedPosition();
-		                Vec3d pos = trackedPosition.withDelta(packet.getDeltaX(), packet.getDeltaY(), packet.getDeltaZ());
-		                trackedPosition.setPos(pos);
-					}
+				if (packet.isPositionChanged()) {
+					// See comment above.
+	                TrackedPosition trackedPosition = entity.getTrackedPosition();
+	                Vec3d pos = trackedPosition.withDelta(packet.getDeltaX(), packet.getDeltaY(), packet.getDeltaZ());
+	                trackedPosition.setPos(pos);
+				}
 					
+				if (!entity.isLogicalSideForUpdatingMovement()) {
 					if (packet.hasRotation()) {
 						// Do not ignore rotation changes.
 						float yaw   = (float)(packet.getYaw()   * 360) / 256.0f;
