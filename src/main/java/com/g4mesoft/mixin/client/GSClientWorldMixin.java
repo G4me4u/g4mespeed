@@ -1,5 +1,6 @@
 package com.g4mesoft.mixin.client;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.spongepowered.asm.mixin.Final;
@@ -78,6 +79,11 @@ public abstract class GSClientWorldMixin extends World implements GSIClientWorld
 			if (gs_tpsModule.isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
 				ci.cancel();
 		}
+	}
+	
+	@Override
+	public void gs_forEachEntity(Consumer<Entity> action) {
+		entityList.forEach(action);
 	}
 	
 	@Override
