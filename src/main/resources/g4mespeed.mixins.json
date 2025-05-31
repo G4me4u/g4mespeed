@@ -32,6 +32,7 @@
     "client.GSIntegratedServerMixin",
 
   	"client.GSSoundEngineMixin",
+  	"client.GSSourceLWJGLOpenALMixin",
   	"client.GSScreenMixin",
   	
     "client.GSTickTimerMixin",
