@@ -57,7 +57,7 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 	@Shadow @Final private DynamicRegistryManager.Immutable combinedDynamicRegistries;
 	
 	private static final int WORLD_TIME_UPDATE_INTERVAL = 20;
-	private static final double IGNORE_TELEPORT_MAX_DISTANCE = 1.5; /* Must be > 0.51 */
+	private static final double IGNORE_TELEPORT_MAX_DISTANCE = 2.0; /* Must be > 0.51 */
 
 	protected GSClientPlayNetworkHandlerMixin(MinecraftClient client, ClientConnection connection, ClientConnectionState connectionState) {
 		super(client, connection, connectionState);
