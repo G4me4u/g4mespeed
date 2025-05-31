@@ -1,6 +1,7 @@
 package com.g4mesoft.mixin.client;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -22,6 +23,7 @@ import net.minecraft.world.World;
 @Mixin(World.class)
 public abstract class GSWorldMixin implements GSIClientWorldAccess {
 
+	@Shadow @Final private List<Entity> entities;
 	@Shadow @Final private List<PlayerEntity> players;
 	@Shadow @Final private boolean isClient;
 	
@@ -57,6 +59,11 @@ public abstract class GSWorldMixin implements GSIClientWorldAccess {
 			if (tpsModule.isPlayerFixedMovement((ClientPlayerEntity)entity))
 				ci.cancel();
 		}
+	}
+	
+	@Override
+	public void gs_forEachEntity(Consumer<Entity> action) {
+		entities.forEach(action);
 	}
 	
 	@Override
