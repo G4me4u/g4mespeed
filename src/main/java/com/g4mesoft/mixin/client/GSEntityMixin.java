@@ -37,15 +37,6 @@ public class GSEntityMixin implements GSIEntityAccess {
 		gs_movedByPiston = true;
 	}
 
-	@Inject(
-		method = "resetPosition",
-		at = @At("HEAD")
-	)
-	private void onResetPosition(CallbackInfo ci) {
-		gs_wasMovedByPiston = gs_movedByPiston;
-		gs_movedByPiston = false;
-	}
-
 	@Redirect(
 		method = "adjustMovementForPiston",
 		at = @At(
@@ -63,6 +54,12 @@ public class GSEntityMixin implements GSIEntityAccess {
 		}
 		
 		return world.getTime();
+	}
+	
+	@Override
+	public void gs_preTick() {
+		gs_wasMovedByPiston = gs_movedByPiston;
+		gs_movedByPiston = false;
 	}
 	
 	@Override
