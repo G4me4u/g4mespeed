@@ -56,7 +56,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	@Shadow private ClientWorld world;
 
 	private static final int WORLD_TIME_UPDATE_INTERVAL = 20;
-	private static final double IGNORE_TELEPORT_MAX_DISTANCE = 1.0; /* Must be > 0.51 */
+	private static final double IGNORE_TELEPORT_MAX_DISTANCE = 2.0; /* Must be > 0.51 */
 	
 	@Inject(
 		method = "<init>",
@@ -118,16 +118,16 @@ public class GSClientPlayNetworkHandlerMixin {
 		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			Entity entity = packet.getEntity(world);
 			if (entity != null && isRecentlyMovedByPiston(entity)) {
+				if (packet.method_22826()) {
+					// See comment above.
+					entity.trackedX = entity.trackedX + packet.getDeltaXShort();
+					entity.trackedY = entity.trackedY + packet.getDeltaYShort();
+					entity.trackedZ = entity.trackedZ + packet.getDeltaZShort();
+					Vec3d pos = EntityS2CPacket.decodePacketCoordinates(entity.trackedX, entity.trackedY, entity.trackedZ);
+					entity.updateTrackedPosition(pos.x, pos.y, pos.z);
+				}
+				
 				if (!entity.isLogicalSideForUpdatingMovement()) {
-					if (packet.method_22826()) {
-						// See comment above.
-						entity.trackedX = entity.trackedX + packet.getDeltaXShort();
-						entity.trackedY = entity.trackedY + packet.getDeltaYShort();
-						entity.trackedZ = entity.trackedZ + packet.getDeltaZShort();
-						Vec3d pos = EntityS2CPacket.decodePacketCoordinates(entity.trackedX, entity.trackedY, entity.trackedZ);
-						entity.updateTrackedPosition(pos.x, pos.y, pos.z);
-					}
-					
 					if (packet.hasRotation()) {
 						// Do not ignore rotation changes.
 						float yaw   = (float)(packet.getYaw()   * 360) / 256.0f;

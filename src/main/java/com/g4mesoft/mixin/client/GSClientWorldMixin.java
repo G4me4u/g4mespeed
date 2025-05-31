@@ -1,6 +1,7 @@
 package com.g4mesoft.mixin.client;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -31,6 +32,8 @@ public abstract class GSClientWorldMixin implements GSIClientWorldAccess {
 	@Unique
 	private GSTpsModule gs_tpsModule = GSClientController.getInstance().getTpsModule();
 	
+	@Shadow public abstract Iterable<Entity> getEntities();
+	
 	@Shadow public abstract void tickEntity(Entity entity);
 	
 	@Inject(
@@ -59,6 +62,11 @@ public abstract class GSClientWorldMixin implements GSIClientWorldAccess {
 			if (gs_tpsModule.isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
 				ci.cancel();
 		}
+	}
+	
+	@Override
+	public void gs_forEachEntity(Consumer<Entity> action) {
+		getEntities().forEach(action);
 	}
 	
 	@Override
