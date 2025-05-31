@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.access.client.GSIClientWorldAccess;
+import com.g4mesoft.access.client.GSIEntityAccess;
 import com.g4mesoft.access.client.GSIMinecraftAccess;
 import com.g4mesoft.access.client.GSIMovingBlockEntityAccess;
 import com.g4mesoft.core.client.GSClientController;
@@ -109,9 +110,18 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 		gs_controller.onClientClose();
 	}
 
-	@Inject(method = "tick", at = @At("HEAD"))
+	@Inject(
+		method = "tick",
+		at = @At("HEAD")
+	)
 	private void onTick(CallbackInfo ci) {
 		GSDebug.onClientTick();
+		
+		if (world != null) {
+			((GSIClientWorldAccess)world).gs_forEachEntity(e -> {
+				((GSIEntityAccess)e).gs_preTick();
+			});
+		}
 		
 		gs_controller.tick(isPaused());
 		
