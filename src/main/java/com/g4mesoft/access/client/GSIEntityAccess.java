@@ -2,6 +2,8 @@ package com.g4mesoft.access.client;
 
 public interface GSIEntityAccess {
 
+	public void gs_preTick();
+	
 	public boolean gs_wasMovedByPiston();
 
 	public boolean gs_isMovedByPiston();
