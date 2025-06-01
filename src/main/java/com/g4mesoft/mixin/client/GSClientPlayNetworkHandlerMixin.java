@@ -209,7 +209,7 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 	private void onWorldTimeSync(WorldTimeUpdateS2CPacket worldTimePacket, CallbackInfo ci) {
 		// Check if handled by GSServerSyncPacket (gs server)
 		if (!gs_controller.isG4mespeedServer() && !this.client.isOnThread())
-			gs_controller.getTpsModule().onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
+			gs_tpsModule.onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
 	}
 	
 	@Inject(
