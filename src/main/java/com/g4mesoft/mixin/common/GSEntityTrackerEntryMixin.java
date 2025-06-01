@@ -77,7 +77,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 				double dvz = currentVelocity.getZ() - gs_lastFallingBlockVelocity.getZ() * FALLING_BLOCK_FRICTION;
 				gs_lastFallingBlockVelocity = currentVelocity;
 				
-				if (tpsModule.sPrettySand.get() == GSTpsModule.PRETTY_SAND_FIDELITY ||
+				if (tpsModule.sPrettySand.get() == GSTpsModule.PRETTY_SAND_MOVE_ON_SERVER ||
 				    gs_fallingBlockTrackingTick == 0 ||
 				    !GSMathUtil.equalsApproximate(dvx, 0.0) ||
 				    !GSMathUtil.equalsApproximate(dvy, FALLING_BLOCK_GRAVITY * FALLING_BLOCK_FRICTION) ||
