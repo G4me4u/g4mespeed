@@ -83,9 +83,9 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 	public static final int TPS_LABEL_TOP_CENTER = 2;
 	public static final int TPS_LABEL_TOP_RIGHT  = 3;
 	
-	public static final int PRETTY_SAND_DISABLED    = 0;
-	public static final int PRETTY_SAND_PERFORMANCE = 1;
-	public static final int PRETTY_SAND_FIDELITY    = 2;
+	public static final int PRETTY_SAND_DISABLED         = 0;
+	public static final int PRETTY_SAND_BEST_PERFORMANCE = 1;
+	public static final int PRETTY_SAND_MOVE_ON_SERVER   = 2;
 	
 	public static final DecimalFormat TPS_FORMAT = new DecimalFormat("0.0##", new DecimalFormatSymbols(Locale.ENGLISH));
 	
@@ -149,7 +149,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 		cTpsLabel = new GSIntegerSetting("tpsLabel", TPS_LABEL_DISABLED, 0, 3);
 		sBroadcastTps = new GSBooleanSetting("broadcastTps", true);
 		sRestoreTickrate = new GSBooleanSetting("restoreTickrate", false);
-		sPrettySand = new GSIntegerSetting("prettySand", PRETTY_SAND_PERFORMANCE, 0, 2);
+		sPrettySand = new GSIntegerSetting("prettySand", PRETTY_SAND_BEST_PERFORMANCE, 0, 2);
 
 		cCullMovingBlocks = new GSBooleanSetting("cullMovingBlocks", true);
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 3);
