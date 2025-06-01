@@ -210,10 +210,9 @@ public class GSClientPlayNetworkHandlerMixin {
 		@SuppressWarnings("unchecked")
 		GSICustomPayloadPacket<ClientPlayPacketListener> payload = (GSICustomPayloadPacket<ClientPlayPacketListener>)packet;
 		
-		GSClientController controllerClient = GSClientController.getInstance();
-		GSIPacket gsPacket = packetManger.decodePacket(payload, controllerClient.getServerExtensionInfoList(), (ClientPlayNetworkHandler)(Object)this, this.client);
+		GSIPacket gsPacket = packetManger.decodePacket(payload, gs_controller.getServerExtensionInfoList(), (ClientPlayNetworkHandler)(Object)this, this.client);
 		if (gsPacket != null) {
-			gsPacket.handleOnClient(controllerClient);
+			gsPacket.handleOnClient(gs_controller);
 			ci.cancel();
 		}
 	}
@@ -225,7 +224,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	private void onWorldTimeSync(WorldTimeUpdateS2CPacket worldTimePacket, CallbackInfo ci) {
 		// Check if handled by GSServerSyncPacket (gs server)
 		if (!gs_controller.isG4mespeedServer() && !this.client.isOnThread())
-			gs_controller.getTpsModule().onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
+			gs_tpsModule.onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
 	}
 	
 	@Redirect(
@@ -236,8 +235,6 @@ public class GSClientPlayNetworkHandlerMixin {
 		)
 	)
 	private boolean replaceChunkDataBlockEntityLoop(Iterator<CompoundTag> itr) {
-		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-
 		// Note that Fabric Carpet changes parts of the loop, so we have
 		// to override the entirety of the look by redirecting the condition.
 		
@@ -258,7 +255,7 @@ public class GSClientPlayNetworkHandlerMixin {
 				// that the block entity has ticked if it is not a g4mespeed
 				// server or if the immediate block updates setting is not
 				// enabled.
-				if (!tpsModule.sImmediateBlockBroadcast.get() || !tag.contains("ticked") || tag.getBoolean("ticked"))
+				if (!gs_tpsModule.sImmediateBlockBroadcast.get() || !tag.contains("ticked") || tag.getBoolean("ticked"))
 					tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
 			}
 			
