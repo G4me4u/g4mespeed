@@ -204,10 +204,9 @@ public class GSClientPlayNetworkHandlerMixin {
 		@SuppressWarnings("unchecked")
 		GSICustomPayloadPacket<ClientPlayPacketListener> payload = (GSICustomPayloadPacket<ClientPlayPacketListener>)packet;
 		
-		GSClientController controllerClient = GSClientController.getInstance();
-		GSIPacket gsPacket = packetManger.decodePacket(payload, controllerClient.getServerExtensionInfoList(), (ClientPlayNetworkHandler)(Object)this, this.client);
+		GSIPacket gsPacket = packetManger.decodePacket(payload, gs_controller.getServerExtensionInfoList(), (ClientPlayNetworkHandler)(Object)this, this.client);
 		if (gsPacket != null) {
-			gsPacket.handleOnClient(controllerClient);
+			gsPacket.handleOnClient(gs_controller);
 			ci.cancel();
 		}
 	}
@@ -219,7 +218,7 @@ public class GSClientPlayNetworkHandlerMixin {
 	private void onWorldTimeSync(WorldTimeUpdateS2CPacket worldTimePacket, CallbackInfo ci) {
 		// Check if handled by GSServerSyncPacket (gs server)
 		if (!gs_controller.isG4mespeedServer() && !this.client.isOnThread())
-			gs_controller.getTpsModule().onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
+			gs_tpsModule.onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
 	}
 	
 	@Inject(
