@@ -188,13 +188,17 @@ setting.tps.restoreTickrate.desc=Restores the tickrate from the previous session
 :7
 
 setting.tps.prettySand=Pretty Sand
-setting.tps.prettySand.0=Disabled
-setting.tps.prettySand.1=Performance
-setting.tps.prettySand.2=Fidelity
-setting.tps.prettySand.desc=Improves the look of falling block entities. Performance achieves this with minimal packets sent over the network, but clients might become desynchronized. Proper synchronization is solved with Fidelity, but it significantly increases network usage and is therefore not recommended for general use.
 
 # Translation version 8 (v1.4.7)
 :8
 
 setting.tps.requireOP=Require OP
 setting.tps.requireOP.desc=Require the player responsible for changing tps to be OP. This includes the use of tps changing hotkeys and the /tps command.
+
+# Translation version 9 (v1.4.12)
+:9
+
+setting.tps.prettySand.0=Disabled
+setting.tps.prettySand.1=Best Performance
+setting.tps.prettySand.2=Move On Server
+setting.tps.prettySand.desc=Improves visual movement of falling block entities. Best Performance achieves this with minimal networking overhead. Move on Server ensures exact server-client synchronization, but overrides Corrected Entity Pushing and significantly increases network usage. The latter is therefore only recommended in specific circumstances.
