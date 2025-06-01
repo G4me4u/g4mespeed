@@ -201,4 +201,4 @@ setting.tps.requireOP.desc=Require the player responsible for changing tps to be
 setting.tps.prettySand.0=Disabled
 setting.tps.prettySand.1=Best Performance
 setting.tps.prettySand.2=Move On Server
-setting.tps.prettySand.desc=Improves visual movement of falling block entities. Best Performance achieves this with minimal networking overhead. Move on Server ensures exact server-client synchronization, but overrides Corrected Entity Pushing and significantly increases network usage. The latter is therefore only recommended in specific circumstances.
+setting.tps.prettySand.desc=Improves visual movement of falling block entities. Best Performance achieves this with minimal networking overhead. Move On Server ensures exact server-client synchronization, but overrides Corrected Entity Pushing and significantly increases network usage. The latter is therefore only recommended in specific circumstances.
