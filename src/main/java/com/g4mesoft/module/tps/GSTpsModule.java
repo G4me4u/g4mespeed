@@ -37,6 +37,10 @@ import com.mojang.brigadier.CommandDispatcher;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -47,6 +51,8 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Util;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.GameMode;
 import net.minecraft.world.tick.TickManager;
 
@@ -125,6 +131,7 @@ public class GSTpsModule implements GSIModule {
 
 	public final GSIntegerSetting cPistonAnimationType;
 	public final GSBooleanSetting cCorrectPistonPushing;
+	public final GSBooleanSetting cMovingLightSources;
 	public final GSIntegerSetting cPistonRenderDistance;
 	public final GSIntegerSetting sBlockEventDistance;
 	public final GSBooleanSetting sParanoidMode;
@@ -155,6 +162,7 @@ public class GSTpsModule implements GSIModule {
 		
 		cPistonAnimationType = new GSIntegerSetting("pistonAnimationType", PISTON_ANIM_PAUSE_END, 0, 3);
 		cCorrectPistonPushing = new GSBooleanSetting("correctPistonPushing", false);
+		cMovingLightSources = new GSBooleanSetting("movingLightSources", true);
 		cPistonRenderDistance = new GSIntegerSetting("pistonRenderDistance", AUTOMATIC_PISTON_RENDER_DISTANCE, -1, 32);
 		sBlockEventDistance = new GSIntegerSetting("blockEventDistance", 4, 0, 32);
 		sParanoidMode = new GSBooleanSetting("paranoidMode", false);
@@ -209,6 +217,7 @@ public class GSTpsModule implements GSIModule {
 		settings.registerSettings(BETTER_PISTONS_CATEGORY,
 			cPistonAnimationType,
 			cCorrectPistonPushing,
+			cMovingLightSources,
 			cPistonRenderDistance
 		);
 		
@@ -683,6 +692,15 @@ public class GSTpsModule implements GSIModule {
 		this.fixedMovementOnDefaultTps = fixedMovementOnDefaultTps;
 	}
 	
+	@Environment(EnvType.CLIENT)
+	public int getMovingBlockLuminance(BlockState state, BlockView world, BlockPos pos) {
+		if (cMovingLightSources.get() && state.isOf(Blocks.MOVING_PISTON)) {
+			BlockEntity blockEntity = world.getBlockEntity(pos);
+			if (blockEntity instanceof PistonBlockEntity)
+				return ((PistonBlockEntity)blockEntity).getPushedBlock().getLuminance();
+		}
+		return state.getLuminance();
+	}
 	
 	@Environment(EnvType.CLIENT)
 	public void onClientGameModeChanged(GameMode gameMode) {

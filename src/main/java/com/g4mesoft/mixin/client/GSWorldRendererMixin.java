@@ -15,7 +15,9 @@ import com.g4mesoft.access.client.GSIMinecraftClientAccess;
 import com.g4mesoft.access.client.GSIWorldRendererAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.BufferBuilderStorage;
@@ -27,6 +29,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.BlockRenderView;
 
 @Mixin(WorldRenderer.class)
 public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
@@ -90,6 +93,25 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 			return (entity.age == 0) ? -1 : entity.age;
 		}
 		return entity.age;
+	}
+	
+	@ModifyExpressionValue(
+		method =
+			"getLightmapCoordinates(" +
+				"Lnet/minecraft/world/BlockRenderView;" +
+				"Lnet/minecraft/block/BlockState;" +
+				"Lnet/minecraft/util/math/BlockPos;" +
+			")I",
+		at = @At(
+			value = "INVOKE",
+			target =
+				"Lnet/minecraft/block/BlockState;getLuminance(" +
+				")I"
+		)
+	)
+	private static int onGetLightmapCoordinatesModifyBlockStateGetLuminance(int luminance, BlockRenderView world, BlockState state, BlockPos pos) {
+		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
+		return Math.max(luminance, tpsModule.getMovingBlockLuminance(state, world, pos));
 	}
 	
 	@Override
