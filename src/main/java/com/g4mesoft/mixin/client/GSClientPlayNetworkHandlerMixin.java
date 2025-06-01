@@ -61,13 +61,21 @@ public class GSClientPlayNetworkHandlerMixin {
 
 	private static final int WORLD_TIME_UPDATE_INTERVAL = 20;
 	private static final double IGNORE_TELEPORT_MAX_DISTANCE = 2.0; /* Must be > 0.51 */
+
+	@Unique
+	private GSClientController gs_controller;
+	@Unique
+	private GSTpsModule gs_tpsModule;
 	
 	@Inject(
 		method = "<init>",
 		at = @At("RETURN")
 	)
 	private void onInit(CallbackInfo ci) {
-		GSClientController.getInstance().setNetworkHandler((ClientPlayNetworkHandler)(Object)this);
+		gs_controller = GSClientController.getInstance();
+		gs_tpsModule = gs_controller.getTpsModule();
+		
+		gs_controller.setNetworkHandler((ClientPlayNetworkHandler)(Object)this);
 	}
 	
 	@Inject(
@@ -75,7 +83,7 @@ public class GSClientPlayNetworkHandlerMixin {
 		at = @At("RETURN")
 	)
 	private void onOnGameJoin(GameJoinS2CPacket packet, CallbackInfo ci) {
-		GSClientController.getInstance().onJoinServer();
+		gs_controller.onJoinServer();
 	}
 	
 	@Inject(
@@ -93,7 +101,7 @@ public class GSClientPlayNetworkHandlerMixin {
 		)
 	)
 	private void onOnEntityPosition(EntityPositionS2CPacket packet, CallbackInfo ci) {
-		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
+		if (gs_tpsModule.cCorrectPistonPushing.get()) {
 			Entity entity = world.getEntityById(packet.getId());
 			if (entity != null && isRecentlyMovedByPiston(entity)) {
 				// Update the tracked position such that the entity position
@@ -119,7 +127,7 @@ public class GSClientPlayNetworkHandlerMixin {
 		)
 	)
 	private void onOnEntityUpdate(EntityS2CPacket packet, CallbackInfo ci) {
-		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
+		if (gs_tpsModule.cCorrectPistonPushing.get()) {
 			Entity entity = packet.getEntity(world);
 			if (entity != null && isRecentlyMovedByPiston(entity)) {
 				if (packet.isPositionChanged()) {
@@ -159,7 +167,7 @@ public class GSClientPlayNetworkHandlerMixin {
 		)
 	)
 	private void onOnPlayerPositionLook(PlayerPositionLookS2CPacket packet, CallbackInfo ci) {
-		if (GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
+		if (gs_tpsModule.cCorrectPistonPushing.get()) {
 			// The server will inherently detect that the player moved in an incorrect way, if the
 			// player was moved by a piston. In this case we ignore the update and send confirmation.
 			// The confirmation is important, since we do not want the server to teleport the player
@@ -218,9 +226,8 @@ public class GSClientPlayNetworkHandlerMixin {
 	)
 	private void onWorldTimeSync(WorldTimeUpdateS2CPacket worldTimePacket, CallbackInfo ci) {
 		// Check if handled by GSServerSyncPacket (gs server)
-		GSClientController controller = GSClientController.getInstance();
-		if (!controller.isG4mespeedServer() && !this.client.isOnThread())
-			controller.getTpsModule().onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
+		if (!gs_controller.isG4mespeedServer() && !this.client.isOnThread())
+			gs_controller.getTpsModule().onServerSyncPacket(WORLD_TIME_UPDATE_INTERVAL);
 	}
 	
 	@Inject(
@@ -238,9 +245,7 @@ public class GSClientPlayNetworkHandlerMixin {
 		)
 	)
 	private void onOnBlockEntityUpdate(BlockEntityUpdateS2CPacket packet, CallbackInfo ci) {
-		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		
-		if (tpsModule.sParanoidMode.get()) {
+		if (gs_tpsModule.sParanoidMode.get()) {
 			BlockPos pos = packet.getPos();
 			
 			if (packet.getBlockEntityType() == BlockEntityType.PISTON) {
@@ -266,7 +271,7 @@ public class GSClientPlayNetworkHandlerMixin {
 				// that the block entity has ticked if it is not a g4mespeed
 				// server or if the immediate block updates setting is not
 				// enabled.
-				if (!tpsModule.sImmediateBlockBroadcast.get() || !tag.contains("ticked") || tag.getBoolean("ticked"))
+				if (!gs_tpsModule.sImmediateBlockBroadcast.get() || !tag.contains("ticked") || tag.getBoolean("ticked"))
 					tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
 				
 				if (blockEntity == null) {
@@ -288,8 +293,7 @@ public class GSClientPlayNetworkHandlerMixin {
 		at = @At("RETURN")
 	)
 	private void onOnBlockUpdateReturn(BlockUpdateS2CPacket packet, CallbackInfo ci) {
-		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
+		if (gs_tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
 			scheduleRenderUpdateForFallingBlock(packet.getPos(), packet.getState());
 	}
 	
@@ -305,8 +309,7 @@ public class GSClientPlayNetworkHandlerMixin {
 		)
 	)
 	private void onOnChunkDeltaUpdateReturn(ChunkDeltaUpdateS2CPacket packet, CallbackInfo ci) {
-		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
+		if (gs_tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
 			packet.visitUpdates(this::scheduleRenderUpdateForFallingBlock);
 	}
 	
