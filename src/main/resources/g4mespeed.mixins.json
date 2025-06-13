@@ -46,6 +46,8 @@
     "client.GSPistonBlockEntityRendererMixin",
     "client.GSPistonBlockEntityMixin",
     
+    "client.GSChunkBlockLightProviderMixin",
+    
     "client.GSInGameHudMixin",
     
     "client.GSWorldRendererMixin",
@@ -55,6 +57,7 @@
     
     "client.GSFallingBlockEntityMixin",
     
+    "client.GSWorldMixin",
     "client.GSWorldChunkMixin",
     "client.GSEntityMixin",
     "client.GSIWorldAccess",
