@@ -50,6 +50,10 @@
     "client.GSPistonBlockEntityRendererMixin",
     "client.GSPistonBlockEntityMixin",
     
+    "client.GSChunkMixin",
+    "client.GSChunkBlockLightProviderMixin",
+    "client.GSChunkLightProviderMixin",
+    
     "client.GSInGameHudMixin",
     
     "client.GSWorldRendererMixin",

@@ -97,6 +97,9 @@ setting.betterPistons.pistonAnimationType.desc=Specifies whether to have a pause
 setting.betterPistons.correctPistonPushing=Corrected Entity Pushing
 setting.betterPistons.correctPistonPushing.desc=Visually corrects movement of entities being pushed by pistons in accordance to piston animation type.
 
+setting.betterPistons.movingLightSources=Moving Light Sources
+setting.betterPistons.movingLightSources.desc=Makes light sources moved by pistons emit light. This removes the light flicker you would see in Vanilla.
+
 setting.betterPistons.pistonRenderDistance=Piston Render Distance
 setting.betterPistons.pistonRenderDistance.desc=Render distance of blocks moved by pistons. Since this has no effect if it is greater than the block event distance on the server the option can be set to Automatic to use this distance instead.
 setting.betterPistons.pistonRenderDistance.-1=Automatic
