@@ -23,6 +23,7 @@ setting.default=Default is %s.
 setting.button.reset=Reset
 setting.button.set=Set
 
+setting.general=General
 setting.tps=Tickspeed
 setting.betterPistons=Better Pistons
 
@@ -53,6 +54,9 @@ panel.date.tomorrowAt=Tomorrow at
 panel.date.today=Today
 panel.date.yesterday=Yesterday
 panel.date.tomorrow=Tomorrow
+
+panel.confirmDialog.quickActionsOverrideNotice=Quick Actions was blocked by G4mespeed. Please change hotkey or ignore.
+panel.confirmDialog.dontShowAgain=Don't show again
 
 ############ Client Settings ############
 
@@ -99,6 +103,9 @@ setting.betterPistons.pistonRenderDistance.desc=Render distance of blocks moved 
 setting.betterPistons.pistonRenderDistance.-1=Automatic
 setting.betterPistons.pistonRenderDistance.1=1 chunk
 setting.betterPistons.pistonRenderDistance.x=%s chunks
+
+setting.general.quickActionsOverrideNotice=Show Quick Actions Notice
+setting.general.quickActionsOverrideNotice.desc=Shows a notice when the Quick Actions menu is blocked by the G4mespeed menu. You can disable the notice by changing the G4mespeed menu hotkey.
 
 ############ Hotkeys ############
 

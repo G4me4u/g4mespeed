@@ -1,6 +1,7 @@
 package com.g4mesoft.mixin.client;
 
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.objectweb.asm.Opcodes;
@@ -27,6 +28,7 @@ import com.g4mesoft.module.tps.GSBasicTickTimer;
 import com.g4mesoft.module.tps.GSITickTimer;
 import com.g4mesoft.module.tps.GSRenderTickCounterWrapper;
 import com.g4mesoft.module.tps.GSTpsModule;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.PistonBlockEntity;
@@ -40,6 +42,8 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.dialog.type.Dialog;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 
@@ -82,6 +86,8 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Shadow protected abstract boolean isPaused();
 	
 	@Shadow protected abstract void handleInputEvents();
+	
+	@Shadow protected abstract Optional<RegistryEntry<Dialog>> getQuickActionsDialog();
 	
 	@Inject(
 		method = "run",
@@ -341,6 +347,19 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 		return oldRenderTickCounter;
 	}
 	
+	@ModifyExpressionValue(
+		method = "handleInputEvents",
+		at = @At(
+			value = "INVOKE",
+			target =
+				"Lnet/minecraft/client/MinecraftClient;getQuickActionsDialog(" +
+				")Ljava/util/Optional;"
+		)
+	)
+	private Optional<RegistryEntry<Dialog>> modifyHandleInputEventsGetQuickActionsDialog(Optional<RegistryEntry<Dialog>> original) {
+		return gs_controller.isQuickActionsKeybindOverride() ? Optional.empty() : original;
+	}
+	
 	@Override
 	public void gs_setFlushingBlockEntityUpdates(boolean flushingUpdates) {
 		this.gs_flushingUpdates = flushingUpdates;
@@ -357,5 +376,10 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	@Override
 	public float gs_getFixedMovementTickDelta() {
 		return gs_playerTimer.getTickDelta0();
+	}
+	
+	@Override
+	public Optional<RegistryEntry<Dialog>> gs_getQuickActionsDialog() {
+		return getQuickActionsDialog();
 	}
 }

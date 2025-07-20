@@ -1,5 +1,9 @@
 package com.g4mesoft.access.client;
 
+import java.util.Optional;
+
+import net.minecraft.dialog.type.Dialog;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.math.BlockPos;
 
 public interface GSIMinecraftClientAccess {
@@ -10,4 +14,6 @@ public interface GSIMinecraftClientAccess {
 	
 	public float gs_getFixedMovementTickDelta();
 	
+	public Optional<RegistryEntry<Dialog>> gs_getQuickActionsDialog();
+
 }
