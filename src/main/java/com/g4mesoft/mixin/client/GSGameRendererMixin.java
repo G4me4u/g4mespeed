@@ -63,9 +63,11 @@ public class GSGameRendererMixin {
 					"Lnet/minecraft/client/render/RenderTickCounter;" +
 					"Z" +
 					"Lnet/minecraft/client/render/Camera;" +
-					"Lnet/minecraft/client/render/GameRenderer;" +
 					"Lorg/joml/Matrix4f;" +
 					"Lorg/joml/Matrix4f;" +
+					"Lcom/mojang/blaze3d/buffers/GpuBufferSlice;" +
+					"Lorg/joml/Vector4f;" +
+					"Z" +
 				")V"
 		)
 	)

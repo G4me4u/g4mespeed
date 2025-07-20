@@ -4,6 +4,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
+import org.joml.Matrix3x2fStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,7 +25,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.DebugHud;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.util.math.MatrixStack;
 
 @Mixin(InGameHud.class)
 public abstract class GSInGameHudMixin {
@@ -55,7 +55,7 @@ public abstract class GSInGameHudMixin {
 	@Shadow public abstract TextRenderer getTextRenderer();
 
 	@Inject(
-		method = "method_55808",
+		method = "renderBossBarHud",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.BEFORE,
@@ -67,14 +67,14 @@ public abstract class GSInGameHudMixin {
 	)
 	private void onRenderBeforeBossBar(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER) {
-			MatrixStack matrixStack = context.getMatrices();
-			matrixStack.push();
-			matrixStack.translate(0.0, client.textRenderer.fontHeight + 5, 0.0);
+			Matrix3x2fStack matrixStack = context.getMatrices();
+			matrixStack.pushMatrix();
+			matrixStack.translate(0.0f, client.textRenderer.fontHeight + 5);
 		}
 	}
 
 	@Inject(
-		method = "method_55808",
+		method = "renderBossBarHud",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
@@ -86,17 +86,18 @@ public abstract class GSInGameHudMixin {
 	)
 	private void onRenderAfterBossBar(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER)
-			context.getMatrices().pop();
+			context.getMatrices().popMatrix();
 	}
 	
 	@Inject(
-		method = "method_55806",
+		method = "render",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.BEFORE, 
 			target =
-				"Lnet/minecraft/client/gui/hud/SubtitlesHud;render(" +
-						"Lnet/minecraft/client/gui/DrawContext;" +
+				"Lnet/minecraft/client/gui/hud/InGameHud;renderSubtitlesHud(" +
+					"Lnet/minecraft/client/gui/DrawContext;" +
+					"Lnet/minecraft/client/render/RenderTickCounter;" +
 				")V"
 		)
 	)
@@ -117,9 +118,13 @@ public abstract class GSInGameHudMixin {
 			
 			String targetText = translationModule.getFormattedTranslation("play.info.tpsLabelTarget", target);
 			
+			int currentW = font.getWidth(current);
+			int spaceW = font.getWidth(" ");
+			int targetW = font.getWidth(targetText);
+			
 			int lx;
 			int ly = TPS_LABEL_MAGIN;
-			int lw = font.getWidth(current + " " + targetText);
+			int lw = currentW + spaceW + targetW;
 			int lh = font.fontHeight;
 
 			switch (labelLocation) {
@@ -137,8 +142,8 @@ public abstract class GSInGameHudMixin {
 			
 			context.fill(lx - 1, ly - 1, lx + lw, ly + lh, LABEL_BACKGROUND_COLOR);
 			
-			int tx = context.drawText(font, current, lx, ly, getTpsLabelColor(averageTps, targetTps), false);
-			context.drawText(font, targetText, tx + font.getWidth(" "), ly, LABEL_TARGET_COLOR, false);
+			context.drawText(font, current, lx, ly, getTpsLabelColor(averageTps, targetTps), false);
+			context.drawText(font, targetText, lx + currentW + spaceW, ly, LABEL_TARGET_COLOR, false);
 		}
 	}
 	

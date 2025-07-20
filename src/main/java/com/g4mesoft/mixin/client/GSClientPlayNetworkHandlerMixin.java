@@ -1,5 +1,6 @@
 package com.g4mesoft.mixin.client;
 
+import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -45,6 +46,8 @@ import net.minecraft.network.packet.s2c.play.PlayerPositionLookS2CPacket;
 import net.minecraft.network.packet.s2c.play.PositionFlag;
 import net.minecraft.network.packet.s2c.play.WorldTimeUpdateS2CPacket;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.storage.NbtReadView;
+import net.minecraft.util.ErrorReporter;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
@@ -52,6 +55,7 @@ import net.minecraft.util.math.Vec3d;
 @Mixin(value = ClientPlayNetworkHandler.class, priority = -1001)
 public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetworkHandler {
 
+	@Shadow @Final private static Logger LOGGER;
 	@Shadow private ClientWorld world;
 
 	@Shadow @Final private DynamicRegistryManager.Immutable combinedDynamicRegistries;
@@ -254,10 +258,14 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 				
 				if (blockEntity == null) {
 					blockEntity = new PistonBlockEntity(pos, blockState);
-					blockEntity.read(tag, combinedDynamicRegistries);
+					try (ErrorReporter.Logging logging = new ErrorReporter.Logging(blockEntity.getReporterContext(), LOGGER)) {
+						blockEntity.read(NbtReadView.create(logging, combinedDynamicRegistries, packet.getNbt()));
+					}
 					world.addBlockEntity(blockEntity);
 				} else {
-					blockEntity.read(tag, combinedDynamicRegistries);
+					try (ErrorReporter.Logging logging = new ErrorReporter.Logging(blockEntity.getReporterContext(), LOGGER)) {
+						blockEntity.read(NbtReadView.create(logging, combinedDynamicRegistries, packet.getNbt()));
+					}
 				}
 
 				// Cancel vanilla handling of the packet.
