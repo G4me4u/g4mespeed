@@ -1,7 +1,6 @@
 package com.g4mesoft.mixin.client;
 
 import org.objectweb.asm.Opcodes;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -23,14 +22,19 @@ import net.minecraft.client.TickTimer;
 @Mixin(TickTimer.class)
 public class GSTickTimerMixin implements GSITickTimer {
 
+	@Shadow float tps;
 	@Shadow public int ticksThisFrame;
 	@Shadow public float partialTick;
 	@Shadow public float tickDelta;
 	@Shadow public long lastTickTime;
-	@Shadow @Final private float mspt;
+	@Shadow public float tpsScale;
 	
 	@Unique
 	private boolean gs_firstUpdate;
+	@Unique
+	private long gs_currentTimeMillis;
+	@Unique
+	private float gs_prevTickDelta;
 	@Unique
 	private GSTpsModule gs_tpsModule;
 	@Unique
@@ -50,18 +54,34 @@ public class GSTickTimerMixin implements GSITickTimer {
 		method = "advance",
 		locals = LocalCapture.CAPTURE_FAILHARD,
 		at = @At(
-			value = "FIELD",
-			shift = Shift.AFTER,
-			opcode = Opcodes.PUTFIELD,
-			target = "Lnet/minecraft/client/TickTimer;tickDelta:F"
+			value = "INVOKE_ASSIGN",
+			target =
+				"Lnet/minecraft/client/Minecraft;getTime(" +
+				")J"
 		)
 	)
-	private void onModifyTickrate(CallbackInfo ci, long timeMillis) {
+	private void onAdvanceAfterGetTime(CallbackInfo ci, long timeMillis) {
 		if (gs_firstUpdate) {
 			init(lastTickTime);
 			gs_firstUpdate = false;
 		}
 		
+		gs_currentTimeMillis = timeMillis;
+		gs_prevTickDelta = tickDelta;
+	}
+	
+	@Inject(
+		method = "advance",
+		locals = LocalCapture.CAPTURE_FAILHARD,
+		at = @At(
+			value = "FIELD",
+			ordinal = 0,
+			shift = Shift.AFTER,
+			opcode = Opcodes.PUTFIELD,
+			target = "Lnet/minecraft/client/TickTimer;tickDelta:F"
+		)
+	)
+	private void onAdvanceModifyTickrate(CallbackInfo ci, long timeMillis, long deltaMillis, long timeMillis2, double timeSeconds, double deltaSeconds) {
 		float millisPerTick = getMillisPerTick();
 		
 		if (GSClientController.getInstance().isG4mespeedServer()) {
@@ -71,16 +91,15 @@ public class GSTickTimerMixin implements GSITickTimer {
 		}
 		
 		if (!gs_carpetTickrateManager.isTickrateLinked() || gs_tpsModule.cForceCarpetTickrate.get())
-			this.tickDelta = (timeMillis - this.lastTickTime) / millisPerTick;
+			tickDelta = (float)(gs_prevTickDelta + deltaSeconds * 1000.0 / millisPerTick);
 	}
 
 	@Inject(
 		method = "advance",
-		locals = LocalCapture.CAPTURE_FAILHARD,
 		at = @At("RETURN")
 	)
-	private void onBeginRenderTick(CallbackInfo ci, long timeMillis) {
-		update(timeMillis);
+	private void onAdvanceReturn(CallbackInfo ci) {
+		update(gs_currentTimeMillis);
 	}
 
 	/* Following methods might add compatibility issues (if other mods have same names) */
@@ -105,16 +124,17 @@ public class GSTickTimerMixin implements GSITickTimer {
 		// Other mods such as the ReplayMod modify the timeScale value
 		// of the timer. To ensure that the functionality stays as expected,
 		// scale the milliseconds per tick by that value.
-		return gs_tpsModule.getMsPerTick() * mspt / DEFAULT_MILLIS_PER_TICK;
+		return gs_tpsModule.getMsPerTick() * DEFAULT_TICKS_PER_SECOND / Math.max(tps * tpsScale, 1e-5f);
 	}
 
 	@Override
 	public float getTickDelta0() {
-		return partialTick;
+		return tickDelta;
 	}
 
 	@Override
 	public void setTickDelta0(float tickDelta) {
+		this.tickDelta = tickDelta;
 		this.partialTick = tickDelta;
 	}
 
@@ -125,6 +145,6 @@ public class GSTickTimerMixin implements GSITickTimer {
 
 	@Override
 	public void setTickCount(int tickCount) {
-		this.ticksThisFrame = tickCount;
+		this.ticksThisFrame = Math.min(tickCount, 10);
 	}
 }

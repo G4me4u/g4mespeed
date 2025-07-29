@@ -195,20 +195,20 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 	@ModifyArg(
 		method = "run",
 		require = 0,
-		index = 2,
+		index = 1,
 		at = @At(
 			value = "INVOKE",
 			target =
 				"Lorg/apache/logging/log4j/Logger;warn(" +
 					"Ljava/lang/String;" +
-					"Ljava/lang/Object;" +
-					"Ljava/lang/Object;" +
+					"[Ljava/lang/Object;" +
 				")V"
 		)
 	)
-	private Object modifyRunServerWarnTicksBehind(Object ignore) {
+	private Object[] modifyRunServerWarnTicksBehind(Object[] args) {
 		// Modify debug message to account for "infinite" ticks per second
-		return (gs_ticksBehind == Long.MAX_VALUE) ? "infinite" : Long.valueOf(gs_ticksBehind);
+		args[1] = (gs_ticksBehind == Long.MAX_VALUE) ? "infinite" : Long.valueOf(gs_ticksBehind);
+		return args;
 	}
 	
 	@Inject(
@@ -219,8 +219,7 @@ public abstract class GSMinecraftServerMixin implements GSITpsDependant {
 			target =
 				"Lorg/apache/logging/log4j/Logger;warn(" +
 					"Ljava/lang/String;" +
-					"Ljava/lang/Object;" +
-					"Ljava/lang/Object;" +
+					"[Ljava/lang/Object;" +
 				")V"
 		)
 	)

@@ -11,7 +11,6 @@ import java.util.function.Predicate;
 import com.g4mesoft.setting.types.GSUnknownSetting;
 import com.g4mesoft.util.GSDecodeBuffer;
 import com.g4mesoft.util.GSEncodeBuffer;
-import com.google.common.base.Predicates;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -169,7 +168,7 @@ public final class GSSettingMap {
 	}
 
 	public void writeSettings(GSEncodeBuffer buf) throws DecoderException {
-		writeSettings(buf, Predicates.alwaysTrue());
+		writeSettings(buf, unused -> true);
 	}
 	
 	@SuppressWarnings("unchecked")

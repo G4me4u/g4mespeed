@@ -328,18 +328,6 @@ public class GSDecodeBuffer implements ReferenceCounted {
 	}
 
 	@Override
-	public GSDecodeBuffer touch() {
-		buffer.touch();
-		return this;
-	}
-
-	@Override
-	public GSDecodeBuffer touch(Object hint) {
-		buffer.touch(hint);
-		return this;
-	}
-
-	@Override
 	public boolean release() {
 		return buffer.release();
 	}
