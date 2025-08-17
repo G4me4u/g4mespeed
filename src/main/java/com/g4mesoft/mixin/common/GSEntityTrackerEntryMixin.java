@@ -39,7 +39,8 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	@Shadow private int trackingTick;
 	@Shadow private boolean lastOnGround;
 	@Shadow private Vec3d velocity;
-	
+	@Shadow private int updatesWithoutVehicle;
+
 	@Unique
 	private boolean gs_fixedMovement = false;
 	@Unique
@@ -95,6 +96,9 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	
 				gs_fallingBlockTrackingTick++;
 				gs_tickedFromFallingBlock = false;
+
+				// Always force non-relative update packets, as others are inaccurate.
+				updatesWithoutVehicle = 400;
 			} else {
 				ci.cancel();
 				// return;
