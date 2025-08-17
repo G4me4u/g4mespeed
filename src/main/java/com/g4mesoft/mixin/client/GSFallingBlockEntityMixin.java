@@ -10,7 +10,6 @@ import com.g4mesoft.module.tps.GSTpsModule;
 import net.minecraft.block.piston.PistonMoveBehavior;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.entity.MoverType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
@@ -43,11 +42,11 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 	}
 	
 	@Override
-	public void move(MoverType movementType, double x, double y, double z) {
+	public void move(double x, double y, double z) {
 		if (!world.isClient || GSClientController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_MOVE_ON_SERVER) {
 			// Do not move on the client if the server has pretty sand in 'Move
 			// on Server' mode, as server-side positions are sent every tick.
-			super.move(movementType, x, y, z);
+			super.move(x, y, z);
 		}
 	}
 	

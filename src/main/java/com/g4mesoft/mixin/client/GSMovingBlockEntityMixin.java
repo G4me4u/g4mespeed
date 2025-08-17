@@ -10,7 +10,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -22,7 +21,6 @@ import com.g4mesoft.access.client.GSIMovingBlockEntityAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.g4mesoft.ui.util.GSMathUtil;
-import com.google.common.collect.Lists;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -37,6 +35,7 @@ import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.WorldView;
 
 @Mixin(MovingBlockEntity.class)
 public abstract class GSMovingBlockEntityMixin extends BlockEntity implements GSIMovingBlockEntityAccess {
@@ -50,19 +49,11 @@ public abstract class GSMovingBlockEntityMixin extends BlockEntity implements GS
 
 	@Shadow public abstract float getProgress(float tickDelta);
 
-	@Shadow protected abstract void moveEntities(float nextProgress);
+	@Shadow protected abstract void moveEntities();
 	
-	@Shadow protected abstract BlockState getStateForShape();
-	
-	@Shadow protected abstract Box getBounds(List<Box> shapes);
-	
-	@Shadow protected abstract Box moveBox(Box box);
-
-	@Shadow protected abstract Box getMovementArea(Box box, Direction direction, double amount);
+	@Shadow protected abstract Box getShape(WorldView world, BlockPos pos);
 	
 	private float gs_actualLastProgress;
-	@Unique
-	private float gs_nextProgress = 0.0f;
 	@Unique
 	private boolean gs_wasAdded = false;
 	
@@ -116,65 +107,30 @@ public abstract class GSMovingBlockEntityMixin extends BlockEntity implements GS
 
 	@Inject(
 		method = "moveEntities",
-		at = @At("HEAD")
-	)
-	private void onMoveEntitiesHead(float nextProgress, CallbackInfo ci) {
-		this.gs_nextProgress = nextProgress;
-	}
-	
-	@ModifyVariable(
-		method = "moveEntities",
-		argsOnly = false,
-		ordinal = 0,
-		at = @At(
-			value = "INVOKE",
-			shift = Shift.BEFORE,
-			target =
-				"Lnet/minecraft/block/entity/MovingBlockEntity;getStateForShape(" +
-				")Lnet/minecraft/block/state/BlockState;"
-		)
-	)
-	private double onPushEntitiesModifyDeltaProgress(double oldDeltaProgress) {
-		return getDeltaProgress(oldDeltaProgress);
-	}
-	
-	@Inject(
-		method = "moveEntities",
 		locals = LocalCapture.CAPTURE_FAILSOFT,
 		at = @At(
 			value = "INVOKE",
-			shift = Shift.BEFORE,
+			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/util/math/Direction;getAxis(" +
-				")Lnet/minecraft/util/math/Direction$Axis;"
+				"Lnet/minecraft/entity/Entity;move(" +
+					"D" +
+					"D" +
+					"D" +
+				")V"
 		)
 	)
-	private void onPushEntitiesAfterDirectionGetAxis(float nextProgress, CallbackInfo ci, Direction direction, double d, List<Box> voxelShape, Box box, List<?> list2, boolean bl, int i, Entity entity) {
-		((GSIEntityAccess)entity).gs_setMovedByPiston(true);
+	private void onPushEntitiesAfterEntityMove(CallbackInfo ci, Box box, List<Entity> entities, Direction direction, int i) {
+		((GSIEntityAccess)entities.get(i)).gs_setMovedByPiston(true);
 	}
 	
 	private double getDeltaProgress(double oldDeltaProgress) {
 		if (shouldCorrectPushEntities()) {
-			return ((GSIMovingBlockEntityAccess)this).gs_getOffsetForProgress(gs_nextProgress, progress, 1.0f) -
-			       ((GSIMovingBlockEntityAccess)this).gs_getOffsetForProgress(gs_nextProgress, progress, 0.0f);
+			return ((GSIMovingBlockEntityAccess)this).gs_getOffsetForProgress(progress, gs_actualLastProgress, 1.0f) -
+			       ((GSIMovingBlockEntityAccess)this).gs_getOffsetForProgress(progress, gs_actualLastProgress, 0.0f);
 		}
 		return oldDeltaProgress;
 	}
 	
-	@Redirect(
-		method = "moveBox",
-		at = @At(
-			value = "FIELD",
-			opcode = Opcodes.GETFIELD,
-			target = "Lnet/minecraft/block/entity/MovingBlockEntity;progress:F"
-		)
-	)
-	private float onOffsetBoxRedirectProgress(MovingBlockEntity blockEntity) {
-		if (shouldCorrectPushEntities())
-			return ((GSIMovingBlockEntityAccess)this).gs_getOffsetForProgress(gs_nextProgress, progress, 0.0f);
-		return progress;
-	}
-
 	@Redirect(
 		method =
 			"getShape(" +
@@ -211,21 +167,6 @@ public abstract class GSMovingBlockEntityMixin extends BlockEntity implements GS
 		return world.isClient ? gs_actualLastProgress : lastProgress;
 	}
 	
-	@Redirect(
-		method =
-			"addCollisions",
-		at = @At(
-			value = "FIELD",
-			opcode = Opcodes.GETFIELD,
-			target = "Lnet/minecraft/block/entity/MovingBlockEntity;progress:F"
-		)
-	)
-	private float onAddCollisionsRedirectProgress(MovingBlockEntity blockEntity) {
-		if (shouldCorrectPushEntities())
-			return getProgress(1.0f);
-		return progress;
-	}
-	
 	@Override
 	public void gs_onAdded() {
 		if (!gs_wasAdded) {
@@ -245,31 +186,25 @@ public abstract class GSMovingBlockEntityMixin extends BlockEntity implements GS
 				// pushedBlock = Slime or animation type = Pause at Beginning.
 				markEntitiesMovedByPiston(Math.min(1.0f / gs_numberOfSteps, 1.0f));
 			} else {
-				moveEntities(0.0f);
+				moveEntities();
 			}
 		}
 	}
 	
 	@Unique
 	private void markEntitiesMovedByPiston(float stretchAmount) {
-		List<Box> voxelShape = Lists.<Box>newArrayList();
-		getStateForShape().addCollisions(world, BlockPos.ORIGIN, new Box(BlockPos.ORIGIN), voxelShape, null, true);
-		if (!voxelShape.isEmpty()) {
-			Box box = moveBox(getBounds(voxelShape));
-			Direction direction = extending ? facing : facing.getOpposite();
+		Box box = getShape(world, pos).move(pos);
+		List<Entity> entities = world.getEntities((Entity)null, box);
+		if (!entities.isEmpty()) {
+			Iterator<Entity> entityItr = entities.iterator();
 
-			List<Entity> entities = world.getEntities((Entity)null, this.getMovementArea(box, direction, stretchAmount).union(box));
-			if (!entities.isEmpty()) {
-				Iterator<Entity> entityItr = entities.iterator();
-
-				while (entityItr.hasNext()) {
-					Entity entity = entityItr.next();
-					if (entity.getPistonMoveBehavior() != PistonMoveBehavior.IGNORE) {
-						// The player check is not really required, but if we want to
-						// run this method on the server, it is probably a good idea.
-						if (!(entity instanceof ServerPlayerEntity))
-							((GSIEntityAccess)entity).gs_setMovedByPiston(true);
-					}
+			while (entityItr.hasNext()) {
+				Entity entity = entityItr.next();
+				if (entity.getPistonMoveBehavior() != PistonMoveBehavior.IGNORE) {
+					// The player check is not really required, but if we want to
+					// run this method on the server, it is probably a good idea.
+					if (!(entity instanceof ServerPlayerEntity))
+						((GSIEntityAccess)entity).gs_setMovedByPiston(true);
 				}
 			}
 		}

@@ -39,6 +39,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.living.player.ClientPlayerEntity;
 import net.minecraft.entity.living.player.PlayerEntity;
+import net.minecraft.network.packet.s2c.play.ChatMessageS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.handler.CommandManager;
 import net.minecraft.server.entity.living.player.ServerPlayerEntity;
@@ -383,10 +384,10 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 		case HOTKEY_FEEDBACK_DISABLED:
 			break;
 		case HOTKEY_FEEDBACK_STATUS:
-			player.addMessage(feedbackText, true);
+			player.networkHandler.sendPacket(new ChatMessageS2CPacket(feedbackText, (byte)2));
 			break;
 		case HOTKEY_FEEDBACK_CHAT:
-			player.addMessage(feedbackText, false);
+			player.networkHandler.sendPacket(new ChatMessageS2CPacket(feedbackText, (byte)0));
 			break;
 		default:
 			break;

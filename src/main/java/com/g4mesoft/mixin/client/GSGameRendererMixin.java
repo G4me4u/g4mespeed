@@ -65,9 +65,6 @@ public class GSGameRendererMixin {
 				"Lnet/minecraft/client/render/world/WorldRenderer;renderClouds(" +
 					"F" +
 					"I" +
-					"D" +
-					"D" +
-					"D" +
 				")V"
 		)
 	)

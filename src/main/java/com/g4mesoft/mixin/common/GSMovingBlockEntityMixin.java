@@ -1,6 +1,7 @@
 package com.g4mesoft.mixin.common;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -9,13 +10,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.server.GSServerController;
 
+import net.minecraft.block.PistonBaseBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.MovingBlockEntity;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 
 @Mixin(MovingBlockEntity.class)
 public class GSMovingBlockEntityMixin extends BlockEntity {
+
+	@Shadow private BlockState movedState;
+	@Shadow private boolean source;
 
 	private boolean gs_ticked;
 	
@@ -33,6 +39,11 @@ public class GSMovingBlockEntityMixin extends BlockEntity {
 	private void onTick(CallbackInfo ci) {
 		gs_ticked = true;
 	}
+
+	@Override
+	public NbtCompound toNbt() {
+		return this.writeNbt(new NbtCompound());
+	}
 	
 	@Inject(
 		method = "readNbt",
@@ -40,6 +51,12 @@ public class GSMovingBlockEntityMixin extends BlockEntity {
 	)
 	private void onFromTag(NbtCompound tag, CallbackInfo ci) {
 		gs_ticked = !tag.contains("ticked") || tag.getBoolean("ticked");
+
+		if (tag.contains("source")) {
+			source = tag.getBoolean("source");
+		} else {
+			source = (movedState.getBlock() instanceof PistonBaseBlock);
+		}
 	}
 
 	@Inject(
@@ -50,5 +67,7 @@ public class GSMovingBlockEntityMixin extends BlockEntity {
 		GSController controller = GSController.getInstanceOnThread();
 		if (controller != null && controller.getTpsModule().sImmediateBlockBroadcast.get())
 			tag.putBoolean("ticked", gs_ticked);
+	
+		tag.putBoolean("source", source);
 	}
 }

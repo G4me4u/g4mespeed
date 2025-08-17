@@ -227,7 +227,9 @@ public class GSClientPlayNetworkHandlerMixin {
 		method = "handleWorldChunk",
 		at = @At(
 			value = "INVOKE",
-			target = "Ljava/util/Iterator;hasNext()Z"
+			target =
+				"Ljava/util/Iterator;hasNext(" +
+				")Z"
 		)
 	)
 	private boolean replaceChunkDataBlockEntityLoop(Iterator<NbtCompound> itr) {
@@ -239,39 +241,43 @@ public class GSClientPlayNetworkHandlerMixin {
 			
 			BlockPos blockPos = new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
 			
-			boolean pistonType = "minecraft:piston".equals(tag.getString("id"));
-			
-			if (pistonType) {
-				// Because of a weird issue where the progress saved
-				// by a piston is actually 1 gametick old we have to
-				// increment the progress by 0.5.
-				//
-				// Make sure the block entity has actually ticked before
-				// we increment the progress. Note that it is guaranteed
-				// that the block entity has ticked if it is not a g4mespeed
-				// server or if the immediate block updates setting is not
-				// enabled.
-				if (!gs_tpsModule.sImmediateBlockBroadcast.get() || !tag.contains("ticked") || tag.getBoolean("ticked"))
-					tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
-			}
-			
-			BlockEntity blockEntity = world.getBlockEntity(blockPos);
-			if (blockEntity != null) {
-				blockEntity.readNbt(tag);
-			} else if (pistonType) {
-				// Make sure we're actually supposed to put
-				// a moving piston block entity in this location...
-				BlockState blockState = world.getBlockState(blockPos);
-				if (blockState.getBlock() == Blocks.MOVING_BLOCK) {
-					blockEntity = new MovingBlockEntity();
+			boolean pistonType = "Piston".equals(tag.getString("id"));
+
+			// Pistons do not save sufficient properties in their NBT tags. This
+			// is fixed if the server is using G4mespeed.
+			if (!pistonType || gs_controller.isG4mespeedServer()) {
+				if (pistonType) {
+					// Because of a weird issue where the progress saved
+					// by a piston is actually 1 gametick old we have to
+					// increment the progress by 0.5.
+					//
+					// Make sure the block entity has actually ticked before
+					// we increment the progress. Note that it is guaranteed
+					// that the block entity has ticked if it is not a g4mespeed
+					// server or if the immediate block updates setting is not
+					// enabled.
+					if (!gs_tpsModule.sImmediateBlockBroadcast.get() || !tag.contains("ticked") || tag.getBoolean("ticked"))
+						tag.putFloat("progress", Math.min(tag.getFloat("progress") + 0.5f, 1.0f));
+				}
+				
+				BlockEntity blockEntity = world.getBlockEntity(blockPos);
+				if (blockEntity != null) {
 					blockEntity.readNbt(tag);
-					world.setBlockEntity(blockPos, blockEntity);
-					// Schedule render update.
-					((GSIWorldRendererAccess)minecraft.worldRenderer).gs_scheduleBlockUpdate(blockPos, true);
-					
-					// Probably not needed but it's done in
-					// other places so let's keep the standard.
-					blockEntity.clearBlockCache();
+				} else if (pistonType) {
+					// Make sure we're actually supposed to put
+					// a moving piston block entity in this location...
+					BlockState blockState = world.getBlockState(blockPos);
+					if (blockState.getBlock() == Blocks.MOVING_BLOCK) {
+						blockEntity = new MovingBlockEntity();
+						blockEntity.readNbt(tag);
+						world.setBlockEntity(blockPos, blockEntity);
+						// Schedule render update.
+						((GSIWorldRendererAccess)minecraft.worldRenderer).gs_scheduleBlockUpdate(blockPos, true);
+						
+						// Probably not needed but it's done in
+						// other places so let's keep the standard.
+						blockEntity.clearBlockCache();
+					}
 				}
 			}
 		}
@@ -300,7 +306,7 @@ public class GSClientPlayNetworkHandlerMixin {
 			if (packet.getType() == 0 && world.isChunkLoaded(pos)) {
 				NbtCompound tag = packet.getNbt();
 
-				if ("minecraft:piston".equals(tag.getString("id"))) {
+				if ("Piston".equals(tag.getString("id"))) {
 					BlockState blockState = world.getBlockState(pos);
 					BlockEntity blockEntity = world.getBlockEntity(pos);
 					
