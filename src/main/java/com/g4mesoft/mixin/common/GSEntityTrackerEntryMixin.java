@@ -38,7 +38,8 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	@Shadow @Final private Consumer<Packet<?>> field_18259; /* receiver */
 	@Shadow private int field_14040; /* trackingTick */
 	@Shadow private boolean lastOnGround;
-	
+	@Shadow private int field_14043; /* updatesWithoutVehicle */;
+
 	@Unique
 	private boolean gs_fixedMovement = false;
 	@Unique
@@ -94,6 +95,9 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	
 				gs_fallingBlockTrackingTick++;
 				gs_tickedFromFallingBlock = false;
+
+				// Always force non-relative update packets, as others are inaccurate.
+				field_14043 = 400;
 			} else {
 				ci.cancel();
 				// return;
