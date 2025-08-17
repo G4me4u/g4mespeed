@@ -208,7 +208,7 @@ public abstract class GSMovingBlockEntityMixin extends BlockEntity implements GS
 	private float onGetShapeRedirectLastProgress(MovingBlockEntity blockEntity) {
 		if (shouldCorrectPushEntities())
 			return getProgress(0.0f);
-		return gs_actualLastProgress;
+		return world.isClient ? gs_actualLastProgress : lastProgress;
 	}
 	
 	@Redirect(
