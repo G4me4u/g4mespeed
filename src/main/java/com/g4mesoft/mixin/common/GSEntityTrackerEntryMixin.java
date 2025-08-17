@@ -41,9 +41,10 @@ public abstract class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntry
 	@Shadow @Final private Entity currentTrackedEntity;
 	@Shadow private int ticks;
 	@Shadow private boolean onGround;
+	@Shadow private int ticksSinceLastDismount;
 	
 	@Shadow public abstract void sendToListeners(Packet<?> packet);
-	
+
 	@Unique
 	private boolean gs_fixedMovement = false;
 	@Unique
@@ -104,6 +105,9 @@ public abstract class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntry
 	
 				gs_fallingBlockTrackingTick++;
 				gs_tickedFromFallingBlock = false;
+
+				// Always force non-relative update packets, as others are inaccurate.
+				ticksSinceLastDismount = 400;
 			} else {
 				ci.cancel();
 				// return;
