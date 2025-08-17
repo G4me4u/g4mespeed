@@ -28,6 +28,7 @@ public class GSTickTimerMixin implements GSITickTimer {
 	@Shadow public float tickDelta;
 	@Shadow public long lastTickTime;
 	@Shadow public float tpsScale;
+	@Shadow private double tickTimeCorrection;
 	
 	@Unique
 	private boolean gs_firstUpdate;
@@ -68,6 +69,22 @@ public class GSTickTimerMixin implements GSITickTimer {
 		
 		gs_currentTimeMillis = timeMillis;
 		gs_prevTickDelta = tickDelta;
+	}
+	
+	@Inject(
+		method = "advance",
+		at = @At(
+			value = "FIELD",
+			shift = Shift.AFTER,
+			opcode = Opcodes.PUTFIELD,
+			target = "Lnet/minecraft/client/TickTimer;tickTimeCorrection:D"
+		)
+	)
+	private void onAdvanceRemoveTickCorrection(CallbackInfo ci) {
+		// Since 1.11 and below, there is an extra tick correction term
+		// which only makes matters worse for the first few seconds, and
+		// has no effect after a while. Disable it here.
+		tickTimeCorrection = 1.0;
 	}
 	
 	@Inject(
