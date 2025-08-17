@@ -74,7 +74,7 @@ public abstract class GSServerPlayNetworkHandlerMixin implements GSIServerPlayNe
 			),
 			to = @At(
 				value = "CONSTANT",
-				args = "stringValue={} is sending move packets too frequently ({} packets since last tick)"
+				args = "stringValue= is sending move packets too frequently ("
 			)
 		)
 	)

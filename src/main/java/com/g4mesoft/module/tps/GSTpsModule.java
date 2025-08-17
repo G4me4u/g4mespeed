@@ -45,7 +45,8 @@ import net.minecraft.server.command.handler.CommandManager;
 import net.minecraft.server.entity.living.player.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.world.GameMode;
+import net.minecraft.world.WorldSettings;
+import net.minecraft.world.WorldSettings.GameMode;
 
 public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 
@@ -687,7 +688,7 @@ public class GSTpsModule implements GSIModule, GSICarpetTickrateListener {
 	
 	
 	@Environment(EnvType.CLIENT)
-	public void onClientGameModeChanged(GameMode gameMode) {
+	public void onClientGameModeChanged(WorldSettings.GameMode gameMode) {
 		GSClientController controller = GSClientController.getInstance();
 		if (controller.isConnectedToServer() && !controller.isG4mespeedServer() && !isGameModeAllowingHotkeys(gameMode)) {
 			// User is connected to a non-g4mespeed server, and changed to a game mode that

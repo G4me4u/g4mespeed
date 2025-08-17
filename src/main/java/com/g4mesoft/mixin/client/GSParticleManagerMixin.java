@@ -1,5 +1,6 @@
 package com.g4mesoft.mixin.client;
 
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -22,12 +23,11 @@ public class GSParticleManagerMixin {
 		method = "renderParticles",
 		argsOnly = true,
 		at = @At(
-			value = "INVOKE",
+			value = "FIELD",
+			opcode = Opcodes.PUTSTATIC,
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/entity/Entity;getRotationVec(" +
-					"F" +
-				")Lnet/minecraft/util/math/Vec3d;"
+				"Lnet/minecraft/client/entity/particle/Particle;currentZ:D"
 		)
 	)
 	private float modifyParticleRenderTickDelta(float oldTickDelta) {

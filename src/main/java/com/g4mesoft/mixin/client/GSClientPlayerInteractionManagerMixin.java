@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.core.client.GSClientController;
 
 import net.minecraft.client.ClientPlayerInteractionManager;
-import net.minecraft.world.GameMode;
+import net.minecraft.world.WorldSettings;
 
 @Mixin(ClientPlayerInteractionManager.class)
 public class GSClientPlayerInteractionManagerMixin {
@@ -17,7 +17,7 @@ public class GSClientPlayerInteractionManagerMixin {
 		method = "setGameMode",
 		at = @At("RETURN")
 	)
-    private void onSetGameMode(GameMode gameMode, CallbackInfo ci) {
+    private void onSetGameMode(WorldSettings.GameMode gameMode, CallbackInfo ci) {
 		GSClientController.getInstance().getTpsModule().onClientGameModeChanged(gameMode);
 	}
 }
