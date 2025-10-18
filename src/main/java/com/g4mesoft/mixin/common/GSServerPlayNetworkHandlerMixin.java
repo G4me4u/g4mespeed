@@ -109,7 +109,7 @@ public abstract class GSServerPlayNetworkHandlerMixin extends ServerCommonNetwor
 		
 		this.gs_trackerFixedMovement = trackerFixedMovement;
 		
-		((GSIServerChunkManagerAccess)player.getWorld().getChunkManager()).gs_setTrackerFixedMovement(player, trackerFixedMovement);
+		((GSIServerChunkManagerAccess)player.getEntityWorld().getChunkManager()).gs_setTrackerFixedMovement(player, trackerFixedMovement);
 	}
 
 	@Inject(
@@ -125,7 +125,7 @@ public abstract class GSServerPlayNetworkHandlerMixin extends ServerCommonNetwor
 	)
 	private void onPlayerMoveUpdateCameraPosition(PlayerMoveC2SPacket packet, CallbackInfo ci) {
 		if (gs_trackerFixedMovement)
-			((GSIServerChunkManagerAccess)player.getWorld().getChunkManager()).gs_tickEntityTracker(player);
+			((GSIServerChunkManagerAccess)player.getEntityWorld().getChunkManager()).gs_tickEntityTracker(player);
 	}
 	
 	@Inject(

@@ -16,7 +16,7 @@ import net.minecraft.client.render.block.entity.PistonBlockEntityRenderer;
 public class GSPistonBlockEntityRendererMixin {
 
 	@ModifyConstant(
-		method = "render",
+		method = "updateRenderState",
 		constant = @Constant(
 			floatValue = 4.0f
 		)
@@ -25,7 +25,11 @@ public class GSPistonBlockEntityRendererMixin {
 		return 0.5f;
 	}
 	
-	@Inject(method = "getRenderDistance", cancellable = true, at = @At("HEAD"))
+	@Inject(
+		method = "getRenderDistance",
+		cancellable = true,
+		at = @At("HEAD")
+	)
 	private void onGetRenderDistance(CallbackInfoReturnable<Integer> cir) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		int chunkDist = tpsModule.cPistonRenderDistance.get();

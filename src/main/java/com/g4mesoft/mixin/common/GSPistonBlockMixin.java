@@ -49,7 +49,7 @@ public class GSPistonBlockMixin {
 		)
 	)
 	private void onMoveReturn0(World world, BlockPos pos, Direction dir, boolean retract, CallbackInfoReturnable<Boolean> cir) {
-		if (!world.isClient && GSServerController.getInstance().getTpsModule().sParanoidMode.get())
+		if (!world.isClient() && GSServerController.getInstance().getTpsModule().sParanoidMode.get())
 			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_markBlockUpdate(pos.offset(dir));
 	}
 	
@@ -89,7 +89,7 @@ public class GSPistonBlockMixin {
 	
 	@Unique
 	private void markBlockEntityForUpdate(World world, BlockPos pos) {
-		if (!world.isClient && GSServerController.getInstance().getTpsModule().sParanoidMode.get())
+		if (!world.isClient() && GSServerController.getInstance().getTpsModule().sParanoidMode.get())
 			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_markBlockEntityUpdate(pos);
 	}
 }

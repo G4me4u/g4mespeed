@@ -1,7 +1,5 @@
 package com.g4mesoft.mixin.common;
 
-import java.util.function.Consumer;
-
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -24,6 +22,7 @@ import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -38,7 +37,7 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 	
 	@Shadow @Final private ServerWorld world;
 	@Shadow @Final private Entity entity;
-	@Shadow @Final private Consumer<Packet<?>> watchingSender;
+	@Shadow @Final private EntityTrackerEntry.TrackerPacketSender packetSender;
 	@Shadow private int trackingTick;
 	@Shadow private boolean lastOnGround;
 	@Shadow private Vec3d velocity;
@@ -68,7 +67,9 @@ public class GSEntityTrackerEntryMixin implements GSIEntityTrackerEntryAccess {
 				// Encode packet to a vanilla packet. This is required for sending to all nearby
 				// players. Note that vanilla players will not react to the packet.
 				GSPacketManager packetManager = G4mespeedMod.getPacketManager();
-				watchingSender.accept(packetManager.encodePacket(packet, GSServerController.getInstance()));
+				@SuppressWarnings("unchecked")
+				Packet<? super ClientPlayPacketListener> encodedPacket = (Packet<? super ClientPlayPacketListener>)packetManager.encodePacket(packet, GSServerController.getInstance());
+				packetSender.sendToListeners(encodedPacket);
 			}
 		}
 		

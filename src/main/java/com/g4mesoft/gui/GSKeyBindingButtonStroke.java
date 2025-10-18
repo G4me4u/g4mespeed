@@ -6,6 +6,7 @@ import com.g4mesoft.ui.panel.event.GSIButtonStroke;
 import com.g4mesoft.ui.panel.event.GSKeyEvent;
 import com.g4mesoft.ui.panel.event.GSMouseEvent;
 
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.util.InputUtil;
 
 public class GSKeyBindingButtonStroke implements GSIButtonStroke {
@@ -55,8 +56,8 @@ public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 			return false;
 		}
 
-		return isKeyMatching(InputUtil.fromKeyCode(event.getKeyCode(),
-		                                           event.getScanCode()));
+		KeyInput input = new KeyInput(event.getKeyCode(), event.getScanCode(), event.getModifiers());
+		return isKeyMatching(InputUtil.fromKeyCode(input));
 	}
 	
 	private boolean isKeyMatching(InputUtil.Key key) {

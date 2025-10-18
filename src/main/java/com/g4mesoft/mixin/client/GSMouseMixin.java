@@ -14,6 +14,7 @@ import com.g4mesoft.hotkey.GSKeyManager;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
+import net.minecraft.client.input.MouseInput;
 
 @Mixin(Mouse.class)
 public class GSMouseMixin {
@@ -21,24 +22,24 @@ public class GSMouseMixin {
 	@Shadow @Final private MinecraftClient client;
 
 	@Inject(
-		method="onMouseButton(JIII)V",
+		method="onMouseButton(JLnet/minecraft/client/input/MouseInput;I)V",
 		at = @At("HEAD")
 	)
-	private void onMouseEvent(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
+	private void onMouseEvent(long windowHandle, MouseInput input, int action, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
 			GSKeyManager keyManager = GSClientController.getInstance().getKeyManager();
 
 			keyManager.clearEventQueue();
 			if (action == GLFW.GLFW_RELEASE) {
-				keyManager.onMouseReleased(button, mods);
+				keyManager.onMouseReleased(input);
 			} else if (action == GLFW.GLFW_PRESS) {
-				keyManager.onMousePressed(button, mods);
+				keyManager.onMousePressed(input);
 			}
 		}
 	}
 
 	@Inject(
-		method="onMouseButton(JIII)V",
+		method="onMouseButton(JLnet/minecraft/client/input/MouseInput;I)V",
 		at = @At(
 			value = "INVOKE",
 			shift = At.Shift.AFTER, 
@@ -49,7 +50,7 @@ public class GSMouseMixin {
 				")V"
 		)
 	)
-	private void onMouseEventHandled(long windowHandle, int button, int action, int mods, CallbackInfo ci) {
+	private void onMouseEventHandled(long windowHandle, MouseInput input, int action, CallbackInfo ci) {
 		GSKeyManager keyManager = GSClientController.getInstance().getKeyManager();
 
 		if (action == GLFW.GLFW_RELEASE) {

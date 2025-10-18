@@ -54,7 +54,7 @@ public class GSEntityMixin implements GSIEntityAccess {
 		)
 	)
 	private long onAdjustMovementForPistonWorldGetTime(World world) {
-		if (world.isClient && GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
+		if (world.isClient() && GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			// Check if we are pushing entities from outside of the tick loop,
 			// meaning that the piston movement delta array from the previous
 			// tick should be used.

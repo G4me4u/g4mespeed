@@ -15,6 +15,7 @@ import com.g4mesoft.ui.panel.event.GSMouseEvent;
 import com.g4mesoft.ui.panel.legacy.GSButtonPanel;
 import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.InputUtil.Key;
 import net.minecraft.text.Text;
@@ -194,7 +195,8 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 				unbindKeyCode();
 				stopModifying();
 			} else {
-				onKeyPressed(InputUtil.fromKeyCode(event.getKeyCode(), event.getScanCode()));
+				KeyInput input = new KeyInput(event.getKeyCode(), event.getScanCode(), event.getModifiers());
+				onKeyPressed(InputUtil.fromKeyCode(input));
 			}
 			event.consume();
 		}
@@ -203,7 +205,8 @@ public class GSHotkeyElementGUI extends GSParentPanel implements GSIMouseListene
 	@Override
 	public void keyReleased(GSKeyEvent event) {
 		if (modifyingKeyCode) {
-			onKeyReleased(InputUtil.fromKeyCode(event.getKeyCode(), event.getScanCode()));
+			KeyInput input = new KeyInput(event.getKeyCode(), event.getScanCode(), event.getModifiers());
+			onKeyReleased(InputUtil.fromKeyCode(input));
 			event.consume();
 		}
 	}

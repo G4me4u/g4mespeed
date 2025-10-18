@@ -8,6 +8,7 @@ import com.g4mesoft.access.common.GSIEntityTrackerEntryAccess;
 import com.g4mesoft.access.common.GSIServerChunkLoadingManagerAccess;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.EntityTrackerEntry;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -19,7 +20,7 @@ public abstract class GSServerChunkLoadingManagerMixin implements GSIServerChunk
 
 	@Shadow @Final private Int2ObjectMap<?> entityTrackers;
 	
-	@Shadow protected abstract Iterable<ChunkHolder> entryIterator();
+	@Shadow private Long2ObjectLinkedOpenHashMap<ChunkHolder> chunkHolders;
 	
 	@Override
 	public void gs_tickEntityTracker(Entity entity) {
@@ -48,6 +49,6 @@ public abstract class GSServerChunkLoadingManagerMixin implements GSIServerChunk
 	
 	@Override
 	public Iterable<ChunkHolder> gs_getEntryIterator() {
-		return entryIterator();
+		return chunkHolders.values();
 	}
 }

@@ -93,7 +93,7 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
 					"Lnet/minecraft/network/packet/Packet;" +
 					"Lnet/minecraft/network/listener/PacketListener;" +
-					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+					"Lnet/minecraft/network/PacketApplyBatcher;" +
 				")V"
 		)
 	)
@@ -120,7 +120,7 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
 					"Lnet/minecraft/network/packet/Packet;" +
 					"Lnet/minecraft/network/listener/PacketListener;" +
-					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+					"Lnet/minecraft/network/PacketApplyBatcher;" +
 				")V"
 		)
 	)
@@ -138,7 +138,7 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 					
 					if (packet.hasRotation()) {
 						// Do not ignore rotation changes.
-						entity.updateTrackedPositionAndAngles(entity.getPos(), packet.getYaw(), packet.getPitch());
+						entity.updateTrackedPositionAndAngles(entity.getEntityPos(), packet.getYaw(), packet.getPitch());
 					}
 					
 					entity.setOnGround(packet.isOnGround());
@@ -158,7 +158,7 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
 					"Lnet/minecraft/network/packet/Packet;" +
 					"Lnet/minecraft/network/listener/PacketListener;" +
-					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+					"Lnet/minecraft/network/PacketApplyBatcher;" +
 				")V"
 		)
 	)
@@ -220,7 +220,7 @@ public abstract class GSClientPlayNetworkHandlerMixin extends ClientCommonNetwor
 				"Lnet/minecraft/network/NetworkThreadUtils;forceMainThread(" +
 					"Lnet/minecraft/network/packet/Packet;" +
 					"Lnet/minecraft/network/listener/PacketListener;" +
-					"Lnet/minecraft/util/thread/ThreadExecutor;" +
+					"Lnet/minecraft/network/PacketApplyBatcher;" +
 				")V"
 		)
 	)

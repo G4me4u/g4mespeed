@@ -82,7 +82,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 		at = @At("HEAD")
 	)
 	private void onGetProgressHead(float tickDelta, CallbackInfoReturnable<Float> cir) {
-		if (world.isClient)
+		if (world.isClient())
 			cir.setReturnValue(gs_getOffsetForProgress(progress, gs_actualLastProgress, tickDelta));
 	}
 
@@ -223,7 +223,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@Override
 	public void gs_onAdded() {
 		if (!gs_wasAdded) {
-			if (world.isClient && isPushCorrectionEnabled((PistonBlockEntity)(Object)this)) {
+			if (world.isClient() && isPushCorrectionEnabled((PistonBlockEntity)(Object)this)) {
 				GSClientController controller = GSClientController.getInstance();
 				((GSIMinecraftClientAccess)controller.getClient()).gs_schedulePistonBlockEntityUpdate(pos);
 			}
@@ -277,7 +277,7 @@ public abstract class GSPistonBlockEntityMixin extends BlockEntity implements GS
 	@Unique
 	private static boolean isPushCorrectionEnabled(PistonBlockEntity blockEntity) {
 		World world = blockEntity.getWorld();
-		if (world == null || !world.isClient)
+		if (world == null || !world.isClient())
 			return false;
 		return GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get();
 	}

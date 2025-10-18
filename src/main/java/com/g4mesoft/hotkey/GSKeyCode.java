@@ -2,6 +2,9 @@ package com.g4mesoft.hotkey;
 
 import java.util.Arrays;
 
+import com.g4mesoft.ui.panel.event.GSEvent;
+
+import net.minecraft.client.input.KeyInput;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.InputUtil.Key;
 import net.minecraft.text.MutableText;
@@ -63,7 +66,8 @@ public class GSKeyCode {
 	}
 	
 	public static GSKeyCode fromKeyCode(int keyCode, int scanCode) {
-		return fromKey(InputUtil.fromKeyCode(keyCode, scanCode));
+		KeyInput input = new KeyInput(keyCode, scanCode, GSEvent.NO_MODIFIERS);
+		return fromKey(InputUtil.fromKeyCode(input));
 	}
 	
 	public static GSKeyCode fromKey(Key key) {

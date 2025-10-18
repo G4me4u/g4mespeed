@@ -18,12 +18,7 @@ import com.g4mesoft.module.tps.GSTpsModule;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.BufferBuilderStorage;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.BlockPos;
@@ -44,26 +39,24 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 		method = "<init>",
 		at = @At("RETURN")
 	)
-	private void onInit(MinecraftClient client, EntityRenderDispatcher entityRenderDispatcher, BlockEntityRenderDispatcher blockEntityRenderDispatcher, BufferBuilderStorage bufferBuilders, CallbackInfo ci) {
+	private void onInit(CallbackInfo ci) {
 		gs_controller = GSClientController.getInstance();
 		gs_tpsModule = gs_controller.getTpsModule();
 	}
 	
 	@ModifyArg(
-		method = "renderEntities",
-		index = 4,
+		method = "fillEntityRenderStates",
+		index = 1,
 		at = @At(
 			value = "INVOKE", 
 			target =
-				"Lnet/minecraft/client/render/WorldRenderer;renderEntity(" +
+				"Lnet/minecraft/client/render/WorldRenderer;getAndUpdateRenderState(" +
 					"Lnet/minecraft/entity/Entity;" +
-					"DDDF" +
-					"Lnet/minecraft/client/util/math/MatrixStack;" +
-					"Lnet/minecraft/client/render/VertexConsumerProvider;" +
-				")V"
+					"F" +
+				")Lnet/minecraft/client/render/entity/state/EntityRenderState;"
 		)
 	)
-	private float onRenderEntityModifyDeltaTick(Entity entity, double cameraX, double cameraY, double cameraZ, float deltaTick, MatrixStack matrices, VertexConsumerProvider vertexConsumers) {
+	private float onRenderEntityModifyDeltaTick(Entity entity, float deltaTick) {
 		if (!client.isPaused() && (entity instanceof AbstractClientPlayerEntity)) {
 			if (gs_tpsModule.isPlayerFixedMovement((AbstractClientPlayerEntity)entity))
 				return ((GSIMinecraftClientAccess)client).gs_getFixedMovementTickDelta();
@@ -73,7 +66,7 @@ public abstract class GSWorldRendererMixin implements GSIWorldRendererAccess {
 	}
 	
 	@Redirect(
-		method = "renderEntities",
+		method = "fillEntityRenderStates",
 		allow = 1,
 		require = 1,
 		expect = 1,

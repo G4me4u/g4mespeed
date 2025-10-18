@@ -23,8 +23,8 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 	@GSCoreOverride
 	@Override
 	public void move(MovementType movementType, Vec3d movement) {
-		World world = getWorld();
-		if (!world.isClient || GSClientController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_FIDELITY) {
+		World world = getEntityWorld();
+		if (!world.isClient() || GSClientController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_FIDELITY) {
 			// Do not move on the client if the server has pretty sand in fidelity
 			// mode. (the positions are sent from the server every tick).
 			super.move(movementType, movement);

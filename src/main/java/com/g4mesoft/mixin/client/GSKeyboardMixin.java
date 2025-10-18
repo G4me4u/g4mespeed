@@ -5,7 +5,9 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.core.client.GSClientController;
@@ -14,6 +16,7 @@ import com.g4mesoft.hotkey.GSKeyManager;
 
 import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.input.KeyInput;
 
 @Mixin(Keyboard.class)
 public class GSKeyboardMixin {
@@ -21,28 +24,38 @@ public class GSKeyboardMixin {
 	@Shadow @Final private MinecraftClient client;
 	
 	@Inject(
-		method = "onKey(JIIII)V",
+		method = "onKey(JILnet/minecraft/client/input/KeyInput;)V",
 		at = @At("HEAD")
 	)
-	private void onKeyEvent(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
+	private void onKeyEvent(long windowHandle, int action, KeyInput input, CallbackInfo ci) {
 		if (windowHandle == client.getWindow().getHandle()) {
 			GSKeyManager keyManager = GSClientController.getInstance().getKeyManager();
 
 			keyManager.clearEventQueue();
 			if (action == GLFW.GLFW_RELEASE) {
-				keyManager.onKeyReleased(key, scancode, mods);
+				keyManager.onKeyReleased(input);
 			} else if (action == GLFW.GLFW_PRESS) {
-				keyManager.onKeyPressed(key, scancode, mods);
+				keyManager.onKeyPressed(input);
 			}
 		}
 	}
 
 	@Inject(
-		method="onKey(JIIII)V",
+		method="onKey(JILnet/minecraft/client/input/KeyInput;)V",
+		slice = @Slice(
+			from = @At(
+				value = "INVOKE",
+				shift = Shift.AFTER,
+				target =
+					"Lnet/minecraft/client/util/InputUtil;fromKeyCode(" +
+						"Lnet/minecraft/client/input/KeyInput;" +
+					")Lnet/minecraft/client/util/InputUtil$Key;"
+			)
+		),
 		at = @At(
 			value = "INVOKE",
 			ordinal = 0,
-			shift = At.Shift.AFTER, 
+			shift = Shift.AFTER,
 			target =
 				"Lnet/minecraft/client/option/KeyBinding;setKeyPressed(" +
 					"Lnet/minecraft/client/util/InputUtil$Key;" +
@@ -50,12 +63,22 @@ public class GSKeyboardMixin {
 				")V"
 		)
 	)
-	private void onKeyReleased(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
+	private void onKeyReleased(long windowHandle, int action, KeyInput input, CallbackInfo ci) {
 		GSClientController.getInstance().getKeyManager().dispatchEvents(GSEKeyEventType.RELEASE);
 	}
 
 	@Inject(
-		method="onKey(JIIII)V",
+		method="onKey(JILnet/minecraft/client/input/KeyInput;)V",
+		slice = @Slice(
+			from = @At(
+				value = "INVOKE",
+				shift = Shift.AFTER,
+				target =
+					"Lnet/minecraft/client/util/InputUtil;fromKeyCode(" +
+						"Lnet/minecraft/client/input/KeyInput;" +
+					")Lnet/minecraft/client/util/InputUtil$Key;"
+			)
+		),
 		at = @At(
 			value = "INVOKE",
 			shift = At.Shift.BEFORE, 
@@ -65,7 +88,7 @@ public class GSKeyboardMixin {
 				")V"
 		)
 	)
-	private void onKeyPressRepeat(long windowHandle, int key, int scancode, int action, int mods, CallbackInfo ci) {
+	private void onKeyPressRepeat(long windowHandle, int action, KeyInput input, CallbackInfo ci) {
 		if (action == GLFW.GLFW_PRESS)
 			GSClientController.getInstance().getKeyManager().dispatchEvents(GSEKeyEventType.PRESS);
 	}

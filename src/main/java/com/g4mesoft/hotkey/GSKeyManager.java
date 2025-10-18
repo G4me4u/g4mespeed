@@ -18,6 +18,8 @@ import com.g4mesoft.util.GSFileUtil;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.input.KeyInput;
+import net.minecraft.client.input.MouseInput;
 import net.minecraft.client.util.InputUtil;
 
 @Environment(EnvType.CLIENT)
@@ -247,20 +249,20 @@ public class GSKeyManager {
 		}
 	}
 	
-	public void onKeyPressed(int key, int scancode, int mods) {
-		handleKeyEvent(InputUtil.fromKeyCode(key, scancode), GSKeyBinding::onKeyPressed);
+	public void onKeyPressed(KeyInput input) {
+		handleKeyEvent(InputUtil.fromKeyCode(input), GSKeyBinding::onKeyPressed);
 	}
 
-	public void onKeyReleased(int key, int scancode, int mods) {
-		handleKeyEvent(InputUtil.fromKeyCode(key, scancode), GSKeyBinding::onKeyReleased);
+	public void onKeyReleased(KeyInput input) {
+		handleKeyEvent(InputUtil.fromKeyCode(input), GSKeyBinding::onKeyReleased);
 	}
 
-	public void onMousePressed(int button, int mods) {
-		handleKeyEvent(InputUtil.Type.MOUSE.createFromCode(button), GSKeyBinding::onKeyPressed);
+	public void onMousePressed(MouseInput input) {
+		handleKeyEvent(InputUtil.Type.MOUSE.createFromCode(input.button()), GSKeyBinding::onKeyPressed);
 	}
 
-	public void onMouseReleased(int button, int mods) {
-		handleKeyEvent(InputUtil.Type.MOUSE.createFromCode(button), GSKeyBinding::onKeyReleased);
+	public void onMouseReleased(MouseInput input) {
+		handleKeyEvent(InputUtil.Type.MOUSE.createFromCode(input.button()), GSKeyBinding::onKeyReleased);
 	}
 	
 	public void clearEventQueue() {

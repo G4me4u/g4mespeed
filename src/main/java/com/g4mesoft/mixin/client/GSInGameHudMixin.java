@@ -80,7 +80,7 @@ public abstract class GSInGameHudMixin {
 			shift = Shift.AFTER,
 			target =
 				"Lnet/minecraft/client/gui/hud/BossBarHud;render(" +
-						"Lnet/minecraft/client/gui/DrawContext;" +
+					"Lnet/minecraft/client/gui/DrawContext;" +
 				")V"
 		)
 	)
@@ -97,7 +97,7 @@ public abstract class GSInGameHudMixin {
 			target =
 				"Lnet/minecraft/client/gui/hud/InGameHud;renderSubtitlesHud(" +
 					"Lnet/minecraft/client/gui/DrawContext;" +
-					"Lnet/minecraft/client/render/RenderTickCounter;" +
+					"Z" +
 				")V"
 		)
 	)
