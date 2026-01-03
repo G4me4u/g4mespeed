@@ -14,7 +14,6 @@ import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.G4mespeedMod;
@@ -266,20 +265,15 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 	
 	@Inject(
 		method = "render",
-		slice = @Slice(
-			from = @At(
-				value = "CONSTANT",
-				args = "stringValue=tick"
-			)
-		), 
+		allow = 1,
 		at = @At(
-			value = "INVOKE",
-			ordinal = 0,
+			value = "INVOKE_STRING",
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/util/profiler/Profiler;push(" +
+				"Lnet/minecraft/util/profiler/Profiler;swap(" +
 					"Ljava/lang/String;" +
-				")V"
+				")V",
+			args = "ldc=tick"
 		)
 	)
 	private void onRenderBeforeTickLoop(CallbackInfo ci) {
