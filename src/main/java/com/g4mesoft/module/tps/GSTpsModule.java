@@ -278,7 +278,7 @@ public class GSTpsModule implements GSIModule {
 						PlayerManager playerManager = managerServer.getServer().getPlayerManager();
 						for (ServerPlayerEntity player : playerManager.getPlayerList()) {
 							// The command tree can only change for non-OP players.
-							if (!player.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL))
+							if (!player.getPermissions().hasPermission(GSServerController.OP_PERMISSION))
 								playerManager.sendCommandTree(player);
 						}
 					});
@@ -554,7 +554,7 @@ public class GSTpsModule implements GSIModule {
 
 	public boolean isPlayerAllowedTpsChange(PlayerEntity player) {
 		if (sRequireOP.get())
-			return player.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL);
+			return player.getPermissions().hasPermission(GSServerController.OP_PERMISSION);
 		return true;
 	}
 	

@@ -270,7 +270,7 @@ public abstract class GSMinecraftClientMixin implements GSIMinecraftClientAccess
 			value = "INVOKE_STRING",
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/util/profiler/Profiler;swap(" +
+				"Lnet/minecraft/util/profiler/Profiler;push(" +
 					"Ljava/lang/String;" +
 				")V",
 			args = "ldc=tick"

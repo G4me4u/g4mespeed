@@ -22,7 +22,7 @@ public final class GSTpsCommand {
 	public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
 		LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager.literal("tps").requires(context -> {
 			if (GSServerController.getInstance().getTpsModule().sRequireOP.get())
-				return context.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL);
+				return context.getPermissions().hasPermission(GSServerController.OP_PERMISSION);
 			return true;
 		});
 		

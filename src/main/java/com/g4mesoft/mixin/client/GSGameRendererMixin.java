@@ -16,7 +16,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.entity.Entity;
-import net.minecraft.world.BlockView;
+import net.minecraft.world.World;
 
 /* Priority <1000, compatibility fix for Apoli/Origins */
 @Mixin(value = GameRenderer.class, priority = 999)
@@ -25,19 +25,19 @@ public class GSGameRendererMixin {
 	@Shadow @Final private MinecraftClient client;
 	
 	@ModifyArg(
-		method = "renderWorld",
+		method = "updateCamera",
 		index = 4,
 		at = @At(
 			value = "INVOKE", 
 			target =
 				"Lnet/minecraft/client/render/Camera;update(" +
-					"Lnet/minecraft/world/BlockView;" +
+					"Lnet/minecraft/world/World;" +
 					"Lnet/minecraft/entity/Entity;" +
 					"ZZF" +
 				")V"
 		)
 	)
-	private float modifyCameraUpdateTickDelta(BlockView blockView, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float oldTickDelta) {
+	private float modifyCameraUpdateTickDelta(World world, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float oldTickDelta) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
 		if (focusedEntity instanceof AbstractClientPlayerEntity) {
 			if (tpsModule.isPlayerFixedMovement(((AbstractClientPlayerEntity)focusedEntity)))

@@ -32,6 +32,8 @@ import com.g4mesoft.setting.GSSettingPermissionPacket;
 import com.mojang.brigadier.CommandDispatcher;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.command.DefaultPermissions;
+import net.minecraft.command.permission.Permission;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
@@ -41,7 +43,7 @@ import net.minecraft.util.WorldSavePath;
 
 public class GSServerController extends GSController implements GSIServerModuleManager, GSISettingChangeListener {
 
-	public static final int OP_PERMISSION_LEVEL = 2;
+	public static final Permission OP_PERMISSION = DefaultPermissions.GAMEMASTERS;
 
 	private static final GSServerController instance = new GSServerController();
 	
@@ -300,7 +302,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	}
 	
 	public boolean isAllowedSettingChange(ServerPlayerEntity player) {
-		return player.hasPermissionLevel(OP_PERMISSION_LEVEL);
+		return player.getPermissions().hasPermission(OP_PERMISSION);
 	}
 	
 	private void sendSettingPermissionPacket(ServerPlayerEntity player) {
