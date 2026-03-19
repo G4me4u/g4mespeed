@@ -2,11 +2,11 @@ package com.g4mesoft.core;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSIExtension;
@@ -25,8 +25,8 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 	protected static final String CACHE_DIR_NAME = "g4mespeed/cache";
 	protected static final String INTEGRATED_CACHE_DIR_NAME = "g4mespeed/integrated/cache";
 
-	private static final Set<GSController> INSTANCES = new HashSet<>();
-	
+	private static final Set<GSController> INSTANCES = ConcurrentHashMap.newKeySet();
+
 	protected final GSSettingManager settings;
 	
 	protected final List<GSIModule> modules;
@@ -120,7 +120,11 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 	public GSSettingManager getSettingManager() {
 		return settings;
 	}
-	
+
+	public static boolean hasInstances() {
+		return !INSTANCES.isEmpty();
+	}
+
 	public static GSController getInstanceOnThread() {
 		for (GSController controller : INSTANCES) {
 			if (controller.isThreadOwner())
