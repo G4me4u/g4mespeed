@@ -39,13 +39,16 @@ public abstract class GSTranslatableTextMixin {
 		at = @At("HEAD")
 	)
 	private void onUpdateTranslations(CallbackInfo ci) {
+		if (!GSController.hasInstances())
+			return;
+
 		GSController threadController = GSController.getInstanceOnThread();
-		
+
 		// If we don't know which controller we are
 		// dealing with, fallback to server controller
 		if (threadController == null)
 			threadController = GSServerController.getInstance();
-	
+
 		GSTranslationModule translationModule = threadController.getTranslationModule();
 		if (translationModule.hasTranslation(this.key)) {
 			Language language = Language.getInstance();
