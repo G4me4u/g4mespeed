@@ -133,9 +133,9 @@ public abstract class GSClientPacketListenerMixin extends ClientCommonPacketList
 			if (entity != null && isRecentlyMovedByPiston(entity)) {
 				if (packet.hasPosition()) {
 					// See comment above.
-	                VecDeltaCodec trackedPosition = entity.getPositionCodec();
-	                Vec3 pos = trackedPosition.decode(packet.getXa(), packet.getYa(), packet.getZa());
-	                trackedPosition.setBase(pos);
+					VecDeltaCodec trackedPosition = entity.getPositionCodec();
+					Vec3 pos = trackedPosition.decode(packet.getXa(), packet.getYa(), packet.getZa());
+					trackedPosition.setBase(pos);
 				}
 					
 				if (!entity.isControlledByLocalInstance()) {
