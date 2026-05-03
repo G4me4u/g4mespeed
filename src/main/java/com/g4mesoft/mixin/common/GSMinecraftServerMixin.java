@@ -16,16 +16,16 @@ import com.g4mesoft.debug.GSDebug;
 import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.ServerTickManager;
+import net.minecraft.server.ServerTickRateManager;
 import net.minecraft.util.Util;
 
 @Mixin(MinecraftServer.class)
 public abstract class GSMinecraftServerMixin implements GSIMinecraftServerAccess {
 
-	@Shadow private long tickStartTimeNanos;
-	@Shadow private long tickEndTimeNanos;
+	@Shadow private long nextTickTimeNanos;
+	@Shadow private long delayedTasksMaxNextTickTimeNanos;
 	
-	@Shadow @Final private ServerTickManager tickManager;
+	@Shadow @Final private ServerTickRateManager tickRateManager;
 
 	@Override
 	public void gs_onTickrateChanged(float newTickrate, float oldTickrate) {
@@ -73,18 +73,18 @@ public abstract class GSMinecraftServerMixin implements GSIMinecraftServerAccess
 		
 		// Check that the tick rate actually changed.
 		if (nsPrevTick != nsThisTick) {
-			long now = Util.getMeasuringTimeNano(); // t_n
-			long dt = tickStartTimeNanos - now;     // t_r1 - t_n
+			long now = Util.getNanos(); // t_n
+			long dt = nextTickTimeNanos - now;     // t_r1 - t_n
 			
 			if (dt < nsPrevTick && nsPrevTick != 0L) {
 				// t_r2 = t_n + D_2 * (t_r1 - t_n) / D_1
 				long delta = nsThisTick * dt / nsPrevTick;
-				tickStartTimeNanos = now + GSMathUtil.clamp(delta, 0L, nsThisTick);
+				nextTickTimeNanos = now + GSMathUtil.clamp(delta, 0L, nsThisTick);
 			} else {
-				tickStartTimeNanos = now + nsThisTick;
+				nextTickTimeNanos = now + nsThisTick;
 			}
 			// Also reset wait timer for tasks.
-			tickEndTimeNanos = tickStartTimeNanos;
+			delayedTasksMaxNextTickTimeNanos = nextTickTimeNanos;
 		}
 	}
 
@@ -94,8 +94,8 @@ public abstract class GSMinecraftServerMixin implements GSIMinecraftServerAccess
 			value = "INVOKE",
 			shift = Shift.BEFORE, 
 			target =
-				"Lnet/minecraft/server/MinecraftServer;createMetadata(" +
-				")Lnet/minecraft/server/ServerMetadata;"
+				"Lnet/minecraft/server/MinecraftServer;buildServerStatus(" +
+				")Lnet/minecraft/network/protocol/status/ServerStatus;"
 		)
 	)
 	private void onInitialized(CallbackInfo ci) {
@@ -107,7 +107,7 @@ public abstract class GSMinecraftServerMixin implements GSIMinecraftServerAccess
 	}
 
 	@Inject(
-		method = "tick",
+		method = "tickServer",
 		at = @At("HEAD")
 	)
 	private void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
@@ -117,10 +117,10 @@ public abstract class GSMinecraftServerMixin implements GSIMinecraftServerAccess
 	}
 	
 	@Inject(
-		method = "shutdown",
+		method = "stopServer",
 		at = @At("RETURN")
 	)
-	private void onShutdown(CallbackInfo ci) {
+	private void onStopServer(CallbackInfo ci) {
 		GSServerController.getInstance().onServerShutdown();
 	}
 }

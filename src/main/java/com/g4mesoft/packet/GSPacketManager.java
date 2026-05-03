@@ -15,11 +15,11 @@ import com.g4mesoft.util.GSEncodeBuffer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import net.minecraft.network.listener.PacketListener;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.util.crash.CrashException;
-import net.minecraft.util.thread.ThreadExecutor;
+import net.minecraft.ReportedException;
+import net.minecraft.network.PacketListener;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.util.thread.BlockableEventLoop;
 
 public class GSPacketManager {
 
@@ -62,7 +62,7 @@ public class GSPacketManager {
 		return controller.createCustomPayload(buf);
 	}
 	
-	public <T extends PacketListener> GSIPacket decodePacket(CustomPayload payload, GSExtensionInfoList extensionInfoList) {
+	public <T extends PacketListener> GSIPacket decodePacket(CustomPacketPayload payload, GSExtensionInfoList extensionInfoList) {
 		if (!(payload instanceof GSCustomPayload))
 			return null;
 		
@@ -88,16 +88,16 @@ public class GSPacketManager {
 		return packet;
 	}
 	
-	public <T extends PacketListener> void handlePacket(GSIPacket packet, T packetListener, ThreadExecutor<?> executor, Consumer<GSIPacket> handler) {
-		if (packet.shouldForceMainThread() && !executor.isOnThread()) {
+	public <T extends PacketListener> void handlePacket(GSIPacket packet, T packetListener, BlockableEventLoop<?> executor, Consumer<GSIPacket> handler) {
+		if (packet.shouldForceMainThread() && !executor.isSameThread()) {
 			// Schedule the handler on the main thread.
-			executor.executeSync(() -> {
-				if (packetListener.isConnectionOpen()) {
+			executor.executeIfPossible(() -> {
+				if (packetListener.isAcceptingMessages()) {
 					try {
 						handler.accept(packet);
 					} catch (Exception e) {
 						// Throw exception if we are out of memory
-                        if (e instanceof CrashException && ((CrashException)e).getCause() instanceof OutOfMemoryError)
+                        if (e instanceof ReportedException && ((ReportedException)e).getCause() instanceof OutOfMemoryError)
                             throw e;
 						// Ignore exception and continue.
 						G4mespeedMod.GS_LOGGER.error("Failed to handle packet {}, suppressing error", packet, e);

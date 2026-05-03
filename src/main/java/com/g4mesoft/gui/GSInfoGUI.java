@@ -10,7 +10,7 @@ import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.ui.panel.GSParentPanel;
 import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class GSInfoGUI extends GSParentPanel {
 
@@ -23,9 +23,9 @@ public class GSInfoGUI extends GSParentPanel {
 	
 	private static final int TEXT_SPACING = 5;
 	
-	private static final Text SERVER_EXTENSIONS_TITLE = Text.translatable("gui.info.serverExtensionsTitle");
-	private static final Text CLIENT_EXTENSIONS_TITLE = Text.translatable("gui.info.clientExtensionsTitle");
-	private static final Text INVALID_VERSION_TEXT    = Text.translatable("gui.info.invalidVersion");
+	private static final Component SERVER_EXTENSIONS_TITLE = Component.translatable("gui.info.serverExtensionsTitle");
+	private static final Component CLIENT_EXTENSIONS_TITLE = Component.translatable("gui.info.clientExtensionsTitle");
+	private static final Component INVALID_VERSION_TEXT    = Component.translatable("gui.info.invalidVersion");
 	private static final String EXTENSION_NAME_TRANSLATION_KEY = "gui.info.extensionName";
 	
 	private final GSClientController client;
@@ -53,7 +53,7 @@ public class GSInfoGUI extends GSParentPanel {
 		y = drawExtensionList(renderer, xc, y, CLIENT_EXTENSIONS_TITLE, clientInfoList);
 	}
 	
-	private int drawExtensionList(GSIRenderer2D renderer, int xc, int y, Text title, Collection<GSExtensionInfo> infoList) {
+	private int drawExtensionList(GSIRenderer2D renderer, int xc, int y, Component title, Collection<GSExtensionInfo> infoList) {
 		renderer.drawCenteredText(title, xc, y, TEXT_COLOR);
 		y += renderer.getLineHeight();
 
@@ -66,13 +66,13 @@ public class GSInfoGUI extends GSParentPanel {
 	}
 	
 	private void drawExtensionInfo(GSIRenderer2D renderer, GSExtensionInfo info, int xc, int y) {
-		Text versionText;
+		Component versionText;
 		int versionColor;
 		
 		GSVersion version = info.getVersion();
 
 		if (!version.isInvalid()) {
-			versionText = Text.literal(version.toString());
+			versionText = Component.literal(version.toString());
 			
 			GSExtensionInfoList clientInfoList = G4mespeedMod.getExtensionInfoList();
 			GSExtensionInfo clientInfo = clientInfoList.getInfo(info.getUniqueId());
@@ -87,7 +87,7 @@ public class GSInfoGUI extends GSParentPanel {
 			versionColor = INVALID_VERSION_COLOR;
 		}
 		
-		Text prefix = Text.translatable(EXTENSION_NAME_TRANSLATION_KEY, info.getName());
+		Component prefix = Component.translatable(EXTENSION_NAME_TRANSLATION_KEY, info.getName());
 
 		float pw = renderer.getTextWidth(prefix) + TEXT_SPACING;
 		float tw = pw + renderer.getTextWidth(versionText);

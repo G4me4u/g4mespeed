@@ -22,9 +22,9 @@ import com.g4mesoft.ui.util.GSMathUtil;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Util;
 
 @Environment(EnvType.CLIENT)
@@ -45,7 +45,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	private int settingsWidth;
 	
 	private GSSettingPanel<?> hoveredElement;
-	private List<OrderedText> descLines;
+	private List<FormattedCharSequence> descLines;
 	private int startDescHeight;
 	private int targetDescHeight;
 
@@ -143,8 +143,8 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			if (hoveredElement != null) {
 				int descTextWidth = width - settingsWidth - DESC_LINE_MARGIN * 2;
 				
-				MutableText desc = Text.translatable(hoveredElement.getNameTextKey() + ".desc");
-				Text def = Text.translatable("setting.default", hoveredElement.getFormattedDefault());
+				MutableComponent desc = Component.translatable(hoveredElement.getNameTextKey() + ".desc");
+				Component def = Component.translatable("setting.default", hoveredElement.getFormattedDefault());
 				descLines = renderer.splitToLines(desc.append(" ").append(def), descTextWidth);
 				
 				int lineCount = descLines.size();
@@ -153,7 +153,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 				targetDescHeight = Math.max(minimumDescHeight, hoveredElement.height);
 				startDescHeight = hoveredElement.height;
 				
-				descAnimStart = Util.getMeasuringTimeMs();
+				descAnimStart = Util.getMillis();
 			} else {
 				descLines = null;
 			}
@@ -164,7 +164,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	}
 	
 	private void renderHoveredDesc(GSIRenderer2D renderer, GSSettingPanel<?> hoveredElement) {
-		long delta = Util.getMeasuringTimeMs() - descAnimStart;
+		long delta = Util.getMillis() - descAnimStart;
 
 		float progress = Math.min(1.0f, delta / DESC_ANIMATION_TIME);
 		
@@ -185,7 +185,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 			int alpha = GSMathUtil.clamp((int)(progress * 128.0f + 127.0f), 0, 255) << 24;
 			
 			int y = descY + DESC_LINE_MARGIN;
-			for (OrderedText line : descLines) {
+			for (FormattedCharSequence line : descLines) {
 				if (y + renderer.getTextHeight() > descY + descHeight)
 					break;
 				
@@ -213,7 +213,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 	
 	private class GSSettingCategoryElement {
 		
-		private final Text titleText;
+		private final Component titleText;
 		
 		private final List<GSSettingPanel<?>> settings;
 		
@@ -223,7 +223,7 @@ public class GSSettingsGUI extends GSParentPanel implements GSIScrollable, GSISe
 		private int height;
 		
 		public GSSettingCategoryElement(GSSettingCategory category) {
-			titleText = Text.translatable("setting." + category.getName());
+			titleText = Component.translatable("setting." + category.getName());
 			
 			settings = new LinkedList<>();
 		}

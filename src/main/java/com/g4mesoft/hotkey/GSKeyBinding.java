@@ -1,8 +1,9 @@
 package com.g4mesoft.hotkey;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.util.InputUtil.Key;
-import net.minecraft.text.Text;
+import com.mojang.blaze3d.platform.InputConstants.Key;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 
 public class GSKeyBinding {
 
@@ -84,8 +85,8 @@ public class GSKeyBinding {
 		// Use local field to ensure thread safety.
 		final GSIKeyBindingListener listener = this.listener;
 		if (listener != null) {
-			MinecraftClient client = MinecraftClient.getInstance();
-			if (client.isOnThread()) {
+			Minecraft client = Minecraft.getInstance();
+			if (client.isSameThread()) {
 				listener.onKeyStateChanged(this, eventType);
 			} else {
 				client.execute(() -> listener.onKeyStateChanged(this, eventType));
@@ -121,7 +122,7 @@ public class GSKeyBinding {
 		manager.onKeyCodeChanged(this, oldKeyCode, keyCode);
 	}
 	
-	public Text getLocalizedName() {
+	public Component getLocalizedName() {
 		return keyCode.getLocalizedText();
 	}
 	

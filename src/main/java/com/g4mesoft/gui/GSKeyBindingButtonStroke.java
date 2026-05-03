@@ -5,9 +5,9 @@ import com.g4mesoft.ui.panel.event.GSEvent;
 import com.g4mesoft.ui.panel.event.GSIButtonStroke;
 import com.g4mesoft.ui.panel.event.GSKeyEvent;
 import com.g4mesoft.ui.panel.event.GSMouseEvent;
+import com.mojang.blaze3d.platform.InputConstants;
 
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.util.InputUtil;
+import net.minecraft.client.input.KeyEvent;
 
 public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 
@@ -44,7 +44,7 @@ public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 			return false;
 		}
 		
-		return isKeyMatching(InputUtil.Type.MOUSE.createFromCode(event.getButton()));
+		return isKeyMatching(InputConstants.Type.MOUSE.getOrCreate(event.getButton()));
 	}
 	
 	private boolean isKeyEventMatching(GSKeyEvent event) {
@@ -56,11 +56,11 @@ public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 			return false;
 		}
 
-		KeyInput input = new KeyInput(event.getKeyCode(), event.getScanCode(), event.getModifiers());
-		return isKeyMatching(InputUtil.fromKeyCode(input));
+		KeyEvent input = new KeyEvent(event.getKeyCode(), event.getScanCode(), event.getModifiers());
+		return isKeyMatching(InputConstants.getKey(input));
 	}
 	
-	private boolean isKeyMatching(InputUtil.Key key) {
+	private boolean isKeyMatching(InputConstants.Key key) {
 		return (keyBinding.getKeyCode().indexOf(key) != -1);
 	}
 }

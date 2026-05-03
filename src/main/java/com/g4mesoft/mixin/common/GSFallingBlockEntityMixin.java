@@ -8,26 +8,26 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.access.common.GSIServerChunkManagerAccess;
+import com.g4mesoft.access.common.GSIServerChunkCacheAccess;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.network.listener.ClientPlayPacketListener;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.server.world.ServerChunkLoadingManager;
-import net.minecraft.world.World;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.server.level.ChunkMap;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 @Mixin(FallingBlockEntity.class)
 public abstract class GSFallingBlockEntityMixin extends Entity {
 
 	@Shadow public abstract BlockState getBlockState();
 
-	public GSFallingBlockEntityMixin(EntityType<?> type, World world) {
+	public GSFallingBlockEntityMixin(EntityType<?> type, Level world) {
 		super(type, world);
 	}
 	
@@ -36,14 +36,14 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.BEFORE,
-			target = "Lnet/minecraft/entity/FallingBlockEntity;discard()V"
+			target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;discard()V"
 		)
 	)
 	private void onTickBeforeRemove(CallbackInfo ci) {
-		World world = getEntityWorld();
-		if (!world.isClient() && !isRemoved() && GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
-			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_setTrackerTickedFromFallingBlock(this, true);
-			((GSIServerChunkManagerAccess)world.getChunkManager()).gs_tickEntityTracker(this);
+		Level level = level();
+		if (!level.isClientSide() && !isRemoved() && GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED) {
+			((GSIServerChunkCacheAccess)level.getChunkSource()).gs_setTrackerTickedFromFallingBlock(this, true);
+			((GSIServerChunkCacheAccess)level.getChunkSource()).gs_tickEntityTracker(this);
 		}
 	}
 	
@@ -55,31 +55,31 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 		at = @At(
 			value = "INVOKE",
 			target =
-				"Lnet/minecraft/server/world/ServerChunkLoadingManager;sendToOtherNearbyPlayers(" +
-					"Lnet/minecraft/entity/Entity;" +
-					"Lnet/minecraft/network/packet/Packet;" +
+				"Lnet/minecraft/server/level/ChunkMap;sendToTrackingPlayers(" +
+					"Lnet/minecraft/world/entity/Entity;" +
+					"Lnet/minecraft/network/protocol/Packet;" +
 				")V"
 		)
 	)
-	private void redirectSendToOtherNearbyPlayers(ServerChunkLoadingManager chunkLoadingManager, Entity entity, Packet<? super ClientPlayPacketListener> packet) {
-		World world = getEntityWorld();
-		if (world.isClient() || GSServerController.getInstance().getTpsModule().sPrettySand.get() == GSTpsModule.PRETTY_SAND_DISABLED)
-			chunkLoadingManager.sendToOtherNearbyPlayers(entity, packet);
+	private void redirectSendToOtherNearbyPlayers(ChunkMap chunkStorage, Entity entity, Packet<? super ClientGamePacketListener> packet) {
+		Level level = level();
+		if (level.isClientSide() || GSServerController.getInstance().getTpsModule().sPrettySand.get() == GSTpsModule.PRETTY_SAND_DISABLED)
+			chunkStorage.sendToTrackingPlayers(entity, packet);
 	}
 	
 	@Inject(
-		method = "onSpawnPacket",
+		method = "recreateFromPacket",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/entity/FallingBlockEntity;setFallingBlockPos(" +
-					"Lnet/minecraft/util/math/BlockPos;" +
+				"Lnet/minecraft/world/entity/item/FallingBlockEntity;setStartPos(" +
+					"Lnet/minecraft/core/BlockPos;" +
 				")V"
 		)
 	)
-	public void onOnSpawnPacket(EntitySpawnS2CPacket packet, CallbackInfo ci) {
+	public void onRecreateFromPacket(ClientboundAddEntityPacket packet, CallbackInfo ci) {
 		if (GSServerController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED)
-			resetPosition();
+			setOldPosAndRot();
 	}
 }

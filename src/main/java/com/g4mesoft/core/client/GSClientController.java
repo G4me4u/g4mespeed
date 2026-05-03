@@ -10,7 +10,7 @@ import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionInfoList;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
-import com.g4mesoft.access.client.GSIMinecraftClientAccess;
+import com.g4mesoft.access.client.GSIMinecraftAccess;
 import com.g4mesoft.core.GSConnectionPacket;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSCoreExtension;
@@ -26,7 +26,7 @@ import com.g4mesoft.gui.setting.GSSettingsGUI;
 import com.g4mesoft.hotkey.GSEKeyEventType;
 import com.g4mesoft.hotkey.GSKeyBinding;
 import com.g4mesoft.hotkey.GSKeyManager;
-import com.g4mesoft.mixin.client.GSIKeyBindingAccess;
+import com.g4mesoft.mixin.client.GSIKeyMappingAccess;
 import com.g4mesoft.packet.GSCustomPayload;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.packet.GSPacketManager;
@@ -41,17 +41,17 @@ import com.g4mesoft.ui.panel.dialog.GSEConfirmOptionPlacement;
 import com.g4mesoft.ui.panel.scroll.GSScrollPanel;
 import com.g4mesoft.ui.renderer.GSIRenderable3D;
 import com.g4mesoft.ui.util.GSTextUtil;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.c2s.common.CustomPayloadC2SPacket;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 
 @Environment(EnvType.CLIENT)
 public class GSClientController extends GSController implements GSIClientModuleManager {
@@ -66,7 +66,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	
 	private static final String HOTKEY_SETTINGS_FILE_NAME = "hotkeys.cfg";
 	
-	private static final Text QUICK_ACTIONS_OVERRIDE_NOTICE = GSTextUtil.translatable("panel.confirmDialog.quickActionsOverrideNotice");
+	private static final Component QUICK_ACTIONS_OVERRIDE_NOTICE = GSTextUtil.translatable("panel.confirmDialog.quickActionsOverrideNotice");
 	private static final GSConfirmOption QUICK_ACTION_OVERRIDE_OK_OPTION = new GSConfirmOption(
 		GSTextUtil.translatable("panel.confirmDialog.ok"),
 		GSEConfirmOptionPlacement.RIGHT
@@ -84,9 +84,9 @@ public class GSClientController extends GSController implements GSIClientModuleM
 
 	private static final GSClientController instance = new GSClientController();
 	
-	private MinecraftClient minecraft;
+	private Minecraft minecraft;
 	private boolean connectedToServer;
-	private ClientPlayNetworkHandler networkHandler;
+	private ClientPacketListener networkHandler;
 
 	private final GSExtensionInfoList serverExtensionInfoList;
 
@@ -108,7 +108,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 		cQuickActionsOverrideNotice = new GSBooleanSetting("quickActionsOverrideNotice", true);
 	}
 
-	public void init(MinecraftClient minecraft) {
+	public void init(Minecraft minecraft) {
 		if (this.minecraft == null) {
 			this.minecraft = minecraft;
 
@@ -146,13 +146,13 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	}
 	
 	public boolean isQuickActionsKeybindOverride() {
-		if (((GSIMinecraftClientAccess)minecraft).gs_getQuickActionsDialog().isEmpty()) {
+		if (((GSIMinecraftAccess)minecraft).gs_getQuickActionsDialog().isEmpty()) {
 			// Notice is not required (there is no quick actions dialog).
 			return false;
 		}
 		
 		// Override quick actions when there is overlap with our hotkey.
-		InputUtil.Key key = ((GSIKeyBindingAccess)minecraft.options.quickActionsKey).gs_getBoundKey();
+		InputConstants.Key key = ((GSIKeyMappingAccess)minecraft.options.keyQuickActions).gs_getKey();
 		return openGUIKey.getKeyCode().indexOf(key) != -1;
 	}
 	
@@ -173,7 +173,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 		module.initGUI(tabbedGUI);
 	}
 
-	public void setNetworkHandler(ClientPlayNetworkHandler networkHandler) {
+	public void setNetworkHandler(ClientPacketListener networkHandler) {
 		this.networkHandler = networkHandler;
 	}
 	
@@ -265,12 +265,12 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	
 	@Override
 	public boolean isThreadOwner() {
-		return minecraft != null && minecraft.isOnThread();
+		return minecraft != null && minecraft.isSameThread();
 	}
 	
 	@Override
 	public Packet<?> createCustomPayload(ByteBuf buffer) {
-		return new CustomPayloadC2SPacket(GSCustomPayload.create(buffer));
+		return new ServerboundCustomPayloadPacket(GSCustomPayload.create(buffer));
 	}
 
 	@Override
@@ -289,7 +289,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	
 	@Override
 	public boolean isInGame() {
-		return (minecraft != null && minecraft.currentScreen == null);
+		return (minecraft != null && minecraft.screen == null);
 	}
 	
 	@Override
@@ -301,14 +301,14 @@ public class GSClientController extends GSController implements GSIClientModuleM
 			if (extensionUid != null && isServerExtensionInstalled(extensionUid, minExtensionVersion)) {
 				Packet<?> customPayload = packetManager.encodePacket(packet, this);
 				if (customPayload != null)
-					networkHandler.sendPacket(customPayload);
+					networkHandler.send(customPayload);
 			}
 		}
 	}
 	
 	@Override
 	public File getCacheFile() {
-		return new File(minecraft.runDirectory, CACHE_DIR_NAME);
+		return new File(minecraft.gameDirectory, CACHE_DIR_NAME);
 	}
 	
 	@Override
@@ -321,11 +321,11 @@ public class GSClientController extends GSController implements GSIClientModuleM
 		G4mespeedUIMod.removeRenderable(renderable);
 	}
 	
-	public ClientPlayerEntity getPlayer() {
+	public LocalPlayer getPlayer() {
 		return (minecraft != null) ? minecraft.player : null;
 	}
 	
-	public MinecraftClient getClient() {
+	public Minecraft getClient() {
 		return minecraft;
 	}
 	

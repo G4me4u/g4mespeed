@@ -8,10 +8,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.EncoderException;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCounted;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.ChunkPos;
 
 public class GSEncodeBuffer implements ReferenceCounted {
 
@@ -205,8 +205,8 @@ public class GSEncodeBuffer implements ReferenceCounted {
 		writeInt(value.x);
 	}
 	
-	public void writeChunkSectionPos(ChunkSectionPos value) {
-		writeChunkSectionPos(value.getSectionX(), value.getSectionY(), value.getSectionZ());
+	public void writeChunkSectionPos(SectionPos value) {
+		writeChunkSectionPos(value.x(), value.y(), value.z());
 	}
 	
 	private void writeChunkSectionPos(int x, int y, int z) {

@@ -72,12 +72,12 @@ public class GSServerTickTimer implements GSITickTimer {
 	}
 
 	@Override
-	public synchronized float getTickDelta0() {
+	public synchronized float getPartialTick0() {
 		return tickDelta;
 	}
 
 	@Override
-	public synchronized void setTickDelta0(float tickDelta) {
+	public synchronized void setPartialTick0(float tickDelta) {
 		this.tickDelta = tickDelta;
 	}
 
@@ -121,7 +121,7 @@ public class GSServerTickTimer implements GSITickTimer {
 		if (targetTickDelta < 0.0f)
 			targetTickDelta++;
 		
-		float syncTickDelta = timer.getTickDelta0();
+		float syncTickDelta = timer.getPartialTick0();
 		int syncTickCount = timer.getTickCount0();
 		
 		// Check if we have to cross tick border
@@ -147,7 +147,7 @@ public class GSServerTickTimer implements GSITickTimer {
 			syncTickDelta--;
 		}
 		
-		timer.setTickDelta0(syncTickDelta);
+		timer.setPartialTick0(syncTickDelta);
 		timer.setTickCount0(syncTickCount);
 	}
 	
@@ -155,6 +155,6 @@ public class GSServerTickTimer implements GSITickTimer {
 		this.syncTickInterval = syncTickInterval;
 		syncReceived = true;
 
-		init0(Util.getMeasuringTimeMs());
+		init0(Util.getMillis());
 	}
 }

@@ -8,7 +8,7 @@ import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.util.GSDecodeBuffer;
 import com.g4mesoft.util.GSEncodeBuffer;
 
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 public class GSServerTpsPacket implements GSIPacket {
 
@@ -32,7 +32,7 @@ public class GSServerTpsPacket implements GSIPacket {
 	}
 
 	@Override
-	public void handleOnServer(GSServerController controller, ServerPlayerEntity player) {
+	public void handleOnServer(GSServerController controller, ServerPlayer player) {
 	}
 
 	@Override

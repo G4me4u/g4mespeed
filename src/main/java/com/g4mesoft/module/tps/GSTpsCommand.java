@@ -8,9 +8,9 @@ import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 
 public final class GSTpsCommand {
 
@@ -19,23 +19,23 @@ public final class GSTpsCommand {
 	private GSTpsCommand() {
 	}
 	
-	public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
-		LiteralArgumentBuilder<ServerCommandSource> builder = CommandManager.literal("tps").requires(context -> {
+	public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
+		LiteralArgumentBuilder<CommandSourceStack> builder = Commands.literal("tps").requires(context -> {
 			if (GSServerController.getInstance().getTpsModule().sRequireOP.get())
-				return context.getPermissions().hasPermission(GSServerController.OP_PERMISSION);
+				return context.permissions().hasPermission(GSServerController.OP_PERMISSION);
 			return true;
 		});
 		
 		builder.executes(context -> informCurrentTps(context.getSource()));
 		
-		builder.then(CommandManager.argument("newTps", FloatArgumentType.floatArg(GSTpsModule.MIN_TPS, GSTpsModule.MAX_TPS)).executes(context -> {
+		builder.then(Commands.argument("newTps", FloatArgumentType.floatArg(GSTpsModule.MIN_TPS, GSTpsModule.MAX_TPS)).executes(context -> {
 			return setCurrentTps(context.getSource(), FloatArgumentType.getFloat(context, "newTps"));
 		}));
 		
 		dispatcher.register(builder);
 	}
 	
-	private static int informCurrentTps(ServerCommandSource source) {
+	private static int informCurrentTps(CommandSourceStack source) {
 		float tps = GSServerController.getInstance().getTpsModule().getTps();
 		String tpsFormatted = GSTpsModule.TPS_FORMAT.format(tps);
 		
@@ -50,15 +50,15 @@ public final class GSTpsCommand {
 				n += 12;
 			}
 			
-			Text feedback;
+			Component feedback;
 			if (o != 0) {
-				feedback = Text.translatable("command.tps.geton", tpsFormatted, formatSign(o), formatSign(n));
+				feedback = Component.translatable("command.tps.geton", tpsFormatted, formatSign(o), formatSign(n));
 			} else {
-				feedback = Text.translatable("command.tps.getn", tpsFormatted, formatSign(n));
+				feedback = Component.translatable("command.tps.getn", tpsFormatted, formatSign(n));
 			}
-			source.sendFeedback(() -> feedback, false);
+			source.sendSuccess(() -> feedback, false);
 		} else {
-			source.sendFeedback(() -> Text.translatable("command.tps.get", tpsFormatted), false);
+			source.sendSuccess(() -> Component.translatable("command.tps.get", tpsFormatted), false);
 		}
 		
 		return Command.SINGLE_SUCCESS;
@@ -70,10 +70,10 @@ public final class GSTpsCommand {
 		return Integer.toString(value);
 	}
 	
-	private static int setCurrentTps(ServerCommandSource source, float newTps) throws CommandSyntaxException {
+	private static int setCurrentTps(CommandSourceStack source, float newTps) throws CommandSyntaxException {
 		GSServerController.getInstance().getTpsModule().setTps(newTps);
 		
-		source.sendFeedback(() -> Text.translatable("command.tps.set", newTps), true);
+		source.sendSuccess(() -> Component.translatable("command.tps.set", newTps), true);
 		
 		return Command.SINGLE_SUCCESS;
 	}

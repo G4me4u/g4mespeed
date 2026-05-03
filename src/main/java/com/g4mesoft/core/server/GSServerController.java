@@ -10,7 +10,7 @@ import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
-import com.g4mesoft.access.common.GSIServerPlayNetworkHandlerAccess;
+import com.g4mesoft.access.common.GSIServerGamePacketListenerImplAccess;
 import com.g4mesoft.core.GSConnectionPacket;
 import com.g4mesoft.core.GSController;
 import com.g4mesoft.core.GSCoreExtension;
@@ -32,24 +32,24 @@ import com.g4mesoft.setting.GSSettingPermissionPacket;
 import com.mojang.brigadier.CommandDispatcher;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.command.DefaultPermissions;
-import net.minecraft.command.permission.Permission;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permission;
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.world.level.storage.LevelResource;
 
 public class GSServerController extends GSController implements GSIServerModuleManager, GSISettingChangeListener {
 
-	public static final Permission OP_PERMISSION = DefaultPermissions.GAMEMASTERS;
+	public static final Permission OP_PERMISSION = Permissions.COMMANDS_GAMEMASTER;
 
 	private static final GSServerController instance = new GSServerController();
 	
 	protected final GSSettingManager worldSettings;
 
-	private CommandDispatcher<ServerCommandSource> dispatcher;
+	private CommandDispatcher<CommandSourceStack> dispatcher;
 	
 	private MinecraftServer server;
 
@@ -101,7 +101,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		worldSettings.clearSettings();
 	}
 	
-	public void setCommandDispatcher(CommandDispatcher<ServerCommandSource> dispatcher) {
+	public void setCommandDispatcher(CommandDispatcher<CommandSourceStack> dispatcher) {
 		GSInfoCommand.registerCommand(dispatcher);
 		
 		for (GSIModule module : modules)
@@ -110,7 +110,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		this.dispatcher = dispatcher;
 	}
 
-	public void onPlayerJoin(ServerPlayerEntity player) {
+	public void onPlayerJoin(ServerPlayer player) {
 		sendPacket(new GSConnectionPacket(G4mespeedMod.getExtensionInfoList()), player, GSVersion.INVALID);
 
 		for (GSIModule module : modules)
@@ -118,23 +118,23 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	}
 	
 	@Override
-	public boolean isExtensionInstalled(ServerPlayerEntity player, GSExtensionUID extensionUid) {
-		return ((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_isExtensionInstalled(extensionUid);
+	public boolean isExtensionInstalled(ServerPlayer player, GSExtensionUID extensionUid) {
+		return ((GSIServerGamePacketListenerImplAccess)player.connection).gs_isExtensionInstalled(extensionUid);
 	}
 	
 	@Override
-	public boolean isExtensionInstalled(ServerPlayerEntity player, GSExtensionUID extensionUid, GSVersion minimumVersion) {
-		return ((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_isExtensionInstalled(extensionUid, minimumVersion);
+	public boolean isExtensionInstalled(ServerPlayer player, GSExtensionUID extensionUid, GSVersion minimumVersion) {
+		return ((GSIServerGamePacketListenerImplAccess)player.connection).gs_isExtensionInstalled(extensionUid, minimumVersion);
 	}
 
 	@Override
-	public GSExtensionInfo getExtensionInfo(ServerPlayerEntity player, GSExtensionUID extensionUid) {
-		return ((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_getExtensionInfo(extensionUid);
+	public GSExtensionInfo getExtensionInfo(ServerPlayer player, GSExtensionUID extensionUid) {
+		return ((GSIServerGamePacketListenerImplAccess)player.connection).gs_getExtensionInfo(extensionUid);
 	}
 	
-	public void onG4mespeedClientJoined(ServerPlayerEntity player, GSExtensionInfo[] extensionInfo) {
-		((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_clearAllExtensionInfo();
-		((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_addAllExtensionInfo(extensionInfo);
+	public void onG4mespeedClientJoined(ServerPlayer player, GSExtensionInfo[] extensionInfo) {
+		((GSIServerGamePacketListenerImplAccess)player.connection).gs_clearAllExtensionInfo();
+		((GSIServerGamePacketListenerImplAccess)player.connection).gs_addAllExtensionInfo(extensionInfo);
 		
 		if (isExtensionInstalled(player, GSCoreExtension.UID)) {
 			GSExtensionInfo coreInfo = getExtensionInfo(player, GSCoreExtension.UID);
@@ -146,7 +146,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		}
 	}
 	
-	private void sendSettings(ServerPlayerEntity player) {
+	private void sendSettings(ServerPlayer player) {
 		sendSettingPermissionPacket(player);
 		
 		for (GSSettingMap settingMap : settings.getSettings())
@@ -155,7 +155,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 			sendPacket(new GSServerSettingMapPacket(settingMap), player);
 	}
 
-	public void onPlayerLeave(ServerPlayerEntity player) {
+	public void onPlayerLeave(ServerPlayer player) {
 		for (GSIModule module : modules)
 			module.onPlayerLeave(player);
 	}
@@ -166,7 +166,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		server = null;
 	}
 	
-	public void onPlayerPermissionChanged(ServerPlayerEntity player) {
+	public void onPlayerPermissionChanged(ServerPlayer player) {
 		sendSettingPermissionPacket(player);
 		
 		for (GSIModule module : modules)
@@ -180,12 +180,12 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	@Override
 	public boolean isThreadOwner() {
-		return server != null && server.isOnThread();
+		return server != null && server.isSameThread();
 	}
 
 	@Override
 	public Packet<?> createCustomPayload(ByteBuf buffer) {
-		return new CustomPayloadS2CPacket(GSCustomPayload.create(buffer));
+		return new ClientboundCustomPayloadPacket(GSCustomPayload.create(buffer));
 	}
 
 	@Override
@@ -203,7 +203,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	}
 	
 	@Override
-	public void sendPacket(GSIPacket packet, ServerPlayerEntity player, GSVersion minExtensionVersion) {
+	public void sendPacket(GSIPacket packet, ServerPlayer player, GSVersion minExtensionVersion) {
 		if (server != null) {
 			GSPacketManager packetManager = G4mespeedMod.getPacketManager();
 			GSExtensionUID extensionUid = packetManager.getPacketExtensionUniqueId(packet);
@@ -212,7 +212,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 				Packet<?> customPayload = packetManager.encodePacket(packet, this);
 				
 				if (customPayload != null)
-					player.networkHandler.sendPacket(customPayload);
+					player.connection.send(customPayload);
 			}
 		}
 	}
@@ -223,7 +223,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	}
 	
 	@Override
-	public void sendPacketToAllExcept(GSIPacket packet, GSVersion minExtensionVersion, ServerPlayerEntity exceptPlayer) {
+	public void sendPacketToAllExcept(GSIPacket packet, GSVersion minExtensionVersion, ServerPlayer exceptPlayer) {
 		if (server != null) {
 			GSPacketManager packetManager = G4mespeedMod.getPacketManager();
 			GSExtensionUID extensionUid = packetManager.getPacketExtensionUniqueId(packet);
@@ -232,9 +232,9 @@ public class GSServerController extends GSController implements GSIServerModuleM
 				Packet<?> customPayload = packetManager.encodePacket(packet, this);
 	
 				if (customPayload != null) {
-					for (ServerPlayerEntity player : getAllPlayers()) {
+					for (ServerPlayer player : getAllPlayers()) {
 						if (player != exceptPlayer && isExtensionInstalled(player, extensionUid, minExtensionVersion))
-							player.networkHandler.sendPacket(customPayload);
+							player.connection.send(customPayload);
 					}
 				}
 			}
@@ -242,13 +242,13 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	}
 	
 	@Override
-	public ServerPlayerEntity getPlayer(UUID playerUUID) {
-		return server.getPlayerManager().getPlayer(playerUUID);
+	public ServerPlayer getPlayer(UUID playerUUID) {
+		return server.getPlayerList().getPlayer(playerUUID);
 	}
 	
 	@Override
-	public Collection<ServerPlayerEntity> getAllPlayers() {
-		return Collections.unmodifiableCollection(server.getPlayerManager().getPlayerList());
+	public Collection<ServerPlayer> getAllPlayers() {
+		return Collections.unmodifiableCollection(server.getPlayerList().getPlayers());
 	}
 	
 	@Override
@@ -258,8 +258,8 @@ public class GSServerController extends GSController implements GSIServerModuleM
 
 	@Override
 	public File getCacheFile() {
-		File runDirectory = server.getRunDirectory().toAbsolutePath().toFile();
-		if (server.isDedicated())
+		File runDirectory = server.getServerDirectory().toAbsolutePath().toFile();
+		if (server.isDedicatedServer())
 			return new File(runDirectory, CACHE_DIR_NAME);
 		// Assume we're running on integrated server
 		return new File(runDirectory, INTEGRATED_CACHE_DIR_NAME);
@@ -272,7 +272,7 @@ public class GSServerController extends GSController implements GSIServerModuleM
 	
 	@Override
 	public File getWorldCacheFile() {
-		return new File(server.getSavePath(WorldSavePath.ROOT).toAbsolutePath().toFile(), CACHE_DIR_NAME);
+		return new File(server.getWorldPath(LevelResource.ROOT).toAbsolutePath().toFile(), CACHE_DIR_NAME);
 	}
 	
 	private File getWorldSettingsFile() {
@@ -301,11 +301,11 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		sendPacketToAll(new GSSettingChangePacket(category, setting, type));
 	}
 	
-	public boolean isAllowedSettingChange(ServerPlayerEntity player) {
-		return player.getPermissions().hasPermission(OP_PERMISSION);
+	public boolean isAllowedSettingChange(ServerPlayer player) {
+		return player.permissions().hasPermission(OP_PERMISSION);
 	}
 	
-	private void sendSettingPermissionPacket(ServerPlayerEntity player) {
+	private void sendSettingPermissionPacket(ServerPlayer player) {
 		sendPacket(new GSSettingPermissionPacket(isAllowedSettingChange(player)), player);
 	}
 	

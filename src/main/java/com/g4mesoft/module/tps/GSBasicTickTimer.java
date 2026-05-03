@@ -41,12 +41,12 @@ public class GSBasicTickTimer implements GSITickTimer {
 	}
 	
 	@Override
-	public float getTickDelta0() {
+	public float getPartialTick0() {
 		return tickDelta;
 	}
 	
 	@Override
-	public void setTickDelta0(float tickDelta) {
+	public void setPartialTick0(float tickDelta) {
 		this.tickDelta = tickDelta;
 	}
 	

@@ -11,18 +11,18 @@ import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.core.compat.GSTweakerooCompat;
 import com.g4mesoft.module.tps.GSTpsModule;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 
 /* Priority <1000, compatibility fix for Apoli/Origins */
 @Mixin(value = GameRenderer.class, priority = 999)
 public class GSGameRendererMixin {
 
-	@Shadow @Final private MinecraftClient client;
+	@Shadow @Final Minecraft minecraft;
 	
 	@ModifyArg(
 		method = "updateCamera",
@@ -30,17 +30,19 @@ public class GSGameRendererMixin {
 		at = @At(
 			value = "INVOKE", 
 			target =
-				"Lnet/minecraft/client/render/Camera;update(" +
-					"Lnet/minecraft/world/World;" +
-					"Lnet/minecraft/entity/Entity;" +
-					"ZZF" +
+				"Lnet/minecraft/client/Camera;setup(" +
+					"Lnet/minecraft/world/level/Level;" +
+					"Lnet/minecraft/world/entity/Entity;" +
+					"Z" +
+					"Z" +
+					"F" +
 				")V"
 		)
 	)
-	private float modifyCameraUpdateTickDelta(World world, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float oldTickDelta) {
+	private float onUpdateCameraModifyCameraSetupTickDelta(Level level, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float oldTickDelta) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		if (focusedEntity instanceof AbstractClientPlayerEntity) {
-			if (tpsModule.isPlayerFixedMovement(((AbstractClientPlayerEntity)focusedEntity)))
+		if (focusedEntity instanceof AbstractClientPlayer) {
+			if (tpsModule.isPlayerFixedMovement(((AbstractClientPlayer)focusedEntity)))
 				return oldTickDelta;
 		}
 		if (tpsModule.cTweakerooFreecamHack.get()) {
@@ -49,20 +51,20 @@ public class GSGameRendererMixin {
 				return oldTickDelta;
 		}
 		
-		return client.isPaused() ? oldTickDelta : client.getRenderTickCounter().getTickProgress(true);
+		return minecraft.isPaused() ? oldTickDelta : minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true);
 	}
 	
 	@ModifyArg(
-		method = "renderWorld",
+		method = "renderLevel",
 		index = 1,
 		at = @At(
 			value = "INVOKE",
 			target =
-				"Lnet/minecraft/client/render/WorldRenderer;render(" +
-					"Lnet/minecraft/client/util/ObjectAllocator;" +
-					"Lnet/minecraft/client/render/RenderTickCounter;" +
+				"Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(" +
+					"Lcom/mojang/blaze3d/resource/GraphicsResourceAllocator;" +
+					"Lnet/minecraft/client/DeltaTracker;" +
 					"Z" +
-					"Lnet/minecraft/client/render/Camera;" +
+					"Lnet/minecraft/client/Camera;" +
 					"Lorg/joml/Matrix4f;" +
 					"Lorg/joml/Matrix4f;" +
 					"Lorg/joml/Matrix4f;" +
@@ -72,7 +74,7 @@ public class GSGameRendererMixin {
 				")V"
 		)
 	)
-	private RenderTickCounter modifyWorldRenderTickDelta(RenderTickCounter oldTickCounter) {
-		return client.isPaused() ? oldTickCounter : client.getRenderTickCounter();
+	private DeltaTracker onRenderLevelModifyLevelRendererTickDelta(DeltaTracker oldDeltaTracker) {
+		return minecraft.isPaused() ? oldDeltaTracker : minecraft.getDeltaTracker();
 	}
 }

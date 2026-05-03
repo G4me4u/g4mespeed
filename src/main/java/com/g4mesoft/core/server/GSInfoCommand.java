@@ -4,23 +4,23 @@ import com.g4mesoft.core.GSCoreExtension;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 
 public final class GSInfoCommand {
 
 	private GSInfoCommand() {
 	}
 
-	public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher) {
-		dispatcher.register(CommandManager.literal("gs").then(CommandManager.literal("info").executes(context -> {
+	public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
+		dispatcher.register(Commands.literal("gs").then(Commands.literal("info").executes(context -> {
 			return informCoreVersion(context.getSource());
 		})));
 	}
 
-	private static int informCoreVersion(ServerCommandSource source) {
-		source.sendFeedback(() -> Text.translatable("command.gs.info", GSCoreExtension.VERSION.toString()), false);
+	private static int informCoreVersion(CommandSourceStack source) {
+		source.sendSuccess(() -> Component.translatable("command.gs.info", GSCoreExtension.VERSION.toString()), false);
 		
 		return Command.SINGLE_SUCCESS;
 	}

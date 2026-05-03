@@ -15,12 +15,12 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.g4mesoft.util.GSFileUtil;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.client.input.MouseInput;
-import net.minecraft.client.util.InputUtil;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonInfo;
 
 @Environment(EnvType.CLIENT)
 public class GSKeyManager {
@@ -28,7 +28,7 @@ public class GSKeyManager {
 	private final Map<String, Map<String, GSKeyCode>> keySettings;
 
 	private final List<GSKeyBinding> keyBindings;
-	private final Map<InputUtil.Key, LinkedList<GSKeyBinding>> codeToKeys;
+	private final Map<InputConstants.Key, LinkedList<GSKeyBinding>> codeToKeys;
 	private final LinkedList<GSKeyBinding> eventQueue;
 	private int queuePriority;
 
@@ -62,10 +62,10 @@ public class GSKeyManager {
 				if (keyArgs.length == 0)
 					continue;
 				
-				InputUtil.Key[] keys = new InputUtil.Key[keyArgs.length];
+				InputConstants.Key[] keys = new InputConstants.Key[keyArgs.length];
 				for (int i = 0; i < keyArgs.length; i++) {
 					try {
-						keys[i] = InputUtil.fromTranslationKey(keyArgs[i]);
+						keys[i] = InputConstants.getKey(keyArgs[i]);
 					} catch (IllegalArgumentException e) {
 						continue outer;
 					}
@@ -93,7 +93,7 @@ public class GSKeyManager {
 						for (int i = 0; i < keyCode.getKeyCount(); i++) {
 							if (i != 0)
 								bw.write(',');
-							bw.write(keyCode.get(i).getTranslationKey());
+							bw.write(keyCode.get(i).getName());
 						}
 						bw.newLine();
 					}
@@ -127,7 +127,7 @@ public class GSKeyManager {
 	}
 	
 	public GSKeyBinding registerKey(String name, String category, int keyCode, Runnable listener, GSEKeyEventType eventType, boolean allowDisabled) {
-		return registerKey(name, category, GSKeyCode.fromType(InputUtil.Type.KEYSYM, keyCode), listener, eventType, allowDisabled);
+		return registerKey(name, category, GSKeyCode.fromType(InputConstants.Type.KEYSYM, keyCode), listener, eventType, allowDisabled);
 	}
 	
 	public GSKeyBinding registerKey(String name, String category, GSKeyCode keyCode, Runnable listener, GSEKeyEventType eventType) {
@@ -149,7 +149,7 @@ public class GSKeyManager {
 	}
 
 	public <T> GSKeyBinding registerKey(String name, String category, int keyCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType, boolean allowDisabled) {
-		return registerKey(name, category, GSKeyCode.fromType(InputUtil.Type.KEYSYM, keyCode), listenerData, listener, eventType, allowDisabled);
+		return registerKey(name, category, GSKeyCode.fromType(InputConstants.Type.KEYSYM, keyCode), listenerData, listener, eventType, allowDisabled);
 	}
 
 	public <T> GSKeyBinding registerKey(String name, String category, GSKeyCode keyCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType) {
@@ -204,7 +204,7 @@ public class GSKeyManager {
 		this.registerListener = registerListener;
 	}
 
-	private void handleKeyEvent(InputUtil.Key key, BiConsumer<GSKeyBinding, InputUtil.Key> eventMethod) {
+	private void handleKeyEvent(InputConstants.Key key, BiConsumer<GSKeyBinding, InputConstants.Key> eventMethod) {
 		synchronized(codeToKeys) {
 			List<GSKeyBinding> keyBindings = codeToKeys.get(key);
 			if (keyBindings != null) {
@@ -217,7 +217,7 @@ public class GSKeyManager {
 	protected void onKeyCodeChanged(GSKeyBinding keyBinding, GSKeyCode oldKeyCode, GSKeyCode keyCode) {
 		synchronized(codeToKeys) {
 			for (int i = 0; i < oldKeyCode.getKeyCount(); i++) {
-				InputUtil.Key key = oldKeyCode.get(i);
+				InputConstants.Key key = oldKeyCode.get(i);
 
 				List<GSKeyBinding> keysWithOldCode = codeToKeys.get(key);
 				if (keysWithOldCode != null) {
@@ -237,7 +237,7 @@ public class GSKeyManager {
 		synchronized(codeToKeys) {
 			GSKeyCode keyCode = keyBinding.getKeyCode();
 			for (int i = 0; i < keyCode.getKeyCount(); i++) {
-				InputUtil.Key key = keyCode.get(i);
+				InputConstants.Key key = keyCode.get(i);
 				
 				LinkedList<GSKeyBinding> keysWithCode = codeToKeys.get(key);
 				if (keysWithCode == null) {
@@ -249,20 +249,20 @@ public class GSKeyManager {
 		}
 	}
 	
-	public void onKeyPressed(KeyInput input) {
-		handleKeyEvent(InputUtil.fromKeyCode(input), GSKeyBinding::onKeyPressed);
+	public void onKeyPressed(KeyEvent input) {
+		handleKeyEvent(InputConstants.getKey(input), GSKeyBinding::onKeyPressed);
 	}
 
-	public void onKeyReleased(KeyInput input) {
-		handleKeyEvent(InputUtil.fromKeyCode(input), GSKeyBinding::onKeyReleased);
+	public void onKeyReleased(KeyEvent input) {
+		handleKeyEvent(InputConstants.getKey(input), GSKeyBinding::onKeyReleased);
 	}
 
-	public void onMousePressed(MouseInput input) {
-		handleKeyEvent(InputUtil.Type.MOUSE.createFromCode(input.button()), GSKeyBinding::onKeyPressed);
+	public void onMousePressed(MouseButtonInfo input) {
+		handleKeyEvent(InputConstants.Type.MOUSE.getOrCreate(input.button()), GSKeyBinding::onKeyPressed);
 	}
 
-	public void onMouseReleased(MouseInput input) {
-		handleKeyEvent(InputUtil.Type.MOUSE.createFromCode(input.button()), GSKeyBinding::onKeyReleased);
+	public void onMouseReleased(MouseButtonInfo input) {
+		handleKeyEvent(InputConstants.Type.MOUSE.getOrCreate(input.button()), GSKeyBinding::onKeyReleased);
 	}
 	
 	public void clearEventQueue() {

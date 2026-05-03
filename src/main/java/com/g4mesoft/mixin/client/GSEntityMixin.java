@@ -11,8 +11,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.access.client.GSIEntityAccess;
 import com.g4mesoft.core.client.GSClientController;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 
 @Mixin(Entity.class)
 public class GSEntityMixin implements GSIEntityAccess {
@@ -28,9 +28,9 @@ public class GSEntityMixin implements GSIEntityAccess {
 			value = "INVOKE",
 			shift = Shift.BEFORE,
 			target =
-				"Lnet/minecraft/entity/Entity;adjustMovementForPiston(" +
-					"Lnet/minecraft/util/math/Vec3d;" +
-				")Lnet/minecraft/util/math/Vec3d;"
+				"Lnet/minecraft/world/entity/Entity;limitPistonMovement(" +
+					"Lnet/minecraft/world/phys/Vec3;" +
+				")Lnet/minecraft/world/phys/Vec3;"
 		)
 	)
 	private void onMoveBeforeAdjustMovementForPiston(CallbackInfo ci) {
@@ -38,22 +38,22 @@ public class GSEntityMixin implements GSIEntityAccess {
 	}
 
 	@Redirect(
-		method = "adjustMovementForPiston",
+		method = "limitPistonMovement",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/world/World;getTime()J"
+			target = "Lnet/minecraft/world/level/Level;getGameTime()J"
 		)
 	)
-	private long onAdjustMovementForPistonWorldGetTime(World world) {
-		if (world.isClient() && GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
+	private long onLimitPistonMovementLevelGetGameTime(Level level) {
+		if (level.isClientSide() && GSClientController.getInstance().getTpsModule().cCorrectPistonPushing.get()) {
 			// Check if we are pushing entities from outside of the tick loop,
 			// meaning that the piston movement delta array from the previous
 			// tick should be used.
-	        if (!((GSIWorldAccess)world).isIteratingTickingBlockEntities())
-	        	return world.getTime() - 1L;
+	        if (!((GSILevelAccess)level).isTickingBlockEntities())
+	        	return level.getGameTime() - 1L;
 		}
 		
-		return world.getTime();
+		return level.getGameTime();
 	}
 	
 	@Override
