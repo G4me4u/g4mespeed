@@ -11,35 +11,37 @@ import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.core.compat.GSTweakerooCompat;
 import com.g4mesoft.module.tps.GSTpsModule;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.BlockView;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.BlockGetter;
 
 /* Priority <1000, compatibility fix for Apoli/Origins */
 @Mixin(value = GameRenderer.class, priority = 999)
 public class GSGameRendererMixin {
 
-	@Shadow @Final private MinecraftClient client;
+	@Shadow @Final Minecraft minecraft;
 	
 	@ModifyArg(
-		method = "renderWorld",
+		method = "renderLevel",
 		index = 4,
 		at = @At(
 			value = "INVOKE", 
 			target =
-				"Lnet/minecraft/client/render/Camera;update(" +
-					"Lnet/minecraft/world/BlockView;" +
-					"Lnet/minecraft/entity/Entity;" +
-					"ZZF" +
+				"Lnet/minecraft/client/Camera;setup(" +
+					"Lnet/minecraft/world/level/BlockGetter;" +
+					"Lnet/minecraft/world/entity/Entity;" +
+					"Z" +
+					"Z" +
+					"F" +
 				")V"
 		)
 	)
-	private float modifyCameraUpdateTickDelta(BlockView blockView, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float oldTickDelta) {
+	private float onRenderLevelModifyCameraSetupTickDelta(BlockGetter blockView, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float oldTickDelta) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		if (focusedEntity instanceof AbstractClientPlayerEntity) {
-			if (tpsModule.isPlayerFixedMovement(((AbstractClientPlayerEntity)focusedEntity)))
+		if (focusedEntity instanceof AbstractClientPlayer) {
+			if (tpsModule.isPlayerFixedMovement(((AbstractClientPlayer)focusedEntity)))
 				return oldTickDelta;
 		}
 		if (tpsModule.cTweakerooFreecamHack.get()) {
@@ -48,26 +50,28 @@ public class GSGameRendererMixin {
 				return oldTickDelta;
 		}
 		
-		return client.isPaused() ? oldTickDelta : client.getTickDelta();
+		return minecraft.isPaused() ? oldTickDelta : minecraft.getFrameTime();
 	}
 	
 	@ModifyArg(
-		method = "renderWorld",
+		method = "renderLevel",
 		index = 0,
 		at = @At(
 			value = "INVOKE", 
 			target =
-				"Lnet/minecraft/client/render/WorldRenderer;render(" +
-					"FJZ" +
-					"Lnet/minecraft/client/render/Camera;" +
-					"Lnet/minecraft/client/render/GameRenderer;" +
-					"Lnet/minecraft/client/render/LightmapTextureManager;" +
+				"Lnet/minecraft/client/renderer/LevelRenderer;renderLevel(" +
+					"F" +
+					"J" +
+					"Z" +
+					"Lnet/minecraft/client/Camera;" +
+					"Lnet/minecraft/client/renderer/GameRenderer;" +
+					"Lnet/minecraft/client/renderer/LightTexture;" +
 					"Lorg/joml/Matrix4f;" +
 					"Lorg/joml/Matrix4f;" +
 				")V"
 		)
 	)
-	private float modifyWorldRenderTickDelta(float oldTickDelta) {
-		return client.isPaused() ? oldTickDelta : client.getTickDelta();
+	private float onRenderLevelModifyLevelRendererTickDelta(float oldTickDelta) {
+		return minecraft.isPaused() ? oldTickDelta : minecraft.getFrameTime();
 	}
 }

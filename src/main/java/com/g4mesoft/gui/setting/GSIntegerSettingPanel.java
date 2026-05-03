@@ -8,9 +8,9 @@ import com.g4mesoft.setting.GSSettingCategory;
 import com.g4mesoft.setting.types.GSIntegerSetting;
 import com.g4mesoft.ui.panel.GSPanelContext;
 
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntegerSetting> {
 
@@ -51,7 +51,7 @@ public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntege
 		}
 	}
 	
-	private MutableText getFormattedValue(int value) {
+	private MutableComponent getFormattedValue(int value) {
 		String valueText = Integer.toString(value);
 		
 		GSTranslationModule translationModule =
@@ -61,17 +61,17 @@ public class GSIntegerSettingPanel extends GSAbstractNumberSettingPanel<GSIntege
 		
 		key = nameTextKey + "." + valueText;
 		if (translationModule.hasTranslation(key) || GSPanelContext.hasI18nTranslation(key))
-			return Text.translatable(key, valueText);
+			return Component.translatable(key, valueText);
 		
 		key = nameTextKey + ".x";
 		if (translationModule.hasTranslation(key) || GSPanelContext.hasI18nTranslation(key))
-			return Text.translatable(key, valueText);
+			return Component.translatable(key, valueText);
 		
-		return Text.literal(valueText);
+		return Component.literal(valueText);
 	}
 	
 	@Override
-	public Text getFormattedDefault() {
-		return getFormattedValue(setting.getDefault()).formatted(Formatting.AQUA);
+	public Component getFormattedDefault() {
+		return getFormattedValue(setting.getDefault()).withStyle(ChatFormatting.AQUA);
 	}
 }

@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 
 import com.g4mesoft.G4mespeedMod;
 
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 
 import static com.g4mesoft.core.compat.GSCompatUtil.*;
 

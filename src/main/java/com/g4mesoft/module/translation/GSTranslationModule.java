@@ -26,12 +26,12 @@ import com.g4mesoft.GSExtensionInfo;
 import com.g4mesoft.GSExtensionUID;
 import com.g4mesoft.GSIExtension;
 import com.g4mesoft.GSIExtensionListener;
-import com.g4mesoft.access.common.GSIServerPlayNetworkHandlerAccess;
+import com.g4mesoft.access.common.GSIServerGamePacketListenerImplAccess;
 import com.g4mesoft.core.GSCoreExtension;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 
@@ -122,15 +122,15 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 		manager.runOnClient(m -> m.sendPacket(new GSTranslationVersionsPacket(cacheLists)));
 	}
 	
-	void onTranslationVersionsReceived(ServerPlayerEntity player, Map<GSExtensionUID, Integer> uidToVersion) {
+	void onTranslationVersionsReceived(ServerPlayer player, Map<GSExtensionUID, Integer> uidToVersion) {
 		for (GSExtensionUID uid : cacheLists.keySet())
 			sendMissingTranslations(player, uid, uidToVersion.getOrDefault(uid, INVALID_TRANSLATION_VERSION));
 	}
 	
-	private void sendMissingTranslations(ServerPlayerEntity player, GSExtensionUID uid, int translationVersion) {
+	private void sendMissingTranslations(ServerPlayer player, GSExtensionUID uid, int translationVersion) {
 		// Make sure the player hasn't already requested
 		// a translation mapping in the current session.
-		if (((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_getTranslationVersion(uid) != INVALID_TRANSLATION_VERSION)
+		if (((GSIServerGamePacketListenerImplAccess)player.connection).gs_getTranslationVersion(uid) != INVALID_TRANSLATION_VERSION)
 			return;
 		
 		GSTranslationCacheList cacheList = cacheLists.get(uid);
@@ -149,7 +149,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 					managerServer.sendPacket(new GSTranslationCachePacket(uid, cache), player);
 			});
 
-			((GSIServerPlayNetworkHandlerAccess)player.networkHandler).gs_setTranslationVersion(uid, cacheList.getVersion());
+			((GSIServerGamePacketListenerImplAccess)player.connection).gs_setTranslationVersion(uid, cacheList.getVersion());
 		}
 	}
 	

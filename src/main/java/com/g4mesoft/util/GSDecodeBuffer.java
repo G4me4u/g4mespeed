@@ -21,10 +21,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCounted;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ChunkPos;
 
 public class GSDecodeBuffer implements ReferenceCounted {
 
@@ -192,8 +192,8 @@ public class GSDecodeBuffer implements ReferenceCounted {
 		return value;
 	}
 	
-	public Identifier readIdentifier() {
-		return new Identifier(readString());
+	public ResourceLocation readIdentifier() {
+		return new ResourceLocation(readString());
 	}
 
 	public UUID readUUID() {
@@ -216,12 +216,12 @@ public class GSDecodeBuffer implements ReferenceCounted {
 		return new ChunkPos(x, z);
 	}
 	
-	public ChunkSectionPos readChunkSectionPos() {
+	public SectionPos readChunkSectionPos() {
 		long value = readLong();
 		int x = (int)((value << (64 - BIT_SHIFT_SECTION_X - BIT_SIZE_SECTION_X)) >> (64 - BIT_SIZE_SECTION_X));
 		int y = (int)((value << (64 - BIT_SHIFT_SECTION_Y - BIT_SIZE_SECTION_Y)) >> (64 - BIT_SIZE_SECTION_Y));
 		int z = (int)((value << (64 - BIT_SHIFT_SECTION_Z - BIT_SIZE_SECTION_Z)) >> (64 - BIT_SIZE_SECTION_Z));
-		return ChunkSectionPos.from(x, y, z);
+		return SectionPos.of(x, y, z);
 	}
 	
 	public boolean getBoolean(int location) {

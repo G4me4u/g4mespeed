@@ -10,10 +10,10 @@ import com.mojang.brigadier.CommandDispatcher;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 public interface GSIModule {
 
@@ -39,8 +39,8 @@ public interface GSIModule {
 	
 	/**
 	 * Invoked during termination of the <b>client and server</b>. On the client this
-	 * method is invoked at the beginning of the {@link MinecraftClient#stop()} method,
-	 * and on the server it is invoked at the end of {@link MinecraftServer#shutdown()}.
+	 * method is invoked at the beginning of the {@link Minecraft#destroy()} method,
+	 * and on the server it is invoked at the end of {@link MinecraftServer#stopServer()}.
 	 * <br><br>
 	 * <i>Note: an invocation will only happen to this method if there is a matching
 	 *          prior call to {@link #init(GSIModuleManager)}. The client only invokes
@@ -105,7 +105,7 @@ public interface GSIModule {
 	 * 
 	 * @param dispatcher - the server command dispatcher
 	 */
-	default public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) { }
+	default public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) { }
 
 	/**
 	 * Invoked at the beginning of a <b>client and server</b> tick, depending on whether
@@ -153,38 +153,38 @@ public interface GSIModule {
 	 * <i>Note: at the invocation of this method, the server has no knowledge of extensions
 	 *          installed on the client. Therefore, one <b>can not send packets to or check if
 	 *          G4mespeed is installed</b> at this stage. These actions should only be performed
-	 *          once the {@link #onG4mespeedClientJoin(ServerPlayerEntity, GSExtensionInfo)}
+	 *          once the {@link #onG4mespeedClientJoin(ServerPlayer, GSExtensionInfo)}
 	 *          has been invoked.</i>
 	 * 
 	 * @param player
 	 */
-	default public void onPlayerJoin(ServerPlayerEntity player) { }
+	default public void onPlayerJoin(ServerPlayer player) { }
 
 	/**
 	 * Invoked on the <b>server</b> after receiving knowledge about G4mespeed extensions that are
 	 * installed on the client of the player. That is, once the server has received a packet with
 	 * extension info which verifies that the client has an installation of G4mespeed. After this,
-	 * {@link GSIServerModuleManager#isExtensionInstalled(ServerPlayerEntity, com.g4mesoft.GSExtensionUID)}
+	 * {@link GSIServerModuleManager#isExtensionInstalled(ServerPlayer, com.g4mesoft.GSExtensionUID)}
 	 * and other related methods will return accurate results according to their function.
 	 * 
 	 * @param player - the player who is confirmed to have G4mespeed installed.
 	 * @param coreInfo - the core extension info
 	 */
-	default public void onG4mespeedClientJoin(ServerPlayerEntity player, GSExtensionInfo coreInfo) { }
+	default public void onG4mespeedClientJoin(ServerPlayer player, GSExtensionInfo coreInfo) { }
 
 	/**
 	 * Invoked on the <b>server</b> after a player has left.
 	 * 
 	 * @param player - the player who left the server
 	 */
-	default public void onPlayerLeave(ServerPlayerEntity player) { }
+	default public void onPlayerLeave(ServerPlayer player) { }
 
 	/**
 	 * Invoked on the <b>server</b> whenever the permission level of a player changes.
 	 * 
 	 * @param player - the player whose permission changed.
 	 */
-	default public void onPlayerPermissionChanged(ServerPlayerEntity player) { }
+	default public void onPlayerPermissionChanged(ServerPlayer player) { }
 
 	/**
 	 * @return True if this module is client-side and can be installed on a

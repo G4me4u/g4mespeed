@@ -2,7 +2,7 @@ package com.g4mesoft.module.tps;
 
 import java.util.Arrays;
 
-import net.minecraft.util.Util;
+import net.minecraft.Util;
 
 public class GSTpsMonitor {
 
@@ -35,14 +35,14 @@ public class GSTpsMonitor {
 		tpsHistoryPosition = 0;
 		tpsAccumulator = 0L;
 		
-		lastUpdateTime = Util.getMeasuringTimeMs();
+		lastUpdateTime = Util.getMillis();
 		ticks = 0;
 	}
 	
 	public synchronized void update(int ticksPassed) {
 		ticks += ticksPassed;
 		
-		long millisPassed = Util.getMeasuringTimeMs() - lastUpdateTime;
+		long millisPassed = Util.getMillis() - lastUpdateTime;
 		long secondsPassed = millisPassed / MILLIS_PER_SECOND;
 		if (secondsPassed > 0L) {
 			long millisThisUpdate = secondsPassed * MILLIS_PER_SECOND;

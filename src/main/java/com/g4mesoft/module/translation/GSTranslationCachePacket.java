@@ -11,7 +11,7 @@ import com.g4mesoft.util.GSEncodeBuffer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 public class GSTranslationCachePacket implements GSIPacket {
 
@@ -39,7 +39,7 @@ public class GSTranslationCachePacket implements GSIPacket {
 	}
 
 	@Override
-	public void handleOnServer(GSServerController controller, ServerPlayerEntity player) {
+	public void handleOnServer(GSServerController controller, ServerPlayer player) {
 	}
 
 	@Override
