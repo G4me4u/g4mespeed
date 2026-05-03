@@ -38,8 +38,8 @@
     "client.GSMinecraftMixin",
     "client.GSIntegratedServerMixin",
 
-  	"client.GSSoundEngineMixin",
-  	
+    "client.GSSoundEngineMixin",
+
     "client.GSKeyboardHandlerMixin",
     "client.GSMouseHandlerMixin",
     
