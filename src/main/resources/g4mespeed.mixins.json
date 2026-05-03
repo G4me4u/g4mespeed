@@ -21,11 +21,11 @@
     "common.GSPistonMovingBlockEntityMixin",
     "common.GSPistonBaseBlockMixin",
 
-	"common.GSChunkMapMixin",
-	"common.GSIChunkMapTrackedEntityAccess",
-	"common.GSServerEntityMixin",
-	"common.GSServerChunkCacheMixin",
-	"common.GSIClientboundBlockEventPacketAccess",
+    "common.GSChunkMapMixin",
+    "common.GSIChunkMapTrackedEntityAccess",
+    "common.GSServerEntityMixin",
+    "common.GSServerChunkCacheMixin",
+    "common.GSIClientboundBlockEventPacketAccess",
     "common.GSChunkHolderMixin",
     "common.GSFallingBlockEntityMixin",
     "common.GSServerPlayerMixin",
@@ -38,11 +38,11 @@
     "client.GSMinecraftMixin",
     "client.GSIntegratedServerMixin",
 
-  	"client.GSSoundEngineMixin",
-  	
+    "client.GSSoundEngineMixin",
+
     "client.GSKeyboardHandlerMixin",
     "client.GSMouseHandlerMixin",
-	"client.GSIKeyMappingAccess",
+    "client.GSIKeyMappingAccess",
     
     "client.GSDeltaTrackerTimerMixin",
     
@@ -51,8 +51,8 @@
     "client.GSPistonHeadRendererMixin",
     "client.GSPistonMovingBlockEntityMixin",
     
-	"client.GSChunkAccessMixin",
-	"client.GSBlockLightEngineMixin",
+    "client.GSChunkAccessMixin",
+    "client.GSBlockLightEngineMixin",
     
     "client.GSGuiMixin",
     
