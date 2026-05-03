@@ -155,7 +155,7 @@ public class GSSettingManager {
 	
 	public void saveSettings(File settingsFile) {
 		try {
-			GSFileUtil.writeFile(settingsFile, GSFileUtil.IGNORE, (buf, ignore) -> {
+			GSFileUtil.writeFile(settingsFile, GSFileUtil.IGNORE, (buf, _) -> {
 				writeSettings(buf);
 			});
 		} catch (IOException e) {

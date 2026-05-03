@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '1.13-SNAPSHOT'
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 }
 
@@ -24,23 +24,18 @@ repositories {
 // See https://github.com/TerraformersMC/GradleScripts/blob/2.5/ferry.gradle
 
 ext.includeMod = { Object dep ->
-    dependencies.modImplementation dep
+    dependencies.implementation dep
     dependencies.include dep
 }
 
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
-	modCompileOnly "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	// Include G4mespeed UI
 	includeMod "com.g4mesoft.ui:g4mespeed-ui:${project.g4mespeed_ui_version}-mc${project.minecraft_version}"
 	// ModMenu integration
-	modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
-	// ModMenu requires some fabric api modules
-	modCompileOnly(fabricApi.module("fabric-screen-api-v1", project.fabric_version))
-	modCompileOnly(fabricApi.module("fabric-key-binding-api-v1", project.fabric_version))
-	modCompileOnly(fabricApi.module("fabric-lifecycle-events-v1", project.fabric_version))
+	compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 
 processResources {
@@ -52,7 +47,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = 25
 }
 
 java {
@@ -61,13 +56,15 @@ java {
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {
+	inputs.property "archivesName", project.base.archivesName
+
 	from("LICENSE") {
-		rename { "${it}_${project.base.archivesName.get()}"}
+		rename { "${it}_${inputs.properties.archivesName}"}
 	}
 }
 

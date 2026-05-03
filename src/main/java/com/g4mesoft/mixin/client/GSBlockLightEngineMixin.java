@@ -67,7 +67,7 @@ public class GSBlockLightEngineMixin {
 	}
 	
 	@ModifyExpressionValue(
-		method = "method_51532",
+		method = "lambda$propagateLightSources$0",
 		at = @At(
 			value = "INVOKE",
 			target =

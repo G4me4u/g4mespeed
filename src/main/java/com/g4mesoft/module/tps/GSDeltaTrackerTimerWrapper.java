@@ -10,7 +10,7 @@ public class GSDeltaTrackerTimerWrapper extends DeltaTracker.Timer implements GS
 	private final GSITickTimer timer;
 	
 	public GSDeltaTrackerTimerWrapper(GSITickTimer timer) {
-		super(DEFAULT_TICKS_PER_SECOND, Util.getMillis(), (ignore) -> {
+		super(DEFAULT_TICKS_PER_SECOND, Util.getMillis(), (_) -> {
 			return timer.getMillisPerTick0();
 		});
 		this.timer = timer;

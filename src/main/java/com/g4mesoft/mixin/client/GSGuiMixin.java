@@ -23,7 +23,7 @@ import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.DebugScreenOverlay;
 
 @Mixin(Gui.class)
@@ -55,17 +55,17 @@ public abstract class GSGuiMixin {
 	@Shadow public abstract Font getFont();
 
 	@Inject(
-		method = "renderBossOverlay",
+		method = "extractBossOverlay",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.BEFORE,
 			target =
-				"Lnet/minecraft/client/gui/components/BossHealthOverlay;render(" +
-					"Lnet/minecraft/client/gui/GuiGraphics;" +
+				"Lnet/minecraft/client/gui/components/BossHealthOverlay;extractRenderState(" +
+					"Lnet/minecraft/client/gui/GuiGraphicsExtractor;" +
 				")V"
 		)
 	)
-	private void onRenderBeforeBossBar(GuiGraphics context, DeltaTracker deltaTracker, CallbackInfo ci) {
+	private void onExtractBossOverlayBeforeBossBar(GuiGraphicsExtractor context, DeltaTracker deltaTracker, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER) {
 			Matrix3x2fStack matrixStack = context.pose();
 			matrixStack.pushMatrix();
@@ -74,34 +74,34 @@ public abstract class GSGuiMixin {
 	}
 
 	@Inject(
-		method = "renderBossOverlay",
+		method = "extractBossOverlay",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
 			target =
-				"Lnet/minecraft/client/gui/components/BossHealthOverlay;render(" +
-					"Lnet/minecraft/client/gui/GuiGraphics;" +
+				"Lnet/minecraft/client/gui/components/BossHealthOverlay;extractRenderState(" +
+					"Lnet/minecraft/client/gui/GuiGraphicsExtractor;" +
 				")V"
 		)
 	)
-	private void onRenderAfterBossBar(GuiGraphics context, DeltaTracker deltaTracker, CallbackInfo ci) {
+	private void onExtractBossOverlayAfterBossBar(GuiGraphicsExtractor context, DeltaTracker deltaTracker, CallbackInfo ci) {
 		if (GSClientController.getInstance().getTpsModule().cTpsLabel.get() == GSTpsModule.TPS_LABEL_TOP_CENTER)
 			context.pose().popMatrix();
 	}
 	
 	@Inject(
-		method = "render",
+		method = "extractRenderState",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.BEFORE, 
 			target =
-				"Lnet/minecraft/client/gui/Gui;renderSubtitleOverlay(" +
-					"Lnet/minecraft/client/gui/GuiGraphics;" +
+				"Lnet/minecraft/client/gui/Gui;extractSubtitleOverlay(" +
+					"Lnet/minecraft/client/gui/GuiGraphicsExtractor;" +
 					"Z" +
 				")V"
 		)
 	)
-	private void onRenderBeforeSubtitles(GuiGraphics context, DeltaTracker deltaTracker, CallbackInfo ci) {
+	private void onExtractRenderStateBeforeSubtitles(GuiGraphicsExtractor context, DeltaTracker deltaTracker, CallbackInfo ci) {
 		GSClientController controller = GSClientController.getInstance();
 		GSTpsModule tpsModule = controller.getTpsModule();
 		
@@ -142,8 +142,8 @@ public abstract class GSGuiMixin {
 			
 			context.fill(lx - 1, ly - 1, lx + lw, ly + lh, LABEL_BACKGROUND_COLOR);
 			
-			context.drawString(font, current, lx, ly, getTpsLabelColor(averageTps, targetTps), false);
-			context.drawString(font, targetText, lx + currentW + spaceW, ly, LABEL_TARGET_COLOR, false);
+			context.text(font, current, lx, ly, getTpsLabelColor(averageTps, targetTps), false);
+			context.text(font, targetText, lx + currentW + spaceW, ly, LABEL_TARGET_COLOR, false);
 		}
 	}
 	

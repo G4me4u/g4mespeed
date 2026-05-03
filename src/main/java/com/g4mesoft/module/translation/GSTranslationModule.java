@@ -59,7 +59,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	public void init(GSIModuleManager manager) {
 		this.manager = manager;
 		
-		manager.runOnClient((managerClient) -> {
+		manager.runOnClient((_) -> {
 			try (FileInputStream is = new FileInputStream(getCachedFile(manager))) {
 				loadCachedTranslations(is);
 			} catch (FileNotFoundException | SecurityException e) {
@@ -75,7 +75,7 @@ public class GSTranslationModule implements GSIModule, GSIExtensionListener {
 	
 	@Override
 	public void onClose() {
-		manager.runOnClient((managerClient) -> {
+		manager.runOnClient((_) -> {
 			try {
 				File file = getCachedFile(manager);
 				if (!file.exists()) {

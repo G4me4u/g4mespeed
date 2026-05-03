@@ -11,47 +11,45 @@ import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.core.compat.GSTweakerooCompat;
 import com.g4mesoft.module.tps.GSTpsModule;
 
+import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.Level;
 
 /* Priority <1000, compatibility fix for Apoli/Origins */
 @Mixin(value = GameRenderer.class, priority = 999)
 public class GSGameRendererMixin {
 
 	@Shadow @Final Minecraft minecraft;
+	@Shadow @Final private Camera mainCamera;
 	
 	@ModifyArg(
-		method = "updateCamera",
-		index = 4,
+		method = "update",
+		index = 0,
 		at = @At(
 			value = "INVOKE", 
 			target =
-				"Lnet/minecraft/client/Camera;setup(" +
-					"Lnet/minecraft/world/level/Level;" +
-					"Lnet/minecraft/world/entity/Entity;" +
-					"Z" +
-					"Z" +
-					"F" +
+				"Lnet/minecraft/client/Camera;update(" +
+					"Lnet/minecraft/client/DeltaTracker;" +
 				")V"
 		)
 	)
-	private float onUpdateCameraModifyCameraSetupTickDelta(Level level, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float oldTickDelta) {
+	private DeltaTracker onUpdateCameraModifyCameraSetupTickDelta(DeltaTracker oldDeltaTracker) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
+		Entity focusedEntity = mainCamera.entity();
 		if (focusedEntity instanceof AbstractClientPlayer) {
 			if (tpsModule.isPlayerFixedMovement(((AbstractClientPlayer)focusedEntity)))
-				return oldTickDelta;
+				return oldDeltaTracker;
 		}
 		if (tpsModule.cTweakerooFreecamHack.get()) {
 			GSTweakerooCompat tweakerooCompat = G4mespeedMod.getTweakerooCompat();
 			if (tweakerooCompat.isCameraEntityRetreived() && tweakerooCompat.isCameraEntityInstance(focusedEntity) && tpsModule.isMainPlayerFixedMovement())
-				return oldTickDelta;
+				return oldDeltaTracker;
 		}
 		
-		return minecraft.isPaused() ? oldTickDelta : minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true);
+		return minecraft.isPaused() ? oldDeltaTracker: minecraft.getDeltaTracker();
 	}
 	
 	@ModifyArg(
@@ -64,13 +62,12 @@ public class GSGameRendererMixin {
 					"Lcom/mojang/blaze3d/resource/GraphicsResourceAllocator;" +
 					"Lnet/minecraft/client/DeltaTracker;" +
 					"Z" +
-					"Lnet/minecraft/client/Camera;" +
-					"Lorg/joml/Matrix4f;" +
-					"Lorg/joml/Matrix4f;" +
-					"Lorg/joml/Matrix4f;" +
+					"Lnet/minecraft/client/renderer/state/level/CameraRenderState;" +
+					"Lorg/joml/Matrix4fc;" +
 					"Lcom/mojang/blaze3d/buffers/GpuBufferSlice;" +
 					"Lorg/joml/Vector4f;" +
 					"Z" +
+					"Lnet/minecraft/client/renderer/chunk/ChunkSectionsToRender;" +
 				")V"
 		)
 	)

@@ -138,7 +138,7 @@ public class GSKeyManager {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener is null");
 		
-		return registerKeyImpl(name, category, keyCode, (key, type) -> {
+		return registerKeyImpl(name, category, keyCode, (_, type) -> {
 			if (type == eventType)
 				listener.run();
 		}, allowDisabled);
@@ -160,7 +160,7 @@ public class GSKeyManager {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener is null");
 		
-		return registerKeyImpl(name, category, keyCode, (key, type) -> {
+		return registerKeyImpl(name, category, keyCode, (_, type) -> {
 			if (type == eventType)
 				listener.accept(listenerData);
 		}, allowDisabled);

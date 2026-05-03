@@ -336,7 +336,7 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 	}
 	
 	@ModifyArg(
-		method = "runTick",
+		method = "renderFrame",
 		index = 0,
 		at = @At(
 			value = "INVOKE",

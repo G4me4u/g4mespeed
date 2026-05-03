@@ -23,7 +23,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.BlockAndTintGetter;
+import net.minecraft.world.level.BlockAndLightGetter;
 import net.minecraft.world.level.block.state.BlockState;
 
 @Mixin(LevelRenderer.class)
@@ -91,9 +91,9 @@ public abstract class GSLevelRendererMixin implements GSILevelRendererAccess {
 	
 	@ModifyExpressionValue(
 		method =
-			"getLightColor(" +
+			"getLightCoords(" +
 				"Lnet/minecraft/client/renderer/LevelRenderer$BrightnessGetter;" +
-				"Lnet/minecraft/world/level/BlockAndTintGetter;" +
+				"Lnet/minecraft/world/level/BlockAndLightGetter;" +
 				"Lnet/minecraft/world/level/block/state/BlockState;" +
 				"Lnet/minecraft/core/BlockPos;" +
 			")I",
@@ -104,9 +104,9 @@ public abstract class GSLevelRendererMixin implements GSILevelRendererAccess {
 				")I"
 		)
 	)
-	private static int onGetLightColorModifyBlockStateGetLightEmission(int luminance, LevelRenderer.BrightnessGetter brightnessGetter, BlockAndTintGetter world, BlockState state, BlockPos pos) {
+	private static int onGetLightColorModifyBlockStateGetLightEmission(int luminance, LevelRenderer.BrightnessGetter brightnessGetter, BlockAndLightGetter lightGetter, BlockState state, BlockPos pos) {
 		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		return Math.max(luminance, tpsModule.getMovingBlockLuminance(state, world, pos));
+		return Math.max(luminance, tpsModule.getMovingBlockLuminance(state, lightGetter, pos));
 	}
 	
 	@Override

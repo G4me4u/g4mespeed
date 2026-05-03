@@ -201,8 +201,8 @@ public class GSEncodeBuffer implements ReferenceCounted {
 		// well just store the coordinates individually.
 		//
 		// Note: stored to match vanilla long-encoding endianess.
-		writeInt(value.z);
-		writeInt(value.x);
+		writeInt(value.z());
+		writeInt(value.x());
 	}
 	
 	public void writeChunkSectionPos(SectionPos value) {

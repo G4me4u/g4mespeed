@@ -21,7 +21,7 @@ public class GSPacketRegistryList {
 	}
 
 	public GSExtensionUID getPacketExtensionUID(Class<? extends GSIPacket> packetClazz) {
-		return uidCache.computeIfAbsent(packetClazz, k -> {
+		return uidCache.computeIfAbsent(packetClazz, _ -> {
 			for (Map.Entry<GSExtensionUID, GSSupplierRegistry<Integer, GSIPacket>> entry : uidToRegistry.entrySet()) {
 				GSSupplierRegistry<Integer, GSIPacket> registry = entry.getValue();
 	

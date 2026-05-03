@@ -176,7 +176,7 @@ public class GSTpsModule implements GSIModule {
 		resetTps();
 		serverTpsMonitor.reset();
 		
-		manager.runOnServer(managerServer -> {
+		manager.runOnServer(_ -> {
 			if (sRestoreTickrate.get()) {
 				try {
 					setTps(readTps(getTpsCacheFile()));
@@ -191,7 +191,7 @@ public class GSTpsModule implements GSIModule {
 	public void onClose() {
 		clearTpsListeners();
 		
-		manager.runOnServer(serverManager -> {
+		manager.runOnServer(_ -> {
 			if (sRestoreTickrate.get()) {
 				try {
 					writeTps(tps, getTpsCacheFile());
@@ -394,10 +394,10 @@ public class GSTpsModule implements GSIModule {
 		case HOTKEY_FEEDBACK_DISABLED:
 			break;
 		case HOTKEY_FEEDBACK_STATUS:
-			player.displayClientMessage(feedbackText, true);
+			player.sendSystemMessage(feedbackText, true);
 			break;
 		case HOTKEY_FEEDBACK_CHAT:
-			player.displayClientMessage(feedbackText, false);
+			player.sendSystemMessage(feedbackText, false);
 			break;
 		default:
 			break;

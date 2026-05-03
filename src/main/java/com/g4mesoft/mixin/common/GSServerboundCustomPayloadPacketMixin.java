@@ -17,7 +17,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 public abstract class GSServerboundCustomPayloadPacketMixin {
 
 	@Inject(
-		method = "method_58271",
+		method = "lambda$static$1",
 		at = @At("HEAD")
 	)
 	private static void onReadPayload(ArrayList<CustomPacketPayload.TypeAndCodec<? extends FriendlyByteBuf, ? extends CustomPacketPayload>> codecs, CallbackInfo ci) {

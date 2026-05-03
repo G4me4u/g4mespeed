@@ -105,6 +105,6 @@ public abstract class GSServerChunkCacheMixin implements GSIServerChunkCacheAcce
 	
 	@Unique
 	private ChunkHolder getChunkHolderAt(BlockPos pos) {
-		return getVisibleChunkIfPresent(ChunkPos.asLong(pos.getX() >> 4, pos.getZ() >> 4));
+		return getVisibleChunkIfPresent(ChunkPos.pack(pos.getX() >> 4, pos.getZ() >> 4));
 	}
 }
