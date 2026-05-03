@@ -10,7 +10,7 @@ import com.g4mesoft.util.GSEncodeBuffer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.level.ServerPlayer;
 
 public interface GSIPacket {
 
@@ -22,7 +22,7 @@ public interface GSIPacket {
 
 	public void write(GSEncodeBuffer buf) throws IOException;
 	
-	public void handleOnServer(GSServerController controller, ServerPlayerEntity player);
+	public void handleOnServer(GSServerController controller, ServerPlayer player);
 
 	@Environment(EnvType.CLIENT)
 	public void handleOnClient(GSClientController controller);

@@ -5,8 +5,8 @@ import com.g4mesoft.setting.types.GSBooleanSetting;
 import com.g4mesoft.ui.panel.legacy.GSToggleSwitchPanel;
 import com.g4mesoft.ui.renderer.GSIRenderer2D;
 
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 public class GSBooleanSettingPanel extends GSSettingPanel<GSBooleanSetting> {
 
@@ -14,8 +14,8 @@ public class GSBooleanSettingPanel extends GSSettingPanel<GSBooleanSetting> {
 	private static final int TEXT_MAX_WIDTH = 140;
 	private static final int TOGGLE_WIDTH = GSToggleSwitchPanel.SWITCH_WIDTH;
 
-	private static final Text ENABLED_TEXT = Text.translatable("setting.boolean.enabled").formatted(Formatting.GREEN);
-	private static final Text DISABLED_TEXT = Text.translatable("setting.boolean.disabled").formatted(Formatting.RED);
+	private static final Component ENABLED_TEXT = Component.translatable("setting.boolean.enabled").withStyle(ChatFormatting.GREEN);
+	private static final Component DISABLED_TEXT = Component.translatable("setting.boolean.disabled").withStyle(ChatFormatting.RED);
 	
 	private final GSToggleSwitchPanel switchWidget;
 	
@@ -65,7 +65,7 @@ public class GSBooleanSettingPanel extends GSSettingPanel<GSBooleanSetting> {
 	}
 
 	@Override
-	public Text getFormattedDefault() {
+	public Component getFormattedDefault() {
 		return (setting.getDefault() ? ENABLED_TEXT : DISABLED_TEXT);
 	}
 }

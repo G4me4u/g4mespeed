@@ -14,9 +14,9 @@ public interface GSITickTimer {
 
 	public float getMillisPerTick0();
 	
-	public float getTickDelta0();
+	public float getPartialTick0();
 	
-	public void setTickDelta0(float tickDelta);
+	public void setPartialTick0(float tickDelta);
 	
 	public int getTickCount0();
 

@@ -5,25 +5,25 @@ import org.spongepowered.asm.mixin.Mixin;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.entity.MovementType;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(FallingBlockEntity.class)
 public abstract class GSFallingBlockEntityMixin extends Entity {
 
-	public GSFallingBlockEntityMixin(EntityType<?> type, World world) {
+	public GSFallingBlockEntityMixin(EntityType<?> type, Level world) {
 		super(type, world);
 	}
 
 	@Override
-	public void move(MovementType movementType, Vec3d movement) {
-		World world = getWorld();
-		if (!world.isClient || GSClientController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_MOVE_ON_SERVER) {
+	public void move(MoverType movementType, Vec3 movement) {
+		Level world = level();
+		if (!world.isClientSide || GSClientController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_MOVE_ON_SERVER) {
 			// Do not move on the client if the server has pretty sand in 'Move
 			// on Server' mode, as server-side positions are sent every tick.
 			super.move(movementType, movement);
@@ -31,12 +31,12 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 	}
 	
 	@Override
-	public PistonBehavior getPistonBehavior() {
-		World world = getWorld();
-		if (!world.isClient || GSClientController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_MOVE_ON_SERVER) {
+	public PushReaction getPistonPushReaction() {
+		Level world = level();
+		if (!world.isClientSide || GSClientController.getInstance().getTpsModule().sPrettySand.get() != GSTpsModule.PRETTY_SAND_MOVE_ON_SERVER) {
 			// See comment above.
-			return super.getPistonBehavior();
+			return super.getPistonPushReaction();
 		}
-		return PistonBehavior.IGNORE;
+		return PushReaction.IGNORE;
 	}
 }

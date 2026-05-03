@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 import com.g4mesoft.module.tps.GSTpsModule;
 
-import net.minecraft.server.command.TickCommand;
+import net.minecraft.server.commands.TickCommand;
 
 @Mixin(TickCommand.class)
 public class GSTickCommandMixin {

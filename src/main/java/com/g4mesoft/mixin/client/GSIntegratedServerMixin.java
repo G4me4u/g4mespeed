@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.g4mesoft.core.server.GSServerController;
 
-import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.client.server.IntegratedServer;
 
 @Mixin(IntegratedServer.class)
 public class GSIntegratedServerMixin {
@@ -18,10 +18,10 @@ public class GSIntegratedServerMixin {
 	@Shadow private boolean paused;
 	
 	@Inject(
-		method = "tick",
+		method = "tickServer",
 		at = @At("RETURN")
 	)
-	private void onTick(BooleanSupplier booleanSupplier, CallbackInfo ci) {
+	private void onTickServer(BooleanSupplier booleanSupplier, CallbackInfo ci) {
 		if (this.paused) {
 			// At this point the client is paused and the tick method of
 			// MinecraftServer was not called. Hence we have to call the

@@ -14,20 +14,20 @@ import com.g4mesoft.ui.panel.scroll.GSScrollPanel;
 import com.g4mesoft.ui.renderer.GSIRenderer2D;
 import com.g4mesoft.ui.renderer.GSTexture;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 public class GSModMenuConfigPanel extends GSClosableParentPanel {
 
-	private static final GSTexture LIST_BACKGROUND_TEXTURE = new GSTexture(new Identifier("textures/gui/menu_list_background.png"), 16, 16);
-	private static final GSTexture HEADER_SEPARATOR_TEXTURE = new GSTexture(Screen.HEADER_SEPARATOR_TEXTURE, 32, 2);
-	private static final GSTexture FOOTER_SEPARATOR_TEXTURE = new GSTexture(Screen.FOOTER_SEPARATOR_TEXTURE, 32, 2);
+	private static final GSTexture LIST_BACKGROUND_TEXTURE = new GSTexture(new ResourceLocation("textures/gui/menu_list_background.png"), 16, 16);
+	private static final GSTexture HEADER_SEPARATOR_TEXTURE = new GSTexture(Screen.HEADER_SEPARATOR, 32, 2);
+	private static final GSTexture FOOTER_SEPARATOR_TEXTURE = new GSTexture(Screen.FOOTER_SEPARATOR, 32, 2);
 	
-	private static final GSTexture INWORLD_LIST_BACKGROUND_TEXTURE = new GSTexture(new Identifier("textures/gui/inworld_menu_list_background.png"), 16, 16);
-	private static final GSTexture INWORLD_HEADER_SEPARATOR_TEXTURE = new GSTexture(Screen.INWORLD_HEADER_SEPARATOR_TEXTURE, 32, 2);
-	private static final GSTexture INWORLD_FOOTER_SEPARATOR_TEXTURE = new GSTexture(Screen.INWORLD_FOOTER_SEPARATOR_TEXTURE, 32, 2);
+	private static final GSTexture INWORLD_LIST_BACKGROUND_TEXTURE = new GSTexture(new ResourceLocation("textures/gui/inworld_menu_list_background.png"), 16, 16);
+	private static final GSTexture INWORLD_HEADER_SEPARATOR_TEXTURE = new GSTexture(Screen.INWORLD_HEADER_SEPARATOR, 32, 2);
+	private static final GSTexture INWORLD_FOOTER_SEPARATOR_TEXTURE = new GSTexture(Screen.INWORLD_FOOTER_SEPARATOR, 32, 2);
 	
 	private static final int TOP_MARGIN    = 32;
 	private static final int BOTTOM_MARGIN = 32;
@@ -36,8 +36,8 @@ public class GSModMenuConfigPanel extends GSClosableParentPanel {
 	private static final int BUTTON_MARGIN = 5;
 	private static final int DONE_WIDTH    = 200;
 	
-	private static final Text DONE_TEXT = Text.translatable("g4mespeed.modmenu.done");
-	private static final Text TITLE_TEXT = Text.translatable("g4mespeed.modmenu.title");
+	private static final Component DONE_TEXT = Component.translatable("g4mespeed.modmenu.done");
+	private static final Component TITLE_TEXT = Component.translatable("g4mespeed.modmenu.title");
 	
 	private final Screen previous;
 	
@@ -83,8 +83,8 @@ public class GSModMenuConfigPanel extends GSClosableParentPanel {
 	}
 	
 	private boolean isInWorld() {
-		MinecraftClient client = MinecraftClient.getInstance();
-		return client.world != null;
+		Minecraft client = Minecraft.getInstance();
+		return client.level != null;
 	}
 
 	private void renderBackground(GSIRenderer2D renderer) {
@@ -116,6 +116,6 @@ public class GSModMenuConfigPanel extends GSClosableParentPanel {
 	
 	@Override
 	public void close() {
-		MinecraftClient.getInstance().setScreen(previous);
+		Minecraft.getInstance().setScreen(previous);
 	}
 }

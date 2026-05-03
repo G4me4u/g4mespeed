@@ -1,18 +1,18 @@
 package com.g4mesoft.packet;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public class GSCustomPayload implements CustomPayload {
+public class GSCustomPayload implements CustomPacketPayload {
 
-	public static final CustomPayload.Id<GSCustomPayload> ID = CustomPayload.id("mod/g4mespeed");
-	public static final PacketCodec<PacketByteBuf, GSCustomPayload> CODEC = CustomPayload.codecOf(GSCustomPayload::write, GSCustomPayload::new);
+	public static final CustomPacketPayload.Type<GSCustomPayload> ID = CustomPacketPayload.createType("mod/g4mespeed");
+	public static final StreamCodec<FriendlyByteBuf, GSCustomPayload> CODEC = CustomPacketPayload.codec(GSCustomPayload::write, GSCustomPayload::new);
 	
 	private final ByteBuf buffer;
 	
-	public GSCustomPayload(PacketByteBuf buf) {
+	public GSCustomPayload(FriendlyByteBuf buf) {
         buffer = buf.readBytes(buf.readableBytes());
 	}
 	
@@ -24,7 +24,7 @@ public class GSCustomPayload implements CustomPayload {
 		return buffer.copy();
 	}
 	
-	public void write(PacketByteBuf buf) {
+	public void write(FriendlyByteBuf buf) {
 		// Note: slice will maintain its own reader and writer index,
 		//       but does not modify the existing indices.
 		buf.writeBytes(buffer.slice());
@@ -35,7 +35,7 @@ public class GSCustomPayload implements CustomPayload {
 	}
 
 	@Override
-	public Id<GSCustomPayload> getId() {
+	public Type<GSCustomPayload> type() {
 		return ID;
 	}
 }

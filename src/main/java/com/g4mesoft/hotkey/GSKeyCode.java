@@ -2,26 +2,27 @@ package com.g4mesoft.hotkey;
 
 import java.util.Arrays;
 
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.util.InputUtil.Key;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.InputConstants.Key;
+
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public class GSKeyCode {
 
-	public static final GSKeyCode UNKNOWN_KEY = new GSKeyCode(new InputUtil.Key[] { InputUtil.UNKNOWN_KEY });
+	public static final GSKeyCode UNKNOWN_KEY = new GSKeyCode(new InputConstants.Key[] { InputConstants.UNKNOWN });
 	
-	private InputUtil.Key[] keys;
+	private InputConstants.Key[] keys;
 	
-	private GSKeyCode(InputUtil.Key[] keys) {
+	private GSKeyCode(InputConstants.Key[] keys) {
 		this.keys = keys;
 	}
 
-	public InputUtil.Key get(int index) {
+	public InputConstants.Key get(int index) {
 		return keys[index];
 	}
 	
-	public int indexOf(InputUtil.Key key) {
+	public int indexOf(InputConstants.Key key) {
 		for (int i = 0; i < keys.length; i++) {
 			if (key == keys[i])
 				return i;
@@ -34,14 +35,14 @@ public class GSKeyCode {
 		return keys.length;
 	}
 	
-	public Text getLocalizedText() {
+	public Component getLocalizedText() {
 		if (keys.length > 1) {
-			MutableText text = keys[0].getLocalizedText().copy();
+			MutableComponent text = keys[0].getDisplayName().copy();
 			for (int i = 1; i < keys.length; i++)
-				text.append(" + ").append(keys[i].getLocalizedText());
+				text.append(" + ").append(keys[i].getDisplayName());
 			return text;
 		}
-		return keys[0].getLocalizedText();
+		return keys[0].getDisplayName();
 	}
 	
 	@Override
@@ -58,12 +59,12 @@ public class GSKeyCode {
 		return Arrays.equals(keys, ((GSKeyCode)other).keys);
 	}
 	
-	public static GSKeyCode fromType(InputUtil.Type type, int code) {
-		return fromKey(type.createFromCode(code));
+	public static GSKeyCode fromType(InputConstants.Type type, int code) {
+		return fromKey(type.getOrCreate(code));
 	}
 	
 	public static GSKeyCode fromKeyCode(int keyCode, int scanCode) {
-		return fromKey(InputUtil.fromKeyCode(keyCode, scanCode));
+		return fromKey(InputConstants.getKey(keyCode, scanCode));
 	}
 	
 	public static GSKeyCode fromKey(Key key) {
@@ -73,7 +74,7 @@ public class GSKeyCode {
 	public static GSKeyCode fromKeys(Key... keys) {
 		if (keys.length == 0)
 			throw new IllegalArgumentException("Must contain at least one key!");
-		if (keys.length == 1 && keys[0] == InputUtil.UNKNOWN_KEY)
+		if (keys.length == 1 && keys[0] == InputConstants.UNKNOWN)
 			return UNKNOWN_KEY;
 		return new GSKeyCode(keys);
 	}

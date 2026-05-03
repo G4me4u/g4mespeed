@@ -2,17 +2,17 @@ package com.g4mesoft.module.tps;
 
 import java.io.IOException;
 
-import com.g4mesoft.access.client.GSIAbstractClientPlayerEntityAccess;
+import com.g4mesoft.access.client.GSIAbstractClientPlayerAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.core.server.GSServerController;
 import com.g4mesoft.packet.GSIPacket;
 import com.g4mesoft.util.GSDecodeBuffer;
 import com.g4mesoft.util.GSEncodeBuffer;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 
 public class GSServerPlayerFixedMovementPacket implements GSIPacket {
 
@@ -40,16 +40,16 @@ public class GSServerPlayerFixedMovementPacket implements GSIPacket {
 	}
 
 	@Override
-	public void handleOnServer(GSServerController controller, ServerPlayerEntity player) {
+	public void handleOnServer(GSServerController controller, ServerPlayer player) {
 	}
 
 	@Override
 	public void handleOnClient(GSClientController controller) {
-		MinecraftClient client = MinecraftClient.getInstance();
-		if (client.world != null) {
-			Entity entity = client.world.getEntityById(entityId);
-			if (entity instanceof AbstractClientPlayerEntity)
-				((GSIAbstractClientPlayerEntityAccess)entity).gs_setFixedMovement(fixedMovement);
+		Minecraft client = Minecraft.getInstance();
+		if (client.level != null) {
+			Entity entity = client.level.getEntity(entityId);
+			if (entity instanceof AbstractClientPlayer)
+				((GSIAbstractClientPlayerAccess)entity).gs_setFixedMovement(fixedMovement);
 		}
 	}
 }

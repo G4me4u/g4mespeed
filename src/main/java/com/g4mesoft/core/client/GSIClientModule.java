@@ -5,8 +5,8 @@ import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.mojang.brigadier.CommandDispatcher;
 
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
 
 public interface GSIClientModule extends GSIModule {
 
@@ -27,27 +27,27 @@ public interface GSIClientModule extends GSIModule {
 	public void init(GSIClientModuleManager manager);
 	
 	@Override
-	default public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
+	default public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	default public void onPlayerJoin(ServerPlayerEntity player) {
+	default public void onPlayerJoin(ServerPlayer player) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	default public void onG4mespeedClientJoin(ServerPlayerEntity player, GSExtensionInfo coreInfo) {
+	default public void onG4mespeedClientJoin(ServerPlayer player, GSExtensionInfo coreInfo) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	default public void onPlayerLeave(ServerPlayerEntity player) {
+	default public void onPlayerLeave(ServerPlayer player) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	default public void onPlayerPermissionChanged(ServerPlayerEntity player) {
+	default public void onPlayerPermissionChanged(ServerPlayer player) {
 		throw new UnsupportedOperationException();
 	}
 	

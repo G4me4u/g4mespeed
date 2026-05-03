@@ -17,8 +17,8 @@ import org.lwjgl.glfw.GLFW;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
-import com.g4mesoft.access.client.GSIAbstractClientPlayerEntityAccess;
-import com.g4mesoft.access.common.GSIServerTickManagerAccess;
+import com.g4mesoft.access.client.GSIAbstractClientPlayerAccess;
+import com.g4mesoft.access.common.GSIServerTickRateManagerAccess;
 import com.g4mesoft.core.GSIModule;
 import com.g4mesoft.core.GSIModuleManager;
 import com.g4mesoft.core.client.GSClientController;
@@ -37,24 +37,24 @@ import com.mojang.brigadier.CommandDispatcher;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerManager;
-import net.minecraft.server.ServerTickManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.GameMode;
-import net.minecraft.world.tick.TickManager;
+import net.minecraft.server.ServerTickRateManager;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.TickRateManager;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class GSTpsModule implements GSIModule {
 
@@ -143,7 +143,7 @@ public class GSTpsModule implements GSIModule {
 
 		serverSyncTimer = 0;
 		serverTpsMonitor = new GSTpsMonitor();
-		lastServerTpsTime = Util.getMeasuringTimeMs();
+		lastServerTpsTime = Util.getMillis();
 		
 		manager = null;
 	
@@ -275,11 +275,11 @@ public class GSTpsModule implements GSIModule {
 					// Send the command tree, since the tps command might no
 					// longer be available an vice versa.
 					manager.runOnServer(managerServer -> {
-						PlayerManager playerManager = managerServer.getServer().getPlayerManager();
-						for (ServerPlayerEntity player : playerManager.getPlayerList()) {
+						PlayerList playerManager = managerServer.getServer().getPlayerList();
+						for (ServerPlayer player : playerManager.getPlayers()) {
 							// The command tree can only change for non-OP players.
-							if (!player.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL))
-								playerManager.sendCommandTree(player);
+							if (!player.hasPermissions(GSServerController.OP_PERMISSION_LEVEL))
+								playerManager.sendPlayerPermissionLevel(player);
 						}
 					});
 				}
@@ -288,7 +288,7 @@ public class GSTpsModule implements GSIModule {
 	}
 	
 	@Override
-	public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher) {
+	public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher) {
 		GSTpsCommand.registerCommand(dispatcher);
 	}
 	
@@ -308,7 +308,7 @@ public class GSTpsModule implements GSIModule {
 			serverTpsMonitor.update(1);
 			
 			if (sBroadcastTps.get()) {
-				long now = Util.getMeasuringTimeMs();
+				long now = Util.getMillis();
 				
 				// Note that the interval may be less than zero in case of the
 				// first tick or in case of overflow / underflow.
@@ -329,7 +329,7 @@ public class GSTpsModule implements GSIModule {
 	
 	public void onServerTps(float serverTps) {
 		this.serverTps = serverTps;
-		lastServerTpsTime = Util.getMeasuringTimeMs();
+		lastServerTpsTime = Util.getMillis();
 	}
 	
 	private void onClientHotkey(GSETpsHotkeyType hotkeyType) {
@@ -338,8 +338,8 @@ public class GSTpsModule implements GSIModule {
 			@Override
 			@Environment(EnvType.CLIENT)
 			public void accept(GSIClientModuleManager managerClient) {
-				MinecraftClient client = MinecraftClient.getInstance();
-				boolean sneaking = client.options.sneakKey.isPressed();
+				Minecraft client = Minecraft.getInstance();
+				boolean sneaking = client.options.keyShift.isDown();
 				
 				if (managerClient.isG4mespeedServer()) {
 					if (sTpsHotkeyMode.get() != HOTKEY_MODE_DISABLED) {
@@ -347,57 +347,57 @@ public class GSTpsModule implements GSIModule {
 						// allows us to use hotkey controls.
 						managerClient.sendPacket(new GSTpsHotkeyPacket(hotkeyType, sneaking));
 					}
-				} else if (client.interactionManager != null) { 
-					if (isGameModeAllowingHotkeys(client.interactionManager.getCurrentGameMode())) {
+				} else if (client.gameMode != null) { 
+					if (isGameModeAllowingHotkeys(client.gameMode.getPlayerMode())) {
 						performHotkeyAction(hotkeyType, sneaking);
 						
-						if (client.inGameHud != null) {
+						if (client.gui != null) {
 							String formattedTps = TPS_FORMAT.format(tps);
-							Text overlay = Text.translatable("play.info.clientTpsChanged", formattedTps);
-							client.inGameHud.setOverlayMessage(overlay, false);
+							Component overlay = Component.translatable("play.info.clientTpsChanged", formattedTps);
+							client.gui.setOverlayMessage(overlay, false);
 						}
-					} else if (client.inGameHud != null) {
-						client.inGameHud.setOverlayMessage(Text.translatable("play.info.hotkeysDisallowed"), false);
+					} else if (client.gui != null) {
+						client.gui.setOverlayMessage(Component.translatable("play.info.hotkeysDisallowed"), false);
 					}
 				}
 			}
 		});
 	}
 	
-	public void onPlayerHotkey(ServerPlayerEntity player, GSETpsHotkeyType type, boolean sneaking) {
+	public void onPlayerHotkey(ServerPlayer player, GSETpsHotkeyType type, boolean sneaking) {
 		if (sTpsHotkeyMode.get() != HOTKEY_MODE_DISABLED && isPlayerAllowedTpsChange(player)) {
-			if (isGameModeAllowingHotkeys(player.interactionManager.getGameMode())) {
+			if (isGameModeAllowingHotkeys(player.gameMode.getGameModeForPlayer())) {
 				float oldTps = tps;
 				performHotkeyAction(type, sneaking);
 				
 				if (!GSMathUtil.equalsApproximate(oldTps, tps)) {
 					// Assume that the player changed the tps successfully.
 					manager.runOnServer((serverManager) -> {
-						Text name = player.getDisplayName();
+						Component name = player.getDisplayName();
 						String formattedTps = TPS_FORMAT.format(tps);
-						Text feedbackText = Text.translatable("play.info.tpsChanged", name, formattedTps);
+						Component feedbackText = Component.translatable("play.info.tpsChanged", name, formattedTps);
 						
-						for (ServerPlayerEntity otherPlayer : serverManager.getAllPlayers()) {
+						for (ServerPlayer otherPlayer : serverManager.getAllPlayers()) {
 							if (isPlayerAllowedTpsChange(otherPlayer))
 								sendHotkeyFeedback(otherPlayer, feedbackText);
 						}
 					});
 				}
 			} else {
-				sendHotkeyFeedback(player, Text.translatable("play.info.hotkeysDisallowed"));
+				sendHotkeyFeedback(player, Component.translatable("play.info.hotkeysDisallowed"));
 			}
 		}
 	}
 	
-	private void sendHotkeyFeedback(ServerPlayerEntity player, Text feedbackText) {
+	private void sendHotkeyFeedback(ServerPlayer player, Component feedbackText) {
 		switch (sTpsHotkeyFeedback.get()) {
 		case HOTKEY_FEEDBACK_DISABLED:
 			break;
 		case HOTKEY_FEEDBACK_STATUS:
-			player.sendMessage(feedbackText, true);
+			player.displayClientMessage(feedbackText, true);
 			break;
 		case HOTKEY_FEEDBACK_CHAT:
-			player.sendMessage(feedbackText, false);
+			player.displayClientMessage(feedbackText, false);
 			break;
 		default:
 			break;
@@ -518,9 +518,9 @@ public class GSTpsModule implements GSIModule {
 			
 			manager.runOnServer(managerServer -> {
 				MinecraftServer server = managerServer.getServer();
-				ServerTickManager tickManager = server.getTickManager();
+				ServerTickRateManager tickManager = server.tickRateManager();
 				
-				if (!((GSIServerTickManagerAccess)tickManager).gs_isUpdatingTps()) {
+				if (!((GSIServerTickRateManagerAccess)tickManager).gs_isUpdatingTps()) {
 					// Actually update the tps. This also sends a packet to the clients.
 					tickManager.setTickRate(this.tps);
 				}
@@ -535,15 +535,15 @@ public class GSTpsModule implements GSIModule {
 				// a de-sync with the server tick cycle.
 				serverTpsMonitor.reset();
 
-				lastServerTpsTime = Util.getMeasuringTimeMs();
+				lastServerTpsTime = Util.getMillis();
 			});
 		}
 	}
 	
-	public boolean isGameModeAllowingHotkeys(GameMode gameMode) {
+	public boolean isGameModeAllowingHotkeys(GameType gameMode) {
 		switch (sTpsHotkeyMode.get()) {
 		case HOTKEY_MODE_CREATIVE:
-			return (gameMode == GameMode.CREATIVE || gameMode == GameMode.SPECTATOR);
+			return (gameMode == GameType.CREATIVE || gameMode == GameType.SPECTATOR);
 		case HOTKEY_MODE_ALL:
 			return true;
 		case HOTKEY_MODE_DISABLED:
@@ -552,9 +552,9 @@ public class GSTpsModule implements GSIModule {
 		}
 	}
 
-	public boolean isPlayerAllowedTpsChange(PlayerEntity player) {
+	public boolean isPlayerAllowedTpsChange(Player player) {
 		if (sRequireOP.get())
-			return player.hasPermissionLevel(GSServerController.OP_PERMISSION_LEVEL);
+			return player.hasPermissions(GSServerController.OP_PERMISSION_LEVEL);
 		return true;
 	}
 	
@@ -577,17 +577,17 @@ public class GSTpsModule implements GSIModule {
 	}
 
 	@Environment(EnvType.CLIENT)
-	private TickManager getClientTickManager() {
+	private TickRateManager getClientTickManager() {
 		if (!manager.isClient())
 			throw new IllegalStateException();
-		MinecraftClient client = MinecraftClient.getInstance();
-		return (client.world != null) ? client.world.getTickManager() : null;
+		Minecraft client = Minecraft.getInstance();
+		return (client.level != null) ? client.level.tickRateManager() : null;
 	}
 	
 	@Environment(EnvType.CLIENT)
 	private float getVanillaClientTps() {
-		TickManager tm = getClientTickManager();
-		return (tm != null) ? tm.getTickRate() : DEFAULT_TPS;
+		TickRateManager tm = getClientTickManager();
+		return (tm != null) ? tm.tickrate() : DEFAULT_TPS;
 	}
 	
 	public boolean isSameTpsAsServer() {
@@ -595,17 +595,17 @@ public class GSTpsModule implements GSIModule {
 	}
 	
 	public boolean isFrozen() {
-		TickManager tm = getClientTickManager();
+		TickRateManager tm = getClientTickManager();
 		if (tm == null)
 			return false;
 		return tm.isFrozen();
 	}
 
 	public boolean isStepping() {
-		TickManager tm = getClientTickManager();
+		TickRateManager tm = getClientTickManager();
 		if (tm == null)
 			return false;
-		return tm.isStepping();
+		return tm.isSteppingForward();
 	}
 
 	public boolean isSprinting() {
@@ -657,9 +657,9 @@ public class GSTpsModule implements GSIModule {
 	@Environment(EnvType.CLIENT)
 	public boolean isMainPlayerFixedMovement() {
 		if (cNormalMovement.get() && (!isDefaultTps() || fixedMovementOnDefaultTps)) {
-			PlayerEntity player = GSClientController.getInstance().getPlayer();
+			Player player = GSClientController.getInstance().getPlayer();
 			// Do not enable fixed movement if player has a vehicle.
-			if (player != null && !player.hasVehicle())
+			if (player != null && !player.isPassenger())
 				return true;
 		}
 		
@@ -667,7 +667,7 @@ public class GSTpsModule implements GSIModule {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public boolean isPlayerFixedMovement(AbstractClientPlayerEntity player) {
+	public boolean isPlayerFixedMovement(AbstractClientPlayer player) {
 		// Only enable fixed movement if tps is different from default.
 		if (!isDefaultTps() || fixedMovementOnDefaultTps) {
 			GSClientController controller = GSClientController.getInstance();
@@ -678,7 +678,7 @@ public class GSTpsModule implements GSIModule {
 		
 			if (!controller.isG4mespeedServer())
 				return GSMathUtil.equalsApproximate(getVanillaClientTps(), DEFAULT_TPS);
-			return ((GSIAbstractClientPlayerEntityAccess)player).gs_isFixedMovement();
+			return ((GSIAbstractClientPlayerAccess)player).gs_isFixedMovement();
 		}
 		
 		return false;
@@ -693,17 +693,17 @@ public class GSTpsModule implements GSIModule {
 	}
 	
 	@Environment(EnvType.CLIENT)
-	public int getMovingBlockLuminance(BlockState state, BlockView world, BlockPos pos) {
-		if (cMovingLightSources.get() && state.isOf(Blocks.MOVING_PISTON)) {
+	public int getMovingBlockLuminance(BlockState state, BlockGetter world, BlockPos pos) {
+		if (cMovingLightSources.get() && state.is(Blocks.MOVING_PISTON)) {
 			BlockEntity blockEntity = world.getBlockEntity(pos);
-			if (blockEntity instanceof PistonBlockEntity)
-				return ((PistonBlockEntity)blockEntity).getPushedBlock().getLuminance();
+			if (blockEntity instanceof PistonMovingBlockEntity)
+				return ((PistonMovingBlockEntity)blockEntity).getMovedState().getLightEmission();
 		}
-		return state.getLuminance();
+		return state.getLightEmission();
 	}
 	
 	@Environment(EnvType.CLIENT)
-	public void onClientGameModeChanged(GameMode gameMode) {
+	public void onClientGameModeChanged(GameType gameMode) {
 		GSClientController controller = GSClientController.getInstance();
 		if (controller.isConnectedToServer() && !controller.isG4mespeedServer() && !isGameModeAllowingHotkeys(gameMode)) {
 			// User is connected to a non-g4mespeed server, and changed to a game mode that
