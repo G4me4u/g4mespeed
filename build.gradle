@@ -36,6 +36,9 @@ dependencies {
 	includeMod "com.g4mesoft.ui:g4mespeed-ui:${project.g4mespeed_ui_version}-mc${project.minecraft_version}"
 	// ModMenu integration
 	compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+	// Fabric resource loader is required for compilation (as other mods depend on it).
+	compileOnly(fabricApi.module("fabric-api-base", project.fabric_api_version))
+	compileOnly(fabricApi.module("fabric-resource-loader-v0", project.fabric_api_version))
 }
 
 processResources {
