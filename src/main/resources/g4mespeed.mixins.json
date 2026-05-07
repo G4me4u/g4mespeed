@@ -57,7 +57,7 @@
     "client.GSGuiMixin",
     
     "client.GSLevelRendererMixin",
-    "client.GSGameRendererMixin",
+	"client.GSCameraMixin",
     "client.GSClientLevelMixin",
     "client.GSAbstractClientPlayerMixin",
     

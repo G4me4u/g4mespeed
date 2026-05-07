@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -30,7 +29,6 @@ import com.g4mesoft.module.tps.GSITickTimer;
 import com.g4mesoft.module.tps.GSTpsModule;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.screens.Overlay;
@@ -333,24 +331,6 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 		
 		if (!pause && level != null)
 			gameRenderer.tick();
-	}
-	
-	@ModifyArg(
-		method = "renderFrame",
-		index = 0,
-		at = @At(
-			value = "INVOKE",
-			target =
-				"Lnet/minecraft/client/renderer/GameRenderer;render(" +
-					"Lnet/minecraft/client/DeltaTracker;" +
-					"Z" +
-				")V"
-		)
-	)
-	private DeltaTracker onModifyGameRenderTickDelta(DeltaTracker oldTimer) {
-		if (!pause && gs_tpsModule.isMainPlayerFixedMovement())
-			return gs_playerTimer;
-		return oldTimer;
 	}
 	
 	@ModifyExpressionValue(
