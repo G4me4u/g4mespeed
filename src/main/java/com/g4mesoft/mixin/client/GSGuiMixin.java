@@ -106,7 +106,7 @@ public abstract class GSGuiMixin {
 		GSTpsModule tpsModule = controller.getTpsModule();
 		
 		int labelLocation = tpsModule.cTpsLabel.get();
-		if (!debugOverlay.showDebugScreen() && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
+		if (!minecraft.debugEntries.isOverlayVisible() && labelLocation != GSTpsModule.TPS_LABEL_DISABLED) {
 			Font font = getFont();
 			GSTranslationModule translationModule = controller.getTranslationModule();
 			
