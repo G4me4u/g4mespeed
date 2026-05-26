@@ -187,6 +187,11 @@ public interface GSIModule {
 	default public void onPlayerPermissionChanged(ServerPlayer player) { }
 
 	/**
+	 * Invoked on the <b>client and server</b> during an auto-save.
+	 */
+	default public void onAutoSave() { }
+
+	/**
 	 * @return True if this module is client-side and can be installed on a
 	 *         {@link GSIClientModuleManager}. False otherwise.
 	 */
