@@ -29,4 +29,21 @@ public class GSIntegratedServerMixin {
 			GSServerController.getInstance().tick(true);
 		}
 	}
+
+	@Inject(
+		method = "tickServer",
+		at = @At(
+			value = "INVOKE",
+			shift = At.Shift.AFTER,
+			target =
+				"Lnet/minecraft/client/server/IntegratedServer;saveEverything(" +
+					"Z" +
+					"Z" +
+					"Z" +
+				")Z"
+		)
+	)
+	private void onAutoSaveAfterSaveEverything(CallbackInfo ci) {
+		GSServerController.getInstance().autoSave();
+	}
 }
