@@ -1,0 +1,191 @@
+# Translation version 0
+:0
+
+############ ModMenu Translations ############
+
+g4mespeed.modmenu.discord=Tengja G4mespeed Discord!
+g4mespeed.modmenu.done=Búið
+g4mespeed.modmenu.title=G4mespeed Stillingar
+
+############ GUI Elements ############
+
+gui.tab.clientSettings=Biðlarastillingar
+gui.tab.serverSettings=Netþjónsstillingar
+gui.tab.info=Úpplýsingar
+gui.tab.hotkeys=Lyklaborðsflýtileiðir
+
+gui.info.serverExtensionsTitle=Netþjónstengiforrit:
+gui.info.clientExtensionsTitle=Biðlaratengiforrit:
+gui.info.extensionName=%s:
+gui.info.invalidVersion=Ekki Setti Upp
+
+setting.default=Sjálfgildi er %s.
+setting.button.reset=Endursetja
+setting.button.set=Setja
+
+setting.tps=Skerfsferð
+setting.betterPistons=Betri Stimpilar
+
+############ Panels ############
+
+panel.textfield.cut=Klippa
+panel.textfield.copy=Afrita
+panel.textfield.paste=Líma
+panel.textfield.selectall=Velja Öll
+
+panel.scrollbar.scrollhere=Skrolla Hér
+panel.scrollbar.top=Topp
+panel.scrollbar.bottom=Botn
+panel.scrollbar.pageup=Síða Upp
+panel.scrollbar.pagedown=Síða Niður
+panel.scrollbar.scrollup=Skrolla Upp
+panel.scrollbar.scrolldown=Skrolla Niður
+panel.scrollbar.leftedge=Vinstrakantur
+panel.scrollbar.rightedge=Hægrakantur
+panel.scrollbar.pageleft=Síðuvinstri
+panel.scrollbar.pageright=Síðuhægri
+panel.scrollbar.scrollleft=Skrolla Vinstri
+panel.scrollbar.scrollright=Skrolla Hægri
+
+panel.date.todayAt=Í dag á
+panel.date.yesterdayAt=Í gær á
+panel.date.tomorrowAt=Á morgun á
+panel.date.today=Í dag
+panel.date.yesterday=Í gær
+panel.date.tomorrow=Á morgun
+
+############ Client Settings ############
+
+setting.tps.shiftPitch=Breyta Hljóðhæð
+setting.tps.shiftPitch.desc=Breytir tónhæð hljóðanna til að passa við hraða leiksins.
+
+setting.tps.syncTick=Samstillingarskerf
+setting.tps.syncTick.desc=Samstillir skerfklukku netþjónsins og biðlarans til að bæta hreyfimyndir stimpla. Þetta er gert með því að nálga skerfklukku netþjónsins.
+
+setting.tps.syncTickAggression=Samstillingarárásargirni
+setting.tps.syncTickAggression.desc=Árásargirni samstillingar. Gildi 1,0 fylgir nákvæmlega áætlaðri klukku. Gildi 0,0 gerir samstillingu óvirka.
+
+setting.tps.forceCarpetTickrate=þvinga Carpet Skerfshlutfall
+setting.tps.forceCarpetTickrate.desc=Þvingar viðskiptavininn til að nota skerfshlutfall sem G4mespeed og Carpet modið stillir. Þetta hnekkir virkni sem tengist smoothClientAnimations í Carpet. Ef þú vilt nota meðhöndlun Carpet fyrir skerfshlutfall á biðlaranum skaltu slökkva á þessari stillingu.
+
+setting.tps.tpsLabel=TPS Merkimiði
+setting.tps.tpsLabel.desc=Sýnir merki með núverandi og markþjóns tps á tilgreindum stað í leiknum í húðinni. Ef tengdi þjónninn er ekki G4mespeed þjónn verður tps áætlaður.
+setting.tps.tpsLabel.0=Fallinn
+setting.tps.tpsLabel.1=Topp Vinstri
+setting.tps.tpsLabel.2=Topp Miðstöð
+setting.tps.tpsLabel.3=Topp Hægri
+
+setting.tps.normalMovement=Fastur hreyfingarhraði
+setting.tps.normalMovement.desc=Leyfir spilara að hreyfa sig á föstum 20 tikk á sekúndu án þess að það hafi áhrif á netþjónskerfshlutfall.
+
+setting.tps.tweakerooFreecamHack=Tweakeroo Ókeypis Myndavélarhakk
+setting.tps.tweakerooFreecamHack.desc=Einfalt hakk sem gerir einnig kleift að festa hreyfihraða fyrir Tweakeroo Free myndavélina. Slökktu á þessum eiginleika ef þú lendir í vandræðum með hann.
+
+setting.betterPistons.cullMovingBlocks=Cull Moving Blocks
+setting.betterPistons.cullMovingBlocks.desc=Culls the back-face of blocks that are pushed by pistons. This will mostly affect transparent moving blocks.
+
+setting.betterPistons.pistonAnimationType=Stimpilhreyfimyndartegund
+setting.betterPistons.pistonAnimationType.0=Hlé á endir
+setting.betterPistons.pistonAnimationType.1=Hlé á miðstöð
+setting.betterPistons.pistonAnimationType.2=Hlé á byrjun
+setting.betterPistons.pistonAnimationType.3=Enginn hlé
+setting.betterPistons.pistonAnimationType.desc=Tilgreinir hvort hlé eigi að vera í stimpilhreyfimynd og hvort það eigi að vera í upphafi, miðju eða loki.
+
+setting.betterPistons.correctPistonPushing=Leiðrétt Einingasending
+setting.betterPistons.correctPistonPushing.desc=Leiðréttir sjónrænt hreyfingu eininga sem stimplar ýta á í samræmi við gerð stimplahreyfimyndar.
+
+setting.betterPistons.pistonRenderDistance=Stimpla Render Fjarlægð
+setting.betterPistons.pistonRenderDistance.desc=Sýnir fjarlægð kubba sem stimplar færa. Þar sem þetta hefur engin áhrif ef hún er meiri en fjarlægð kubbatilviksins á netþjóninum er hægt að stilla valkostinn á Sjálfvirkt til að nota þessa fjarlægð í staðinn.
+setting.betterPistons.pistonRenderDistance.-1=Sjálfvirkur
+setting.betterPistons.pistonRenderDistance.1=1 klúnka
+setting.betterPistons.pistonRenderDistance.x=%s klúnkur
+
+############ Hotkeys ############
+
+hotkey.gs.title=G4mespeed
+hotkey.gs.opengui=Opna GUI
+
+hotkey.tps.title=Tifsferð
+hotkey.tps.reset=Endursetja Tps
+hotkey.tps.increment=Auka Tps
+hotkey.tps.decrement=Óauka Tps
+hotkey.tps.double=Tvöfalda Tps
+hotkey.tps.halve=Hálfa Tps
+
+gui.hotkey.reset=Endursetja
+gui.hotkey.cancel=Hætta við
+gui.hotkey.resetAll=Endursetja öll
+gui.hotkey.unbindAll=Óbinda öll
+
+###########   Game Information    ############
+
+play.info.clientTpsChanged=Biðlari-tps breyttir til %s
+play.info.tpsLabelTarget=tps (%s)
+
+# Translation version 4 (v1.1.0)
+# The older translation versions are deprecated.
+:4
+
+###########   Commands    ############
+
+command.gs.info=G4mespeed útgáfa er %s
+
+command.tps.get=Tps er %s
+command.tps.set=Tps hefur sett til %s
+
+command.tps.getn=Tps er %s, %sn
+command.tps.geton=Tps er %s, %so %sn
+
+###########   Server Settings    ############
+
+setting.tps.syncPacketInterval=Samstillingarbil
+setting.tps.syncPacketInterval.desc=Tímabilið, í skrefum, sem netþjónninn sendir samstillingarpakka. Gildið 1 gerir viðskiptavinum kleift að samstilla sig sem best en krefst einnig meiri bandvíddar.
+
+setting.tps.hotkeyMode=Leyft Lyklaborðsflýtileiðleikhamir
+setting.tps.hotkeyMode.desc=Tilgreinir hvaða leikhamir spilarar verða að vera í til að breyta tps með flýtilyklum í leiknum. Ef Allt er valið eru engar takmarkanir á leikhamum spilara.
+setting.tps.hotkeyMode.0=Enginn
+setting.tps.hotkeyMode.1=Skapandi og Áhorfandi
+setting.tps.hotkeyMode.2=Öll
+
+setting.tps.broadcastTps=Útsend TPS
+setting.tps.broadcastTps.desc=Sendir út upplýsingar um afköst netþjónsins á tveggja sekúndna fresti til að leyfa spilurum að fylgjast nákvæmlega með afköstum netþjónsins.
+
+setting.betterPistons.blockEventDistance=Kubbsviðburðarfjarlægð
+setting.betterPistons.blockEventDistance.1=1 klúnka
+setting.betterPistons.blockEventDistance.x=%s klúnkur
+setting.betterPistons.blockEventDistance.desc=Útsendingarradíusinn, í klúnkum, sem pistonblokkaratburðir verða sendir til biðlarar. Þetta mun einnig hafa áhrif á hámarkssýnarfjarlægð fyrir hreyfanlegar kubbar á biðlarar.
+
+setting.betterPistons.paranoidMode=Ofsóknarkenndstilling
+setting.betterPistons.paranoidMode.desc=Sendir marga óþarfa stimplablokkaskiptapakka til nálægra spilara. Þetta tryggir að viðskiptavinir sem gátu ekki framkvæmt réttar piston-blokkartilvik geti samt samstillt sig rétt. Mælt er með að nota þetta samhliða Tafarlaus kubburútsending.
+
+setting.betterPistons.immediateBlockBroadcast=Tafarlaus kubburútsending
+setting.betterPistons.immediateBlockBroadcast.desc=Sendir út allar breytingar á kubbum sem orsakast af helstu þáttum sem tengjast rauðsteini innan sama tímapunkts og þeir áttu sér stað. Þetta virkar sem viðbót við og kemur ekki í staðinn fyrir útsendinguna sem á sér stað í upphafi hvers tímapunkts. Mælt er með að nota þetta með Ofsóknarkenndstilling virkt og Kubbsviðburðarfjarlægð stillt á 0 klumpa.
+
+###########   Game Information    ############
+
+play.info.tpsChanged=%s breyttir tps-ið til %s
+play.info.hotkeysDisallowed=Verður að vera í Skapandi eða Áhorfandi til að nota lyklaborðsflýtileiðir
+
+# Translation version 5 (v1.1.1)
+:5
+
+setting.tps.hotkeyFeedback=Lyklaborðsflýtileiðendurgjöf
+setting.tps.hotkeyFeedback.desc=Tilgreinir hvar endurgjöf frá lyklaborðsflýtileiðum tps verður birt. Ef endurgjöf er óvirk verða engin skilaboð send þegar spilari breytir tps.
+setting.tps.hotkeyFeedback.0=Óvirkjað
+setting.tps.hotkeyFeedback.1=Upplýsingarstöng
+setting.tps.hotkeyFeedback.2=Spjall
+
+# Translation version 6 (v1.1.5)
+:6
+
+setting.tps.restoreTickrate=Endurheimta Tifshlutfall
+setting.tps.restoreTickrate.desc=Endurheimtir skerfshlutfalið frá fyrri lotu eftir að netþjónninn hefur endurræst.
+
+# Translation version 7 (v1.2.0)
+:7
+
+setting.tps.prettySand=Fallegur Sandur
+setting.tps.prettySand.0=Óvirkjað
+setting.tps.prettySand.1=Árangur
+setting.tps.prettySand.2=Samsvörun
+setting.tps.prettySand.desc=Bætir útlit fallandi kubbaeininga. Afköst ná þessu með lágmarkspökkum sem eru sendir um netið, en biðlarar gætu orðið ósamstilltir. Rétt samstilling er leyst með Samsvörun, en það eykur netnotkun verulega og er því ekki mælt með til almennrar notkunar.
