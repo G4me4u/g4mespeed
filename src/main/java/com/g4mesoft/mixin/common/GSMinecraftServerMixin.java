@@ -123,4 +123,21 @@ public abstract class GSMinecraftServerMixin implements GSIMinecraftServerAccess
 	private void onStopServer(CallbackInfo ci) {
 		GSServerController.getInstance().onServerShutdown();
 	}
+
+	@Inject(
+		method = "tickServer",
+		at = @At(
+			value = "INVOKE",
+			shift = At.Shift.AFTER,
+			target =
+				"Lnet/minecraft/server/MinecraftServer;saveEverything(" +
+					"Z" +
+					"Z" +
+					"Z" +
+				")Z"
+		)
+	)
+	private void onAutoSaveAfterSaveEverything(CallbackInfo ci) {
+		GSServerController.getInstance().autoSave();
+	}
 }
