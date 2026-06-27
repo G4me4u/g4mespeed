@@ -32,7 +32,8 @@
     
     "common.GSServerTickRateManagerMixin",
     "common.GSTickRateManagerMixin",
-    "common.GSTickCommandMixin"
+    "common.GSTickCommandMixin",
+    "common.GSSaveAllCommandMixin"
   ],
   "client": [
     "client.GSMinecraftMixin",

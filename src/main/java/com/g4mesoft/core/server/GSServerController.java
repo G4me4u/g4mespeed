@@ -165,7 +165,15 @@ public class GSServerController extends GSController implements GSIServerModuleM
 		
 		server = null;
 	}
-	
+
+	@Override
+	public void autoSave() {
+		if (!worldSettings.isEmpty())
+			worldSettings.saveSettings(getWorldSettingsFile());
+
+		super.autoSave();
+	}
+
 	public void onPlayerPermissionChanged(ServerPlayer player) {
 		sendSettingPermissionPacket(player);
 		

@@ -38,6 +38,8 @@ import com.g4mesoft.ui.panel.GSPanelContext;
 import com.g4mesoft.ui.panel.dialog.GSConfirmDialog;
 import com.g4mesoft.ui.panel.dialog.GSConfirmOption;
 import com.g4mesoft.ui.panel.dialog.GSEConfirmOptionPlacement;
+import com.g4mesoft.ui.panel.event.GSILayoutEventListener;
+import com.g4mesoft.ui.panel.event.GSLayoutEvent;
 import com.g4mesoft.ui.panel.scroll.GSScrollPanel;
 import com.g4mesoft.ui.renderer.GSIRenderable3D;
 import com.g4mesoft.ui.util.GSTextUtil;
@@ -113,7 +115,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 			this.minecraft = minecraft;
 
 			keyManager.loadKeys(getHotkeySettingsFile());
-	
+
 			openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, () -> {
 				// Use lambda to ensure that contentHistoryGUI has been initialized.
 				if (contentHistoryGUI != null) {
@@ -129,18 +131,24 @@ public class GSClientController extends GSController implements GSIClientModuleM
 					}
 				}
 			}, GSEKeyEventType.PRESS, false);
-	
+
 			tabbedGUI = new GSTabbedGUI();
 			tabbedGUI.addTab(CLIENT_SETTINGS_GUI_TITLE, new GSScrollPanel(new GSSettingsGUI(settings)));
 			tabbedGUI.addTab(SERVER_SETTINGS_GUI_TITLE, new GSScrollPanel(new GSSettingsGUI(serverSettings)));
 			tabbedGUI.addTab(HOTKEY_GUI_TITLE,          new GSScrollPanel(new GSHotkeyGUI(keyManager)));
 			tabbedGUI.addTab(G4MESPEED_INFO_GUI_TITLE,  new GSInfoGUI(this));
-			
+
 			contentHistoryGUI = new GSContentHistoryGUI(tabbedGUI, new GSKeyBindingButtonStroke(openGUIKey));
-			
+			contentHistoryGUI.addLayoutEventListener(new GSILayoutEventListener() {
+				@Override
+				public void panelHidden(GSLayoutEvent event) {
+					autoSave();
+				}
+			});
+
 			// Register setting for showing quick actions override notice.
 			settings.registerSetting(GENERAL_CATEGORY, cQuickActionsOverrideNotice);
-			
+
 			onStart();
 		}
 	}
@@ -253,7 +261,14 @@ public class GSClientController extends GSController implements GSIClientModuleM
 			minecraft = null;
 		}
 	}
-	
+
+	@Override
+	public void autoSave() {
+		keyManager.saveKeys(getHotkeySettingsFile());
+
+		super.autoSave();
+	}
+
 	private File getHotkeySettingsFile() {
 		return new File(getCacheFile(), HOTKEY_SETTINGS_FILE_NAME);
 	}

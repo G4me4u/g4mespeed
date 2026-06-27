@@ -69,7 +69,14 @@ public abstract class GSController implements GSIModuleManager, GSIExtensionList
 
 		G4mespeedMod.removeExtensionListener(this);
 	}
-	
+
+	public void autoSave() {
+		settings.saveSettings(getSettingsFile());
+
+		for (GSIModule module : modules)
+			module.onAutoSave();
+	}
+
 	protected void initModules() {
 		addModule(tpsModule);
 		addModule(translationModule);
