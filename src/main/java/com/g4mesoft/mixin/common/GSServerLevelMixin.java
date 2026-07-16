@@ -22,7 +22,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.profiling.Profiler;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -51,7 +51,7 @@ public abstract class GSServerLevelMixin extends Level {
 			ServerChunkCache chunkManager = (ServerChunkCache)getChunkSource();
 
 			entityTickList.forEach((entity) -> {
-				if (!entity.isRemoved() && entity.getType() == EntityType.FALLING_BLOCK) {
+				if (!entity.isRemoved() && entity.getType() == EntityTypes.FALLING_BLOCK) {
 					((GSIServerChunkCacheAccess)chunkManager).gs_setTrackerTickedFromFallingBlock(entity, true);
 					((GSIServerChunkCacheAccess)chunkManager).gs_tickEntityTracker(entity);
 				}

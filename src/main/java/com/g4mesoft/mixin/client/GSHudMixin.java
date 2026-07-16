@@ -22,12 +22,11 @@ import com.g4mesoft.ui.util.GSMathUtil;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.components.DebugScreenOverlay;
+import net.minecraft.client.gui.Hud;
 
-@Mixin(Gui.class)
-public abstract class GSGuiMixin {
+@Mixin(Hud.class)
+public abstract class GSHudMixin {
 
 	private static final int TPS_LABEL_MAGIN = 5;
 
@@ -47,8 +46,6 @@ public abstract class GSGuiMixin {
 	
 	@Unique
 	private static final DecimalFormat LOW_PRECISION_TPS_FORMAT = new DecimalFormat("0.0", new DecimalFormatSymbols(Locale.ENGLISH));
-
-	@Shadow @Final private DebugScreenOverlay debugOverlay;
 
 	@Shadow @Final private Minecraft minecraft;
 	
@@ -95,7 +92,7 @@ public abstract class GSGuiMixin {
 			value = "INVOKE",
 			shift = Shift.BEFORE, 
 			target =
-				"Lnet/minecraft/client/gui/Gui;extractSubtitleOverlay(" +
+				"Lnet/minecraft/client/gui/Hud;extractSubtitleOverlay(" +
 					"Lnet/minecraft/client/gui/GuiGraphicsExtractor;" +
 					"Z" +
 				")V"

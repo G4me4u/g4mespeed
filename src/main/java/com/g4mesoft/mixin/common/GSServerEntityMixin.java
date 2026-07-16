@@ -26,7 +26,7 @@ import net.minecraft.server.level.ServerEntity;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin(ServerEntity.class)
@@ -62,7 +62,7 @@ public class GSServerEntityMixin implements GSIServerEntityAccess {
 		if (gs_fixedMovement != gs_lastFixedMovement) {
 			gs_lastFixedMovement = gs_fixedMovement;
 
-			if (entity.getType() == EntityType.PLAYER) {
+			if (entity.getType() == EntityTypes.PLAYER) {
 				GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getId(), gs_fixedMovement);
 				// Encode packet to a vanilla packet. This is required for sending to all nearby
 				// players. Note that vanilla players will not react to the packet.
@@ -74,7 +74,7 @@ public class GSServerEntityMixin implements GSIServerEntityAccess {
 		}
 		
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityTypes.FALLING_BLOCK) {
 			if (gs_tickedFromFallingBlock) {
 				Vec3 currentVelocity = entity.getDeltaMovement();
 				double dvx = currentVelocity.x() - gs_lastFallingBlockVelocity.x() * FALLING_BLOCK_FRICTION;
@@ -119,12 +119,12 @@ public class GSServerEntityMixin implements GSIServerEntityAccess {
 		)
 	)
 	private void onAddPairing(ServerPlayer player, CallbackInfo ci) {
-		if (entity.getType() == EntityType.PLAYER) {
+		if (entity.getType() == EntityTypes.PLAYER) {
 			GSIPacket packet = new GSServerPlayerFixedMovementPacket(entity.getId(), gs_fixedMovement);
 			// Note that player might be tracking the entity after just joining
 			// in which case the extension versions will not yet have been sent.
 			GSServerController.getInstance().sendPacket(packet, player, GSVersion.INVALID);
-		} else if (entity.getType() == EntityType.FALLING_BLOCK) {
+		} else if (entity.getType() == EntityTypes.FALLING_BLOCK) {
 			((GSIServerPlayerAccess)player).gs_onStartTrackingFallingSand(entity);
 		}
 	}
@@ -146,7 +146,7 @@ public class GSServerEntityMixin implements GSIServerEntityAccess {
 	)
 	private void onRemovePairing(ServerPlayer player, CallbackInfo ci) {
 		GSTpsModule tpsModule = GSServerController.getInstance().getTpsModule();
-		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityTypes.FALLING_BLOCK) {
 			((GSIServerPlayerAccess)player).gs_onStopTrackingFallingSand(entity);
 			ci.cancel();
 		}

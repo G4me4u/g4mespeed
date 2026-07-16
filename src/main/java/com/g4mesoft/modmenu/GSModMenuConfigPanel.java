@@ -116,6 +116,6 @@ public class GSModMenuConfigPanel extends GSClosableParentPanel {
 	
 	@Override
 	public void close() {
-		Minecraft.getInstance().setScreen(previous);
+		Minecraft.getInstance().gui.setScreen(previous);
 	}
 }

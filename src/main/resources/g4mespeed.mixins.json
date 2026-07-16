@@ -54,10 +54,11 @@
     
     "client.GSChunkAccessMixin",
     "client.GSBlockLightEngineMixin",
+	"client.GSLightCoordsUtilMixin",
     
-    "client.GSGuiMixin",
+    "client.GSHudMixin",
     
-    "client.GSLevelRendererMixin",
+	"client.GSLevelExtractorAccess",
 	"client.GSCameraMixin",
     "client.GSClientLevelMixin",
     "client.GSAbstractClientPlayerMixin",

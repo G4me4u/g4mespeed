@@ -11,27 +11,24 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.g4mesoft.access.client.GSILevelRendererAccess;
+import com.g4mesoft.access.client.GSILevelExtractorAccess;
 import com.g4mesoft.access.client.GSIMinecraftAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.extract.LevelExtractor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.BlockAndLightGetter;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.EntityTypes;
 
-@Mixin(LevelRenderer.class)
-public abstract class GSLevelRendererMixin implements GSILevelRendererAccess {
+@Mixin(LevelExtractor.class)
+public abstract class GSLevelExtractorAccess implements GSILevelExtractorAccess {
 
 	@Shadow @Final private Minecraft minecraft;
 	
-	@Shadow protected abstract void setBlockDirty(BlockPos pos, boolean important);
+	@Shadow public abstract void setBlockDirty(BlockPos pos, boolean playerChanged);
 	
 	@Unique
 	private GSClientController gs_controller;
@@ -53,7 +50,7 @@ public abstract class GSLevelRendererMixin implements GSILevelRendererAccess {
 		at = @At(
 			value = "INVOKE", 
 			target =
-				"Lnet/minecraft/client/renderer/LevelRenderer;extractEntity(" +
+				"Lnet/minecraft/client/renderer/extract/LevelExtractor;extractEntity(" +
 					"Lnet/minecraft/world/entity/Entity;" +
 					"F" +
 				")Lnet/minecraft/client/renderer/entity/state/EntityRenderState;"
@@ -81,34 +78,14 @@ public abstract class GSLevelRendererMixin implements GSILevelRendererAccess {
 		)
 	)
 	private int onExtractVisibleEntitiesGetEntityTickCount(Entity entity) {
-		if (gs_tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityType.FALLING_BLOCK) {
+		if (gs_tpsModule.sPrettySand.get() != GSTpsModule.PRETTY_SAND_DISABLED && entity.getType() == EntityTypes.FALLING_BLOCK) {
 			// We do not want the render positions to be modified when
 			// using pretty sand (already done by position packets).
 			return (entity.tickCount == 0) ? -1 : entity.tickCount;
 		}
 		return entity.tickCount;
 	}
-	
-	@ModifyExpressionValue(
-		method =
-			"getLightCoords(" +
-				"Lnet/minecraft/client/renderer/LevelRenderer$BrightnessGetter;" +
-				"Lnet/minecraft/world/level/BlockAndLightGetter;" +
-				"Lnet/minecraft/world/level/block/state/BlockState;" +
-				"Lnet/minecraft/core/BlockPos;" +
-			")I",
-		at = @At(
-			value = "INVOKE",
-			target =
-				"Lnet/minecraft/world/level/block/state/BlockState;getLightEmission(" +
-				")I"
-		)
-	)
-	private static int onGetLightColorModifyBlockStateGetLightEmission(int luminance, LevelRenderer.BrightnessGetter brightnessGetter, BlockAndLightGetter lightGetter, BlockState state, BlockPos pos) {
-		GSTpsModule tpsModule = GSClientController.getInstance().getTpsModule();
-		return Math.max(luminance, tpsModule.getMovingBlockLuminance(state, lightGetter, pos));
-	}
-	
+
 	@Override
 	public void gs_scheduleBlockUpdate(BlockPos pos, boolean important) {
 		setBlockDirty(pos, important);

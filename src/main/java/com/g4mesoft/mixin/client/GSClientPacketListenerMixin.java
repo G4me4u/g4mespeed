@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.g4mesoft.access.client.GSIBlockStatePredictionHandlerAccess;
 import com.g4mesoft.access.client.GSIClientLevelAccess;
 import com.g4mesoft.access.client.GSIEntityAccess;
-import com.g4mesoft.access.client.GSILevelRendererAccess;
+import com.g4mesoft.access.client.GSILevelExtractorAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
 
@@ -45,7 +45,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueInput;
@@ -236,7 +236,7 @@ public abstract class GSClientPacketListenerMixin extends ClientCommonPacketList
 			BlockPos pos = packet.getPos();
 			CompoundTag tag = packet.getTag();
 			
-			if (!tag.isEmpty() && packet.getType() == BlockEntityType.PISTON) {
+			if (!tag.isEmpty() && packet.getType() == BlockEntityTypes.PISTON) {
 				BlockState blockState = level.getBlockState(pos);
 				BlockEntity blockEntity = level.getBlockEntity(pos);
 				
@@ -307,6 +307,6 @@ public abstract class GSClientPacketListenerMixin extends ClientCommonPacketList
 	@Unique
 	private void scheduleRenderUpdateForFallingBlock(BlockPos pos, BlockState state) {
 		if (state.getBlock() instanceof FallingBlock)
-			((GSILevelRendererAccess)minecraft.levelRenderer).gs_scheduleBlockUpdate(pos, true);
+			((GSILevelExtractorAccess)minecraft.levelExtractor).gs_scheduleBlockUpdate(pos, true);
 	}
 }

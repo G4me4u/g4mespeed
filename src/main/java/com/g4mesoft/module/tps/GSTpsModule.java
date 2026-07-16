@@ -354,10 +354,10 @@ public class GSTpsModule implements GSIModule {
 						if (client.gui != null) {
 							String formattedTps = TPS_FORMAT.format(tps);
 							Component overlay = Component.translatable("play.info.clientTpsChanged", formattedTps);
-							client.gui.setOverlayMessage(overlay, false);
+							client.gui.hud.setOverlayMessage(overlay, false);
 						}
 					} else if (client.gui != null) {
-						client.gui.setOverlayMessage(Component.translatable("play.info.hotkeysDisallowed"), false);
+						client.gui.hud.setOverlayMessage(Component.translatable("play.info.hotkeysDisallowed"), false);
 					}
 				}
 			}

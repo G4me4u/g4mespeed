@@ -304,7 +304,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 	
 	@Override
 	public boolean isInGame() {
-		return (minecraft != null && minecraft.screen == null);
+		return (minecraft != null && minecraft.gui.screen() == null);
 	}
 	
 	@Override

@@ -31,8 +31,6 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.screens.Overlay;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.renderer.GameRenderer;
@@ -52,8 +50,6 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 	@Shadow private int rightClickDelay;
 	@Shadow private int missTime;
 	@Shadow public MultiPlayerGameMode gameMode;
-	@Shadow public Screen screen;
-	@Shadow public Overlay overlay;
 	@Shadow @Final public Gui gui;
 
 	@Unique
@@ -114,13 +110,10 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 	}
 	
 	@Inject(
-		method = "destroy",
-		at = @At(
-			value = "CONSTANT",
-			args = "stringValue=Stopping!"
-		)
+		method = "close",
+		at = @At("HEAD")
 	)
-	private void onDestroy(CallbackInfo ci) {
+	private void onClose(CallbackInfo ci) {
 		gs_controller.onClientClose();
 	}
 
@@ -181,13 +174,13 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 		method = "tick",
 		at = @At(
 			value = "INVOKE",
-			target = "Lnet/minecraft/client/gui/Gui;tick(Z)V"
+			target = "Lnet/minecraft/client/gui/Gui;tick()V"
 		)
 	)
-	private void onTickRedirectInteractionManagerTick(Gui gui, boolean paused) {
+	private void onTickRedirectInteractionManagerTick(Gui gui) {
 		// Tick is handled elsewhere when correcting movement.
 		if (!gs_tpsModule.isMainPlayerFixedMovement())
-			gui.tick(paused);
+			gui.tick();
 	}
 
 	@Redirect(
@@ -318,12 +311,12 @@ public abstract class GSMinecraftMixin implements GSIMinecraftAccess {
 		if (rightClickDelay > 0)
 			rightClickDelay--;
 
-		gui.tick(this.pause);
+		gui.tick();
 
 		if (!pause && level != null)
 			gameMode.tick();
 
-		if (overlay == null && screen == null) {
+		if (gui.overlay() == null && gui.screen() == null) {
 			handleKeybinds();
 			if (missTime > 0)
 				missTime--;
