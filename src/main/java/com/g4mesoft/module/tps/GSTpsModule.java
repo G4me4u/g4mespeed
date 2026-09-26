@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Consumer;
 
-import org.lwjgl.glfw.GLFW;
+import org.lwjgl.sdl.SDLScancode;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
@@ -236,19 +236,19 @@ public class GSTpsModule implements GSIModule {
 
 	@Override
 	public void registerHotkeys(GSKeyManager keyManager) {
-		keyManager.registerKey("reset", KEY_CATEGORY, GLFW.GLFW_KEY_M, 
+		keyManager.registerKey("reset", KEY_CATEGORY, SDLScancode.SDL_SCANCODE_M, 
 				GSETpsHotkeyType.RESET_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 		
-		keyManager.registerKey("increment", KEY_CATEGORY, GLFW.GLFW_KEY_PERIOD, 
+		keyManager.registerKey("increment", KEY_CATEGORY, SDLScancode.SDL_SCANCODE_PERIOD, 
 				GSETpsHotkeyType.INCREMENT_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 		
-		keyManager.registerKey("decrement", KEY_CATEGORY, GLFW.GLFW_KEY_COMMA, 
+		keyManager.registerKey("decrement", KEY_CATEGORY, SDLScancode.SDL_SCANCODE_COMMA, 
 				GSETpsHotkeyType.DECREMENT_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 		
-		keyManager.registerKey("double", KEY_CATEGORY, GLFW.GLFW_KEY_K, 
+		keyManager.registerKey("double", KEY_CATEGORY, SDLScancode.SDL_SCANCODE_K, 
 				GSETpsHotkeyType.DOUBLE_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 
-		keyManager.registerKey("halve", KEY_CATEGORY, GLFW.GLFW_KEY_J, 
+		keyManager.registerKey("halve", KEY_CATEGORY, SDLScancode.SDL_SCANCODE_J, 
 				GSETpsHotkeyType.HALVE_TPS, this::onClientHotkey, GSEKeyEventType.PRESS);
 	}
 	

@@ -52,7 +52,6 @@
     "client.GSPistonHeadRendererMixin",
     "client.GSPistonMovingBlockEntityMixin",
     
-    "client.GSChunkAccessMixin",
     "client.GSBlockLightEngineMixin",
 	"client.GSLightCoordsUtilMixin",
     

@@ -10,28 +10,28 @@ public class GSKeyBinding {
 	private final GSKeyManager manager;
 	private final String name;
 	private final String category;
-	private final GSKeyCode defaultKeyCode;
+	private final GSMultiKey defaultMultiKey;
 	private final boolean allowDisabled;
 	
 	private int priority;
 	
-	private GSKeyCode keyCode;
+	private GSMultiKey multiKey;
 	private boolean[] keyStates;
 	private int pressedCount;
 	
 	private GSIKeyBindingListener listener;
 	
-	public GSKeyBinding(GSKeyManager manager, String name, String category, GSKeyCode defaultKeyCode, boolean allowDisabled, int priority) {
+	public GSKeyBinding(GSKeyManager manager, String name, String category, GSMultiKey defaultKeyCode, boolean allowDisabled, int priority) {
 		this.manager = manager;
 		this.name = name;
 		this.category = category;
-		this.defaultKeyCode = defaultKeyCode;
+		this.defaultMultiKey = defaultKeyCode;
 		this.allowDisabled = allowDisabled;
 		
 		this.priority = priority;
 	
-		keyCode = defaultKeyCode;
-		keyStates = new boolean[keyCode.getKeyCount()];
+		multiKey = defaultKeyCode;
+		keyStates = new boolean[multiKey.getKeyCount()];
 		pressedCount = 0;
 		
 		listener = null;
@@ -51,8 +51,8 @@ public class GSKeyBinding {
 
 	void onKeyPressed(Key key) {
 		int count = 0;
-		for (int i = 0; i < keyCode.getKeyCount(); i++) {
-			if (keyCode.get(i) == key)
+		for (int i = 0; i < multiKey.getKeyCount(); i++) {
+			if (multiKey.get(i) == key)
 				keyStates[i] = true;
 			if (keyStates[i])
 				count++;
@@ -63,8 +63,8 @@ public class GSKeyBinding {
 	
 	void onKeyReleased(Key key) {
 		int count = 0;
-		for (int i = 0; i < keyCode.getKeyCount(); i++) {
-			if (keyCode.get(i) == key)
+		for (int i = 0; i < multiKey.getKeyCount(); i++) {
+			if (multiKey.get(i) == key)
 				keyStates[i] = false;
 			if (keyStates[i])
 				count++;
@@ -102,28 +102,28 @@ public class GSKeyBinding {
 		return category;
 	}
 	
-	public GSKeyCode getDefaultKeyCode() {
-		return defaultKeyCode;
+	public GSMultiKey getDefaultKey() {
+		return defaultMultiKey;
 	}
 	
-	public GSKeyCode getKeyCode() {
-		return keyCode;
+	public GSMultiKey getKey() {
+		return multiKey;
 	}
 
-	public void setKeyCode(GSKeyCode keyCode) {
-		if (!allowDisabled && keyCode == GSKeyCode.UNKNOWN_KEY)
-			keyCode = defaultKeyCode;
+	public void setKey(GSMultiKey multiKey) {
+		if (!allowDisabled && multiKey == GSMultiKey.UNKNOWN_KEY)
+			multiKey = defaultMultiKey;
 		
-		GSKeyCode oldKeyCode = this.keyCode;
-		this.keyCode = keyCode;
-		keyStates = new boolean[keyCode.getKeyCount()];
+		GSMultiKey oldMultiKey = this.multiKey;
+		this.multiKey = multiKey;
+		keyStates = new boolean[multiKey.getKeyCount()];
 		reset();
 		
-		manager.onKeyCodeChanged(this, oldKeyCode, keyCode);
+		manager.onKeyChanged(this, oldMultiKey, multiKey);
 	}
 	
 	public Component getLocalizedName() {
-		return keyCode.getLocalizedText();
+		return multiKey.getLocalizedText();
 	}
 	
 	public boolean isAnyPressed() {
@@ -131,7 +131,7 @@ public class GSKeyBinding {
 	}
 	
 	public boolean isPressed() {
-		return (pressedCount == keyCode.getKeyCount());
+		return (pressedCount == multiKey.getKeyCount());
 	}
 
 	/* Higher value of priority means key is dominant */

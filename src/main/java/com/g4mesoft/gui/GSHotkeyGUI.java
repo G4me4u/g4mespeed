@@ -205,11 +205,11 @@ public class GSHotkeyGUI extends GSParentPanel implements GSIScrollable, GSIKeyB
 		}
 		
 		public void resetAll() {
-			elements.forEach(GSHotkeyElementGUI::resetKeyCode);
+			elements.forEach(GSHotkeyElementGUI::resetKey);
 		}
 
 		public void unbindAll() {
-			elements.forEach(GSHotkeyElementGUI::unbindKeyCode);
+			elements.forEach(GSHotkeyElementGUI::unbindKey);
 		}
 	}
 }

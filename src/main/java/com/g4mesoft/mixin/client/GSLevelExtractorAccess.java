@@ -15,6 +15,7 @@ import com.g4mesoft.access.client.GSILevelExtractorAccess;
 import com.g4mesoft.access.client.GSIMinecraftAccess;
 import com.g4mesoft.core.client.GSClientController;
 import com.g4mesoft.module.tps.GSTpsModule;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -44,6 +45,46 @@ public abstract class GSLevelExtractorAccess implements GSILevelExtractorAccess 
 		gs_tpsModule = gs_controller.getTpsModule();
 	}
 	
+	private float modifyEntityDeltaTick(Entity entity, float oldDeltaTick) {
+		if (!minecraft.isPaused() && entity instanceof AbstractClientPlayer) {
+			if (gs_tpsModule.isPlayerFixedMovement((AbstractClientPlayer)entity))
+				return ((GSIMinecraftAccess)minecraft).gs_getFixedMovementTickDelta();
+		}
+		return oldDeltaTick;
+	}
+	
+	@ModifyArg(
+		method = "extract",
+		index = 2,
+		at = @At(
+			value = "INVOKE", 
+			target =
+				"Lnet/minecraft/client/renderer/extract/LevelExtractor;extractPlayerState(" +
+					"Lnet/minecraft/client/Camera;" +
+					"Lnet/minecraft/client/DeltaTracker;" +
+					"F" +
+					"Lnet/minecraft/client/renderer/state/level/PlayerRenderState;" +
+				")V"
+		)
+	)
+	private float onExtractExtractPlayerStateModifyWorldDeltaTick(float deltaTick) {
+		return modifyEntityDeltaTick(minecraft.player, deltaTick);
+	}
+	
+	@ModifyExpressionValue(
+		method = "extractPlayerState",
+		at = @At(
+			value = "INVOKE", 
+			target =
+				"Lnet/minecraft/client/DeltaTracker;getGameTimeDeltaPartialTick(" +
+					"Z" +
+				")F"
+		)
+	)
+	private float onExtractPlayerStateModifyPlayerDeltaTick(float deltaTick) {
+		return modifyEntityDeltaTick(minecraft.player, deltaTick);
+	}
+	
 	@ModifyArg(
 		method = "extractVisibleEntities",
 		index = 1,
@@ -57,12 +98,7 @@ public abstract class GSLevelExtractorAccess implements GSILevelExtractorAccess 
 		)
 	)
 	private float onExtractVisibleEntitiesModifyEntityDeltaTick(Entity entity, float deltaTick) {
-		if (!minecraft.isPaused() && (entity instanceof AbstractClientPlayer)) {
-			if (gs_tpsModule.isPlayerFixedMovement((AbstractClientPlayer)entity))
-				return ((GSIMinecraftAccess)minecraft).gs_getFixedMovementTickDelta();
-		}
-
-		return deltaTick;
+		return modifyEntityDeltaTick(entity, deltaTick);
 	}
 	
 	@Redirect(

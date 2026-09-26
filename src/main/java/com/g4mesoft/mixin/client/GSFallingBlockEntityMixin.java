@@ -37,6 +37,6 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 			// See comment above.
 			return super.getPistonPushReaction();
 		}
-		return PushReaction.IGNORE;
+		return PushReaction.IGNORE_ENTITY;
 	}
 }

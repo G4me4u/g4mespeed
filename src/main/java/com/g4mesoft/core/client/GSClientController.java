@@ -3,7 +3,7 @@ package com.g4mesoft.core.client;
 import java.io.File;
 import java.util.function.Consumer;
 
-import org.lwjgl.glfw.GLFW;
+import org.lwjgl.sdl.SDLScancode;
 
 import com.g4mesoft.G4mespeedMod;
 import com.g4mesoft.GSExtensionInfo;
@@ -116,7 +116,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 
 			keyManager.loadKeys(getHotkeySettingsFile());
 
-			openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, GLFW.GLFW_KEY_G, () -> {
+			openGUIKey = keyManager.registerKey(GUI_KEY_NAME, GS_KEY_CATEGORY, SDLScancode.SDL_SCANCODE_G, () -> {
 				// Use lambda to ensure that contentHistoryGUI has been initialized.
 				if (contentHistoryGUI != null) {
 					GSPanelContext.openContent(contentHistoryGUI);
@@ -161,7 +161,7 @@ public class GSClientController extends GSController implements GSIClientModuleM
 		
 		// Override quick actions when there is overlap with our hotkey.
 		InputConstants.Key key = ((GSIKeyMappingAccess)minecraft.options.keyQuickActions).gs_getKey();
-		return openGUIKey.getKeyCode().indexOf(key) != -1;
+		return openGUIKey.getKey().indexOf(key) != -1;
 	}
 	
 	@Override

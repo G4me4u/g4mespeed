@@ -39,6 +39,8 @@ import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
 import net.minecraft.network.protocol.game.VecDeltaCodec;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.world.entity.PositionPath;
 import net.minecraft.world.entity.Relative;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
@@ -111,7 +113,8 @@ public abstract class GSClientPacketListenerMixin extends ClientCommonPacketList
 			if (entity != null && isRecentlyMovedByPiston(entity)) {
 				// Update the tracked position such that the entity position
 				// does not get out of sync later.
-				Vec3 pos = packet.values().position();
+				PositionPath positionPath = packet.position();
+				Vec3 pos = positionPath.endPosition();
 				entity.getPositionCodec().setBase(pos);
 				ci.cancel();
 			}
@@ -138,15 +141,15 @@ public abstract class GSClientPacketListenerMixin extends ClientCommonPacketList
 			if (entity != null && isRecentlyMovedByPiston(entity)) {
 				if (packet.hasPosition()) {
 					// See comment above.
-					VecDeltaCodec trackedPosition = entity.getPositionCodec();
-					Vec3 pos = trackedPosition.decode(packet.getXa(), packet.getYa(), packet.getZa());
-					trackedPosition.setBase(pos);
+					VecDeltaCodec positionCodec = entity.getPositionCodec();
+					PositionPath pos = packet.getPositionDelta().decode(positionCodec);
+					positionCodec.setBase(pos.endPosition());
 				}
 				
 				if (!entity.isLocalInstanceAuthoritative()) {
 					if (packet.hasRotation()) {
 						// Do not ignore rotation changes.
-						entity.moveOrInterpolateTo(entity.position(), packet.getYRot(), packet.getXRot());
+						entity.moveOrInterpolateTo(packet.getYRot(), packet.getXRot());
 					}
 					
 					entity.setOnGround(packet.isOnGround());
@@ -194,8 +197,15 @@ public abstract class GSClientPacketListenerMixin extends ClientCommonPacketList
 				if (Math.abs(dx) < IGNORE_TELEPORT_MAX_DISTANCE &&
 				    Math.abs(dy) < IGNORE_TELEPORT_MAX_DISTANCE &&
 				    Math.abs(dz) < IGNORE_TELEPORT_MAX_DISTANCE) {
+
+					// Compute new position and rotation of player for confirmation.
+					PositionMoveRotation currentValues = PositionMoveRotation.of(player);
+					PositionMoveRotation newValues = PositionMoveRotation.calculateAbsolute(currentValues, packet.change(), packet.relatives());
+					Vec3 newPos = newValues.position();
+					float newXRot = newValues.xRot();
+					float newYRot = newValues.yRot();
 					
-					connection.send(new ServerboundAcceptTeleportationPacket(packet.id()));
+					connection.send(new ServerboundAcceptTeleportationPacket(packet.id(), newPos.x, newPos.y, newPos.z, newYRot, newXRot));
 					ci.cancel();
 				}
 			}

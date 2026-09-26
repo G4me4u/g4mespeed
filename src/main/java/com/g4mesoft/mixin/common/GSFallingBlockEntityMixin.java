@@ -49,9 +49,8 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 	
 	@Redirect(
 		method = "tick",
-		expect = 1,
-		require = 1,
-		allow = 1,
+		require = 2,
+		allow = 2,
 		at = @At(
 			value = "INVOKE",
 			target =
@@ -61,7 +60,7 @@ public abstract class GSFallingBlockEntityMixin extends Entity {
 				")V"
 		)
 	)
-	private void redirectSendToOtherNearbyPlayers(ChunkMap chunkStorage, Entity entity, Packet<? super ClientGamePacketListener> packet) {
+	private void redirectSendToTrackingPlayers(ChunkMap chunkStorage, Entity entity, Packet<? super ClientGamePacketListener> packet) {
 		Level level = level();
 		if (level.isClientSide() || GSServerController.getInstance().getTpsModule().sPrettySand.get() == GSTpsModule.PRETTY_SAND_DISABLED)
 			chunkStorage.sendToTrackingPlayers(entity, packet);

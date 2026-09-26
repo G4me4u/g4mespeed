@@ -10,13 +10,13 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
-public class GSKeyCode {
+public class GSMultiKey {
 
-	public static final GSKeyCode UNKNOWN_KEY = new GSKeyCode(new InputConstants.Key[] { InputConstants.UNKNOWN });
+	public static final GSMultiKey UNKNOWN_KEY = new GSMultiKey(new InputConstants.Key[] { InputConstants.UNKNOWN });
 	
 	private InputConstants.Key[] keys;
 	
-	private GSKeyCode(InputConstants.Key[] keys) {
+	private GSMultiKey(InputConstants.Key[] keys) {
 		this.keys = keys;
 	}
 
@@ -56,29 +56,29 @@ public class GSKeyCode {
 	public boolean equals(Object other) {
 		if (other == this)
 			return true;
-		if (!(other instanceof GSKeyCode))
+		if (!(other instanceof GSMultiKey))
 			return false;
-		return Arrays.equals(keys, ((GSKeyCode)other).keys);
+		return Arrays.equals(keys, ((GSMultiKey)other).keys);
 	}
 	
-	public static GSKeyCode fromType(InputConstants.Type type, int code) {
-		return fromKey(type.getOrCreate(code));
+	public static GSMultiKey fromType(InputConstants.Type type, int scanCodeOrButton) {
+		return fromKey(type.getOrCreate(scanCodeOrButton));
 	}
 	
-	public static GSKeyCode fromKeyCode(int keyCode, int scanCode) {
-		KeyEvent input = new KeyEvent(keyCode, scanCode, GSEvent.NO_MODIFIERS);
+	public static GSMultiKey fromKeyCode(int keyCode, int scanCode) {
+		KeyEvent input = new KeyEvent(scanCode, keyCode, GSEvent.NO_MODIFIERS);
 		return fromKey(InputConstants.getKey(input));
 	}
 	
-	public static GSKeyCode fromKey(Key key) {
+	public static GSMultiKey fromKey(Key key) {
 		return fromKeys(key);
 	}
 	
-	public static GSKeyCode fromKeys(Key... keys) {
+	public static GSMultiKey fromKeys(Key... keys) {
 		if (keys.length == 0)
 			throw new IllegalArgumentException("Must contain at least one key!");
 		if (keys.length == 1 && keys[0] == InputConstants.UNKNOWN)
 			return UNKNOWN_KEY;
-		return new GSKeyCode(keys);
+		return new GSMultiKey(keys);
 	}
 }

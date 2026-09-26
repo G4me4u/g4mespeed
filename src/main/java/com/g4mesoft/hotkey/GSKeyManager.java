@@ -25,7 +25,7 @@ import net.minecraft.client.input.MouseButtonInfo;
 @Environment(EnvType.CLIENT)
 public class GSKeyManager {
 	
-	private final Map<String, Map<String, GSKeyCode>> keySettings;
+	private final Map<String, Map<String, GSMultiKey>> keySettings;
 
 	private final List<GSKeyBinding> keyBindings;
 	private final Map<InputConstants.Key, LinkedList<GSKeyBinding>> codeToKeys;
@@ -71,7 +71,7 @@ public class GSKeyManager {
 					}
 				}
 				
-				setKeySetting(args[0], args[1], GSKeyCode.fromKeys(keys));
+				setKeySetting(args[0], args[1], GSMultiKey.fromKeys(keys));
 			}
 		} catch (IOException e) {
 		}
@@ -82,18 +82,18 @@ public class GSKeyManager {
 			GSFileUtil.ensureFileExists(keySettingsFile);
 			
 			try (BufferedWriter bw = new BufferedWriter(new FileWriter(keySettingsFile))) {
-				for (Map.Entry<String, Map<String, GSKeyCode>> categorySettings : keySettings.entrySet()) {
+				for (Map.Entry<String, Map<String, GSMultiKey>> categorySettings : keySettings.entrySet()) {
 					String category = categorySettings.getKey();
-					for (Map.Entry<String, GSKeyCode> setting : categorySettings.getValue().entrySet()) {
+					for (Map.Entry<String, GSMultiKey> setting : categorySettings.getValue().entrySet()) {
 						bw.write(category);
 						bw.write(':');
 						bw.write(setting.getKey());
 						bw.write(':');
-						GSKeyCode keyCode = setting.getValue();
-						for (int i = 0; i < keyCode.getKeyCount(); i++) {
+						GSMultiKey multiKey = setting.getValue();
+						for (int i = 0; i < multiKey.getKeyCount(); i++) {
 							if (i != 0)
 								bw.write(',');
-							bw.write(keyCode.get(i).getName());
+							bw.write(multiKey.get(i).getName());
 						}
 						bw.newLine();
 					}
@@ -103,82 +103,82 @@ public class GSKeyManager {
 		}
 	}
 	
-	private GSKeyCode getKeySetting(String category, String keyName) {
+	private GSMultiKey getKeySetting(String category, String keyName) {
 		synchronized (keySettings) {
-			Map<String, GSKeyCode> categorySettings = keySettings.get(category);
+			Map<String, GSMultiKey> categorySettings = keySettings.get(category);
 			return (categorySettings == null) ? null : categorySettings.get(keyName);
 		}
 	}
 
-	private void setKeySetting(String category, String keyName, GSKeyCode keyCode) {
+	private void setKeySetting(String category, String keyName, GSMultiKey multiKey) {
 		synchronized (keySettings) {
-			Map<String, GSKeyCode> categorySettings = keySettings.get(category);
+			Map<String, GSMultiKey> categorySettings = keySettings.get(category);
 			if (categorySettings == null) {
 				categorySettings = new HashMap<>();
 				keySettings.put(category, categorySettings);
 			}
 			
-			categorySettings.put(keyName, keyCode);
+			categorySettings.put(keyName, multiKey);
 		}
 	}
 
-	public GSKeyBinding registerKey(String name, String category, int keyCode, Runnable listener, GSEKeyEventType eventType) {
-		return registerKey(name, category, keyCode, listener, eventType, true);
+	public GSKeyBinding registerKey(String name, String category, int scanCode, Runnable listener, GSEKeyEventType eventType) {
+		return registerKey(name, category, scanCode, listener, eventType, true);
 	}
 	
-	public GSKeyBinding registerKey(String name, String category, int keyCode, Runnable listener, GSEKeyEventType eventType, boolean allowDisabled) {
-		return registerKey(name, category, GSKeyCode.fromType(InputConstants.Type.KEYSYM, keyCode), listener, eventType, allowDisabled);
+	public GSKeyBinding registerKey(String name, String category, int scanCode, Runnable listener, GSEKeyEventType eventType, boolean allowDisabled) {
+		return registerKey(name, category, GSMultiKey.fromType(InputConstants.Type.KEYBOARD, scanCode), listener, eventType, allowDisabled);
 	}
 	
-	public GSKeyBinding registerKey(String name, String category, GSKeyCode keyCode, Runnable listener, GSEKeyEventType eventType) {
-		return registerKey(name, category, keyCode, listener, eventType, true);
+	public GSKeyBinding registerKey(String name, String category, GSMultiKey multiKey, Runnable listener, GSEKeyEventType eventType) {
+		return registerKey(name, category, multiKey, listener, eventType, true);
 	}
 
-	public GSKeyBinding registerKey(String name, String category, GSKeyCode keyCode, Runnable listener, GSEKeyEventType eventType, boolean allowDisabled) {
+	public GSKeyBinding registerKey(String name, String category, GSMultiKey multiKey, Runnable listener, GSEKeyEventType eventType, boolean allowDisabled) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener is null");
 		
-		return registerKeyImpl(name, category, keyCode, (_, type) -> {
+		return registerKeyImpl(name, category, multiKey, (_, type) -> {
 			if (type == eventType)
 				listener.run();
 		}, allowDisabled);
 	}
 
-	public <T> GSKeyBinding registerKey(String name, String category, int keyCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType) {
-		return registerKey(name, category, keyCode, listenerData, listener, eventType, true);
+	public <T> GSKeyBinding registerKey(String name, String category, int scanCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType) {
+		return registerKey(name, category, scanCode, listenerData, listener, eventType, true);
 	}
 
-	public <T> GSKeyBinding registerKey(String name, String category, int keyCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType, boolean allowDisabled) {
-		return registerKey(name, category, GSKeyCode.fromType(InputConstants.Type.KEYSYM, keyCode), listenerData, listener, eventType, allowDisabled);
+	public <T> GSKeyBinding registerKey(String name, String category, int scanCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType, boolean allowDisabled) {
+		return registerKey(name, category, GSMultiKey.fromType(InputConstants.Type.KEYBOARD, scanCode), listenerData, listener, eventType, allowDisabled);
 	}
 
-	public <T> GSKeyBinding registerKey(String name, String category, GSKeyCode keyCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType) {
-		return registerKey(name, category, keyCode, listenerData, listener, eventType, true);
+	public <T> GSKeyBinding registerKey(String name, String category, GSMultiKey multiKey, T listenerData, Consumer<T> listener, GSEKeyEventType eventType) {
+		return registerKey(name, category, multiKey, listenerData, listener, eventType, true);
 	}
 
-	public <T> GSKeyBinding registerKey(String name, String category, GSKeyCode keyCode, T listenerData, Consumer<T> listener, GSEKeyEventType eventType, boolean allowDisabled) {
+	public <T> GSKeyBinding registerKey(String name, String category, GSMultiKey multiKey, T listenerData, Consumer<T> listener, GSEKeyEventType eventType, boolean allowDisabled) {
 		if (listener == null)
 			throw new IllegalArgumentException("Listener is null");
 		
-		return registerKeyImpl(name, category, keyCode, (_, type) -> {
+		return registerKeyImpl(name, category, multiKey, (_, type) -> {
 			if (type == eventType)
 				listener.accept(listenerData);
 		}, allowDisabled);
 	}
 	
-	public GSKeyBinding registerKey(String name, String category, GSKeyCode keyCode) {
-		return registerKey(name, category, keyCode, true);
+	public GSKeyBinding registerKey(String name, String category, GSMultiKey multiKey) {
+		return registerKey(name, category, multiKey, true);
 	}
 
-	public GSKeyBinding registerKey(String name, String category, GSKeyCode keyCode, boolean allowDisabled) {
-		return registerKeyImpl(name, category, keyCode, null, allowDisabled);
+	public GSKeyBinding registerKey(String name, String category, GSMultiKey multiKey, boolean allowDisabled) {
+		return registerKeyImpl(name, category, multiKey, null, allowDisabled);
 	}
 
-	private GSKeyBinding registerKeyImpl(String name, String category, GSKeyCode keyCode, GSIKeyBindingListener listener, boolean allowDisabled) {
+	private GSKeyBinding registerKeyImpl(String name, String category, GSMultiKey multiKey, GSIKeyBindingListener listener, boolean allowDisabled) {
 		if (name.contains(":") || category.contains(":"))
 			throw new IllegalArgumentException("Invalid name or category! It must not contains ':'!");
 		
-		GSKeyBinding keyBinding = new GSKeyBinding(this, name, category, keyCode, allowDisabled, 0);
+		GSKeyBinding keyBinding = new GSKeyBinding(this, name, category, multiKey, allowDisabled, 0);
 		keyBinding.setKeyListener(listener);
 		addKeyBinding(keyBinding);
 		
@@ -190,13 +190,13 @@ public class GSKeyManager {
 	
 	private void addKeyBinding(GSKeyBinding keyBinding) {
 		keyBindings.add(keyBinding);
-		addKeyCodeMapping(keyBinding);
+		addKeyMapping(keyBinding);
 		
-		GSKeyCode keyCodeSetting = getKeySetting(keyBinding.getCategory(), keyBinding.getName());
-		if (keyCodeSetting != null) {
-			keyBinding.setKeyCode(keyCodeSetting);
+		GSMultiKey multiKeySetting = getKeySetting(keyBinding.getCategory(), keyBinding.getName());
+		if (multiKeySetting != null) {
+			keyBinding.setKey(multiKeySetting);
 		} else {
-			setKeySetting(keyBinding.getCategory(), keyBinding.getName(), keyBinding.getKeyCode());
+			setKeySetting(keyBinding.getCategory(), keyBinding.getName(), keyBinding.getKey());
 		}
 	}
 	
@@ -214,10 +214,10 @@ public class GSKeyManager {
 		}
 	}
 	
-	protected void onKeyCodeChanged(GSKeyBinding keyBinding, GSKeyCode oldKeyCode, GSKeyCode keyCode) {
+	protected void onKeyChanged(GSKeyBinding keyBinding, GSMultiKey oldMultiKey, GSMultiKey multiKey) {
 		synchronized(codeToKeys) {
-			for (int i = 0; i < oldKeyCode.getKeyCount(); i++) {
-				InputConstants.Key key = oldKeyCode.get(i);
+			for (int i = 0; i < oldMultiKey.getKeyCount(); i++) {
+				InputConstants.Key key = oldMultiKey.get(i);
 
 				List<GSKeyBinding> keysWithOldCode = codeToKeys.get(key);
 				if (keysWithOldCode != null) {
@@ -228,16 +228,16 @@ public class GSKeyManager {
 			}
 		}
 		
-		addKeyCodeMapping(keyBinding);
+		addKeyMapping(keyBinding);
 		
-		setKeySetting(keyBinding.getCategory(), keyBinding.getName(), keyCode);
+		setKeySetting(keyBinding.getCategory(), keyBinding.getName(), multiKey);
 	}
 	
-	private void addKeyCodeMapping(GSKeyBinding keyBinding) {
+	private void addKeyMapping(GSKeyBinding keyBinding) {
 		synchronized(codeToKeys) {
-			GSKeyCode keyCode = keyBinding.getKeyCode();
-			for (int i = 0; i < keyCode.getKeyCount(); i++) {
-				InputConstants.Key key = keyCode.get(i);
+			GSMultiKey multiKey = keyBinding.getKey();
+			for (int i = 0; i < multiKey.getKeyCount(); i++) {
+				InputConstants.Key key = multiKey.get(i);
 				
 				LinkedList<GSKeyBinding> keysWithCode = codeToKeys.get(key);
 				if (keysWithCode == null) {

@@ -1,6 +1,5 @@
 package com.g4mesoft.mixin.client;
 
-import org.lwjgl.glfw.GLFW;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -37,9 +36,9 @@ public class GSKeyboardHandlerMixin {
 			GSKeyManager keyManager = GSClientController.getInstance().getKeyManager();
 
 			keyManager.clearEventQueue();
-			if (action == GLFW.GLFW_RELEASE) {
+			if (action == 0) {
 				keyManager.onKeyReleased(input);
-			} else if (action == GLFW.GLFW_PRESS) {
+			} else if (action == 1) {
 				keyManager.onKeyPressed(input);
 			}
 		}
@@ -104,7 +103,7 @@ public class GSKeyboardHandlerMixin {
 		)
 	)
 	private void onKeyPressRepeat(long windowHandle, int action, KeyEvent input, CallbackInfo ci) {
-		if (action == GLFW.GLFW_PRESS)
+		if (action == 1)
 			GSClientController.getInstance().getKeyManager().dispatchEvents(GSEKeyEventType.PRESS);
 	}
 }

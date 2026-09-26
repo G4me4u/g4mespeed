@@ -67,28 +67,6 @@ public abstract class GSServerGamePacketListenerImplMixin extends ServerCommonPa
 			aboveGroundTickCount--;
 	}
 	
-	@ModifyConstant(
-		method = "handleMovePlayer",
-		allow = 1,
-		constant = @Constant(
-			intValue = 5
-		), slice = @Slice(
-			from = @At(
-				value = "FIELD",
-				opcode = Opcodes.PUTFIELD,
-				target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;receivedMovePacketCount:I"
-			),
-			to = @At(
-				value = "CONSTANT",
-				args = "stringValue={} is sending move packets too frequently ({} packets since last tick)"
-			)
-		)
-	)
-	private int onHandleMovePlayerModifyConstant5(int oldValue) {
-		// Allow for "infinite" packets between ticks when using fixed movement.
-		return gs_fixedMovement ? Integer.MAX_VALUE : oldValue;
-	}
-	
 	@Inject(
 		method = "handleMovePlayer",
 		at = @At(
@@ -114,9 +92,31 @@ public abstract class GSServerGamePacketListenerImplMixin extends ServerCommonPa
 		
 		((GSIServerChunkCacheAccess)player.level().getChunkSource()).gs_setTrackerFixedMovement(player, trackerFixedMovement);
 	}
+	
+	@ModifyConstant(
+		method = "handlePlayerPositionChange",
+		allow = 1,
+		constant = @Constant(
+			intValue = 5
+		), slice = @Slice(
+			from = @At(
+				value = "FIELD",
+				opcode = Opcodes.PUTFIELD,
+				target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;receivedMovePacketCount:I"
+			),
+			to = @At(
+				value = "CONSTANT",
+				args = "stringValue={} is sending move packets too frequently ({} packets since last tick)"
+			)
+		)
+	)
+	private int onHandlePlayerPositionChangeModifyConstant5(int oldValue) {
+		// Allow for "infinite" packets between ticks when using fixed movement.
+		return gs_fixedMovement ? Integer.MAX_VALUE : oldValue;
+	}
 
 	@Inject(
-		method = "handleMovePlayer",
+		method = "handlePlayerPositionChange",
 		at = @At(
 			value = "INVOKE",
 			shift = Shift.AFTER,
@@ -128,7 +128,7 @@ public abstract class GSServerGamePacketListenerImplMixin extends ServerCommonPa
 				")V"
 		)
 	)
-	private void onHandleMovePlayerUpdateCameraPosition(ServerboundMovePlayerPacket packet, CallbackInfo ci) {
+	private void onHandlePlayerPositionChangeUpdateCameraPosition(CallbackInfo ci) {
 		if (gs_trackerFixedMovement)
 			((GSIServerChunkCacheAccess)player.level().getChunkSource()).gs_tickEntityTracker(player);
 	}

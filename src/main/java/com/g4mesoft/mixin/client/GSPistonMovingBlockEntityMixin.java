@@ -265,7 +265,7 @@ public abstract class GSPistonMovingBlockEntityMixin extends BlockEntity impleme
 
 				while (entityItr.hasNext()) {
 					Entity entity = entityItr.next();
-					if (entity.getPistonPushReaction() != PushReaction.IGNORE) {
+					if (entity.getPistonPushReaction() != PushReaction.IGNORE_ENTITY) {
 						// The player check is not really required, but if we want to
 						// run this method on the server, it is probably a good idea.
 						if (!(entity instanceof ServerPlayer))

@@ -56,11 +56,11 @@ public class GSKeyBindingButtonStroke implements GSIButtonStroke {
 			return false;
 		}
 
-		KeyEvent input = new KeyEvent(event.getKeyCode(), event.getScanCode(), event.getModifiers());
+		KeyEvent input = new KeyEvent(event.getScanCode(), event.getKeyCode(), event.getModifiers());
 		return isKeyMatching(InputConstants.getKey(input));
 	}
 	
 	private boolean isKeyMatching(InputConstants.Key key) {
-		return (keyBinding.getKeyCode().indexOf(key) != -1);
+		return (keyBinding.getKey().indexOf(key) != -1);
 	}
 }
